@@ -1,0 +1,29 @@
+{
+  "name": "cms",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/cms/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "cms:build",
+        "runBuildTargetDependencies": false,
+        "watch": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "cms:build:development"
+        },
+        "production": {
+          "buildTarget": "cms:build:production"
+        }
+      }
+    },
+    "lint": {},
+    "test": {}
+  },
+  "tags": ["scope:cms", "type:app"]
+}

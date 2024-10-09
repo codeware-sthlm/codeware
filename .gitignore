@@ -8,6 +8,11 @@ tmp
 # dependencies
 node_modules
 
+# Unsupported package managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
 # IDEs and editors
 /.idea
 .project

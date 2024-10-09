@@ -26,10 +26,10 @@ jobs:
           bun-version: latest
 
       # This enables task distribution via Nx Cloud
-      # Run this command as early as possible, before dependencies are installed
-      - run: bunx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
+      - run: bunx nx-cloud start-ci-run --distribute-on="3 linux-small-js-with-bun" --stop-agents-after="e2e-ci"
 
       - run: bun install --no-cache
       - uses: nrwl/nx-set-shas@v4
 
+      - run: bun nx-cloud record -- nx format:check
       - run: bun nx affected -t lint test build e2e-ci

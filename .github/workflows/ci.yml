@@ -1,10 +1,17 @@
 name: CI
 
 on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  merge_group:
   push:
     branches:
-      - main
-  pull_request:
+      - master
+      - 'renovate/**'
+  workflow_dispatch:
 
 permissions:
   actions: read
@@ -25,11 +32,18 @@ jobs:
         with:
           bun-version: latest
 
-      # This enables task distribution via Nx Cloud
       - run: bunx nx-cloud start-ci-run --distribute-on="3 linux-small-js-with-bun" --stop-agents-after="e2e-ci"
+        if: ${{ vars.NX_NO_CLOUD != 'true' }}
 
       - run: bun install --no-cache
       - uses: nrwl/nx-set-shas@v4
 
-      - run: bun nx-cloud record -- nx format:check
-      - run: bun nx affected -t lint test build e2e-ci
+      - run: bunx nx-cloud record -- nx format:check
+        if: ${{ vars.NX_NO_CLOUD != 'true' }}
+        shell: bash
+
+      # TODO: activate once bun is replaced with pnpm
+      # - run: bunx nx affected -t lint,test,build --parallel=3 -c ci
+      #   shell: bash
+      #   env:
+      #     NX_NO_CLOUD: ${{ vars.NX_NO_CLOUD }}

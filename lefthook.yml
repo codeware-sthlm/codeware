@@ -1,0 +1,27 @@
+# https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md
+
+skip_output:
+  - meta
+  - execution_out
+
+# Lint and auto-fix issues when possible (fixes are staged), before changes are commited
+pre-commit:
+  # Run in sequence to prevent potential(?) race conditions between format and lint
+  parallel: false
+  commands:
+    # `.prettierignore` is applied
+    format:
+      run: npx nx format:write --files="{staged_files}"
+      stage_fixed: true
+
+    # `eslint.config.js` and `.eslintignore` are applied
+    lint:
+      glob: '**/*.{js,jsx,cjs,mjs,ts,tsx,html}'
+      run: npx eslint --fix "{staged_files}"
+      stage_fixed: true
+
+# Lint commit message after pre-commit
+commit-msg:
+  commands:
+    lint-commit-message:
+      run: yarn run commitlint --edit {1}

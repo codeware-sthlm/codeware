@@ -67,7 +67,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "jsdom": "~22.1.0",
     "nx": "20.0.0",
-    "postcss": "8.4.38",
+    "postcss": "8.4.47",
     "prettier": "^2.6.2",
     "react-refresh": "^0.10.0",
     "rimraf": "latest",

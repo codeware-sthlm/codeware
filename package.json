@@ -71,7 +71,7 @@
     "prettier": "^2.6.2",
     "react-refresh": "^0.10.0",
     "rimraf": "latest",
-    "tailwindcss": "3.4.3",
+    "tailwindcss": "3.4.14",
     "ts-node": "10.9.1",
     "tslib": "^2.4.1",
     "typescript": "~5.5.2",

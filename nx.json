@@ -67,5 +67,6 @@
       }
     }
   },
-  "defaultProject": "cms"
+  "defaultProject": "cms",
+  "useLegacyCache": true
 }

@@ -1,4 +1,5 @@
 const playwright = require('eslint-plugin-playwright');
+
 const baseConfig = require('../../eslint.config.js');
 
 module.exports = [
@@ -8,6 +9,6 @@ module.exports = [
   {
     files: ['**/*.ts', '**/*.js'],
     // Override or add rules here
-    rules: {},
-  },
+    rules: {}
+  }
 ];

@@ -12,20 +12,20 @@ export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: Users.slug,
-    buildPath: resolve(cwd(), 'dist/apps/cms/build'),
+    buildPath: resolve(cwd(), 'dist/apps/cms/build')
   },
   collections: [Users],
   db: postgresAdapter({
     pool: { connectionString: process.env.POSTGRES_URL },
-    migrationDir: resolve(__dirname, 'migrations'),
+    migrationDir: resolve(__dirname, 'migrations')
   }),
   editor: slateEditor({}),
   typescript: {
-    outputFile: resolve(__dirname, 'generated/payload-types.ts'),
+    outputFile: resolve(__dirname, 'generated/payload-types.ts')
   },
   graphQL: {
     disable: false,
-    schemaOutputFile: resolve(__dirname, 'generated/schema.graphql'),
+    schemaOutputFile: resolve(__dirname, 'generated/schema.graphql')
   },
-  telemetry: false,
+  telemetry: false
 });

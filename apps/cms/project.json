@@ -4,6 +4,15 @@
   "sourceRoot": "apps/cms/src",
   "projectType": "application",
   "targets": {
+    "build": {
+      "inputs": [
+        "default",
+        "^production",
+        {
+          "externalDependencies": []
+        }
+      ]
+    },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",

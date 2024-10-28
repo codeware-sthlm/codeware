@@ -1,5 +1,6 @@
 .DS_Store
 .git
+.github
 
 # Config
 .settings
@@ -17,3 +18,13 @@ coverage
 dist
 node_modules
 tmp
+
+# Lock files
+bun.lockb
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Apps
+/apps/*
+!/apps/cms

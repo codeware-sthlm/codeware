@@ -9,7 +9,8 @@
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/eslint.config.js",
       "!{projectRoot}/src/test-setup.[jt]s",
-      "!{projectRoot}/test-setup.[jt]s"
+      "!{projectRoot}/test-setup.[jt]s",
+      "!{projectRoot}/jest.config.[jt]s"
     ],
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
@@ -41,10 +42,40 @@
     "@cdwr/nx-payload/plugin"
   ],
   "targetDefaults": {
+    "@nx/jest:jest": {
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/jest.preset.js",
+        "{workspaceRoot}/**/*.spec.ts"
+      ],
+      "options": {
+        "passWithNoTests": true,
+        "jestConfig": "{projectRoot}/jest.config.ts"
+      },
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      },
+      "cache": true
+    },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"]
     },
     "@nx/webpack:webpack": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/js:swc": {
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
@@ -68,5 +99,10 @@
     }
   },
   "defaultProject": "cms",
+  "release": {
+    "version": {
+      "preVersionCommand": "pnpm nx run-many -t build"
+    }
+  },
   "useLegacyCache": true
 }

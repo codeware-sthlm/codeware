@@ -1,0 +1,36 @@
+name: Nx migrate
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every day at 6am UTC
+    - cron: '0 6 * * *'
+
+jobs:
+  nx-migrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build action
+        run: pnpm nx build nx-migrate-action
+
+      - name: Run Nx migrate
+        uses: ./packages/nx-migrate-action
+        with:
+          token: ${{ secrets.GH_BOT_TOKEN }}
+          auto-merge: ${{ vars.NX_AUTO_MIGRATE }}
+          dry-run: ${{ vars.NX_MIGRATE_DRY_RUN }}

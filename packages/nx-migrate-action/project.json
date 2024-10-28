@@ -1,0 +1,39 @@
+{
+  "name": "nx-migrate-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/nx-migrate-action/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
+  "tags": ["scope:packages", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "packages/nx-migrate-action/dist",
+        "tsConfig": "packages/nx-migrate-action/tsconfig.lib.json",
+        "packageJson": "packages/nx-migrate-action/package.json",
+        "main": "packages/nx-migrate-action/src/index.ts",
+        "assets": [
+          "packages/nx-migrate-action/*.md",
+          "packages/nx-migrate-action/action.yml"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest"
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}

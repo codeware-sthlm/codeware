@@ -15,3 +15,9 @@
   <br />
   <br />
 </p>
+
+## Packages
+
+### [`nx-migrate-action`](packages/nx-migrate-action)
+
+GitHub action that brings automatic Nx migrations to your workspace.

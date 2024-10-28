@@ -1,0 +1,30 @@
+{
+  "name": "@cdwr/nx-migrate-action",
+  "version": "0.0.1",
+  "private": false,
+  "description": "The Nx Migrate GitHub Action will keep your workspace up to date.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "directory": "packages/nx-migrate-action"
+  },
+  "license": "MIT",
+  "keywords": [
+    "Nx",
+    "Automation",
+    "GitHub Actions"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.0",
+    "@nx/devkit": "20.0.5",
+    "replace-in-file": "^7.2.0",
+    "zod": "^3.23.8"
+  },
+  "type": "module",
+  "main": "./index.js"
+}

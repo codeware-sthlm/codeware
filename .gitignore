@@ -30,6 +30,7 @@ yarn.lock
 !.vscode/extensions.json
 
 # misc
+/.pnpm-store
 /.sass-cache
 /.pnpm-store
 /connect.lock
@@ -50,3 +51,6 @@ Thumbs.db
 migrations.json
 
 **/vite.config.{js,ts,mjs,mts,cjs,cts}.timestamp*
+
+# Act
+.secrets

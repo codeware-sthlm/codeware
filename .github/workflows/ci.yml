@@ -37,13 +37,13 @@ jobs:
           node-version: 'lts/*'
           cache: 'pnpm'
 
-      - run: pnpm nx-cloud start-ci-run --distribute-on="3 linux-small-js" --stop-agents-after="e2e-ci"
+      - run: pnpx nx-cloud start-ci-run --distribute-on="3 linux-small-js" --stop-agents-after="e2e-ci"
         if: ${{ vars.NX_NO_CLOUD != 'true' }}
 
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
 
-      - run: pnpm nx-cloud record -- nx format:check
+      - run: pnpx nx-cloud record -- nx format:check
         if: ${{ vars.NX_NO_CLOUD != 'true' }}
         shell: bash
 

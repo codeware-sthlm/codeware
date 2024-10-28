@@ -1,4 +1,5 @@
 const { execSync } = require('child_process');
+
 const { defaultConfig, RuleConfigSeverity } = require('cz-git');
 
 // Resolve scopes from Nx projects, except e2e

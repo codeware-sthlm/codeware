@@ -9,7 +9,8 @@
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/eslint.config.js",
       "!{projectRoot}/src/test-setup.[jt]s",
-      "!{projectRoot}/test-setup.[jt]s"
+      "!{projectRoot}/test-setup.[jt]s",
+      "!{projectRoot}/jest.config.[jt]s"
     ],
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
@@ -41,6 +42,26 @@
     "@cdwr/nx-payload/plugin"
   ],
   "targetDefaults": {
+    "@nx/jest:jest": {
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/jest.preset.js",
+        "{workspaceRoot}/**/*.spec.ts"
+      ],
+      "options": {
+        "passWithNoTests": true,
+        "jestConfig": "{projectRoot}/jest.config.ts"
+      },
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      },
+      "cache": true
+    },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"]
     },
@@ -48,9 +69,54 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/js:swc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/esbuild:esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "generators": {
+    "@nx/js": {
+      "library": {
+        "bundler": "esbuild",
+        "linter": "eslint",
+        "minimal": true,
+        "publishable": true,
+        "simpleName": true,
+        "testEnvironment": "node",
+        "unitTestRunner": "vitest"
+      }
+    },
+    "@nx/node": {
+      "application": {
+        "bundler": "esbuild",
+        "docker": true,
+        "e2eTestRunner": "none",
+        "linter": "eslint",
+        "swcJest": true,
+        "unitTestRunner": "jest"
+      },
+      "library": {
+        "buildable": true,
+        "compiler": "swc",
+        "linter": "eslint",
+        "publishable": true,
+        "simpleModuleName": true,
+        "testEnvironment": "node",
+        "unitTestRunner": "jest"
+      }
+    },
     "@nx/react": {
       "application": {
         "babel": true,
@@ -68,5 +134,11 @@
     }
   },
   "defaultProject": "cms",
+  "release": {
+    "version": {
+      "generatorOptions": { "fallbackCurrentVersionResolver": "disk" },
+      "preVersionCommand": "pnpm nx run-many -t build"
+    }
+  },
   "useLegacyCache": true
 }

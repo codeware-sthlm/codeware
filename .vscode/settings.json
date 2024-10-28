@@ -6,7 +6,12 @@
   "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
   "eslint.validate": ["json"],
-  "jest.runMode": "on-demand",
+  "jest.runMode": {
+    "coverage": true,
+    "deferred": true,
+    "runAllTestsOnStartup": false,
+    "type": "on-save"
+  },
   "[json]": {
     "editor.codeActionsOnSave": {
       "source.fixAll": "never"

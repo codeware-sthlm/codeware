@@ -1,7 +1,6 @@
+FROM node:20-alpine AS base
 
-FROM node:20-alpine as base
-
-FROM base as builder
+FROM base AS builder
 
 ARG MONGO_URL
 ARG NODE_ENV
@@ -15,25 +14,24 @@ ENV PORT=${PORT}
 
 WORKDIR /app
 
+# Copy package.json first to leverage Docker cache for dependencies
 COPY package.json ./
-RUN bun install
+RUN npm install
 
 COPY . .
 
-RUN bun nx build cms --no-cloud
+RUN npx nx build cms
 
-# We'll create a structure similar to scaffolding a default payload workspace.
-# Admin build output should match `buildPath` in payload.config.ts.
-FROM base as runtime
+FROM base AS runtime
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 WORKDIR /app
 
 COPY --from=builder /app/dist/apps/cms/package.json ./
-RUN bun install
+RUN npm install --production
 
-COPY --from=builder /app/dist/apps/cms/src   ./dist
+COPY --from=builder /app/dist/apps/cms/src ./dist
 COPY --from=builder /app/dist/apps/cms/build ./dist/apps/cms/build
 
 EXPOSE 3000

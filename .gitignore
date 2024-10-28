@@ -49,3 +49,6 @@ Thumbs.db
 migrations.json
 
 **/vite.config.{js,ts,mjs,mts,cjs,cts}.timestamp*
+
+# Act
+.secrets

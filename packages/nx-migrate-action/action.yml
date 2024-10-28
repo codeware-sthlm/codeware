@@ -1,0 +1,59 @@
+name: 'Nx Workspace Migrate'
+
+description: >
+  Automatically updates Nx workspace dependencies and creates a PR with the changes.
+
+inputs:
+  token:
+    description: >
+      Token with permission to handle pull requests and push to the 'main-branch'.
+    required: true
+  main-branch:
+    description: >
+      Name of the main branch to merge into.
+      Defaults to the repository's default branch.
+  auto-merge:
+    description: >
+      Whether to enable auto-merge for non-major updates.
+      Defaults to 'false'.
+  committer:
+    description: >
+      Name and email address of the committer in the format `Name <user@domain.io>`.
+      Defaults to the GitHub Actions bot user.
+  author:
+    description: >
+      Name and email address of the commit author in the format `Name <user@domain.io>`.
+      Defaults to the user who triggered the workflow run.
+  package-patterns:
+    description: >
+      Glob patterns to package.json files which may contain Nx packages to update.
+      Defaults to 'packages/**/package.json'.
+  pull-request-assignees:
+    description: >
+      Comma separated list of assignees for the created pull request.
+      Defaults to an empty list.
+  dry-run:
+    description: >
+      Whether to run the action without making any changes.
+      Defaults to 'false'.
+
+outputs:
+  current-version:
+    description: >
+      Current version of @nx/workspace.
+  latest-version:
+    description: >
+      Latest version of @nx/workspace.
+  is-major-update:
+    description: >
+      Whether this is a major version update.
+  is-migrated:
+    description: >
+      Whether a migration was performed.
+  pull-request:
+    description: >
+      Pull request number when there is one.
+
+runs:
+  using: 'node20'
+  main: './dist/src/action.js'

@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@cdwr/nx-migrate-action": ["packages/nx-migrate-action/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

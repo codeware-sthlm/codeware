@@ -59,7 +59,7 @@ importers:
         version: 9.13.0
       '@evilmartians/lefthook':
         specifier: ^1.8.0
-        version: 1.8.1
+        version: 1.8.2
       '@nx/cypress':
         specifier: 20.0.5
         version: 20.0.5(@babel/traverse@7.25.9)(@swc-node/register@1.10.9(@swc/core@1.7.40(@swc/helpers@0.5.13))(@swc/types@0.1.13)(typescript@5.6.3))(@swc/core@1.7.40(@swc/helpers@0.5.13))(@types/node@22.8.2)(@zkochan/js-yaml@0.0.7)(eslint@9.13.0(jiti@1.21.6))(nx@20.0.5(@swc-node/register@1.10.9(@swc/core@1.7.40(@swc/helpers@0.5.13))(@swc/types@0.1.13)(typescript@5.6.3))(@swc/core@1.7.40(@swc/helpers@0.5.13)))(typescript@5.6.3)
@@ -1874,8 +1874,8 @@ packages:
     resolution: {integrity: sha512-HFZ4Mp26nbWk9d/BpvP0YNL6W4UoZF0VFcTw/aPPA8RpOxeFQgK+ClABGgAUXs9Y/RGX/l1vOmrqz1MQt9MNuw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@evilmartians/lefthook@1.8.1':
-    resolution: {integrity: sha512-qalg0eJG2AV0/rIL4n3dIv33O9T6D/3q54SV0qZ6UaH472fI4WKLTjN/YRvfC8JziQQtMfOD8Awt480ydfyzOw==}
+  '@evilmartians/lefthook@1.8.2':
+    resolution: {integrity: sha512-SZdQk3W9q7tcJwnSwEMUubQqVIK7SHxv52hEAnV7o3nPI+xKcmd+rN0hZIJg07wjBaJRAjzdvoQySKQQYPW5Qw==}
     cpu: [x64, arm64, ia32]
     os: [darwin, linux, win32]
     hasBin: true
@@ -11726,7 +11726,7 @@ snapshots:
     dependencies:
       levn: 0.4.1
 
-  '@evilmartians/lefthook@1.8.1': {}
+  '@evilmartians/lefthook@1.8.2': {}
 
   '@faceless-ui/modal@2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:

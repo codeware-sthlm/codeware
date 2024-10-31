@@ -37,4 +37,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           auto-merge: ${{ vars.NX_AUTO_MIGRATE }}
+          check-token: ${{ vars.NX_MIGRATE_CHECK_TOKEN }}
           dry-run: ${{ vars.NX_MIGRATE_DRY_RUN }}

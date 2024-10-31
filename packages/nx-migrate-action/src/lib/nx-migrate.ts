@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as github from '@actions/github';
 import { getPackageManagerCommand } from '@nx/devkit';
 
 import { addPullRequestAssignees } from './utils/add-pull-request-assignees';
@@ -12,18 +13,69 @@ import { enablePullRequestAutoMerge } from './utils/enable-pull-request-auto-mer
 import { getFeatureBranchName } from './utils/get-feature-branch-name';
 import { getMigrateConfig } from './utils/get-migrate-config';
 import { getNxVersionInfo } from './utils/get-nx-version-info';
+import {
+  type TokenInfo,
+  getTokenPermissions
+} from './utils/get-token-permissions';
 import { revertToLatestGitCommit } from './utils/revert-to-latest-git-commit';
 import { runNxE2e } from './utils/run-nx-e2e';
 import { runNxTests } from './utils/run-nx-tests';
 import { ActionInputs, ActionOutputs } from './utils/types';
 import { updatePackageVersions } from './utils/update-package-versions';
 
+const printTokenPermissions = (token: TokenInfo) => {
+  core.startGroup('Token permissions');
+  core.info(`type: ${token.type}`);
+  core.info(`isValid: ${token.isValid}`);
+  core.info(`username: ${token.username}`);
+  core.info(`expiration: ${token.expiration}`);
+  core.info(`scopes: ${token.scopes?.join(', ')}`);
+  core.info('== Repo permissions ==');
+  for (const [key, value] of Object.entries(token.repoPermissions)) {
+    core.info(`- ${key}: ${value}`);
+  }
+  core.info('== Resolved permissions ==');
+  for (const [key, value] of Object.entries(token.resolvedPermissions)) {
+    core.info(`- ${key}: ${value}`);
+  }
+  core.endGroup();
+};
+
 export async function nxMigrate(
   inputs: ActionInputs,
   throwOnError = false
 ): Promise<ActionOutputs> {
   try {
+    core.startGroup('Starting nx migration process');
+    core.info(`owner: ${github.context.repo.owner}`);
+    core.info(`repo: ${github.context.repo.repo}`);
+    for (const [key, value] of Object.entries(github.context)) {
+      if (typeof value === 'string') {
+        core.info(`${key}: ${value}`);
+      }
+    }
+    core.endGroup();
+
+    if (inputs.checkToken) {
+      core.info('Check token is valid and has proper permissions');
+      const response = await getTokenPermissions(inputs.token);
+      const { isValid, resolvedPermissions } = response;
+
+      printTokenPermissions(response);
+
+      if (!isValid) {
+        throw new Error('Token is invalid or expired');
+      }
+      if (Object.values(resolvedPermissions).some((value) => value === false)) {
+        throw new Error('Token is missing some required permissions');
+      }
+    } else {
+      core.info('Skip token check');
+    }
+
     const pmc = getPackageManagerCommand();
+
+    core.startGroup('Analyze nx version state');
 
     // Get migration configuration from action inputs
     const config = await getMigrateConfig(inputs);
@@ -45,11 +97,14 @@ export async function nxMigrate(
         pullRequest: undefined
       };
     }
+    core.endGroup();
 
-    // Create temporary branch
+    // Create temporary feature branch
     if (config.dryRun) {
       core.info('Skip nx migration [dry-run]');
     } else {
+      core.startGroup('Migrate nx workspace');
+
       await exec.exec('git', [
         'checkout',
         '-b',
@@ -77,6 +132,8 @@ export async function nxMigrate(
 
       // Update version references in package.json files
       await updatePackageVersions(latestVersion, config.packagePatterns);
+
+      core.endGroup();
     }
 
     let pullRequest: number | undefined;
@@ -86,8 +143,11 @@ export async function nxMigrate(
     if (config.dryRun) {
       core.info('Skip tests [dry-run]');
     } else {
+      core.startGroup('Tests migration changes');
+
       // Commit before testing the changes
       await createMigrationGitCommit(
+        config.token,
         config.author,
         config.committer,
         latestVersion
@@ -102,11 +162,15 @@ export async function nxMigrate(
 
       // Cleanup test changes
       await revertToLatestGitCommit();
+
+      core.endGroup();
     }
 
     if (config.dryRun) {
       core.info('Skip pull request [dry-run]');
     } else {
+      core.startGroup('Create pull request');
+
       const pr = await createPullRequest(
         config.token,
         config.mainBranch,
@@ -136,9 +200,11 @@ export async function nxMigrate(
       }
 
       await cleanupPullRequests(config.token, pullRequest);
+
+      core.endGroup();
     }
 
-    core.debug('Nx migration done');
+    core.info('Nx migration done');
 
     return {
       currentVersion,

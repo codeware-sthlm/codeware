@@ -44,12 +44,13 @@ describe('main', () => {
     expect(core.debug).toHaveBeenCalled();
   });
 
-  it('should have valid inputs with all inputs provided', async () => {
+  it('should have valid inputs with all inputs provided truthly', async () => {
     await main.run();
 
     expect(nxMigrateMock).toHaveBeenCalledWith({
       token: 'token',
       autoMerge: true,
+      checkToken: true,
       committer: 'committer',
       author: 'author',
       mainBranch: 'main-branch',
@@ -76,6 +77,7 @@ describe('main', () => {
     expect(nxMigrateMock).toHaveBeenCalledWith({
       token: 'token',
       autoMerge: false,
+      checkToken: false,
       committer: '',
       author: '',
       mainBranch: '',

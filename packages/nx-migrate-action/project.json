@@ -14,17 +14,19 @@
   "tags": ["scope:packages", "type:action"],
   "targets": {
     "build": {
-      "executor": "@nx/js:swc",
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "packages/nx-migrate-action/dist",
-        "tsConfig": "packages/nx-migrate-action/tsconfig.lib.json",
-        "packageJson": "packages/nx-migrate-action/package.json",
+        "outputPath": "dist/packages/nx-migrate-action",
         "main": "packages/nx-migrate-action/src/index.ts",
+        "tsConfig": "packages/nx-migrate-action/tsconfig.lib.json",
         "assets": [
           "packages/nx-migrate-action/*.md",
           "packages/nx-migrate-action/action.yml"
-        ]
+        ],
+        "generatePackageJson": true,
+        "additionalEntryPoints": ["packages/nx-migrate-action/src/action.ts"],
+        "format": ["cjs", "esm"]
       }
     },
     "test": {

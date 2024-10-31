@@ -32,6 +32,11 @@ inputs:
     description: >
       Comma separated list of assignees for the created pull request.
       Defaults to an empty list.
+  check-token:
+    description: >
+      Check token to be valid and has the required permissions.
+      This check is performed before starting the migration to provide an early exit.
+      Defaults to 'false'.
   dry-run:
     description: >
       Whether to run the action without making any changes.
@@ -56,4 +61,4 @@ outputs:
 
 runs:
   using: 'node20'
-  main: './dist/src/action.js'
+  main: '../../dist/packages/nx-migrate-action/action.cjs'

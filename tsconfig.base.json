@@ -8,14 +8,15 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2020",
     "module": "esnext",
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@cdwr/nx-migrate-action": ["packages/nx-migrate-action/src/index.ts"]
+      "@cx/core": ["packages/core/src/index.ts"],
+      "@cx/nx-migrate-action": ["packages/nx-migrate-action/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

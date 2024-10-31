@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 
 import { nxMigrate } from './nx-migrate';
 import { ActionInputsSchema } from './utils/schema';
+import { ActionInputs } from './utils/types';
 
 /**
  * Main action function
@@ -11,13 +12,14 @@ export async function run(): Promise<void> {
     const inputs = ActionInputsSchema.parse({
       token: core.getInput('token', { required: true }),
       autoMerge: core.getBooleanInput('auto-merge'),
+      checkToken: core.getBooleanInput('check-token'),
       committer: core.getInput('committer'),
       author: core.getInput('author'),
       mainBranch: core.getInput('main-branch'),
       packagePatterns: core.getMultilineInput('package-patterns'),
       prAssignees: core.getInput('pull-request-assignees'),
       dryRun: core.getBooleanInput('dry-run')
-    });
+    } satisfies ActionInputs);
 
     core.debug(`Inputs:\n${JSON.stringify(inputs, null, 2)}`);
 

@@ -1,4 +1,5 @@
 import * as github from '@actions/github';
+import { withGitHub } from '@cx/core';
 
 /**
  * Get default branch of the repository.
@@ -13,9 +14,11 @@ export const getRepositoryDefaultBranch = async (
 
   const {
     data: { default_branch }
-  } = await octokit.rest.repos.get({
-    ...github.context.repo
-  });
+  } = await withGitHub(async () =>
+    octokit.rest.repos.get({
+      ...github.context.repo
+    })
+  );
 
   return default_branch;
 };

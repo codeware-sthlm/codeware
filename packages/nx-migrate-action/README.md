@@ -23,7 +23,7 @@ Using the action is currently limited to this repository since the package isn't
 - name: Run Nx migrate
   uses: ./packages/nx-migrate-action
   with:
-    token: ${{ secrets.YOUR_TOKEN }}
+    token: ${{ secrets.BOT_TOKEN }}
 ```
 
 ### Permissions
@@ -47,11 +47,13 @@ permissions:
   pull-requests: write
 ```
 
+_Replace `BOT_TOKEN` with `GITHUB_TOKEN`._
+
 ##### Option 2
 
 Generate a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) (PAT).
 
-- Classic PAT should have the `repo` scope
+- Classic PAT should have `repo` and `workflow` scopes
 - Fine-grained PAT should have `Contents` and `Pull requests` set to `Read and write`
 
 Add the token to the repository secrets in **Settings** -> **Secrets and variables** -> **Actions**.

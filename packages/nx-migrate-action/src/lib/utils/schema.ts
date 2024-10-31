@@ -24,6 +24,7 @@ export const EmailValidation = {
 export const ActionInputsSchema = z.object({
   author: z.string(),
   autoMerge: z.boolean(),
+  checkToken: z.boolean(),
   committer: z.string(),
   dryRun: z.boolean(),
   mainBranch: z.string(),
@@ -32,15 +33,18 @@ export const ActionInputsSchema = z.object({
   token: z.string().min(1, 'token is required')
 });
 
-const NameEmailSchema = z.object({
-  name: z.string().min(1, 'name is required'),
-  email: EmailValidation.anyBotEmail
-});
-
 export const MigrateConfigSchema = z.object({
-  author: NameEmailSchema,
+  author: z
+    .object({
+      name: z.string(),
+      email: EmailValidation.anyBotEmail
+    })
+    .optional(),
   autoMerge: z.boolean(),
-  committer: NameEmailSchema,
+  committer: z.object({
+    name: z.string().min(1, 'committer name is required'),
+    email: EmailValidation.anyBotEmail
+  }),
   dryRun: z.boolean(),
   mainBranch: z.string().min(1, 'main branch is required'),
   packagePatterns: z

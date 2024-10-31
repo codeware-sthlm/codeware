@@ -79,9 +79,44 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "@nx/esbuild:esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "generators": {
+    "@nx/js": {
+      "library": {
+        "bundler": "esbuild",
+        "linter": "eslint",
+        "minimal": true,
+        "publishable": true,
+        "simpleName": true,
+        "testEnvironment": "node",
+        "unitTestRunner": "vitest"
+      }
+    },
+    "@nx/node": {
+      "application": {
+        "bundler": "esbuild",
+        "docker": true,
+        "e2eTestRunner": "none",
+        "linter": "eslint",
+        "swcJest": true,
+        "unitTestRunner": "jest"
+      },
+      "library": {
+        "buildable": true,
+        "compiler": "swc",
+        "linter": "eslint",
+        "publishable": true,
+        "simpleModuleName": true,
+        "testEnvironment": "node",
+        "unitTestRunner": "jest"
+      }
+    },
     "@nx/react": {
       "application": {
         "babel": true,

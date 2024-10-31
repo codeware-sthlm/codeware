@@ -1,6 +1,6 @@
 import * as github from '@actions/github';
 
-import { getActor } from './get-actor';
+import { getActorId } from './get-actor';
 import { getRepositoryDefaultBranch } from './get-repository-default-branch';
 import { parseNameEmail } from './parse-name-email';
 import { MigrateConfigSchema } from './schema';
@@ -35,11 +35,13 @@ export const getMigrateConfig = async (
   // Check author; if not provided, use actor
   let author = parseNameEmail(authorInput);
   if (!author.email) {
-    const { id } = await getActor(token);
-    author = {
-      name: github.context.actor,
-      email: `${id}+${github.context.actor}@users.noreply.github.com`
-    };
+    const id = await getActorId(token);
+    if (id) {
+      author = {
+        name: github.context.actor,
+        email: `${id}+${github.context.actor}@users.noreply.github.com`
+      };
+    }
   }
 
   // Check committer; if not provided, use github official bot
@@ -61,7 +63,7 @@ export const getMigrateConfig = async (
 
   // Validate and return migrate configuration
   return MigrateConfigSchema.parse({
-    author,
+    author: author.email ? author : undefined,
     autoMerge,
     committer,
     dryRun,
@@ -69,5 +71,5 @@ export const getMigrateConfig = async (
     packagePatterns,
     prAssignees,
     token
-  });
+  } satisfies MigrateConfig);
 };

@@ -1,4 +1,5 @@
 import * as github from '@actions/github';
+import { withGitHub } from '@cx/core';
 import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 
 import { getFeatureBranchName } from './get-feature-branch-name';
@@ -28,12 +29,14 @@ ${!e2ePass ? '⚠️ E2E tests failed during migration' : '✅ E2E tests passed'
 [1]: https://github.com/codeware-sthlm/codeware/packages/nx-migrate-action
 `;
 
-  return await octokit.rest.pulls.create({
-    ...github.context.repo,
-    title: prTitle,
-    body: prBody,
-    head: branchName,
-    base: mainBranch,
-    draft: false
-  });
+  return await withGitHub(() =>
+    octokit.rest.pulls.create({
+      ...github.context.repo,
+      title: prTitle,
+      body: prBody,
+      head: branchName,
+      base: mainBranch,
+      draft: false
+    })
+  );
 };

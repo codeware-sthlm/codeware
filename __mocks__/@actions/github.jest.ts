@@ -1,15 +1,14 @@
 /**
- * Mocks for `@actions/github` module for Vitest.
- *
- * TODO: Needs to be properly setup in Vitest configuration.
+ * Mocks for `@actions/github` module for Jest.
  */
 
 import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 import type { PartialDeep } from 'type-fest';
-import { vi } from 'vitest';
 
+// Utility type to convert a promise return type to its resolved value
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 
+// Helper type for creating mock implementations
 type ResponseType<
   K extends keyof RestEndpointMethodTypes,
   M extends keyof RestEndpointMethodTypes[K]
@@ -17,30 +16,31 @@ type ResponseType<
   ? UnwrapPromise<ReturnType<RestEndpointMethodTypes[K][M]>>
   : UnwrapPromise<RestEndpointMethodTypes[K][M]>;
 
-type ViMockFunction<TArgs extends any[] = any[], TReturn = any> = {
-  (...args: TArgs): TReturn;
-} & ReturnType<typeof vi.fn>;
-
-type ToVitestMock<T> = T extends (...args: infer P) => infer R
-  ? ViMockFunction<P, Promise<UnwrapPromise<R>>>
+// Utility type to convert a function type to jest.Mock
+type ToJestMock<T> = T extends (...args: infer P) => infer R
+  ? jest.Mock<Promise<UnwrapPromise<R>>, P>
   : never;
 
+// Recursively converts all function properties to jest.Mock types
 type DeepMockFunction<T> = {
   [P in keyof T]?: T[P] extends (...args: any[]) => any
-    ? ToVitestMock<T[P]>
+    ? ToJestMock<T[P]>
     : T[P] extends object
       ? DeepMockFunction<T[P]>
       : T[P];
 };
 
+// Type to convert RestEndpointMethodTypes to mocked version
 type MockRestEndpointMethodTypes = DeepMockFunction<RestEndpointMethodTypes>;
 
+// Usage example type
 interface MockOctokit {
   rest: MockRestEndpointMethodTypes;
-  request: ViMockFunction;
-  paginate: ViMockFunction;
+  request: jest.Mock;
+  paginate: jest.Mock;
 }
 
+// Helper function to create typed mock responses
 function createMockResponse<
   K extends keyof RestEndpointMethodTypes,
   M extends keyof RestEndpointMethodTypes[K],
@@ -53,16 +53,17 @@ function createMockResponse<
     { recurseIntoArrays: true }
   >
 ) {
-  type Mock = ToVitestMock<RestEndpointMethodTypes[K][M]>;
-  return vi.fn().mockResolvedValue(response) as Mock;
+  type Mock = ToJestMock<RestEndpointMethodTypes[K][M]>;
+  return jest.fn().mockResolvedValue(response) as Mock;
 }
 
 /// ^^^ End of mock types and functions for `Octokit` instance. ^^^
 
-///
-/// Mock Octokit instance with default values for all methods used by tests.
-///
-
+/**
+ * Mock Octokit instance with default values for all methods used by tests.
+ *
+ * Add more mocked methods and responses as needed.
+ */
 const mockOctokit: MockOctokit = {
   rest: {
     issues: {
@@ -110,10 +111,11 @@ const mockOctokit: MockOctokit = {
       })
     }
   },
-  request: vi.fn().mockResolvedValue({}),
-  paginate: vi.fn()
+  request: jest.fn().mockResolvedValue({}),
+  paginate: jest.fn()
 };
 
+// Mock context with default dummy values
 const mockContext = {
   repo: {
     owner: 'owner',
@@ -139,11 +141,15 @@ const mockContext = {
   eventName: 'pull_request'
 };
 
-const getOctokit = vi.fn(() => mockOctokit);
+// Mock the getOctokit function
+const getOctokit: jest.Mock<MockOctokit> = jest
+  .fn()
+  .mockReturnValue(mockOctokit);
 
-export type { MockRestEndpointMethodTypes, MockOctokit, ResponseType };
-export { createMockResponse, getOctokit, mockContext as context };
+// Export everything needed by tests
+export { getOctokit, mockContext as context };
 
+// Also export default for cases where default import is used
 export default {
   getOctokit,
   context: mockContext

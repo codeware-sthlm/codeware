@@ -9,7 +9,6 @@ import * as cleanupPullRequests from './utils/cleanup-pull-requests';
 import * as createMigrationGitCommit from './utils/create-migration-git-commit';
 import * as createPullRequest from './utils/create-pull-request';
 import * as enablePullRequestAutoMerge from './utils/enable-pull-request-auto-merge';
-import * as getMigrateConfig from './utils/get-migrate-config';
 import * as getNxVersionInfo from './utils/get-nx-version-info';
 import * as revertToLatestGitCommit from './utils/revert-to-latest-git-commit';
 import * as runNxE2e from './utils/run-nx-e2e';
@@ -25,18 +24,6 @@ jest.mock('@actions/core');
 jest.mock('@actions/exec');
 jest.mock('@actions/github');
 jest.mock('@nx/devkit');
-
-/** Action inputs with all options provided  */
-const actionInputsComplete: ActionInputs = {
-  token: 'token',
-  autoMerge: false,
-  committer: 'Committer <c.user@domain.io>',
-  author: 'Author <a.user@domain.io>',
-  mainBranch: 'main-branch',
-  packagePatterns: ['packages/**/package.json'],
-  prAssignees: 'user1,user2',
-  dryRun: false
-};
 
 describe('nxMigrate', () => {
   const addPullRequestAssigneesMock = jest.spyOn(
@@ -64,7 +51,6 @@ describe('nxMigrate', () => {
     'enablePullRequestAutoMerge'
   );
   const execMock = jest.spyOn(exec, 'exec');
-  const getMigrateConfigMock = jest.spyOn(getMigrateConfig, 'getMigrateConfig');
   const getNxVersionInfoMock = jest.spyOn(getNxVersionInfo, 'getNxVersionInfo');
   const getPackageManagerCommandMock = jest.spyOn(
     devkit,
@@ -126,6 +112,7 @@ describe('nxMigrate', () => {
       ...{
         token: 'token',
         autoMerge: false,
+        checkToken: false,
         committer: '',
         author: '',
         mainBranch: '',
@@ -148,6 +135,7 @@ describe('nxMigrate', () => {
     } as never);
     runNxE2eMock.mockResolvedValue(true);
     runNxTestsMock.mockResolvedValue(true);
+    updatePackageVersionsMock.mockImplementation();
   });
 
   describe('migrate config', () => {
@@ -157,6 +145,7 @@ describe('nxMigrate', () => {
       expect(config).toEqual({
         author: '',
         autoMerge: false,
+        checkToken: false,
         committer: '',
         dryRun: false,
         mainBranch: '',
@@ -338,6 +327,7 @@ describe('nxMigrate', () => {
       await nxMigrate(config, true);
 
       expect(createMigrationGitCommitMock).toHaveBeenCalledWith(
+        'token',
         { name: 'actor', email: '1+actor@users.noreply.github.com' },
         {
           name: 'github-actions[bot]',
@@ -501,12 +491,9 @@ describe('nxMigrate', () => {
       const config = setupTest('minor-update', { dryRun: true });
       await nxMigrate(config, true);
 
-      expect(core.info).toHaveBeenNthCalledWith(
-        1,
-        'Skip nx migration [dry-run]'
-      );
-      expect(core.info).toHaveBeenNthCalledWith(2, 'Skip tests [dry-run]');
-      expect(core.info).toHaveBeenLastCalledWith('Skip pull request [dry-run]');
+      expect(core.info).toHaveBeenCalledWith('Skip nx migration [dry-run]');
+      expect(core.info).toHaveBeenCalledWith('Skip tests [dry-run]');
+      expect(core.info).toHaveBeenCalledWith('Skip pull request [dry-run]');
     });
   });
 

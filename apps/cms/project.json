@@ -18,6 +18,7 @@
       "defaultConfiguration": "development",
       "dependsOn": ["build"],
       "options": {
+        "inspect": true,
         "buildTarget": "cms:build",
         "runBuildTargetDependencies": false,
         "watch": true

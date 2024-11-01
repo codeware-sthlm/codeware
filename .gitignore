@@ -31,6 +31,7 @@ yarn.lock
 
 # misc
 /.sass-cache
+/.pnpm-store
 /connect.lock
 /coverage
 /libpeerconnection.log

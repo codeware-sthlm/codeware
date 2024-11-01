@@ -12,7 +12,8 @@ export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: Users.slug,
-    buildPath: resolve(cwd(), 'dist/apps/cms/build')
+    buildPath: resolve(cwd(), 'dist/apps/cms/build'),
+    dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
   collections: [Users],
   db: postgresAdapter({
@@ -20,6 +21,29 @@ export default buildConfig({
     migrationDir: resolve(__dirname, 'migrations')
   }),
   editor: slateEditor({}),
+  i18n: {
+    fallbackLng: 'sv'
+  },
+  localization: {
+    locales: [
+      {
+        label: {
+          en: 'English',
+          sv: 'Engelska'
+        },
+        code: 'en'
+      },
+      {
+        label: {
+          en: 'Swedish',
+          sv: 'Svenska'
+        },
+        code: 'sv'
+      }
+    ],
+    defaultLocale: 'sv',
+    fallback: true
+  },
   typescript: {
     outputFile: resolve(__dirname, 'generated/payload-types.ts')
   },

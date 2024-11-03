@@ -3,8 +3,7 @@ import * as core from '@actions/core';
 import type { TokenInfo } from './get-token-permissions';
 
 export const printTokenPermissions = (token: TokenInfo) => {
-  core.startGroup('Token permissions');
-
+  core.info('== Token ==');
   core.info(`- type: ${token.type}`);
   core.info(`- isValid: ${token.isValid}`);
   core.info(`- username: ${token.username}`);
@@ -20,5 +19,4 @@ export const printTokenPermissions = (token: TokenInfo) => {
   for (const [key, value] of Object.entries(token.resolvedPermissions)) {
     core.info(`- ${key}: ${value}`);
   }
-  core.endGroup();
 };

@@ -2,36 +2,33 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { withGitHub } from '@cx/core';
 
+import { PULL_REQUEST_LABEL } from './definitions';
 import type { MigrateConfig } from './types';
 
 /**
- * Add assignees to a pull request.
+ * Add label from `PULL_REQUEST_LABEL` to a pull request.
  *
  * @param config - The migration configuration
  * @param pullRequest - The pull request number
  */
-export const addPullRequestAssignees = async (
+export const addPullRequestLabel = async (
   config: MigrateConfig,
   pullRequest: number
 ): Promise<void> => {
-  const { prAssignees, token } = config;
-
-  if (!prAssignees.length) {
-    return;
-  }
-  const assignees = Array.isArray(prAssignees) ? prAssignees : [prAssignees];
+  const { token } = config;
+  const labels = [PULL_REQUEST_LABEL];
 
   const octokit = github.getOctokit(token);
 
   await withGitHub(() =>
-    octokit.rest.issues.addAssignees({
+    octokit.rest.issues.addLabels({
       ...github.context.repo,
       issue_number: pullRequest,
-      assignees
+      labels
     })
   );
 
   core.info(
-    `Added assignees '${assignees.join(',')}' to pull request #${pullRequest}`
+    `Added labels '${labels.join(',')}' to pull request #${pullRequest}`
   );
 };

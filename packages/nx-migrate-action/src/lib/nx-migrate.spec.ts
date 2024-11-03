@@ -5,9 +5,9 @@ import * as replaceInFile from 'replace-in-file';
 
 import * as nxMigrateImport from './nx-migrate';
 import * as addPullRequestAssignees from './utils/add-pull-request-assignees';
-import * as addPullRequestLabels from './utils/add-pull-request-labels';
+import * as addPullRequestLabel from './utils/add-pull-request-label';
 import * as cleanupPullRequests from './utils/cleanup-pull-requests';
-import * as createOrUpdatePullRequest from './utils/create-or-update-pull-request';
+import * as createPullRequest from './utils/create-pull-request';
 import * as enablePullRequestAutoMerge from './utils/enable-pull-request-auto-merge';
 import * as getNxVersionInfo from './utils/get-nx-version-info';
 import * as runNxE2e from './utils/run-nx-e2e';
@@ -38,17 +38,17 @@ describe('nxMigrate', () => {
     addPullRequestAssignees,
     'addPullRequestAssignees'
   );
-  const addPullRequestLabelsMock = jest.spyOn(
-    addPullRequestLabels,
-    'addPullRequestLabels'
+  const addPullRequestLabelMock = jest.spyOn(
+    addPullRequestLabel,
+    'addPullRequestLabel'
   );
   const cleanupPullRequestsMock = jest.spyOn(
     cleanupPullRequests,
     'cleanupPullRequests'
   );
   const createPullRequestMock = jest.spyOn(
-    createOrUpdatePullRequest,
-    'createOrUpdatePullRequest'
+    createPullRequest,
+    'createPullRequest'
   );
   const enablePullRequestAutoMergeMock = jest.spyOn(
     enablePullRequestAutoMerge,
@@ -122,14 +122,10 @@ describe('nxMigrate', () => {
     // Mock default responses
     execMock.mockResolvedValue(0);
     getExecOutputMock.mockImplementation((cmd, args) => {
-      if (args?.includes('write-tree')) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return Promise.resolve({ stdout: 'tree hash 1' } as any);
+      if (args?.includes('ls-remote')) {
+        return Promise.resolve({ stdout: '', stderr: '', exitCode: 0 });
       }
-      if (args?.includes('rev-parse')) {
-        return Promise.resolve({ stdout: 'tree hash 2' });
-      }
-      return Promise.resolve({ stdout: 'whatever' });
+      return Promise.resolve({ stdout: 'whatever', stderr: '', exitCode: 0 });
     });
     getPackageManagerCommandMock.mockReturnValue({
       exec: 'npx',
@@ -140,7 +136,7 @@ describe('nxMigrate', () => {
     runNxTestsMock.mockResolvedValue(true);
   });
 
-  describe('migrate config', () => {
+  describe('start up', () => {
     it('should get valid migrate config from only required inputs', async () => {
       const config = setupTest('up-to-date');
 
@@ -159,6 +155,52 @@ describe('nxMigrate', () => {
 
       await nxMigrate(config, true);
       expect(nxMigrateMock).toHaveReturned();
+    });
+
+    it('should set git user from committer configuration', async () => {
+      const config = setupTest('up-to-date', {
+        committer: 'actor <actor@users.noreply.github.com>'
+      });
+      await nxMigrate(config, true);
+
+      expect(execMock).toHaveBeenCalledWith('git', [
+        'config',
+        'user.name',
+        'actor'
+      ]);
+      expect(execMock).toHaveBeenCalledWith('git', [
+        'config',
+        'user.email',
+        'actor@users.noreply.github.com'
+      ]);
+    });
+
+    it('should set git user to github actions bot when no committer is provided', async () => {
+      const config = setupTest('up-to-date');
+      await nxMigrate(config, true);
+
+      expect(execMock).toHaveBeenCalledWith('git', [
+        'config',
+        'user.name',
+        'github-actions[bot]'
+      ]);
+      expect(execMock).toHaveBeenCalledWith('git', [
+        'config',
+        'user.email',
+        '41898282+github-actions[bot]@users.noreply.github.com'
+      ]);
+    });
+
+    it('should set git remote url to use https token authentication', async () => {
+      const config = setupTest('up-to-date');
+      await nxMigrate(config, true);
+
+      expect(execMock).toHaveBeenCalledWith('git', [
+        'remote',
+        'set-url',
+        'origin',
+        'https://x-access-token:token@github.com/owner/repo.git'
+      ]);
     });
 
     it('should fail migrate when token is missing', async () => {
@@ -197,6 +239,34 @@ describe('nxMigrate', () => {
         isMajorUpdate: false,
         isMigrated: false,
         pullRequest: undefined
+      });
+    });
+
+    it('should return status when pull request exists', async () => {
+      getExecOutputMock.mockResolvedValue({ stdout: 'remote branch' } as any);
+      const config = setupTest('minor-update');
+      const result = await nxMigrate(config, true);
+
+      expect(result).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.1',
+        isMajorUpdate: false,
+        isMigrated: false,
+        pullRequest: 1
+      });
+    });
+
+    it('should return status when pull request exists (dry-run)', async () => {
+      getExecOutputMock.mockResolvedValue({ stdout: 'remote branch' } as any);
+      const config = setupTest('minor-update', { dryRun: true });
+      const result = await nxMigrate(config, true);
+
+      expect(result).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.1',
+        isMajorUpdate: false,
+        isMigrated: false,
+        pullRequest: 1
       });
     });
 
@@ -258,7 +328,7 @@ describe('nxMigrate', () => {
       const config = setupTest('minor-update', { mainBranch: 'main' });
       await nxMigrate(config, true);
 
-      expect(exec.exec).toHaveBeenCalledWith('git', [
+      expect(execMock).toHaveBeenCalledWith('git', [
         'remote',
         'set-url',
         'origin',
@@ -266,85 +336,116 @@ describe('nxMigrate', () => {
       ]);
     });
 
-    it('should create feature branch from latest main commit', async () => {
+    it('should create/reset feature branch from latest main commit without tracking', async () => {
       const config = setupTest('minor-update', { mainBranch: 'main' });
       await nxMigrate(config, true);
 
-      expect(exec.exec).toHaveBeenCalledWith('git', ['fetch', 'origin']);
-      expect(exec.exec).toHaveBeenCalledWith('git', [
+      expect(execMock).toHaveBeenCalledWith('git', [
         'checkout',
+        '--no-track',
         '-B',
         'update-nx-workspace-1.0.1',
         'origin/main'
       ]);
     });
 
-    it('should run nx migrate', async () => {
-      const config = setupTest('minor-update');
-      await nxMigrate(config, true);
+    describe('nx migration', () => {
+      it('should run nx migrate', async () => {
+        const config = setupTest('minor-update');
+        await nxMigrate(config, true);
 
-      expect(exec.exec).toHaveBeenCalledWith('npx', ['nx', 'migrate', '1.0.1']);
-    });
+        expect(execMock).toHaveBeenCalledWith('npx', [
+          'nx',
+          'migrate',
+          '1.0.1'
+        ]);
+      });
 
-    it('should add create-nx-workspace dependency for latest version', async () => {
-      const config = setupTest('minor-update');
-      await nxMigrate(config, true);
+      it('should add create-nx-workspace dependency for latest version', async () => {
+        const config = setupTest('minor-update');
+        await nxMigrate(config, true);
 
-      expect(exec.exec).toHaveBeenCalledWith('npx', [
-        'nx',
-        'add',
-        'create-nx-workspace@1.0.1'
-      ]);
-    });
+        expect(execMock).toHaveBeenCalledWith('npx', [
+          'nx',
+          'add',
+          'create-nx-workspace@1.0.1'
+        ]);
+      });
 
-    it('should install dependencies and allow lock file update', async () => {
-      const config = setupTest('minor-update');
-      await nxMigrate(config, true);
+      it('should install dependencies and allow lock file update', async () => {
+        const config = setupTest('minor-update');
+        await nxMigrate(config, true);
 
-      expect(exec.exec).toHaveBeenCalledWith('npm install --no-immutable');
-    });
+        expect(execMock).toHaveBeenCalledWith('npm install --no-immutable');
+      });
 
-    it('should run migrations when migrations.json exist', async () => {
-      execMock.mockResolvedValue(0);
-      const config = setupTest('minor-update');
-      await nxMigrate(config, true);
+      it('should run migrations when migrations.json exist', async () => {
+        execMock.mockResolvedValue(0);
+        const config = setupTest('minor-update');
+        await nxMigrate(config, true);
 
-      expect(exec.exec).toHaveBeenCalledWith('npx', [
-        'nx',
-        'migrate',
-        '--run-migrations'
-      ]);
-    });
+        expect(execMock).toHaveBeenCalledWith('npx', [
+          'nx',
+          'migrate',
+          '--run-migrations'
+        ]);
+      });
 
-    it('should not run migrations when migrations.json is missing', async () => {
-      execMock.mockImplementation((cmd) =>
-        Promise.resolve(cmd === 'test' ? 1 : 0)
-      );
-      const config = setupTest('minor-update');
-      await nxMigrate(config, true);
+      it('should not run migrations when migrations.json is missing', async () => {
+        execMock.mockImplementation((cmd) =>
+          Promise.resolve(cmd === 'test' ? 1 : 0)
+        );
+        const config = setupTest('minor-update');
+        await nxMigrate(config, true);
 
-      expect(exec.exec).not.toHaveBeenCalledWith('npx', [
-        'nx',
-        'migrate',
-        '--run-migrations'
-      ]);
+        expect(execMock).not.toHaveBeenCalledWith('npx', [
+          'nx',
+          'migrate',
+          '--run-migrations'
+        ]);
+      });
+
+      it('should stage all changes before running tests', async () => {
+        const callOrder: string[] = [];
+
+        execMock.mockImplementation(async (cmd, args) => {
+          if (cmd === 'git' && args?.includes('add')) {
+            callOrder.push('git add');
+          }
+          return 0;
+        });
+
+        runNxTestsMock.mockImplementation(async () => {
+          callOrder.push('runNxTests');
+          return true;
+        });
+
+        const config = setupTest('minor-update');
+        await nxMigrate(config, true);
+
+        expect(callOrder[0]).toEqual('git add');
+        expect(callOrder[1]).toEqual('runNxTests');
+        expect(execMock).toHaveBeenCalledWith('git', ['add', '.']);
+      });
+
+      it.todo('should test replace in file');
     });
 
     it('should stage changes and create and push commit', async () => {
       const config = setupTest('minor-update');
       await nxMigrate(config, true);
 
-      expect(exec.exec).toHaveBeenCalledWith('git', ['add', '.']);
-      expect(exec.exec).toHaveBeenCalledWith('git', [
+      expect(execMock).toHaveBeenCalledWith('git', ['add', '.']);
+      expect(execMock).toHaveBeenCalledWith('git', [
         'commit',
         '--author="actor <1+actor@users.noreply.github.com>"',
         '-m',
         'build(repo): update nx workspace to 1.0.1',
         '--no-verify'
       ]);
-      expect(exec.exec).toHaveBeenCalledWith('git', [
+      expect(execMock).toHaveBeenCalledWith('git', [
         'push',
-        '--force-with-lease',
+        '-u',
         'origin',
         'update-nx-workspace-1.0.1'
       ]);
@@ -398,18 +499,30 @@ describe('nxMigrate', () => {
       const config = setupTest('minor-update');
       await nxMigrate(config, true);
 
-      expect(addPullRequestLabelsMock).toHaveBeenCalledWith(
-        'token',
-        1,
-        'nx migrate'
+      expect(addPullRequestLabelMock).toHaveBeenCalledWith(
+        expect.objectContaining({ token: 'token' }),
+        1
       );
     });
 
     it('should call add pull request assignees function', async () => {
-      const config = setupTest('minor-update');
+      const config = setupTest('minor-update', { prAssignees: 'user1,user2' });
       await nxMigrate(config, true);
 
-      expect(addPullRequestAssigneesMock).toHaveBeenCalledWith('token', 1, []);
+      expect(addPullRequestAssigneesMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          prAssignees: ['user1', 'user2'],
+          token: 'token'
+        }),
+        1
+      );
+    });
+
+    it('should not call add pull request assignees function when no assignees are provided', async () => {
+      const config = setupTest('minor-update', { prAssignees: '' });
+      await nxMigrate(config, true);
+
+      expect(addPullRequestAssigneesMock).not.toHaveBeenCalled();
     });
 
     it('should call enable pull request auto merge function when enabled', async () => {
@@ -417,7 +530,7 @@ describe('nxMigrate', () => {
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).toHaveBeenCalledWith(
-        'token',
+        expect.objectContaining({ token: 'token' }),
         false,
         1
       );
@@ -434,7 +547,10 @@ describe('nxMigrate', () => {
       const config = setupTest('minor-update');
       await nxMigrate(config, true);
 
-      expect(cleanupPullRequestsMock).toHaveBeenCalledWith('token', 1);
+      expect(cleanupPullRequestsMock).toHaveBeenCalledWith(
+        expect.objectContaining({ token: 'token' }),
+        1
+      );
     });
   });
 
@@ -443,30 +559,38 @@ describe('nxMigrate', () => {
       const config = setupTest('up-to-date');
       await nxMigrate(config, true);
 
-      expect(exec.exec).not.toHaveBeenCalledWith('git', expect.any(Array));
-      expect(exec.exec).not.toHaveBeenCalledWith('npx', [
+      expect(execMock).not.toHaveBeenCalledWith(
+        'git',
+        expect.arrayContaining(['fetch'])
+      );
+      expect(execMock).not.toHaveBeenCalledWith('npx', [
         'nx',
         expect.anything()
       ]);
     });
 
-    it('should return early when pull request with same changes exists', async () => {
+    it('should return early when pull request and branch exists', async () => {
       getExecOutputMock.mockImplementation((cmd, args) => {
-        if (args?.includes('write-tree')) {
-          return Promise.resolve({ stdout: 'tree hash' } as any);
+        if (args?.includes('ls-remote')) {
+          return Promise.resolve({
+            stdout: 'remote branch',
+            stderr: '',
+            exitCode: 0
+          });
         }
-        if (args?.includes('rev-parse')) {
-          return Promise.resolve({ stdout: 'tree hash' });
-        }
-        return Promise.resolve({ stdout: 'whatever' });
+        return Promise.resolve({ stdout: 'whatever', stderr: '', exitCode: 0 });
       });
       const config = setupTest('minor-update');
       await nxMigrate(config, true);
 
-      expect(exec.exec).not.toHaveBeenCalledWith(
+      expect(execMock).not.toHaveBeenCalledWith(
         'git',
-        expect.arrayContaining(['commit'])
+        expect.arrayContaining(['fetch'])
       );
+      expect(execMock).not.toHaveBeenCalledWith('npx', [
+        'nx',
+        expect.anything()
+      ]);
     });
   });
 
@@ -475,21 +599,24 @@ describe('nxMigrate', () => {
       const config = setupTest('minor-update', { dryRun: true });
       await nxMigrate(config, true);
 
-      expect(exec.exec).not.toHaveBeenCalledWith('git', expect.any(Array));
+      expect(execMock).not.toHaveBeenCalledWith(
+        'git',
+        expect.arrayContaining(['checkout'])
+      );
     });
 
     it('should skip nx migrate and post changes', async () => {
       const config = setupTest('minor-update', { dryRun: true });
       await nxMigrate(config, true);
 
-      expect(exec.exec).not.toHaveBeenCalledWith(
+      expect(execMock).not.toHaveBeenCalledWith(
         'npx',
         expect.arrayContaining(['nx'])
       );
-      expect(exec.exec).not.toHaveBeenCalledWith(
+      expect(execMock).not.toHaveBeenCalledWith(
         expect.arrayContaining(['install'])
       );
-      expect(exec.exec).not.toHaveBeenCalledWith('test', expect.any(Array));
+      expect(execMock).not.toHaveBeenCalledWith('test', expect.any(Array));
       expect(replaceInFile.replaceInFile).not.toHaveBeenCalled();
     });
 
@@ -526,7 +653,7 @@ describe('nxMigrate', () => {
       await nxMigrate(config, true);
 
       expect(createPullRequestMock).not.toHaveBeenCalled();
-      expect(addPullRequestLabelsMock).not.toHaveBeenCalled();
+      expect(addPullRequestLabelMock).not.toHaveBeenCalled();
       expect(addPullRequestAssigneesMock).not.toHaveBeenCalled();
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
       expect(cleanupPullRequestsMock).not.toHaveBeenCalled();

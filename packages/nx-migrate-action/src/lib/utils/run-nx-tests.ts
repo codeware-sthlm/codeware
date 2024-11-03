@@ -6,15 +6,15 @@ export async function runNxTests(): Promise<boolean> {
   const pmc = getPackageManagerCommand();
 
   try {
-    core.debug('Run tests');
+    core.info('Run lint, test and build');
+
     await exec.exec(pmc.exec, [
       'nx',
       'run-many',
       '-t',
       'lint,test,build',
       '-c',
-      'ci',
-      '--no-cloud'
+      'ci'
     ]);
 
     // TODO: Enable when release configuration is applied to nx.json

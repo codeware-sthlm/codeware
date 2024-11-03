@@ -48,10 +48,10 @@ export const createAndPushCommit = async (
   await exec.exec('git', ['add', '.']);
   await exec.exec('git', ['commit', ...commitOptions]);
 
-  // Force push in case branch exists to update it
+  // Push and setup tracking for the feature branch
   await exec.exec('git', [
     'push',
-    '--force-with-lease',
+    '-u',
     'origin',
     getFeatureBranchName(latestVersion)
   ]);

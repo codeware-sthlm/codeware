@@ -9,17 +9,19 @@ export const runMigration = async (
   config: MigrateConfig,
   latestVersion: string
 ) => {
-  core.startGroup('Run migration');
-
   const pmc = getPackageManagerCommand();
 
-  // Update dependencies
+  core.info('Running Nx migrate');
   await exec.exec(pmc.exec, ['nx', 'migrate', latestVersion]);
+
+  core.info('Adding create-nx-workspace dependency');
   await exec.exec(pmc.exec, [
     'nx',
     'add',
     `create-nx-workspace@${latestVersion}`
   ]);
+
+  core.info('Installing dependencies');
   await exec.exec(pmc.install);
 
   // Check for and run migrations
@@ -29,7 +31,10 @@ export const runMigration = async (
     })) === 0;
 
   if (migrationsExist) {
+    core.info('Running migrations');
     await exec.exec(pmc.exec, ['nx', 'migrate', '--run-migrations']);
+  } else {
+    core.info('No migrations found');
   }
 
   core.info('Update version references in package.json files');
@@ -67,5 +72,5 @@ export const runMigration = async (
     allowEmptyPaths: true
   });
 
-  core.endGroup();
+  core.info('Migration completed');
 };

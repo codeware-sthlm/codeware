@@ -4,39 +4,38 @@ import * as exec from '@actions/exec';
 import { VersionInfo } from './types';
 
 export async function getNxVersionInfo(): Promise<VersionInfo> {
-  core.debug('Resolve nx versions');
+  core.info('Resolve nx versions');
 
-  const output = await exec.getExecOutput('npm', [
-    'list',
-    '@nx/workspace',
-    '--depth=0',
-    '--json'
-  ]);
+  const output = await exec.getExecOutput(
+    'npm',
+    ['list', '@nx/workspace', '--depth=0', '--json'],
+    { silent: true }
+  );
 
   const currentVersion = JSON.parse(output.stdout).dependencies['@nx/workspace']
     .version;
-  core.debug(`Current version: ${currentVersion}`);
+  core.info(`Current version: ${currentVersion}`);
 
   const currentMajor = parseInt(currentVersion.split('.')[0]);
-  core.debug(`Current major: ${currentMajor}`);
+  core.info(`Current major: ${currentMajor}`);
 
-  const latestOutput = await exec.getExecOutput('npm', [
-    'view',
-    '@nx/workspace',
-    'version'
-  ]);
+  const latestOutput = await exec.getExecOutput(
+    'npm',
+    ['view', '@nx/workspace', 'version'],
+    { silent: true }
+  );
 
   const latestVersion = latestOutput.stdout.trim();
-  core.debug(`Latest version: ${latestVersion}`);
+  core.info(`Latest version: ${latestVersion}`);
 
   const latestMajor = parseInt(latestVersion.split('.')[0]);
-  core.debug(`Latest major: ${latestMajor}`);
+  core.info(`Latest major: ${latestMajor}`);
 
   const isMajorUpdate = latestMajor > currentMajor;
-  core.debug(`Major update: ${isMajorUpdate}`);
+  core.info(`Major update: ${isMajorUpdate}`);
 
   const isOutdated = currentVersion !== latestVersion;
-  core.debug(`Outdated: ${isOutdated}`);
+  core.info(`Outdated: ${isOutdated}`);
 
   return {
     currentVersion,

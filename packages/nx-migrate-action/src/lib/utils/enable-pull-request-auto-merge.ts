@@ -1,13 +1,26 @@
+import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { withGitHub } from '@cx/core';
 
 import { addPullRequestComment } from './add-pull-request-comment';
+import type { MigrateConfig } from './types';
 
+/**
+ * Enable auto-merge for a pull request using rebase merge method.
+ *
+ * Requires auto-merge to be enabled in the repository settings.
+ *
+ * @param config - The migration configuration
+ * @param isMajorUpdate - Whether the migration is a major update
+ * @param pullRequest - The pull request number
+ */
 export const enablePullRequestAutoMerge = async (
-  token: string,
+  config: MigrateConfig,
   isMajorUpdate: boolean,
   pullRequest: number
 ): Promise<void> => {
+  const { token } = config;
+
   const octokit = github.getOctokit(token);
 
   // Check if auto-merge is available for the repository
@@ -27,6 +40,7 @@ export const enablePullRequestAutoMerge = async (
       'Auto-merge is not enabled for this repository',
       'check-unique'
     );
+    core.info('Auto-merge is not enabled for this repository');
     return;
   }
 
@@ -38,6 +52,7 @@ export const enablePullRequestAutoMerge = async (
       'Auto-merge is disabled for major version migrations',
       'check-unique'
     );
+    core.info('Auto-merge is disabled for major version migrations');
     return;
   }
 
@@ -50,4 +65,6 @@ export const enablePullRequestAutoMerge = async (
       merge_method: 'rebase'
     })
   );
+
+  core.info('Auto-merge is enabled with rebase merge method');
 };

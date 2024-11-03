@@ -1,11 +1,11 @@
+import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { withGitHub } from '@cx/core';
 
 import { getFeatureBranchName } from './get-feature-branch-name';
-import { lookupPullRequest } from './lookup-pull-request';
 import type { MigrateConfig, VersionInfo } from './types';
 
-export const createOrUpdatePullRequest = async (
+export const createPullRequest = async (
   config: MigrateConfig,
   versionInfo: Pick<VersionInfo, 'currentVersion' | 'latestVersion'>,
   status: { testsPass?: boolean; e2ePass?: boolean }
@@ -29,36 +29,21 @@ ${e2ePass === true ? '✅ E2E tests passed' : e2ePass === false ? '⚠️ E2E te
 [1]: https://github.com/codeware-sthlm/codeware/packages/nx-migrate-action
 `;
 
-  const existingPR = await lookupPullRequest(config, latestVersion);
-
-  // Create a new PR if none exists
-  if (!existingPR) {
-    const {
-      data: { number: newPR }
-    } = await withGitHub(() =>
-      octokit.rest.pulls.create({
-        ...github.context.repo,
-        title: prTitle,
-        body: prBody,
-        head: branchName,
-        base: mainBranch,
-        draft: false
-      })
-    );
-    return newPR;
-  }
-
-  // Update existing PR with possibly the same details.
-  // TODO: Is this a bad pattern?
-  // Could it have been updated by someone manually, which will now be overwritten?
-  await withGitHub(() =>
-    octokit.rest.pulls.update({
+  // Create a new pull request
+  const {
+    data: { number }
+  } = await withGitHub(() =>
+    octokit.rest.pulls.create({
       ...github.context.repo,
-      pull_number: existingPR,
       title: prTitle,
-      body: prBody
+      body: prBody,
+      head: branchName,
+      base: mainBranch,
+      draft: false
     })
   );
 
-  return existingPR;
+  core.info(`Created pull request #${number}`);
+
+  return number;
 };

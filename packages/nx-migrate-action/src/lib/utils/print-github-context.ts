@@ -2,8 +2,6 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 export const printGitHubContext = () => {
-  core.startGroup('GitHub context details');
-
   core.info('== Repo ==');
   core.info(`- owner: ${github.context.repo.owner}`);
   core.info(`- repo: ${github.context.repo.repo}`);
@@ -14,6 +12,4 @@ export const printGitHubContext = () => {
       core.info(`- ${key}: ${value}`);
     }
   }
-
-  core.endGroup();
 };

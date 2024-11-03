@@ -6,9 +6,9 @@ export async function runNxE2e(): Promise<boolean> {
   const pmc = getPackageManagerCommand();
 
   try {
-    core.debug('Run e2e');
+    core.info('Run e2e');
 
-    await exec.exec(pmc.exec, ['nx', 'e2e', 'nx-payload-e2e', '--no-cloud']);
+    await exec.exec(pmc.exec, ['nx', 'e2e', 'nx-payload-e2e']);
 
     return true;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

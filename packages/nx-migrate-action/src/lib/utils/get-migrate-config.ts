@@ -1,6 +1,6 @@
 import * as github from '@actions/github';
 
-import { getActorId } from './get-actor';
+import { getActorId } from './get-actor-id';
 import { getRepositoryDefaultBranch } from './get-repository-default-branch';
 import { parseNameEmail } from './parse-name-email';
 import { MigrateConfigSchema } from './schema';
@@ -46,6 +46,7 @@ export const getMigrateConfig = async (
   }
 
   // Check committer; if not provided, use github official bot
+  // TODO: Possible? Lookup committer from GitHub user to apply id to email
   let committer = parseNameEmail(committerInput);
   if (!committer.email) {
     committer = {

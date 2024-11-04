@@ -9,7 +9,7 @@ on:
   merge_group:
   push:
     branches:
-      - master
+      - main
       - 'renovate/**'
   workflow_dispatch:
 

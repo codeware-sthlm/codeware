@@ -35,10 +35,9 @@ export const enablePullRequestAutoMerge = async (
   // Skip auto-merge when not allowed
   if (!allow_auto_merge) {
     await addPullRequestComment(
-      token,
+      config,
       pullRequest,
-      'Auto-merge is not enabled for this repository',
-      'check-unique'
+      'Auto-merge is not enabled for this repository'
     );
     core.info('Auto-merge is not enabled for this repository');
     return;
@@ -47,10 +46,9 @@ export const enablePullRequestAutoMerge = async (
   // Skip auto-merge for major version updates
   if (isMajorUpdate) {
     await addPullRequestComment(
-      token,
+      config,
       pullRequest,
-      'Auto-merge is disabled for major version migrations',
-      'check-unique'
+      'Auto-merge is disabled for major version migrations'
     );
     core.info('Auto-merge is disabled for major version migrations');
     return;

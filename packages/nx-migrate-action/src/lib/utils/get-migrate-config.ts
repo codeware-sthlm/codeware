@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 import { getActorId } from './get-actor-id';
@@ -63,8 +64,7 @@ export const getMigrateConfig = async (
   // Check PR assignees; optional
   const prAssignees = prAssigneesInput.split(',').filter(Boolean);
 
-  // Validate and return migrate configuration
-  return MigrateConfigSchema.parse({
+  const config: MigrateConfig = {
     author: author.email ? author : undefined,
     autoMerge,
     committer,
@@ -74,5 +74,9 @@ export const getMigrateConfig = async (
     prAssignees,
     skipE2E,
     token
-  } satisfies MigrateConfig);
+  };
+  core.info(JSON.stringify(config, null, 2));
+
+  // Validate and return migrate configuration
+  return MigrateConfigSchema.parse(config);
 };

@@ -1,4 +1,3 @@
-import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import { getPackageManagerCommand } from '@nx/devkit';
 
@@ -6,8 +5,6 @@ export async function runNxTests(): Promise<boolean> {
   const pmc = getPackageManagerCommand();
 
   try {
-    core.info('Run lint, test and build');
-
     await exec.exec(pmc.exec, [
       'nx',
       'run-many',

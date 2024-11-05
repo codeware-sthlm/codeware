@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
       - name: Build action
         run: pnpm nx build nx-migrate-action
 
@@ -40,3 +43,5 @@ jobs:
           check-token: ${{ vars.NX_MIGRATE_CHECK_TOKEN }}
           skip-e2e: ${{ vars.NX_MIGRATE_SKIP_E2E }}
           dry-run: ${{ vars.NX_MIGRATE_DRY_RUN }}
+        env:
+          CI: true

@@ -18,6 +18,7 @@ Using the action is currently limited to this repository since the package isn't
 ```yaml
 - uses: actions/checkout@v4
 
+# Install dependencies and tools...
 # Build the package...
 
 - name: Run Nx migrate

@@ -1,29 +1,58 @@
 {
-  "$schema": "http://json.schemastore.org/renovate",
-  "extends": ["config:base", ":semanticCommitScopeDisabled"],
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "extends": ["config:recommended", ":semanticCommitScopeDisabled"],
+  "baseBranches": ["main"],
+
+  "schedule": ["after 12am on sunday"],
+  "timezone": "Europe/Stockholm",
+
   "automerge": true,
   "automergeType": "branch",
-  "baseBranches": ["main"],
-  "updateInternalDeps": true,
+  "rebaseWhen": "auto",
+  "minimumReleaseAge": "3 days",
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 4,
+
+  "labels": ["dependencies"],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+
+  "groupName": "Weekly Dependencies",
+  "group": {
+    "commitMessageTopic": "dependencies"
+  },
+
+  "rangeStrategy": "auto",
+
+  "dependencyDashboard": true,
+
   "lockFileMaintenance": {
     "enabled": true,
-    "automerge": true,
-    "automergeType": "branch",
-    "commitMessageAction": "📦 lock file maintenance",
-    "semanticCommitType": "build"
+    "schedule": ["after 12am on sunday"]
   },
-  "rangeStrategy": "update-lockfile",
-  "commitMessageAction": "📦 bump",
+
   "packageRules": [
     {
-      "matchPackagePatterns": ["nx"],
-      "groupName": "Nx related (skip)",
+      "description": "Security updates configuration",
+      "matchUpdateTypes": ["patch", "minor", "major"],
+      "matchCategories": ["security"],
+      "automerge": true,
+      "prCreation": "immediate",
+      "prConcurrentLimit": 0,
+      "groupName": "Security updates"
+    },
+    {
+      "description": "Skip major updates for packages migrated to ESM only",
+      "matchPackageNames": ["@octokit/request-error", "replace-in-file"],
+      "matchUpdateTypes": ["major"],
       "enabled": false
     },
-    { "matchPackagePatterns": ["*"], "semanticCommitType": "build" },
     {
-      "matchDepTypes": ["dependencies", "require"],
-      "semanticCommitType": "fix"
+      "description": "Skip all Nx package updates",
+      "matchPackageNames": ["create-nx-workspace", "nx", "@nx/**", "@nrwl/**"],
+      "enabled": false
     }
   ]
 }

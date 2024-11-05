@@ -20,6 +20,11 @@ pre-commit:
       run: npx eslint --fix "{staged_files}"
       stage_fixed: true
 
+    # Validate Renovate config and suggest migrations
+    renovate:
+      glob: '.github/renovate.json'
+      run: npx --yes --package renovate -- renovate-config-validator --strict
+
 # Lint commit message after pre-commit
 commit-msg:
   commands:

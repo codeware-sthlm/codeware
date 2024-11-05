@@ -145,15 +145,20 @@ export async function nxMigrate(
       await stageAllChanges();
       core.endGroup();
 
-      core.startGroup('Tests migration changes');
+      core.startGroup('Run tests on migration changes');
       // Base tests
       const testsPass = await runNxTests();
+      core.endGroup();
+
       // Skip e2e when previous tests failed or from action inputs
       let e2ePass: boolean | undefined = undefined;
       if (testsPass && !config.skipE2E) {
+        core.startGroup('Run tests on migration changes');
         e2ePass = await runNxE2e();
+        core.endGroup();
       }
-      // Cleanup changes affected by tests
+
+      core.startGroup('Cleanup changes affected by tests');
       await discardUnstagedChanges();
       core.endGroup();
 

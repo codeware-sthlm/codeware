@@ -1,6 +1,8 @@
 import express from 'express';
 import payload from 'payload';
 
+import env from './env';
+
 // Create an Express server
 const app = express();
 
@@ -20,16 +22,19 @@ app.get('/', (_, res) => {
 
 // Initialize Payload
 payload.init({
-  secret: process.env.PAYLOAD_SECRET_KEY,
+  secret: env.PAYLOAD_SECRET_KEY,
   express: app,
+  loggerOptions: {
+    level: env.LOG_LEVEL
+  },
   onInit: () => {
     payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`);
     payload.logger.info(`Using DB adapter: ${payload.db.name}`);
-  },
+  }
 });
 
-const port = process.env.PORT || 3000;
+const port = env.PORT;
 const server = app.listen(port, () => {
-  console.log(`[ started ] on port ${port} (${process.env.NODE_ENV})`);
+  console.log(`[ started ] on port ${port} (${env.NODE_ENV})`);
 });
 server.on('error', console.error);

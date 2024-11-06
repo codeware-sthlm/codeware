@@ -6,7 +6,8 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noPropertyAccessFromIndexSignature": true
+    "noPropertyAccessFromIndexSignature": true,
+    "allowSyntheticDefaultImports": true
   },
   "files": [],
   "include": [],

@@ -1,0 +1,25 @@
+{
+  "extends": ["@nx/express"],
+  "generators": {
+    "preset": {
+      "implementation": "./src/generators/preset/preset",
+      "schema": "./src/generators/preset/schema.json",
+      "description": "Generate a new Payload CMS workspace",
+      "hidden": true,
+      "x-use-standalone-layout": false
+    },
+    "init": {
+      "implementation": "./src/generators/init/init",
+      "schema": "./src/generators/init/schema.json",
+      "description": "Initialize Express and Payload dependencies",
+      "hidden": true
+    },
+    "application": {
+      "implementation": "./src/generators/application/application",
+      "schema": "./src/generators/application/schema.json",
+      "description": "Generate a new Payload application",
+      "aliases": ["app"],
+      "x-type": "application"
+    }
+  }
+}

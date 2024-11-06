@@ -1,0 +1,45 @@
+{
+  "name": "nx-payload",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/nx-payload/src",
+  "tags": ["scope:nx-payload", "type:plugin"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "options": {
+        "assets": [
+          "packages/nx-payload/*.md",
+          {
+            "glob": "**/!(*.ts)",
+            "input": "./packages/nx-payload/src",
+            "output": "./src"
+          },
+          {
+            "glob": "**/*.d.ts",
+            "input": "./packages/nx-payload/src",
+            "output": "./src"
+          },
+          {
+            "glob": "executors.json",
+            "input": "./packages/nx-payload",
+            "output": "."
+          },
+          {
+            "glob": "generators.json",
+            "input": "./packages/nx-payload",
+            "output": "."
+          },
+          {
+            "glob": "migrations.json",
+            "input": "./packages/nx-payload",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest"
+    }
+  }
+}

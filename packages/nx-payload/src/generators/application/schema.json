@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "NxPayloadApp",
+  "title": "Generate a Payload admin application running Express",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The name of the application.",
+      "type": "string",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for the application?",
+      "pattern": "^[a-zA-Z].*$"
+    },
+    "directory": {
+      "description": "The path to the new application.",
+      "type": "string",
+      "x-prompt": "Where would you like to create the application files?"
+    },
+    "database": {
+      "description": "Database adapter to setup initially.",
+      "type": "string",
+      "enum": ["mongodb", "postgres"]
+    },
+    "unitTestRunner": {
+      "type": "string",
+      "enum": ["jest", "none"],
+      "description": "Test runner to use for unit tests.",
+      "default": "jest"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Add tags to the project (used for linting)",
+      "alias": "t"
+    },
+    "skipFormat": {
+      "type": "boolean",
+      "description": "Skip formatting application files.",
+      "default": false
+    },
+    "skipE2e": {
+      "type": "boolean",
+      "description": "Skip generating e2e application.",
+      "default": false
+    }
+  },
+  "required": ["directory", "name"],
+  "examplesFile": "../../../docs/application-examples.md"
+}

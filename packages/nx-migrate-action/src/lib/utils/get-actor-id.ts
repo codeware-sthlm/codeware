@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@cx/core';
+import { withGitHub } from '@codeware/core';
 
 /**
  * Get actor id from current actor user name.

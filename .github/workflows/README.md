@@ -1,4 +1,4 @@
-# Running GitHub Actions Workflows Locally
+# Running GitHub Actions Locally
 
 ## Getting Started
 

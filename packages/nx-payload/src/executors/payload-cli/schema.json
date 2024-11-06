@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "title": "Payload cli",
+  "description": "Run payload commands.",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "The output path of the generated files.",
+      "x-completion-type": "directory"
+    }
+  },
+  "required": []
+}

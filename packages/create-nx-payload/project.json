@@ -1,0 +1,19 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "implicitDependencies": ["nx-payload"],
+  "name": "create-nx-payload",
+  "projectType": "library",
+  "sourceRoot": "packages/create-nx-payload/bin",
+  "tags": ["scope:create-nx-payload", "type:plugin"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "options": {
+        "assets": ["packages/create-nx-payload/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest"
+    }
+  }
+}

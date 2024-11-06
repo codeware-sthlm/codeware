@@ -45,7 +45,11 @@
     },
     {
       "description": "Skip major updates for packages migrated to ESM only",
-      "matchPackageNames": ["@octokit/request-error", "replace-in-file"],
+      "matchPackageNames": [
+        "@octokit/request-error",
+        "chalk",
+        "replace-in-file"
+      ],
       "matchUpdateTypes": ["major"],
       "enabled": false
     },

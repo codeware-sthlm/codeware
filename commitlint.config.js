@@ -8,9 +8,8 @@ const projects = JSON.parse(
     encoding: 'utf-8'
   })
 );
-// Allow release commits via CLI
-// and generic repository changes
-projects.push('release', 'repo');
+// Allow some custom scopes
+projects.push('deps', 'release', 'repo');
 
 /** @type {import('cz-git').UserConfig} */
 module.exports = {

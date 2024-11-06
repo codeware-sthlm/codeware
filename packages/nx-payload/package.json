@@ -1,0 +1,63 @@
+{
+  "name": "@cdwr/nx-payload",
+  "version": "0.11.1",
+  "private": false,
+  "description": "The Nx Payload plugin adds support for Payload applications within an Nx workspace.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "directory": "packages/nx-payload"
+  },
+  "author": {
+    "name": "Codeware Sthlm",
+    "email": "hello@codeware.se",
+    "url": "https://codeware.se"
+  },
+  "license": "MIT",
+  "keywords": [
+    "Docker",
+    "Express",
+    "Jest",
+    "MongoDB",
+    "Nx",
+    "Payload",
+    "Plugin",
+    "Postgres"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@nx/devkit": "20.x",
+    "react": "18.3.1",
+    "react-i18next": "15.1.0",
+    "react-router-dom": "6.27.0",
+    "rimraf": "^6.0.1",
+    "tiny-invariant": "^1.3.3",
+    "tslib": "^2.4.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^10.1.2",
+    "react-dom": "^18.3.1"
+  },
+  "peerDependencies": {
+    "@nx/devkit": "20.x",
+    "@nx/express": "20.x",
+    "@nx/js": "20.x",
+    "@nx/webpack": "20.x",
+    "nx": "20.x"
+  },
+  "peerDependenciesMeta": {
+    "@nx/webpack": {
+      "optional": true
+    }
+  },
+  "type": "commonjs",
+  "main": "./index.js",
+  "typings": "./index.d.ts",
+  "executors": "./executors.json",
+  "generators": "./generators.json",
+  "nx-migrations": {
+    "migrations": "./migrations.json"
+  }
+}

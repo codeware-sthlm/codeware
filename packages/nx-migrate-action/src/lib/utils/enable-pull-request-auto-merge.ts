@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@cx/core';
+import { withGitHub } from '@codeware/core';
 
 import { addPullRequestComment } from './add-pull-request-comment';
 import type { MigrateConfig } from './types';

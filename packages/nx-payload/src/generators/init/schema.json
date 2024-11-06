@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "NxPayloadInit",
+  "title": "Init Nx Payload Plugin",
+  "type": "object",
+  "properties": {},
+  "required": []
+}

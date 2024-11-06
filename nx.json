@@ -1,5 +1,7 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "nxCloudId": "6705466d4003f9515ff74f33",
+  "defaultBase": "main",
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
@@ -14,33 +16,6 @@
     ],
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
-  "nxCloudId": "6705466d4003f9515ff74f33",
-  "plugins": [
-    {
-      "plugin": "@nx/vite/plugin",
-      "options": {
-        "buildTargetName": "build",
-        "testTargetName": "test",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "serveStaticTargetName": "serve-static",
-        "typecheckTargetName": "typecheck"
-      }
-    },
-    {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "lint"
-      }
-    },
-    {
-      "plugin": "@nx/playwright/plugin",
-      "options": {
-        "targetName": "e2e"
-      }
-    },
-    "@cdwr/nx-payload/plugin"
-  ],
   "targetDefaults": {
     "@nx/jest:jest": {
       "inputs": [
@@ -73,7 +48,13 @@
     "@nx/js:tsc": {
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
+      "inputs": ["production", "^production"],
+      "options": {
+        "main": "{projectRoot}/src/index.ts",
+        "outputPath": "dist/{projectRoot}",
+        "tsConfig": "{projectRoot}/tsconfig.lib.json"
+      },
+      "outputs": ["{options.outputPath}"]
     },
     "@nx/js:swc": {
       "cache": true,
@@ -83,7 +64,21 @@
     "@nx/esbuild:esbuild": {
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
+      "inputs": ["production", "^production"],
+      "options": {
+        "outputPath": "dist/{projectRoot}",
+        "main": "{projectRoot}/src/index.ts",
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
+        "generatePackageJson": false,
+        "format": ["cjs"]
+      },
+      "outputs": ["{options.outputPath}"]
+    },
+    "nx-release-publish": {
+      "dependsOn": ["build"],
+      "options": {
+        "packageRoot": "{workspaceRoot}/dist/packages/{projectName}"
+      }
     }
   },
   "generators": {
@@ -133,12 +128,120 @@
       }
     }
   },
-  "defaultProject": "cms",
   "release": {
+    "projects": ["packages/*"],
+    "projectsRelationship": "independent",
+    "releaseTagPattern": "{projectName}-{version}",
+    "changelog": {
+      "automaticFromRef": true,
+      "git": {
+        "commitMessage": "chore(release): packages"
+      },
+      "projectChangelogs": {
+        "createRelease": "github",
+        "renderOptions": {
+          "authors": false
+        }
+      },
+      "workspaceChangelog": false
+    },
     "version": {
-      "generatorOptions": { "fallbackCurrentVersionResolver": "disk" },
+      "conventionalCommits": true,
+      "generatorOptions": {
+        "fallbackCurrentVersionResolver": "disk"
+      },
       "preVersionCommand": "pnpm nx run-many -t build"
+    },
+    "conventionalCommits": {
+      "types": {
+        "feat": {
+          "semverBump": "minor",
+          "changelog": {
+            "title": "✨ Features"
+          }
+        },
+        "fix": {
+          "semverBump": "patch",
+          "changelog": {
+            "title": "🐞 Bug Fixes"
+          }
+        },
+        "perf": {
+          "semverBump": "patch",
+          "changelog": {
+            "title": "⚡️ Performance Improvements"
+          }
+        },
+        "revert": {
+          "semverBump": "patch",
+          "changelog": {
+            "title": "🔙 Revert Code Changes"
+          }
+        },
+        "docs": {
+          "semverBump": "patch",
+          "changelog": {
+            "title": "📄 Documentation"
+          }
+        },
+        "chore": {
+          "semverBump": "patch",
+          "changelog": {
+            "title": "⚙️ Miscellaneous Chores"
+          }
+        },
+        "refactor": {
+          "semverBump": "patch",
+          "changelog": {
+            "title": "🧹 Code Refactoring"
+          }
+        },
+        "test": {
+          "semverBump": "none",
+          "changelog": {
+            "title": "✅ Tests"
+          }
+        },
+        "ci": {
+          "semverBump": "none",
+          "changelog": {
+            "title": "🤖 Continuous Integration"
+          }
+        },
+        "deps": {
+          "semverBump": "patch",
+          "changelog": {
+            "hidden": true
+          }
+        }
+      }
     }
   },
+  "plugins": [
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e"
+      }
+    },
+    "@cdwr/nx-payload/plugin"
+  ],
   "useLegacyCache": true
 }

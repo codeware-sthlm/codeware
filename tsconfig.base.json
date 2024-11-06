@@ -8,15 +8,23 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2020",
+    "target": "es2022",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2022", "dom"],
+    "strict": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@cx/core": ["packages/core/src/index.ts"],
-      "@cx/nx-migrate-action": ["packages/nx-migrate-action/src/index.ts"]
+      "@codeware/core": ["packages/core/src/index.ts"],
+      "@codeware/create-nx-payload": [
+        "packages/create-nx-payload/bin/index.ts"
+      ],
+      "@codeware/e2e/utils": ["e2e/utils/index.ts"],
+      "@codeware/nx-migrate-action": [
+        "packages/nx-migrate-action/src/index.ts"
+      ],
+      "@codeware/nx-payload": ["packages/nx-payload/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

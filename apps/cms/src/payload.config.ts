@@ -7,6 +7,7 @@ import { slateEditor } from '@payloadcms/richtext-slate';
 import { buildConfig } from 'payload/config';
 
 import Users from './collections/Users';
+import env from './env';
 
 export default buildConfig({
   admin: {
@@ -17,7 +18,7 @@ export default buildConfig({
   },
   collections: [Users],
   db: postgresAdapter({
-    pool: { connectionString: process.env.POSTGRES_URL },
+    pool: { connectionString: env.POSTGRES_URL },
     migrationDir: resolve(__dirname, 'migrations')
   }),
   editor: slateEditor({}),

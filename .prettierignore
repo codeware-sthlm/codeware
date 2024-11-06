@@ -4,4 +4,8 @@
 /.nx/cache
 /.nx/workspace-data
 
+CHANGELOG.md
 pnpm-lock.yaml
+
+# Plugin templates
+**/*__tmpl__

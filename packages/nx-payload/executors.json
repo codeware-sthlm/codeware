@@ -1,0 +1,19 @@
+{
+  "executors": {
+    "build": {
+      "implementation": "./src/executors/build/build",
+      "schema": "./src/executors/build/schema.json",
+      "description": "Build application"
+    },
+    "payload-build": {
+      "implementation": "./src/executors/payload-build/payload-build",
+      "schema": "./src/executors/payload-build/schema.json",
+      "description": "Build Payload admin"
+    },
+    "payload-cli": {
+      "implementation": "./src/executors/payload-cli/payload-cli",
+      "schema": "./src/executors/payload-cli/schema.json",
+      "description": "Run native Payload commands"
+    }
+  }
+}

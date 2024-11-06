@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "NxPayloadPreset",
+  "title": "Nx Payload Preset",
+  "type": "object",
+  "description": "Generate a Payload application in a integrated workspace. Can be used with `create-nx-workspace --preset=@cdwr/nx-payload`.",
+  "properties": {
+    "payloadAppName": {
+      "description": "The name of the application.",
+      "type": "string",
+      "x-prompt": "What name would you like to use for the application?"
+    },
+    "payloadAppDirectory": {
+      "description": "The path to the new application.",
+      "type": "string",
+      "x-prompt": "Where would you like to create the application files?"
+    }
+  },
+  "required": ["payloadAppName", "payloadAppDirectory"]
+}

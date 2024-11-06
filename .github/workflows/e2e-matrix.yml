@@ -1,0 +1,202 @@
+name: E2E matrix
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  merge_group:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Environment details:
+# - renovate branches should never use Nx Cloud
+env:
+  CDWR_DEBUG_LOGGING: true
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_NO_CLOUD: ${{ contains(github.head_ref || github.ref_name, 'renovate') || vars.NX_NO_CLOUD }}
+  NX_DAEMON: ${{ vars.NX_DAEMON }}
+  NX_PARALLEL: ${{ vars.NX_PARALLEL }}
+  NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preinstall:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20]
+
+    name: Cache install (${{ matrix.os }}, node v${{ matrix.node }})
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm package manager
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - uses: actions/cache@v4
+        id: cache-modules
+        with:
+          lookup-only: true
+          path: '**/node_modules'
+          key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
+
+      - if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+
+  e2e:
+    needs: preinstall
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20]
+        pm: [npm, pnpm, yarn]
+        project: [nx-payload-e2e, web-e2e]
+        include:
+          - os: ubuntu-latest
+            name: Linux
+            timeout: 30
+            configuration: 'skip-docker'
+            verdaccio: localhost
+          - os: macos-latest
+            name: macOS
+            timeout: 30
+            configuration: skip-docker
+          - os: windows-latest
+            name: Windows
+            timeout: 60
+            configuration: skip-docker
+        exclude:
+          - os: macos-latest
+            pm: pnpm
+          - os: macos-latest
+            pm: yarn
+          - os: windows-latest
+            pm: pnpm
+          - os: windows-latest
+            pm: yarn
+      fail-fast: false
+
+    name: E2E ${{ matrix.os }}/${{ matrix.pm }}/${{ matrix.node }} ${{ join(matrix.project) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm package manager
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - uses: actions/cache@v4
+        id: cache-modules
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install playwright browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Analyze affected projects
+        uses: nrwl/nx-set-shas@v4
+
+      - name: Run e2e tests
+        id: e2e-run
+        run: pnpm nx e2e ${{ matrix.project }} -c ${{ matrix.configuration }}
+        timeout-minutes: ${{ matrix.timeout }}
+        env:
+          CDWR_E2E_PACKAGE_MANAGER: ${{ matrix.pm }}
+          CDWR_E2E_VERDACCIO_HOST: ${{ matrix.verdaccio }}
+          NX_CACHE_DIRECTORY: 'tmp'
+          NX_PERF_LOGGING: 'false'
+      - name: Save test result
+        if: always()
+        run: |
+          echo '{"project": "${{ matrix.project }}", "os": "${{ matrix.os }}", "pm": "${{ matrix.pm }}", "node": "${{ matrix.node }}", "configuration": "${{ matrix.configuration }}", "status": "${{ job.status }}"}' > results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
+        shell: bash
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}
+          path: results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
+
+  summary:
+    name: E2E Test Summary
+    needs: e2e
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: results-*
+          merge-multiple: true
+      - name: Create summary
+        run: |
+          echo "# E2E Test Results Summary" > summary.md
+          echo "" >> summary.md
+          echo "| Project | OS | Package Manager | Node Version | Configuration | Status |" >> summary.md
+          echo "| ------- | -- | --------------- | ------------ | ------------- | ------ |" >> summary.md
+          for artifact in artifacts/*.json; do
+            if [ -f "$artifact" ]; then
+              project=$(jq -r '.project' "$artifact")
+              os=$(jq -r '.os' "$artifact")
+              pm=$(jq -r '.pm' "$artifact")
+              configuration=$(jq -r '.configuration' "$artifact")
+              node=$(jq -r '.node' "$artifact")
+              status=$(jq -r '.status' "$artifact")
+              echo "| $project | $os | $pm | $node | $configuration | $status |" >> summary.md
+            fi
+          done
+
+          echo "" >> summary.md
+          echo "## Detailed Results" >> summary.md
+          echo "" >> summary.md
+          echo "<details><summary>Click to expand</summary>" >> summary.md
+          for artifact in artifacts/*.json; do
+            echo "$(basename $artifact)" >> summary.md
+            echo "" >> summary.md
+            echo '```json' >> summary.md
+            echo "" >> summary.md
+            jq -s '.' $artifact >> summary.md
+            echo "" >> summary.md
+            echo '```' >> summary.md
+            echo "" >> summary.md
+          done
+          echo "</details>" >> summary.md
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-summary
+          path: summary.md
+
+      - name: Output summary
+        run: cat summary.md >> $GITHUB_STEP_SUMMARY

@@ -243,6 +243,7 @@ describe('nxMigrate', () => {
     });
 
     it('should return status when pull request exists', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getExecOutputMock.mockResolvedValue({ stdout: 'remote branch' } as any);
       const config = setupTest('minor-update');
       const result = await nxMigrate(config, true);
@@ -257,6 +258,7 @@ describe('nxMigrate', () => {
     });
 
     it('should return status when pull request exists (dry-run)', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getExecOutputMock.mockResolvedValue({ stdout: 'remote branch' } as any);
       const config = setupTest('minor-update', { dryRun: true });
       const result = await nxMigrate(config, true);

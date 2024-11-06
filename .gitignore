@@ -32,7 +32,6 @@ yarn.lock
 # misc
 /.pnpm-store
 /.sass-cache
-/.pnpm-store
 /connect.lock
 /coverage
 /libpeerconnection.log
@@ -49,8 +48,6 @@ Thumbs.db
 .nx/cache
 .nx/workspace-data
 migrations.json
-
-
 
 # Act
 .secrets

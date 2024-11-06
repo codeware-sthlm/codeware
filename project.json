@@ -1,14 +1,27 @@
 {
   "name": "codeware",
   "$schema": "node_modules/nx/schemas/project-schema.json",
+  "tags": ["scope:codeware", "type:workspace"],
   "targets": {
     "local-registry": {
       "executor": "@nx/js:verdaccio",
       "options": {
-        "port": 4873,
         "config": ".verdaccio/config.yml",
+        "port": 4873,
+        "listenAddress": "0.0.0.0",
         "storage": "tmp/local-registry/storage"
+      },
+      "configurations": {
+        "ci": {
+          "listenAddress": "localhost"
+        }
       }
+    },
+    "local-registry:publish": {
+      "command": "pnpm nx release version --stage-changes false --git-commit false --git-tag false --first-release true && pnpm nx release publish --tag local --first-release true"
+    },
+    "release-cli": {
+      "command": "pnpm dlx tsx ./packages/core/src/lib/release/release.ts"
     }
   }
 }

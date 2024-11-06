@@ -1,0 +1,60 @@
+# Only for Development.
+# Should be started from workspace root.
+
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - local
+    volumes:
+      - type: volume
+        source: db_mongodb
+        target: /data/db
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    ports:
+      - 5432:5432
+    env_file:
+      .env.local
+    networks:
+      - local
+    volumes:
+      - type: volume
+        source: db_postgres
+        target: /var/lib/postgresql/data
+
+  <%= name %>:
+    container_name: <%= name %>
+    image: <%= name %>
+    build:
+      context: ../../
+      dockerfile: <%= directory %>/Dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.local
+    environment:
+      # Override the values different from .env.local
+      - MONGO_URL=mongodb://mongodb/$MONGO_DB
+      - POSTGRES_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
+    networks:
+      - local
+    depends_on:
+      - mongodb
+      - postgres
+
+networks:
+  local:
+    name: payload-local
+    driver: bridge
+
+volumes:
+  db_mongodb:
+    driver: local
+  db_postgres:
+    driver: local

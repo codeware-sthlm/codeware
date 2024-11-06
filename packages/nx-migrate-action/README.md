@@ -1,8 +1,24 @@
-# Nx Migrate GitHub Action
+<p align="center">
+  <br />
+  <img width="200" src="./assets/cdwr-cloud.png" alt="codeware sthlm logo">
+  <br />
+  <br />
+</p>
+
+<h1 align='center'>Nx Migrate</h1>
+
+<p align='center'>
+  GitHub action that brings automatic <a href='https://nx.dev'>Nx</a> migrations to your workspace.
+  <br />
+  <br />
+  <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
+  <br />
+  <br />
+</p>
 
 ## Description
 
-This GitHub action assures your Nx workspace stays up to date.
+This action assures your Nx workspace stays up to date.
 
 When the action runs it will check you local Nx version to see whether there's a new version available.
 In that case a migration process is triggered and the changes are tested by your test setup.
@@ -65,21 +81,24 @@ See [action.yaml](action.yml).
 
 ## Development
 
-### Running locally
+### Running locally with `act`
 
-Install CLI
+GitHub actions can be run locally using [act](https://github.com/nektos/act).
+
+By providing a proper PAT the action will be able to run just like it does in the GitHub Actions runner.
+
+Getting started instructions can be found in [.github/workflows/README.md](.github/workflows/README.md).
+
+#### After `act` has been installed
+
+Verify that the secrets and variables have the desired values:
+
+- `.env.act`
+- `.secrets`
+- `.vars`
+
+Run the action:
 
 ```sh
-npm i -g @github/local-action
+nx act nx-migrate-action
 ```
-
-Invoke action
-
-```sh
-local-action packages/nx-migrate-action src/lib/main.ts packages/nx-migrate-action/.env.test
-```
-
-**Important!**
-
-> Setting `INPUT_DRY-RUN=true` in `.env.test` ensures that only action validation and version analyze is run.  
-> Hence, nothing gets changed.

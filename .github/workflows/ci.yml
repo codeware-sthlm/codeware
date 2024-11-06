@@ -17,9 +17,20 @@ permissions:
   actions: read
   contents: read
 
+# Environment details:
+# - renovate branches should never use Nx Cloud
 env:
+  CDWR_E2E_PACKAGE_MANAGER: npm
+  CDWR_E2E_VERDACCIO_HOST: localhost
+  CDWR_DEBUG_LOGGING: true
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_NO_CLOUD: ${{ contains(github.head_ref || github.ref_name, 'renovate') || vars.NX_NO_CLOUD }}
+  NX_PARALLEL: ${{ vars.NX_PARALLEL }}
   NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   main:
@@ -29,29 +40,37 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
-
-      - run: pnpm dlx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
-        if: ${{ vars.NX_NO_CLOUD != 'true' }}
+      - name: Install pnpm package manager
+        uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm dlx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
+        if: ${{ env.NX_NO_CLOUD != 'true' }}
 
-      - uses: nrwl/nx-set-shas@v4
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install playwright browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Analyze affected projects
+        uses: nrwl/nx-set-shas@v4
 
       - run: pnpm nx-cloud record -- nx format:check
-        if: ${{ vars.NX_NO_CLOUD != 'true' }}
+        if: ${{ env.NX_NO_CLOUD != 'true' }}
 
-      - run: pnpm nx affected -t lint,test,build,e2e-ci
-        if: ${{ vars.NX_NO_CLOUD != 'true' }}
-        env:
-          NX_NO_CLOUD: ${{ vars.NX_NO_CLOUD }}
+      - run: pnpm nx affected -t lint,test,build,e2e-ci -c ci
+        if: ${{ env.NX_NO_CLOUD != 'true' }}
 
-      - run: pnpm nx affected -t lint,test,build,e2e
-        if: ${{ vars.NX_NO_CLOUD == 'true' }}
-        env:
-          NX_NO_CLOUD: ${{ vars.NX_NO_CLOUD }}
+      # nx-payload-e2e hasn't been setup for ci distribution yet
+      # and only runs in e2e-matrix workflow
+      - run: pnpm nx affected -t lint,test,build,e2e -c ci --exclude nx-payload-e2e
+        if: ${{ env.NX_NO_CLOUD == 'true' }}
+
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

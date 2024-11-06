@@ -8,11 +8,17 @@
     "url": "https://github.com/codeware-sthlm/codeware.git",
     "directory": "packages/nx-migrate-action"
   },
+  "author": {
+    "name": "Codeware Sthlm",
+    "email": "hello@codeware.se",
+    "url": "https://codeware.se"
+  },
   "license": "MIT",
   "keywords": [
-    "Nx",
     "Automation",
-    "GitHub Actions"
+    "GitHub Actions",
+    "Migrate",
+    "Nx"
   ],
   "publishConfig": {
     "access": "public"
@@ -26,5 +32,14 @@
     "zod": "^3.23.8"
   },
   "type": "module",
-  "main": "./index.js"
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "types": "./index.d.ts",
+  "main": "./index.js",
+  "module": "./index.js"
 }

@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "title": "Payload build",
+  "description": "Build payload admin.",
+  "type": "object",
+  "properties": {},
+  "required": []
+}

@@ -1,5 +1,5 @@
 import * as github from '@actions/github';
-import { withGitHub } from '@cx/core';
+import { withGitHub } from '@codeware/core';
 
 /**
  * Get default branch of the repository.

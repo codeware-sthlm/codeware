@@ -1,6 +1,6 @@
 <p align="center">
   <br />
-  <img width="200" src="./assets/cdwr-cloud.png" alt="codeware sthlm logo">
+  <img width="200" src="../../assets/cdwr-cloud.png" alt="codeware sthlm logo">
   <br />
   <br />
 </p>

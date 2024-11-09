@@ -36,6 +36,7 @@ type MockRestEndpointMethodTypes = DeepMockFunction<RestEndpointMethodTypes>;
 // Usage example type
 interface MockOctokit {
   rest: MockRestEndpointMethodTypes;
+  graphql: jest.Mock;
   request: jest.Mock;
   paginate: jest.Mock;
 }
@@ -85,6 +86,9 @@ const mockOctokit: MockOctokit = {
           number: 1
         }
       }),
+      get: createMockResponse('pulls', 'get', {
+        data: { node_id: 'ID1', number: 1 }
+      }),
       list: createMockResponse('pulls', 'list', {
         data: [{ labels: [], number: 1 }]
       }),
@@ -113,6 +117,7 @@ const mockOctokit: MockOctokit = {
       })
     }
   },
+  graphql: jest.fn(),
   request: jest.fn().mockResolvedValue({}),
   paginate: jest.fn()
 };

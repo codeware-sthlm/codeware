@@ -37,6 +37,7 @@ type MockRestEndpointMethodTypes = DeepMockFunction<RestEndpointMethodTypes>;
 
 interface MockOctokit {
   rest: MockRestEndpointMethodTypes;
+  graphql: ViMockFunction;
   request: ViMockFunction;
   paginate: ViMockFunction;
 }
@@ -84,6 +85,9 @@ const mockOctokit: MockOctokit = {
           number: 1
         }
       }),
+      get: createMockResponse('pulls', 'get', {
+        data: { node_id: 'ID1', number: 1 }
+      }),
       list: createMockResponse('pulls', 'list', {
         data: [{ labels: [], number: 1 }]
       }),
@@ -112,6 +116,7 @@ const mockOctokit: MockOctokit = {
       })
     }
   },
+  graphql: vi.fn(),
   request: vi.fn().mockResolvedValue({}),
   paginate: vi.fn()
 };

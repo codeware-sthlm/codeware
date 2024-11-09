@@ -532,9 +532,9 @@ describe('nxMigrate', () => {
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).toHaveBeenCalledWith(
-        expect.objectContaining({ token: 'token' }),
-        false,
-        1
+        'token',
+        1,
+        'REBASE'
       );
     });
 

@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 
 import { addPullRequestAssignees } from './utils/add-pull-request-assignees';
+import { addPullRequestComment } from './utils/add-pull-request-comment';
 import { addPullRequestLabel } from './utils/add-pull-request-label';
 import { cleanupPullRequests } from './utils/cleanup-pull-requests';
 import { createAndPushCommit } from './utils/create-and-push-commit';
@@ -180,7 +181,16 @@ export async function nxMigrate(
       }
       await addPullRequestLabel(config, pullRequest);
       if (config.autoMerge) {
-        await enablePullRequestAutoMerge(config, isMajorUpdate, pullRequest);
+        if (isMajorUpdate) {
+          core.info('Skip auto-merge for major version migrations');
+          await addPullRequestComment(
+            config,
+            pullRequest,
+            'Auto-merge is disabled for major version migrations'
+          );
+        } else {
+          await enablePullRequestAutoMerge(config.token, pullRequest, 'REBASE');
+        }
       }
       await cleanupPullRequests(config, pullRequest);
       core.endGroup();

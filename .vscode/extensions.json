@@ -1,8 +1,12 @@
 {
   "recommendations": [
-    "nrwl.angular-console",
+    "bradlc.vscode-tailwindcss",
+    "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
+    "firsttris.vscode-jest-runner",
+    "graphql.vscode-graphql",
+    "graphql.vscode-graphql-syntax",
     "ms-playwright.playwright",
-    "firsttris.vscode-jest-runner"
+    "vitest.explorer"
   ]
 }

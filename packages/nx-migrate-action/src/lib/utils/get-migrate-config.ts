@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { withGitHub } from '@codeware/core';
 
 import { getActorId } from './get-actor-id';
 import { getRepositoryDefaultBranch } from './get-repository-default-branch';
@@ -20,7 +21,7 @@ export const getMigrateConfig = async (
 ): Promise<MigrateConfig> => {
   const {
     author: authorInput,
-    autoMerge,
+    autoMerge: autoMergeInput,
     committer: committerInput,
     dryRun,
     mainBranch: mainBranchInput,
@@ -30,9 +31,26 @@ export const getMigrateConfig = async (
     token
   } = inputs;
 
+  const octokit = github.getOctokit(token);
+
   // Check main branch; if not provided, get default branch
   const mainBranch =
     mainBranchInput || (await getRepositoryDefaultBranch(token));
+
+  // Check auto-merge; must be enabled for the repository
+  const {
+    data: { allow_auto_merge }
+  } = await withGitHub(() =>
+    octokit.rest.repos.get({
+      ...github.context.repo
+    })
+  );
+  if (!allow_auto_merge && autoMergeInput) {
+    core.warning(
+      'Auto-merge is not enabled for this repository, ignoring auto-merge option'
+    );
+  }
+  const autoMerge = !!allow_auto_merge && autoMergeInput;
 
   // Check author; if not provided, use actor
   let author = parseNameEmail(authorInput);

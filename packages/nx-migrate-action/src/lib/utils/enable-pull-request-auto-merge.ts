@@ -1,68 +1,62 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@codeware/core';
+import type {
+  MutationEnablePullRequestAutoMergeArgs,
+  PullRequestMergeMethod
+} from '@octokit/graphql-schema';
 
-import { addPullRequestComment } from './add-pull-request-comment';
-import type { MigrateConfig } from './types';
+import { getPullRequest } from './get-pull-request';
 
 /**
- * Enable auto-merge for a pull request using rebase merge method.
+ * Enable auto-merge for a pull request.
  *
- * Requires auto-merge to be enabled in the repository settings.
+ * Pre-requisite: auto-merge must be enabled in the repository settings.
  *
- * @param config - The migration configuration
- * @param isMajorUpdate - Whether the migration is a major update
+ * @param token - GitHub token
  * @param pullRequest - The pull request number
+ * @param mergeMethod - The merge method to use, defaults to `REBASE`
  */
 export const enablePullRequestAutoMerge = async (
-  config: MigrateConfig,
-  isMajorUpdate: boolean,
-  pullRequest: number
+  token: string,
+  pullRequest: number,
+  mergeMethod: PullRequestMergeMethod = 'REBASE'
 ): Promise<void> => {
-  const { token } = config;
-
   const octokit = github.getOctokit(token);
 
-  // Check if auto-merge is available for the repository
-  const {
-    data: { allow_auto_merge }
-  } = await withGitHub(() =>
-    octokit.rest.repos.get({
-      ...github.context.repo
-    })
-  );
-
-  // Skip auto-merge when not allowed
-  if (!allow_auto_merge) {
-    await addPullRequestComment(
-      config,
-      pullRequest,
-      'Auto-merge is not enabled for this repository'
+  // First get the pull request node ID which is required for the mutation
+  const pullRequestData = await getPullRequest(token, pullRequest);
+  if (!pullRequestData) {
+    core.error(
+      `Pull request #${pullRequest} could not be found, aborting auto-merge`
     );
-    core.info('Auto-merge is not enabled for this repository');
     return;
   }
 
-  // Skip auto-merge for major version updates
-  if (isMajorUpdate) {
-    await addPullRequestComment(
-      config,
-      pullRequest,
-      'Auto-merge is disabled for major version migrations'
-    );
-    core.info('Auto-merge is disabled for major version migrations');
-    return;
-  }
-
-  // Enable auto-merge only possible via request
-  await withGitHub(() =>
-    octokit.request({
-      ...github.context.repo,
-      url: '/repos/{owner}/{repo}/pulls/{pull_number}/auto-merge',
-      pull_number: pullRequest,
-      merge_method: 'rebase'
-    })
+  // Enable auto-merge using GraphQL mutation
+  await octokit.graphql<MutationEnablePullRequestAutoMergeArgs>(
+    /* GraphQL */ `
+      mutation EnablePullRequestAutoMerge(
+        $pullRequestId: ID!
+        $mergeMethod: PullRequestMergeMethod!
+      ) {
+        enablePullRequestAutoMerge(
+          input: { pullRequestId: $pullRequestId, mergeMethod: $mergeMethod }
+        ) {
+          pullRequest {
+            autoMergeRequest {
+              enabledAt
+            }
+          }
+        }
+      }
+    `,
+    {
+      pullRequestId: pullRequestData.node_id,
+      mergeMethod
+    } satisfies MutationEnablePullRequestAutoMergeArgs['input']
   );
 
-  core.info('Auto-merge is enabled with rebase merge method');
+  core.info(
+    `Auto-merge is enabled for pull request #${pullRequest} with '${mergeMethod}'`
+  );
 };

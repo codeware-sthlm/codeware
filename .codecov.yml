@@ -1,0 +1,12 @@
+# Code coverage should never block a PR
+# https://docs.codecov.com/docs/commit-status
+coverage:
+  status:
+    # Entire project
+    project:
+      default:
+        informational: true
+    # PR changes
+    patch:
+      default:
+        informational: true

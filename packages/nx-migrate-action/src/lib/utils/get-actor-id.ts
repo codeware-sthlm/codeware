@@ -24,7 +24,7 @@ export const getActorId = async (token: string) => {
   );
 
   if (!actor) {
-    core.info(`No user was found for actor '${username}'`);
+    core.debug(`User '${username}' could not be found`);
     return undefined;
   }
 

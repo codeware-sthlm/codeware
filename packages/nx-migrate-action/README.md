@@ -40,7 +40,7 @@ Using the action is currently limited to this repository since the package isn't
 - name: Run Nx migrate
   uses: ./packages/nx-migrate-action
   with:
-    token: ${{ secrets.BOT_TOKEN }}
+    token: ${{ secrets.BOT_TOKEN || secrets.GITHUB_TOKEN }}
 ```
 
 ### Permissions
@@ -62,9 +62,10 @@ Use the default `GITHUB_TOKEN` and elevate the permissions in the workflow.
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 ```
 
-_Replace `BOT_TOKEN` with `GITHUB_TOKEN`._
+The `actions` permission is required when the created pull requests have status checks. Without this permission those checks won't be able to run. It applies only to when using the `GITHUB_TOKEN`.
 
 ##### Option 2
 
@@ -77,7 +78,19 @@ Add the token to the repository secrets in **Settings** -> **Secrets and variabl
 
 ## Inputs
 
-See [action.yaml](action.yml).
+See [action.yaml](action.yml) for descriptions of the inputs.
+
+### Additional input details
+
+`auto-merge`
+
+It will always be `false` when auto merge isn't enabled in the repository settings.
+
+For major version updates this option is ignored. When it's set to `true` a comment will be added to the pull request explaining why auto-merge is disabled.
+
+`check-token`
+
+It's not recommended to use this in production since it might block the workflow from running.
 
 ## Development
 

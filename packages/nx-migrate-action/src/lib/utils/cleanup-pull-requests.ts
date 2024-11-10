@@ -58,6 +58,17 @@ export const cleanupPullRequests = async (
       );
 
       core.info(`Added comment to deprecated pull request #${openPR.number}`);
+
+      await withGitHub(() =>
+        octokit.rest.git.deleteRef({
+          ...github.context.repo,
+          ref: `heads/${openPR.head.ref}`
+        })
+      );
+
+      core.info(
+        `Deleted branch ${openPR.head.ref} of pull request #${openPR.number}`
+      );
     }
   }
 };

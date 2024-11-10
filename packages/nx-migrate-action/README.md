@@ -27,6 +27,10 @@ A pull request is always created for a new version, which can by auto-merged whe
 
 > As long as the repository is setup to allow auto-merges
 
+An open pull request for a specific Nx version is considered pending and will block a new pull request from being created for the same version. This is to give a developer some time to fix any breaking changes or to review in case auto-merge is disabled.
+
+On the other hand, when a new Nx version is released the action will automatically close any pending pull requests and create a new one. The pending pull request branches will be deleted.
+
 ## Usage
 
 Using the action is currently limited to this repository since the package isn't deployed.

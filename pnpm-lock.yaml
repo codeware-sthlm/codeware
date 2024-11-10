@@ -54,8 +54,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-router-dom:
-        specifier: 6.27.0
-        version: 6.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.28.0
+        version: 6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       replace-in-file:
         specifier: ^7.2.0
         version: 7.2.0
@@ -2168,6 +2168,7 @@ packages:
 
   '@evilmartians/lefthook@1.8.2':
     resolution: {integrity: sha512-SZdQk3W9q7tcJwnSwEMUubQqVIK7SHxv52hEAnV7o3nPI+xKcmd+rN0hZIJg07wjBaJRAjzdvoQySKQQYPW5Qw==}
+    cpu: [x64, arm64, ia32]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -3202,6 +3203,10 @@ packages:
     resolution: {integrity: sha512-mUnk8rPJBI9loFDZ+YzPGdeniYK+FTmRD1TMCz7ev2SNIozyKKpnGgsxO34u6Z4z/t0ITuu7voi/AshfsGsgFg==}
     engines: {node: '>=14.0.0'}
 
+  '@remix-run/router@1.21.0':
+    resolution: {integrity: sha512-xfSkCAchbdG5PnbrKqFWwia4Bi61nH+wm8wLEqfHDyp7Y3dZzgqS2itV8i4gAq9pC2HsTpwyBC6Ds8VHZ96JlA==}
+    engines: {node: '>=14.0.0'}
+
   '@repeaterjs/repeater@3.0.6':
     resolution: {integrity: sha512-Javneu5lsuhwNCryN+pXH93VPQ8g0dBX7wItHFgYiwQmzE1sVdg5tWHiOgHywzL2W21XQopa7IwIEnNbmeUJYA==}
 
@@ -3741,6 +3746,7 @@ packages:
 
   '@swc/register@0.1.10':
     resolution: {integrity: sha512-6STwH/q4dc3pitXLVkV7sP0Hiy+zBsU2wOF1aXpXR95pnH3RYHKIsDC+gvesfyB7jxNT9OOZgcqOp9RPxVTx9A==}
+    deprecated: Use @swc-node/register instead
     hasBin: true
     peerDependencies:
       '@swc/core': ^1.0.46
@@ -7589,6 +7595,7 @@ packages:
 
   libsql@0.1.34:
     resolution: {integrity: sha512-LGofp7z7gi1Td6vu2GxaA4WyvSPEkuFn0f/ePSti1TsAlBU0LWxdk+bj9D8nqswzxiqe5wpAyTLhVzTIYSyXEA==}
+    cpu: [x64, arm64]
     os: [darwin, linux, win32]
 
   license-webpack-plugin@4.0.2:
@@ -9234,6 +9241,13 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
+  react-router-dom@6.28.0:
+    resolution: {integrity: sha512-kQ7Unsl5YdyOltsPGl31zOjLrDv+m2VcIEcIHqYYD3Lp0UppLjrzcfJqDJwXxFw3TH/yvapbnUvPlAj7Kx5nbg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+
   react-router-navigation-prompt@1.9.6:
     resolution: {integrity: sha512-l0sAtbroHK8i1/Eyy29XcrMpBEt0R08BaScgMUt8r5vWWbLz7G0ChOikayTCQm7QgDFsHw8gVnxDJb7TBZCAKg==}
     peerDependencies:
@@ -9247,6 +9261,12 @@ packages:
 
   react-router@6.27.0:
     resolution: {integrity: sha512-YA+HGZXz4jaAkVoYBE98VQl+nVzI+cVI2Oj/06F5ZM+0u3TgedN9Y9kmMRo2mnkSK2nCpNQn0DVob4HCsY/WLw==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
+
+  react-router@6.28.0:
+    resolution: {integrity: sha512-HrYdIFqdrnhDw0PqG/AKjAqEqM7AvxCz0DQ4h2W8k6nqmc5uRBYDag0SBxx9iYz5G8gnuNVLzUe13wl9eAsXXg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
@@ -14883,6 +14903,8 @@ snapshots:
   '@popperjs/core@2.11.8': {}
 
   '@remix-run/router@1.20.0': {}
+
+  '@remix-run/router@1.21.0': {}
 
   '@repeaterjs/repeater@3.0.6': {}
 
@@ -22026,6 +22048,13 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-router: 6.27.0(react@18.3.1)
 
+  react-router-dom@6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@remix-run/router': 1.21.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-router: 6.28.0(react@18.3.1)
+
   react-router-navigation-prompt@1.9.6(react-router-dom@5.3.4(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -22047,6 +22076,11 @@ snapshots:
   react-router@6.27.0(react@18.3.1):
     dependencies:
       '@remix-run/router': 1.20.0
+      react: 18.3.1
+
+  react-router@6.28.0(react@18.3.1):
+    dependencies:
+      '@remix-run/router': 1.21.0
       react: 18.3.1
 
   react-select@5.7.4(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):

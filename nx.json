@@ -39,7 +39,18 @@
         "targetName": "e2e"
       }
     },
-    "@cdwr/nx-payload/plugin"
+    "@cdwr/nx-payload/plugin",
+    {
+      "plugin": "@nx/remix/plugin",
+      "options": {
+        "startTargetName": "start",
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "typecheckTargetName": "typecheck",
+        "serveStaticTargetName": "serve-static",
+        "staticServeTargetName": "static-serve"
+      }
+    }
   ],
   "targetDefaults": {
     "@nx/jest:jest": {
@@ -136,7 +147,9 @@
   "defaultProject": "cms",
   "release": {
     "version": {
-      "generatorOptions": { "fallbackCurrentVersionResolver": "disk" },
+      "generatorOptions": {
+        "fallbackCurrentVersionResolver": "disk"
+      },
       "preVersionCommand": "pnpm nx run-many -t build"
     }
   },

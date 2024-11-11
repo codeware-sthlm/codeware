@@ -1,0 +1,34 @@
+{
+  "private": true,
+  "name": "web",
+  "scripts": {
+    "build-all": "remix vite:build && vite build --config vite.server.config.ts",
+    "start": "cross-env NODE_ENV=production node server.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "@hono/node-server": "^1.13.5",
+    "@nx/vite": "20.1.0-beta.0",
+    "@remix-run/node": "^2.13.1",
+    "@remix-run/react": "^2.13.1",
+    "@vitejs/plugin-react": "^4.2.0",
+    "hono": "^4.6.9",
+    "isbot": "^4.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remix-hono": "^0.0.16",
+    "vite": "^5.0.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.13.1",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "eslint": "^8.56.0",
+    "typescript": "~5.5.2",
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false
+}

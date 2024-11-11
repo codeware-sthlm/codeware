@@ -1,0 +1,42 @@
+.cache
+.env
+
+.DS_Store
+.git
+.github
+
+# Config
+.editorconfig
+.eslintrc
+.prettierrc
+.settings
+.verdaccio
+.vscode
+
+# Nx
+.nx
+migrations.json
+tools
+*.log
+
+# Temporary files
+coverage
+dist
+node_modules
+tmp
+
+# Lock files
+bun.lockb
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Apps
+/apps/*
+!/apps/web
+
+# Packages
+/packages/*
+
+# Testing
+__mocks__

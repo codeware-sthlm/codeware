@@ -12,13 +12,18 @@ env:
 permissions:
   contents: write
   pull-requests: write
-  actions: write
 
 jobs:
   nx-migrate:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
@@ -40,7 +45,7 @@ jobs:
       - name: Run Nx migrate
         uses: ./packages/nx-migrate-action
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           auto-merge: ${{ vars.NX_AUTO_MIGRATE }}
           check-token: ${{ vars.NX_MIGRATE_CHECK_TOKEN }}
           skip-e2e: ${{ vars.NX_MIGRATE_SKIP_E2E }}

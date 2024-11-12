@@ -39,7 +39,7 @@ Using the action is currently limited to this repository since the package isn't
 - uses: actions/checkout@v4
 
 # Install dependencies and tools...
-# Build the package...
+# Build 'nx-migrate-action' package...
 
 - name: Run Nx migrate
   uses: ./packages/nx-migrate-action
@@ -52,11 +52,11 @@ Using the action is currently limited to this repository since the package isn't
 #### Pull requests
 
 GitHub Actions must be allowed to create pull requests.  
-This feature can be enabled for the repository in **Settings** -> **General** -> **Workflow permissions**.
+This feature should be enabled for the repository in **Settings** -> **General** -> **Workflow permissions**.
 
 #### Token
 
-A token is a required input to the action, which needs to be able to both read and write to the repository.
+A token is a required input to the action, which needs to be able to both read and write to the repository, as well as manage pull requests.
 
 ##### Option 1
 
@@ -66,17 +66,26 @@ Use the default `GITHUB_TOKEN` and elevate the permissions in the workflow.
 permissions:
   contents: write
   pull-requests: write
-  actions: write
 ```
 
-The `actions` permission is required when the created pull requests have status checks. Without this permission those checks won't be able to run. It applies only to when using the `GITHUB_TOKEN`.
+> [!IMPORTANT]
+>
+> If the pull requests created with this action have **status checks** triggered via `push` or `pull_request` events, then you cannot use the default `GITHUB_TOKEN`.
+>
+> This by design to prevent you from accidentally creating recursive workflow runs.
+>
+> Two workarounds to this limitation.
+>
+> - Create a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) (PAT) as described in [Option 2](#option-2) below.
+> - Register a [GitHub App](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app) to authenticate which also is more secure than a PAT.  
+>   Read more about how to register in [GitHub App Settings](#github-app-settings).
 
 ##### Option 2
 
 Generate a [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) (PAT).
 
 - Classic PAT should have `repo` and `workflow` scopes
-- Fine-grained PAT should have `Contents` and `Pull requests` set to `Read and write`
+- Fine-grained PAT should have `Contents`, `Pull requests` and `Workflows` set to `Read and write`
 
 Add the token to the repository secrets in **Settings** -> **Secrets and variables** -> **Actions**.
 
@@ -118,4 +127,50 @@ Run the action:
 
 ```sh
 nx act nx-migrate-action
+```
+
+## Miscellaneous
+
+### GitHub App Settings
+
+1. Follow the instructions in [Register a GitHub App](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app) and apply the settings below:
+
+   - Webhook is not needed, so uncheck `Active`under `Webhook`
+   - Select under `Repository permissions`
+     - `Contents` with `Write & Read` access
+     - `Pull requests` with `Write & Read` access
+     - `Workflows` with `Write & Read` access
+   - Select under `Organization permissions`
+     - `Members` with `Read` access  
+       **Note!** Optional to also be able to use teams in inputs
+
+2. When the app is created, generate a private key and store it securely together with the generated PEM file.
+
+3. Install the app to the repositories you want to run the action in.
+
+4. Create secrets and select which repositories to expose them to.
+
+   - `APP_ID`: The GitHub App ID
+   - `APP_PRIVATE_KEY`: The private key
+
+   _Secret names could be anything you like._
+
+5. Your workflow must be complemented with a new action which will generate a token in run-time.
+
+```yml
+- uses: actions/create-github-app-token@v1
+  id: generate-token
+  with:
+    app-id: ${{ secrets.APP_ID }}
+    private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+- uses: actions/checkout@v4
+
+# Install dependencies and tools...
+# Build 'nx-migrate-action' package...
+
+- name: Run Nx migrate
+  uses: ./packages/nx-migrate-action
+  with:
+    token: ${{ steps.generate-token.outputs.token }}
 ```

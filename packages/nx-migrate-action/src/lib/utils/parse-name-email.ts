@@ -22,7 +22,8 @@ export const parseNameEmail = (
   let name = '';
   let email = '';
 
-  const match = text.match(/^(.*?)\s*<([^>]+)>$/i);
+  const nameEmailPattern = /^([^;<\s][^<]{0,254})(?:\s{0,10})<([^>]{1,256})>$/;
+  const match = text.match(nameEmailPattern);
 
   if (match) {
     name = match[1].trim();

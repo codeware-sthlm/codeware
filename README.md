@@ -25,7 +25,6 @@
 Add support for [Payload](https://payloadcms.com) in your existing [Nx](https://nx.dev) workspace.
 
 ```sh
-# TLDR;
 npx add @cdwr/nx-payload
 ```
 
@@ -34,7 +33,6 @@ npx add @cdwr/nx-payload
 Quickly create a new [Nx](https://nx.dev) workspace with a [Payload](https://payloadcms.com) application, using the plugin as a preset.
 
 ```sh
-# TLDR;
 npx create-nx-payload
 ```
 

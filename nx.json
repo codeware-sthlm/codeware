@@ -241,7 +241,18 @@
         "targetName": "e2e"
       }
     },
-    "@cdwr/nx-payload/plugin"
+    "@cdwr/nx-payload/plugin",
+    {
+      "plugin": "@nx/remix/plugin",
+      "options": {
+        "startTargetName": "start",
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "typecheckTargetName": "typecheck",
+        "serveStaticTargetName": "serve-static",
+        "staticServeTargetName": "static-serve"
+      }
+    }
   ],
   "useLegacyCache": true
 }

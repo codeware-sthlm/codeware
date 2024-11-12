@@ -69,7 +69,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         node: [20]
         pm: [npm, pnpm, yarn]
-        project: [nx-payload-e2e, web-e2e]
+        project: [nx-payload-e2e]
         include:
           - os: ubuntu-latest
             name: Linux

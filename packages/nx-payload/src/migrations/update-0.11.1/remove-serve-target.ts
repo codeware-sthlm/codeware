@@ -50,7 +50,7 @@ function removeServeTargets(tree: Tree, projectNames: Array<string>) {
 
 /**
  * Get the names of all projects that have a `serve` target that uses the `@nx/js:node` executor
- * and have a `payload.config.ts` file in their root.
+ * and have a `payload.config.ts` file in their source root.
  */
 function getPayloadProjectsWithServeTarget(tree: Tree) {
   const projects = getProjects(tree);
@@ -62,7 +62,8 @@ function getPayloadProjectsWithServeTarget(tree: Tree) {
       if (
         name === 'serve' &&
         target.executor === '@nx/js:node' &&
-        tree.exists(joinPathFragments(project.root, 'payload.config.ts'))
+        project?.sourceRoot &&
+        tree.exists(joinPathFragments(project.sourceRoot, 'payload.config.ts'))
       ) {
         payloadProjects.push(String(project.name));
       }

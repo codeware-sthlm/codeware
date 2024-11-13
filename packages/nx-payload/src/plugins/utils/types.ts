@@ -2,9 +2,9 @@ export type PayloadPluginOptions = {
   buildTargetName?: string;
   dockerBuildTargetName?: string;
   dockerRunTargetName?: string;
+  generateTargetName?: string;
   mongodbTargetName?: string;
-  payloadBuildTargetName?: string;
-  payloadCliTargetName?: string;
+  payloadTargetName?: string;
   postgresTargetName?: string;
   serveTargetName?: string;
   startTargetName?: string;

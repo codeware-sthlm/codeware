@@ -23,7 +23,7 @@ export const createPayloadTargets = async (
     TargetConfiguration<BuildExecutorSchema | Partial<RunCommandsOptions>>
   > = {};
 
-  // Add `build` target
+  // Add build target
   targets[options.buildTargetName] = {
     executor: '@cdwr/nx-payload:build',
     inputs: [
@@ -37,101 +37,79 @@ export const createPayloadTargets = async (
       outputPath: '{workspaceRoot}/dist/{projectRoot}',
       outputFileName: 'src/main.js'
     },
-    dependsOn: [options.payloadBuildTargetName],
     cache: true
   };
 
-  // Add `mongodb` target
-  targets[options.mongodbTargetName] = {
+  // Add serve target
+  targets[options.serveTargetName] = {
+    executor: '@nx/js:node',
+    options: {
+      buildTarget: `${projectConfig.name}:${options.buildTargetName}`,
+      // Required for file changes to be detected and build target to be re-run
+      runBuildTargetDependencies: true,
+      watch: true
+    }
+  };
+
+  // Add generate target
+  targets[options.generateTargetName] = {
     executor: 'nx:run-commands',
     options: {
-      command: `docker ps -q -f name=mongodb-${projectConfig.name} | grep . && echo '[Running] mongodb is already started' || docker run --name mongodb-${projectConfig.name} --rm -d -p 27017:27017 mongo`
-    },
-    cache: false
+      commands: [
+        'npx payload generate:types',
+        'npx payload generate:graphQLSchema'
+      ],
+      env: {
+        PAYLOAD_CONFIG_PATH: '{projectRoot}/src/payload.config.ts'
+      },
+      parallel: false
+    }
   };
 
-  // Add `payload-build` target
-  targets[options.payloadBuildTargetName] = {
-    executor: '@cdwr/nx-payload:payload-build',
-    configurations: {
-      production: {
-        outputPath: '{workspaceRoot}/dist/{projectRoot}'
+  // Add payload target
+  targets[options.payloadTargetName] = {
+    executor: 'nx:run-commands',
+    options: {
+      command: 'npx payload',
+      forwardAllArgs: true,
+      env: {
+        PAYLOAD_CONFIG_PATH: '{projectRoot}/src/payload.config.ts'
       }
-    },
-    cache: true
+    }
   };
 
-  // Add `payload-cli` target
-  targets[options.payloadCliTargetName] = {
-    executor: '@cdwr/nx-payload:payload-cli',
-    cache: false
+  // Add mongodb target
+  targets[options.mongodbTargetName] = {
+    command: `docker ps -q -f name=mongodb-${projectConfig.name} | grep . && echo '[Running] mongodb is already started' || docker run --name mongodb-${projectConfig.name} --rm -d -p 27017:27017 mongo`
   };
 
-  // Add `postgres` target
+  // Add postgres target
   targets[options.postgresTargetName] = {
     executor: 'nx:run-commands',
     options: {
       command: `docker ps -q -f name=postgres-${projectConfig.name} | grep . && echo '[Running] PostgreSQL init process complete' || docker run --name postgres-${projectConfig.name} --rm --env-file ${projectRoot}/.env.local -p 5432:5432 postgres`,
       readyWhen: 'PostgreSQL init process complete'
-    },
-    cache: false
+    }
   };
 
-  // Add `serve` target
-  targets[options.serveTargetName] = {
-    executor: '@nx/js:node',
-    options: {
-      buildTarget: `${options.buildTargetName}:development`,
-      runBuildTargetDependencies: true,
-      watch: true
-    },
-    configurations: {
-      development: {
-        buildTarget: `${options.buildTargetName}:build:development`
-      },
-      production: {
-        buildTarget: `${options.buildTargetName}:build:production`
-      }
-    },
-    defaultConfiguration: 'development',
-    dependsOn: [options.buildTargetName],
-    cache: false
-  };
-
-  // Add `start` target
+  // Add start target
   targets[options.startTargetName] = {
-    executor: 'nx:run-commands',
-    options: {
-      command: `docker compose -f ${projectRoot}/docker-compose.yml up -d`
-    },
-    cache: false
+    command: `docker compose -f ${projectRoot}/docker-compose.yml up -d`
   };
 
-  // Add `stop` target
+  // Add stop target
   targets[options.stopTargetName] = {
-    executor: 'nx:run-commands',
-    options: {
-      command: `docker compose -f ${projectRoot}/docker-compose.yml down`
-    },
-    cache: false
+    command: `docker compose -f ${projectRoot}/docker-compose.yml down`
   };
 
-  // Add `docker-build` target
+  // Add docker-build target
   targets[options.dockerBuildTargetName] = {
-    executor: 'nx:run-commands',
-    options: {
-      command: `docker build -f ${projectRoot}/Dockerfile -t ${projectConfig.name} .`
-    },
-    cache: false
+    command: `docker build -f ${projectRoot}/Dockerfile -t ${projectConfig.name} .`
   };
 
-  // Add `docker-run` target
+  // Add docker-run target
   targets[options.dockerRunTargetName] = {
-    executor: 'nx:run-commands',
-    options: {
-      command: `docker run --name ${projectConfig.name} --rm --env-file ${projectRoot}/.env.local -d -p 3000:3000 ${projectConfig.name}`
-    },
-    cache: false
+    command: `docker run --name ${projectConfig.name} --rm --env-file ${projectRoot}/.env.local -d -p 3000:3000 ${projectConfig.name}`
   };
 
   return targets;

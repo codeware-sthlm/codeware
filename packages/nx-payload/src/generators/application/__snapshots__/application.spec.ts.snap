@@ -63,44 +63,42 @@ exports[`application generator should not setup plugin inference when 'useInfere
   "tags": [],
   "targets": {
     "build": {
-      "dependsOn": [
-        "payload-build",
-      ],
+      "cache": true,
       "executor": "@cdwr/nx-payload:build",
       "options": {
         "main": "apps/test-dir/src/main.ts",
+        "outputFileName": "src/main.js",
         "outputPath": "dist/apps/test-dir",
         "tsConfig": "apps/test-dir/tsconfig.app.json",
+      },
+    },
+    "gen": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx payload generate:types",
+          "npx payload generate:graphQLSchema",
+        ],
+        "env": {
+          "PAYLOAD_CONFIG_PATH": "{projectRoot}/src/payload.config.ts",
+        },
+        "parallel": false,
       },
     },
     "lint": {
       "executor": "@nx/eslint:lint",
     },
-    "payload-build": {
-      "configurations": {
-        "production": {
-          "outputPath": "dist/apps/test-dir",
+    "payload": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx payload",
+        "env": {
+          "PAYLOAD_CONFIG_PATH": "{projectRoot}/src/payload.config.ts",
         },
+        "forwardAllArgs": true,
       },
-      "defaultConfiguration": "production",
-      "executor": "@cdwr/nx-payload:payload-build",
-    },
-    "payload-cli": {
-      "executor": "@cdwr/nx-payload:payload-cli",
     },
     "serve": {
-      "configurations": {
-        "development": {
-          "buildTarget": "test-app:build:development",
-        },
-        "production": {
-          "buildTarget": "test-app:build:production",
-        },
-      },
-      "defaultConfiguration": "development",
-      "dependsOn": [
-        "build",
-      ],
       "executor": "@nx/js:node",
       "options": {
         "buildTarget": "test-app:build",

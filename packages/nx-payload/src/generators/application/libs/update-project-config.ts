@@ -10,14 +10,12 @@ import {
 import { isPluginInferenceEnabled } from './is-plugin-inference-enabled';
 import type { NormalizedSchema } from './normalize-options';
 
-/** Available targets */
-type Target =
-  | 'build'
-  | 'lint'
-  | 'payload-build'
-  | 'payload-cli'
-  | 'serve'
-  | 'test';
+/**
+ * Available targets.
+ *
+ * `generate` is aliased to `gen` to avoid conflict with native `nx generate`.
+ */
+type Target = 'build' | 'gen' | 'lint' | 'payload' | 'serve' | 'test';
 
 export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
   const nxJson = readNxJson(host);
@@ -30,7 +28,7 @@ export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
     throw new Error('Could not read project.json');
   }
 
-  // Project targets with options
+  // Generated Express project targets
   const projectBuild = projectConfig.targets?.build;
   const projectLint = projectConfig.targets?.lint;
   const projectServe = projectConfig.targets?.serve;
@@ -44,21 +42,38 @@ export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
         main: projectBuild?.options.main,
         tsConfig: projectBuild?.options.tsConfig,
         outputPath: projectBuild?.options.outputPath,
-        outputFileName: projectBuild?.options.outputFileName
+        outputFileName: 'src/main.js'
       },
-      dependsOn: ['payload-build']
+      cache: true
     },
     serve: {
-      ...projectServe,
+      executor: projectServe?.executor,
       options: {
-        ...projectServe?.options,
+        buildTarget: `${options.name}:build`,
         runBuildTargetDependencies: true,
         watch: true
-      },
-      configurations: {
-        ...projectServe?.configurations,
-        development: {
-          buildTarget: `${options.name}:build:development`
+      }
+    },
+    gen: {
+      executor: 'nx:run-commands',
+      options: {
+        commands: [
+          'npx payload generate:types',
+          'npx payload generate:graphQLSchema'
+        ],
+        parallel: false,
+        env: {
+          PAYLOAD_CONFIG_PATH: '{projectRoot}/src/payload.config.ts'
+        }
+      }
+    },
+    payload: {
+      executor: 'nx:run-commands',
+      options: {
+        command: 'npx payload',
+        forwardAllArgs: true,
+        env: {
+          PAYLOAD_CONFIG_PATH: '{projectRoot}/src/payload.config.ts'
         }
       }
     },
@@ -67,28 +82,11 @@ export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
     },
     test: {
       ...projectTest
-    },
-    ['payload-build']: {
-      executor: '@cdwr/nx-payload:payload-build',
-      defaultConfiguration: projectBuild?.defaultConfiguration,
-      configurations: {
-        production: {
-          outputPath: projectBuild?.options.outputPath
-        }
-      }
-    },
-    ['payload-cli']: {
-      executor: '@cdwr/nx-payload:payload-cli'
     }
   };
 
   // Targets above which can also be inferred
-  const inferredTargets: Array<Target> = [
-    'build',
-    'payload-build',
-    'payload-cli',
-    'serve'
-  ];
+  const inferredTargets: Array<Target> = ['build', 'gen', 'payload', 'serve'];
 
   // Targets which should be added to the project configuration
   // (if inference is enabled, the inferred targets will not be added to the project configuration)

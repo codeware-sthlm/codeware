@@ -14,7 +14,7 @@ function addProject(
   type: 'payload-app' | 'normal-app'
 ) {
   if (type === 'payload-app') {
-    tree.write(`apps/${name}/payload.config.ts`, '');
+    tree.write(`apps/${name}/src/payload.config.ts`, '');
   }
   addProjectConfiguration(tree, name, {
     name,
@@ -48,6 +48,7 @@ describe('remove-serve-target migration', () => {
   console.warn = jest.fn();
 
   beforeEach(() => {
+    jest.clearAllMocks();
     tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
   });
 

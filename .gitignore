@@ -48,6 +48,7 @@ Thumbs.db
 .nx/cache
 .nx/workspace-data
 migrations.json
+!packages/**/migrations.json
 
 # Act
 .secrets

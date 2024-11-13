@@ -181,14 +181,14 @@ describe('application generator', () => {
     expect(content).toMatchSnapshot();
   });
 
-  it('should add three dotenv files', async () => {
+  it('should add two dotenv files', async () => {
     await generator(tree, options);
 
     const envFiles = tree
       .children(options.directory)
       .filter((file) => file.match(/\.env/));
 
-    expect(envFiles).toEqual(['.env.local', '.env.payload', '.env.serve']);
+    expect(envFiles).toEqual(['.env.local', '.env.serve']);
   });
 
   it('should add folders for auto generated files', async () => {
@@ -233,27 +233,6 @@ describe('application generator', () => {
     );
     expect(content.match(/mongooseAdapter|MONGO_URL/g)).toBeNull();
     expect(content.match(/postgresAdapter|POSTGRES_URL/g).length).toBe(3);
-  });
-
-  it('should have dependency to payload-build from build', async () => {
-    setInferenceFlag(false);
-    await generator(tree, options);
-
-    const projectJson = readProjectConfiguration(tree, options.name);
-    expect(projectJson.targets['build'].dependsOn).toEqual(['payload-build']);
-  });
-
-  it('should have production configuration to dist folder for payload-build', async () => {
-    setInferenceFlag(false);
-    await generator(tree, options);
-
-    const projectJson = readProjectConfiguration(tree, options.name);
-    expect(
-      Object.keys(projectJson.targets['payload-build'].configurations)
-    ).toEqual(['production']);
-    expect(
-      projectJson.targets['payload-build'].configurations['production']
-    ).toEqual({ outputPath: 'dist/apps/test-dir' });
   });
 
   it("should setup plugin inference when 'useInferencePlugins' doesn't exist", async () => {
@@ -315,9 +294,9 @@ describe('application generator', () => {
         buildTargetName: 'my-build',
         dockerBuildTargetName: 'my-docker:build',
         dockerRunTargetName: 'my-docker:run',
+        generateTargetName: 'my-generate',
         mongodbTargetName: 'my-mongodb',
-        payloadBuildTargetName: 'my-payload-build',
-        payloadCliTargetName: 'my-payload-cli',
+        payloadTargetName: 'my-payload',
         postgresTargetName: 'my-postgres',
         serveTargetName: 'my-serve',
         startTargetName: 'my-start',
@@ -334,9 +313,9 @@ describe('application generator', () => {
           buildTargetName: 'my-build',
           dockerBuildTargetName: 'my-docker:build',
           dockerRunTargetName: 'my-docker:run',
+          generateTargetName: 'my-generate',
           mongodbTargetName: 'my-mongodb',
-          payloadBuildTargetName: 'my-payload-build',
-          payloadCliTargetName: 'my-payload-cli',
+          payloadTargetName: 'my-payload',
           postgresTargetName: 'my-postgres',
           serveTargetName: 'my-serve',
           startTargetName: 'my-start',

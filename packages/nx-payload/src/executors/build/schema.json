@@ -41,7 +41,7 @@
     "clean": {
       "type": "boolean",
       "description": "Delete output path before building.",
-      "default": false
+      "default": true
     }
   },
   "required": ["main", "outputPath", "outputFileName", "tsConfig"],

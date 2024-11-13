@@ -1,5 +1,4 @@
 import { resolve } from 'path';
-import { cwd } from 'process';
 
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
@@ -13,7 +12,7 @@ export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: Users.slug,
-    buildPath: resolve(cwd(), 'dist/apps/cms/build'),
+    buildPath: resolve(__dirname, '../../..', 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
   collections: [Users],

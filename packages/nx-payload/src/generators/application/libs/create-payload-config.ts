@@ -30,7 +30,6 @@ export function createPayloadConfig(
 
   const content = `
 import { resolve } from 'path';
-import { cwd } from 'process';
 
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 ${importDbAdapter}
@@ -43,7 +42,7 @@ export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: Users.slug,
-    buildPath: resolve(cwd(), 'dist/${directory}/build')
+    buildPath: resolve(__dirname, '../../..', 'dist/${directory}/build')
   },
   collections: [Users],
   ${configDb}

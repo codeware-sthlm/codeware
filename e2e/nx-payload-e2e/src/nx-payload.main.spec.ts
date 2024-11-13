@@ -6,6 +6,7 @@ import {
 import type { NxJsonConfiguration, ProjectConfiguration } from '@nx/devkit';
 import {
   checkFilesExist,
+  fileExists,
   readJson,
   runCommandAsync,
   runNxCommand,
@@ -64,10 +65,6 @@ describe('Main plugin targets no docker', () => {
     });
   });
 
-  beforeEach(() => {
-    // Make sure inference is used which is the default behavior
-  });
-
   afterAll(() => {
     process.env.NX_ADD_PLUGINS = originalEnv;
     runNxCommand('reset', { silenceError: true });
@@ -97,7 +94,7 @@ describe('Main plugin targets no docker', () => {
     });
 
     describe('run targets', () => {
-      it('should build application', () => {
+      it('should build application without generating types and graphql schema', () => {
         const result = runNxCommand(`build ${project.appName}`);
         expect(result).toContain('Successfully ran target build');
 
@@ -108,6 +105,13 @@ describe('Main plugin targets no docker', () => {
             `dist/apps/${project.appName}/src/main.js`
           )
         ).not.toThrow();
+
+        expect(
+          fileExists(`${project.appDirectory}/src/generated/payload-types.ts`)
+        ).toBeFalsy();
+        expect(
+          fileExists(`${project.appDirectory}/src/generated/schema.graphql`)
+        ).toBeFalsy();
       });
 
       it('should test application', () => {
@@ -136,9 +140,21 @@ describe('Main plugin targets no docker', () => {
         expect(output.includes(`[ started ] on port 3000 (test)`)).toBeTruthy();
       });
 
+      it('should generate types and graphql schema', () => {
+        const result = runNxCommand(`gen ${project.appName}`);
+        expect(result).toContain('Successfully ran target gen');
+
+        expect(() =>
+          checkFilesExist(
+            `${project.appDirectory}/src/generated/payload-types.ts`,
+            `${project.appDirectory}/src/generated/schema.graphql`
+          )
+        ).not.toThrow();
+      });
+
       it('should invoke payload cli', () => {
-        const result = runNxCommand(`payload-cli ${project.appName}`);
-        expect(result).toContain('Successfully ran target payload-cli');
+        const result = runNxCommand(`payload ${project.appName}`);
+        expect(result).toContain('Successfully ran target payload');
       });
     });
   });
@@ -157,10 +173,10 @@ describe('Main plugin targets no docker', () => {
         'build',
         'docker-build',
         'docker-run',
+        'gen',
         'lint',
         'mongodb',
-        'payload-build',
-        'payload-cli',
+        'payload',
         'postgres',
         'serve',
         'start',
@@ -171,38 +187,17 @@ describe('Main plugin targets no docker', () => {
     {
       name: 'opt out via env',
       optOut: { by: 'envVariable', apply: 'single' },
-      projectTargets: [
-        'build',
-        'lint',
-        'payload-build',
-        'payload-cli',
-        'serve',
-        'test'
-      ]
+      projectTargets: ['build', 'lint', 'gen', 'payload', 'serve', 'test']
     },
     {
       name: 'opt out via nx config only',
       optOut: { by: 'nxConfig', apply: 'single' },
-      projectTargets: [
-        'build',
-        'lint',
-        'payload-build',
-        'payload-cli',
-        'serve',
-        'test'
-      ]
+      projectTargets: ['build', 'lint', 'gen', 'payload', 'serve', 'test']
     },
     {
       name: 'opt out via nx config overrides env',
       optOut: { by: 'nxConfig', apply: 'double' },
-      projectTargets: [
-        'build',
-        'lint',
-        'payload-build',
-        'payload-cli',
-        'serve',
-        'test'
-      ]
+      projectTargets: ['build', 'lint', 'gen', 'payload', 'serve', 'test']
     }
   ];
 

@@ -25,8 +25,8 @@ describe('Test Dockerfile and related targets', () => {
   });
 
   afterAll(async () => {
-    runNxCommand('reset', { silenceError: true });
     await resetDocker(appName);
+    runNxCommand('reset', { silenceError: true });
   });
 
   it('should hava a Dockerfile', async () => {

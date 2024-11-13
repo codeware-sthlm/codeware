@@ -31,7 +31,7 @@ export function normalizeOptions(
   invariant(sourceRoot, 'No sourceRoot provided for project');
 
   // Required target options
-  const { main, outputFileName, outputPath, tsConfig } = options;
+  const { clean, main, outputFileName, outputPath, tsConfig } = options;
 
   return {
     projectRoot,
@@ -41,9 +41,7 @@ export function normalizeOptions(
     main,
     tsConfig,
     assets: options?.assets ?? [join(sourceRoot, 'assets')],
-    // Must be `false` as long as this target depends on payload build target.
-    // Otherwise the output from the payload build will be deleted.
-    clean: false,
+    clean: clean ?? true,
     watch: false,
     transformers: [],
     updateBuildableProjectDepsInPackageJson: true,

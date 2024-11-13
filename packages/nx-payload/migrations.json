@@ -1,0 +1,23 @@
+{
+  "generators": {
+    "update-0-11-2-delete-env-payload": {
+      "cli": "nx",
+      "version": "0.11.2",
+      "description": "Remove '.env.payload' file from payload projects",
+      "implementation": "./src/migrations/update-0.11.2/delete-env-payload"
+    },
+    "update-0-11-2-remove-inferred-targets": {
+      "cli": "nx",
+      "version": "0.11.2",
+      "description": "Remove 'build' and 'serve' targets from payload projects",
+      "implementation": "./src/migrations/update-0.11.2/remove-inferred-targets"
+    },
+    "update-0-11-1-remove-serve-target": {
+      "cli": "nx",
+      "version": "0.11.1",
+      "description": "Remove 'serve' target from payload projects",
+      "implementation": "./src/migrations/update-0.11.1/remove-serve-target"
+    }
+  },
+  "packageJsonUpdates": {}
+}

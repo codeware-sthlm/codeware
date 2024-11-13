@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`remove-inferred-targets migration should not remove inferred targets when payload plugin is not installed: normal project 1`] = `
+"{
+  "name": "test-normal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/test-normal/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "options": {}
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {}
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {}
+    }
+  }
+}
+"
+`;
+
+exports[`remove-inferred-targets migration should not remove inferred targets when payload plugin is not installed: payload project 1`] = `
+"{
+  "name": "test-payload",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/test-payload/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "options": {}
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {}
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {}
+    }
+  }
+}
+"
+`;
+
+exports[`remove-inferred-targets migration should only log when app is already migrated: migrated project 1`] = `
+"{
+  "name": "test-migrated",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/test-migrated/src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {}
+    }
+  }
+}
+"
+`;
+
+exports[`remove-inferred-targets migration should remove inferred targets from payload projects: normal project 1`] = `
+"{
+  "name": "test-normal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/test-normal/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "options": {}
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {}
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {}
+    }
+  }
+}
+"
+`;
+
+exports[`remove-inferred-targets migration should remove inferred targets from payload projects: payload project 1`] = `
+"{
+  "name": "test-payload",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/test-payload/src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {}
+    }
+  }
+}
+"
+`;

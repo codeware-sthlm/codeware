@@ -1,5 +1,4 @@
 import { resolve } from 'path';
-import { cwd } from 'process';
 
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
@@ -7,13 +6,13 @@ import { slateEditor } from '@payloadcms/richtext-slate';
 import { buildConfig } from 'payload/config';
 
 import Users from './collections/Users';
-import env from './env';
+import { cwd, env } from './env';
 
 export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: Users.slug,
-    buildPath: resolve(cwd(), 'dist/apps/cms/build'),
+    buildPath: resolve(cwd ?? '', 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
   collections: [Users],

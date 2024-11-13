@@ -61,4 +61,6 @@ const defaultEnv: Env = {
 export const env: Env =
   typeof window === 'undefined' ? validateEnv() : defaultEnv;
 
+export const cwd = typeof window === 'undefined' ? process.cwd() : undefined;
+
 export default env;

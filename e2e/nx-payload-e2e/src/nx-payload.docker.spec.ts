@@ -53,14 +53,14 @@ describe('Test Dockerfile and related targets', () => {
     expect(error).toBeNull();
   });
 
-  it(`should build image with 'docker-build' target`, () => {
-    const result = runNxCommand('docker-build');
-    expect(result).toContain('Successfully ran target docker-build');
+  it(`should build image with 'dx:docker-build' target`, () => {
+    const result = runNxCommand('dx:docker-build');
+    expect(result).toContain('Successfully ran target dx:docker-build');
   });
 
   it('should start application and navigate to first page', async () => {
-    const startLog = runNxCommand('start');
-    expect(startLog).toContain('Successfully ran target start');
+    const startLog = runNxCommand('dx:start');
+    expect(startLog).toContain('Successfully ran target dx:start');
 
     await waitForDockerLogMatch({
       containerName: appName,
@@ -73,8 +73,8 @@ describe('Test Dockerfile and related targets', () => {
     expect(startResponse.headers['location']).toBe('/admin');
 
     // Shut down
-    const stopLog = runNxCommand('stop');
-    expect(stopLog).toContain('Successfully ran target stop');
+    const stopLog = runNxCommand('dx:stop');
+    expect(stopLog).toContain('Successfully ran target dx:stop');
 
     let stopCode: string;
     try {

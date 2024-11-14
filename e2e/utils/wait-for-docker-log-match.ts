@@ -27,18 +27,15 @@ export const waitForDockerLogMatch = ({
       dockerProcess.kill();
     };
 
-    dockerProcess.stdout?.on('data', (data: Buffer) => {
-      const chunk = data.toString();
-
-      if (chunk.includes(matchString)) {
+    const checkLog = (chunk: Buffer): void => {
+      if (chunk.toString().includes(matchString)) {
         cleanup();
         resolve(true);
       }
-    });
+    };
 
-    dockerProcess.stderr?.on('data', (data: Buffer) => {
-      console.error(`Docker Error: ${data}`);
-    });
+    dockerProcess.stdout?.on('data', checkLog);
+    dockerProcess.stderr?.on('data', checkLog);
 
     dockerProcess.on('error', (error: Error) => {
       cleanup();

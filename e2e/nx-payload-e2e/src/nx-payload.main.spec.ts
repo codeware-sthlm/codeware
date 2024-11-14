@@ -171,17 +171,17 @@ describe('Main plugin targets no docker', () => {
       projectTargets: ['lint', 'test'],
       resolvedTargets: [
         'build',
-        'docker-build',
-        'docker-run',
         'gen',
         'lint',
-        'mongodb',
         'payload',
-        'postgres',
         'serve',
-        'start',
-        'stop',
-        'test'
+        'test',
+        'dx:docker-build',
+        'dx:docker-run',
+        'dx:mongodb',
+        'dx:postgres',
+        'dx:start',
+        'dx:stop'
       ]
     },
     {

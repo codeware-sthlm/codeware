@@ -28,7 +28,7 @@
 - [Usage](#usage)
   - [Generate a Payload application](#generate-a-payload-application)
   - [MongoDB, Postgres or Supabase?](#mongodb-postgres-or-supabase)
-- [Developer Experience (DX) Targets](#developer-experience-dx-targets)
+- [Developer Experience (DX)](#developer-experience-dx)
   - [Start Payload and database in Docker](#start-payload-and-database-in-docker)
   - [Start a local database instance of choice](#start-a-local-database-instance-of-choice)
   - [Serve Payload application in development mode](#serve-payload-application-in-development-mode)
@@ -81,14 +81,14 @@ The plugin automatically creates tasks for projects with a `payload.config.ts` c
 - `serve`
 
 > [!TIP]
-> A couple of targets for DX purposes are also inferred:
+> A couple of targets to improve [Developer Experience (DX)](#developer-experience-dx) are also inferred:
 >
-> - `docker-build`
-> - `docker-run`
-> - `mongodb`
-> - `postgres`
-> - `start`
-> - `stop`
+> - `dx:docker-build`
+> - `dx:docker-run`
+> - `dx:mongodb`
+> - `dx:postgres`
+> - `dx:start`
+> - `dx:stop`
 
 ### Configuration
 
@@ -109,15 +109,15 @@ or use `options` for brevity and to be able to set custom target names
       "plugin": "@cdwr/nx-payload/plugin",
       "options": {
         "buildTargetName": "build",
-        "dockerBuildTargetName": "docker-build",
-        "dockerRunTargetName": "docker-run",
         "generateTargetName": "gen",
-        "mongodbTargetName": "mongodb",
         "payloadTargetName": "payload",
-        "postgresTargetName": "postgres",
         "serveTargetName": "serve",
-        "startTargetName": "start",
-        "stopTargetName": "stop"
+        "dxDockerBuildTargetName": "dx:docker-build",
+        "dxDockerRunTargetName": "dx:docker-run",
+        "dxMongodbTargetName": "dx:mongodb",
+        "dxPostgresTargetName": "dx:postgres",
+        "dxStartTargetName": "dx:start",
+        "dxStopTargetName": "dx:stop"
       }
     }
   ]
@@ -135,12 +135,7 @@ Plugin configuration is created automatically, but you can opt out using one of 
 >
 > `useInferencePlugins` has higher priority than `NX_ADD_PLUGINS`
 >
-> Generated targets will be limited to
->
-> - `build`
-> - `gen`
-> - `payload`
-> - `serve`
+> Generated targets will **not** include the DX targets.
 
 ## Usage
 
@@ -196,12 +191,12 @@ export default buildConfig({
 > [!TIP]
 > More information can be found on the official [Payload Database](https://payloadcms.com/docs/database/overview) page.
 
-## Developer Experience (DX) Targets
+## Developer Experience (DX)
 
 > [!IMPORTANT]
 > DX targets are only available when **inference** is enabled
 
-Generated applications come with a set of Nx targets to help you get started.
+Generated applications come with a set of opinionatedtargets to improve developer experience. These targets are prefixed with `dx:` are optional to use.
 
 > [!TIP]
 > Display all the targets with extensive details for an application
@@ -217,7 +212,7 @@ This is the quickest way to get Payload up and running in no time.
 Using docker compose, both MongoDB and Postgres are started in each container, as well as the Payload application.
 
 ```sh
-nx start [app-name]
+nx dx:start [app-name]
 ```
 
 The app name is optional for the default app specified in `nx.json`. Specify the app name when launching a non-default app.
@@ -234,7 +229,7 @@ Open your browser and navigate to <http://localhost:3000> to setup your first us
 Shutdown database and Payload containers.
 
 ```sh
-nx stop [app-name]
+nx dx:stop [app-name]
 ```
 
 Database volumes are persistent, hence all data is available on next launch.
@@ -248,7 +243,7 @@ It's better to start the preferred database first, to be properly initialized be
 Run MongoDB in Docker
 
 ```sh
-nx mongodb [app-name]
+nx dx:mongodb [app-name]
 ```
 
 #### Postgres <!-- omit in toc -->
@@ -256,7 +251,7 @@ nx mongodb [app-name]
 Run Postgres in Docker
 
 ```sh
-nx postgres [app-name]
+nx dx:postgres [app-name]
 ```
 
 #### Supabase <!-- omit in toc -->
@@ -294,16 +289,16 @@ Open your browser and navigate to <http://localhost:3000>.
 
 This is commands that could be used as input to a hosting provider supporting `Dockerfile`.
 
-It's also an alternative to the docker compose commands `start` and `stop`, when you have a custom database setup.
+It's also an alternative to the docker compose commands `dx:start` and `dx:stop`, when you have a custom database setup.
 
 ```sh
-nx docker-build [app-name]
+nx dx:docker-build [app-name]
 ```
 
 Edit application `.env.local` file to match the database setup and start the application
 
 ```sh
-nx docker-run [app-name]
+nx dx:docker-run [app-name]
 ```
 
 ### Run Payload commands

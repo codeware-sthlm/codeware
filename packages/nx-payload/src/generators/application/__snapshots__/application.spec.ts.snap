@@ -65,6 +65,12 @@ exports[`application generator should not setup plugin inference when 'useInfere
     "build": {
       "cache": true,
       "executor": "@cdwr/nx-payload:build",
+      "metadata": {
+        "description": "Build the Payload admin application",
+        "technologies": [
+          "node",
+        ],
+      },
       "options": {
         "main": "apps/test-dir/src/main.ts",
         "outputFileName": "src/main.js",
@@ -74,6 +80,12 @@ exports[`application generator should not setup plugin inference when 'useInfere
     },
     "gen": {
       "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Generate types and GraphQL schema (if enabled) from the Payload configuration",
+        "technologies": [
+          "node",
+        ],
+      },
       "options": {
         "commands": [
           "npx payload generate:types",
@@ -90,6 +102,12 @@ exports[`application generator should not setup plugin inference when 'useInfere
     },
     "payload": {
       "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Run a native Payload command",
+        "technologies": [
+          "node",
+        ],
+      },
       "options": {
         "command": "npx payload",
         "env": {
@@ -100,6 +118,12 @@ exports[`application generator should not setup plugin inference when 'useInfere
     },
     "serve": {
       "executor": "@nx/js:node",
+      "metadata": {
+        "description": "Serve Payload admin application in development mode",
+        "technologies": [
+          "node",
+        ],
+      },
       "options": {
         "buildTarget": "test-app:build",
         "runBuildTargetDependencies": true,

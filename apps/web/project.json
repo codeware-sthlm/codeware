@@ -5,5 +5,60 @@
   "projectType": "application",
   "tags": ["scope:web", "type:app"],
   "// targets": "to see all targets run: nx show project web --web",
-  "targets": {}
+  "targets": {
+    "build": {
+      "metadata": {
+        "description": "Builds the Remix app and the Hono server",
+        "help": {
+          "command": "nx build web"
+        }
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "remix vite:build ./apps/web",
+          "vite build --config ./apps/web/vite.server.config.ts"
+        ],
+        "parallel": false
+      }
+    },
+    "build-remix": {
+      "metadata": {
+        "description": "Builds the Remix app",
+        "help": {
+          "command": "nx build-remix web"
+        }
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["remix vite:build ./apps/web"]
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Start the Hono server in production mode",
+        "help": {
+          "command": "nx start web"
+        }
+      },
+      "options": {
+        "commands": ["NODE_ENV=production node server.js"],
+        "cwd": "apps/web"
+      },
+      "dependsOn": ["build"]
+    },
+    "static-serve": {
+      "executor": "nx:noop",
+      "metadata": {
+        "description": "Use start target instead"
+      }
+    },
+    "serve-static": {
+      "executor": "nx:noop",
+      "metadata": {
+        "description": "Use start target instead"
+      }
+    }
+  }
 }

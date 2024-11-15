@@ -141,10 +141,6 @@ jobs:
         if: needs.init.outputs.e2e-enabled == 'true'
         run: pnpm install --frozen-lockfile
 
-      - name: Install playwright browsers
-        if: needs.init.outputs.e2e-enabled == 'true'
-        run: pnpm exec playwright install --with-deps
-
       - name: Analyze affected projects
         if: needs.init.outputs.e2e-enabled == 'true'
         uses: nrwl/nx-set-shas@v4

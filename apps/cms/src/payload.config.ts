@@ -16,6 +16,7 @@ export default buildConfig({
     dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
   collections: [Users],
+  cors: ['http://localhost:4200'],
   db: postgresAdapter({
     pool: { connectionString: env.POSTGRES_URL },
     migrationDir: resolve(__dirname, 'migrations')

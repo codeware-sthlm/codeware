@@ -1,13 +1,13 @@
 type Query {
-  User(id: Int!): User
-  Users(where: User_where, limit: Int, page: Int, sort: String): Users
-  countUsers(where: User_where): countUsers
+  User(id: Int!, fallbackLocale: FallbackLocaleInputType, locale: LocaleInputType): User
+  Users(where: User_where, fallbackLocale: FallbackLocaleInputType, locale: LocaleInputType, limit: Int, page: Int, sort: String): Users
+  countUsers(where: User_where, locale: LocaleInputType): countUsers
   docAccessUser(id: Int!): usersDocAccess
   meUser: usersMe
   initializedUser: Boolean
-  PayloadPreference(id: Int!): PayloadPreference
-  PayloadPreferences(where: PayloadPreference_where, limit: Int, page: Int, sort: String): PayloadPreferences
-  countPayloadPreferences(where: PayloadPreference_where): countPayloadPreferences
+  PayloadPreference(id: Int!, fallbackLocale: FallbackLocaleInputType, locale: LocaleInputType): PayloadPreference
+  PayloadPreferences(where: PayloadPreference_where, fallbackLocale: FallbackLocaleInputType, locale: LocaleInputType, limit: Int, page: Int, sort: String): PayloadPreferences
+  countPayloadPreferences(where: PayloadPreference_where, locale: LocaleInputType): countPayloadPreferences
   docAccessPayloadPreference(id: Int!): payload_preferencesDocAccess
   Access: Access
 }
@@ -18,6 +18,9 @@ type User {
   role: User_role!
   updatedAt: DateTime
   createdAt: DateTime
+  enableAPIKey: Boolean
+  apiKey: String
+  apiKeyIndex: String
   email: EmailAddress!
   resetPasswordToken: String
   resetPasswordExpiration: DateTime
@@ -43,6 +46,17 @@ A field whose value conforms to the standard internet email address format as sp
 """
 scalar EmailAddress @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
 
+enum FallbackLocaleInputType {
+  en
+  sv
+  none
+}
+
+enum LocaleInputType {
+  en
+  sv
+}
+
 type Users {
   docs: [User]
   hasNextPage: Boolean
@@ -62,6 +76,8 @@ input User_where {
   role: User_role_operator
   updatedAt: User_updatedAt_operator
   createdAt: User_createdAt_operator
+  enableAPIKey: User_enableAPIKey_operator
+  apiKey: User_apiKey_operator
   email: User_email_operator
   id: User_id_operator
   AND: [User_where_and]
@@ -113,6 +129,23 @@ input User_createdAt_operator {
   exists: Boolean
 }
 
+input User_enableAPIKey_operator {
+  equals: Boolean
+  not_equals: Boolean
+  exists: Boolean
+}
+
+input User_apiKey_operator {
+  equals: String
+  not_equals: String
+  like: String
+  contains: String
+  in: [String]
+  not_in: [String]
+  all: [String]
+  exists: Boolean
+}
+
 input User_email_operator {
   equals: EmailAddress
   not_equals: EmailAddress
@@ -138,6 +171,8 @@ input User_where_and {
   role: User_role_operator
   updatedAt: User_updatedAt_operator
   createdAt: User_createdAt_operator
+  enableAPIKey: User_enableAPIKey_operator
+  apiKey: User_apiKey_operator
   email: User_email_operator
   id: User_id_operator
   AND: [User_where_and]
@@ -149,6 +184,8 @@ input User_where_or {
   role: User_role_operator
   updatedAt: User_updatedAt_operator
   createdAt: User_createdAt_operator
+  enableAPIKey: User_enableAPIKey_operator
+  apiKey: User_apiKey_operator
   email: User_email_operator
   id: User_id_operator
   AND: [User_where_and]
@@ -173,6 +210,8 @@ type UsersDocAccessFields {
   role: UsersDocAccessFields_role
   updatedAt: UsersDocAccessFields_updatedAt
   createdAt: UsersDocAccessFields_createdAt
+  enableAPIKey: UsersDocAccessFields_enableAPIKey
+  apiKey: UsersDocAccessFields_apiKey
   email: UsersDocAccessFields_email
   password: UsersDocAccessFields_password
 }
@@ -269,6 +308,52 @@ type UsersDocAccessFields_createdAt_Delete {
   permission: Boolean!
 }
 
+type UsersDocAccessFields_enableAPIKey {
+  create: UsersDocAccessFields_enableAPIKey_Create
+  read: UsersDocAccessFields_enableAPIKey_Read
+  update: UsersDocAccessFields_enableAPIKey_Update
+  delete: UsersDocAccessFields_enableAPIKey_Delete
+}
+
+type UsersDocAccessFields_enableAPIKey_Create {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_enableAPIKey_Read {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_enableAPIKey_Update {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_enableAPIKey_Delete {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_apiKey {
+  create: UsersDocAccessFields_apiKey_Create
+  read: UsersDocAccessFields_apiKey_Read
+  update: UsersDocAccessFields_apiKey_Update
+  delete: UsersDocAccessFields_apiKey_Delete
+}
+
+type UsersDocAccessFields_apiKey_Create {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_apiKey_Read {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_apiKey_Update {
+  permission: Boolean!
+}
+
+type UsersDocAccessFields_apiKey_Delete {
+  permission: Boolean!
+}
+
 type UsersDocAccessFields_email {
   create: UsersDocAccessFields_email_Create
   read: UsersDocAccessFields_email_Read
@@ -355,7 +440,7 @@ type usersMe {
 
 type PayloadPreference {
   id: Int
-  user: PayloadPreference_User_Relationship!
+  user(locale: LocaleInputType, fallbackLocale: FallbackLocaleInputType): PayloadPreference_User_Relationship!
   key: String
   value: JSON
   updatedAt: DateTime
@@ -662,6 +747,8 @@ type UsersFields {
   role: UsersFields_role
   updatedAt: UsersFields_updatedAt
   createdAt: UsersFields_createdAt
+  enableAPIKey: UsersFields_enableAPIKey
+  apiKey: UsersFields_apiKey
   email: UsersFields_email
   password: UsersFields_password
 }
@@ -755,6 +842,52 @@ type UsersFields_createdAt_Update {
 }
 
 type UsersFields_createdAt_Delete {
+  permission: Boolean!
+}
+
+type UsersFields_enableAPIKey {
+  create: UsersFields_enableAPIKey_Create
+  read: UsersFields_enableAPIKey_Read
+  update: UsersFields_enableAPIKey_Update
+  delete: UsersFields_enableAPIKey_Delete
+}
+
+type UsersFields_enableAPIKey_Create {
+  permission: Boolean!
+}
+
+type UsersFields_enableAPIKey_Read {
+  permission: Boolean!
+}
+
+type UsersFields_enableAPIKey_Update {
+  permission: Boolean!
+}
+
+type UsersFields_enableAPIKey_Delete {
+  permission: Boolean!
+}
+
+type UsersFields_apiKey {
+  create: UsersFields_apiKey_Create
+  read: UsersFields_apiKey_Read
+  update: UsersFields_apiKey_Update
+  delete: UsersFields_apiKey_Delete
+}
+
+type UsersFields_apiKey_Create {
+  permission: Boolean!
+}
+
+type UsersFields_apiKey_Read {
+  permission: Boolean!
+}
+
+type UsersFields_apiKey_Update {
+  permission: Boolean!
+}
+
+type UsersFields_apiKey_Delete {
   permission: Boolean!
 }
 
@@ -981,8 +1114,8 @@ type PayloadPreferencesDeleteAccess {
 }
 
 type Mutation {
-  createUser(data: mutationUserInput!): User
-  updateUser(id: Int!, autosave: Boolean, data: mutationUserUpdateInput!): User
+  createUser(data: mutationUserInput!, locale: LocaleInputType): User
+  updateUser(id: Int!, autosave: Boolean, data: mutationUserUpdateInput!, locale: LocaleInputType): User
   deleteUser(id: Int!): User
   refreshTokenUser: usersRefreshedUser
   logoutUser: String
@@ -991,8 +1124,8 @@ type Mutation {
   forgotPasswordUser(disableEmail: Boolean, email: String!, expiration: Int): Boolean!
   resetPasswordUser(password: String, token: String): usersResetPassword
   verifyEmailUser(token: String): Boolean
-  createPayloadPreference(data: mutationPayloadPreferenceInput!): PayloadPreference
-  updatePayloadPreference(id: Int!, autosave: Boolean, data: mutationPayloadPreferenceUpdateInput!): PayloadPreference
+  createPayloadPreference(data: mutationPayloadPreferenceInput!, locale: LocaleInputType): PayloadPreference
+  updatePayloadPreference(id: Int!, autosave: Boolean, data: mutationPayloadPreferenceUpdateInput!, locale: LocaleInputType): PayloadPreference
   deletePayloadPreference(id: Int!): PayloadPreference
 }
 
@@ -1001,6 +1134,9 @@ input mutationUserInput {
   role: User_role_MutationInput!
   updatedAt: String
   createdAt: String
+  enableAPIKey: Boolean
+  apiKey: String
+  apiKeyIndex: String
   email: String!
   resetPasswordToken: String
   resetPasswordExpiration: String
@@ -1021,6 +1157,9 @@ input mutationUserUpdateInput {
   role: UserUpdate_role_MutationInput
   updatedAt: String
   createdAt: String
+  enableAPIKey: Boolean
+  apiKey: String
+  apiKeyIndex: String
   email: String
   resetPasswordToken: String
   resetPasswordExpiration: String

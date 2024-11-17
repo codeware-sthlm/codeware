@@ -13,10 +13,10 @@ importers:
         version: 1.13.7(hono@4.6.10)
       '@remix-run/node':
         specifier: ^2.14.0
-        version: 2.14.0(typescript@5.5.4)
+        version: 2.14.0(typescript@5.6.3)
       '@remix-run/react':
         specifier: ^2.14.0
-        version: 2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4)
+        version: 2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
       hono:
         specifier: ^4.6.10
         version: 4.6.10
@@ -31,11 +31,11 @@ importers:
         version: 18.3.1(react@18.3.1)
       remix-hono:
         specifier: ^0.0.16
-        version: 0.0.16(typescript@5.5.4)
+        version: 0.0.16(typescript@5.6.3)
     devDependencies:
       '@remix-run/dev':
         specifier: ^2.14.0
-        version: 2.14.0(@remix-run/react@2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@types/node@22.9.0)(typescript@5.5.4)(vite@5.4.11(@types/node@22.9.0))
+        version: 2.14.0(@remix-run/react@2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(@types/node@22.9.0)(typescript@5.6.3)(vite@5.4.11(@types/node@22.9.0))
       '@types/react':
         specifier: ^18.2.0
         version: 18.3.12
@@ -46,8 +46,8 @@ importers:
         specifier: ^9.0.0
         version: 9.15.0
       typescript:
-        specifier: ~5.5.2
-        version: 5.5.4
+        specifier: ~5.6.0
+        version: 5.6.3
       vite:
         specifier: ^5.0.0
         version: 5.4.11(@types/node@22.9.0)
@@ -2469,8 +2469,8 @@ packages:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
     engines: {node: '>= 0.6'}
 
-  typescript@5.5.4:
-    resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
+  typescript@5.6.3:
+    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -3172,7 +3172,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@remix-run/dev@2.14.0(@remix-run/react@2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@types/node@22.9.0)(typescript@5.5.4)(vite@5.4.11(@types/node@22.9.0))':
+  '@remix-run/dev@2.14.0(@remix-run/react@2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3))(@types/node@22.9.0)(typescript@5.6.3)(vite@5.4.11(@types/node@22.9.0))':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/generator': 7.26.2
@@ -3184,10 +3184,10 @@ snapshots:
       '@babel/types': 7.26.0
       '@mdx-js/mdx': 2.3.0
       '@npmcli/package-json': 4.0.1
-      '@remix-run/node': 2.14.0(typescript@5.5.4)
-      '@remix-run/react': 2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4)
+      '@remix-run/node': 2.14.0(typescript@5.6.3)
+      '@remix-run/react': 2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
       '@remix-run/router': 1.21.0
-      '@remix-run/server-runtime': 2.14.0(typescript@5.5.4)
+      '@remix-run/server-runtime': 2.14.0(typescript@5.6.3)
       '@types/mdx': 2.0.13
       '@vanilla-extract/integration': 6.5.0(@types/node@22.9.0)
       arg: 5.0.2
@@ -3227,11 +3227,11 @@ snapshots:
       set-cookie-parser: 2.7.1
       tar-fs: 2.1.1
       tsconfig-paths: 4.2.0
-      valibot: 0.41.0(typescript@5.5.4)
+      valibot: 0.41.0(typescript@5.6.3)
       vite-node: 1.6.0(@types/node@22.9.0)
       ws: 7.5.10
     optionalDependencies:
-      typescript: 5.5.4
+      typescript: 5.6.3
       vite: 5.4.11(@types/node@22.9.0)
     transitivePeerDependencies:
       - '@types/node'
@@ -3249,9 +3249,9 @@ snapshots:
       - ts-node
       - utf-8-validate
 
-  '@remix-run/node@2.14.0(typescript@5.5.4)':
+  '@remix-run/node@2.14.0(typescript@5.6.3)':
     dependencies:
-      '@remix-run/server-runtime': 2.14.0(typescript@5.5.4)
+      '@remix-run/server-runtime': 2.14.0(typescript@5.6.3)
       '@remix-run/web-fetch': 4.4.2
       '@web3-storage/multipart-parser': 1.0.0
       cookie-signature: 1.2.2
@@ -3259,23 +3259,23 @@ snapshots:
       stream-slice: 0.1.2
       undici: 6.21.0
     optionalDependencies:
-      typescript: 5.5.4
+      typescript: 5.6.3
 
-  '@remix-run/react@2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4)':
+  '@remix-run/react@2.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)':
     dependencies:
       '@remix-run/router': 1.21.0
-      '@remix-run/server-runtime': 2.14.0(typescript@5.5.4)
+      '@remix-run/server-runtime': 2.14.0(typescript@5.6.3)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-router: 6.28.0(react@18.3.1)
       react-router-dom: 6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       turbo-stream: 2.4.0
     optionalDependencies:
-      typescript: 5.5.4
+      typescript: 5.6.3
 
   '@remix-run/router@1.21.0': {}
 
-  '@remix-run/server-runtime@2.14.0(typescript@5.5.4)':
+  '@remix-run/server-runtime@2.14.0(typescript@5.6.3)':
     dependencies:
       '@remix-run/router': 1.21.0
       '@types/cookie': 0.6.0
@@ -3285,7 +3285,7 @@ snapshots:
       source-map: 0.7.4
       turbo-stream: 2.4.0
     optionalDependencies:
-      typescript: 5.5.4
+      typescript: 5.6.3
 
   '@remix-run/web-blob@3.1.0':
     dependencies:
@@ -5124,9 +5124,9 @@ snapshots:
       mdast-util-to-hast: 12.3.0
       unified: 10.1.2
 
-  remix-hono@0.0.16(typescript@5.5.4):
+  remix-hono@0.0.16(typescript@5.6.3):
     dependencies:
-      '@remix-run/server-runtime': 2.14.0(typescript@5.5.4)
+      '@remix-run/server-runtime': 2.14.0(typescript@5.6.3)
       hono: 4.6.10
       pretty-cache-header: 1.0.0
     transitivePeerDependencies:
@@ -5390,7 +5390,7 @@ snapshots:
       media-typer: 0.3.0
       mime-types: 2.1.35
 
-  typescript@5.5.4: {}
+  typescript@5.6.3: {}
 
   ufo@1.5.4: {}
 
@@ -5483,9 +5483,9 @@ snapshots:
       kleur: 4.1.5
       sade: 1.8.1
 
-  valibot@0.41.0(typescript@5.5.4):
+  valibot@0.41.0(typescript@5.6.3):
     optionalDependencies:
-      typescript: 5.5.4
+      typescript: 5.6.3
 
   validate-npm-package-license@3.0.4:
     dependencies:

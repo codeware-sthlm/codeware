@@ -17,7 +17,7 @@
     "@octokit/request-error": "^5.0.1",
     "@payloadcms/bundler-webpack": "1.0.7",
     "@payloadcms/db-mongodb": "1.7.3",
-    "@payloadcms/db-postgres": "0.8.9",
+    "@payloadcms/db-postgres": "0.8.10",
     "@payloadcms/richtext-slate": "1.5.2",
     "@remix-run/node": "^2.14.0",
     "@remix-run/react": "^2.14.0",
@@ -100,7 +100,7 @@
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "2.31.0",
-    "eslint-plugin-jsx-a11y": "6.10.1",
+    "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-playwright": "^2.0.0",
     "eslint-plugin-react": "7.37.2",
     "eslint-plugin-react-hooks": "5.0.0",
@@ -113,7 +113,7 @@
     "npm-whoami": "^1.1.4",
     "nx": "20.1.0",
     "nx-cloud": "19.1.0",
-    "postcss": "8.4.47",
+    "postcss": "8.4.49",
     "prettier": "^3.0.0",
     "react-refresh": "^0.14.0",
     "rimraf": "latest",
@@ -140,5 +140,5 @@
       "commit"
     ]
   },
-  "packageManager": "pnpm@9.12.3"
+  "packageManager": "pnpm@9.13.0"
 }

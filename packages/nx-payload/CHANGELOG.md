@@ -1,3 +1,22 @@
+# 1.0.0 (2024-11-18)
+
+### 🐞 Bug Fixes
+
+- **nx-payload:** inferred gen target should depend on payload config ([1b7dda01](https://github.com/codeware-sthlm/codeware/commit/1b7dda01))
+- **nx-payload:** move payload generate to a new target ([35084d05](https://github.com/codeware-sthlm/codeware/commit/35084d05))
+- **deps:** update dependency react-i18next to v15.1.1 ([00c2bb10](https://github.com/codeware-sthlm/codeware/commit/00c2bb10))
+- **deps:** update dependency react-router-dom to v6.28.0 ([99734638](https://github.com/codeware-sthlm/codeware/commit/99734638))
+
+### 🧹 Code Refactoring
+
+- **nx-payload:** rename developer experience targets with metadata ([0f9d2b64](https://github.com/codeware-sthlm/codeware/commit/0f9d2b64))
+- **cms:** remove dependency to process ([25d035aa](https://github.com/codeware-sthlm/codeware/commit/25d035aa))
+- ⚠️  **repo:** migrate nx-plugins repo to this repo ([556bf360](https://github.com/codeware-sthlm/codeware/commit/556bf360))
+
+### ⚠️  Breaking Changes
+
+- **repo:** all packages from nx-plugins repository are moved including release management and other important features
+
 ## 0.11.1 (2024-11-05)
 
 ### 🐞 Bug Fixes

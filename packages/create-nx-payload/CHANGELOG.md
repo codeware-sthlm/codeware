@@ -1,3 +1,13 @@
+# 1.0.0 (2024-11-18)
+
+### 🧹 Code Refactoring
+
+- ⚠️  **repo:** migrate nx-plugins repo to this repo ([556bf360](https://github.com/codeware-sthlm/codeware/commit/556bf360))
+
+### ⚠️  Breaking Changes
+
+- **repo:** all packages from nx-plugins repository are moved including release management and other important features
+
 ## 0.7.1 (2024-11-05)
 
 ### 🐞 Bug Fixes

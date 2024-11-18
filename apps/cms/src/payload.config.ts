@@ -49,8 +49,7 @@ export default buildConfig({
     outputFile: resolve(__dirname, 'generated/payload-types.ts')
   },
   graphQL: {
-    disable: false,
-    schemaOutputFile: resolve(__dirname, 'generated/schema.graphql')
+    disable: true
   },
   telemetry: false
 });

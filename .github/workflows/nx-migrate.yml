@@ -48,6 +48,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           auto-merge: ${{ vars.NX_AUTO_MIGRATE }}
           check-token: ${{ vars.NX_MIGRATE_CHECK_TOKEN }}
+          committer: ${{ vars.CDWR_COMMITTER }}
           skip-e2e: ${{ vars.NX_MIGRATE_SKIP_E2E }}
           dry-run: ${{ vars.NX_MIGRATE_DRY_RUN }}
         env:

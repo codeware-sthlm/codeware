@@ -54,3 +54,6 @@ migrations.json
 .secrets
 
 vite.config.*.timestamp*
+
+# No nested lockfiles
+apps/**/pnpm-lock.yaml

@@ -35,7 +35,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@cdwr/nx-payload": "1.0.0",
+    "@cdwr/nx-payload": "0.11.1",
     "@clack/prompts": "^0.7.0",
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-angular": "^19.0.0",

@@ -421,6 +421,7 @@ Later versions of Nx or Payload might work as well, but the versions below have 
 
 | Plugin version | Nx version | Payload version |
 | -------------- | ---------- | --------------- |
+| `^1.0.0`       | `20.x`     | `^2.30.3`       |
 | `^0.11.0`      | `20.x`     | `^2.30.3`       |
 | `^0.10.0`      | `19.x`     | `^2.8.2`        |
 | `^0.9.5`       | `^19.5.7`  | `^2.8.2`        |
@@ -430,16 +431,3 @@ Later versions of Nx or Payload might work as well, but the versions below have 
 | `^0.6.0`       | `~18.1.1`  | `^2.8.2`        |
 | `^0.5.0`       | `~18.0.3`  | `^2.8.2`        |
 | `^0.1.0`       | `^17.0.0`  | `^2.5.0`        |
-
-### Payload peer dependencies <!-- omit in toc -->
-
-Payload has a couple of peer dependencies which must be respected by the plugin.
-It's especially important when the plugin is used in a monorepo.
-
-These peer dependencies are defined as dependencies to the plugin.
-
-| Plugin version | Dependency         | Version   |
-| -------------- | ------------------ | --------- |
-| `^0.9.x`       | `react`            | `18.2.0`  |
-|                | `react-i18next`    | `11.18.6` |
-|                | `react-router-dom` | `5.3.4`   |

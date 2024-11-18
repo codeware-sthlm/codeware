@@ -1,3 +1,9 @@
+## 1.0.1 (2024-11-18)
+
+### 📄 Documentation
+
+- **nx-payload:** update compatible version ([a72cf727](https://github.com/codeware-sthlm/codeware/commit/a72cf727))
+
 # 1.0.0 (2024-11-18)
 
 ### 🐞 Bug Fixes

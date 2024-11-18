@@ -7,15 +7,18 @@ import {
   logDebug,
   logError,
   logInfo,
+  logWarning,
   runCommand
 } from '@codeware/core';
+import { getPackageManagerCommand } from '@nx/devkit';
 import {
   cleanup,
   directoryExists,
   exists,
   runNxCommand,
   tmpProjPath,
-  uniq
+  uniq,
+  updateFile
 } from '@nx/plugin/testing';
 
 import { getE2EPackageManager } from './get-e2e-package-manager';
@@ -142,6 +145,18 @@ export async function ensureCreateNxWorkspaceProject({
     logDebug('Install plugin in empty apps workspace');
     runNxCommand('add @cdwr/nx-payload');
   }
+
+  // FIXME: remove e2e workaround when eslint bug in 8.15 has been resolved
+  logWarning(
+    'Manually installing eslint 9.14',
+    `A temporary workaround due to a blocking bug in 9.15.
+  Read more: https://github.com/eslint/eslint/issues/19134`
+  );
+  updateFile('package.json', (content) =>
+    content.replace(/"eslint": ".*"/, `"eslint": "~9.14"`)
+  );
+  const pmc = getPackageManagerCommand(pm);
+  runCommand(pmc.install);
 
   return {
     appName,

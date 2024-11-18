@@ -1,0 +1,62 @@
+# Semi-automated Nx releases where pre-created tags gets published to NPM.
+# The tags has been created locally using `nx release-cli`.
+
+name: Publish package
+
+on:
+  push:
+    tags:
+      - '*-*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Assume tag format '<package>-<version>'
+      - name: Extract package name
+        id: extract
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          PACKAGE=${TAG%-*}
+          echo "package=$PACKAGE" >> $GITHUB_OUTPUT
+
+        # Projects with target 'nx-release-publish' can be published
+      - name: Verify publishable package
+        run: |
+          PROJECTS=$(pnpm nx show projects --with-target nx-release-publish)
+          if echo "$PROJECTS" | grep -q "^${{ steps.extract.outputs.package }}$"; then
+            echo "Package '${{ steps.extract.outputs.package }}' is valid for publishing"
+          else
+            echo "'${{ steps.extract.outputs.package }}' is not a project configured for publishing"
+            echo "Available publishable projects:"
+            echo "$PROJECTS"
+            exit 0
+          fi
+
+      - name: Build package
+        run: pnpm nx build ${{ steps.extract.outputs.package }}
+
+      - name: Publish package
+        run: pnpm nx release publish -p ${{ steps.extract.outputs.package }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

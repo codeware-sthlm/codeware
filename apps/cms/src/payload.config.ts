@@ -5,6 +5,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres';
 import { slateEditor } from '@payloadcms/richtext-slate';
 import { buildConfig } from 'payload/config';
 
+import Pages from './collections/Pages';
 import Users from './collections/Users';
 import env from './env';
 
@@ -15,7 +16,7 @@ export default buildConfig({
     buildPath: resolve(__dirname, '../../..', 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
-  collections: [Users],
+  collections: [Pages, Users],
   cors: ['http://localhost:4200'],
   db: postgresAdapter({
     pool: { connectionString: env.POSTGRES_URL },
@@ -46,6 +47,7 @@ export default buildConfig({
     fallback: true
   },
   typescript: {
+    declare: false,
     outputFile: resolve(__dirname, 'generated/payload-types.ts')
   },
   graphQL: {

@@ -57,20 +57,6 @@ export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
           watch: true
         }
       },
-      gen: {
-        metadata: metadata.gen,
-        executor: 'nx:run-commands',
-        options: {
-          commands: [
-            'npx payload generate:types',
-            'npx payload generate:graphQLSchema'
-          ],
-          parallel: false,
-          env: {
-            PAYLOAD_CONFIG_PATH: '{projectRoot}/src/payload.config.ts'
-          }
-        }
-      },
       payload: {
         metadata: metadata.payload,
         executor: 'nx:run-commands',

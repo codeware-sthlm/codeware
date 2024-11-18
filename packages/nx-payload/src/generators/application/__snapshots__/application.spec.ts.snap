@@ -78,25 +78,6 @@ exports[`application generator should not setup plugin inference when 'useInfere
         "tsConfig": "apps/test-dir/tsconfig.app.json",
       },
     },
-    "gen": {
-      "executor": "nx:run-commands",
-      "metadata": {
-        "description": "Generate types and GraphQL schema (if enabled) from the Payload configuration",
-        "technologies": [
-          "node",
-        ],
-      },
-      "options": {
-        "commands": [
-          "npx payload generate:types",
-          "npx payload generate:graphQLSchema",
-        ],
-        "env": {
-          "PAYLOAD_CONFIG_PATH": "{projectRoot}/src/payload.config.ts",
-        },
-        "parallel": false,
-      },
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
     },

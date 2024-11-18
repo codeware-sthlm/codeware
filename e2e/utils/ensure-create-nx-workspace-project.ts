@@ -24,12 +24,28 @@ import {
 import { getE2EPackageManager } from './get-e2e-package-manager';
 
 export type CreateNxWorkspaceProject = {
-  /** Generated application name */
+  /** Name of application when one has been generated */
   appName?: string;
-  /** Application directory  */
+  /** Application directory when one has been generated */
   appDirectory?: string;
   /** Project path where the workspace was generated */
   projectPath: string;
+};
+
+type Options = {
+  /**
+   * Generate the app with a random name or provide your own.
+   *
+   * Leaving the default name makes debug easier when you want to run commands
+   * in the e2e folder for the initial app with a known name.
+   * @default 'appdefault''
+   */
+  appName: 'random' | { name: string };
+  /**
+   * Ensure the plugin gets installed in the workspace
+   * @default false
+   */
+  ensurePluginIsInstalled: boolean;
 };
 
 /**
@@ -42,14 +58,29 @@ export type CreateNxWorkspaceProject = {
  * Package mananger can be set via environment variable `CDWR_E2E_PACKAGE_MANAGER`.
  *
  * @param preset Which preset to use as option to `create-nx-workspace`
+ * @param options Workspace options
  * @returns Project workspace details
  */
 export async function ensureCreateNxWorkspaceProject({
   preset,
-  ensurePluginIsInstalled
+  options
+}: {
+  preset: 'apps';
+  options?: Pick<Options, 'ensurePluginIsInstalled'>;
+}): Promise<CreateNxWorkspaceProject>;
+export async function ensureCreateNxWorkspaceProject({
+  preset,
+  options
+}: {
+  preset: '@cdwr/nx-payload';
+  options?: Pick<Options, 'appName'>;
+}): Promise<CreateNxWorkspaceProject>;
+export async function ensureCreateNxWorkspaceProject({
+  preset,
+  options
 }: {
   preset: 'apps' | '@cdwr/nx-payload';
-  ensurePluginIsInstalled?: boolean;
+  options?: Partial<Options>;
 }): Promise<CreateNxWorkspaceProject> {
   // Get the local version of `create-nx-workspace`
   const version = (await getPackageVersion('create-nx-workspace')) ?? 'latest';
@@ -68,7 +99,7 @@ export async function ensureCreateNxWorkspaceProject({
   );
 
   // Prepare the options for `create-nx-workspace`
-  const options = [
+  const cmdOptions = [
     '--nxCloud',
     'skip',
     '--no-interactive',
@@ -76,14 +107,21 @@ export async function ensureCreateNxWorkspaceProject({
     pm
   ];
 
-  let appName = '';
-  let appDirectory = '';
+  let appName: string | undefined;
+  let appDirectory: string | undefined;
 
   // Add required options for `@cdwr/nx-payload` preset
   if (preset === '@cdwr/nx-payload') {
-    appName = uniq('app');
+    // Set app name from options or a default static name
+    appName = !options?.appName
+      ? 'appdefault'
+      : options.appName === 'random'
+        ? uniq('app')
+        : options.appName.name;
+
     appDirectory = `apps/${appName}`;
-    options.unshift(
+
+    cmdOptions.unshift(
       '--payloadAppName',
       appName,
       '--payloadAppDirectory',
@@ -101,7 +139,7 @@ export async function ensureCreateNxWorkspaceProject({
     mkdirSync(runPath, { recursive: true });
   }
 
-  const cmd = `npx create-nx-workspace@${version} ${name} --preset ${preset} ${options.join(' ')}`;
+  const cmd = `npx create-nx-workspace@${version} ${name} --preset ${preset} ${cmdOptions.join(' ')}`;
 
   logDebug('Creating Nx workspace project', `Preset '${preset}'`);
   logDebug('Run command', cmd);
@@ -141,7 +179,7 @@ export async function ensureCreateNxWorkspaceProject({
     throw new Error(`Failed to create test project in "${projectPath}"`);
   }
 
-  if (preset === 'apps' && ensurePluginIsInstalled) {
+  if (preset === 'apps' && options?.ensurePluginIsInstalled) {
     logDebug('Install plugin in empty apps workspace');
     runNxCommand('add @cdwr/nx-payload');
   }
@@ -150,7 +188,7 @@ export async function ensureCreateNxWorkspaceProject({
   logWarning(
     'Manually installing eslint 9.14',
     `A temporary workaround due to a blocking bug in 9.15.
-  Read more: https://github.com/eslint/eslint/issues/19134`
+Read more: https://github.com/eslint/eslint/issues/19134`
   );
   updateFile('package.json', (content) =>
     content.replace(/"eslint": ".*"/, `"eslint": "~9.14"`)

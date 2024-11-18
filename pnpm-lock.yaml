@@ -265,7 +265,7 @@ importers:
         specifier: ~0.24.0
         version: 0.24.0
       eslint:
-        specifier: ^9.8.0
+        specifier: ~9.14.0
         version: 9.14.0(jiti@2.4.0)
       eslint-config-prettier:
         specifier: ^9.0.0
@@ -303,6 +303,9 @@ importers:
       kill-port:
         specifier: ^2.0.1
         version: 2.0.1
+      memfs:
+        specifier: ^4.14.0
+        version: 4.14.0
       npm-whoami:
         specifier: ^1.1.4
         version: 1.1.4

@@ -38,7 +38,6 @@ export type Target = (typeof targets)[number];
  */
 export const generatorTargets = [
   'build',
-  'gen',
   'lint',
   'payload',
   'serve',

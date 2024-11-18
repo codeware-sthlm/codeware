@@ -135,7 +135,7 @@ Plugin configuration is created automatically, but you can opt out using one of 
 >
 > `useInferencePlugins` has higher priority than `NX_ADD_PLUGINS`
 >
-> Generated targets will **not** include the DX targets.
+> Generated targets will **not** include the DX targets, nor the `gen` target
 
 ## Usage
 
@@ -319,15 +319,24 @@ nx payload [app-name] migrate:status
 
 To provide a better developer experience for client development, the plugin can generate TypeScript types and GraphQL schema files from the Payload configuration.
 
+> [!NOTE]
+> GraphQL schema will not be generated if `graphQL.disable` is set to `true` in `payload.config.ts`
+
 ```sh
 nx gen [app-name]
-
-# or equivalent
-nx payload [app-name] generate
 ```
 
 The generated files are written to application source `generated` folder.
 They can then be distributed to the client developer manually or saved to a shared library in the monorepo.
+
+> [!IMPORTANT]
+> The `gen` target is only available when **inference** is enabled.  
+> To generate the files manually you can use the versatile `payload` target instead.
+>
+> ```sh
+> nx payload [app-name] generate:types
+> nx payload [app-name] generate:graphql
+> ```
 
 ### Troubleshooting
 

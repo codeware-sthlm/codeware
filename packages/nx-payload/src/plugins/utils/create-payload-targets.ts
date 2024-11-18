@@ -1,3 +1,5 @@
+import { join } from 'path';
+
 import type {
   CreateNodesContext,
   ProjectConfiguration,
@@ -8,6 +10,7 @@ import type { RunCommandsOptions } from 'nx/src/executors/run-commands/run-comma
 
 import type { BuildExecutorSchema } from '../../executors/build/schema';
 import { metadata } from '../../utils/definitions';
+import { extractPayloadConfig } from '../../utils/extract-payload-config';
 
 import type { NormalizedOptions } from './types';
 
@@ -18,11 +21,21 @@ export const createPayloadTargets = async (
   context: CreateNodesContext
 ): Promise<Record<string, TargetConfiguration>> => {
   const namedInputs = getNamedInputs(projectRoot, context);
+  const absoluteSourceRoot =
+    projectConfig.sourceRoot ?? join(context.workspaceRoot, projectRoot, 'src');
 
   const targets: Record<
     string,
     TargetConfiguration<BuildExecutorSchema | Partial<RunCommandsOptions>>
   > = {};
+
+  // Get current GraphQL config state
+  const result = extractPayloadConfig(absoluteSourceRoot, 'graphQL.disable');
+  if (!result.config) {
+    // Don't throw to prevent messing up the targets
+    console.error(result.error);
+  }
+  const isGraphQLDisabled = result?.config?.graphQL?.disable;
 
   // Add build target
   targets[options.buildTargetName] = {
@@ -54,15 +67,16 @@ export const createPayloadTargets = async (
     }
   };
 
-  // Add generate target
+  // Add generate target:
+  // Update inferred target when payload config is updated
   targets[options.generateTargetName] = {
     metadata: metadata.gen,
     executor: 'nx:run-commands',
+    inputs: ['{projectRoot}/src/payload.config.ts'],
     options: {
-      commands: [
-        'npx payload generate:types',
-        'npx payload generate:graphQLSchema'
-      ],
+      commands: isGraphQLDisabled
+        ? ['npx payload generate:types']
+        : ['npx payload generate:types', 'npx payload generate:graphQLSchema'],
       env: {
         PAYLOAD_CONFIG_PATH: '{projectRoot}/src/payload.config.ts'
       },

@@ -1,12 +1,14 @@
-import { logInfo, runCommand } from '@codeware/core';
+import { logDebug, logInfo, runCommand } from '@codeware/core';
 import {
   type CreateNxWorkspaceProject,
-  ensureCreateNxWorkspaceProject
+  ensureCreateNxWorkspaceProject,
+  getFolderFiles,
+  removeFolderFiles
 } from '@codeware/e2e/utils';
 import type { NxJsonConfiguration, ProjectConfiguration } from '@nx/devkit';
 import {
   checkFilesExist,
-  fileExists,
+  readFile,
   readJson,
   runCommandAsync,
   runNxCommand,
@@ -93,25 +95,46 @@ describe('Main plugin targets no docker', () => {
       });
     });
 
-    describe('run targets', () => {
+    describe('run targets on initial app', () => {
+      // Save generated payload config before all tests, to be restored after each test
+      // since we might patch the config in some tests
+      let generatedPayloadConfig: string;
+
+      const graphQLDisableFalse =
+        /graphQL:\s*{([^}]*?)disable:\s*false([^}]*?)}/;
+
+      beforeAll(() => {
+        generatedPayloadConfig = readFile(
+          `${project.appDirectory}/src/payload.config.ts`
+        );
+      });
+
+      beforeEach(() => {
+        removeFolderFiles(`${project.appDirectory}/src/generated`);
+      });
+
+      afterEach(() => {
+        updateFile(
+          `${project.appDirectory}/src/payload.config.ts`,
+          generatedPayloadConfig
+        );
+      });
+
       it('should build application without generating types and graphql schema', () => {
         const result = runNxCommand(`build ${project.appName}`);
         expect(result).toContain('Successfully ran target build');
 
         expect(() =>
           checkFilesExist(
-            `dist/apps/${project.appName}/build/index.html`,
-            `dist/apps/${project.appName}/package.json`,
-            `dist/apps/${project.appName}/src/main.js`
+            `dist/${project.appDirectory}/build/index.html`,
+            `dist/${project.appDirectory}/package.json`,
+            `dist/${project.appDirectory}/src/main.js`
           )
         ).not.toThrow();
 
         expect(
-          fileExists(`${project.appDirectory}/src/generated/payload-types.ts`)
-        ).toBeFalsy();
-        expect(
-          fileExists(`${project.appDirectory}/src/generated/schema.graphql`)
-        ).toBeFalsy();
+          getFolderFiles(`${project.appDirectory}/src/generated`)
+        ).toHaveLength(0);
       });
 
       it('should test application', () => {
@@ -141,6 +164,11 @@ describe('Main plugin targets no docker', () => {
       });
 
       it('should generate types and graphql schema', () => {
+        // Verify disable is false before the test
+        expect(
+          readFile(`${project.appDirectory}/src/payload.config.ts`)
+        ).toMatch(graphQLDisableFalse);
+
         const result = runNxCommand(`gen ${project.appName}`);
         expect(result).toContain('Successfully ran target gen');
 
@@ -150,6 +178,48 @@ describe('Main plugin targets no docker', () => {
             `${project.appDirectory}/src/generated/schema.graphql`
           )
         ).not.toThrow();
+      });
+
+      it('should only generate types when graphql is disabled in payload config', () => {
+        updateFile(
+          `${project.appDirectory}/src/payload.config.ts`,
+          (content) => {
+            // Check whether a falsy disable property exists and set it to true
+            if (content.match(graphQLDisableFalse)) {
+              return content.replace(
+                graphQLDisableFalse,
+                'graphQL: {$1disable: true$2}'
+              );
+            }
+            // Otherwise add it to the graphQL object
+            return content.replace(
+              /graphQL:\s*{([^}]*)}/,
+              'graphQL: {disable: true, $1}'
+            );
+          }
+        );
+
+        // Just verify we start with correct state
+        // - disable is true
+        // - without any generated files
+        expect(
+          readFile(`${project.appDirectory}/src/payload.config.ts`)
+        ).not.toMatch(graphQLDisableFalse);
+        expect(
+          getFolderFiles(`${project.appDirectory}/src/generated`)
+        ).toHaveLength(0);
+
+        logDebug(
+          `Project graph for '${project.appName}'`,
+          runNxCommand(`show project ${project.appName} --json`)
+        );
+
+        const result = runNxCommand(`gen ${project.appName}`);
+        expect(result).toContain('Successfully ran target gen');
+
+        expect(getFolderFiles(`${project.appDirectory}/src/generated`)).toEqual(
+          ['payload-types.ts']
+        );
       });
 
       it('should invoke payload cli', () => {
@@ -187,17 +257,17 @@ describe('Main plugin targets no docker', () => {
     {
       name: 'opt out via env',
       optOut: { by: 'envVariable', apply: 'single' },
-      projectTargets: ['build', 'lint', 'gen', 'payload', 'serve', 'test']
+      projectTargets: ['build', 'lint', 'payload', 'serve', 'test']
     },
     {
       name: 'opt out via nx config only',
       optOut: { by: 'nxConfig', apply: 'single' },
-      projectTargets: ['build', 'lint', 'gen', 'payload', 'serve', 'test']
+      projectTargets: ['build', 'lint', 'payload', 'serve', 'test']
     },
     {
       name: 'opt out via nx config overrides env',
       optOut: { by: 'nxConfig', apply: 'double' },
-      projectTargets: ['build', 'lint', 'gen', 'payload', 'serve', 'test']
+      projectTargets: ['build', 'lint', 'payload', 'serve', 'test']
     }
   ];
 

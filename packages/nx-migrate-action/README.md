@@ -11,6 +11,8 @@
   GitHub action that brings automatic <a href='https://nx.dev'>Nx</a> migrations to your workspace.
   <br />
   <br />
+  <a href='https://www.npmjs.com/package/@cdwr/nx-migrate-action'><img src='https://img.shields.io/npm/v/@cdwr/nx-migrate-action?label=npm%20version' alt='@cdwr/nx-migrate-action npm'></a>
+  &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />
   <br />
@@ -104,6 +106,17 @@ For major version updates this option is ignored. When it's set to `true` a comm
 `check-token`
 
 It's not recommended to use this in production since it might block the workflow from running.
+
+`committer`
+
+Commits can be signed automatically when `token` is generated from your own GitHub App.
+You also need to provide the same GitHub App details as the committer.
+
+```yml
+your-app[bot] <{APP_ID}+your-bot[bot]@users.noreply.github.com>
+```
+
+Read more about [GitHub commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification).
 
 ## Development
 

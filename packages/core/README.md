@@ -11,6 +11,8 @@
   A set of core utilities for the Codeware ecosystem.
   <br />
   <br />
+  <a href='https://www.npmjs.com/package/@cdwr/core'><img src='https://img.shields.io/npm/v/@cdwr/core?label=npm%20version' alt='@cdwr/core npm'></a>
+  &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />
   <br />

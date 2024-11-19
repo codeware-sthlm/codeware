@@ -102,6 +102,15 @@ const mockOctokit: MockOctokit = {
       get: createMockResponse('repos', 'get', {
         data: { id: 1, allow_auto_merge: true, default_branch: 'main' }
       }),
+      getCommit: createMockResponse('repos', 'getCommit', {
+        data: {
+          commit: {
+            verification: { verified: false, reason: 'test' }
+          },
+          committer: { email: 'committer-email', name: 'committer-name' },
+          sha: 'SHA'
+        }
+      }),
       listForAuthenticatedUser: createMockResponse(
         'repos',
         'listForAuthenticatedUser',

@@ -5,6 +5,7 @@ import * as replaceInFile from 'replace-in-file';
 
 import * as nxMigrateImport from './nx-migrate';
 import * as addPullRequestAssignees from './utils/add-pull-request-assignees';
+import * as addPullRequestComment from './utils/add-pull-request-comment';
 import * as addPullRequestLabel from './utils/add-pull-request-label';
 import * as cleanupPullRequests from './utils/cleanup-pull-requests';
 import * as createPullRequest from './utils/create-pull-request';
@@ -37,6 +38,10 @@ describe('nxMigrate', () => {
   const addPullRequestAssigneesMock = jest.spyOn(
     addPullRequestAssignees,
     'addPullRequestAssignees'
+  );
+  const addPullRequestCommentMock = jest.spyOn(
+    addPullRequestComment,
+    'addPullRequestComment'
   );
   const addPullRequestLabelMock = jest.spyOn(
     addPullRequestLabel,
@@ -109,6 +114,7 @@ describe('nxMigrate', () => {
         mainBranch: '',
         packagePatterns: [],
         prAssignees: '',
+        skipTests: false,
         skipE2E: false,
         dryRun: false
       },
@@ -149,6 +155,7 @@ describe('nxMigrate', () => {
         mainBranch: '',
         packagePatterns: [],
         prAssignees: '',
+        skipTests: false,
         skipE2E: false,
         token: 'token'
       } satisfies ActionInputs);
@@ -453,24 +460,56 @@ describe('nxMigrate', () => {
       ]);
     });
 
-    it('should call run nx tests function', async () => {
-      const config = setupTest('minor-update');
+    it('should call run nx tests function when not skipped', async () => {
+      const config = setupTest('minor-update', { skipTests: false });
       await nxMigrate(config, true);
 
       expect(runNxTestsMock).toHaveBeenCalled();
     });
 
+    it('should not call run nx tests function when skipped', async () => {
+      const config = setupTest('minor-update', { skipTests: true });
+      await nxMigrate(config, true);
+
+      expect(runNxTestsMock).not.toHaveBeenCalled();
+    });
+
     it('should call run nx e2e function when nx tests pass', async () => {
       runNxTestsMock.mockResolvedValue(true);
-      const config = setupTest('minor-update');
+      const config = setupTest('minor-update', { skipTests: false });
       await nxMigrate(config, true);
 
       expect(runNxE2eMock).toHaveBeenCalled();
     });
 
+    it('should call run nx e2e function when nx tests skipped', async () => {
+      const config = setupTest('minor-update', { skipTests: true });
+      await nxMigrate(config, true);
+
+      expect(runNxE2eMock).toHaveBeenCalled();
+    });
+
+    it('should not call run nx e2e function when nx e2e skipped', async () => {
+      const config = setupTest('minor-update', { skipE2E: true });
+      await nxMigrate(config, true);
+
+      expect(runNxE2eMock).not.toHaveBeenCalled();
+    });
+
+    it('should not call run nx e2e function when nx tests ran successfully but e2e skipped', async () => {
+      runNxTestsMock.mockResolvedValue(true);
+      const config = setupTest('minor-update', {
+        skipTests: false,
+        skipE2E: true
+      });
+      await nxMigrate(config, true);
+
+      expect(runNxE2eMock).not.toHaveBeenCalled();
+    });
+
     it('should not call run nx e2e function when nx tests fail', async () => {
       runNxTestsMock.mockResolvedValue(false);
-      const config = setupTest('minor-update');
+      const config = setupTest('minor-update', { skipTests: false });
       await nxMigrate(config, true);
 
       expect(runNxE2eMock).not.toHaveBeenCalled();
@@ -543,6 +582,44 @@ describe('nxMigrate', () => {
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
+    });
+
+    it('should not call enable pull request auto merge function for major version update', async () => {
+      const config = setupTest('major-update', { autoMerge: true });
+      await nxMigrate(config, true);
+
+      expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
+      expect(addPullRequestCommentMock).toHaveBeenCalledWith(
+        expect.objectContaining({ token: 'token' }),
+        1,
+        'Auto-merge is disabled for major version migrations'
+      );
+    });
+
+    it('should not call enable pull request auto merge function when nx tests failed', async () => {
+      runNxTestsMock.mockResolvedValue(false);
+      const config = setupTest('minor-update', { autoMerge: true });
+      await nxMigrate(config, true);
+
+      expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
+      expect(addPullRequestCommentMock).toHaveBeenCalledWith(
+        expect.objectContaining({ token: 'token' }),
+        1,
+        'Auto-merge was disabled since some tests failed'
+      );
+    });
+
+    it('should not call enable pull request auto merge function when nx e2e failed', async () => {
+      runNxE2eMock.mockResolvedValue(false);
+      const config = setupTest('minor-update', { autoMerge: true });
+      await nxMigrate(config, true);
+
+      expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
+      expect(addPullRequestCommentMock).toHaveBeenCalledWith(
+        expect.objectContaining({ token: 'token' }),
+        1,
+        'Auto-merge was disabled since some tests failed'
+      );
     });
 
     it('should call cleanup pull requests function', async () => {

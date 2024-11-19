@@ -56,6 +56,7 @@ describe('main', () => {
       mainBranch: 'main-branch',
       packagePatterns: ['package-patterns'],
       prAssignees: 'pull-request-assignees',
+      skipTests: true,
       skipE2E: true,
       dryRun: true
     } satisfies ActionInputs);
@@ -84,6 +85,7 @@ describe('main', () => {
       mainBranch: '',
       packagePatterns: [],
       prAssignees: '',
+      skipTests: false,
       skipE2E: false,
       dryRun: false
     } satisfies ActionInputs);

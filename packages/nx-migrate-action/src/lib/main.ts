@@ -18,6 +18,7 @@ export async function run(): Promise<void> {
       mainBranch: core.getInput('main-branch'),
       packagePatterns: core.getMultilineInput('package-patterns'),
       prAssignees: core.getInput('pull-request-assignees'),
+      skipTests: core.getBooleanInput('skip-tests'),
       skipE2E: core.getBooleanInput('skip-e2e'),
       dryRun: core.getBooleanInput('dry-run')
     } satisfies ActionInputs);

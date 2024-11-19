@@ -32,6 +32,10 @@ inputs:
     description: >
       Comma separated list of assignees for the created pull request.
       Defaults to an empty list.
+  skip-tests:
+    description: >
+      Whether to skip running base tests, i.e. build, lint, test.
+      Defaults to 'false'.
   skip-e2e:
     description: >
       Whether to skip running e2e tests.

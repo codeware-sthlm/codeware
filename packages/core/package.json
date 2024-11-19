@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
+    "@nx/devkit": "20.x",
     "@nx/plugin": "20.x",
     "@octokit/request-error": "^5.0.1",
     "chalk": "^4.1.0",

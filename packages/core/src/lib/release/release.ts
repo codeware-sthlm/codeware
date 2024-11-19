@@ -7,13 +7,16 @@ import {
   select,
   text
 } from '@clack/prompts';
+import { readJsonFile } from '@nx/devkit';
 import chalk from 'chalk';
 import { releaseVersion } from 'nx/release';
+import type { PackageJson } from 'nx/src/utils/package-json';
 
 import { whoami } from '../utils/whoami';
 
 import { changelogs } from './changelogs';
 import { publish } from './publish';
+import { revertPackageJson } from './revert-package-json';
 
 type Mode = 'publish' | 'release';
 
@@ -168,6 +171,8 @@ const dryRunOutro = (): void =>
       break;
     case 'release':
       {
+        const originPackageFile = readJsonFile<PackageJson>('package.json');
+
         // Analyze changes
         console.log(`${chalk.magenta.underline('Analyze changes')}`);
         const versionStatus = await releaseVersion({
@@ -175,6 +180,11 @@ const dryRunOutro = (): void =>
           verbose
         });
         const projectsVersionData = versionStatus.projectsVersionData;
+
+        // Workaround when Nx makes unwanted changes to package.json
+        if (!dryRun) {
+          revertPackageJson(originPackageFile, projectsVersionData);
+        }
 
         // Generate changelogs and exit when it fails
         if (

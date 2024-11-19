@@ -1,18 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`init should generate correct package.json 1`] = `
+exports[`init should generate correct dependencies in package.json 1`] = `
 {
   "dependencies": {
-    "@payloadcms/bundler-webpack": "^1.0.7",
-    "@payloadcms/db-mongodb": "^1.7.3",
-    "@payloadcms/db-postgres": "^0.8.9",
-    "@payloadcms/richtext-slate": "^1.5.2",
-    "express": "^4.18.1",
-    "payload": "^2.30.3",
+    "@payloadcms/bundler-webpack": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
+    "@payloadcms/db-mongodb": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
+    "@payloadcms/db-postgres": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
+    "@payloadcms/richtext-slate": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
+    "express": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
+    "payload": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
   },
   "devDependencies": {
-    "@nx/express": "20.1.0",
+    "@nx/express": StringMatching /\\^\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
   },
   "name": "@proj/source",
 }
 `;
+

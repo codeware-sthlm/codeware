@@ -1,4 +1,6 @@
 /// <reference types='vitest' />
+import { resolve } from 'path';
+
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import react from '@vitejs/plugin-react';
@@ -12,6 +14,11 @@ export default defineConfig({
   // worker: {
   //  plugins: [ nxViteTsPaths() ],
   // },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './app')
+    }
+  },
   test: {
     setupFiles: ['test-setup.ts'],
     watch: false,

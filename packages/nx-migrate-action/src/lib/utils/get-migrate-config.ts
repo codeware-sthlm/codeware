@@ -65,7 +65,6 @@ export const getMigrateConfig = async (
   }
 
   // Check committer; if not provided, use github official bot
-  // TODO: Possible? Lookup committer from GitHub user to apply id to email
   let committer = parseNameEmail(committerInput);
   if (!committer.email) {
     committer = {

@@ -15,6 +15,7 @@ import { getMigrateConfig } from './utils/get-migrate-config';
 import { getNxVersionInfo } from './utils/get-nx-version-info';
 import { getTokenPermissions } from './utils/get-token-permissions';
 import { lookupPullRequest } from './utils/lookup-pull-request';
+import { printCommitSignatureDetails } from './utils/print-commit-signature-details';
 import { printGitHubContext } from './utils/print-github-context';
 import { printTokenPermissions } from './utils/print-token-permissions';
 import { runMigration } from './utils/run-migration';
@@ -165,6 +166,7 @@ export async function nxMigrate(
 
       core.startGroup('Create commit on remote');
       await createAndPushCommit(config, latestVersion);
+      await printCommitSignatureDetails(config);
       core.endGroup();
 
       core.startGroup('Create pull request');

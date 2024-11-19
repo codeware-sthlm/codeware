@@ -30,6 +30,7 @@ export const ActionInputsSchema = z.object({
   mainBranch: z.string(),
   packagePatterns: z.array(z.string()),
   prAssignees: z.string(),
+  skipTests: z.boolean(),
   skipE2E: z.boolean(),
   token: z.string().min(1, 'token is required')
 });
@@ -52,6 +53,7 @@ export const MigrateConfigSchema = z.object({
     .array(z.string().min(1))
     .min(1, 'at least one package pattern is required'),
   prAssignees: z.array(z.string().min(1)),
+  skipTests: z.boolean(),
   skipE2E: z.boolean(),
   token: z.string().min(1, 'token is required')
 });

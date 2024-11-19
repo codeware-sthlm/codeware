@@ -147,15 +147,17 @@ export async function nxMigrate(
       await stageAllChanges();
       core.endGroup();
 
-      core.startGroup('Run tests on migration changes');
-      // Base tests
-      const testsPass = await runNxTests();
-      core.endGroup();
-
-      // Skip e2e when previous tests failed or from action inputs
-      let e2ePass: boolean | undefined = undefined;
-      if (testsPass && !config.skipE2E) {
+      let testsPass: boolean | undefined;
+      if (!config.skipTests) {
         core.startGroup('Run tests on migration changes');
+        testsPass = await runNxTests();
+        core.endGroup();
+      }
+
+      // Run e2e when previous tests skipped or ran successfully and e2e not to skip
+      let e2ePass: boolean | undefined;
+      if ((config.skipTests || testsPass) && !config.skipE2E) {
+        core.startGroup('Run e2e on migration changes');
         e2ePass = await runNxE2e();
         core.endGroup();
       }
@@ -189,6 +191,13 @@ export async function nxMigrate(
             config,
             pullRequest,
             'Auto-merge is disabled for major version migrations'
+          );
+        } else if (testsPass === false || e2ePass === false) {
+          core.info('Skip auto-merge since some tests failed');
+          await addPullRequestComment(
+            config,
+            pullRequest,
+            'Auto-merge was disabled since some tests failed'
           );
         } else {
           await enablePullRequestAutoMerge(config.token, pullRequest, 'REBASE');

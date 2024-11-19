@@ -27,6 +27,7 @@ export const getMigrateConfig = async (
     mainBranch: mainBranchInput,
     packagePatterns,
     prAssignees: prAssigneesInput,
+    skipTests,
     skipE2E,
     token
   } = inputs;
@@ -89,6 +90,7 @@ export const getMigrateConfig = async (
     mainBranch,
     packagePatterns,
     prAssignees,
+    skipTests,
     skipE2E,
     token
   };

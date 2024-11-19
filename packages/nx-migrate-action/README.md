@@ -103,6 +103,8 @@ It will always be `false` when auto merge isn't enabled in the repository settin
 
 For major version updates this option is ignored. When it's set to `true` a comment will be added to the pull request explaining why auto-merge is disabled.
 
+Also when any of tests or e2e is enabled and fail, auto merge will be disabled. A comment will reflect this in the pull request.
+
 `check-token`
 
 It's not recommended to use this in production since it might block the workflow from running.
@@ -117,6 +119,28 @@ your-app[bot] <{APP_ID}+your-bot[bot]@users.noreply.github.com>
 ```
 
 Read more about [GitHub commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification).
+
+`skipTests` & `skipE2e`
+
+> [!TIP]
+> When status checks have been setup which will affect the created pull request, there's no need to run any tests within the action.
+>
+> Set `skipTests` and/or `skipE2e` to `true` depending on the nature of the checks.
+
+When base tests are not skipped, the action will run this command
+
+```sh
+nx run-many -t lint,test,build -c ci
+```
+
+When e2e is not skipped and previous tests did not fail, the action will run this command
+
+```sh
+nx run-many -t e2e -c ci
+```
+
+> [!NOTE]
+> When any of the commands fail, auto merge will be disabled, in case `auto-merge` was set to `true`
 
 ## Development
 

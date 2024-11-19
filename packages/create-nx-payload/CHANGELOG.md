@@ -1,3 +1,9 @@
+## 1.0.1 (2024-11-19)
+
+### ⚙️ Miscellaneous Chores
+
+- **create-nx-payload:** bump version since 1.0.0 is a broken publish ([336c6e3a](https://github.com/codeware-sthlm/codeware/commit/336c6e3a))
+
 # 1.0.0 (2024-11-18)
 
 ### 🧹 Code Refactoring

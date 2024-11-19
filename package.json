@@ -1,6 +1,6 @@
 {
   "name": "codeware",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "scripts": {
     "build": "nx run-many -t build",
@@ -37,7 +37,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@cdwr/nx-payload": "1.0.1",
+    "@cdwr/nx-payload": "1.0.2",
     "@clack/prompts": "^0.7.0",
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-angular": "^19.0.0",

@@ -1,3 +1,9 @@
+## 1.0.2 (2024-11-19)
+
+### 🐞 Bug Fixes
+
+- **nx-payload:** snapshot tests should match for version patterns ([37703346](https://github.com/codeware-sthlm/codeware/commit/37703346))
+
 ## 1.0.1 (2024-11-18)
 
 ### 📄 Documentation

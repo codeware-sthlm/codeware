@@ -1,3 +1,10 @@
+## 1.1.0 (2024-11-19)
+
+### ✨ Features
+
+- **nx-migrate-action:** add option to skip tests completely ([10f4bb4f](https://github.com/codeware-sthlm/codeware/commit/10f4bb4f))
+- **nx-migrate-action:** check commit signature and print details ([208ad717](https://github.com/codeware-sthlm/codeware/commit/208ad717))
+
 # 1.0.0 (2024-11-18)
 
 ### ✨ Features

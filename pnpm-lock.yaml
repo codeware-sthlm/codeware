@@ -85,8 +85,8 @@ importers:
         version: 3.23.8
     devDependencies:
       '@cdwr/nx-payload':
-        specifier: 1.0.1
-        version: 1.0.1(ozwmdlz54vpwqr27p3jecuyu6m)
+        specifier: 1.0.2
+        version: 1.0.2(ozwmdlz54vpwqr27p3jecuyu6m)
       '@clack/prompts':
         specifier: ^0.7.0
         version: 0.7.0
@@ -1205,8 +1205,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@cdwr/nx-payload@1.0.1':
-    resolution: {integrity: sha512-7XpGm49lgzzj9EvPdZtZJFWTivPNCPqWdsDBQ3LvtlqJS4ogtVNNt/0vfgw9jHcTDqSo3ZCxbScyx12ktxXwDQ==}
+  '@cdwr/nx-payload@1.0.2':
+    resolution: {integrity: sha512-i5wIVSMrjeVGe5Hzpn72moVfmkk2XT5TZUPqwZvjORjV1+I8Asw43mP+lZ9H5X9Ty3Gv5bqPKipkJsjCsrP++A==}
     peerDependencies:
       '@nx/devkit': 20.x
       '@nx/express': 20.x
@@ -13447,7 +13447,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@cdwr/nx-payload@1.0.1(ozwmdlz54vpwqr27p3jecuyu6m)':
+  '@cdwr/nx-payload@1.0.2(ozwmdlz54vpwqr27p3jecuyu6m)':
     dependencies:
       '@nx/devkit': 20.1.0(nx@20.1.0(@swc-node/register@1.10.9(@swc/core@1.9.2(@swc/helpers@0.5.15))(@swc/types@0.1.15)(typescript@5.6.3))(@swc/core@1.9.2(@swc/helpers@0.5.15)))
       '@nx/express': 20.1.0(@babel/traverse@7.25.9)(@swc-node/register@1.10.9(@swc/core@1.9.2(@swc/helpers@0.5.15))(@swc/types@0.1.15)(typescript@5.6.3))(@swc/core@1.9.2(@swc/helpers@0.5.15))(@types/node@22.9.0)(@zkochan/js-yaml@0.0.7)(babel-plugin-macros@3.1.0)(eslint@9.14.0(jiti@2.4.0))(express@4.21.1)(nx@20.1.0(@swc-node/register@1.10.9(@swc/core@1.9.2(@swc/helpers@0.5.15))(@swc/types@0.1.15)(typescript@5.6.3))(@swc/core@1.9.2(@swc/helpers@0.5.15)))(ts-node@10.9.2(@swc/core@1.9.2(@swc/helpers@0.5.15))(@types/node@22.9.0)(typescript@5.6.3))(typescript@5.6.3)(verdaccio@6.0.2(typanion@3.14.0))

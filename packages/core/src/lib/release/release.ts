@@ -11,6 +11,7 @@ import { readJsonFile } from '@nx/devkit';
 import chalk from 'chalk';
 import { releaseVersion } from 'nx/release';
 import type { PackageJson } from 'nx/src/utils/package-json';
+import { simpleGit } from 'simple-git';
 
 import { whoami } from '../utils/whoami';
 
@@ -25,6 +26,9 @@ const dryRunOutro = (): void =>
   outro(
     `👓 ${chalk.green('Done!')} Nothing gets changed when running in ${chalk.bgYellow(' preview ')} mode`
   );
+
+/** Git client */
+const git = simpleGit();
 
 (async () => {
   intro(`Let's release some Nx Plugin packages 📦`);
@@ -184,6 +188,8 @@ const dryRunOutro = (): void =>
         // Workaround when Nx makes unwanted changes to package.json
         if (!dryRun) {
           revertPackageJson(originPackageFile, projectsVersionData);
+          // Revert changes needs to be staged
+          await git.add('package.json');
         }
 
         // Generate changelogs and exit when it fails

@@ -4,6 +4,7 @@ const typographyStyles = require('./typography.cjs');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [path.join(__dirname, 'app/**/*.{js,jsx,ts,tsx}')],
+  darkMode: 'selector',
   theme: {
     fontSize: {
       xs: ['0.8125rem', { lineHeight: '1.5rem' }],

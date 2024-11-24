@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@cdwr/nx-payload": "1.0.2",
-    "@clack/prompts": "^0.7.0",
+    "@clack/prompts": "^0.8.0",
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-angular": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
@@ -85,7 +85,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
     "@types/kill-port": "^2.0.3",
-    "@types/node": "22.9.0",
+    "@types/node": "22.9.1",
     "@types/npm-whoami": "^1.1.2",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
@@ -148,5 +148,5 @@
       "commit"
     ]
   },
-  "packageManager": "pnpm@9.13.1"
+  "packageManager": "pnpm@9.14.2"
 }

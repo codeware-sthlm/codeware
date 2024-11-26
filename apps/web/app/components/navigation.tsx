@@ -1,6 +1,8 @@
 import { NavLink } from '@remix-run/react';
 import clsx from 'clsx';
 
+import { usePages } from '../utils/pages';
+
 function NavItem({
   href,
   children
@@ -37,15 +39,21 @@ function NavItem({
 export function DesktopNavigation(
   props: React.ComponentPropsWithoutRef<'nav'>
 ) {
+  const pages = usePages();
+  const pagesExceptHome = pages.filter((page) => page.slug !== 'home');
+
+  if (pagesExceptHome.length === 0) {
+    return null;
+  }
+
   return (
     <nav {...props}>
-      {/** TODO Use page titles from CMS - COD-196 */}
       <ul className="flex rounded-full bg-white/90 px-3 text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
-        <NavItem href="/about">About</NavItem>
-        <NavItem href="/articles">Articles</NavItem>
-        <NavItem href="/projects">Projects</NavItem>
-        <NavItem href="/speaking">Speaking</NavItem>
-        <NavItem href="/uses">Uses</NavItem>
+        {pagesExceptHome.map((page) => (
+          <NavItem key={page.slug} href={page.slug ?? '/'}>
+            {page.title}
+          </NavItem>
+        ))}
       </ul>
     </nav>
   );

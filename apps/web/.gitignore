@@ -1,6 +1,8 @@
 .cache
 build
 public/build
-.env
+
+!.env.example
+.env*
 
 server.js

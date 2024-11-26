@@ -5,9 +5,9 @@ import { data, redirect, useFetcher, useFetchers } from '@remix-run/react';
 import { ServerOnly } from 'remix-utils/server-only';
 import { z } from 'zod';
 
-import { useHints } from '@/utils/client-hints';
-import { useRequestInfo } from '@/utils/request-info';
-import { Theme, setTheme } from '@/utils/theme.server';
+import { useHints } from '../utils/client-hints';
+import { useRequestInfo } from '../utils/request-info';
+import { Theme, setTheme } from '../utils/theme.server';
 
 const ThemeFormSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']),

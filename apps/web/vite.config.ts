@@ -1,5 +1,3 @@
-import { resolve } from 'path';
-
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { vitePlugin as remix } from '@remix-run/dev';
 import { defineConfig } from 'vite';
@@ -23,10 +21,5 @@ export default defineConfig({
       }
     }),
     nxViteTsPaths()
-  ],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './app')
-    }
-  }
+  ]
 });

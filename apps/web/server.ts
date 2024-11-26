@@ -31,6 +31,9 @@ serve(
     port: env.PORT
   },
   (info) => {
+    console.log('🚀 Server ready');
+    console.log('Environment:', env);
+
     console.log(`Running in ${env.NODE_ENV} mode`);
     console.log(`Hono server listening on port ${info.port}`);
   }

@@ -1,6 +1,6 @@
 import { Link } from '@remix-run/react';
 
-import { ContainerInner, ContainerOuter } from '@/components/container';
+import { ContainerInner, ContainerOuter } from './container';
 
 function NavLink({
   href,

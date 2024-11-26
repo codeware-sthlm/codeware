@@ -7,7 +7,7 @@ import {
 
 // TODO Use Sentry for error tracking - COD-202
 // import { captureRemixErrorBoundaryError } from '@sentry/remix'
-import { getErrorMessage } from '@/utils/misc';
+import { getErrorMessage } from '../utils/misc';
 
 type StatusHandler = (info: {
   error: ErrorResponse;

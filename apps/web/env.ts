@@ -7,6 +7,8 @@ const DEFAULT_PORT = 4200 as const;
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production']).default(DEFAULT_NODE_ENV),
+  PAYLOAD_API_KEY: z.string(),
+  PAYLOAD_URL: z.string().url(),
   PORT: z.coerce.number().default(DEFAULT_PORT)
 });
 

@@ -10,19 +10,20 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  data,
   useLoaderData
 } from '@remix-run/react';
 
+import { fetchPages } from './api/fetch-pages';
+import { Container } from './components/container';
+import { GeneralErrorBoundary } from './components/error-boundary';
+import { Footer } from './components/footer';
+import CdwrCloud from './components/logo';
+import { DesktopNavigation } from './components/navigation';
+import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';
-
-import { Container } from '@/components/container';
-import { GeneralErrorBoundary } from '@/components/error-boundary';
-import { Footer } from '@/components/footer';
-import CdwrCloud from '@/components/logo';
-import { DesktopNavigation } from '@/components/navigation';
-import { ThemeSwitch, useTheme } from '@/routes/resources.theme-switch';
-import { ClientHintCheck, getHints } from '@/utils/client-hints';
-import { type Theme, getTheme } from '@/utils/theme.server';
+import { ClientHintCheck, getHints } from './utils/client-hints';
+import { type Theme, getTheme } from './utils/theme.server';
 
 export const meta: MetaFunction = () => [
   {
@@ -45,16 +46,31 @@ export const links: LinksFunction = () => [
 ];
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const theme = await getTheme(request);
-  return {
-    requestInfo: {
-      hints: getHints(request),
-      path: new URL(request.url).pathname,
-      userPrefs: {
-        theme: theme
+  try {
+    const [theme, pages] = await Promise.all([getTheme(request), fetchPages()]);
+
+    const pageDetails = pages.map((page) => ({
+      slug: page.slug,
+      title: page.title
+    }));
+
+    return {
+      pages: pageDetails,
+      requestInfo: {
+        hints: getHints(request),
+        path: new URL(request.url).pathname,
+        userPrefs: {
+          theme: theme
+        }
       }
-    }
-  };
+    };
+  } catch (error) {
+    console.error('Failed to load root data:', error);
+    throw data(
+      { message: 'Failed to load root data. Please try again later.' },
+      { status: 500 }
+    );
+  }
 }
 
 function Document({
@@ -137,10 +153,6 @@ export default function App() {
   );
 }
 
-export function ErrorBoundary() {
-  return (
-    <Document>
-      <GeneralErrorBoundary />
-    </Document>
-  );
-}
+// this is a last resort error boundary. There's not much useful information we
+// can offer at this level.
+export const ErrorBoundary = GeneralErrorBoundary;

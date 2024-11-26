@@ -20,6 +20,7 @@ export default defineConfig({
     }
   },
   test: {
+    name: 'web-test',
     setupFiles: ['test-setup.ts'],
     watch: false,
     globals: true,

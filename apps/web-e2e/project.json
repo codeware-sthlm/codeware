@@ -6,5 +6,12 @@
   "tags": [],
   "implicitDependencies": ["web"],
   "// targets": "to see all targets run: nx show project web-e2e --web",
-  "targets": {}
+  "targets": {
+    "e2e": {
+      "executor": "nx:noop",
+      "metadata": {
+        "description": "TODO: COD-207"
+      }
+    }
+  }
 }

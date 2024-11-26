@@ -24,7 +24,8 @@
       "@codeware/nx-migrate-action": [
         "packages/nx-migrate-action/src/index.ts"
       ],
-      "@codeware/nx-payload": ["packages/nx-payload/index.ts"]
+      "@codeware/nx-payload": ["packages/nx-payload/index.ts"],
+      "@codeware/shared/util/payload": ["libs/shared/util/payload/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

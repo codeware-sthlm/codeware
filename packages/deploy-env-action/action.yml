@@ -1,0 +1,23 @@
+name: 'Fly Environment'
+
+description: >
+  Analyze the environment to deploy your Fly.io applications to.
+
+inputs:
+  main-branch:
+    description: >
+      The main branch name.
+      Defaults to the default branch of the repository.
+  token:
+    description: >
+      The token to use for repository authentication.
+      Defaults to `GITHUB_TOKEN`.
+
+outputs:
+  environment:
+    description: >
+      The environment to deploy applications to.
+
+runs:
+  using: 'node20'
+  main: '../../dist/packages/deploy-env-action/action.cjs'

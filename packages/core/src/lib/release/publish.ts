@@ -20,7 +20,7 @@ export const publish = async (options: {
   console.log(`${chalk.magenta.underline('Publish packages')}\n`);
 
   try {
-    const { stdout } = await promisify(exec)('yarn nx run-many -t build');
+    const { stdout } = await promisify(exec)('npm run nx run-many -t build');
     console.log(stdout);
 
     const result = await releasePublish({

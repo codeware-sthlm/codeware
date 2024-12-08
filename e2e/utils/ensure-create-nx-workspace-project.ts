@@ -9,7 +9,7 @@ import {
   logInfo,
   logWarning,
   runCommand
-} from '@codeware/core';
+} from '@codeware/core/utils';
 import { getPackageManagerCommand } from '@nx/devkit';
 import {
   cleanup,

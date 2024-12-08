@@ -16,7 +16,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@codeware/core": ["packages/core/src/index.ts"],
+      "@codeware/core/actions": ["packages/core/src/actions.ts"],
+      "@codeware/core/release": ["packages/core/src/release.ts"],
+      "@codeware/core/testing": ["packages/core/src/testing.ts"],
+      "@codeware/core/utils": ["packages/core/src/utils.ts"],
+      "@codeware/core/zod": ["packages/core/src/zod.ts"],
       "@codeware/create-nx-payload": [
         "packages/create-nx-payload/bin/index.ts"
       ],

@@ -1,4 +1,4 @@
-import { logDebug, logWarning } from '@codeware/core';
+import { logDebug, logWarning } from '@codeware/core/utils';
 import {
   type PackageManager,
   detectPackageManager,

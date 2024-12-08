@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@codeware/core';
+import { withGitHub } from '@codeware/core/actions';
 
 import { getFeatureBranchName } from './get-feature-branch-name';
 import type { MigrateConfig, VersionInfo } from './types';

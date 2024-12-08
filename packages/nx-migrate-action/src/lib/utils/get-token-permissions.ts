@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@codeware/core';
+import { withGitHub } from '@codeware/core/actions';
 
 interface RepositoryPermissions {
   admin: boolean;

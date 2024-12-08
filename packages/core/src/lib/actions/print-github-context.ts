@@ -1,6 +1,11 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+/**
+ * Print GitHub context to the console
+ * - All string properties (first level)
+ * - Repo owner and name
+ */
 export const printGitHubContext = () => {
   core.info('== Repo ==');
   core.info(`- owner: ${github.context.repo.owner}`);

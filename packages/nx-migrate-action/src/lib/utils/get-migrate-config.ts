@@ -1,9 +1,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@codeware/core';
+import { getRepositoryDefaultBranch, withGitHub } from '@codeware/core/actions';
 
 import { getActorId } from './get-actor-id';
-import { getRepositoryDefaultBranch } from './get-repository-default-branch';
 import { parseNameEmail } from './parse-name-email';
 import { MigrateConfigSchema } from './schema';
 import type { ActionInputs, MigrateConfig } from './types';
@@ -22,6 +21,7 @@ export const getMigrateConfig = async (
   const {
     author: authorInput,
     autoMerge: autoMergeInput,
+    checkToken,
     committer: committerInput,
     dryRun,
     mainBranch: mainBranchInput,
@@ -85,6 +85,7 @@ export const getMigrateConfig = async (
   const config: MigrateConfig = {
     author: author.email ? author : undefined,
     autoMerge,
+    checkToken,
     committer,
     dryRun,
     mainBranch,

@@ -1,0 +1,23 @@
+{
+  "name": "deploy-env-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/deploy-env-action/src",
+  "projectType": "library",
+  "tags": ["scope:deploy-env-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/deploy-env-action/*.md",
+          "packages/deploy-env-action/action.yml"
+        ],
+        "additionalEntryPoints": ["packages/deploy-env-action/src/action.ts"],
+        "format": ["cjs", "esm"]
+      }
+    },
+    "act": {
+      "command": "act schedule --env-file .env.act -j deploy-env"
+    }
+  }
+}

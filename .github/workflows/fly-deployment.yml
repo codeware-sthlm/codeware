@@ -1,0 +1,99 @@
+name: Fly Deployment
+
+on:
+  pull_request:
+    types:
+      - opened
+      - closed
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - main
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.ref }}
+
+jobs:
+  deploy-env:
+    runs-on: ubuntu-latest
+
+    outputs:
+      environment: ${{ steps.environment.outputs.environment }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build action
+        run: pnpm nx build deploy-env-action
+
+      - name: Determine environment
+        id: environment
+        uses: ./packages/deploy-env-action
+
+  fly-deployment:
+    needs: deploy-env
+    runs-on: ubuntu-latest
+
+    # Not possible to provide url since we might have multiple deployments
+    environment: ${{ needs.deploy-env.outputs.environment }}
+
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build action
+        run: pnpm nx build nx-fly-deployment-action
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: 0.3.45
+
+      - name: Analyze affected projects to deploy
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: main
+          set-environment-variables-for-job: true
+
+      - name: Run Deployment to Fly
+        id: deployment
+        uses: ./packages/nx-fly-deployment-action
+        with:
+          fly-api-token: ${{ secrets.FLY_API_TOKEN }}
+          fly-org: ${{ vars.FLY_ORG }}
+          fly-region: ${{ vars.FLY_REGION }}
+          token: ${{ steps.generate-token.outputs.token }}

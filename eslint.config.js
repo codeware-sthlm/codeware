@@ -11,7 +11,7 @@ module.exports = [
     }
   },
   {
-    ignores: ['**/dist']
+    ignores: ['**/dist', '**/vite.config.ts.timestamp*']
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

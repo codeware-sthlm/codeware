@@ -67,9 +67,7 @@ function createMockResponse<
 const mockOctokit: MockOctokit = {
   rest: {
     git: {
-      deleteRef: createMockResponse('git', 'deleteRef', {
-        data: undefined
-      })
+      deleteRef: createMockResponse('git', 'deleteRef', {})
     },
     issues: {
       addAssignees: createMockResponse('issues', 'addAssignees', {

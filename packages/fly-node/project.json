@@ -1,0 +1,16 @@
+{
+  "name": "fly-node",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/fly-node/src",
+  "projectType": "library",
+  "tags": ["scope:fly-node", "type:lib"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": ["packages/fly-node/*.md"],
+        "format": ["cjs", "esm"]
+      }
+    }
+  }
+}

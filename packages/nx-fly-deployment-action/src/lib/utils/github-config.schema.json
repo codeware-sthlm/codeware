@@ -1,0 +1,20 @@
+{
+  "$id": "https://github.com/codeware-sthlm/codeware/packages/nx-fly-deployment-action/github-config.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub Deployment Configuration.",
+  "description": "Configuration for deploying projects to Fly.",
+  "type": "object",
+  "properties": {
+    "deploy": {
+      "description": "Enable deployments.",
+      "type": "boolean",
+      "default": true
+    },
+    "flyConfig": {
+      "description": "Relative path to Fly configuration file from project root.",
+      "type": "string",
+      "default": "fly.toml"
+    }
+  },
+  "required": ["deploy", "flyConfig"]
+}

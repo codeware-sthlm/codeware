@@ -1,0 +1,4 @@
+{
+  "deploy": true,
+  "flyConfig": "path/to/fly.toml"
+}

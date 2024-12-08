@@ -16,6 +16,11 @@
             "output": "./assets"
           }
         ],
+        "additionalEntryPoints": [
+          "packages/core/src/actions.ts",
+          "packages/core/src/release.ts",
+          "packages/core/src/utils.ts"
+        ],
         "format": ["cjs", "esm"]
       }
     }

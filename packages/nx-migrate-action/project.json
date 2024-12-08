@@ -10,12 +10,7 @@
       "options": {
         "assets": [
           "packages/nx-migrate-action/*.md",
-          "packages/nx-migrate-action/action.yml",
-          {
-            "glob": "*.png",
-            "input": "assets",
-            "output": "./assets"
-          }
+          "packages/nx-migrate-action/action.yml"
         ],
         "additionalEntryPoints": ["packages/nx-migrate-action/src/action.ts"],
         "format": ["cjs", "esm"]

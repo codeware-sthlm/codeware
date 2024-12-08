@@ -1,4 +1,4 @@
-import { logDebug, logInfo, runCommand } from '@codeware/core';
+import { logDebug, logInfo, runCommand } from '@codeware/core/utils';
 import {
   type CreateNxWorkspaceProject,
   ensureCreateNxWorkspaceProject,

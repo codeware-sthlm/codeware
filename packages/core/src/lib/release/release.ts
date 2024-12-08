@@ -30,7 +30,10 @@ const dryRunOutro = (): void =>
 /** Git client */
 const git = simpleGit();
 
-(async () => {
+/**
+ * Nx release CLI for a guided release process
+ */
+export const release = async () => {
   intro(`Let's release some Nx Plugin packages 📦`);
 
   const release = await group(
@@ -136,7 +139,7 @@ const git = simpleGit();
       // So if the user cancels one of the prompts in the group this function will be called
       onCancel: () => {
         cancel('🚫 Release cancelled.');
-        process.exit(0);
+        return 0;
       }
     }
   );
@@ -150,7 +153,7 @@ const git = simpleGit();
 
   if (confirmRelease === false) {
     cancel('🚫 Release cancelled.');
-    process.exit(0);
+    return 0;
   }
 
   console.log('');
@@ -166,7 +169,7 @@ const git = simpleGit();
         `You need to authorize using ${chalk.yellow.bold('npm login')} and follow the instructions.`
       );
       console.log('After a successful login, try to publish again.');
-      process.exit(0);
+      return 0;
     }
   }
 
@@ -200,7 +203,7 @@ const git = simpleGit();
             versionData: projectsVersionData
           }))
         ) {
-          process.exit(1);
+          return 1;
         }
 
         // Check if there are any changes to publish
@@ -210,23 +213,23 @@ const git = simpleGit();
 
         if (newVersionFound && postponePublish && !dryRun) {
           outro('🚀 The new release will be published by GitHub Actions!');
-          process.exit(0);
+          return 0;
         }
 
         // Skip publish if there are no changes
         if (!newVersionFound) {
-          process.exit(0);
+          return 0;
         }
 
         // Skip publish with info message if the user selected dryRun and postponed publish
         if (dryRun && postponePublish) {
           dryRunOutro();
-          process.exit(0);
+          return 0;
         }
 
         // Skip publish
         if (postponePublish) {
-          process.exit(0);
+          return 0;
         }
       }
       break;
@@ -234,12 +237,12 @@ const git = simpleGit();
 
   const publishStats = await publish({ dryRun, otp, verbose });
   if (!publishStats) {
-    process.exit(1);
+    return 1;
   }
   const { successful, total } = publishStats;
   if (!total) {
     outro('No packages to publish');
-    process.exit(0);
+    return 0;
   }
 
   const term = mode === 'publish' ? 'Publish' : 'Release';
@@ -259,5 +262,5 @@ const git = simpleGit();
     );
   }
 
-  process.exit(0);
-})();
+  return 0;
+};

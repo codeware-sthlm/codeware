@@ -4,6 +4,9 @@
   "tags": ["scope:codeware", "type:workspace"],
   "targets": {
     "local-registry": {
+      "metadata": {
+        "description": "Start a local Verdaccio registry"
+      },
       "executor": "@nx/js:verdaccio",
       "options": {
         "config": ".verdaccio/config.yml",
@@ -18,10 +21,22 @@
       }
     },
     "local-registry:publish": {
+      "metadata": {
+        "description": "Publish all packages to local registry"
+      },
       "command": "pnpm nx release version --stage-changes false --git-commit false --git-tag false --first-release true && pnpm nx release publish --tag local --first-release true"
     },
     "release-cli": {
-      "command": "pnpm dlx tsx ./packages/core/src/lib/release/release.ts"
+      "metadata": {
+        "description": "Run Nx release CLI to create new releases or publish pending releases"
+      },
+      "command": "pnpm tsx ./packages/core/src/lib/release/run-release.ts"
+    },
+    "generate-js-package": {
+      "metadata": {
+        "description": "Generate a new TypeScript ESBuild package"
+      },
+      "command": "test -z '{args.name}' && echo Error: Argument --name required || pnpm nx g @nx/js:lib {args.name} --directory packages/{args.name} --importPath @cdwr/{args.name} --dry-run={args.dry-run}"
     }
   }
 }

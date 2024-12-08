@@ -62,6 +62,9 @@ importers:
       express:
         specifier: ^4.18.1
         version: 4.21.2
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.2
       hono:
         specifier: ^4.6.10
         version: 4.6.13
@@ -180,6 +183,9 @@ importers:
       '@octokit/types':
         specifier: ^13.6.1
         version: 13.6.2
+      '@octokit/webhooks-types':
+        specifier: ^7.6.1
+        version: 7.6.1
       '@playwright/test':
         specifier: ^1.36.0
         version: 1.49.0
@@ -312,6 +318,9 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.10.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.10.0(@swc/helpers@0.5.15))(@types/node@22.10.1)(typescript@5.7.2))
+      jest-diff:
+        specifier: ^29.7.0
+        version: 29.7.0
       jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
@@ -3351,6 +3360,9 @@ packages:
 
   '@octokit/types@13.6.2':
     resolution: {integrity: sha512-WpbZfZUcZU77DrSW4wbsSgTPfKcp286q3ItaIgvSbBpZJlu6mnYXAkjZz6LVZPXkEvLIM8McanyZejKTYUHipA==}
+
+  '@octokit/webhooks-types@7.6.1':
+    resolution: {integrity: sha512-S8u2cJzklBC0FgTwWVLaM8tMrDuDMVE4xiTK4EYXM9GntyvrdbSoxqDQa+Fh57CCNApyIpyeqPhhFEmHPfrXgw==}
 
   '@oxc-resolver/binding-darwin-arm64@1.12.0':
     resolution: {integrity: sha512-wYe+dlF8npM7cwopOOxbdNjtmJp17e/xF5c0K2WooQXy5VOh74icydM33+Uh/SZDgwyum09/U1FVCX5GdeQk+A==}
@@ -16118,6 +16130,8 @@ snapshots:
   '@octokit/types@13.6.2':
     dependencies:
       '@octokit/openapi-types': 22.2.0
+
+  '@octokit/webhooks-types@7.6.1': {}
 
   '@oxc-resolver/binding-darwin-arm64@1.12.0':
     optional: true

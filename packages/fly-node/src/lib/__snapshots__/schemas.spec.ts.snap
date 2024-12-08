@@ -1,0 +1,337 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fly-node schema validation > validates all schemas against fixtures > AppsCreateTransformedResponseSchema transformed shape 1`] = `
+{
+  "id": "test-app",
+  "name": "test-app",
+  "organization": {
+    "id": "test-org",
+    "name": "Test Organization",
+  },
+}
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > AppsListTransformedResponseSchema transformed shape 1`] = `
+[
+  {
+    "currentRelease": {
+      "createdAt": "2023-12-20T12:53:01Z",
+      "status": "complete",
+    },
+    "deployed": true,
+    "hostname": "test-app.fly.dev",
+    "id": "test-app",
+    "name": "test-app",
+    "organization": {
+      "name": "Test Organization",
+      "slug": "test-org",
+    },
+    "status": "deployed",
+  },
+  {
+    "currentRelease": {
+      "createdAt": "2023-12-20T21:18:59Z",
+      "status": "complete",
+    },
+    "deployed": true,
+    "hostname": "test-app-pr-64.fly.dev",
+    "id": "test-app-pr-64",
+    "name": "test-app-pr-64",
+    "organization": {
+      "name": "Test Organization",
+      "slug": "test-org",
+    },
+    "status": "suspended",
+  },
+  {
+    "currentRelease": {
+      "createdAt": "2023-12-20T13:22:13Z",
+      "status": "complete",
+    },
+    "deployed": true,
+    "hostname": "test-app-se.fly.dev",
+    "id": "test-app-se",
+    "name": "test-app-se",
+    "organization": {
+      "name": "Test Organization",
+      "slug": "test-org",
+    },
+    "status": "deployed",
+  },
+  {
+    "currentRelease": null,
+    "deployed": false,
+    "hostname": "still-river-9999.fly.dev",
+    "id": "still-river-9999",
+    "name": "still-river-9999",
+    "organization": {
+      "name": "Foo Bar",
+      "slug": "personal",
+    },
+    "status": "pending",
+  },
+]
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > CertsListTransformedResponseSchema transformed shape 1`] = `
+[
+  {
+    "clientStatus": "Ready",
+    "createdAt": "2022-11-20T22:36:46Z",
+    "hostname": "*.test-org.se",
+  },
+  {
+    "clientStatus": "Ready",
+    "createdAt": "2022-11-24T07:52:47Z",
+    "hostname": "test-org.se",
+  },
+]
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > CertsListWithAppTransformedResponseSchema transformed shape 1`] = `
+[
+  {
+    "app": "boost-admin",
+    "clientStatus": "Ready",
+    "createdAt": "2022-11-20T22:36:46Z",
+    "hostname": "*.codeware.se",
+  },
+  {
+    "app": "boost-admin",
+    "clientStatus": "Ready",
+    "createdAt": "2022-11-24T07:52:47Z",
+    "hostname": "codeware.se",
+  },
+]
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > ConfigShowResponseSchema transformed shape 1`] = `
+{
+  "app": "demo-app",
+  "build": {
+    "dockerfile": "Dockerfile",
+  },
+  "env": {
+    "NODE_ENV": "test",
+    "PORT": "3000",
+  },
+  "httpService": {
+    "autoStartMachines": true,
+    "autoStopMachines": true,
+    "forceHttps": true,
+    "internalPort": 3000,
+    "minMachinesRunning": 0,
+    "processes": [
+      "app",
+    ],
+  },
+  "mounts": {},
+  "primaryRegion": "arn",
+  "services": [
+    {
+      "concurrency": {
+        "hardLimit": 25,
+        "softLimit": 20,
+        "type": "connections",
+      },
+      "internalPort": 8080,
+      "ports": [
+        {
+          "forceHttps": true,
+          "handlers": [
+            "http",
+          ],
+          "port": 80,
+        },
+        {
+          "handlers": [
+            "tls",
+            "http",
+          ],
+          "port": 443,
+        },
+      ],
+      "processes": [
+        "app",
+      ],
+      "protocol": "tcp",
+      "tcpChecks": [
+        {
+          "gracePeriod": "1s",
+          "interval": "15s",
+          "timeout": "2s",
+        },
+      ],
+    },
+  ],
+}
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > DeployResponseSchema transformed shape 1`] = `
+{
+  "app": "codeware-se",
+  "hostname": "codeware-se.fly.dev",
+  "url": "https://codeware-se.fly.dev",
+}
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > SecretsListTransformedResponseSchema transformed shape 1`] = `
+[
+  {
+    "createdAt": "2024-11-08T13:03:21Z",
+    "digest": "a331102148f18977",
+    "name": "NODE_ENV",
+  },
+  {
+    "createdAt": "2024-11-08T12:58:18Z",
+    "digest": "c169d18819bc968e",
+    "name": "SESSION_SECRET",
+  },
+]
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > SecretsListWithAppTransformedResponseSchema transformed shape 1`] = `
+[
+  {
+    "app": "boost-admin",
+    "createdAt": "2024-11-08T13:03:21Z",
+    "digest": "a331102148f18977",
+    "name": "NODE_ENV",
+  },
+  {
+    "app": "boost-admin",
+    "createdAt": "2024-11-08T12:58:18Z",
+    "digest": "c169d18819bc968e",
+    "name": "SESSION_SECRET",
+  },
+]
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > StatusExtendedTransformedResponseSchema transformed shape 1`] = `
+{
+  "deployed": true,
+  "domains": [
+    {
+      "hostname": "codeware-se.fly.dev",
+    },
+  ],
+  "hostname": "codeware-se.fly.dev",
+  "id": "codeware-se",
+  "machines": [
+    {
+      "checks": [
+        {
+          "name": "servicecheck-00-tcp-8080",
+          "output": "Success",
+          "status": "passing",
+          "updatedAt": "2024-06-27T23:03:48.684Z",
+        },
+      ],
+      "config": {
+        "env": {
+          "FLY_PROCESS_GROUP": "app",
+          "NODE_ENV": "production",
+        },
+        "metadata": {
+          "fly_flyctl_version": "0.1.134",
+          "fly_platform_version": "v2",
+          "fly_process_group": "app",
+          "fly_release_id": "3Ao2wbV00g5oQU1v4KKRQAvX",
+          "fly_release_version": "14",
+          "process_group": "app",
+        },
+      },
+      "createdAt": "2024-06-27T23:03:29Z",
+      "events": [
+        {
+          "status": "started",
+          "timestamp": 1719529423828,
+          "type": "start",
+        },
+        {
+          "status": "created",
+          "timestamp": 1719529409408,
+          "type": "launch",
+        },
+      ],
+      "hostStatus": "ok",
+      "id": "e784e290f506e8",
+      "name": "wandering-shadow-6818",
+      "region": "ams",
+      "state": "started",
+      "updatedAt": "2024-06-27T23:03:43Z",
+    },
+  ],
+  "name": "codeware-se",
+  "organization": {
+    "id": "2j9m3yRpYo94bH7mGqNvyDwlZvCnZ01yn",
+    "slug": "codeware",
+  },
+  "secrets": [
+    {
+      "name": "DATABASE_URL",
+    },
+  ],
+  "status": "deployed",
+  "version": 14,
+}
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > StatusTransformedResponseSchema transformed shape 1`] = `
+{
+  "deployed": true,
+  "hostname": "test-app-se.fly.dev",
+  "id": "test-app-se",
+  "machines": [
+    {
+      "checks": [
+        {
+          "name": "servicecheck-00-tcp-8080",
+          "output": "Success",
+          "status": "passing",
+          "updatedAt": "2024-06-27T23:03:48.684Z",
+        },
+      ],
+      "config": {
+        "env": {
+          "FLY_PROCESS_GROUP": "app",
+          "NODE_ENV": "production",
+        },
+        "metadata": {
+          "fly_flyctl_version": "0.1.134",
+          "fly_platform_version": "v2",
+          "fly_process_group": "app",
+          "fly_release_version": "14",
+          "process_group": "app",
+        },
+      },
+      "createdAt": "2024-06-27T23:03:29Z",
+      "events": [
+        {
+          "status": "started",
+          "timestamp": 1719529423828,
+          "type": "start",
+        },
+        {
+          "status": "created",
+          "timestamp": 1719529409408,
+          "type": "launch",
+        },
+      ],
+      "hostStatus": "ok",
+      "id": "e784e142f506e8",
+      "name": "wandering-shadow-9999",
+      "region": "ams",
+      "state": "started",
+      "updatedAt": "2024-06-27T23:03:43Z",
+    },
+  ],
+  "name": "test-app-se",
+  "organization": {
+    "id": "2j4m3yRpYo11bH7mGqNvyDwlZvCnZ01yn",
+    "slug": "test-org",
+  },
+  "status": "deployed",
+  "version": 14,
+}
+`;

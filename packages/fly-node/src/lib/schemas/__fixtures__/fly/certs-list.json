@@ -1,0 +1,12 @@
+[
+  {
+    "CreatedAt": "2022-11-20T22:36:46Z",
+    "Hostname": "*.test-org.se",
+    "ClientStatus": "Ready"
+  },
+  {
+    "CreatedAt": "2022-11-24T07:52:47Z",
+    "Hostname": "test-org.se",
+    "ClientStatus": "Ready"
+  }
+]

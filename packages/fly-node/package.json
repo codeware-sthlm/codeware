@@ -1,0 +1,40 @@
+{
+  "name": "@cdwr/fly-node",
+  "version": "0.0.1732892443242-e2e",
+  "description": "The flyctl node wrapper for programmatic deployments to fly.io.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "directory": "packages/fly-node"
+  },
+  "author": {
+    "name": "Codeware Sthlm",
+    "email": "hello@codeware.se",
+    "url": "https://codeware.se"
+  },
+  "license": "MIT",
+  "keywords": [
+    "Fly",
+    "Flyctl",
+    "Fly.io",
+    "Node",
+    "Zod"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "main": "./index.js",
+  "module": "./index.js"
+}

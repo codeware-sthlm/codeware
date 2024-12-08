@@ -1,0 +1,455 @@
+[
+  {
+    "ID": "test-app",
+    "InternalNumericID": 0,
+    "Name": "test-app",
+    "State": "",
+    "Status": "deployed",
+    "Deployed": true,
+    "Hostname": "test-app.fly.dev",
+    "AppURL": "",
+    "Version": 0,
+    "NetworkID": 0,
+    "Network": "",
+    "Release": null,
+    "Organization": {
+      "ID": "",
+      "InternalNumericID": "",
+      "Name": "Test Organization",
+      "RemoteBuilderImage": "",
+      "RemoteBuilderApp": null,
+      "Slug": "test-org",
+      "RawSlug": "",
+      "Type": "",
+      "PaidPlan": false,
+      "Billable": false,
+      "Settings": null,
+      "Domains": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "WireGuardPeer": null,
+      "WireGuardPeers": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "DelegatedWireGuardTokens": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "LoggedCertificates": null,
+      "LimitedAccessTokens": null
+    },
+    "Secrets": null,
+    "CurrentRelease": {
+      "ID": "",
+      "Version": 0,
+      "Stable": false,
+      "InProgress": false,
+      "Reason": "",
+      "Description": "",
+      "Status": "complete",
+      "DeploymentStrategy": "",
+      "Metadata": null,
+      "User": {
+        "ID": "",
+        "Name": "",
+        "Email": "",
+        "EnablePaidHobby": false
+      },
+      "EvaluationID": "",
+      "CreatedAt": "2023-12-20T12:53:01Z",
+      "ImageRef": ""
+    },
+    "Releases": {
+      "Nodes": null
+    },
+    "IPAddresses": {
+      "Nodes": null
+    },
+    "SharedIPAddress": "",
+    "IPAddress": null,
+    "Certificates": {
+      "Nodes": null
+    },
+    "Certificate": {
+      "ID": "",
+      "AcmeDNSConfigured": false,
+      "AcmeALPNConfigured": false,
+      "Configured": false,
+      "CertificateAuthority": "",
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "DNSProvider": "",
+      "DNSValidationInstructions": "",
+      "DNSValidationHostname": "",
+      "DNSValidationTarget": "",
+      "Hostname": "",
+      "Source": "",
+      "ClientStatus": "",
+      "IsApex": false,
+      "IsWildcard": false,
+      "Issued": {
+        "Nodes": null
+      }
+    },
+    "PostgresAppRole": null,
+    "Image": null,
+    "ImageUpgradeAvailable": false,
+    "ImageVersionTrackingEnabled": false,
+    "ImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "LatestImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "PlatformVersion": "machines",
+    "LimitedAccessTokens": null,
+    "Machines": {
+      "Nodes": null
+    },
+    "CurrentLock": null
+  },
+  {
+    "ID": "test-app-pr-64",
+    "InternalNumericID": 0,
+    "Name": "test-app-pr-64",
+    "State": "",
+    "Status": "suspended",
+    "Deployed": true,
+    "Hostname": "test-app-pr-64.fly.dev",
+    "AppURL": "",
+    "Version": 0,
+    "NetworkID": 0,
+    "Network": "",
+    "Release": null,
+    "Organization": {
+      "ID": "",
+      "InternalNumericID": "",
+      "Name": "Test Organization",
+      "RemoteBuilderImage": "",
+      "RemoteBuilderApp": null,
+      "Slug": "test-org",
+      "RawSlug": "",
+      "Type": "",
+      "PaidPlan": false,
+      "Billable": false,
+      "Settings": null,
+      "Domains": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "WireGuardPeer": null,
+      "WireGuardPeers": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "DelegatedWireGuardTokens": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "LoggedCertificates": null,
+      "LimitedAccessTokens": null
+    },
+    "Secrets": null,
+    "CurrentRelease": {
+      "ID": "",
+      "Version": 0,
+      "Stable": false,
+      "InProgress": false,
+      "Reason": "",
+      "Description": "",
+      "Status": "complete",
+      "DeploymentStrategy": "",
+      "Metadata": null,
+      "User": {
+        "ID": "",
+        "Name": "",
+        "Email": "",
+        "EnablePaidHobby": false
+      },
+      "EvaluationID": "",
+      "CreatedAt": "2023-12-20T21:18:59Z",
+      "ImageRef": ""
+    },
+    "Releases": {
+      "Nodes": null
+    },
+    "IPAddresses": {
+      "Nodes": null
+    },
+    "SharedIPAddress": "",
+    "IPAddress": null,
+    "Certificates": {
+      "Nodes": null
+    },
+    "Certificate": {
+      "ID": "",
+      "AcmeDNSConfigured": false,
+      "AcmeALPNConfigured": false,
+      "Configured": false,
+      "CertificateAuthority": "",
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "DNSProvider": "",
+      "DNSValidationInstructions": "",
+      "DNSValidationHostname": "",
+      "DNSValidationTarget": "",
+      "Hostname": "",
+      "Source": "",
+      "ClientStatus": "",
+      "IsApex": false,
+      "IsWildcard": false,
+      "Issued": {
+        "Nodes": null
+      }
+    },
+    "PostgresAppRole": null,
+    "Image": null,
+    "ImageUpgradeAvailable": false,
+    "ImageVersionTrackingEnabled": false,
+    "ImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "LatestImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "PlatformVersion": "machines",
+    "LimitedAccessTokens": null,
+    "Machines": {
+      "Nodes": null
+    },
+    "CurrentLock": null
+  },
+  {
+    "ID": "test-app-se",
+    "InternalNumericID": 0,
+    "Name": "test-app-se",
+    "State": "",
+    "Status": "deployed",
+    "Deployed": true,
+    "Hostname": "test-app-se.fly.dev",
+    "AppURL": "",
+    "Version": 0,
+    "NetworkID": 0,
+    "Network": "",
+    "Release": null,
+    "Organization": {
+      "ID": "",
+      "InternalNumericID": "",
+      "Name": "Test Organization",
+      "RemoteBuilderImage": "",
+      "RemoteBuilderApp": null,
+      "Slug": "test-org",
+      "RawSlug": "",
+      "Type": "",
+      "PaidPlan": false,
+      "Billable": false,
+      "Settings": null,
+      "Domains": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "WireGuardPeer": null,
+      "WireGuardPeers": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "DelegatedWireGuardTokens": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "LoggedCertificates": null,
+      "LimitedAccessTokens": null
+    },
+    "Secrets": null,
+    "CurrentRelease": {
+      "ID": "",
+      "Version": 0,
+      "Stable": false,
+      "InProgress": false,
+      "Reason": "",
+      "Description": "",
+      "Status": "complete",
+      "DeploymentStrategy": "",
+      "Metadata": null,
+      "User": {
+        "ID": "",
+        "Name": "",
+        "Email": "",
+        "EnablePaidHobby": false
+      },
+      "EvaluationID": "",
+      "CreatedAt": "2023-12-20T13:22:13Z",
+      "ImageRef": ""
+    },
+    "Releases": {
+      "Nodes": null
+    },
+    "IPAddresses": {
+      "Nodes": null
+    },
+    "SharedIPAddress": "",
+    "IPAddress": null,
+    "Certificates": {
+      "Nodes": null
+    },
+    "Certificate": {
+      "ID": "",
+      "AcmeDNSConfigured": false,
+      "AcmeALPNConfigured": false,
+      "Configured": false,
+      "CertificateAuthority": "",
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "DNSProvider": "",
+      "DNSValidationInstructions": "",
+      "DNSValidationHostname": "",
+      "DNSValidationTarget": "",
+      "Hostname": "",
+      "Source": "",
+      "ClientStatus": "",
+      "IsApex": false,
+      "IsWildcard": false,
+      "Issued": {
+        "Nodes": null
+      }
+    },
+    "PostgresAppRole": null,
+    "Image": null,
+    "ImageUpgradeAvailable": false,
+    "ImageVersionTrackingEnabled": false,
+    "ImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "LatestImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "PlatformVersion": "machines",
+    "LimitedAccessTokens": null,
+    "Machines": {
+      "Nodes": null
+    },
+    "CurrentLock": null
+  },
+  {
+    "ID": "still-river-9999",
+    "InternalNumericID": 0,
+    "Name": "still-river-9999",
+    "State": "",
+    "Status": "pending",
+    "Deployed": false,
+    "Hostname": "still-river-9999.fly.dev",
+    "AppURL": "",
+    "Version": 0,
+    "NetworkID": 0,
+    "Network": "",
+    "Release": null,
+    "Organization": {
+      "ID": "",
+      "InternalNumericID": "",
+      "Name": "Foo Bar",
+      "RemoteBuilderImage": "",
+      "RemoteBuilderApp": null,
+      "Slug": "personal",
+      "RawSlug": "",
+      "Type": "",
+      "PaidPlan": false,
+      "Billable": false,
+      "Settings": null,
+      "Domains": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "WireGuardPeer": null,
+      "WireGuardPeers": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "DelegatedWireGuardTokens": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "LoggedCertificates": null,
+      "LimitedAccessTokens": null
+    },
+    "Secrets": null,
+    "CurrentRelease": null,
+    "Releases": {
+      "Nodes": null
+    },
+    "IPAddresses": {
+      "Nodes": null
+    },
+    "SharedIPAddress": "",
+    "IPAddress": null,
+    "Certificates": {
+      "Nodes": null
+    },
+    "Certificate": {
+      "ID": "",
+      "AcmeDNSConfigured": false,
+      "AcmeALPNConfigured": false,
+      "Configured": false,
+      "CertificateAuthority": "",
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "DNSProvider": "",
+      "DNSValidationInstructions": "",
+      "DNSValidationHostname": "",
+      "DNSValidationTarget": "",
+      "Hostname": "",
+      "Source": "",
+      "ClientStatus": "",
+      "IsApex": false,
+      "IsWildcard": false,
+      "Issued": {
+        "Nodes": null
+      }
+    },
+    "PostgresAppRole": null,
+    "Image": null,
+    "ImageUpgradeAvailable": false,
+    "ImageVersionTrackingEnabled": false,
+    "ImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "LatestImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "PlatformVersion": "machines",
+    "LimitedAccessTokens": null,
+    "Machines": {
+      "Nodes": null
+    },
+    "CurrentLock": null
+  }
+]

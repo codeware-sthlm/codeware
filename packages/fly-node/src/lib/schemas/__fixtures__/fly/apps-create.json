@@ -1,0 +1,8 @@
+{
+  "ID": "test-app",
+  "Name": "test-app",
+  "Organization": {
+    "ID": "test-org",
+    "Name": "Test Organization"
+  }
+}

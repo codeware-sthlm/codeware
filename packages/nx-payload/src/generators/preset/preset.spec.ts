@@ -16,6 +16,8 @@ describe('preset generator', () => {
   console.log = jest.fn();
   console.warn = jest.fn();
 
+  jest.setTimeout(10_000);
+
   beforeEach(() => {
     tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
   });

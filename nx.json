@@ -146,11 +146,11 @@
       "workspaceChangelog": false
     },
     "version": {
+      "preVersionCommand": "pnpm nx run-many -t build",
       "conventionalCommits": true,
       "generatorOptions": {
         "fallbackCurrentVersionResolver": "disk"
-      },
-      "preVersionCommand": "pnpm nx run-many -t build"
+      }
     },
     "conventionalCommits": {
       "types": {

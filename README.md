@@ -38,6 +38,10 @@ npx create-nx-payload
 
 ### GitHub Actions
 
+#### [`nx-fly-deployment-action`](packages/nx-fly-deployment-action)
+
+GitHub action that brings automatic [Fly.io](https://fly.io) deployments to your [Nx](https://nx.dev) workspace.
+
 #### [`nx-migrate-action`](packages/nx-migrate-action)
 
 GitHub action that brings automatic [Nx](https://nx.dev) migrations to your workspace.

@@ -1,0 +1,58 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > ActionInputsSchema transformed shape 1`] = `
+{
+  "flyApiToken": "fly-token",
+  "flyOrg": "company",
+  "flyRegion": "sea",
+  "mainBranch": "main",
+  "token": "github-token",
+}
+`;
+
+exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > ActionOutputsSchema transformed shape 1`] = `
+{
+  "environment": "production",
+  "projects": [
+    {
+      "action": "deploy",
+      "app": "nextgen-web-app",
+      "name": "nextgen-web",
+      "url": "https://nextgen-web-app.fly.dev",
+    },
+    {
+      "action": "destroy",
+      "app": "poc-api-app",
+    },
+    {
+      "action": "skip",
+      "appOrProject": "broken-project",
+      "reason": "No fly.toml file found",
+    },
+    {
+      "action": "skip",
+      "appOrProject": "broken-app",
+      "reason": "Failed to deploy application",
+    },
+  ],
+}
+`;
+
+exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > DeploymentConfigSchema transformed shape 1`] = `
+{
+  "fly": {
+    "org": "company",
+    "region": "sea",
+    "token": "fly-token",
+  },
+  "mainBranch": "main",
+  "token": "github-token",
+}
+`;
+
+exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > GitHubConfigSchema transformed shape 1`] = `
+{
+  "deploy": true,
+  "flyConfig": "path/to/fly.toml",
+}
+`;

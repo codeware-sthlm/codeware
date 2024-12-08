@@ -1,0 +1,45 @@
+{
+  "name": "@cdwr/nx-fly-deployment-action",
+  "version": "0.0.1",
+  "description": "The Nx Fly Deployment Action will manage your deployments to fly.io.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "directory": "packages/nx-fly-deployment-action"
+  },
+  "author": {
+    "name": "Codeware Sthlm",
+    "email": "hello@codeware.se",
+    "url": "https://codeware.se"
+  },
+  "license": "MIT",
+  "keywords": [
+    "Automation",
+    "GitHub Actions",
+    "Deploy",
+    "Fly.io",
+    "Nx"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.0",
+    "@nx/devkit": "20.x",
+    "@octokit/webhooks-types": "^7.6.1",
+    "zod": "^3.23.8"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "main": "./index.js",
+  "module": "./index.js"
+}

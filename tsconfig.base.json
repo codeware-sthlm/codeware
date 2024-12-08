@@ -25,6 +25,7 @@
         "packages/create-nx-payload/bin/index.ts"
       ],
       "@codeware/e2e/utils": ["e2e/utils/index.ts"],
+      "@codeware/fly-node": ["packages/fly-node/src/index.ts"],
       "@codeware/nx-migrate-action": [
         "packages/nx-migrate-action/src/index.ts"
       ],

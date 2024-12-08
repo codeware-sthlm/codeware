@@ -42,6 +42,12 @@ npx create-nx-payload
 
 GitHub action that brings automatic [Nx](https://nx.dev) migrations to your workspace.
 
+### Node Libraries
+
+#### [`fly-node`](packages/fly-node)
+
+Fly CLI node wrapper for programmatic deployments to [Fly.io](https://fly.io).
+
 ### Utilities
 
 #### [`core`](packages/core)

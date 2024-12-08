@@ -1,0 +1,115 @@
+{
+  "Deployed": true,
+  "Hostname": "test-app-se.fly.dev",
+  "ID": "test-app-se",
+  "Machines": [
+    {
+      "id": "e784e142f506e8",
+      "name": "wandering-shadow-9999",
+      "state": "started",
+      "region": "ams",
+      "image_ref": {
+        "registry": "registry.fly.io",
+        "repository": "test-app-se",
+        "tag": "deployment-01HJ2NSD4X32N0QPHFYRKN6AY4",
+        "digest": "sha256:e995317361c3055f81d6d642cb4a1f661aa639aa309b7a1d893988b81baa22bb"
+      },
+      "instance_id": "01J1DZ12PWAQ3SY3667XJX25YP",
+      "private_ip": "fdaa:0:c9e4:a7b:38:dcb1:eff7:2",
+      "created_at": "2024-06-27T23:03:29Z",
+      "updated_at": "2024-06-27T23:03:43Z",
+      "config": {
+        "env": {
+          "FLY_PROCESS_GROUP": "app",
+          "NODE_ENV": "production"
+        },
+        "init": {},
+        "guest": {
+          "cpu_kind": "shared",
+          "cpus": 1,
+          "memory_mb": 256
+        },
+        "metadata": {
+          "fly_flyctl_version": "0.1.134",
+          "fly_platform_version": "v2",
+          "fly_process_group": "app",
+          "fly_release_version": "14",
+          "process_group": "app"
+        },
+        "services": [
+          {
+            "protocol": "tcp",
+            "internal_port": 8080,
+            "ports": [
+              {
+                "port": 80,
+                "handlers": ["http"],
+                "force_https": true
+              },
+              {
+                "port": 443,
+                "handlers": ["tls", "http"]
+              }
+            ],
+            "checks": [
+              {
+                "type": "tcp",
+                "interval": "15s",
+                "timeout": "2s",
+                "grace_period": "1s"
+              }
+            ],
+            "concurrency": {
+              "type": "connections",
+              "hard_limit": 25,
+              "soft_limit": 20
+            },
+            "force_instance_key": null
+          }
+        ],
+        "image": "registry.fly.io/test-app-se:deployment-01HJ2NSD4X32N0QPHFYRKN6AY4",
+        "restart": {},
+        "stop_config": {
+          "timeout": "5s",
+          "signal": "SIGINT"
+        }
+      },
+      "events": [
+        {
+          "type": "start",
+          "status": "started",
+          "request": {},
+          "source": "flyd",
+          "timestamp": 1719529423828
+        },
+        {
+          "type": "launch",
+          "status": "created",
+          "source": "flyd",
+          "timestamp": 1719529409408
+        }
+      ],
+      "checks": [
+        {
+          "name": "servicecheck-00-tcp-8080",
+          "status": "passing",
+          "output": "Success",
+          "updated_at": "2024-06-27T23:03:48.684Z"
+        }
+      ],
+      "host_status": "ok"
+    }
+  ],
+  "Name": "test-app-se",
+  "Organization": {
+    "ID": "2j4m3yRpYo11bH7mGqNvyDwlZvCnZ01yn",
+    "InternalNumericID": "1234556",
+    "Name": "",
+    "Slug": "test-org",
+    "RawSlug": "",
+    "PaidPlan": false
+  },
+  "PlatformVersion": "machines",
+  "Status": "deployed",
+  "Version": 14
+}

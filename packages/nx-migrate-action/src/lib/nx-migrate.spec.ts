@@ -1,11 +1,11 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as coreActions from '@codeware/core/actions';
 import * as devkit from '@nx/devkit';
 import * as replaceInFile from 'replace-in-file';
 
 import * as nxMigrateImport from './nx-migrate';
 import * as addPullRequestAssignees from './utils/add-pull-request-assignees';
-import * as addPullRequestComment from './utils/add-pull-request-comment';
 import * as addPullRequestLabel from './utils/add-pull-request-label';
 import * as cleanupPullRequests from './utils/cleanup-pull-requests';
 import * as createPullRequest from './utils/create-pull-request';
@@ -40,7 +40,7 @@ describe('nxMigrate', () => {
     'addPullRequestAssignees'
   );
   const addPullRequestCommentMock = jest.spyOn(
-    addPullRequestComment,
+    coreActions,
     'addPullRequestComment'
   );
   const addPullRequestLabelMock = jest.spyOn(
@@ -590,7 +590,7 @@ describe('nxMigrate', () => {
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
       expect(addPullRequestCommentMock).toHaveBeenCalledWith(
-        expect.objectContaining({ token: 'token' }),
+        'token',
         1,
         'Auto-merge is disabled for major version migrations'
       );
@@ -603,7 +603,7 @@ describe('nxMigrate', () => {
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
       expect(addPullRequestCommentMock).toHaveBeenCalledWith(
-        expect.objectContaining({ token: 'token' }),
+        'token',
         1,
         'Auto-merge was disabled since some tests failed'
       );
@@ -616,7 +616,7 @@ describe('nxMigrate', () => {
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
       expect(addPullRequestCommentMock).toHaveBeenCalledWith(
-        expect.objectContaining({ token: 'token' }),
+        'token',
         1,
         'Auto-merge was disabled since some tests failed'
       );

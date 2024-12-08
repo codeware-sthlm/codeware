@@ -1,4 +1,4 @@
-import { dockerBuild, logError } from '@codeware/core';
+import { dockerBuild, logError } from '@codeware/core/utils';
 import {
   ensureCleanupDockerContainers,
   ensureCreateNxWorkspaceProject,

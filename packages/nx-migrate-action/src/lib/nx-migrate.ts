@@ -1,7 +1,10 @@
 import * as core from '@actions/core';
+import {
+  addPullRequestComment,
+  printGitHubContext
+} from '@codeware/core/actions';
 
 import { addPullRequestAssignees } from './utils/add-pull-request-assignees';
-import { addPullRequestComment } from './utils/add-pull-request-comment';
 import { addPullRequestLabel } from './utils/add-pull-request-label';
 import { cleanupPullRequests } from './utils/cleanup-pull-requests';
 import { createAndPushCommit } from './utils/create-and-push-commit';
@@ -16,7 +19,6 @@ import { getNxVersionInfo } from './utils/get-nx-version-info';
 import { getTokenPermissions } from './utils/get-token-permissions';
 import { lookupPullRequest } from './utils/lookup-pull-request';
 import { printCommitSignatureDetails } from './utils/print-commit-signature-details';
-import { printGitHubContext } from './utils/print-github-context';
 import { printTokenPermissions } from './utils/print-token-permissions';
 import { runMigration } from './utils/run-migration';
 import { runNxE2e } from './utils/run-nx-e2e';
@@ -53,9 +55,9 @@ export async function nxMigrate(
     core.endGroup();
 
     core.startGroup('Check token is valid and has proper permissions');
-    if (inputs.checkToken) {
+    if (config.checkToken) {
       try {
-        const response = await getTokenPermissions(inputs.token);
+        const response = await getTokenPermissions(config.token);
         const { isValid, resolvedPermissions } = response;
 
         printTokenPermissions(response);
@@ -188,14 +190,14 @@ export async function nxMigrate(
         if (isMajorUpdate) {
           core.info('Skip auto-merge for major version migrations');
           await addPullRequestComment(
-            config,
+            config.token,
             pullRequest,
             'Auto-merge is disabled for major version migrations'
           );
         } else if (testsPass === false || e2ePass === false) {
           core.info('Skip auto-merge since some tests failed');
           await addPullRequestComment(
-            config,
+            config.token,
             pullRequest,
             'Auto-merge was disabled since some tests failed'
           );

@@ -38,9 +38,23 @@ npx create-nx-payload
 
 ### GitHub Actions
 
+#### [`deploy-env-action`](packages/deploy-env-action)
+
+GitHub action that analyzes the environment to deploy to based on the event details.
+
+#### [`nx-fly-deployment-action`](packages/nx-fly-deployment-action)
+
+GitHub action that brings automatic [Fly.io](https://fly.io) deployments to your [Nx](https://nx.dev) workspace.
+
 #### [`nx-migrate-action`](packages/nx-migrate-action)
 
 GitHub action that brings automatic [Nx](https://nx.dev) migrations to your workspace.
+
+### Node Libraries
+
+#### [`fly-node`](packages/fly-node)
+
+Fly CLI node wrapper for programmatic deployments to [Fly.io](https://fly.io).
 
 ### Utilities
 

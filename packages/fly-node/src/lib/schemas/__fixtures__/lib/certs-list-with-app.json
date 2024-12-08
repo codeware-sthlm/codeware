@@ -1,0 +1,14 @@
+[
+  {
+    "App": "boost-admin",
+    "CreatedAt": "2022-11-20T22:36:46Z",
+    "Hostname": "*.codeware.se",
+    "ClientStatus": "Ready"
+  },
+  {
+    "App": "boost-admin",
+    "CreatedAt": "2022-11-24T07:52:47Z",
+    "Hostname": "codeware.se",
+    "ClientStatus": "Ready"
+  }
+]

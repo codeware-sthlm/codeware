@@ -35,25 +35,22 @@ export const ActionInputsSchema = z.object({
   token: z.string().min(1, 'token is required')
 });
 
-export const MigrateConfigSchema = z.object({
-  author: z
-    .object({
-      name: z.string(),
+export const MigrateConfigSchema = ActionInputsSchema.merge(
+  z.object({
+    author: z
+      .object({
+        name: z.string(),
+        email: EmailValidation.anyBotEmail
+      })
+      .optional(),
+    committer: z.object({
+      name: z.string().min(1, 'committer name is required'),
       email: EmailValidation.anyBotEmail
-    })
-    .optional(),
-  autoMerge: z.boolean(),
-  committer: z.object({
-    name: z.string().min(1, 'committer name is required'),
-    email: EmailValidation.anyBotEmail
-  }),
-  dryRun: z.boolean(),
-  mainBranch: z.string().min(1, 'main branch is required'),
-  packagePatterns: z
-    .array(z.string().min(1))
-    .min(1, 'at least one package pattern is required'),
-  prAssignees: z.array(z.string().min(1)),
-  skipTests: z.boolean(),
-  skipE2E: z.boolean(),
-  token: z.string().min(1, 'token is required')
-});
+    }),
+    mainBranch: z.string().min(1, 'main branch is required'),
+    packagePatterns: z
+      .array(z.string().min(1))
+      .min(1, 'at least one package pattern is required'),
+    prAssignees: z.array(z.string().min(1))
+  })
+);

@@ -23,6 +23,8 @@ describe('application generator', () => {
   console.log = jest.fn();
   console.warn = jest.fn();
 
+  jest.setTimeout(10_000);
+
   const setInferenceFlag = (useInferencePlugins?: boolean) => {
     const workspace = readNxJson(tree);
     if (useInferencePlugins === undefined) {

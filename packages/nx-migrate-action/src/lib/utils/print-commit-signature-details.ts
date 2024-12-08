@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@codeware/core';
+import { withGitHub } from '@codeware/core/actions';
 
 import { getCurrentCommitSha } from './get-current-commit-sha';
 import type { MigrateConfig } from './types';

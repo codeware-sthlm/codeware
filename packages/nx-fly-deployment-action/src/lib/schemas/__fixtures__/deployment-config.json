@@ -1,0 +1,10 @@
+{
+  "dryRun": false,
+  "fly": {
+    "token": "fly-token",
+    "org": "company",
+    "region": "sea"
+  },
+  "mainBranch": "main",
+  "token": "github-token"
+}

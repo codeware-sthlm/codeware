@@ -1,0 +1,25 @@
+{
+  "name": "nx-fly-deployment-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/nx-fly-deployment-action/src",
+  "projectType": "library",
+  "tags": ["scope:nx-fly-deployment-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/nx-fly-deployment-action/*.md",
+          "packages/nx-fly-deployment-action/action.yml"
+        ],
+        "additionalEntryPoints": [
+          "packages/nx-fly-deployment-action/src/action.ts"
+        ],
+        "format": ["cjs", "esm"]
+      }
+    },
+    "act": {
+      "command": "act schedule --env-file .env.act -j nx-fly-deployment"
+    }
+  }
+}

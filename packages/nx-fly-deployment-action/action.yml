@@ -1,0 +1,45 @@
+name: 'Nx Fly Deployment'
+
+description: >
+  Automatically manage deployment of your Nx applications to Fly.io.
+
+inputs:
+  fly-api-token:
+    description: >
+      Authenticate using a Fly API access token or with setting the `FLY_API_TOKEN`
+      environment variable.
+  fly-org:
+    description: >
+      The target organisation for your deployed applications.
+      Defaults to your personal organisation.
+  fly-region:
+    description: >
+      The target region for your deployed applications.
+      Defaults to auto-detect the fastest location.
+  main-branch:
+    description: >
+      The main branch name.
+      Defaults to the default branch of the repository.
+  token:
+    description: >
+      The token to use for repository authentication.
+      For example `GITHUB_TOKEN`.
+    required: true
+
+outputs:
+  environment:
+    description: >
+      The environment used for deployment.
+  destroyed:
+    description: >
+      A list of project names that were destroyed.
+  skipped:
+    description: >
+      A list of project names that were skipped for some reason.
+  deployed:
+    description: >
+      JSON object containing the deployed project names and their urls.
+
+runs:
+  using: 'node20'
+  main: '../../dist/packages/nx-fly-deployment-action/action.cjs'

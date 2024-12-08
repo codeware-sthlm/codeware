@@ -1,0 +1,7 @@
+{
+  "flyApiToken": "fly-token",
+  "flyOrg": "company",
+  "flyRegion": "sea",
+  "mainBranch": "main",
+  "token": "github-token"
+}

@@ -87,7 +87,7 @@
     "@types/kill-port": "^2.0.3",
     "@types/node": "22.10.1",
     "@types/npm-whoami": "^1.1.2",
-    "@types/react": "18.3.12",
+    "@types/react": "18.3.13",
     "@types/react-dom": "18.3.1",
     "@types/supertest": "^6.0.2",
     "@types/tcp-port-used": "^1.0.4",

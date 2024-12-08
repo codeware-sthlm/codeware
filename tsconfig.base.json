@@ -24,6 +24,9 @@
       "@codeware/create-nx-payload": [
         "packages/create-nx-payload/bin/index.ts"
       ],
+      "@codeware/deploy-env-action": [
+        "packages/deploy-env-action/src/index.ts"
+      ],
       "@codeware/e2e/utils": ["e2e/utils/index.ts"],
       "@codeware/fly-node": ["packages/fly-node/src/index.ts"],
       "@codeware/nx-fly-deployment-action": [

@@ -4,6 +4,41 @@
   "sourceRoot": "e2e/utils",
   "projectType": "library",
   "tags": ["scope:e2e-utils", "type:util"],
-  "// targets": "to see all targets run: nx show project e2e-utils --web",
-  "targets": {}
+  "targets": {
+    "registry-start": {
+      "metadata": {
+        "description": "Start a local registry detached"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["pnpm nx local-registry"],
+        "readyWhen": "verdaccio"
+      }
+    },
+    "registry-stop": {
+      "metadata": {
+        "description": "Stop a running local registry"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm tsx e2e/utils/run-stop-local-registry.ts",
+        "env": {
+          "PORT": "4873"
+        }
+      }
+    },
+    "registry-publish": {
+      "metadata": {
+        "description": "Publish packages to local registry"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm tsx e2e/utils/run-publish-local-registry.ts {args.projects}",
+        "readyWhen": "[ DONE ]",
+        "env": {
+          "PORT": "4873"
+        }
+      }
+    }
+  }
 }

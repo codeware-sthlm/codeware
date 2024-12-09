@@ -304,8 +304,8 @@ importers:
         specifier: 7.37.2
         version: 7.37.2(eslint@9.16.0(jiti@2.4.1))
       eslint-plugin-react-hooks:
-        specifier: 5.0.0
-        version: 5.0.0(eslint@9.16.0(jiti@2.4.1))
+        specifier: 5.1.0
+        version: 5.1.0(eslint@9.16.0(jiti@2.4.1))
       graphql-config:
         specifier: ^5.1.3
         version: 5.1.3(@types/node@22.10.1)(encoding@0.1.13)(graphql@16.8.1)(typescript@5.7.2)
@@ -2507,6 +2507,7 @@ packages:
 
   '@evilmartians/lefthook@1.9.0':
     resolution: {integrity: sha512-a6+eZ/6TlE3ILu0B1GGUC90X3nysSfcUZo5mQMwY0aF2Djw5Faf6EYZ7Il8oCxxgNmsZ2tGn9EgOPNQTqT2G+g==}
+    cpu: [x64, arm64, ia32]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -6689,8 +6690,8 @@ packages:
     peerDependencies:
       eslint: '>=8.40.0'
 
-  eslint-plugin-react-hooks@5.0.0:
-    resolution: {integrity: sha512-hIOwI+5hYGpJEc4uPRmz2ulCjAGD/N13Lukkh8cLV0i2IRk/bdZDYjgLVHj+U9Z704kLIdIO6iueGvxNur0sgw==}
+  eslint-plugin-react-hooks@5.1.0:
+    resolution: {integrity: sha512-mpJRtPgHN2tNAvZ35AMfqeB3Xqeo273QxrHJsbBEPWODRM4r0yB6jfoROqKEYrOn27UtRPpcpHc2UqyBSuUNTw==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -8397,6 +8398,7 @@ packages:
 
   libsql@0.1.34:
     resolution: {integrity: sha512-LGofp7z7gi1Td6vu2GxaA4WyvSPEkuFn0f/ePSti1TsAlBU0LWxdk+bj9D8nqswzxiqe5wpAyTLhVzTIYSyXEA==}
+    cpu: [x64, arm64]
     os: [darwin, linux, win32]
 
   license-webpack-plugin@4.0.2:
@@ -20121,7 +20123,7 @@ snapshots:
       eslint: 9.16.0(jiti@2.4.1)
       globals: 13.24.0
 
-  eslint-plugin-react-hooks@5.0.0(eslint@9.16.0(jiti@2.4.1)):
+  eslint-plugin-react-hooks@5.1.0(eslint@9.16.0(jiti@2.4.1)):
     dependencies:
       eslint: 9.16.0(jiti@2.4.1)
 

@@ -54,6 +54,11 @@
       "enabled": false
     },
     {
+      "description": "Skip all Payload package updates",
+      "matchPackageNames": ["payload", "@payloadcms/*"],
+      "enabled": false
+    },
+    {
       "description": "Skip all Nx package updates",
       "matchPackageNames": ["create-nx-workspace", "nx", "@nx/**", "@nrwl/**"],
       "enabled": false

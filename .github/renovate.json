@@ -57,6 +57,11 @@
       "description": "Skip all Nx package updates",
       "matchPackageNames": ["create-nx-workspace", "nx", "@nx/**", "@nrwl/**"],
       "enabled": false
+    },
+    {
+      "description": "Skip all React package updates",
+      "matchPackageNames": ["react*", "*/*react*"],
+      "enabled": false
     }
   ]
 }

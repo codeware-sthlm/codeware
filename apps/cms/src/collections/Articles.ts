@@ -1,11 +1,14 @@
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import {
+  HTMLConverterFeature,
+  lexicalEditor,
+  lexicalHTML
+} from '@payloadcms/richtext-lexical';
 import { CollectionConfig } from 'payload/types';
 
 import { slugField } from '../fields/slug';
-import { populatePublishedAt } from '../hooks/populate-published-at';
 
-const Pages: CollectionConfig = {
-  slug: 'pages',
+const Articles: CollectionConfig = {
+  slug: 'articles',
   admin: {
     defaultColumns: ['title', 'slug', 'publishedAt']
   },
@@ -26,29 +29,14 @@ const Pages: CollectionConfig = {
     },
     slugField(),
     {
-      name: 'header',
-      label: { en: 'Header', sv: 'Rubrik' },
+      name: 'author',
+      label: { en: 'Author', sv: 'Författare' },
       type: 'text',
-      localized: true,
       required: true,
       admin: {
         description: {
-          en: 'The header of the page. Will be displayed at the top of the page.',
-          sv: 'Sidans rubrik. Kommer att visas högst upp på sidan.'
-        }
-      }
-    },
-    {
-      name: 'intro',
-      label: { en: 'Intro', sv: 'Inledning' },
-      type: 'richText',
-      editor: lexicalEditor({}),
-      localized: true,
-      required: false,
-      admin: {
-        description: {
-          en: 'The introduction of the page. Will be displayed below the header.',
-          sv: 'Sidans inledning. Kommer att visas under rubriken.'
+          en: 'The author of the article.',
+          sv: 'Artikelns författare.'
         }
       }
     },
@@ -56,7 +44,14 @@ const Pages: CollectionConfig = {
       name: 'content',
       label: { en: 'Content', sv: 'Innehåll' },
       type: 'richText',
-      editor: lexicalEditor({}),
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures,
+          // The HTMLConverter Feature is the feature which manages the HTML serializers.
+          // If you do not pass any arguments to it, it will use the default serializers.
+          HTMLConverterFeature({})
+        ]
+      }),
       localized: true,
       required: false,
       admin: {
@@ -74,11 +69,11 @@ const Pages: CollectionConfig = {
         date: { displayFormat: 'yyyy-MM-dd' },
         position: 'sidebar'
       }
-    }
-  ],
-  hooks: {
-    beforeChange: [populatePublishedAt]
-  }
+    },
+    lexicalHTML('content', {
+      name: 'content_html'
+    })
+  ]
 };
 
-export default Pages;
+export default Articles;

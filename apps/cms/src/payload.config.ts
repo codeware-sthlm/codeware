@@ -2,9 +2,10 @@ import { resolve } from 'path';
 
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { slateEditor } from '@payloadcms/richtext-slate';
+import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { buildConfig } from 'payload/config';
 
+import Articles from './collections/Articles';
 import Pages from './collections/Pages';
 import Users from './collections/Users';
 import env from './env';
@@ -16,13 +17,13 @@ export default buildConfig({
     buildPath: resolve(__dirname, '../../..', 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
-  collections: [Pages, Users],
+  collections: [Articles, Pages, Users],
   cors: ['http://localhost:4200'],
   db: postgresAdapter({
     pool: { connectionString: env.POSTGRES_URL },
     migrationDir: resolve(__dirname, 'migrations')
   }),
-  editor: slateEditor({}),
+  editor: lexicalEditor({}),
   i18n: {
     fallbackLng: 'sv'
   },

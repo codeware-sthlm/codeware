@@ -67,6 +67,17 @@
       "description": "Skip all React package updates",
       "matchPackageNames": ["react*", "*/*react*"],
       "enabled": false
+    },
+    {
+      "description": "Skip other third party package updates that are managed by Nx",
+      "matchPackageNames": [
+        "express",
+        "vite",
+        "vitest",
+        "@types/express",
+        "@vitejs/*"
+      ],
+      "enabled": false
     }
   ]
 }

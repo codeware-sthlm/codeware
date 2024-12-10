@@ -17,10 +17,13 @@
   "keywords": [
     "CLI",
     "Codeware",
+    "Environment variables",
     "Fixtures",
     "GitHub Actions",
+    "Infisical",
     "Nx",
     "Release management",
+    "Secrets",
     "Testing",
     "Utilities",
     "Zod"
@@ -32,6 +35,7 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@clack/prompts": "^0.8.0",
+    "@infisical/sdk": "^3.0.4",
     "@nx/devkit": "20.x",
     "@nx/plugin": "20.x",
     "@octokit/request-error": "^5.0.1",
@@ -60,6 +64,11 @@
       "types": "./src/release.d.ts",
       "import": "./release.js",
       "require": "./release.cjs"
+    },
+    "./secrets": {
+      "types": "./src/secrets.d.ts",
+      "import": "./secrets.js",
+      "require": "./secrets.cjs"
     },
     "./testing": {
       "types": "./src/testing.d.ts",

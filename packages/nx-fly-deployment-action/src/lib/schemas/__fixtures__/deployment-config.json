@@ -6,5 +6,9 @@
     "region": "sea"
   },
   "mainBranch": "main",
+  "secrets": {
+    "SECRET_KEY1": "secret-value1",
+    "SECRET_KEY2": "secret-value2"
+  },
   "token": "github-token"
 }

@@ -19,6 +19,7 @@ vi.mock('./fly-deployment');
 describe('main', () => {
   const getBooleanInputMock = vi.spyOn(core, 'getBooleanInput');
   const getInputMock = vi.spyOn(core, 'getInput');
+  const getMultilineInputMock = vi.spyOn(core, 'getMultilineInput');
   const setFailedMock = vi.spyOn(core, 'setFailed');
   const setOutputMock = vi.spyOn(core, 'setOutput');
 
@@ -31,6 +32,7 @@ describe('main', () => {
     // Default mock values
     getBooleanInputMock.mockImplementation(() => true);
     getInputMock.mockImplementation((name: string) => name);
+    getMultilineInputMock.mockImplementation(() => []);
   });
 
   it('should run without exceptions', async () => {
@@ -47,10 +49,12 @@ describe('main', () => {
     await main.run();
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
-      mainBranch: 'main-branch',
+      env: [],
       flyApiToken: 'fly-api-token',
       flyOrg: 'fly-org',
       flyRegion: 'fly-region',
+      mainBranch: 'main-branch',
+      secrets: [],
       token: 'token'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
@@ -68,10 +72,12 @@ describe('main', () => {
     await main.run();
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
+      env: [],
       flyApiToken: '',
       flyOrg: '',
       flyRegion: '',
       mainBranch: '',
+      secrets: [],
       token: 'token'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();

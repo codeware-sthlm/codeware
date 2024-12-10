@@ -12,10 +12,12 @@ import {
 export async function run(): Promise<void> {
   try {
     const inputs = ActionInputsSchema.parse({
+      env: core.getMultilineInput('env'),
       flyApiToken: core.getInput('fly-api-token'),
       flyOrg: core.getInput('fly-org'),
       flyRegion: core.getInput('fly-region'),
       mainBranch: core.getInput('main-branch'),
+      secrets: core.getMultilineInput('secrets'),
       token: core.getInput('token', { required: true })
     } satisfies ActionInputs);
 

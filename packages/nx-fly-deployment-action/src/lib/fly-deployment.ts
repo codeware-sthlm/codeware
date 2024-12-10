@@ -50,6 +50,8 @@ export async function flyDeployment(
 
     core.startGroup('Get deployment configuration');
     const config = await getDeploymentConfig(inputs);
+    // Add environment variables to context
+    context.env = config.env;
     core.endGroup();
 
     core.startGroup('Initialize Fly client');
@@ -73,6 +75,7 @@ export async function flyDeployment(
     );
     const deployEnv = getDeployEnv(github.context, config.mainBranch);
     if (deployEnv.environment) {
+      // Add target environment to context
       context.environment = deployEnv.environment;
     } else {
       throw new Error(deployEnv.reason);
@@ -129,6 +132,9 @@ export async function flyDeployment(
 
       return ActionOutputsSchema.parse(results);
     }
+
+    // Add secrets to context available for deployment
+    context.secrets = config.secrets;
 
     // Create deployments based on affected projects
     core.startGroup('Analyze affected projects to deploy');
@@ -232,7 +238,9 @@ export async function flyDeployment(
             ? getPreviewAppName(configAppName, Number(context.pullRequest))
             : configAppName,
         config: resolvedFlyConfig,
-        environment: context.environment
+        env: context.env,
+        environment: context.environment,
+        secrets: context.secrets
       };
       core.info(`Deploy '${options.app}' to '${options.environment}'...`);
       try {

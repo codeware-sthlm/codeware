@@ -20,6 +20,16 @@ inputs:
     description: >
       The main branch name.
       Defaults to the default branch of the repository.
+  env:
+    description: >
+      A multiline string of environment variables to set for the application.
+      Each variable should be on a new line in the format of `KEY=VALUE`.
+      Defaults to an empty string.
+  secrets:
+    description: >
+      A multiline string of secrets to pass to the deployed applications.
+      Each secret should be on a new line in the format of `KEY=VALUE`.
+      Defaults to an empty string.
   token:
     description: >
       The token to use for repository authentication.

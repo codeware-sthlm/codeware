@@ -89,6 +89,8 @@ jobs:
           main-branch-name: main
           set-environment-variables-for-job: true
 
+      # TODO: Fetch all tenants and make a deployment for each with their `TENANT_ID`
+      # TODO: Alternatively, create a new input with multi-tenant values
       - name: Run Deployment to Fly
         id: deployment
         uses: ./packages/nx-fly-deployment-action
@@ -97,3 +99,8 @@ jobs:
           fly-org: ${{ vars.FLY_ORG }}
           fly-region: ${{ vars.FLY_REGION }}
           token: ${{ steps.generate-token.outputs.token }}
+          env: |
+            TENANT_ID=default
+          secrets: |
+            INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_READ_CLIENT_ID }}
+            INFISICAL_CLIENT_SECRET=${{ secrets.INFISICAL_READ_CLIENT_SECRET }}

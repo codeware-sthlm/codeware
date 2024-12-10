@@ -56,11 +56,40 @@ This action will manage deployments to [Fly.io](https://fly.io) of your [Nx](htt
     token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+### Determine environment
+
+The environment to deploy to is determined by the event type and branch name.
+
+**Pull requests** are deployed to a **preview** environment.
+
+**Push events** on the `main` branch are deployed to the **production** environment.
+
+> [!TIP]
+> The environment is also set in the `DEPLOY_ENV` environment variable for the deployed applications
+
+## Inputs
+
+See [action.yaml](action.yml) for descriptions of the inputs.
+
+### Additional input details
+
+`secrets`
+
+The secrets are passed to the deployed applications as Fly secrets. All secrets are passed to all applications.
+
+Provide the secrets as multiline key/value strings.
+
+```yaml
+- uses: ./packages/nx-fly-deployment-action
+  with:
+    secrets: |
+      SECRET_KEY1=secret-value1
+      SECRET_KEY2=secret-value2
+```
+
+> [!NOTE]
+> The same pattern also applies to `env` input.
+
 ### Outputs
 
-The action will output the following variables:
-
-- `environment`: The environment used for deployment.
-- `destroyed`: A list of project names that were destroyed.
-- `skipped`: A list of project names that were skipped for some reason.
-- `deployed`: JSON object containing the deployed project names and their urls.
+See [action.yaml](action.yml) for descriptions of the outputs.

@@ -278,10 +278,12 @@ describe('flyDeployment', () => {
   const setupTest = (configOverride?: Partial<ActionInputs>): ActionInputs => {
     return {
       ...{
+        env: [],
         flyApiToken: 'fly-api-token',
         flyOrg: 'fly-org',
         flyRegion: '',
         mainBranch: '',
+        secrets: [],
         token: 'token'
       },
       ...configOverride
@@ -303,10 +305,12 @@ describe('flyDeployment', () => {
       const config = setupTest();
 
       expect(config).toEqual({
+        env: [],
         flyApiToken: 'fly-api-token',
         flyOrg: 'fly-org',
         flyRegion: '',
         mainBranch: '',
+        secrets: [],
         token: 'token'
       } satisfies ActionInputs);
 
@@ -434,6 +438,64 @@ describe('flyDeployment', () => {
           }
         ]
       } satisfies ActionOutputs);
+    });
+
+    it('should deploy apps to preview with environment variables', async () => {
+      setContext('pr-opened');
+      setupMocks();
+      const config = setupTest({
+        env: ['ENV_KEY1=env-value1', 'ENV_KEY2=env-value2']
+      });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-pr-1',
+        config: '/apps/app-one/fly.toml',
+        environment: 'preview',
+        env: {
+          ENV_KEY1: 'env-value1',
+          ENV_KEY2: 'env-value2'
+        }
+      } satisfies DeployAppOptions);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-pr-1',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'preview',
+        env: {
+          ENV_KEY1: 'env-value1',
+          ENV_KEY2: 'env-value2'
+        }
+      } satisfies DeployAppOptions);
+    });
+
+    it('should deploy apps to preview with the same secrets', async () => {
+      setContext('pr-opened');
+      setupMocks();
+      const config = setupTest({
+        secrets: ['SECRET_KEY1=secret-value1', 'SECRET_KEY2=secret-value2']
+      });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-pr-1',
+        config: '/apps/app-one/fly.toml',
+        environment: 'preview',
+        secrets: {
+          SECRET_KEY1: 'secret-value1',
+          SECRET_KEY2: 'secret-value2'
+        }
+      } satisfies DeployAppOptions);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-pr-1',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'preview',
+        secrets: {
+          SECRET_KEY1: 'secret-value1',
+          SECRET_KEY2: 'secret-value2'
+        }
+      } satisfies DeployAppOptions);
     });
   });
 
@@ -593,6 +655,76 @@ describe('flyDeployment', () => {
           }
         ]
       } satisfies ActionOutputs);
+    });
+
+    it('should deploy apps to production with environment variables', async () => {
+      setContext('push-main-branch');
+      setupMocks();
+      const config = setupTest({
+        env: [
+          'ENV_KEY1=env"fnutt',
+          'ENV_KEY2=env space',
+          'ENV_KEY3=env\\backslash'
+        ]
+      });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config',
+        config: '/apps/app-one/fly.toml',
+        environment: 'production',
+        env: {
+          ENV_KEY1: 'env"fnutt',
+          ENV_KEY2: 'env space',
+          ENV_KEY3: 'env\\backslash'
+        }
+      } satisfies DeployAppOptions);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'production',
+        env: {
+          ENV_KEY1: 'env"fnutt',
+          ENV_KEY2: 'env space',
+          ENV_KEY3: 'env\\backslash'
+        }
+      } satisfies DeployAppOptions);
+    });
+
+    it('should deploy apps to production with the same secrets', async () => {
+      setContext('push-main-branch');
+      setupMocks();
+      const config = setupTest({
+        secrets: [
+          'SECRET_KEY1=secret"fnutt',
+          'SECRET_KEY2=secret space',
+          'SECRET_KEY3=secret\\backslash'
+        ]
+      });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config',
+        config: '/apps/app-one/fly.toml',
+        environment: 'production',
+        secrets: {
+          SECRET_KEY1: 'secret"fnutt',
+          SECRET_KEY2: 'secret space',
+          SECRET_KEY3: 'secret\\backslash'
+        }
+      } satisfies DeployAppOptions);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'production',
+        secrets: {
+          SECRET_KEY1: 'secret"fnutt',
+          SECRET_KEY2: 'secret space',
+          SECRET_KEY3: 'secret\\backslash'
+        }
+      } satisfies DeployAppOptions);
     });
   });
 

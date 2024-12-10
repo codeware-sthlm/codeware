@@ -1,11 +1,6 @@
 app = 'cdwr-web'
 primary_region = 'arn'
 
-[env]
-  PAYLOAD_API_KEY = 'to-be-set'
-  PAYLOAD_URL = 'https://to-be-set.noop.io'
-  PORT = '3001'
-
 [build]
   dockerfile = "Dockerfile"
 

@@ -9,6 +9,13 @@ import { useHints } from '../utils/client-hints';
 import { useRequestInfo } from '../utils/request-info';
 import { Theme, setTheme } from '../utils/theme.server';
 
+// Resolve a reusable actio type
+type ActionData = {
+  result: ReturnType<
+    Awaited<ReturnType<typeof parseWithZod<typeof ThemeFormSchema>>>['reply']
+  >;
+};
+
 const ThemeFormSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']),
   // Used when the page has not hydrated yet for progressive enhancement
@@ -32,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return redirect(redirectTo, responseInit);
   }
 
-  return data({ result: submission.reply() }, responseInit);
+  return data<ActionData>({ result: submission.reply() }, responseInit);
 }
 
 export function ThemeSwitch({
@@ -40,7 +47,7 @@ export function ThemeSwitch({
 }: {
   userPreference?: Theme | null;
 }) {
-  const fetcher = useFetcher<typeof action>();
+  const fetcher = useFetcher<ActionData>();
   const optimisticMode = useOptimisticThemeMode();
   const requestInfo = useRequestInfo();
 

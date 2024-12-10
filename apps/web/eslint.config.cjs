@@ -3,7 +3,7 @@ const baseConfig = require('../../eslint.config.js');
 module.exports = [
   ...baseConfig,
   {
-    ignores: ['**/build', '**/vitest.config.ts.timestamp*']
+    ignores: ['**/build', '**/server.js', '**/vitest.config.ts.timestamp*']
   },
   {
     files: ['**/*.json'],
@@ -13,6 +13,7 @@ module.exports = [
         {
           ignoredDependencies: [
             '@cdwr/core',
+            '@infisical/sdk',
             '@nx/vite',
             '@remix-run/testing',
             '@testing-library/jest-dom',

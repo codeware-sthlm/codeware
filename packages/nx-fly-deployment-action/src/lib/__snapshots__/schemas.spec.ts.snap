@@ -2,10 +2,18 @@
 
 exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > ActionInputsSchema transformed shape 1`] = `
 {
+  "env": [
+    "ENV_KEY1=env-value1",
+    "ENV_KEY2=env-value2",
+  ],
   "flyApiToken": "fly-token",
   "flyOrg": "company",
   "flyRegion": "sea",
   "mainBranch": "main",
+  "secrets": [
+    "SECRET_KEY1=secret-value1",
+    "SECRET_KEY2=secret-value2",
+  ],
   "token": "github-token",
 }
 `;
@@ -46,6 +54,10 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
     "token": "fly-token",
   },
   "mainBranch": "main",
+  "secrets": {
+    "SECRET_KEY1": "secret-value1",
+    "SECRET_KEY2": "secret-value2",
+  },
   "token": "github-token",
 }
 `;

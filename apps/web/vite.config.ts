@@ -8,8 +8,23 @@ declare module '@remix-run/node' {
   }
 }
 
+/**
+ * Output build path limitation!
+ *
+ * We can force the output to be written to workspace root `dist` using remix config:
+ *  buildDirectory: '../../dist/apps/web/build'
+ *
+ * However this makes the compiled property `assetsBuildDirectory` in `server/index.js`
+ * point to the wrong path, and there is no way to override it (as I know it (Håkan)).
+ *
+ * Therefore we stick to output compiled code to app root until we know better.
+ */
+
 export default defineConfig({
   root: __dirname,
+  build: {
+    target: ['node20', 'esnext']
+  },
   plugins: [
     remix({
       future: {

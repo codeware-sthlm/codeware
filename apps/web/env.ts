@@ -1,20 +1,52 @@
-/* Type-safe environment configuration */
+/**
+ * Type-safe environment configuration with Infisical secrets injection
+ */
 
+import { withInfisical } from '@codeware/core/secrets';
 import { z } from 'zod';
 
-const DEFAULT_NODE_ENV = 'development' as const;
-const DEFAULT_PORT = 4200 as const;
-
-export const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production']).default(DEFAULT_NODE_ENV),
-  PAYLOAD_API_KEY: z.string(),
-  PAYLOAD_URL: z.string().url(),
-  PORT: z.coerce.number().default(DEFAULT_PORT)
+/**
+ * Required environment variables
+ */
+const EnvSchema = z.object({
+  NODE_ENV: z.enum(['development', 'preview', 'production']),
+  PAYLOAD_API_KEY: z
+    .string({ description: 'Payload tenant API key' })
+    .min(1, { message: 'PAYLOAD_API_KEY is required' }),
+  PAYLOAD_URL: z
+    .string({ description: 'Payload URL' })
+    .url({ message: 'PAYLOAD_URL must be a valid URL' }),
+  PORT: z.coerce.number({ description: 'Port to run the server on' })
 });
+type Env = z.infer<typeof EnvSchema>;
 
-export type Env = z.infer<typeof envSchema>;
+//
+// Pre-check environment variables as they can be injected from CLI.
+// Then there is no reason to connect to Infisical using the SDK.
+//
+if (!EnvSchema.safeParse(process.env).success) {
+  // Get tenant ID, normally from deployment
+  let tenantId = process.env.TENANT_ID;
+  if (!tenantId) {
+    tenantId = 'default';
+    console.warn(
+      `⚠️ TENANT_ID is not provided, using tenant '${tenantId}' [ TEMP WORKAROUND ]`
+    );
+  }
 
-const { success, data: env, error } = envSchema.safeParse(process.env);
+  // Connect to Infisical and get the secrets for the tenant into process.env
+  await withInfisical({
+    environment: process.env.DEPLOY_ENV,
+    filter: { path: `/web/tenants/${tenantId}` },
+    onConnect: 'inject',
+    silent: true,
+    site: 'eu'
+  });
+}
+
+// Validate resolved environment variables
+// TODO: Probably want to let errors pass to provide UI error pages
+const { success, data: env, error } = EnvSchema.safeParse(process.env);
 
 if (!success) {
   console.error('❌ Invalid environment variables:');

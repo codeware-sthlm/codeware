@@ -6,12 +6,14 @@ import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import type { ServerBuild } from '@remix-run/node';
 import { Hono } from 'hono';
-import { remix } from 'remix-hono/handler';
+import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 
 import env from './env';
 
 // Load the Remix server build
-const build = (await import('./build/server/index.js')) as ServerBuild;
+const build = (await import(
+  './build/server/index.js'
+)) as unknown as ServerBuild;
 
 const app = new Hono()
   // Serve static files from Remix client build
@@ -21,7 +23,7 @@ const app = new Hono()
     '*',
     remix({
       build,
-      mode: env.NODE_ENV
+      mode: env.NODE_ENV as RemixMiddlewareOptions['mode']
     })
   );
 

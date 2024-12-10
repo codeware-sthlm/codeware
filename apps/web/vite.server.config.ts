@@ -1,11 +1,13 @@
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  root: __dirname,
   build: {
     ssr: true,
-    outDir: './apps/web',
-    emptyOutDir: false,
-    target: 'node20',
+    outDir: './', // Effective output path is configured in project.json
+    emptyOutDir: false, // Important!
+    target: ['node20', 'esnext'],
     rollupOptions: {
       input: './apps/web/server.ts',
       output: {
@@ -16,6 +18,7 @@ export default defineConfig({
       external: ['./build/server/index.js']
     }
   },
+  plugins: [nxViteTsPaths()],
   // Exlude public directory from the build
   publicDir: false
 });

@@ -14,13 +14,26 @@
         }
       },
       "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/apps/web/build",
+        "{workspaceRoot}/apps/web/server.js"
+      ],
       "options": {
-        "commands": [
-          "remix vite:build ./apps/web",
-          "vite build --config ./apps/web/vite.server.config.ts"
-        ],
+        "commands": ["nx build-remix web", "nx build-server web"],
         "parallel": false
-      }
+      },
+      "cache": true
+    },
+    "build-server": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}/server.js"],
+      "options": {
+        "outputPath": "{workspaceRoot}/apps/web",
+        "configFile": "apps/web/vite.server.config.ts",
+        "generatePackageJson": false,
+        "watch": false
+      },
+      "cache": true
     },
     "build-remix": {
       "metadata": {
@@ -29,21 +42,22 @@
           "command": "nx build-remix web"
         }
       },
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": ["remix vite:build ./apps/web"]
-      }
+      "command": "remix vite:build ./apps/web",
+      "outputs": ["{workspaceRoot}/apps/web/build"],
+      "cache": true
     },
     "start": {
       "executor": "nx:run-commands",
       "metadata": {
-        "description": "Start the Hono server in production mode",
+        "description": "Start the Hono server in production mode with secrets from default tenant",
         "help": {
           "command": "nx start web"
         }
       },
       "options": {
-        "commands": ["NODE_ENV=production node server.js"],
+        "commands": [
+          "NODE_ENV=production infisical run --path /web/tenants/default -- node server.js"
+        ],
         "cwd": "apps/web"
       },
       "dependsOn": ["build"]

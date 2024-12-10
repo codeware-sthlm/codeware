@@ -35,6 +35,7 @@ RUN pnpm install --prod
 COPY --from=build /app/apps/web/build ./build
 COPY --from=build /app/apps/web/public ./public
 COPY --from=build /app/apps/web/server.js ./
+COPY --from=build /app/.infisical.json ./
 
 EXPOSE 3001
 CMD [ "node", "server.js" ]

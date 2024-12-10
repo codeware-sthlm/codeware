@@ -165,19 +165,14 @@ export type DeployAppOptions = {
   config?: string;
 
   /**
+   * Environment variables to set for the application.
+   *
+   * Spaces are supported in values.
+   */
+  env?: Record<string, string>;
+
+  /**
    * Target environment for the application.
-   *
-   * TODO Move the idea of environment to the action
-   *
-   * When value is `'production'` the options `app` and `config` will decide how the application is deployed.
-   * This is the normal deployment flow.
-   *
-   * But when value is something else the application will be deployed to a **preview** environment,
-   * with a name according to the provided value.
-   *
-   * There is only **one** opinionated difference between the two deployment flows:
-   * - When deploying to a **preview** environment, a new name will be generated
-   * unless a unique `app` name is provided
    *
    * Environment variable `DEPLOY_ENV` will be set to the provided value.
    *

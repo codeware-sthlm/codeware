@@ -585,6 +585,9 @@ export class Fly {
     if (options?.environment) {
       args.push('--env', `DEPLOY_ENV=${options.environment}`);
     }
+    for (const [key, value] of Object.entries(options?.env || {})) {
+      args.push('--env', `${key}=${this.safeArg(value)}`);
+    }
     args.push('--yes');
 
     this.logger.info(`Deploying '${appName}'...`);
@@ -624,7 +627,7 @@ export class Fly {
       args.push('--stage');
     }
     for (const [key, value] of Object.entries(secrets)) {
-      args.push(`${key}=${value.replace(/\\/g, '\\\\').replace(/ /g, '\\ ')}`);
+      args.push(`${key}=${this.safeArg(value)}`);
     }
 
     await this.execFly(args);
@@ -1132,6 +1135,16 @@ ${error}`);
     const config = 'config' in options && options.config ? options.config : '';
 
     return { app, config };
+  }
+
+  /**
+   * Escape an argument for Fly cli
+   *
+   * @param arg - The argument to escape
+   * @returns The escaped argument
+   */
+  private safeArg(arg: string): string {
+    return arg.replace(/\\/g, '\\\\').replace(/ /g, '\\ ');
   }
 
   /**

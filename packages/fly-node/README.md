@@ -201,6 +201,9 @@ const response = await fly.deploy({
   environment: 'preview',
   org: 'baz',
   region: 'arn',
+  env: {
+    DEPLOY_ID: 'qwerty'
+  },
   secrets: {
     LICENCE_KEY: '1234567890'
   }

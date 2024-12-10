@@ -895,13 +895,6 @@ describe('Fly', () => {
     });
 
     it('should create app with name from provided config file and deploy with the same config', async () => {
-      // setupFlyMocks([
-      //   {
-      //     cmdMatch: /config show/,
-      //     resolveOrReject: 'resolve',
-      //     output: JSON.stringify(mockShowConfigResponse('config-app'))
-      //   }
-      // ]);
       const fly = new Fly(defaultFlyConfig);
       const response = await fly.deploy({
         config: mockDefs.newConfig
@@ -967,6 +960,25 @@ describe('Fly', () => {
 
       expect(mockExec).toHaveBeenCalledWith(
         expect.stringMatching(/deploy .* DEPLOY_ENV=production/)
+      );
+    });
+
+    it('should set environment variables', async () => {
+      const fly = new Fly(defaultFlyConfig);
+      await fly.deploy({
+        app: mockDefs.testApp,
+        config: mockDefs.testConfig,
+        env: {
+          TEST_ENV: 'value',
+          WITH_BACKSLASH: 'value\\with\\backslash',
+          WITH_SPACE: 'value with space'
+        }
+      });
+
+      expect(mockExec).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /deploy .* --env TEST_ENV=value --env WITH_BACKSLASH=value\\\\with\\\\backslash --env WITH_SPACE=value\\ with\\ space/
+        )
       );
     });
 

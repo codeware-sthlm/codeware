@@ -64,6 +64,31 @@ A set of core utilities for the [Codeware](https://codeware.se) ecosystem.
 
 ## Development
 
+### Infisical Secret Management
+
+The [Infisical](https://infisical.com) secret management tool is used to manage secrets for the Codeware ecosystem.
+
+1. [Install Infisical CLI](https://infisical.com/docs/cli/overview#installation)
+
+2. Login to access the secrets
+
+   ```sh
+   infisical login
+   ```
+
+3. List the development secrets
+
+   ```sh
+   # all secrets
+   infisical secrets --recursive
+
+   # cms application
+   infisical secrets --recursive --path /cms
+
+   # web application
+   infisical secrets --recursive --path /web
+   ```
+
 ### Release management
 
 The release process is semi-automatic which means:

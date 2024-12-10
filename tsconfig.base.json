@@ -18,6 +18,7 @@
     "paths": {
       "@codeware/core/actions": ["packages/core/src/actions.ts"],
       "@codeware/core/release": ["packages/core/src/release.ts"],
+      "@codeware/core/secrets": ["packages/core/src/secrets.ts"],
       "@codeware/core/testing": ["packages/core/src/testing.ts"],
       "@codeware/core/utils": ["packages/core/src/utils.ts"],
       "@codeware/core/zod": ["packages/core/src/zod.ts"],

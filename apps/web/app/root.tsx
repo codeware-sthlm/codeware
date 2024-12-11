@@ -1,3 +1,4 @@
+import type { Page } from '@codeware/shared/util/payload';
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -47,7 +48,21 @@ export const links: LinksFunction = () => [
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const [theme, pages] = await Promise.all([getTheme(request), fetchPages()]);
+    // Get the theme before fetching pages in case it fails
+    const theme = await getTheme(request);
+
+    /** Error message to display to the user when we have e.g. API issues */
+    let displayError = '';
+    let pages: Array<Page> = [];
+
+    // Fetch pages but don't propagate the exception to the error boundary
+    try {
+      pages = await fetchPages();
+    } catch (e) {
+      const error = e as Error;
+      console.error(`Failed to load pages: ${error.message}\n`, error.cause);
+      displayError = 'Unable to load pages. Please try again later.';
+    }
 
     const pageDetails = pages.map((page) => ({
       slug: page.slug,
@@ -55,6 +70,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }));
 
     return {
+      displayError,
       pages: pageDetails,
       requestInfo: {
         hints: getHints(request),
@@ -65,9 +81,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     };
   } catch (error) {
-    console.error('Failed to load root data:', error);
+    console.error('Failed to load root data:\n', error);
     throw data(
-      { message: 'Failed to load root data. Please try again later.' },
+      { message: 'Failed to load application. Please try again later.' },
       { status: 500 }
     );
   }
@@ -145,6 +161,11 @@ export default function App() {
           </header>
           <main className="flex-auto">
             <Outlet />
+            {data.displayError && (
+              <div className="flex items-center justify-center p-4">
+                <p className="text-red-500">{data.displayError}</p>
+              </div>
+            )}
           </main>
           <Footer />
         </div>

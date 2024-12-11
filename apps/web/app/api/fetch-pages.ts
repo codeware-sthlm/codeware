@@ -15,7 +15,9 @@ export const fetchPages = async (): Promise<Page[]> => {
   );
 
   if (!response.ok) {
-    throw new Error(`Error fetching pages: ${response.status}`);
+    throw new Error(
+      `Error fetching pages: ${response.status}\n${response.statusText}`
+    );
   }
 
   const pageRes: PageResult = await response.json();

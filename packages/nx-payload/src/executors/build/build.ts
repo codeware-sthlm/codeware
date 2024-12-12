@@ -1,6 +1,7 @@
 import { join } from 'path';
 
 import { type ExecutorContext, logger } from '@nx/devkit';
+import esbuildExecutor from '@nx/esbuild/src/executors/esbuild/esbuild.impl';
 import tscExecutor from '@nx/js/src/executors/tsc/tsc.impl';
 import runCommandsImpl from 'nx/src/executors/run-commands/run-commands.impl';
 
@@ -14,12 +15,26 @@ export async function buildExecutor(
   const normalizedOptions = normalizeOptions(options, context);
 
   // Build express application first since it owns the `clean` option
-  for await (const appBuild of tscExecutor(normalizedOptions, context)) {
-    if (!appBuild.success) {
-      logger.error('Could not compile express application');
-      return {
-        success: false
-      };
+
+  if (normalizedOptions.executor === 'esbuild') {
+    for await (const appBuild of esbuildExecutor(normalizedOptions, context)) {
+      if (!appBuild.success) {
+        logger.error('Could not compile express application using esbuild');
+        return {
+          success: false
+        };
+      }
+    }
+  }
+
+  if (normalizedOptions.executor === 'tsc') {
+    for await (const appBuild of tscExecutor(normalizedOptions, context)) {
+      if (!appBuild.success) {
+        logger.error('Could not compile express application using tsc');
+        return {
+          success: false
+        };
+      }
     }
   }
 

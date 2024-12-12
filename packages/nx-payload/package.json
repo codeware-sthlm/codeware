@@ -44,6 +44,7 @@
   },
   "peerDependencies": {
     "@nx/devkit": "20.x",
+    "@nx/esbuild": "20.x",
     "@nx/express": "20.x",
     "@nx/js": "20.x",
     "@nx/webpack": "20.x",

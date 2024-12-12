@@ -7,7 +7,7 @@ import {
   type NormalizedSchema,
   normalizeOptions
 } from './libs/normalize-options';
-import type { BuildExecutorSchema } from './schema';
+import type { TscExecutorSchema } from './schema';
 
 jest.mock('@nx/devkit');
 jest.mock('nx/src/executors/run-commands/run-commands.impl');
@@ -20,7 +20,7 @@ describe('Build Executor', () => {
   const runCommandsImplMock = jest.spyOn(runCommandsImpl, 'default');
   const tscExecutorMock = jest.spyOn(tscExecutor, 'default');
 
-  let testOptions: BuildExecutorSchema;
+  let testOptions: TscExecutorSchema;
   let callOrder: Array<'runCommandsImpl' | 'tscExecutor'> = [];
 
   beforeEach(async () => {

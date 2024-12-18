@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "e2e/nx-payload-e2e/src",
-  "tags": ["scope:e2e", "type:e2e"],
+  "tags": ["scope:nx-payload-e2e", "type:e2e"],
   "implicitDependencies": ["create-nx-payload", "nx-payload"],
   "targets": {
     "e2e": {

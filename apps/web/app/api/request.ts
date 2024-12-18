@@ -1,6 +1,6 @@
 import { Page } from '@codeware/shared/util/payload';
 
-import env from '../../env';
+import env from '../../env-resolver/env';
 
 /**
  * The URL of the Payload API.
@@ -12,7 +12,7 @@ export const PAYLOAD_API_URL = `${env.PAYLOAD_URL}/api/pages`;
  */
 export const pagesInit = {
   headers: {
-    Authorization: `users API-Key ${env.PAYLOAD_API_KEY}`
+    Authorization: `tenants API-Key ${env.PAYLOAD_API_KEY}`
   },
   method: 'GET'
 } satisfies RequestInit;

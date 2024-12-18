@@ -55,9 +55,7 @@
         }
       },
       "options": {
-        "commands": [
-          "NODE_ENV=production infisical run --path /web/tenants/default -- node server.js"
-        ],
+        "commands": ["NODE_ENV=production node server.js"],
         "cwd": "apps/web"
       },
       "dependsOn": ["build"]

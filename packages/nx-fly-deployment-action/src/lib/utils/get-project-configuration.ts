@@ -20,8 +20,6 @@ export const getProjectConfiguration = async (
 ): Promise<ProjectConfiguration | null> => {
   const pmc = getPackageManagerCommand();
 
-  core.info(`Get project configuration for ${projectName}`);
-
   const { stdout } = await exec.getExecOutput(
     pmc.exec,
     ['nx', 'show', 'project', projectName, '--json'],

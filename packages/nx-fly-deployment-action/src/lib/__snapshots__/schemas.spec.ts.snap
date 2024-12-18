@@ -66,5 +66,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
 {
   "deploy": true,
   "flyConfig": "path/to/fly.toml",
+  "flyPostgresPreview": "pg-preview",
+  "flyPostgresProduction": "pg-production",
 }
 `;

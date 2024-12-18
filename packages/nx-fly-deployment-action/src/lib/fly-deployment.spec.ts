@@ -44,6 +44,12 @@ vi.mock('@codeware/fly-node');
 vi.mock('@nx/devkit');
 
 describe('flyDeployment', () => {
+  // Save environment variables before tests
+  let envFlyPostgres: {
+    preview?: string;
+    production?: string;
+  };
+
   // Static mock values
   vi.mocked(devkit.getPackageManagerCommand).mockReturnValue({
     exec: 'npx',
@@ -150,6 +156,24 @@ describe('flyDeployment', () => {
        * { 'app-one': true, 'app-two': true }
        */
       flyConfigExists?: Record<string, boolean>;
+      /**
+       * Environment variable values for postgres cluster name keys.
+       * - preview: `${TEST_FLY_POSTGRES_PREVIEW}`
+       * - production: `${TEST_FLY_POSTGRES_PRODUCTION}`
+       *
+       * **ONLY** in `/apps/app-one/github.json`.
+       *
+       * `null` value will delete the environment variable.
+       * @default
+       * {
+       *   TEST_FLY_POSTGRES_PREVIEW: 'pg-preview',
+       *   TEST_FLY_POSTGRES_PRODUCTION: 'pg-production'
+       * }
+       */
+      envFlyPostgres?: {
+        TEST_FLY_POSTGRES_PREVIEW?: string | null;
+        TEST_FLY_POSTGRES_PRODUCTION?: string | null;
+      };
     } = {}
   ) => {
     const {
@@ -157,7 +181,8 @@ describe('flyDeployment', () => {
       affectedProjects,
       projectConfigs,
       githubConfigExists,
-      flyConfigExists
+      flyConfigExists,
+      envFlyPostgres
     } = {
       flyApps: overrides.flyApps || [{ name: 'app-one' }, { name: 'app-two' }],
       affectedProjects: overrides.affectedProjects || ['app-one', 'app-two'],
@@ -178,11 +203,30 @@ describe('flyDeployment', () => {
       flyConfigExists: overrides.flyConfigExists || {
         'app-one': true,
         'app-two': true
+      },
+      envFlyPostgres: overrides.envFlyPostgres || {
+        TEST_FLY_POSTGRES_PREVIEW: 'pg-preview',
+        TEST_FLY_POSTGRES_PRODUCTION: 'pg-production'
       }
     };
 
+    // Environment variables
+    if (envFlyPostgres.TEST_FLY_POSTGRES_PREVIEW !== null) {
+      process.env['TEST_FLY_POSTGRES_PREVIEW'] =
+        envFlyPostgres.TEST_FLY_POSTGRES_PREVIEW;
+    } else {
+      delete process.env['TEST_FLY_POSTGRES_PREVIEW'];
+    }
+    if (envFlyPostgres.TEST_FLY_POSTGRES_PRODUCTION !== null) {
+      process.env['TEST_FLY_POSTGRES_PRODUCTION'] =
+        envFlyPostgres.TEST_FLY_POSTGRES_PRODUCTION;
+    } else {
+      delete process.env['TEST_FLY_POSTGRES_PRODUCTION'];
+    }
+
     // Create virtual file system.
     // app-one uses default paths and app-two uses custom paths.
+    // app-one has postgres setup, app-two does not.
     vol.reset();
     vol.fromNestedJSON({
       '/apps/app-one': {
@@ -192,7 +236,9 @@ describe('flyDeployment', () => {
             deploy: true,
             flyConfig: flyConfigExists['app-one']
               ? 'fly.toml'
-              : 'secret/fly.toml'
+              : 'secret/fly.toml',
+            flyPostgresPreview: '${TEST_FLY_POSTGRES_PREVIEW}',
+            flyPostgresProduction: '${TEST_FLY_POSTGRES_PRODUCTION}'
           })
       },
       '/apps/app-two/src': {
@@ -289,6 +335,26 @@ describe('flyDeployment', () => {
       ...configOverride
     };
   };
+
+  beforeAll(() => {
+    envFlyPostgres = {
+      preview: process.env['TEST_FLY_POSTGRES_PREVIEW'],
+      production: process.env['TEST_FLY_POSTGRES_PRODUCTION']
+    };
+  });
+
+  afterAll(() => {
+    if (envFlyPostgres.preview) {
+      process.env['TEST_FLY_POSTGRES_PREVIEW'] = envFlyPostgres.preview;
+    } else {
+      delete process.env['TEST_FLY_POSTGRES_PREVIEW'];
+    }
+    if (envFlyPostgres.production) {
+      process.env['TEST_FLY_POSTGRES_PRODUCTION'] = envFlyPostgres.production;
+    } else {
+      delete process.env['TEST_FLY_POSTGRES_PRODUCTION'];
+    }
+  });
 
   beforeEach(() => {
     // Clear the virtual file system before each test
@@ -412,13 +478,23 @@ describe('flyDeployment', () => {
       expect(getMockFly().deploy).toHaveBeenCalledWith({
         app: 'app-one-config-pr-1',
         config: '/apps/app-one/fly.toml',
-        environment: 'preview'
+        env: {
+          APP_NAME: 'app-one-config-pr-1',
+          PR_NUMBER: '1'
+        },
+        environment: 'preview',
+        postgres: expect.any(String)
       } satisfies DeployAppOptions);
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
         app: 'app-two-config-pr-1',
         config: '/apps/app-two/src/fly.toml',
-        environment: 'preview'
+        env: {
+          APP_NAME: 'app-two-config-pr-1',
+          PR_NUMBER: '1'
+        },
+        environment: 'preview',
+        postgres: undefined
       } satisfies DeployAppOptions);
 
       expect(result).toEqual({
@@ -453,9 +529,12 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'preview',
         env: {
+          APP_NAME: 'app-one-config-pr-1',
           ENV_KEY1: 'env-value1',
-          ENV_KEY2: 'env-value2'
-        }
+          ENV_KEY2: 'env-value2',
+          PR_NUMBER: '1'
+        },
+        postgres: expect.any(String)
       } satisfies DeployAppOptions);
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -463,9 +542,12 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'preview',
         env: {
+          APP_NAME: 'app-two-config-pr-1',
           ENV_KEY1: 'env-value1',
-          ENV_KEY2: 'env-value2'
-        }
+          ENV_KEY2: 'env-value2',
+          PR_NUMBER: '1'
+        },
+        postgres: undefined
       } satisfies DeployAppOptions);
     });
 
@@ -481,6 +563,8 @@ describe('flyDeployment', () => {
         app: 'app-one-config-pr-1',
         config: '/apps/app-one/fly.toml',
         environment: 'preview',
+        env: expect.any(Object),
+        postgres: expect.any(String),
         secrets: {
           SECRET_KEY1: 'secret-value1',
           SECRET_KEY2: 'secret-value2'
@@ -491,11 +575,60 @@ describe('flyDeployment', () => {
         app: 'app-two-config-pr-1',
         config: '/apps/app-two/src/fly.toml',
         environment: 'preview',
+        env: expect.any(Object),
+        postgres: undefined,
         secrets: {
           SECRET_KEY1: 'secret-value1',
           SECRET_KEY2: 'secret-value2'
         }
       } satisfies DeployAppOptions);
+    });
+
+    it('should deploy apps to preview and attach to postgres when preview cluster is set', async () => {
+      setContext('pr-opened');
+      setupMocks();
+      const config = setupTest();
+      await flyDeployment(config, true);
+
+      // app-one has postgres setup, app-two does not.
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-pr-1',
+        config: '/apps/app-one/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        postgres: 'pg-preview'
+      });
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-pr-1',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        postgres: undefined
+      });
+    });
+
+    it('should deploy apps to preview and not attach to postgres when only production cluster is set', async () => {
+      setContext('pr-opened');
+      setupMocks({ envFlyPostgres: { TEST_FLY_POSTGRES_PREVIEW: undefined } });
+      const config = setupTest();
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-pr-1',
+        config: '/apps/app-one/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        postgres: undefined
+      });
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-pr-1',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        postgres: undefined
+      });
     });
   });
 
@@ -629,13 +762,23 @@ describe('flyDeployment', () => {
       expect(getMockFly().deploy).toHaveBeenCalledWith({
         app: 'app-one-config',
         config: '/apps/app-one/fly.toml',
-        environment: 'production'
+        env: {
+          APP_NAME: 'app-one-config',
+          PR_NUMBER: ''
+        },
+        environment: 'production',
+        postgres: expect.any(String)
       } satisfies DeployAppOptions);
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
         app: 'app-two-config',
         config: '/apps/app-two/src/fly.toml',
-        environment: 'production'
+        env: {
+          APP_NAME: 'app-two-config',
+          PR_NUMBER: ''
+        },
+        environment: 'production',
+        postgres: undefined
       } satisfies DeployAppOptions);
 
       expect(result).toEqual({
@@ -662,9 +805,11 @@ describe('flyDeployment', () => {
       setupMocks();
       const config = setupTest({
         env: [
+          'APP_NAME=app-one',
           'ENV_KEY1=env"fnutt',
           'ENV_KEY2=env space',
-          'ENV_KEY3=env\\backslash'
+          'ENV_KEY3=env\\backslash',
+          'PR_NUMBER='
         ]
       });
       await flyDeployment(config, true);
@@ -673,10 +818,13 @@ describe('flyDeployment', () => {
         app: 'app-one-config',
         config: '/apps/app-one/fly.toml',
         environment: 'production',
+        postgres: expect.any(String),
         env: {
+          APP_NAME: 'app-one-config',
           ENV_KEY1: 'env"fnutt',
           ENV_KEY2: 'env space',
-          ENV_KEY3: 'env\\backslash'
+          ENV_KEY3: 'env\\backslash',
+          PR_NUMBER: ''
         }
       } satisfies DeployAppOptions);
 
@@ -684,10 +832,13 @@ describe('flyDeployment', () => {
         app: 'app-two-config',
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
+        postgres: undefined,
         env: {
+          APP_NAME: 'app-two-config',
           ENV_KEY1: 'env"fnutt',
           ENV_KEY2: 'env space',
-          ENV_KEY3: 'env\\backslash'
+          ENV_KEY3: 'env\\backslash',
+          PR_NUMBER: ''
         }
       } satisfies DeployAppOptions);
     });
@@ -708,6 +859,8 @@ describe('flyDeployment', () => {
         app: 'app-one-config',
         config: '/apps/app-one/fly.toml',
         environment: 'production',
+        env: expect.any(Object),
+        postgres: expect.any(String),
         secrets: {
           SECRET_KEY1: 'secret"fnutt',
           SECRET_KEY2: 'secret space',
@@ -719,12 +872,64 @@ describe('flyDeployment', () => {
         app: 'app-two-config',
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
+        env: expect.any(Object),
+        postgres: undefined,
         secrets: {
           SECRET_KEY1: 'secret"fnutt',
           SECRET_KEY2: 'secret space',
           SECRET_KEY3: 'secret\\backslash'
         }
       } satisfies DeployAppOptions);
+    });
+
+    it('should deploy apps to production and attach to postgres production when production cluster is set', async () => {
+      setContext('push-main-branch');
+      setupMocks();
+      const config = setupTest();
+      await flyDeployment(config, true);
+
+      // app-one has postgres setup, app-two does not.
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config',
+        config: '/apps/app-one/fly.toml',
+        environment: 'production',
+        env: expect.any(Object),
+        postgres: 'pg-production'
+      });
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'production',
+        env: expect.any(Object),
+        postgres: undefined
+      });
+    });
+
+    it('should deploy apps to production and not attach to postgres production when only preview cluster is set', async () => {
+      setContext('push-main-branch');
+      setupMocks({
+        envFlyPostgres: { TEST_FLY_POSTGRES_PRODUCTION: undefined }
+      });
+      const config = setupTest();
+      await flyDeployment(config, true);
+
+      // app-one has postgres setup, app-two does not.
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config',
+        config: '/apps/app-one/fly.toml',
+        environment: 'production',
+        env: expect.any(Object),
+        postgres: undefined
+      });
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'production',
+        env: expect.any(Object),
+        postgres: undefined
+      });
     });
   });
 

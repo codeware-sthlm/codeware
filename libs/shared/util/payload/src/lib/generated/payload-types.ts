@@ -10,6 +10,7 @@ export interface Config {
   collections: {
     articles: Article;
     pages: Page;
+    tenants: Tenant;
     users: User;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -25,12 +26,23 @@ export interface Article {
   title: string;
   slug: string;
   author: string;
-  content?:
-    | {
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
         [k: string]: unknown;
-      }[]
-    | null;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   publishedAt?: string | null;
+  content_html?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -43,19 +55,53 @@ export interface Page {
   title: string;
   slug: string;
   header: string;
-  intro?:
-    | {
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
         [k: string]: unknown;
-      }[]
-    | null;
-  content?:
-    | {
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
         [k: string]: unknown;
-      }[]
-    | null;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  name: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -67,9 +113,6 @@ export interface User {
   role: 'admin' | 'user';
   updatedAt: string;
   createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -85,10 +128,15 @@ export interface User {
  */
 export interface PayloadPreference {
   id: number;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'tenants';
+        value: number | Tenant;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
   key?: string | null;
   value?:
     | {

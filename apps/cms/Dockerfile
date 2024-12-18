@@ -2,16 +2,6 @@ FROM node:22-alpine AS base
 
 FROM base AS builder
 
-ARG MONGO_URL
-ARG NODE_ENV
-ARG PAYLOAD_PUBLIC_SERVER_URL
-ARG PORT
-
-ENV MONGO_URL=${MONGO_URL}
-ENV NODE_ENV=${NODE_ENV}
-ENV PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL}
-ENV PORT=${PORT}
-
 WORKDIR /app
 
 # Copy package.json first to leverage Docker cache for dependencies
@@ -26,9 +16,10 @@ RUN sed -i '/package-lock.json/d' .gitignore
 
 RUN npx nx build cms
 
-FROM base AS runtime
+FROM base
 
 ENV NODE_ENV=production
+ENV PAYLOAD_CONFIG_PATH="dist/payload.config.js"
 
 WORKDIR /app
 
@@ -38,7 +29,7 @@ RUN npm install --omit=dev
 
 COPY --from=builder /app/dist/apps/cms/src   ./dist
 COPY --from=builder /app/dist/apps/cms/build ./dist/apps/cms/build
+COPY --from=builder /app/.infisical.json     ./
 
 EXPOSE 3000
-
 CMD ["node", "dist/main.js"]

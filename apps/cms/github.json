@@ -1,0 +1,6 @@
+{
+  "$schema": "../../packages/nx-fly-deployment-action/src/lib/utils/github-config.schema.json",
+  "deploy": true,
+  "flyConfig": "fly.toml",
+  "flyPostgresPreview": "${POSTGRES_PREVIEW}"
+}

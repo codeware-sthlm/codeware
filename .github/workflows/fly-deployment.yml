@@ -1,5 +1,9 @@
 name: Fly Deployment
 
+# This workflow is triggered by a pull request or push to the main branch.
+# Renovate and Nx migrations are ignored.
+# It will deploy affected applications to Fly.io.
+
 on:
   pull_request:
     types:
@@ -7,6 +11,9 @@ on:
       - closed
       - reopened
       - synchronize
+    branches-ignore:
+      - renovate/**
+      - update-nx-workspace-*
   push:
     branches:
       - main
@@ -14,6 +21,7 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_NO_CLOUD: ${{ vars.NX_NO_CLOUD }}
 
 permissions:
   contents: write
@@ -104,3 +112,6 @@ jobs:
           secrets: |
             INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_READ_CLIENT_ID }}
             INFISICAL_CLIENT_SECRET=${{ secrets.INFISICAL_READ_CLIENT_SECRET }}
+        env:
+          # Postgres preview cluster defined in `github.json`
+          POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}

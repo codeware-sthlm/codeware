@@ -169,7 +169,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb';
 
 export default buildConfig({
   db: mongooseAdapter({
-    url: process.env.MONGO_URL
+    url: process.env.DATABASE_URL
   })
 });
 ```
@@ -182,7 +182,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres';
 export default buildConfig({
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.POSTGRES_URL
+      connectionString: process.env.DATABASE_URL
     }
   })
 });
@@ -266,7 +266,7 @@ npx supabase init
 npx supabase start
 ```
 
-Edit `POSTGRES_URL` in `.env.local`.
+Edit `DATABASE_URL` in `.env.local` when needed.
 
 ### Serve Payload application in development mode
 
@@ -295,7 +295,7 @@ It's also an alternative to the docker compose commands `dx:start` and `dx:stop`
 nx dx:docker-build [app-name]
 ```
 
-Edit application `.env.local` file to match the database setup and start the application
+Edit `.env.local` to match the database setup and start the application
 
 ```sh
 nx dx:docker-run [app-name]
@@ -404,7 +404,7 @@ Generate a Payload application served by Express.
 
 ### `build` <!-- omit in toc -->
 
-Build the application.
+Build the application with `tsc`.
 
 | Option           | Type                      | Required | Inferred                        | Description                                                                                                                    |
 | ---------------- | ------------------------- | :------: | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |

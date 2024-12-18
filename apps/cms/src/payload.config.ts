@@ -7,20 +7,21 @@ import { buildConfig } from 'payload/config';
 
 import Articles from './collections/Articles';
 import Pages from './collections/Pages';
+import Tenants from './collections/Tenants';
 import Users from './collections/Users';
-import env from './env';
+import env from './env-resolver/client.resolve';
 
 export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: Users.slug,
-    buildPath: resolve(__dirname, '../../..', 'dist/apps/cms/build'),
+    buildPath: resolve(env.CWD, 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
-  collections: [Articles, Pages, Users],
-  cors: ['http://localhost:4200'],
+  collections: [Articles, Pages, Tenants, Users],
+  cors: [env.ALLOWED_URLS],
   db: postgresAdapter({
-    pool: { connectionString: env.POSTGRES_URL },
+    pool: { connectionString: env.DATABASE_URL },
     migrationDir: resolve(__dirname, 'migrations')
   }),
   editor: lexicalEditor({}),

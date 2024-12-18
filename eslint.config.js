@@ -23,8 +23,90 @@ module.exports = [
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?js$'],
           depConstraints: [
             {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*']
+              sourceTag: 'scope:cms',
+              onlyDependOnLibsWithTags: ['scope:cms']
+            },
+            {
+              sourceTag: 'scope:web',
+              onlyDependOnLibsWithTags: [
+                'scope:web',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:core',
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared']
+            },
+            {
+              sourceTag: 'scope:create-nx-payload',
+              onlyDependOnLibsWithTags: [
+                'scope:create-nx-payload',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:deploy-env-action',
+              onlyDependOnLibsWithTags: [
+                'scope:deploy-env-action',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:e2e-utils',
+              onlyDependOnLibsWithTags: [
+                'scope:e2e-utils',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:fly-node',
+              onlyDependOnLibsWithTags: [
+                'scope:fly-node',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:nx-fly-deployment-action',
+              onlyDependOnLibsWithTags: [
+                'scope:nx-fly-deployment-action',
+                'scope:core',
+                'scope:fly-node',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:nx-migrate-action',
+              onlyDependOnLibsWithTags: [
+                'scope:nx-migrate-action',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:nx-payload',
+              onlyDependOnLibsWithTags: [
+                'scope:nx-payload',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:nx-payload-e2e',
+              onlyDependOnLibsWithTags: [
+                'scope:nx-payload-e2e',
+                'scope:core',
+                'scope:e2e-utils',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:shared']
             }
           ]
         }

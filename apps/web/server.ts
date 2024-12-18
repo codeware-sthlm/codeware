@@ -8,7 +8,9 @@ import type { ServerBuild } from '@remix-run/node';
 import { Hono } from 'hono';
 import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 
-import env from './env';
+// TODO: Zod types does not get inferred correctly since the schema depends on `@codeware/core/zod`
+// Something is different here since it works in the cms project
+import env from './env-resolver/env';
 
 // Load the Remix server build
 const build = (await import(
@@ -30,7 +32,7 @@ const app = new Hono()
 serve(
   {
     fetch: app.fetch,
-    port: env.PORT
+    port: env.PORT as number
   },
   (info) => {
     console.log('🚀 Server ready');

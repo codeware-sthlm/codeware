@@ -3,6 +3,6 @@ build
 public/build
 
 !.env.example
-.env*
+.env
 
 server.js

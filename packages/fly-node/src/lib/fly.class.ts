@@ -12,6 +12,8 @@ import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema'
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
 import { DeployResponseSchema } from './schemas/deploy.schema';
 import { NameSchema } from './schemas/helper-schemas';
+import { PostgresListTransformedResponseSchema } from './schemas/postgres-list';
+import { PostgresUsersListTransformedResponseSchema } from './schemas/postgres-users-list';
 import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-list-with-app.schema';
 import { SecretsListTransformedResponseSchema } from './schemas/secrets-list.schema';
 import { StatusExtendedTransformedResponseSchema } from './schemas/status-extended.schema';
@@ -23,9 +25,12 @@ import type {
   CreateAppResponse,
   DeployAppOptions,
   DeployResponse,
+  DestroyAppOptions,
   ListAppResponse,
   ListCertForAllResponse,
   ListCertForAppResponse,
+  ListPostgresResponse,
+  ListPostgresUsersResponse,
   ListSecretForAllResponse,
   ListSecretForAppResponse,
   Logger,
@@ -148,16 +153,28 @@ export class Fly {
       }
     },
     /**
-     * Destroy an application completely
+     * Destroy an application and make sure it gets detached from any Postgres clusters
      *
      * @param app - The name of the app to destroy
-     * @param force - Whether to force the destruction
+     * @param options - Options for destroying an application
      * @throws An error if the app cannot be destroyed
      */
-    destroy: async (app: string, force = false): Promise<void> => {
+    destroy: async (
+      app: string,
+      options?: DestroyAppOptions
+    ): Promise<void> => {
       try {
         await this.ensureInitialized();
-        await this.destroyApp(app, force);
+        // First any Postgres clusters must be detached
+        const attachedClusters = await this.getAttachedPostgresClusters(app);
+        for (const cluster of attachedClusters) {
+          this.logger.info(
+            `Detaching Postgres cluster '${cluster}' from application '${app}'`
+          );
+          await this.detachPostgres(cluster, app);
+        }
+        // Now it's safe to destroy the app
+        await this.destroyApp(app, options?.force);
         this.logger.info(`Application '${app}' was destroyed`);
       } catch (error) {
         throw new Error(
@@ -173,7 +190,7 @@ export class Fly {
      */
     list: async (): Promise<Array<ListAppResponse>> => {
       try {
-        return await this.getAllApps('throwOnError');
+        return await this.fetchAllApps('throwOnError');
       } catch (error) {
         throw new Error(`[list] something broke\n${error}`);
       }
@@ -225,8 +242,8 @@ export class Fly {
         // but which also prevents us from using functions overload.
         const result =
           options === 'all'
-            ? await this.getAllCerts('throwOnError')
-            : await this.getAppCerts('throwOnError', options);
+            ? await this.fetchAllCerts('throwOnError')
+            : await this.fetchAppCerts('throwOnError', options);
 
         return result as T extends 'all'
           ? Array<ListCertForAllResponse>
@@ -299,7 +316,7 @@ export class Fly {
 
       this.logger.info(`Application '${appName}' was deployed`);
 
-      const status = await this.getAppStatus('throwOnError', {
+      const status = await this.fetchAppStatus('throwOnError', {
         app: appName
       });
 
@@ -361,8 +378,8 @@ export class Fly {
 
         const result =
           options === 'all'
-            ? await this.getAllSecrets('throwOnError')
-            : await this.getAppSecrets('throwOnError', options);
+            ? await this.fetchAllSecrets('throwOnError')
+            : await this.fetchAppSecrets('throwOnError', options);
 
         return result as T extends 'all'
           ? Array<ListSecretForAllResponse>
@@ -408,7 +425,7 @@ export class Fly {
     try {
       await this.ensureInitialized();
 
-      const status = await this.getAppStatus('nullOnError', options);
+      const status = await this.fetchAppStatus('nullOnError', options);
       if (status === null) {
         return null;
       }
@@ -429,12 +446,13 @@ export class Fly {
   ): Promise<StatusExtendedResponse | null> => {
     try {
       await this.ensureInitialized();
-      const status = await this.getAppStatus('nullOnError', options);
+      const status = await this.fetchAppStatus('nullOnError', options);
       if (status === null) {
         return null;
       }
-      const certs = (await this.getAppCerts('nullOnError', options)) || [];
-      const secrets = (await this.getAppSecrets('nullOnError', options)) || [];
+      const certs = (await this.fetchAppCerts('nullOnError', options)) || [];
+      const secrets =
+        (await this.fetchAppSecrets('nullOnError', options)) || [];
 
       return StatusExtendedTransformedResponseSchema.parse({
         ...status,
@@ -512,7 +530,7 @@ export class Fly {
 
     // Lookup an existing app by name
     if (lookupApp) {
-      const status = await this.getAppStatus('nullOnError', {
+      const status = await this.fetchAppStatus('nullOnError', {
         app: lookupApp
       });
       if (status) {
@@ -539,9 +557,11 @@ export class Fly {
       this.logger.info(`Application '${appName}' was created`);
     } else {
       // Not expected to throw since the app exists
-      appSecrets = await this.getAppSecrets('throwOnError', { app: appName });
+      appSecrets = await this.fetchAppSecrets('throwOnError', { app: appName });
       this.logger.info(`Updating existing application '${appName}'`);
     }
+    // Validate app name before proceeding
+    NameSchema.parse(appName);
 
     // Apply secrets to app before deployment. Only set new secrets that don't exist.
     if (options?.secrets) {
@@ -576,6 +596,32 @@ export class Fly {
       appName = options.app;
     }
 
+    // Attach to Postgres cluster if provided and not already attached
+    if (options?.postgres) {
+      // Get connected apps
+      const users = await this.fetchPostgresUsers(
+        options.postgres,
+        'nullOnError'
+      );
+
+      if (!users) {
+        this.logger.error(
+          `Failed to fetch users for Postgres cluster '${options.postgres}', unable to attach '${appName}'`
+        );
+      } else if (
+        users.find((user) => user.username === appName.replace(/-/g, '_'))
+      ) {
+        this.logger.info(
+          `Postgres cluster '${options.postgres}' already attached to '${appName}', skipping`
+        );
+      } else {
+        this.logger.info(
+          `Attach Postgres cluster '${options.postgres}' to '${appName}'`
+        );
+        await this.attachPostgres(options.postgres, appName);
+      }
+    }
+
     // Deploy command
     const args = ['deploy', '--app', appName, '--config', lookupConfig];
 
@@ -594,17 +640,37 @@ export class Fly {
 
     await this.execFly(args);
 
-    return NameSchema.parse(appName);
+    return appName;
+  }
+
+  /**
+   * @private
+   * @throws An error if the Postgres database cannot be attached
+   */
+  private async attachPostgres(postgres: string, app: string): Promise<void> {
+    const args = ['postgres', 'attach', postgres, '--app', app, '--yes'];
+
+    await this.execFly(args);
   }
 
   /**
    * @private
    * @throws An error if the app cannot be destroyed
    */
-  private async destroyApp(app: string, force = false): Promise<void> {
+  private async destroyApp(app: string, force?: boolean): Promise<void> {
     const args = ['apps', 'destroy', app, '--yes'];
 
     if (force) args.push('--force');
+
+    await this.execFly(args);
+  }
+
+  /**
+   * @private
+   * @throws An error if the Postgres database cannot be detached from an app
+   */
+  private async detachPostgres(postgres: string, app: string): Promise<void> {
+    const args = ['postgres', 'detach', postgres, '--app', app, '--yes'];
 
     await this.execFly(args);
   }
@@ -618,7 +684,7 @@ export class Fly {
     secrets: Record<string, string>,
     options?: SetAppSecretsOptions
   ): Promise<string> {
-    const status = await this.getAppStatus('throwOnError', options);
+    const status = await this.fetchAppStatus('throwOnError', options);
 
     const args = ['secrets', 'set'];
 
@@ -644,7 +710,7 @@ export class Fly {
     keys: Array<string>,
     options?: UnsetAppSecretsOptions
   ): Promise<string> {
-    const status = await this.getAppStatus('throwOnError', options);
+    const status = await this.fetchAppStatus('throwOnError', options);
 
     const args = ['secrets', 'unset'];
 
@@ -668,7 +734,7 @@ export class Fly {
     hostname: string,
     options?: AppOrConfig
   ): Promise<string> {
-    const status = await this.getAppStatus('throwOnError', options);
+    const status = await this.fetchAppStatus('throwOnError', options);
 
     const args = ['certs', 'add', hostname];
 
@@ -690,7 +756,7 @@ export class Fly {
     hostname: string,
     options?: AppOrConfig
   ): Promise<string> {
-    const status = await this.getAppStatus('throwOnError', options);
+    const status = await this.fetchAppStatus('throwOnError', options);
 
     const args = ['certs', 'remove', hostname];
 
@@ -707,13 +773,13 @@ export class Fly {
    * @returns A list of all applications or `null` if listing applications fails and `nullOnError` is used
    * @throws An error if listing applications fails and `throwOnError` is used
    */
-  private async getAllApps(
+  private async fetchAllApps(
     onError: 'throwOnError'
   ): Promise<Array<ListAppResponse>>;
-  private async getAllApps(
+  private async fetchAllApps(
     onError: 'nullOnError'
   ): Promise<Array<ListAppResponse> | null>;
-  private async getAllApps(
+  private async fetchAllApps(
     onError: 'throwOnError' | 'nullOnError'
   ): Promise<Array<ListAppResponse> | null> {
     const args = ['apps', 'list', '--json'];
@@ -735,23 +801,23 @@ export class Fly {
    * @returns All certificates for all apps or `null` if the certificates cannot be retrieved and `nullOnError` is used
    * @throws An error if the certificates cannot be retrieved
    */
-  private async getAllCerts(
+  private async fetchAllCerts(
     onError: 'throwOnError'
   ): Promise<Array<ListCertForAllResponse>>;
-  private async getAllCerts(
+  private async fetchAllCerts(
     onError: 'nullOnError'
   ): Promise<Array<ListCertForAllResponse> | null>;
-  private async getAllCerts(
+  private async fetchAllCerts(
     onError: 'throwOnError' | 'nullOnError'
   ): Promise<Array<ListCertForAllResponse> | null> {
     try {
       const certs: Array<ListCertForAllResponse> = [];
 
       // Merge the certs for all apps
-      const apps = await this.getAllApps('throwOnError');
+      const apps = await this.fetchAllApps('throwOnError');
 
       for (const app of apps) {
-        const appCerts = await this.getAppCerts('throwOnError', {
+        const appCerts = await this.fetchAppCerts('throwOnError', {
           app: app.name
         });
         certs.push(...appCerts.map((cert) => ({ ...cert, app: app.name })));
@@ -768,26 +834,53 @@ export class Fly {
 
   /**
    * @private
+   * @returns All postgres clusters or `null` if the clusters cannot be retrieved and `nullOnError` is used
+   * @throws An error if the clusters cannot be retrieved
+   */
+  private async fetchAllPostgres(
+    onError: 'throwOnError'
+  ): Promise<Array<ListPostgresResponse>>;
+  private async fetchAllPostgres(
+    onError: 'nullOnError'
+  ): Promise<Array<ListPostgresResponse> | null>;
+  private async fetchAllPostgres(
+    onError: 'throwOnError' | 'nullOnError'
+  ): Promise<Array<ListPostgresResponse> | null> {
+    const args = ['postgres', 'list', '--json'];
+
+    try {
+      const response = await this.execFly(args);
+      return PostgresListTransformedResponseSchema.parse(response);
+    } catch (error) {
+      if (onError === 'throwOnError') {
+        throw error;
+      }
+      return null;
+    }
+  }
+
+  /**
+   * @private
    * @returns All secrets for all apps or `null` if the secrets cannot be retrieved and `nullOnError` is used
    * @throws An error if the secrets cannot be retrieved
    */
-  private async getAllSecrets(
+  private async fetchAllSecrets(
     onError: 'throwOnError'
   ): Promise<Array<ListSecretForAllResponse>>;
-  private async getAllSecrets(
+  private async fetchAllSecrets(
     onError: 'nullOnError'
   ): Promise<Array<ListSecretForAllResponse> | null>;
-  private async getAllSecrets(
+  private async fetchAllSecrets(
     onError: 'throwOnError' | 'nullOnError'
   ): Promise<Array<ListSecretForAllResponse> | null> {
     try {
       const secrets: Array<ListSecretForAllResponse> = [];
 
       // Merge the secrets for all apps
-      const apps = await this.getAllApps('throwOnError');
+      const apps = await this.fetchAllApps('throwOnError');
 
       for (const app of apps) {
-        const appSecrets = await this.getAppSecrets('throwOnError', {
+        const appSecrets = await this.fetchAppSecrets('throwOnError', {
           app: app.name
         });
         secrets.push(
@@ -809,15 +902,15 @@ export class Fly {
    * @returns The app status or `null` if the app cannot be found and `nullOnError` is used
    * @throws An error if the app cannot be found and `throwOnError` is used
    */
-  private async getAppStatus(
+  private async fetchAppStatus(
     onError: 'throwOnError',
     options?: AppOrConfig
   ): Promise<StatusResponse>;
-  private async getAppStatus(
+  private async fetchAppStatus(
     onError: 'nullOnError',
     options?: AppOrConfig
   ): Promise<StatusResponse | null>;
-  private async getAppStatus(
+  private async fetchAppStatus(
     onError: 'throwOnError' | 'nullOnError',
     options?: AppOrConfig
   ): Promise<StatusResponse | null> {
@@ -849,15 +942,15 @@ ${JSON.stringify(response, null, 2)}`);
    * @returns The certificates for an app or `null` if the certificates cannot be retrieved and `nullOnError` is used
    * @throws An error if the certificates cannot be retrieved and `throwOnError` is used
    */
-  private async getAppCerts(
+  private async fetchAppCerts(
     onError: 'throwOnError',
     options?: AppOrConfig
   ): Promise<Array<ListCertForAppResponse>>;
-  private async getAppCerts(
+  private async fetchAppCerts(
     onError: 'nullOnError',
     options?: AppOrConfig
   ): Promise<Array<ListCertForAppResponse> | null>;
-  private async getAppCerts(
+  private async fetchAppCerts(
     onError: 'throwOnError' | 'nullOnError',
     options?: AppOrConfig
   ): Promise<Array<ListCertForAppResponse> | null> {
@@ -883,15 +976,15 @@ ${JSON.stringify(response, null, 2)}`);
    * @returns The secrets for an app or `null` if the secrets cannot be retrieved and `nullOnError` is used
    * @throws An error if the secrets cannot be retrieved and `throwOnError` is used
    */
-  private async getAppSecrets(
+  private async fetchAppSecrets(
     onError: 'throwOnError',
     options?: AppOrConfig
   ): Promise<Array<ListSecretForAppResponse>>;
-  private async getAppSecrets(
+  private async fetchAppSecrets(
     onError: 'nullOnError',
     options?: AppOrConfig
   ): Promise<Array<ListSecretForAppResponse> | null>;
-  private async getAppSecrets(
+  private async fetchAppSecrets(
     onError: 'throwOnError' | 'nullOnError',
     options?: AppOrConfig
   ): Promise<Array<ListSecretForAppResponse> | null> {
@@ -904,6 +997,38 @@ ${JSON.stringify(response, null, 2)}`);
       return SecretsListTransformedResponseSchema.parseAsync(
         await this.execFly(args)
       );
+    } catch (error) {
+      if (onError === 'throwOnError') {
+        throw error;
+      }
+      return null;
+    }
+  }
+
+  /**
+   * **Important!** User/app names containing dashes are returned as underscores.
+   *
+   * @private
+   * @returns The users for a postgres database app or `null` if the users cannot be retrieved and `nullOnError` is used
+   * @throws An error if the users cannot be retrieved and `throwOnError` is used
+   */
+  private async fetchPostgresUsers(
+    postgresApp: string,
+    onError: 'throwOnError'
+  ): Promise<Array<ListPostgresUsersResponse>>;
+  private async fetchPostgresUsers(
+    postgresApp: string,
+    onError: 'nullOnError'
+  ): Promise<Array<ListPostgresUsersResponse> | null>;
+  private async fetchPostgresUsers(
+    postgresApp: string,
+    onError: 'throwOnError' | 'nullOnError'
+  ): Promise<Array<ListPostgresUsersResponse> | null> {
+    const args = ['postgres', 'users', 'list', '--app', postgresApp, '--json'];
+
+    try {
+      const users = await this.execFly(args);
+      return PostgresUsersListTransformedResponseSchema.parse(users);
     } catch (error) {
       if (onError === 'throwOnError') {
         throw error;
@@ -1103,6 +1228,35 @@ ${error}`);
     }
 
     return args;
+  }
+
+  /**
+   * @private
+   * Get the Postgres clusters attached to an app
+   *
+   * @param app - The app to get the attached Postgres clusters for
+   * @returns The attached Postgres clusters
+   * @throws An error if the Postgres clusters cannot be retrieved
+   */
+  private async getAttachedPostgresClusters(
+    app: string
+  ): Promise<Array<string>> {
+    const attached = new Set<string>();
+    const postgres = await this.fetchAllPostgres('throwOnError');
+    for (const { name } of postgres) {
+      const users = await this.fetchPostgresUsers(name, 'nullOnError');
+      if (!users) {
+        this.logger.info(
+          `Failed to fetch users for Postgres cluster '${name}', ignoring`
+        );
+        continue;
+      }
+      // Postgres users are always returned as underscores, but app names are usually dashes
+      if (users.some((user) => user.username === app.replace(/-/g, '_'))) {
+        attached.add(name);
+      }
+    }
+    return Array.from(attached);
   }
 
   /**

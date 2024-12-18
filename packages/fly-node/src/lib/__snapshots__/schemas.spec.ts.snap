@@ -175,6 +175,53 @@ exports[`fly-node schema validation > validates all schemas against fixtures > D
 }
 `;
 
+exports[`fly-node schema validation > validates all schemas against fixtures > PostgresListTransformedResponseSchema transformed shape 1`] = `
+[
+  {
+    "deployed": true,
+    "hostname": "postgres-test-app.fly.dev",
+    "id": "postgres-test-app",
+    "name": "postgres-test-app",
+    "organization": {
+      "id": "",
+      "slug": "test-org",
+    },
+    "status": "deployed",
+    "version": 0,
+  },
+]
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > PostgresUsersListTransformedResponseSchema transformed shape 1`] = `
+[
+  {
+    "databases": [
+      "app_with_dashes_becomes_underscores",
+      "postgres",
+      "repmgr",
+    ],
+    "superuser": true,
+    "username": "app_with_dashes_becomes_underscores",
+  },
+  {
+    "databases": [
+      "postgres",
+      "repmgr",
+    ],
+    "superuser": true,
+    "username": "postgres",
+  },
+  {
+    "databases": [
+      "postgres",
+      "repmgr",
+    ],
+    "superuser": true,
+    "username": "repmgr",
+  },
+]
+`;
+
 exports[`fly-node schema validation > validates all schemas against fixtures > SecretsListTransformedResponseSchema transformed shape 1`] = `
 [
   {

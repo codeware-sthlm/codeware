@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { withCamelCase } from './with-camel-case.transformer';
+import { withCamelCase } from './with-camel-case.preprocess';
 
 describe('withCamelCase', () => {
   it('should handle empty objects', () => {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-type TransformOptions = {
+type Options = {
   /**
    * Dot notation paths that should preserve their values
    * without being transformed.
@@ -115,7 +115,7 @@ const transformKeys = (options: {
 };
 
 /**
- * A Zod transformer which will deeply transform the keys of an object to camelCase.
+ * A Zod preprocessor which will deeply transform the keys of an object to camelCase.
  *
  * Handles nested objects and arrays.
  *
@@ -153,9 +153,9 @@ const transformKeys = (options: {
  * });
  * ```
  */
-export const withCamelCase = <T extends z.ZodTypeAny>(
+export const withCamelCase = <T extends z.ZodType>(
   schema: T,
-  options: TransformOptions = {}
+  options: Options = {}
 ) => {
   const { preserve = [], specialCases = {} } = options;
 

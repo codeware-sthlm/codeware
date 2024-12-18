@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 
-import { findUpFs } from './find-up-fs';
+import { findUpFs } from '@codeware/shared/util/node';
+
 import { ConfigSchema } from './infisical.schemas';
 
 /**

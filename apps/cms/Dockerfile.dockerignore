@@ -28,3 +28,6 @@ yarn.lock
 # Apps
 /apps/*
 !/apps/cms
+
+# Prevent overriding Infisical environment variables
+.env.*

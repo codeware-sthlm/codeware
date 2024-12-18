@@ -1,40 +1,68 @@
 import express from 'express';
 import payload from 'payload';
 
-import env from './env';
+import { getEnv } from './env-resolver/server.resolve';
+import { setupTenants } from './seed/setup-tenants';
 
-// Create an Express server
-const app = express();
+const startServer = async () => {
+  try {
+    console.log('Starting server');
 
-// Let Express serve assets when needed but it's not required by Payload.
-// app.use('/assets', express.static(path.join(__dirname, 'assets')));
+    // Resolve environment variables
+    const env = await getEnv();
 
-// Could be useful if we need a separate API parallel to Payload.
-// GraphQL use /api so try to avoid conflicts by using another endoint.
-// app.get('/_api', (req, res) => {
-//   res.send({ message: 'Welcome to our custom api!' });
-// });
+    // Create an Express server
+    const app = express();
+    const port = env.PORT;
 
-// Redirect root to Admin panel
-app.get('/', (_, res) => {
-  res.redirect('/admin');
-});
+    // Redirect root to Admin panel
+    app.get('/', (_, res) => res.redirect('/admin'));
 
-// Initialize Payload
-payload.init({
-  secret: env.PAYLOAD_SECRET_KEY,
-  express: app,
-  loggerOptions: {
-    level: env.LOG_LEVEL
-  },
-  onInit: () => {
-    payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`);
-    payload.logger.info(`Using DB adapter: ${payload.db.name}`);
+    // Initialize Payload
+    await payload.init({
+      secret: env.PAYLOAD_SECRET_KEY,
+      express: app,
+      loggerOptions: {
+        level: env.LOG_LEVEL
+      },
+      onInit: async () => {
+        payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`);
+        payload.logger.info(`Using DB adapter: ${payload.db.name}`);
+      }
+    });
+
+    // Run migrations in production when needed or on-demand
+    switch (env.MIGRATE_FORCE_ACTION) {
+      case 'migrate':
+        payload.logger.info('Running migrations on-demand');
+        await payload.db.migrate();
+        break;
+      case 'recreate':
+        payload.logger.info('Recreating database on-demand');
+        await payload.db.migrateFresh({ forceAcceptWarning: true });
+        break;
+      case 'default':
+      default:
+        if (env.NODE_ENV === 'production') {
+          payload.logger.info('Running migrations in production');
+          await payload.db.migrate();
+        }
+    }
+
+    // Setup tenants and API keys
+    await setupTenants(payload, env);
+
+    // Start listening for requests
+    app
+      .listen(port, () =>
+        console.log(`[ started ] on port ${port} (${env.NODE_ENV})`)
+      )
+      .on('error', (error) => console.error(`[ error ] ${error.message}`))
+      .on('close', () => console.log('[ closed ]'));
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-});
+};
 
-const port = env.PORT;
-const server = app.listen(port, () => {
-  console.log(`[ started ] on port ${port} (${env.NODE_ENV})`);
-});
-server.on('error', console.error);
+startServer();

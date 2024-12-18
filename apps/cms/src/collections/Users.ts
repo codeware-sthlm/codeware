@@ -2,9 +2,7 @@ import { CollectionConfig } from 'payload/types';
 
 const Users: CollectionConfig = {
   slug: 'users',
-  auth: {
-    useAPIKey: true
-  },
+  auth: true,
   admin: { useAsTitle: 'name' },
   labels: {
     singular: { en: 'User', sv: 'Användare' },

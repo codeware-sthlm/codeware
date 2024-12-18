@@ -1,13 +1,19 @@
 # Only for Development.
 # Should be started from workspace root.
 
+# Hard coded environment variables is a valid workaround for using Postgres image locally.
+# Should match what we get from `process.env.DATABASE_URL`.
+
 services:
   postgres:
     container_name: postgres
     image: postgres
     ports:
       - 5432:5432
-    env_file: .env.local
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=cms
     networks:
       - local
     volumes:
@@ -24,10 +30,7 @@ services:
     ports:
       - 3000:3000
     env_file:
-      - .env.local
-    environment:
-      # Override the values different from .env
-      - POSTGRES_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB
+      - .env.docker
     networks:
       - local
     depends_on:

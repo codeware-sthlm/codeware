@@ -22,6 +22,22 @@
 
 This action will manage deployments to [Fly.io](https://fly.io) of your [Nx](https://nx.dev) workspace applications.
 
+## Required Application Setup
+
+To have the choice of deciding which apps to deploy, you need to setup those apps with two opnionated files.
+
+1. The obvious file for Fly deployments is `fly.toml`, which is the blueprint for the deployment.  
+   This file location is defined in the `github.json` file.
+
+2. The other file is `github.json`, where the deployment can be customized for the application.
+   This file can be saved anywhere in the application, but it's recommended to be in the root path.  
+   The JSON schema file can be found [here](https://github.com/codeware-sthlm/codeware/tree/master/packages/nx-fly-deployment-action/src/lib/utils/github-config.schema.json).
+
+When any of these files are missing, or misplaced, the application will be skipped from deployment.
+
+> [!TIP]
+> The `github.json` allows for disabling the deployment for the application. This is useful for skipping deployments for applications that are not ready for deployment for any reason.
+
 ## Usage
 
 > [!IMPORTANT]
@@ -65,13 +81,26 @@ The environment to deploy to is determined by the event type and branch name.
 **Push events** on the `main` branch are deployed to the **production** environment.
 
 > [!TIP]
-> The environment is also set in the `DEPLOY_ENV` environment variable for the deployed applications
+> The environment is provided in environment variable `DEPLOY_ENV` for the deployed applications, together with some opinionated values:
+>
+> - `APP_NAME` - The name of the app
+> - `PR_NUMBER` - The pull request number (otherwise empty)
 
 ## Inputs
 
 See [action.yaml](action.yml) for descriptions of the inputs.
 
 ### Additional input details
+
+`postgres-preview`
+
+When a Fly Postgres cluser has been created, you can attach the application to a postgres database automatically on deployment to the `preview` environment.
+
+Provide the name of the postgres application. Fly will provide `DATABASE_URL` as a secret to the application to be able to connect to the database.
+
+Before the application gets destroyed, the Postgres cluster will detach the application from the database.
+
+Read more about [attach or detach a Fly app](https://fly.io/docs/postgres/managing/attach-detach/#attach-a-fly-app).
 
 `secrets`
 

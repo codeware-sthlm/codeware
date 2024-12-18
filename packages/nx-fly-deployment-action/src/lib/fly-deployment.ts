@@ -17,6 +17,7 @@ import { type ActionInputs } from './schemas/action-inputs.schema';
 import { ActionOutputsSchema } from './schemas/action-outputs.schema';
 import { type ActionOutputs } from './schemas/action-outputs.schema';
 import { type BuildingContext, ContextSchema } from './schemas/context.schema';
+import { addOpinionatedEnv } from './utils/add-opinionated-env';
 import { getDeployableProjects } from './utils/get-deployable-projects';
 import { getDeploymentConfig } from './utils/get-deployment-config';
 import { getPreviewAppName } from './utils/get-preview-app-name';
@@ -50,8 +51,6 @@ export async function flyDeployment(
 
     core.startGroup('Get deployment configuration');
     const config = await getDeploymentConfig(inputs);
-    // Add environment variables to context
-    context.env = config.env;
     core.endGroup();
 
     core.startGroup('Initialize Fly client');
@@ -132,9 +131,6 @@ export async function flyDeployment(
 
       return ActionOutputsSchema.parse(results);
     }
-
-    // Add secrets to context available for deployment
-    context.secrets = config.secrets;
 
     // Create deployments based on affected projects
     core.startGroup('Analyze affected projects to deploy');
@@ -232,17 +228,31 @@ export async function flyDeployment(
       // Requirements are met, ready to deploy
 
       core.startGroup(`Project '${projectName}' ready to fly`);
+
+      const appName =
+        context.environment === 'preview'
+          ? getPreviewAppName(configAppName, Number(context.pullRequest))
+          : configAppName;
+      const env = addOpinionatedEnv(
+        { appName, prNumber: context.pullRequest },
+        config.env
+      );
+      const postgres =
+        context.environment === 'preview'
+          ? githubConfig.flyPostgresPreview
+          : githubConfig.flyPostgresProduction;
+
       const options: DeployAppOptions = {
-        app:
-          context.environment === 'preview'
-            ? getPreviewAppName(configAppName, Number(context.pullRequest))
-            : configAppName,
+        app: appName,
         config: resolvedFlyConfig,
-        env: context.env,
+        env,
         environment: context.environment,
-        secrets: context.secrets
+        postgres: postgres || undefined, // rather undefined than empty string
+        secrets: config.secrets
       };
+
       core.info(`Deploy '${options.app}' to '${options.environment}'...`);
+
       try {
         const result = await fly.deploy(options);
         core.info(`Deployed to '${result.url}'`);

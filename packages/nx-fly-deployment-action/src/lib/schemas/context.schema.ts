@@ -16,10 +16,9 @@ const BasePreviewSchema = z.object({
   })
 });
 
-// 'production' environment may have secrets
+// 'production' environment have no additional context
 const BaseProductionSchema = z.object({
-  environment: z.literal(EnvironmentSchema.enum.production),
-  secrets: z.record(z.string(), z.string()).optional()
+  environment: z.literal(EnvironmentSchema.enum.production)
 });
 
 // Should be used to validate `BuildingContext` data
@@ -41,7 +40,6 @@ export type Context = z.infer<typeof ContextSchema>;
 
 // Context builder helper types
 type BasePreview = z.infer<typeof BasePreviewSchema>;
-type BaseProduction = z.infer<typeof BaseProductionSchema>;
 
 /**
  * A type that is a subset of `Context` and should be used
@@ -53,7 +51,5 @@ export type BuildingContext = PrettyPartial<
   {
     action: Exclude<Action, 'skip'>;
     environment: Environment;
-    env?: Record<string, string>;
-  } & Pick<BasePreview, 'pullRequest'> &
-    Pick<BaseProduction, 'secrets'>
+  } & Pick<BasePreview, 'pullRequest'>
 >;

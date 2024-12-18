@@ -1,8 +1,8 @@
 {
-  "$id": "https://github.com/codeware-sthlm/codeware/packages/nx-fly-deployment-action/github-config.schema.json",
+  "$id": "https://github.com/codeware-sthlm/codeware/packages/nx-fly-deployment-action/src/lib/utils/github-config.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "GitHub Deployment Configuration.",
-  "description": "Configuration for deploying projects to Fly.",
+  "title": "GitHub Fly Deployment Configuration.",
+  "description": "Configuration for deploying Nx projects to Fly.io.",
   "type": "object",
   "properties": {
     "deploy": {
@@ -14,6 +14,28 @@
       "description": "Relative path to Fly configuration file from project root.",
       "type": "string",
       "default": "fly.toml"
+    },
+    "flyPostgresPreview": {
+      "description": "The name of the Fly Postgres cluster to attach when deploying to preview.",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]*(\\$\\{[A-Z][A-Z0-9_]*\\}[a-zA-Z0-9_-]*)*$",
+      "default": "",
+      "examples": [
+        "${POSTGRES_PREVIEW}",
+        "pg-${CLUSTER_NAME}-preview",
+        "db-${DEPLOY_ENV}"
+      ]
+    },
+    "flyPostgresProduction": {
+      "description": "The name of the Fly Postgres cluster to attach when deploying to production.",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]*(\\$\\{[A-Z][A-Z0-9_]*\\}[a-zA-Z0-9_-]*)*$",
+      "default": "",
+      "examples": [
+        "${POSTGRES_PRODUCTION}",
+        "pg-${CLUSTER_NAME}-production",
+        "db-${DEPLOY_ENV}"
+      ]
     }
   },
   "required": ["deploy", "flyConfig"]

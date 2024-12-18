@@ -3,6 +3,8 @@ import type {
   ListAppResponse,
   ListCertForAllResponse,
   ListCertForAppResponse,
+  ListPostgresResponse,
+  ListPostgresUsersResponse,
   ListSecretForAllResponse,
   ListSecretForAppResponse,
   StatusResponse
@@ -17,7 +19,7 @@ export const mockDefs = {
   /** Test organization used for all apps and configs */
   org: 'test-org',
 
-  /** Test app is deployed */
+  /** Test app is deployed and attached to postgres */
   testApp: 'test-app',
   /** Test config is available and the app is deployed with it */
   testConfig: 'test/fly.toml',
@@ -27,6 +29,10 @@ export const mockDefs = {
   newConfig: 'new/fly.toml',
   /** New app with a generated name */
   generatedAppName: 'generated-name-app',
+  /** Postgres cluster attached to test app */
+  postgresAttached: 'db-app-attached',
+  /** Postgres cluster never attached to any app */
+  postgresNotAttached: 'db-app-prestine',
   /** Unknown app that does not exist and will never be found */
   unknownApp: 'unknown-app',
   /** Unknown config that does not exist */
@@ -109,6 +115,52 @@ export const mockListCertForAllResponse: Array<ListCertForAllResponse> =
       mockListCertForAppResponse.map((c) => ({ ...c, app: app.name }))
     )
     .flat();
+
+/**
+ * Mock `fly postgres list` response for testing.
+ */
+export const mockListPostgresResponse: Array<ListPostgresResponse> = [
+  {
+    id: mockDefs.postgresAttached,
+    name: mockDefs.postgresAttached,
+    status: 'deployed',
+    deployed: true,
+    hostname: `${mockDefs.postgresAttached}.fly.dev`,
+    organization: {
+      id: 'org-id',
+      slug: mockDefs.org
+    },
+    version: 0
+  },
+  {
+    id: mockDefs.postgresNotAttached,
+    name: mockDefs.postgresNotAttached,
+    status: 'deployed',
+    deployed: true,
+    hostname: `${mockDefs.postgresNotAttached}.fly.dev`,
+    organization: {
+      id: 'org-id',
+      slug: mockDefs.org
+    },
+    version: 0
+  }
+];
+
+/**
+ * Mock `fly postgres users list` response for testing.
+ */
+export const mockListPostgresUsersResponse: Array<ListPostgresUsersResponse> = [
+  {
+    username: 'test_app',
+    superuser: true,
+    databases: ['test_app', 'postgres', 'repmgr']
+  },
+  {
+    username: 'flypgadmin',
+    superuser: true,
+    databases: ['postgres', 'repmgr']
+  }
+];
 
 /**
  * Mock `fly secrets list` response for testing.

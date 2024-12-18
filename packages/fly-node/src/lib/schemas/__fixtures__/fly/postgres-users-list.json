@@ -1,0 +1,17 @@
+[
+  {
+    "Username": "app_with_dashes_becomes_underscores",
+    "Superuser": true,
+    "Databases": ["app_with_dashes_becomes_underscores", "postgres", "repmgr"]
+  },
+  {
+    "Username": "postgres",
+    "Superuser": true,
+    "Databases": ["postgres", "repmgr"]
+  },
+  {
+    "Username": "repmgr",
+    "Superuser": true,
+    "Databases": ["postgres", "repmgr"]
+  }
+]

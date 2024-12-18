@@ -6,6 +6,8 @@ import { CertsListWithAppTransformedResponseSchema } from './schemas/certs-list-
 import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema';
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
 import { DeployResponseSchema } from './schemas/deploy.schema';
+import { PostgresListTransformedResponseSchema } from './schemas/postgres-list';
+import { PostgresUsersListTransformedResponseSchema } from './schemas/postgres-users-list';
 import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-list-with-app.schema';
 import { SecretsListTransformedResponseSchema } from './schemas/secrets-list.schema';
 import { StatusTransformedResponseSchema } from './schemas/status.schema';
@@ -41,6 +43,16 @@ export type ListSecretForAppResponse = z.infer<
 /** List secrets for all applications */
 export type ListSecretForAllResponse = z.infer<
   typeof SecretsListWithAppTransformedResponseSchema.element
+>;
+
+/** List postgres databases */
+export type ListPostgresResponse = z.infer<
+  typeof PostgresListTransformedResponseSchema.element
+>;
+
+/** List users for a postgres database application */
+export type ListPostgresUsersResponse = z.infer<
+  typeof PostgresUsersListTransformedResponseSchema.element
 >;
 
 /** Show application configuration */
@@ -190,6 +202,13 @@ export type DeployAppOptions = {
   org?: string;
 
   /**
+   * Attach to a Postgres database application.
+   *
+   * Connection details will be provided via environment variable `DATABASE_URL`.
+   */
+  postgres?: string;
+
+  /**
    * Target region for the application.
    *
    * Defaults to the region in the class configuration.
@@ -202,6 +221,18 @@ export type DeployAppOptions = {
    * Spaces are supported in values.
    */
   secrets?: Record<string, string>;
+};
+
+/**
+ * Options for destroying an application
+ */
+export type DestroyAppOptions = {
+  /**
+   * Whether to force the destruction of the application.
+   *
+   * Defaults to `false`.
+   */
+  force?: boolean;
 };
 
 /**

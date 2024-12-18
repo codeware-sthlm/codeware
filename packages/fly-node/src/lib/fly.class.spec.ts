@@ -11,6 +11,8 @@ import {
   mockDefs,
   mockListCertForAllResponse,
   mockListCertForAppResponse,
+  mockListPostgresResponse,
+  mockListPostgresUsersResponse,
   mockListSecretForAllResponse,
   mockListSecretForAppResponse,
   mockShowConfigResponse,
@@ -148,7 +150,26 @@ describe('Fly', () => {
         resolveOrReject: 'reject',
         output: 'Config not found'
       },
-
+      {
+        cmdMatch: /postgres (attach|detach) .* --app .* --yes/,
+        resolveOrReject: 'resolve',
+        output: 'void'
+      },
+      {
+        cmdMatch: /postgres list --json/,
+        resolveOrReject: 'resolve',
+        output: JSON.stringify(mockListPostgresResponse)
+      },
+      {
+        cmdMatch: /postgres users list --app db-app-attached/,
+        resolveOrReject: 'resolve',
+        output: JSON.stringify(mockListPostgresUsersResponse)
+      },
+      {
+        cmdMatch: /postgres users list --app db-app-prestine/,
+        resolveOrReject: 'resolve',
+        output: JSON.stringify([])
+      },
       {
         cmdMatch: /secrets list --app .*/,
         resolveOrReject: 'resolve',
@@ -636,9 +657,29 @@ describe('Fly', () => {
       );
     });
 
+    it('should detach from postgres cluster when app is attached', async () => {
+      const fly = new Fly(defaultFlyConfig);
+      await fly.apps.destroy(mockDefs.testApp);
+
+      expect(mockExec).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `postgres detach ${mockDefs.postgresAttached} --app ${mockDefs.testApp} --yes`
+        )
+      );
+    });
+
+    it('should not detach from postgres cluster when app is not attached', async () => {
+      const fly = new Fly(defaultFlyConfig);
+      await fly.apps.destroy(mockDefs.newApp);
+
+      expect(mockExec).not.toHaveBeenCalledWith(
+        expect.stringContaining(`postgres detach`)
+      );
+    });
+
     it('should force destruction', async () => {
       const fly = new Fly(defaultFlyConfig);
-      await fly.apps.destroy(mockDefs.testApp, true);
+      await fly.apps.destroy(mockDefs.testApp, { force: true });
 
       expect(mockExec).toHaveBeenCalledWith(
         expect.stringMatching(/apps destroy .* --force/)
@@ -858,6 +899,34 @@ describe('Fly', () => {
 
       expect(mockExec).toHaveBeenCalledWith(
         expect.stringContaining(`secrets list --app ${mockDefs.testApp}`)
+      );
+    });
+
+    it('should attach to postgres cluster when not attached to the app', async () => {
+      const fly = new Fly(defaultFlyConfig);
+      await fly.deploy({
+        app: mockDefs.testApp,
+        config: mockDefs.testConfig,
+        postgres: mockDefs.postgresNotAttached
+      });
+
+      expect(mockExec).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `postgres attach ${mockDefs.postgresNotAttached} --app ${mockDefs.testApp} --yes`
+        )
+      );
+    });
+
+    it('should not attach to postgres cluster when already attached', async () => {
+      const fly = new Fly(defaultFlyConfig);
+      await fly.deploy({
+        app: mockDefs.testApp,
+        config: mockDefs.testConfig,
+        postgres: mockDefs.postgresAttached
+      });
+
+      expect(mockExec).not.toHaveBeenCalledWith(
+        expect.stringContaining(`postgres attach`)
       );
     });
 

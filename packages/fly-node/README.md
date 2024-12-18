@@ -169,9 +169,16 @@ const name = await fly.apps.create({ app: 'bar-app', org: 'baz' });
 
 #### Destroy an application
 
+This will destroy the application completely.
+
+> [!NOTE]
+> When the application is attached to one or many Postgres clusters, it will be detached from all before it gets destroyed
+
 ```ts
 await fly.apps.destroy('foo-app');
-await fly.apps.destroy('bar-app', true); // force destroy
+
+// Force destroy 'foo-app'
+await fly.apps.destroy('foo-app', { force: true });
 ```
 
 #### Deploy an application
@@ -194,12 +201,19 @@ const response = await fly.deploy({
   config: 'apps/bar-app/fly.toml'
 });
 
+// deploy 'bar-app' and attach postgres cluster 'db-app'
+const response = await fly.deploy({
+  config: 'apps/bar-app/fly.toml',
+  postgres: 'db-app'
+});
+
 // With all options, could be a pull request preview deployment
 const response = await fly.deploy({
   app: 'pr-19-foo-app',
   config: 'apps/foo-app/fly.toml',
   environment: 'preview',
   org: 'baz',
+  postgres: 'db-preview',
   region: 'arn',
   env: {
     DEPLOY_ID: 'qwerty'
@@ -215,6 +229,11 @@ const response = await fly.deploy({
 //   url: 'https://pr-19-foo-app.fly.dev'
 // }
 ```
+
+> [!TIP]
+> When the application is attached to a Postgres cluster, Fly will provide the secret `DATABASE_URL` to the application.
+>
+> Read more about [attach or detach a Fly app](https://fly.io/docs/postgres/managing/attach-detach/#attach-a-fly-app).
 
 #### Application status
 

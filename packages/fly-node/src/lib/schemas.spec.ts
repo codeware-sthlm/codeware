@@ -8,6 +8,8 @@ import { CertsListWithAppTransformedResponseSchema } from './schemas/certs-list-
 import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema';
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
 import { DeployResponseSchema } from './schemas/deploy.schema';
+import { PostgresListTransformedResponseSchema } from './schemas/postgres-list';
+import { PostgresUsersListTransformedResponseSchema } from './schemas/postgres-users-list';
 import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-list-with-app.schema';
 import { SecretsListTransformedResponseSchema } from './schemas/secrets-list.schema';
 import { StatusExtendedTransformedResponseSchema } from './schemas/status-extended.schema';
@@ -42,6 +44,22 @@ SchemaRegistry.register('fly/config-show', ConfigShowResponseSchema, {
   name: 'ConfigShowResponseSchema',
   tags: ['fly']
 });
+SchemaRegistry.register(
+  'fly/postgres-list',
+  PostgresListTransformedResponseSchema,
+  {
+    name: 'PostgresListTransformedResponseSchema',
+    tags: ['fly']
+  }
+);
+SchemaRegistry.register(
+  'fly/postgres-users-list',
+  PostgresUsersListTransformedResponseSchema,
+  {
+    name: 'PostgresUsersListTransformedResponseSchema',
+    tags: ['fly']
+  }
+);
 SchemaRegistry.register('lib/deploy', DeployResponseSchema, {
   name: 'DeployResponseSchema',
   tags: ['lib']

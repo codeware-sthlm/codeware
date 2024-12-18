@@ -1,0 +1,101 @@
+[
+  {
+    "ID": "postgres-test-app",
+    "InternalNumericID": 0,
+    "Name": "postgres-test-app",
+    "State": "",
+    "Status": "deployed",
+    "Deployed": true,
+    "Hostname": "postgres-test-app.fly.dev",
+    "AppURL": "",
+    "Version": 0,
+    "NetworkID": 0,
+    "Network": "",
+    "Release": null,
+    "Organization": {
+      "ID": "",
+      "InternalNumericID": "",
+      "Name": "Test Org",
+      "RemoteBuilderImage": "",
+      "RemoteBuilderApp": null,
+      "Slug": "test-org",
+      "RawSlug": "",
+      "Type": "",
+      "PaidPlan": false,
+      "Billable": false,
+      "Settings": null,
+      "Domains": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "WireGuardPeer": null,
+      "WireGuardPeers": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "DelegatedWireGuardTokens": {
+        "Nodes": null,
+        "Edges": null
+      },
+      "LoggedCertificates": null,
+      "LimitedAccessTokens": null
+    },
+    "Secrets": null,
+    "CurrentRelease": null,
+    "Releases": {
+      "Nodes": null
+    },
+    "IPAddresses": {
+      "Nodes": null
+    },
+    "SharedIPAddress": "",
+    "IPAddress": null,
+    "Certificates": {
+      "Nodes": null
+    },
+    "Certificate": {
+      "ID": "",
+      "AcmeDNSConfigured": false,
+      "AcmeALPNConfigured": false,
+      "Configured": false,
+      "CertificateAuthority": "",
+      "CreatedAt": "0001-01-01T00:00:00Z",
+      "DNSProvider": "",
+      "DNSValidationInstructions": "",
+      "DNSValidationHostname": "",
+      "DNSValidationTarget": "",
+      "Hostname": "",
+      "Source": "",
+      "ClientStatus": "",
+      "IsApex": false,
+      "IsWildcard": false,
+      "Issued": {
+        "Nodes": null
+      }
+    },
+    "PostgresAppRole": null,
+    "Image": null,
+    "ImageUpgradeAvailable": false,
+    "ImageVersionTrackingEnabled": false,
+    "ImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "LatestImageDetails": {
+      "Registry": "",
+      "Repository": "",
+      "Tag": "",
+      "Version": "",
+      "Digest": ""
+    },
+    "PlatformVersion": "machines",
+    "LimitedAccessTokens": null,
+    "Machines": {
+      "Nodes": null
+    },
+    "CurrentLock": null
+  }
+]

@@ -54,28 +54,38 @@
       "enabled": false
     },
     {
-      "description": "Skip all Payload package updates",
-      "matchPackageNames": ["payload", "@payloadcms/*"],
+      "description": "Skip all Payload packages and its peers",
+      "matchPackageNames": ["payload", "@payloadcms/*", "drizzle-orm"],
       "enabled": false
     },
     {
-      "description": "Skip all Nx package updates",
+      "description": "Skip all Nx packages",
       "matchPackageNames": ["create-nx-workspace", "nx", "@nx/**", "@nrwl/**"],
       "enabled": false
     },
     {
-      "description": "Skip all React package updates",
-      "matchPackageNames": ["react*", "*/*react*"],
+      "description": "Skip all React packages and its peers",
+      "matchPackageNames": [
+        "react*",
+        "*/*react*",
+        "remix-hono",
+        "remix-utils",
+        "@hono/*",
+        "@remix-run/*"
+      ],
       "enabled": false
     },
     {
-      "description": "Skip other third party package updates that are managed by Nx",
+      "description": "Skip other third party packages that are managed by Nx",
       "matchPackageNames": [
+        "esbuild",
         "express",
+        "verdaccio",
         "vite",
         "vitest",
         "@types/express",
-        "@vitejs/*"
+        "@vitejs/*",
+        "@vitest/*"
       ],
       "enabled": false
     }

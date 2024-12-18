@@ -1,4 +1,4 @@
-import { InfisicalSDK } from '@infisical/sdk';
+import { InfisicalSDK, ListSecretsResult } from '@infisical/sdk';
 
 import { ClientSchema, type Environment } from './infisical.schemas';
 import { readInfisicalConfig } from './read-infisical-config';
@@ -35,14 +35,11 @@ type Options<TEnv> = {
    */
   filter?: Filter;
   /**
-   * The action to perform when the client is authenticated.
+   * Whether to inject the secrets into the `process.env` object.
    *
-   * **`inject`**
-   *
-   * Get the secrets from your project and inject them into the `process.env` object.
-   * Use early in your application to ensure that the secrets are available as soon as possible.
+   * Defaults to `false`.
    */
-  onConnect?: 'inject';
+  injectEnv?: boolean;
   /**
    * The project ID to get the secrets from.
    *
@@ -64,6 +61,13 @@ type Options<TEnv> = {
 };
 
 /**
+ * Helper type to determine return type based on silent option
+ */
+type Response<TSilent extends boolean | undefined> = TSilent extends true
+  ? ListSecretsResult['secrets'] | null
+  : ListSecretsResult['secrets'];
+
+/**
  * Utility function to connect and authenticate to Infisical.
  *
  * **Requirements:**
@@ -71,25 +75,27 @@ type Options<TEnv> = {
  * - `INFISICAL_CLIENT_ID` and `INFISICAL_CLIENT_SECRET` must be available in the environment variables.
  * - A project ID, either from `options` or the Infisical configuration file `.infisical.json`.
  *
- * @returns The authenticated Infisical SDK client
+ * @returns The secrets from the Infisical project
  * @throws An error if the environment variables are invalid or the client fails to authenticate
  */
-export const withInfisical = async <TEnv = Environment>(
-  options?: Options<TEnv>
-): Promise<InfisicalSDK | null> => {
+export const withInfisical = async <
+  TEnv = Environment,
+  TSilent extends boolean | undefined = undefined
+>(
+  options?: Options<TEnv> & { silent?: TSilent }
+): Promise<Response<TSilent>> => {
   const { success, data, error } = ClientSchema.safeParse(process.env);
 
   if (!success) {
-    const msg = 'Could not resolve client credentials';
+    const msg = 'Could not resolve Infisical client credentials';
     if (!options?.silent) {
       throw new Error(msg, {
         cause: error.flatten().fieldErrors
       });
     }
 
-    console.warn(msg);
-    console.warn(JSON.stringify(error.flatten().fieldErrors, null, 2));
-    return null;
+    console.info(msg);
+    return null as Response<TSilent>;
   }
 
   const {
@@ -112,39 +118,34 @@ export const withInfisical = async <TEnv = Environment>(
     });
 
     // Connect to Infisical
-    const ref = await client.auth().universalAuth.login({
+    await client.auth().universalAuth.login({
       clientId,
       clientSecret
     });
 
-    console.log('[Infisical] connected successfully');
+    console.log('[Infisical] connected successfully, load secrets');
 
-    // Action to perform when the client is authenticated
-    switch (options?.onConnect) {
-      case 'inject': {
-        const { secrets } = await client.secrets().listSecrets({
-          environment,
-          projectId,
-          expandSecretReferences: true,
-          recursive: options?.filter?.recurse ?? false,
-          secretPath: options?.filter?.path,
-          tagSlugs: options?.filter?.tags
-        });
-        console.log(
-          `[Infisical] inject ${secrets.length} secrets into process.env`
-        );
-        for (const { secretKey, secretValue } of secrets) {
-          process.env[secretKey] = secretValue;
-          console.log(`[Infisical] injected '${secretKey}'`);
-        }
-        console.log('process.env', process.env);
-        break;
+    const { secrets } = await client.secrets().listSecrets({
+      environment,
+      projectId,
+      expandSecretReferences: true,
+      recursive: options?.filter?.recurse ?? false,
+      secretPath: options?.filter?.path,
+      tagSlugs: options?.filter?.tags
+    });
+
+    // Post-actions to perform after the secrets are retrieved
+    if (options?.injectEnv) {
+      console.log(
+        `[Infisical] inject ${secrets.length} secrets into process.env`
+      );
+      for (const { secretKey, secretValue } of secrets) {
+        process.env[secretKey] = secretValue;
+        console.log(`[Infisical] injected '${secretKey}'`);
       }
-      default:
-        break;
     }
 
-    return ref;
+    return secrets;
   } catch (error) {
     if (!options?.silent) {
       throw error;
@@ -155,10 +156,10 @@ export const withInfisical = async <TEnv = Environment>(
     if (error instanceof Error) {
       console.error(error.message);
       if (error.cause) {
-        console.error(error.cause);
+        console.info(error.cause);
       }
     }
 
-    return null;
+    return null as Response<TSilent>;
   }
 };

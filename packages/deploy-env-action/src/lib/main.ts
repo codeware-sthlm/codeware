@@ -19,6 +19,9 @@ export async function run(): Promise<void> {
     // Run fly environment
     const { environment } = await flyEnvironment(inputs);
 
+    // Set the environment variable
+    core.exportVariable('DEPLOY_ENV', environment);
+
     // Set action outputs
     core.setOutput('environment', environment);
   } catch (error) {

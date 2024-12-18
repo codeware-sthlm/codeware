@@ -16,6 +16,7 @@ vi.mock('@actions/core');
 vi.mock('./fly-environment');
 
 describe('main', () => {
+  const exportVariableMock = vi.spyOn(core, 'exportVariable');
   const getInputMock = vi.spyOn(core, 'getInput');
   const setFailedMock = vi.spyOn(core, 'setFailed');
   const setOutputMock = vi.spyOn(core, 'setOutput');
@@ -59,6 +60,16 @@ describe('main', () => {
       token: ''
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
+  });
+
+  it('should set the environment variable', async () => {
+    const result: ActionOutputs = {
+      environment: 'preview'
+    };
+    flyEnvironmentMock.mockResolvedValue(result);
+    await main.run();
+
+    expect(exportVariableMock).toHaveBeenCalledWith('DEPLOY_ENV', 'preview');
   });
 
   it('should set outputs', async () => {

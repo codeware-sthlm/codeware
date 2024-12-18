@@ -28,6 +28,9 @@ It is intended to be used in a previous job before the [Fly Deployment Action](h
 
 Using the action is currently limited to this repository since the package isn't deployed.
 
+> [!TIP]
+> The action will also provide `DEPLOY_ENV` which can be used in other actions in the job
+
 ```yaml
 jobs:
   deploy-env:

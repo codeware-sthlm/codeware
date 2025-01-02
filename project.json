@@ -32,6 +32,18 @@
       },
       "command": "pnpm tsx ./packages/core/src/lib/release/run-release.ts"
     },
+    "payload-proxy": {
+      "metadata": {
+        "description": "Start multi-tenant Payload proxy to simulate multiple web clients"
+      },
+      "command": "pnpm nx proxy shared-util-payload"
+    },
+    "payload-proxy:down": {
+      "metadata": {
+        "description": "Stop multi-tenant Payload proxy"
+      },
+      "command": "pnpm nx proxy-cmd shared-util-payload down"
+    },
     "generate-js-package": {
       "metadata": {
         "description": "Generate a new TypeScript ESBuild package"

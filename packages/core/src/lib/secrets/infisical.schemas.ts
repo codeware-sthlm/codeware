@@ -3,14 +3,22 @@ import { z } from 'zod';
 /**
  * Infisical client credentials from environment variables
  */
-export const ClientSchema = z.object({
-  INFISICAL_CLIENT_ID: z
-    .string({ description: 'Infisical Machine Client ID' })
-    .min(1, 'Environment variable INFISICAL_CLIENT_ID is required'),
-  INFISICAL_CLIENT_SECRET: z
-    .string({ description: 'Infisical Machine Client Secret' })
-    .min(1, 'Environment variable INFISICAL_CLIENT_SECRET is required')
-});
+export const ClientSchema = z
+  .object({
+    INFISICAL_CLIENT_ID: z
+      .string({ description: 'Infisical Machine Client ID' })
+      .min(1, 'Environment variable INFISICAL_CLIENT_ID is required'),
+    INFISICAL_CLIENT_SECRET: z
+      .string({ description: 'Infisical Machine Client Secret' })
+      .min(1, 'Environment variable INFISICAL_CLIENT_SECRET is required')
+  })
+  .or(
+    z.object({
+      INFISICAL_SERVICE_TOKEN: z
+        .string({ description: 'Infisical Service Token' })
+        .min(1, 'Environment variable INFISICAL_SERVICE_TOKEN is required')
+    })
+  );
 
 /**
  * Infisical project environment values

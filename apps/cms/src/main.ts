@@ -1,15 +1,15 @@
 import express from 'express';
 import payload from 'payload';
 
-import { getEnv } from './env-resolver/server.resolve';
-import { setupTenants } from './seed/setup-tenants';
+import { resolveEnv } from './env-resolver/server.resolve';
+import { seed } from './seed/seed';
 
 const startServer = async () => {
   try {
     console.log('Starting server');
 
     // Resolve environment variables
-    const env = await getEnv();
+    const env = await resolveEnv();
 
     // Create an Express server
     const app = express();
@@ -25,32 +25,39 @@ const startServer = async () => {
       loggerOptions: {
         level: env.LOG_LEVEL
       },
-      onInit: async () => {
-        payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`);
-        payload.logger.info(`Using DB adapter: ${payload.db.name}`);
+      onInit: async (p) => {
+        p.logger.info(`Payload Admin URL: ${p.getAdminURL()}`);
+        p.logger.info(`Using DB adapter: ${p.db.name}`);
+        p.logger.info(
+          `Using CORS: ${Array.isArray(p.config.cors) ? p.config.cors.join(', ') : payload.config.cors}`
+        );
+        p.logger.info(`Using CSRF: ${p.config.csrf.join(', ')}`);
       }
     });
 
     // Run migrations in production when needed or on-demand
-    switch (env.MIGRATE_FORCE_ACTION) {
+    switch (env.MIGRATE_ACTION) {
+      case 'fresh':
+        // Never recreate database in production!!
+        if (env.DEPLOY_ENV !== 'production') {
+          payload.logger.info('Recreating database on-demand');
+          await payload.db.migrateFresh({ forceAcceptWarning: true });
+        }
+        break;
       case 'migrate':
         payload.logger.info('Running migrations on-demand');
         await payload.db.migrate();
         break;
-      case 'recreate':
-        payload.logger.info('Recreating database on-demand');
-        await payload.db.migrateFresh({ forceAcceptWarning: true });
-        break;
       case 'default':
       default:
-        if (env.NODE_ENV === 'production') {
-          payload.logger.info('Running migrations in production');
+        if (env.DEPLOY_ENV === 'preview' || env.DEPLOY_ENV === 'production') {
+          payload.logger.info(`Running auto-migrate in ${env.DEPLOY_ENV}`);
           await payload.db.migrate();
         }
     }
 
-    // Setup tenants and API keys
-    await setupTenants(payload, env);
+    // Setup data
+    await seed({ payload, env });
 
     // Start listening for requests
     app

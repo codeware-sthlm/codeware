@@ -23,9 +23,14 @@
   - [GitHub Actions](#github-actions)
   - [Node Libraries](#node-libraries)
   - [Utilities](#utilities)
+- [Startup Payload multi-tenant in dev mode](#startup-payload-multi-tenant-in-dev-mode)
+  - [Terminal 1: Start Postgres and admin UI](#terminal-1-start-postgres-and-admin-ui)
+  - [Terminal 2: Start web client](#terminal-2-start-web-client)
+  - [Terminal 3: Start reverse proxy](#terminal-3-start-reverse-proxy)
 - [Development Tools \& Services](#development-tools--services)
   - [Infisical Secrets Management](#infisical-secrets-management)
   - [Fly.io Deployment](#flyio-deployment)
+    - [Connect to the database on local machine](#connect-to-the-database-on-local-machine)
   - [Release Management](#release-management)
 
 ## Packages
@@ -74,6 +79,83 @@ Fly CLI node wrapper for programmatic deployments to [Fly.io](https://fly.io).
 
 A set of core utilities for the [Codeware](https://codeware.se) ecosystem.
 
+## Startup Payload multi-tenant in dev mode
+
+The Payload suite consists of
+
+- Payload Admin UI (`cms`)
+- Web Client (`web`)
+- Docker Postgres Database
+- Nginx Reverse Proxy to simulate multi-tenancy
+
+> [!IMPORTANT]
+> For a better DX you should not connect to Infisical in dev mode, since the development seed has much more data.
+>
+> Make sure the credentials in the `.env.local` file are not set.
+
+### Terminal 1: Start Postgres and admin UI
+
+Start a Docker container
+
+```sh
+nx dx:postgres cms
+```
+
+Make sure database is in a fresh state (when needed)
+
+```sh
+nx payload cms migrate:fresh
+```
+
+Start the admin UI with live-reload
+
+```sh
+nx serve cms
+```
+
+:bulb: Database auto-seed will run
+
+### Terminal 2: Start web client
+
+> [!NOTE]
+> Live-reload is not fully operational yet.
+
+```sh
+nx start web
+```
+
+### Terminal 3: Start reverse proxy
+
+```sh
+nx payload-proxy
+
+# stop the proxy
+nx payload-proxy:down
+
+# or extended command to restart
+nx proxy-cmd shared-util-payload restart
+```
+
+> [!NOTE]
+> You can now access the different web sites as different tenants:
+>
+> **Admin UI** - Aimed for different maintainers  
+> 🌐 `cms.localhost`
+>
+> :pouting_face: `system@local.dev` @ `dev`
+>
+> :pouting_face: `web-one.admin@local.dev` @ `dev`  
+> :pouting_face: `web-one.user@local.dev` @ `dev`
+>
+> :pouting_face: `web-two.admin@local.dev` @ `dev`  
+> :pouting_face: `web-two.user@local.dev` @ `dev`
+>
+> **Tenant 1**  
+> 🌐 `web-one.localhost`
+>
+> **Tenant 2**  
+> 🌐 `web-two.localhost`
+
 ## Development Tools & Services
 
 ### Infisical Secrets Management
@@ -94,21 +176,39 @@ The [Infisical](https://infisical.com) secret management tool is used to manage 
    # all secrets
    infisical secrets --recursive
 
-   # cms application (all secrets)
+   # cms application (all secrets and some by tag)
    infisical secrets --recursive --path /cms
+   infisical secrets --tag cms
 
-   # web application (all secrets)
+   # web application (all secrets and some by tag)
    infisical secrets --recursive --path /web
+   infisical secrets --tag web
 
-   # 'default' tenant using web application
-   infisical secrets --path /web/tenants/default
+   # 'demo' tenant using web application
+   infisical secrets --path /web/tenants/demo
    ```
 
-4. Inject secrets into `process.env` for a command
+#### Using the secrets <!-- omit in toc -->
 
-   ```sh
-   infisical run --path [path] -- [command]
-   ```
+Add Infisical creadentials to you local environment.
+
+`apps/cms/.env.local`
+
+```env
+# Alt 1: Client credentials
+INFISICAL_CLIENT_ID=
+INFISICAL_CLIENT_SECRET=
+
+# Alt 2: Service token
+INFISICAL_SERVICE_TOKEN=
+```
+
+> [!NOTE]
+> Secrets can also be injected into `process.env` for any command, but this is not how we normally do it.
+>
+> ```sh
+> infisical run --path [path] -- [command]
+> ```
 
 ### Fly.io Deployment
 
@@ -138,12 +238,24 @@ To handle the dynamic nature of preview deployments, a Fly Postgres cluster is u
 For deployments to preview the applications will be attached to the Postgres cluster, and detached when the pull request is closed.
 
 > [!NOTE]
-> The command is for reference and knowledge only
+> Commands are for reference and knowledge only!
 >
 > ```sh
 > # Create a Postgres development cluster
 > fly postgres create --name pg-preview --org codeware --region arn --vm-size shared-cpu-1x --volume-size 1 --initial-cluster-size 1
 > ```
+
+##### Connect to the database on local machine
+
+Forward server port `5432` to local port `5433` to avoid conflicts with local Postgres running in Docker.
+
+```sh
+fly proxy 5433:5432 -a pg-preview
+```
+
+Connect with the following connection string:
+
+`postgres://postgres:<password>@localhost:5433`
 
 ### Release Management
 

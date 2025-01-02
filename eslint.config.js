@@ -24,7 +24,11 @@ module.exports = [
           depConstraints: [
             {
               sourceTag: 'scope:cms',
-              onlyDependOnLibsWithTags: ['scope:cms', 'scope:core']
+              onlyDependOnLibsWithTags: [
+                'scope:cms',
+                'scope:core',
+                'scope:shared'
+              ]
             },
             {
               sourceTag: 'scope:web',
@@ -106,7 +110,7 @@ module.exports = [
             },
             {
               sourceTag: 'scope:shared',
-              onlyDependOnLibsWithTags: ['scope:shared']
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:core']
             }
           ]
         }

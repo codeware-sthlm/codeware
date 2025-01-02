@@ -109,7 +109,7 @@ jobs:
           fly-region: ${{ vars.FLY_REGION }}
           token: ${{ steps.generate-token.outputs.token }}
           env: |
-            TENANT_ID=default
+            TENANT_ID=demo
           secrets: |
             INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_READ_CLIENT_ID }}
             INFISICAL_CLIENT_SECRET=${{ secrets.INFISICAL_READ_CLIENT_SECRET }}

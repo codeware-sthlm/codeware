@@ -1,22 +1,46 @@
-import { Page } from '@codeware/shared/util/payload';
+import type { Page } from '@codeware/shared/util/payload';
 
-import { PAYLOAD_API_URL, PageResult, pagesInit } from './request';
+import env from '../../env-resolver/env';
+
+import {
+  type AppLoadContext,
+  PAYLOAD_API_URL,
+  type PageResult,
+  createRequestInit
+} from './create-request-init';
 
 /**
  * Fetches all pages from the API.
  *
  * @returns A promise that resolves to an array of pages.
  * @throws An error if the request fails.
+ *
+ * TODO: Make collection-specific generic function
  */
-export const fetchPages = async (): Promise<Page[]> => {
-  const response = await fetch(
-    `${PAYLOAD_API_URL}?depth=0&limit=100`,
-    pagesInit
-  );
+export const fetchPages = async (
+  context: AppLoadContext,
+  request: Request
+): Promise<Page[]> => {
+  const init = createRequestInit(context, request);
+  if (env.DEPLOY_ENV !== 'production') {
+    console.log('[DEBUG] Request headers:', init.headers);
+  }
+
+  const response = await fetch(`${PAYLOAD_API_URL}?depth=0&limit=100`, init);
+
+  if (env.DEPLOY_ENV !== 'production') {
+    console.log(
+      '[DEBUG] Response headers:',
+      Object.fromEntries(response.headers.entries())
+    );
+  }
 
   if (!response.ok) {
+    if (env.DEPLOY_ENV !== 'production') {
+      console.log('[DEBUG] Response', response);
+    }
     throw new Error(
-      `Error fetching pages: ${response.status}\n${response.statusText}`
+      `Error fetching pages: ${response.status} - ${response.statusText}`
     );
   }
 

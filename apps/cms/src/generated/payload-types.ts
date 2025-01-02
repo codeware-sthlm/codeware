@@ -24,7 +24,6 @@ export interface Config {
 export interface Article {
   id: number;
   title: string;
-  slug: string;
   author: string;
   content?: {
     root: {
@@ -43,8 +42,31 @@ export interface Article {
   } | null;
   publishedAt?: string | null;
   content_html?: string | null;
+  slug?: string | null;
+  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  name: string;
+  description?: string | null;
+  domains?:
+    | {
+        domain: string;
+        id?: string | null;
+      }[]
+    | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -53,7 +75,6 @@ export interface Article {
 export interface Page {
   id: number;
   title: string;
-  slug: string;
   header: string;
   intro?: {
     root: {
@@ -86,22 +107,12 @@ export interface Page {
     [k: string]: unknown;
   } | null;
   publishedAt?: string | null;
+  content_html?: string | null;
+  intro_html?: string | null;
+  slug?: string | null;
+  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants".
- */
-export interface Tenant {
-  id: number;
-  name: string;
-  description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -110,7 +121,15 @@ export interface Tenant {
 export interface User {
   id: number;
   name: string;
-  role: 'admin' | 'user';
+  role: 'user' | 'system-user';
+  tenants?:
+    | {
+        tenant: number | Tenant;
+        role: 'user' | 'admin';
+        id?: string | null;
+      }[]
+    | null;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;

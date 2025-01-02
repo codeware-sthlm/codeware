@@ -5,26 +5,62 @@ import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { buildConfig } from 'payload/config';
 
-import Articles from './collections/Articles';
-import Pages from './collections/Pages';
-import Tenants from './collections/Tenants';
-import Users from './collections/Users';
-import env from './env-resolver/client.resolve';
+import articles from './collections/articles/articles.collection';
+import pages from './collections/pages/pages.collection';
+import tenants from './collections/tenants/tenants.collection';
+import users from './collections/users/users.collection';
+import env from './env-resolver/resolved-env';
+import { authorizationFix } from './middlewares/authorization-fix';
+import { debugRequest } from './middlewares/debug-request';
+import { setUserHostCookie } from './middlewares/set-user-host-cookie';
+import { verifyClientRequest } from './middlewares/verify-client-request';
+import { resolveTsconfigPathsToAlias } from './utils/resolve-tsconfig-paths-to-alias';
 
 export default buildConfig({
+  // Required base configuration
   admin: {
     bundler: webpackBundler(),
-    user: Users.slug,
+    user: users.slug,
+    // Always located relative to workspace root (where nx command is invoked)
     buildPath: resolve(env.CWD, 'dist/apps/cms/build'),
-    dateFormat: 'yyyy-MM-dd HH:mm:ss'
+    dateFormat: 'yyyy-MM-dd HH:mm:ss',
+    webpack: (config) => ({
+      ...config,
+      resolve: {
+        ...(config.resolve ?? {}),
+        alias: {
+          ...(config.resolve?.alias ?? {}),
+          // Support workspace path mappings
+          ...resolveTsconfigPathsToAlias(
+            resolve(__dirname, '../../../tsconfig.base.json')
+          ),
+          // Disable server-only modules in client bundle
+          fs: false
+        }
+      }
+    })
   },
-  collections: [Articles, Pages, Tenants, Users],
-  cors: [env.ALLOWED_URLS],
+  collections: [articles, pages, tenants, users],
   db: postgresAdapter({
     pool: { connectionString: env.DATABASE_URL },
     migrationDir: resolve(__dirname, 'migrations')
   }),
   editor: lexicalEditor({}),
+  // Express middlewares
+  express: {
+    preMiddleware: [debugRequest, authorizationFix],
+    postMiddleware: [verifyClientRequest, setUserHostCookie]
+  },
+  // Security customizations
+  cors: env.CORS_URLS === '*' ? '*' : env.CORS_URLS.split(',').filter(Boolean),
+  csrf: env.CSRF_URLS.split(',').filter(Boolean),
+  maxDepth: 5,
+  rateLimit: {
+    max: 10000, // limit each IP per windowMs
+    trustProxy: true, // hosted behind nginx (reverse proxy)
+    window: 2 * 60 * 1000 // 2 minutes
+  },
+  // i18n support
   i18n: {
     fallbackLng: 'sv'
   },
@@ -48,6 +84,7 @@ export default buildConfig({
     defaultLocale: 'sv',
     fallback: true
   },
+  // Generate types and schemas
   typescript: {
     declare: false,
     outputFile: resolve(__dirname, 'generated/payload-types.ts')
@@ -61,5 +98,7 @@ export default buildConfig({
   graphQL: {
     disable: true
   },
+  // Debugging
+  debug: env.LOG_LEVEL === 'debug',
   telemetry: false
 });

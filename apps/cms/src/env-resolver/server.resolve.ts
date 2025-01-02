@@ -19,7 +19,9 @@
  *   that resolves environment variables into `process.env`.
  *   It should only be used by server start file `main.ts`.
  * - `payload.config.ts` is considered client-only and should hence
- *   import `client.resolve.ts` instead, free from any server-side concerns.
+ *   import `resolved-env.ts` instead, free from any server-side concerns.
+ * - `resolved-env.ts` can actually be used by both client and server
+ *   once the environment variables are resolved by server-side code.
  */
 
 import { withInfisical } from '@codeware/core/secrets';
@@ -54,15 +56,23 @@ const resolveServerSideEnv = async (): Promise<void> => {
   }
 
   // Connect to Infisical and get the secrets for the app into process.env
-  const status = await withInfisical({
+  const statusPath = await withInfisical({
     environment: process.env.DEPLOY_ENV,
     filter: { path: '/cms' },
     injectEnv: true,
     silent: true,
     site: 'eu'
   });
+  // and other required secrets for the cms app
+  const statusTag = await withInfisical({
+    environment: process.env.DEPLOY_ENV,
+    filter: { tags: ['cms'], recurse: true },
+    injectEnv: true,
+    silent: true,
+    site: 'eu'
+  });
 
-  if (!status) {
+  if (!statusPath || !statusTag) {
     console.error('[RESOLVER] Failed to load secrets from Infisical');
     console.log(
       '[RESOLVER] Unable to proceed with missing data:',
@@ -86,7 +96,7 @@ const resolveServerSideEnv = async (): Promise<void> => {
 /**
  * Resolve environment variables and return them as a parsed object
  */
-export async function getEnv() {
+export async function resolveEnv() {
   console.log('[RESOLVER] Start resolving environment variables');
 
   await resolveServerSideEnv();
@@ -94,7 +104,9 @@ export async function getEnv() {
   const env = EnvServerSchema.parse(process.env);
   console.log(
     '[RESOLVER] Successfully resolved environment variables',
-    Object.keys(env)
+    env.DEPLOY_ENV !== 'production' && env.LOG_LEVEL === 'debug'
+      ? env
+      : Object.keys(env)
   );
 
   return env;

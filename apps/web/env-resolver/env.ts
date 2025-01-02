@@ -22,6 +22,14 @@ if (response.success) {
     silent: true,
     site: 'eu'
   });
+  // and other required secrets for the web app
+  await withInfisical({
+    environment: process.env.DEPLOY_ENV,
+    filter: { tags: ['web'], recurse: true },
+    injectEnv: true,
+    silent: true,
+    site: 'eu'
+  });
 
   // Validate resolved environment variables
   // TODO: Probably want to let errors pass to provide UI error pages

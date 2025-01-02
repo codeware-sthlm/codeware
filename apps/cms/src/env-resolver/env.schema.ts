@@ -20,10 +20,16 @@ export const EnvSchema = z.object({
   PR_NUMBER: z.string({ description: 'Number of the pull request' }),
 
   // Server
-  ALLOWED_URLS: z
+  CORS_URLS: z
     .string({ description: 'List of allowed URLs for CORS' })
     .or(z.literal('*'))
     .default('*'),
+  CSRF_URLS: z
+    .string({
+      description:
+        'List of allowed URLs to accept cookie-based authentication from'
+    })
+    .default(''),
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
@@ -33,8 +39,13 @@ export const EnvSchema = z.object({
   PORT: z.coerce
     .number({ description: 'Port to run the server on' })
     .default(3000),
-  MIGRATE_FORCE_ACTION: z
-    .enum(['migrate', 'recreate', 'default'], {
+  SIGNATURE_SECRET: z
+    .string({ description: 'Secret key for API request signatures' })
+    .min(1, {
+      message: 'SIGNATURE_SECRET is required'
+    }),
+  MIGRATE_ACTION: z
+    .enum(['migrate', 'fresh', 'default'], {
       description: 'Force a migration action regardsless of the current state'
     })
     .optional(),

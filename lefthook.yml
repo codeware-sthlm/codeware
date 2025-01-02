@@ -11,13 +11,13 @@ pre-commit:
   commands:
     # `.prettierignore` is applied
     format:
-      run: npx nx format:write --files="{staged_files}"
+      run: npx nx format:write --files='{staged_files}'
       stage_fixed: true
 
     # `eslint.config.js` and `.eslintignore` are applied
     lint:
       glob: '**/*.{js,jsx,cjs,mjs,ts,tsx,html}'
-      run: npx eslint --fix "{staged_files}"
+      run: npx eslint --fix '{staged_files}'
       stage_fixed: true
 
     # Validate Renovate config and suggest migrations

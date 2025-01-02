@@ -6,6 +6,38 @@
   "tags": ["scope:cms", "type:app"],
   "targets": {
     "lint": {},
-    "test": {}
+    "test": {},
+    "gen-copy": {
+      "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Generate Payload types and copy the file to shared util. Note! This is a workaround to make the types shared to other projects."
+      },
+      "options": {
+        "command": "cp -R apps/cms/src/generated/payload-types.ts libs/shared/util/payload/src/lib/generated/."
+      },
+      "dependsOn": ["gen"]
+    },
+    "serve-fresh": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["nx payload cms migrate:fresh", "nx serve cms"],
+        "parallel": false
+      }
+    },
+    "payload": {
+      "metadata": {
+        "description": "Override default target to invoke Payload from app root. It's required to properly resolve tsconfig paths. See COD-234 for more details."
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx payload",
+        "forwardAllArgs": true,
+        "cwd": "apps/cms",
+        "env": {
+          "CWD": "../..",
+          "PAYLOAD_CONFIG_PATH": "src/payload.config.ts"
+        }
+      }
+    }
   }
 }

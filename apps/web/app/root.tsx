@@ -16,6 +16,7 @@ import {
 } from '@remix-run/react';
 
 import { fetchPages } from './api/fetch-pages';
+import type { AppLoadContext } from './api/request';
 import { Container } from './components/container';
 import { GeneralErrorBoundary } from './components/error-boundary';
 import { Footer } from './components/footer';
@@ -46,7 +47,7 @@ export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet }
 ];
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   try {
     // Get the theme before fetching pages in case it fails
     const theme = await getTheme(request);
@@ -57,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     // Fetch pages but don't propagate the exception to the error boundary
     try {
-      pages = await fetchPages();
+      pages = await fetchPages(context as AppLoadContext);
     } catch (e) {
       const error = e as Error;
       console.error(`Failed to load pages: ${error.message}\n`, error.cause);

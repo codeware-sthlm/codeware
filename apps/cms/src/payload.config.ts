@@ -5,26 +5,31 @@ import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { buildConfig } from 'payload/config';
 
-import Articles from './collections/Articles';
-import Pages from './collections/Pages';
-import Tenants from './collections/Tenants';
-import Users from './collections/Users';
-import env from './env-resolver/client.resolve';
+import articles from './collections/articles/articles.collection';
+import pages from './collections/pages/pages.collection';
+import tenants from './collections/tenants/tenants.collection';
+import users from './collections/users/users.collection';
+import env from './env-resolver/resolved-env';
+import { debugRequest } from './middlewares/debug-request';
+import { setUserHostCookie } from './middlewares/set-user-host-cookie';
 
 export default buildConfig({
   admin: {
     bundler: webpackBundler(),
-    user: Users.slug,
+    user: users.slug,
     buildPath: resolve(env.CWD, 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss'
   },
-  collections: [Articles, Pages, Tenants, Users],
+  collections: [articles, pages, tenants, users],
   cors: [env.ALLOWED_URLS],
   db: postgresAdapter({
     pool: { connectionString: env.DATABASE_URL },
     migrationDir: resolve(__dirname, 'migrations')
   }),
   editor: lexicalEditor({}),
+  express: {
+    postMiddleware: [debugRequest, setUserHostCookie]
+  },
   i18n: {
     fallbackLng: 'sv'
   },
@@ -61,5 +66,6 @@ export default buildConfig({
   graphQL: {
     disable: true
   },
-  telemetry: false
+  telemetry: false,
+  debug: env.LOG_LEVEL === 'debug'
 });

@@ -32,7 +32,7 @@ const format = (val: string): string =>
 const formatSlug =
   (fallbackField: string): FieldHook =>
   ({ value, originalDoc, data }) => {
-    if (typeof value === 'string') {
+    if (value && typeof value === 'string') {
       return format(value);
     }
     const fallbackData = data?.[fallbackField] || originalDoc?.[fallbackField];

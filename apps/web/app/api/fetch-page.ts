@@ -1,6 +1,11 @@
-import { Page } from '@codeware/shared/util/payload';
+import type { Page } from '@codeware/shared/util/payload';
 
-import { PAYLOAD_API_URL, PageResult, pagesInit } from './request';
+import {
+  type AppLoadContext,
+  PAYLOAD_API_URL,
+  type PageResult,
+  pagesInit
+} from './request';
 
 /**
  * Fetches a page by its slug from the API.
@@ -9,11 +14,12 @@ import { PAYLOAD_API_URL, PageResult, pagesInit } from './request';
  * @throws An error if the request fails.
  */
 export const fetchPage = async (
+  context: AppLoadContext,
   slug: string
-): Promise<Page | undefined | null> => {
+): Promise<Page | null> => {
   const response = await fetch(
     `${PAYLOAD_API_URL}?where[slug][equals]=${slug}&depth=2`,
-    pagesInit
+    pagesInit(context)
   );
 
   if (!response.ok) {

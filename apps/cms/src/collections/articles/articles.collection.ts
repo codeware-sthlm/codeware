@@ -3,14 +3,35 @@ import {
   lexicalEditor,
   lexicalHTML
 } from '@payloadcms/richtext-lexical';
-import { CollectionConfig } from 'payload/types';
+import type { CollectionConfig } from 'payload/types';
 
-import { slugField } from '../fields/slug';
+import { canMutateTenantScope } from '../../access/can-mutate-tenant-scope';
+import { canReadTenantScope } from '../../access/can-read-tenant-scope';
+import { slug } from '../../fields/slug/slug.field';
+import { tenant } from '../../fields/tenant/tenant.field';
+import { populatePublishedAt } from '../../hooks/populate-published-at';
 
-const Articles: CollectionConfig = {
+/**
+ * Articles collection
+ */
+const articles: CollectionConfig = {
   slug: 'articles',
   admin: {
-    defaultColumns: ['title', 'slug', 'publishedAt']
+    defaultColumns: ['title', 'slug', 'tenant', 'publishedAt'],
+    useAsTitle: 'title'
+  },
+  labels: {
+    singular: { en: 'Article', sv: 'Artikel' },
+    plural: { en: 'Articles', sv: 'Artiklar' }
+  },
+  access: {
+    create: canMutateTenantScope,
+    delete: canMutateTenantScope,
+    read: canReadTenantScope,
+    update: canMutateTenantScope
+  },
+  hooks: {
+    beforeChange: [populatePublishedAt]
   },
   fields: [
     {
@@ -19,7 +40,6 @@ const Articles: CollectionConfig = {
       type: 'text',
       required: true,
       localized: true,
-      unique: true,
       admin: {
         description: {
           en: 'The title of the page. Will be displayed in the browser tab, page meta property and in navigation.',
@@ -27,7 +47,6 @@ const Articles: CollectionConfig = {
         }
       }
     },
-    slugField(),
     {
       name: 'author',
       label: { en: 'Author', sv: 'Författare' },
@@ -53,7 +72,6 @@ const Articles: CollectionConfig = {
         ]
       }),
       localized: true,
-      required: false,
       admin: {
         description: {
           en: 'The main content of the page. Will be displayed below the intro.',
@@ -72,8 +90,10 @@ const Articles: CollectionConfig = {
     },
     lexicalHTML('content', {
       name: 'content_html'
-    })
+    }),
+    slug('articles'),
+    tenant
   ]
 };
 
-export default Articles;
+export default articles;

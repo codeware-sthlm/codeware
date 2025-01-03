@@ -87,7 +87,7 @@ export const withInfisical = async <
   const { success, data, error } = ClientSchema.safeParse(process.env);
 
   if (!success) {
-    const msg = 'Could not resolve Infisical client credentials';
+    const msg = 'Could not resolve Infisical credentials';
     if (!options?.silent) {
       throw new Error(msg, {
         cause: error.flatten().fieldErrors
@@ -97,11 +97,6 @@ export const withInfisical = async <
     console.info(msg);
     return null as Response<TSilent>;
   }
-
-  const {
-    INFISICAL_CLIENT_ID: clientId,
-    INFISICAL_CLIENT_SECRET: clientSecret
-  } = data;
 
   try {
     const environment: string =
@@ -117,11 +112,15 @@ export const withInfisical = async <
       siteUrl: options?.site === 'eu' ? 'https://eu.infisical.com' : undefined
     });
 
-    // Connect to Infisical
-    await client.auth().universalAuth.login({
-      clientId,
-      clientSecret
-    });
+    // Connect to Infisical using service token or universal auth
+    if ('INFISICAL_SERVICE_TOKEN' in data) {
+      client.auth().accessToken(data.INFISICAL_SERVICE_TOKEN);
+    } else {
+      await client.auth().universalAuth.login({
+        clientId: data.INFISICAL_CLIENT_ID,
+        clientSecret: data.INFISICAL_CLIENT_SECRET
+      });
+    }
 
     console.log('[Infisical] connected successfully, load secrets');
 
@@ -150,8 +149,6 @@ export const withInfisical = async <
     if (!options?.silent) {
       throw error;
     }
-
-    console.error('Failed to initialize Infisical SDK');
 
     if (error instanceof Error) {
       console.error(error.message);

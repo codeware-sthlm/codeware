@@ -19,7 +19,9 @@
  *   that resolves environment variables into `process.env`.
  *   It should only be used by server start file `main.ts`.
  * - `payload.config.ts` is considered client-only and should hence
- *   import `client.resolve.ts` instead, free from any server-side concerns.
+ *   import `resolved-env.ts` instead, free from any server-side concerns.
+ * - `resolved-env.ts` can actually be used by both client and server
+ *   once the environment variables are resolved by server-side code.
  */
 
 // TODO: Revert workaround once COD-218 is fixed and released
@@ -82,7 +84,7 @@ const resolveServerSideEnv = async (): Promise<void> => {
 /**
  * Resolve environment variables and return them as a parsed object
  */
-export async function getEnv() {
+export async function resolveEnv() {
   console.log('[RESOLVER] Start resolving environment variables');
 
   await resolveServerSideEnv();
@@ -90,7 +92,7 @@ export async function getEnv() {
   const env = EnvSchema.parse(process.env);
   console.log(
     '[RESOLVER] Successfully resolved environment variables',
-    Object.keys(env)
+    env.DEPLOY_ENV === 'development' ? env : Object.keys(env)
   );
 
   return env;

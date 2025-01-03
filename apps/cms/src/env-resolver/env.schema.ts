@@ -35,8 +35,8 @@ export const EnvSchema = z.object({
   PORT: z.coerce
     .number({ description: 'Port to run the server on' })
     .default(3000),
-  MIGRATE_FORCE_ACTION: z
-    .enum(['migrate', 'recreate', 'default'], {
+  MIGRATE_ACTION: z
+    .enum(['migrate', 'fresh', 'default'], {
       description: 'Force a migration action regardsless of the current state'
     })
     .optional(),
@@ -59,8 +59,8 @@ export const clientSideEnv: Env = {
   CWD: '',
   DATABASE_URL: '',
   DEPLOY_ENV: 'development',
-  LOG_LEVEL: 'info',
-  MIGRATE_FORCE_ACTION: 'default',
+  LOG_LEVEL: 'debug',
+  MIGRATE_ACTION: 'default',
   NODE_ENV: 'development',
   PAYLOAD_SECRET_KEY: 'secret',
   PORT: 3000,

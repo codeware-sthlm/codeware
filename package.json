@@ -90,7 +90,7 @@
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.12",
     "@types/kill-port": "^2.0.3",
-    "@types/node": "22.10.2",
+    "@types/node": "22.10.3",
     "@types/npm-whoami": "^1.1.2",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
@@ -154,5 +154,5 @@
       "commit"
     ]
   },
-  "packageManager": "pnpm@9.15.1"
+  "packageManager": "pnpm@9.15.2"
 }

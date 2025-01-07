@@ -670,7 +670,7 @@ export class Fly {
    * @throws An error if the Postgres database cannot be detached from an app
    */
   private async detachPostgres(postgres: string, app: string): Promise<void> {
-    const args = ['postgres', 'detach', postgres, '--app', app, '--yes'];
+    const args = ['postgres', 'detach', postgres, '--app', app];
 
     await this.execFly(args);
   }

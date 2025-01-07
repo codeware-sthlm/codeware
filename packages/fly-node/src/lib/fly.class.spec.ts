@@ -663,7 +663,7 @@ describe('Fly', () => {
 
       expect(mockExec).toHaveBeenCalledWith(
         expect.stringContaining(
-          `postgres detach ${mockDefs.postgresAttached} --app ${mockDefs.testApp} --yes`
+          `postgres detach ${mockDefs.postgresAttached} --app ${mockDefs.testApp}`
         )
       );
     });

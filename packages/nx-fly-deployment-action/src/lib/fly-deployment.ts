@@ -1,5 +1,3 @@
-import { join } from 'path';
-
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import {
@@ -7,7 +5,7 @@ import {
   getDeployEnv,
   printGitHubContext
 } from '@codeware/core/actions';
-import { type DeployAppOptions, Fly } from '@codeware/fly-node';
+import { Fly } from '@codeware/fly-node';
 import type {
   PullRequestEvent,
   WebhookEventName
@@ -17,12 +15,9 @@ import { type ActionInputs } from './schemas/action-inputs.schema';
 import { ActionOutputsSchema } from './schemas/action-outputs.schema';
 import { type ActionOutputs } from './schemas/action-outputs.schema';
 import { type BuildingContext, ContextSchema } from './schemas/context.schema';
-import { addOpinionatedEnv } from './utils/add-opinionated-env';
-import { getDeployableProjects } from './utils/get-deployable-projects';
 import { getDeploymentConfig } from './utils/get-deployment-config';
-import { getPreviewAppName } from './utils/get-preview-app-name';
-import { getProjectConfiguration } from './utils/get-project-configuration';
-import { lookupGitHubConfigFile } from './utils/lookup-github-config-file';
+import { runDeployApps } from './utils/run-deploy-apps';
+import { runDestroyApps } from './utils/run-destroy-apps';
 
 /**
  * Run fly deployment process
@@ -72,14 +67,18 @@ export async function flyDeployment(
     core.info(
       `Get deployment environment for '${eventName}' on '${currentBranch}'`
     );
+
     const deployEnv = getDeployEnv(github.context, config.mainBranch);
+
     if (deployEnv.environment) {
       // Add target environment to context
       context.environment = deployEnv.environment;
     } else {
       throw new Error(deployEnv.reason);
     }
+
     core.info(`Using environment '${context.environment}'`);
+
     switch (eventName as WebhookEventName) {
       case 'pull_request':
         {
@@ -96,190 +95,41 @@ export async function flyDeployment(
     }
     core.endGroup();
 
+    // Verify context data before actions
+    ContextSchema.parse(context);
+
     // Initialize action results
     const results: ActionOutputs = {
       environment: context.environment,
       projects: []
     };
 
-    // Destroy deployments based on pull request number
+    // Action: Destroy and exit
     if (context.action === 'destroy') {
-      // Verify context data before destroying deployments
-      ContextSchema.parse(context);
-
-      core.startGroup('Analyze fly apps to destroy');
-      const apps = await fly.apps.list();
-      for (const app of apps) {
-        if (app.name.endsWith(`-pr-${context.pullRequest}`)) {
-          core.info(`Destroy preview app '${app.name}'`);
-
-          try {
-            await fly.apps.destroy(app.name);
-            results.projects.push({ action: 'destroy', app: app.name });
-          } catch (error) {
-            const msg = error instanceof Error ? error.message : String(error);
-            core.warning(msg);
-            results.projects.push({
-              action: 'skip',
-              appOrProject: app.name,
-              reason: 'Failed to destroy application'
-            });
-          }
-        }
-      }
+      core.startGroup('Destroy deprecated applications');
+      results.projects = await runDestroyApps(config, fly);
       core.endGroup();
 
       return ActionOutputsSchema.parse(results);
     }
-
-    // Create deployments based on affected projects
-    core.startGroup('Analyze affected projects to deploy');
-    const projectNames = await getDeployableProjects();
-    core.info(`Deployable projects: ${projectNames.join(', ')}`);
-    core.endGroup();
-
-    if (projectNames.length === 0) {
-      core.info('No projects to deploy, skipping deployment');
-      return ActionOutputsSchema.parse(results);
-    }
-
-    // Analyze each project
-    for (const projectName of projectNames) {
-      core.startGroup(`Analyze project '${projectName}' before deployment`);
-
-      // Get project configuration
-      core.info(`Get project configuration for '${projectName}'`);
-      const projectConfig = await getProjectConfiguration(projectName);
-      if (!projectConfig) {
-        const reason = 'Project configuration not found';
-        core.warning(`${reason}, not possible to deploy`);
-        results.projects.push({
-          appOrProject: projectName,
-          action: 'skip',
-          reason
-        });
-        continue;
-      }
-      core.info(
-        `Found project configuration with root '${projectConfig.root}'`
-      );
-
-      // Find github.json
-      core.info(`Lookup GitHub configuration file in '${projectConfig.root}'`);
-      const gcResponse = await lookupGitHubConfigFile(projectConfig.root);
-      if (!gcResponse) {
-        const reason = 'GitHub configuration file not found for the project';
-        core.info(`${reason}, skipping`);
-        results.projects.push({
-          appOrProject: projectName,
-          action: 'skip',
-          reason
-        });
-        continue;
-      }
-      const { configFile, content: githubConfig } = gcResponse;
-      core.info(`Found GitHub configuration file '${configFile}'`);
-
-      if (!githubConfig.deploy) {
-        const reason =
-          'Deployment is disabled in GitHub configuration for the project';
-        core.info(`${reason}, skipping`);
-        results.projects.push({
-          appOrProject: projectName,
-          action: 'skip',
-          reason
-        });
-        continue;
-      }
-
-      // Verify and get app name from fly.toml
-      core.info(
-        `Deployment is enabled, lookup Fly configuration file '${githubConfig.flyConfig}'`
-      );
-      const resolvedFlyConfig = join(
-        projectConfig.root,
-        githubConfig.flyConfig
-      );
-      let configAppName: string;
-      try {
-        const flyConfig = await fly.config.show({
-          config: resolvedFlyConfig,
-          local: true
-        });
-        configAppName = flyConfig.app;
-        core.info(
-          `Resolved app name '${configAppName}' from Fly configuration '${resolvedFlyConfig}'`
-        );
-      } catch {
-        const reason = `Fly configuration file not found '${resolvedFlyConfig}'`;
-        core.warning(`${reason}, not possible to deploy`);
-        results.projects.push({
-          appOrProject: projectName,
-          action: 'skip',
-          reason
-        });
-        continue;
-      }
-      core.endGroup();
-
-      // Verify context data before deploying
-      ContextSchema.parse(context);
-
-      // Requirements are met, ready to deploy
-
-      core.startGroup(`Project '${projectName}' ready to fly`);
-
-      const appName =
-        context.environment === 'preview'
-          ? getPreviewAppName(configAppName, Number(context.pullRequest))
-          : configAppName;
-      const env = addOpinionatedEnv(
-        { appName, prNumber: context.pullRequest },
-        config.env
-      );
-      const postgres =
-        context.environment === 'preview'
-          ? githubConfig.flyPostgresPreview
-          : githubConfig.flyPostgresProduction;
-
-      const options: DeployAppOptions = {
-        app: appName,
-        config: resolvedFlyConfig,
-        env,
+    // Action: Deploy
+    else if (context.action === 'deploy') {
+      core.startGroup('Deploy affected applications');
+      results.projects = await runDeployApps({
+        config,
         environment: context.environment,
-        postgres: postgres || undefined, // rather undefined than empty string
-        secrets: config.secrets
-      };
-
-      core.info(`Deploy '${options.app}' to '${options.environment}'...`);
-
-      try {
-        const result = await fly.deploy(options);
-        core.info(`Deployed to '${result.url}'`);
-        results.projects.push({
-          action: 'deploy',
-          app: result.app,
-          name: projectName,
-          url: result.url
-        });
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        core.warning(msg);
-        results.projects.push({
-          appOrProject: projectName,
-          action: 'skip',
-          reason: 'Failed to deploy project'
-        });
-      }
-
+        fly,
+        pullRequest: context.pullRequest
+      });
       core.endGroup();
     }
 
     // Preview deployments should add a comment to the pull request
-    if (results.environment === 'preview') {
-      core.startGroup('Pull request preview comment');
-      core.info('Analyze deployed projects');
-      const deployed = results.projects.filter((p) => p.action === 'deploy');
+    const deployed = results.projects.filter((p) => p.action === 'deploy');
+    if (deployed.length && results.environment === 'preview') {
+      core.startGroup('Add pull request preview comment');
+
+      // Create a table with deployed projects
       const comment = [
         `:sparkles: Your pull request project${
           deployed.length > 1 ? 's are' : ' is'
@@ -287,17 +137,21 @@ export async function flyDeployment(
         '| Project | App name | Preview |',
         '| --- | --- | --- |'
       ];
+
       for (const project of deployed) {
         comment.push(
           `| ${project.name} | ${project.app} | [${project.url}](${project.url}) |`
         );
       }
+
       core.info(`Add comment to pull request ${context.pullRequest}`);
+
       await addPullRequestComment(
         config.token,
         Number(context.pullRequest),
         comment.join('\n')
       );
+      core.endGroup();
     }
 
     return ActionOutputsSchema.parse(results);

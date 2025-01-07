@@ -37,6 +37,7 @@ vi.mock('@actions/github', () => ({
 vi.mock('@codeware/core/actions', async () => ({
   ...(await vi.importActual('@codeware/core/actions')),
   addPullRequestComment: vi.fn(),
+  getPullRequest: vi.fn(),
   getRepositoryDefaultBranch: vi.fn(),
   withGitHubContext: vi.fn()
 }));
@@ -433,12 +434,12 @@ describe('flyDeployment', () => {
           {
             action: 'skip',
             appOrProject: 'app-one',
-            reason: 'Project configuration not found'
+            reason: 'Project config not found'
           },
           {
             action: 'skip',
             appOrProject: 'app-two',
-            reason: 'Project configuration not found'
+            reason: 'Project config not found'
           }
         ]
       } satisfies ActionOutputs);
@@ -458,12 +459,12 @@ describe('flyDeployment', () => {
           {
             action: 'skip',
             appOrProject: 'app-one',
-            reason: 'GitHub configuration file not found for the project'
+            reason: 'GitHub config file not found for the project'
           },
           {
             action: 'skip',
             appOrProject: 'app-two',
-            reason: 'GitHub configuration file not found for the project'
+            reason: 'GitHub config file not found for the project'
           }
         ]
       } satisfies ActionOutputs);
@@ -717,12 +718,12 @@ describe('flyDeployment', () => {
           {
             action: 'skip',
             appOrProject: 'app-one',
-            reason: 'Project configuration not found'
+            reason: 'Project config not found'
           },
           {
             action: 'skip',
             appOrProject: 'app-two',
-            reason: 'Project configuration not found'
+            reason: 'Project config not found'
           }
         ]
       } satisfies ActionOutputs);
@@ -742,12 +743,12 @@ describe('flyDeployment', () => {
           {
             action: 'skip',
             appOrProject: 'app-one',
-            reason: 'GitHub configuration file not found for the project'
+            reason: 'GitHub config file not found for the project'
           },
           {
             action: 'skip',
             appOrProject: 'app-two',
-            reason: 'GitHub configuration file not found for the project'
+            reason: 'GitHub config file not found for the project'
           }
         ]
       } satisfies ActionOutputs);

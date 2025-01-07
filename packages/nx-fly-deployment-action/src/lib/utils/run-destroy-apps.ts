@@ -25,24 +25,25 @@ export const runDestroyApps = async (
   const apps = await fly.apps.list();
 
   // Filter deprecated apps to destroy
-  const appsToDestroy = await Promise.all(
-    apps.filter(async (app) => {
-      // Extract pull request number from app name
-      const prNumber = app.name.match(/-pr-(\d+)/)?.[1];
-      if (!prNumber) {
-        return false;
-      }
+  const appPromises = apps.map(async (app) => {
+    // Extract pull request number from app name
+    const prNumber = app.name.match(/-pr-(\d+)/)?.[1];
+    if (!prNumber) {
+      return null;
+    }
 
-      const pullRequest = await getPullRequest(config.token, Number(prNumber));
-      if (!pullRequest) {
-        core.warning(`Pull request #${prNumber} not found, skip destroy`);
-        return false;
-      }
+    const pullRequest = await getPullRequest(config.token, Number(prNumber));
+    if (!pullRequest) {
+      core.warning(`Pull request #${prNumber} not found, skip destroy`);
+      return null;
+    }
 
-      // App should be destroyed when PR is closed
-      return pullRequest.state === 'closed';
-    })
-  );
+    // App should be destroyed when PR is closed
+    return pullRequest.state === 'closed' ? app : null;
+  });
+
+  const result = await Promise.all(appPromises);
+  const appsToDestroy = result.filter((app) => app !== null);
 
   core.info(`Found ${appsToDestroy.length} apps to destroy`);
 

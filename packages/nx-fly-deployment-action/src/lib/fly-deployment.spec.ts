@@ -6,7 +6,7 @@ import * as coreAction from '@codeware/core/actions';
 import { type DeployAppOptions, Fly } from '@codeware/fly-node';
 import * as devkit from '@nx/devkit';
 import { ProjectConfiguration } from '@nx/devkit';
-import { PullRequestEvent } from '@octokit/webhooks-types';
+import type { PullRequestEvent } from '@octokit/webhooks-types';
 import { vol } from 'memfs';
 
 import { flyDeployment } from './fly-deployment';
@@ -63,6 +63,7 @@ describe('flyDeployment', () => {
   const mockCoreInfo = vi.mocked(core.info);
   const mockCoreStartGroup = vi.mocked(core.startGroup);
   const mockCoreWarning = vi.mocked(core.warning);
+  const mockCoreActionGetPullRequest = vi.mocked(coreAction.getPullRequest);
   const mockExecGetExecOutput = vi.mocked(exec.getExecOutput);
   const mockGithubContext = vi.mocked(github.context);
   const mockFly = vi.mocked(Fly);
@@ -646,7 +647,7 @@ describe('flyDeployment', () => {
       );
     });
 
-    it('should destroy preview apps', async () => {
+    it('should destroy preview apps when pull request is closed', async () => {
       setContext('pr-closed');
       setupMocks({
         flyApps: [
@@ -655,6 +656,9 @@ describe('flyDeployment', () => {
         ] as Awaited<ReturnType<typeof Fly.prototype.apps.list>>
       });
       const config = setupTest();
+      mockCoreActionGetPullRequest.mockResolvedValue({
+        state: 'closed'
+      } as any);
       const result = await flyDeployment(config, true);
 
       expect(getMockFly().apps.destroy).toHaveBeenCalledWith('app-one-pr-1');
@@ -672,6 +676,54 @@ describe('flyDeployment', () => {
             app: 'app-two-pr-1'
           }
         ]
+      } satisfies ActionOutputs);
+    });
+
+    it('should destroy preview apps with pull request number', async () => {
+      setContext('pr-closed');
+      setupMocks({
+        flyApps: [{ name: 'app-one-1' }, { name: 'app-two-pr-1' }] as Awaited<
+          ReturnType<typeof Fly.prototype.apps.list>
+        >
+      });
+      const config = setupTest();
+      mockCoreActionGetPullRequest.mockResolvedValue({
+        state: 'closed'
+      } as any);
+      const result = await flyDeployment(config, true);
+
+      expect(getMockFly().apps.destroy).toHaveBeenCalledWith('app-two-pr-1');
+
+      expect(result).toEqual({
+        environment: 'preview',
+        projects: [
+          {
+            action: 'destroy',
+            app: 'app-two-pr-1'
+          }
+        ]
+      } satisfies ActionOutputs);
+    });
+
+    it('should not destroy preview apps when pull request is open', async () => {
+      setContext('pr-closed');
+      setupMocks({
+        flyApps: [
+          { name: 'app-one-pr-1' },
+          { name: 'app-two-pr-1' }
+        ] as Awaited<ReturnType<typeof Fly.prototype.apps.list>>
+      });
+      const config = setupTest();
+      mockCoreActionGetPullRequest.mockResolvedValue({
+        state: 'open'
+      } as any);
+      const result = await flyDeployment(config, true);
+
+      expect(getMockFly().apps.destroy).not.toHaveBeenCalled();
+
+      expect(result).toEqual({
+        environment: 'preview',
+        projects: []
       } satisfies ActionOutputs);
     });
   });

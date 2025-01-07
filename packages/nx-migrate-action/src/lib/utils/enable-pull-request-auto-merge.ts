@@ -1,11 +1,10 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { getPullRequest } from '@codeware/core/actions';
 import type {
   MutationEnablePullRequestAutoMergeArgs,
   PullRequestMergeMethod
 } from '@octokit/graphql-schema';
-
-import { getPullRequest } from './get-pull-request';
 
 /**
  * Enable auto-merge for a pull request.

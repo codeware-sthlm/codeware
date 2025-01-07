@@ -11,9 +11,6 @@ on:
       - closed
       - reopened
       - synchronize
-    branches-ignore:
-      - renovate/**
-      - update-nx-workspace-*
   push:
     branches:
       - main
@@ -32,6 +29,10 @@ concurrency:
 
 jobs:
   deploy-env:
+    if: |
+      !startsWith(github.head_ref || github.ref_name, 'renovate') &&
+      !startsWith(github.head_ref || github.ref_name, 'update-nx-workspace')
+
     runs-on: ubuntu-latest
 
     outputs:

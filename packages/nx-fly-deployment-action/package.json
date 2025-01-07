@@ -1,6 +1,6 @@
 {
   "name": "@cdwr/nx-fly-deployment-action",
-  "version": "0.0.1",
+  "version": "0.0.1736260697727-e2e",
   "description": "The Nx Fly Deployment Action will manage your deployments to fly.io.",
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0",
-    "@nx/devkit": "20.x",
+    "@nx/devkit": "20.2.2",
     "@octokit/webhooks-types": "^7.6.1",
     "zod": "^3.23.8"
   },

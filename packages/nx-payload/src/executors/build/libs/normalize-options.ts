@@ -1,20 +1,12 @@
-import { join } from 'path';
-
 import type { ExecutorContext } from '@nx/devkit';
 import invariant from 'tiny-invariant';
 
 import type { BuildExecutorSchema } from '../schema';
 
-export type NormalizedSchema = BuildExecutorSchema & {
-  updateBuildableProjectDepsInPackageJson: boolean;
-  buildableProjectDepsInPackageJsonType:
-    | 'dependencies'
-    | 'devDependencies'
-    | 'none';
-} & {
+export type NormalizedSchema = {
   projectRoot: string;
   sourceRoot: string;
-};
+} & BuildExecutorSchema;
 
 export function normalizeOptions(
   options: BuildExecutorSchema,
@@ -30,21 +22,10 @@ export function normalizeOptions(
   invariant(projectRoot, 'No root provided for project');
   invariant(sourceRoot, 'No sourceRoot provided for project');
 
-  // Required target options
-  const { clean, main, outputFileName, outputPath, tsConfig } = options;
-
   return {
     projectRoot,
     sourceRoot,
-    outputPath,
-    outputFileName,
-    main,
-    tsConfig,
-    assets: options?.assets ?? [join(sourceRoot, 'assets')],
-    clean: clean ?? true,
-    watch: false,
-    transformers: [],
-    updateBuildableProjectDepsInPackageJson: true,
-    buildableProjectDepsInPackageJsonType: 'dependencies'
+    // Support custom overrides
+    ...options
   };
 }

@@ -2,25 +2,14 @@
 
 exports[`application generator should create Dockerfile for npm package manager 1`] = `
 "
-FROM node:20-alpine as base
+FROM node:22-alpine as base
 
 FROM base as builder
-
-ARG MONGO_URL
-ARG NODE_ENV
-ARG PAYLOAD_PUBLIC_SERVER_URL
-ARG PORT
-
-ENV MONGO_URL=\${MONGO_URL}
-ENV NODE_ENV=\${NODE_ENV}
-ENV PAYLOAD_PUBLIC_SERVER_URL=\${PAYLOAD_PUBLIC_SERVER_URL}
-ENV PORT=\${PORT}
 
 WORKDIR /app
 
 COPY package.json ./
 
-RUN npm config ls
 RUN npm install
 
 COPY . .
@@ -32,11 +21,10 @@ RUN sed -i '/package-lock.json/d' .gitignore
 
 RUN npx nx build test-app
 
-# We'll create a structure similar to scaffolding a default payload workspace.
-# Admin build output should match \`buildPath\` in payload.config.ts.
 FROM base as runtime
 
 ENV NODE_ENV production
+ENV PAYLOAD_CONFIG_PATH="dist/server/apps/test-dir/src/payload.config.js"
 
 WORKDIR /app
 
@@ -44,12 +32,10 @@ COPY --from=builder /app/dist/apps/test-dir/package.json ./
 
 RUN npm install --omit=dev
 
-COPY --from=builder /app/dist/apps/test-dir/src   ./dist
-COPY --from=builder /app/dist/apps/test-dir/build ./dist/apps/test-dir/build
+COPY --from=builder /app/dist/apps/test-dir ./dist
 
 EXPOSE 3000
-
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/server/main.js"]
 "
 `;
 
@@ -64,6 +50,13 @@ exports[`application generator should not setup plugin inference when 'useInfere
   "targets": {
     "build": {
       "cache": true,
+      "configurations": {
+        "development": {
+          "sourcemap": true,
+        },
+        "production": {},
+      },
+      "defaultConfiguration": "production",
       "executor": "@cdwr/nx-payload:build",
       "metadata": {
         "description": "Build the Payload admin application",
@@ -72,10 +65,29 @@ exports[`application generator should not setup plugin inference when 'useInfere
         ],
       },
       "options": {
+        "assets": [
+          "{projectRoot}/src/assets",
+        ],
+        "bundle": false,
+        "deleteOutputPath": true,
+        "esbuildOptions": {
+          "outExtension": {
+            ".js": ".js",
+          },
+          "outdir": "{workspaceRoot}/dist/{projectRoot}/server",
+        },
+        "format": [
+          "cjs",
+        ],
+        "generatePackageJson": true,
         "main": "apps/test-dir/src/main.ts",
-        "outputFileName": "src/main.js",
+        "outputFileName": "server/main.js",
+        "outputHashing": "none",
         "outputPath": "dist/apps/test-dir",
+        "platform": "node",
+        "target": "esnext",
         "tsConfig": "apps/test-dir/tsconfig.app.json",
+        "watch": false,
       },
     },
     "lint": {
@@ -98,6 +110,16 @@ exports[`application generator should not setup plugin inference when 'useInfere
       },
     },
     "serve": {
+      "cache": false,
+      "configurations": {
+        "development": {
+          "buildTarget": "test-app:build:development",
+        },
+        "production": {
+          "buildTarget": "test-app:build:production",
+        },
+      },
+      "defaultConfiguration": "development",
       "executor": "@nx/js:node",
       "metadata": {
         "description": "Serve Payload admin application in development mode",
@@ -108,7 +130,6 @@ exports[`application generator should not setup plugin inference when 'useInfere
       "options": {
         "buildTarget": "test-app:build",
         "runBuildTargetDependencies": true,
-        "watch": true,
       },
     },
     "test": {

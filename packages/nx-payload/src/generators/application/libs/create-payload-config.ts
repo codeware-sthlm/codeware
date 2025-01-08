@@ -17,13 +17,13 @@ export function createPayloadConfig(
   if (database === 'mongodb') {
     importDbAdapter = `import { mongooseAdapter } from '@payloadcms/db-mongodb';`;
     configDb = `db: mongooseAdapter({
-  url: String(process.env.MONGO_URL),
+  url: env.DATABASE_URL,
   migrationDir: resolve(__dirname, 'migrations'),
 }),`;
   } else {
     importDbAdapter = `import { postgresAdapter } from '@payloadcms/db-postgres';`;
     configDb = `db: postgresAdapter({
-  pool: { connectionString: process.env.POSTGRES_URL },
+  pool: { connectionString: env.DATABASE_URL },
   migrationDir: resolve(__dirname, 'migrations'),
 }),`;
   }
@@ -37,12 +37,13 @@ import { slateEditor } from '@payloadcms/richtext-slate';
 import { buildConfig } from 'payload/config';
 
 import Users from './collections/Users';
+import env from './env/env.resolver';
 
 export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: Users.slug,
-    buildPath: resolve(__dirname, '../../..', 'dist/${directory}/build')
+    buildPath: resolve(env.CWD, 'dist/${directory}/build')
   },
   collections: [Users],
   ${configDb}

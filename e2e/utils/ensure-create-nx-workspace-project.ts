@@ -21,11 +21,39 @@ import {
 import { getE2EPackageManager } from './get-e2e-package-manager';
 
 export type CreateNxWorkspaceProject = {
-  /** Name of application when one has been generated */
+  /**
+   * Name of application when one has been generated.
+   *
+   * @example
+   * 'appdefault'
+   */
   appName?: string;
-  /** Application directory when one has been generated */
+
+  /**
+   * Application directory relative to the workspace root,
+   * when one has been generated.
+   *
+   * @example
+   * 'apps/appdefault'
+   */
   appDirectory?: string;
-  /** Project path where the workspace was generated */
+
+  /**
+   * Project name used for generating the workspace with `create-nx-workspace`.
+   *
+   * @example
+   * 'proj'
+   */
+  projectName: string;
+
+  /**
+   * Full path to project where the workspace was generated.
+   *
+   * Hint! Equivalent to `tmpProjPath()`.
+   *
+   * @example
+   * '/users/username/tmp/nx-e2e/proj/'
+   */
   projectPath: string;
 };
 
@@ -38,6 +66,7 @@ type Options = {
    * @default 'appdefault''
    */
   appName: 'random' | { name: string };
+
   /**
    * Ensure the plugin gets installed in the workspace
    * @default false
@@ -128,7 +157,7 @@ export async function ensureCreateNxWorkspaceProject({
 
   // The workspace should created in the e2e temp path
   const projectPath = tmpProjPath();
-  const name = basename(projectPath);
+  const projectName = basename(projectPath);
   const runPath = join(projectPath, '..');
 
   // Ensure run path exists
@@ -136,7 +165,7 @@ export async function ensureCreateNxWorkspaceProject({
     mkdirSync(runPath, { recursive: true });
   }
 
-  const cmd = `npx create-nx-workspace@${version} ${name} --preset ${preset} ${cmdOptions.join(' ')}`;
+  const cmd = `npx create-nx-workspace@${version} ${projectName} --preset ${preset} ${cmdOptions.join(' ')}`;
 
   logDebug('Creating Nx workspace project', `Preset '${preset}'`);
   logDebug('Run command', cmd);
@@ -184,6 +213,7 @@ export async function ensureCreateNxWorkspaceProject({
   return {
     appName,
     appDirectory,
+    projectName,
     projectPath
   };
 }

@@ -1,7 +1,5 @@
 {
-  "$schema": "http://json-schema.org/schema",
-  "$id": "NxPayloadApp",
-  "title": "Generate a Payload admin application running Express",
+  "title": "Generate a Payload admin application",
   "type": "object",
   "properties": {
     "name": {
@@ -22,7 +20,20 @@
     "database": {
       "description": "Database adapter to setup initially.",
       "type": "string",
-      "enum": ["mongodb", "postgres"]
+      "enum": ["mongodb", "postgres"],
+      "default": "mongodb"
+    },
+    "e2eTestRunner": {
+      "type": "string",
+      "enum": ["jest", "none"],
+      "description": "Test runner to use for e2e tests.",
+      "default": "none"
+    },
+    "linter": {
+      "type": "string",
+      "enum": ["eslint", "none"],
+      "description": "The tool to use for running lint checks.",
+      "default": "eslint"
     },
     "unitTestRunner": {
       "type": "string",
@@ -38,11 +49,6 @@
     "skipFormat": {
       "type": "boolean",
       "description": "Skip formatting application files.",
-      "default": false
-    },
-    "skipE2e": {
-      "type": "boolean",
-      "description": "Skip generating e2e application.",
       "default": false
     }
   },

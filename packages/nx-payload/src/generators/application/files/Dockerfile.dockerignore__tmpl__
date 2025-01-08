@@ -23,3 +23,10 @@ bun.lockb
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# Other apps
+/apps/*
+!/apps/<%= name %>
+
+# Target environment variables for local development
+.env.*

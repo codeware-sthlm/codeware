@@ -1,5 +1,5 @@
 import {
-  type PluginConfiguration,
+  ExpandedPluginConfiguration,
   type Tree,
   readJson,
   readNxJson,
@@ -9,12 +9,14 @@ import {
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import type { PackageJson } from 'nx/src/utils/package-json';
 
+import { PayloadPluginOptions } from '../../plugins/utils/types';
+
 import generator from './application';
 import type { AppGeneratorSchema } from './schema';
 
 describe('application generator', () => {
   let tree: Tree;
-  const options: AppGeneratorSchema = {
+  const requiredOptions: AppGeneratorSchema = {
     directory: 'apps/test-dir',
     name: 'test-app',
     skipFormat: true
@@ -35,7 +37,9 @@ describe('application generator', () => {
     updateNxJson(tree, workspace);
   };
 
-  const addInferencePlugin = (plugin: PluginConfiguration) => {
+  const addInferencePlugin = (
+    plugin: string | ExpandedPluginConfiguration<PayloadPluginOptions>
+  ) => {
     const workspace = readNxJson(tree);
     workspace.plugins = workspace.plugins || [];
     workspace.plugins.push(plugin);
@@ -51,14 +55,14 @@ describe('application generator', () => {
   });
 
   it('should add payload dependency', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(packageJson.dependencies['payload']).toBeDefined();
   });
 
   it('should add webpack bundler dependency', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(
@@ -67,21 +71,21 @@ describe('application generator', () => {
   });
 
   it('should add mongodb plugin dependency', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(packageJson.dependencies['@payloadcms/db-mongodb']).toBeDefined();
   });
 
   it('should add postgres plugin dependency', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(packageJson.dependencies['@payloadcms/db-postgres']).toBeDefined();
   });
 
   it('should add richtext slate editor plugin dependency', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(
@@ -89,17 +93,16 @@ describe('application generator', () => {
     ).toBeDefined();
   });
 
-  it('should add dependencies for express', async () => {
-    await generator(tree, options);
+  it('should add dependencies for node', async () => {
+    await generator(tree, requiredOptions);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
-    expect(packageJson.dependencies['express']).toBeDefined();
-    expect(packageJson.dependencies['@nx/express']).toBeUndefined();
-    expect(packageJson.devDependencies['@nx/express']).toBeDefined();
+    expect(packageJson.dependencies['@nx/node']).toBeUndefined();
+    expect(packageJson.devDependencies['@nx/node']).toBeDefined();
   });
 
   it('should not add dependencies for mongodb or postgres', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(packageJson.dependencies['mongodb']).toBeUndefined();
@@ -110,23 +113,29 @@ describe('application generator', () => {
   });
 
   it('should add payload project files', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
     expect(
-      tree.exists(`${options.directory}/src/payload.config.ts`)
+      tree.exists(`${requiredOptions.directory}/src/payload.config.ts`)
     ).toBeTruthy();
 
-    expect(tree.exists(`${options.directory}/eslint.config.js`)).toBeTruthy();
+    expect(
+      tree.exists(`${requiredOptions.directory}/eslint.config.js`)
+    ).toBeTruthy();
 
-    expect(tree.exists(`${options.directory}/tsconfig.app.json`)).toBeTruthy();
-    expect(tree.exists(`${options.directory}/tsconfig.json`)).toBeTruthy();
-    expect(tree.exists(`${options.directory}/tsconfig.spec.json`)).toBeTruthy();
-
-    expect(tree.exists(`${options.directory}/webpack.config.js`)).toBeTruthy();
+    expect(
+      tree.exists(`${requiredOptions.directory}/tsconfig.app.json`)
+    ).toBeTruthy();
+    expect(
+      tree.exists(`${requiredOptions.directory}/tsconfig.json`)
+    ).toBeTruthy();
+    expect(
+      tree.exists(`${requiredOptions.directory}/tsconfig.spec.json`)
+    ).toBeTruthy();
   });
 
   it('should exclude folders with run-time generated files on build', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
     const content: {
       extends: string;
@@ -134,7 +143,7 @@ describe('application generator', () => {
       exclude: Array<string>;
       include: Array<string>;
     } = JSON.parse(
-      tree.read(`${options.directory}/tsconfig.app.json`, 'utf-8')
+      tree.read(`${requiredOptions.directory}/tsconfig.app.json`, 'utf-8')
     );
 
     expect(
@@ -148,195 +157,200 @@ describe('application generator', () => {
     expect(content.include.length).toBeGreaterThan(0);
   });
 
-  it('should add express project files', async () => {
-    await generator(tree, options);
-
-    expect(tree.exists(`${options.directory}/webpack.config.js`)).toBeTruthy();
-  });
-
-  it('should create payload e2e application', async () => {
-    await generator(tree, options);
-
-    expect(tree.exists(`${options.directory}-e2e/project.json`)).toBeTruthy();
-  });
-
-  it('should skip payload e2e application', async () => {
-    await generator(tree, { ...options, skipE2e: true });
-
-    expect(tree.exists(`${options.directory}-e2e/project.json`)).toBeFalsy();
-  });
-
   it('should add docker files', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
-    expect(tree.exists(`${options.directory}/docker-compose.yml`)).toBeTruthy();
-    expect(tree.exists(`${options.directory}/Dockerfile`)).toBeTruthy();
     expect(
-      tree.exists(`${options.directory}/Dockerfile.dockerignore`)
+      tree.exists(`${requiredOptions.directory}/docker-compose.yml`)
+    ).toBeTruthy();
+    expect(tree.exists(`${requiredOptions.directory}/Dockerfile`)).toBeTruthy();
+    expect(
+      tree.exists(`${requiredOptions.directory}/Dockerfile.dockerignore`)
     ).toBeTruthy();
   });
 
   it('should create Dockerfile for npm package manager', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
-    const content = tree.read(`${options.directory}/Dockerfile`, 'utf-8');
+    const content = tree.read(
+      `${requiredOptions.directory}/Dockerfile`,
+      'utf-8'
+    );
     expect(content).toMatchSnapshot();
   });
 
-  it('should add two dotenv files', async () => {
-    await generator(tree, options);
+  it('should not generate e2e application by default', async () => {
+    await generator(tree, requiredOptions);
+
+    expect(
+      tree.exists(`${requiredOptions.directory}-e2e/project.json`)
+    ).toBeFalsy();
+  });
+
+  it('should generate e2e application', async () => {
+    await generator(tree, { ...requiredOptions, e2eTestRunner: 'jest' });
+
+    expect(
+      tree.exists(`${requiredOptions.directory}-e2e/project.json`)
+    ).toBeTruthy();
+  });
+
+  it('should add three dotenv files', async () => {
+    await generator(tree, requiredOptions);
 
     const envFiles = tree
-      .children(options.directory)
+      .children(requiredOptions.directory)
       .filter((file) => file.match(/\.env/));
 
-    expect(envFiles).toEqual(['.env.local', '.env.serve']);
+    expect(envFiles).toEqual(['.env.docker', '.env.local', '.env.serve']);
   });
 
   it('should add folders for auto generated files', async () => {
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
     expect(
-      tree.exists(`${options.directory}/src/generated/.gitkeep`)
+      tree.exists(`${requiredOptions.directory}/src/generated/.gitkeep`)
     ).toBeTruthy();
 
     expect(
-      tree.exists(`${options.directory}/src/migrations/.gitkeep`)
+      tree.exists(`${requiredOptions.directory}/src/migrations/.gitkeep`)
     ).toBeTruthy();
   });
 
   it('should setup mongodb in payload config by default', async () => {
-    await generator(tree, { ...options, database: undefined });
+    await generator(tree, requiredOptions);
 
     const content = tree.read(
-      `${options.directory}/src/payload.config.ts`,
+      `${requiredOptions.directory}/src/payload.config.ts`,
       'utf-8'
     );
-    expect(content.match(/mongooseAdapter|MONGO_URL/g).length).toBe(3);
+    expect(content.match(/mongooseAdapter/g).length).toBe(2);
+    expect(content.match(/DATABASE_URL/g).length).toBe(1);
   });
 
   it('should setup mongodb in payload config', async () => {
-    await generator(tree, { ...options, database: 'mongodb' });
+    await generator(tree, { ...requiredOptions, database: 'mongodb' });
 
     const content = tree.read(
-      `${options.directory}/src/payload.config.ts`,
+      `${requiredOptions.directory}/src/payload.config.ts`,
       'utf-8'
     );
-    expect(content.match(/mongooseAdapter|MONGO_URL/g).length).toBe(3);
-    expect(content.match(/postgresAdapter|POSTGRES_URL/g)).toBeNull();
+    expect(content.match(/mongooseAdapter/g).length).toBe(2);
+    expect(content.match(/mongodb:\/\/localhost\/test-app/)).toBeDefined();
+    expect(content.match(/postgresAdapter/)).toBeNull();
   });
 
   it('should setup postgres in payload config', async () => {
-    await generator(tree, { ...options, database: 'postgres' });
+    await generator(tree, { ...requiredOptions, database: 'postgres' });
 
     const content = tree.read(
-      `${options.directory}/src/payload.config.ts`,
+      `${requiredOptions.directory}/src/payload.config.ts`,
       'utf-8'
     );
-    expect(content.match(/mongooseAdapter|MONGO_URL/g)).toBeNull();
-    expect(content.match(/postgresAdapter|POSTGRES_URL/g).length).toBe(3);
+    expect(content.match(/postgresAdapter/g).length).toBe(2);
+    expect(
+      content.match(/postgresql:\/\/postgres:postgres@postgres:5432\/test-app/)
+    ).toBeDefined();
+    expect(content.match(/mongooseAdapter/)).toBeNull();
   });
 
   it("should setup plugin inference when 'useInferencePlugins' doesn't exist", async () => {
     setInferenceFlag();
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
     const nxJson = readNxJson(tree);
     expect(nxJson.useInferencePlugins).toBeUndefined();
-    expect(nxJson.plugins).toEqual(['@cdwr/nx-payload/plugin']);
+    expect(nxJson.plugins[0]).toMatchObject({
+      plugin: '@cdwr/nx-payload/plugin'
+    });
 
-    const projectJson = readProjectConfiguration(tree, options.name);
+    const projectJson = readProjectConfiguration(tree, requiredOptions.name);
     expect(projectJson).toMatchSnapshot();
   });
 
   it("should setup plugin inference when 'useInferencePlugins' is 'true'", async () => {
     setInferenceFlag(true);
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
     const nxJson = readNxJson(tree);
     expect(nxJson.useInferencePlugins).toBe(true);
-    expect(nxJson.plugins).toEqual(['@cdwr/nx-payload/plugin']);
+    expect(nxJson.plugins[0]).toMatchObject({
+      plugin: '@cdwr/nx-payload/plugin'
+    });
 
-    const projectJson = readProjectConfiguration(tree, options.name);
+    const projectJson = readProjectConfiguration(tree, requiredOptions.name);
     expect(projectJson).toMatchSnapshot();
   });
 
   it("should not setup plugin inference when 'useInferencePlugins' is 'false'", async () => {
     setInferenceFlag(false);
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
     const nxJson = readNxJson(tree);
     expect(nxJson.useInferencePlugins).toBe(false);
     expect(nxJson.plugins).toBeUndefined();
 
-    const projectJson = readProjectConfiguration(tree, options.name);
+    const projectJson = readProjectConfiguration(tree, requiredOptions.name);
     expect(projectJson).toMatchSnapshot();
   });
 
-  it('should skip setup plugin inference when plugin exists as string', async () => {
-    addInferencePlugin('@cdwr/nx-payload/plugin');
-    await generator(tree, options);
+  it('should add plugin defined as object when needed', async () => {
+    setInferenceFlag();
+    await generator(tree, requiredOptions);
 
-    const content = readNxJson(tree);
-    expect(content.plugins).toEqual(['@cdwr/nx-payload/plugin']);
-  });
-
-  it('should skip setup plugin inference when plugin exists as object without options', async () => {
-    addInferencePlugin({ plugin: '@cdwr/nx-payload/plugin' });
-    await generator(tree, options);
-
-    const content = readNxJson(tree);
-    expect(content.plugins).toEqual([{ plugin: '@cdwr/nx-payload/plugin' }]);
-  });
-
-  it('should skip setup plugin inference when plugin exists as object with full options', async () => {
-    addInferencePlugin({
-      plugin: '@cdwr/nx-payload/plugin',
-      options: {
-        buildTargetName: 'my-build',
-        dockerBuildTargetName: 'my-docker:build',
-        dockerRunTargetName: 'my-docker:run',
-        generateTargetName: 'my-generate',
-        mongodbTargetName: 'my-mongodb',
-        payloadTargetName: 'my-payload',
-        postgresTargetName: 'my-postgres',
-        serveTargetName: 'my-serve',
-        startTargetName: 'my-start',
-        stopTargetName: 'my-stop'
-      }
-    });
-    await generator(tree, options);
-
-    const content = readNxJson(tree);
-    expect(content.plugins).toEqual([
+    const nxJson = readNxJson(tree);
+    expect(nxJson.plugins).toEqual([
       {
         plugin: '@cdwr/nx-payload/plugin',
         options: {
-          buildTargetName: 'my-build',
-          dockerBuildTargetName: 'my-docker:build',
-          dockerRunTargetName: 'my-docker:run',
-          generateTargetName: 'my-generate',
-          mongodbTargetName: 'my-mongodb',
-          payloadTargetName: 'my-payload',
-          postgresTargetName: 'my-postgres',
-          serveTargetName: 'my-serve',
-          startTargetName: 'my-start',
-          stopTargetName: 'my-stop'
+          buildTargetName: 'build',
+          dxDockerBuildTargetName: 'dx:docker-build',
+          dxDockerRunTargetName: 'dx:docker-run',
+          dxMongodbTargetName: 'dx:mongodb',
+          dxPostgresTargetName: 'dx:postgres',
+          dxStartTargetName: 'dx:start',
+          dxStopTargetName: 'dx:stop',
+          generateTargetName: 'gen',
+          payloadTargetName: 'payload',
+          serveTargetName: 'serve'
         }
       }
     ]);
   });
 
-  it('should skip setup plugin inference when plugin exists as object with partial options', async () => {
+  it('should skip setup plugin inference when plugin exists as string', async () => {
+    addInferencePlugin('@cdwr/nx-payload/plugin');
+    await generator(tree, requiredOptions);
+
+    const content = readNxJson(tree);
+    expect(content.plugins).toEqual(['@cdwr/nx-payload/plugin']);
+  });
+
+  it('should skip setup plugin inference when plugin defined as object without options', async () => {
+    addInferencePlugin({ plugin: '@cdwr/nx-payload/plugin' });
+    await generator(tree, requiredOptions);
+
+    const content = readNxJson(tree);
+    expect(content.plugins).toEqual([{ plugin: '@cdwr/nx-payload/plugin' }]);
+  });
+
+  it('should skip setup plugin inference when plugin defined as object with options', async () => {
     addInferencePlugin({
       plugin: '@cdwr/nx-payload/plugin',
       options: {
         buildTargetName: 'my-build',
-        startTargetName: 'my-start',
-        stopTargetName: 'my-stop'
+        generateTargetName: 'my-generate',
+        payloadTargetName: 'my-payload',
+        serveTargetName: 'my-serve',
+        dxDockerBuildTargetName: 'my-docker-build',
+        dxDockerRunTargetName: 'my-docker-run',
+        dxMongodbTargetName: 'my-mongodb',
+        dxPostgresTargetName: 'my-postgres',
+        dxStartTargetName: 'my-start',
+        dxStopTargetName: 'my-stop'
       }
     });
-    await generator(tree, options);
+    await generator(tree, requiredOptions);
 
     const content = readNxJson(tree);
     expect(content.plugins).toEqual([
@@ -344,8 +358,41 @@ describe('application generator', () => {
         plugin: '@cdwr/nx-payload/plugin',
         options: {
           buildTargetName: 'my-build',
-          startTargetName: 'my-start',
-          stopTargetName: 'my-stop'
+          generateTargetName: 'my-generate',
+          payloadTargetName: 'my-payload',
+          serveTargetName: 'my-serve',
+          dxDockerBuildTargetName: 'my-docker-build',
+          dxDockerRunTargetName: 'my-docker-run',
+          dxMongodbTargetName: 'my-mongodb',
+          dxPostgresTargetName: 'my-postgres',
+          dxStartTargetName: 'my-start',
+          dxStopTargetName: 'my-stop'
+        }
+      }
+    ]);
+  });
+
+  it('should skip setup plugin inference when plugin defined as object with partial options', async () => {
+    addInferencePlugin({
+      plugin: '@cdwr/nx-payload/plugin',
+      options: {
+        buildTargetName: 'my-build',
+        generateTargetName: 'my-generate',
+        payloadTargetName: 'my-payload',
+        serveTargetName: 'my-serve'
+      }
+    });
+    await generator(tree, requiredOptions);
+
+    const content = readNxJson(tree);
+    expect(content.plugins).toEqual([
+      {
+        plugin: '@cdwr/nx-payload/plugin',
+        options: {
+          buildTargetName: 'my-build',
+          generateTargetName: 'my-generate',
+          payloadTargetName: 'my-payload',
+          serveTargetName: 'my-serve'
         }
       }
     ]);

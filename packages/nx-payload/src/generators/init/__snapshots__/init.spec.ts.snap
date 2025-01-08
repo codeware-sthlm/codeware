@@ -7,13 +7,12 @@ exports[`init should generate correct dependencies in package.json 1`] = `
     "@payloadcms/db-mongodb": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
     "@payloadcms/db-postgres": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
     "@payloadcms/richtext-slate": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
-    "express": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
     "payload": StringMatching /\\^\\[\\^\\|~\\]\\?\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
+    "zod": "latest",
   },
   "devDependencies": {
-    "@nx/express": StringMatching /\\^\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
+    "@nx/node": StringMatching /\\^\\\\d\\+\\\\\\.\\\\d\\+\\\\\\.\\\\d\\+\\$/,
   },
   "name": "@proj/source",
 }
 `;
-

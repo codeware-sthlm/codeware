@@ -388,15 +388,15 @@ Alias: `app`
 
 Generate a Payload application served by Express.
 
-| Option           | Type    | Required | Default   | Description                                          |
-| ---------------- | ------- | :------: | --------- | ---------------------------------------------------- |
-| `name`           | string  |    ✅    |           | The name of the application.                         |
-| `directory`      | string  |    ✅    |           | The path of the application files.                   |
-| `database`       | string  |          | `mongodb` | Preferred database to setup [`mongodb`, `postgres`]. |
-| `tags`           | string  |          | `''`      | Comma separated tags.                                |
-| `unitTestRunner` | string  |          | `jest`    | The preferred unit test runner [ `jest`, `none` ].   |
-| `linter`         | string  |          | `eslint`  | The tool to use for running lint checks.             |
-| `skipE2e`        | boolean |          | `false`   | Skip generating e2e application.                     |
+| Option           | Type   | Required | Default   | Description                                          |
+| ---------------- | ------ | :------: | --------- | ---------------------------------------------------- |
+| `name`           | string |    ✅    |           | The name of the application.                         |
+| `directory`      | string |    ✅    |           | The path of the application files.                   |
+| `database`       | string |          | `mongodb` | Preferred database to setup [`mongodb`, `postgres`]. |
+| `tags`           | string |          | `''`      | Comma separated tags.                                |
+| `e2eTestRunner`  | string |          | `none`    | The preferred e2e test runner [ `jest`, `none` ].    |
+| `linter`         | string |          | `eslint`  | The tool to use for running lint checks.             |
+| `unitTestRunner` | string |          | `jest`    | The preferred unit test runner [ `jest`, `none` ].   |
 
 > 💡 `name` can also be provided as the first argument (used in the examples in this readme)
 
@@ -404,16 +404,15 @@ Generate a Payload application served by Express.
 
 ### `build` <!-- omit in toc -->
 
-Build the application with `tsc`.
+Build the application with `esbuild`.
 
-| Option           | Type                      | Required | Inferred                        | Description                                                                                                                    |
-| ---------------- | ------------------------- | :------: | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `main`           | string                    |    ✅    | `apps/{name}/src/main.ts`       | The name of the main entry-point. file                                                                                         |
-| `outputPath`     | string                    |    ✅    | `dist/apps/{name}`              | The output path of the generated. files                                                                                        |
-| `outputFileName` | string                    |    ✅    | `src/main.js`                   | The relative path, from `outputPath`, to the output main file. A webpack property required to make `serve` find the main file. |
-| `tsConfig`       | string                    |    ✅    | `apps/{name}/tsconfig.app.json` | The path to the Typescript configuration file.                                                                                 |
-| `assets`         | array of object or string |          | `[]`                            | List of static assets.                                                                                                         |
-| `clean`          | boolean                   |          | `true`                          | Remove previous output before build.                                                                                           |
+Required options below. Custom options can be provided to your build target, see `@nx/esbuild` plugin for more details.
+
+| Option       | Type   | Inferred value                  | Description                                    |
+| ------------ | ------ | ------------------------------- | ---------------------------------------------- |
+| `main`       | string | `apps/{name}/src/main.ts`       | The name of the main entry-point. file         |
+| `outputPath` | string | `dist/apps/{name}`              | The output path of the generated. files        |
+| `tsConfig`   | string | `apps/{name}/tsconfig.app.json` | The path to the Typescript configuration file. |
 
 ## Versions Compatibility
 

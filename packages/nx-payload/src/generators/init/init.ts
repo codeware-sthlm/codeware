@@ -6,16 +6,16 @@ import {
   formatFiles,
   runTasksInSerial
 } from '@nx/devkit';
-import { initGenerator as expressInitGenerator } from '@nx/express/src/generators/init/init';
+import { initGenerator as nodeInitGenerator } from '@nx/node/src/generators/init/init';
 
 import { payloadPluginsVersions, payloadVersion } from '../../utils/versions';
 
-import type { Schema } from './schema';
+import type { InitSchema } from './schema';
 
 function updateDependencies(tree: Tree) {
   return addDependenciesToPackageJson(
     tree,
-    { ...payloadPluginsVersions, payload: payloadVersion },
+    { ...payloadPluginsVersions, payload: payloadVersion, zod: 'latest' },
     {}
   );
 }
@@ -25,12 +25,12 @@ function updateDependencies(tree: Tree) {
  */
 export async function initGenerator(
   tree: Tree,
-  schema: Schema
+  schema: InitSchema
 ): Promise<GeneratorCallback> {
   const tasks: GeneratorCallback[] = [];
 
-  const expressTask = await expressInitGenerator(tree, schema);
-  tasks.push(expressTask);
+  const nodeTask = await nodeInitGenerator(tree, schema);
+  tasks.push(nodeTask);
 
   const installTask = updateDependencies(tree);
   tasks.push(installTask);

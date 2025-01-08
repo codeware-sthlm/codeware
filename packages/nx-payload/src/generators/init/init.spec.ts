@@ -27,11 +27,11 @@ describe('init', () => {
         '@payloadcms/db-mongodb': expect.stringMatching(dynamicVersion),
         '@payloadcms/db-postgres': expect.stringMatching(dynamicVersion),
         '@payloadcms/richtext-slate': expect.stringMatching(dynamicVersion),
-        express: expect.stringMatching(dynamicVersion),
-        payload: expect.stringMatching(dynamicVersion)
+        payload: expect.stringMatching(dynamicVersion),
+        zod: 'latest'
       },
       devDependencies: {
-        '@nx/express': expect.stringMatching(/^\d+\.\d+\.\d+$/)
+        '@nx/node': expect.stringMatching(/^\d+\.\d+\.\d+$/)
       }
     });
   });

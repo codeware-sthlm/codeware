@@ -1,35 +1,45 @@
 import express from 'express';
 import payload from 'payload';
 
-// Create an Express server
-const app = express();
+import env from './env/env.resolver';
 
-// Let Express serve assets when needed but it's not required by Payload.
-// app.use('/assets', express.static(path.join(__dirname, 'assets')));
+const startServer = async () => {
+  try {
+    console.log('Starting server');
 
-// Could be useful if we need a separate API parallel to Payload.
-// GraphQL use /api so try to avoid conflicts by using another endoint.
-// app.get('/_api', (req, res) => {
-//   res.send({ message: 'Welcome to our custom api!' });
-// });
+    // Create an Express server
+    const app = express();
+    const port = env.PORT;
 
-// Redirect root to Admin panel
-app.get('/', (_, res) => {
-  res.redirect('/admin');
-});
+    // Redirect root to Admin panel
+    app.get('/', (_, res) => res.redirect('/admin'));
 
-// Initialize Payload
-payload.init({
-  secret: String(process.env.PAYLOAD_SECRET_KEY),
-  express: app,
-  onInit: () => {
-    payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`);
-    payload.logger.info(`Using DB adapter: ${payload.db.name}`);
+    // Initialize Payload
+    await payload.init({
+      secret: env.PAYLOAD_SECRET,
+      express: app,
+      disableDBConnect: env.DISABLE_DB_CONNECT,
+      onInit: async (p) => {
+        p.logger.info(`Payload Admin URL: ${p.getAdminURL()}`);
+        p.logger.info(`Using DB adapter: ${p.db.name}`);
+      },
+    });
+
+    payload.logger.info('Payload initialized');
+
+    // After Payload is initialized your migrations are ready to run.
+    // await payload.db.migrate();
+
+    app
+      .listen(port, () =>
+        console.log(`[ started ] on port ${port} (${env.NODE_ENV})`)
+      )
+      .on('error', (error) => console.error(`[ error ] ${error.message}`))
+      .on('close', () => console.log('[ closed ]'));
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-});
+};
 
-const port = process.env.PORT || 3000;
-const server = app.listen(port, () => {
-  console.log(`[ started ] on port ${port} (${process.env.NODE_ENV})`);
-});
-server.on('error', console.error);
+startServer();

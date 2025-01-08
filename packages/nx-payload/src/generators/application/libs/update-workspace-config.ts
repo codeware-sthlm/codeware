@@ -1,13 +1,30 @@
 import {
+  type ExpandedPluginConfiguration,
   type PluginConfiguration,
   type Tree,
   readNxJson,
   updateNxJson
 } from '@nx/devkit';
 
+import type { PayloadPluginOptions } from '../../../plugins/utils/types';
+
 import type { NormalizedSchema } from './normalize-options';
 
-const PLUGIN = '@cdwr/nx-payload/plugin';
+const defaultPlugin: ExpandedPluginConfiguration<PayloadPluginOptions> = {
+  plugin: '@cdwr/nx-payload/plugin',
+  options: {
+    buildTargetName: 'build',
+    generateTargetName: 'gen',
+    payloadTargetName: 'payload',
+    serveTargetName: 'serve',
+    dxDockerBuildTargetName: 'dx:docker-build',
+    dxDockerRunTargetName: 'dx:docker-run',
+    dxMongodbTargetName: 'dx:mongodb',
+    dxPostgresTargetName: 'dx:postgres',
+    dxStartTargetName: 'dx:start',
+    dxStopTargetName: 'dx:stop'
+  }
+};
 
 export function updateWorkspaceConfig(host: Tree, options: NormalizedSchema) {
   const workspace = readNxJson(host);
@@ -31,22 +48,20 @@ const updatePlugins = (
 ): Array<PluginConfiguration> => {
   plugins = plugins || [];
 
-  if (plugins.includes(PLUGIN)) {
-    return plugins;
-  }
-
+  // Lookup plugin name in plugins array
   if (
     plugins.find((p) => {
       if (typeof p === 'string') {
-        return false;
+        return p === defaultPlugin.plugin;
       }
-      return p.plugin === PLUGIN;
+
+      return p.plugin === defaultPlugin.plugin;
     })
   ) {
     return plugins;
   }
 
-  plugins.push(PLUGIN);
+  plugins.push(defaultPlugin);
 
   return plugins;
 };

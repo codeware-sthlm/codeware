@@ -11,6 +11,7 @@ import type { RunCommandsOptions } from 'nx/src/executors/run-commands/run-comma
 import type { BuildExecutorSchema } from '../../executors/build/schema';
 import { metadata } from '../../utils/definitions';
 import { extractPayloadConfig } from '../../utils/extract-payload-config';
+import { opinionatedEsbuildOptions } from '../../utils/opinionated-esbuild-options';
 
 import type { NormalizedOptions } from './types';
 
@@ -46,11 +47,20 @@ export const createPayloadTargets = async (
       Object.hasOwn(namedInputs, 'production') ? '^production' : '^default'
     ],
     outputs: ['{options.outputPath}'],
+    defaultConfiguration: 'production',
     options: {
+      // Required options
       main: '{projectRoot}/src/main.ts',
       tsConfig: '{projectRoot}/tsconfig.app.json',
       outputPath: '{workspaceRoot}/dist/{projectRoot}',
-      outputFileName: 'src/main.js'
+      // Opinionated options
+      ...opinionatedEsbuildOptions
+    },
+    configurations: {
+      development: {
+        sourcemap: true
+      },
+      production: {}
     },
     cache: true
   };
@@ -59,12 +69,20 @@ export const createPayloadTargets = async (
   targets[options.serveTargetName] = {
     metadata: metadata.serve,
     executor: '@nx/js:node',
+    defaultConfiguration: 'development',
     options: {
       buildTarget: `${projectConfig.name}:${options.buildTargetName}`,
-      // Required for file changes to be detected and build target to be re-run
-      runBuildTargetDependencies: true,
-      watch: true
-    }
+      runBuildTargetDependencies: true
+    },
+    configurations: {
+      development: {
+        buildTarget: `${projectConfig.name}:${options.buildTargetName}:development`
+      },
+      production: {
+        buildTarget: `${projectConfig.name}:${options.buildTargetName}:production`
+      }
+    },
+    cache: false
   };
 
   // Add generate target:

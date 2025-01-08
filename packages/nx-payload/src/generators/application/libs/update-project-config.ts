@@ -13,6 +13,7 @@ import {
   inferredTargets,
   metadata
 } from '../../../utils/definitions';
+import { opinionatedEsbuildOptions } from '../../../utils/opinionated-esbuild-options';
 
 import { isPluginInferenceEnabled } from './is-plugin-inference-enabled';
 import type { NormalizedSchema } from './normalize-options';
@@ -40,22 +41,38 @@ export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
       build: {
         metadata: metadata.build,
         executor: '@cdwr/nx-payload:build',
+        defaultConfiguration: 'production',
         options: {
           main: projectBuild?.options.main,
           tsConfig: projectBuild?.options.tsConfig,
           outputPath: projectBuild?.options.outputPath,
-          outputFileName: 'src/main.js'
+          ...opinionatedEsbuildOptions
+        },
+        configurations: {
+          development: {
+            sourcemap: true
+          },
+          production: {}
         },
         cache: true
       },
       serve: {
         metadata: metadata.serve,
         executor: projectServe?.executor,
+        defaultConfiguration: 'development',
         options: {
           buildTarget: `${options.name}:build`,
-          runBuildTargetDependencies: true,
-          watch: true
-        }
+          runBuildTargetDependencies: true
+        },
+        configurations: {
+          development: {
+            buildTarget: `${options.name}:build:development`
+          },
+          production: {
+            buildTarget: `${options.name}:build:production`
+          }
+        },
+        cache: false
       },
       payload: {
         metadata: metadata.payload,

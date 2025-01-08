@@ -1,6 +1,4 @@
 {
-  "$schema": "http://json-schema.org/schema",
-  "$id": "NxPayloadPreset",
   "title": "Nx Payload Preset",
   "type": "object",
   "description": "Generate a Payload application in a integrated workspace. Can be used with `create-nx-workspace --preset=@cdwr/nx-payload`.",

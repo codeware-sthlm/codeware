@@ -10,7 +10,7 @@ import initGenerator from '../init/init';
 
 import { createApplicationFiles } from './libs/create-application-files';
 import { createDockerfile } from './libs/create-dockerfile';
-import { createExpressApplication } from './libs/create-express-application';
+import { createNodeApplication } from './libs/create-node-application';
 import { createPayloadConfig } from './libs/create-payload-config';
 import { normalizeOptions } from './libs/normalize-options';
 import { updateProjectConfig } from './libs/update-project-config';
@@ -22,13 +22,13 @@ export async function applicationGenerator(
   host: Tree,
   schema: AppGeneratorSchema
 ): Promise<GeneratorCallback> {
-  const options = normalizeOptions(host, schema);
+  const options = normalizeOptions(schema);
 
   // Initialize for Payload support
   const payloadTask = await initGenerator(host, schema);
 
-  // Use Express plugin to scaffold a template application
-  const expressTask = await createExpressApplication(host, options);
+  // Use Nx node plugin to scaffold a template application
+  const nodeAppTask = await createNodeApplication(host, options);
 
   // Create application files from template folder
   createApplicationFiles(host, options);
@@ -49,7 +49,7 @@ export async function applicationGenerator(
     await formatFiles(host);
   }
 
-  return runTasksInSerial(payloadTask, expressTask);
+  return runTasksInSerial(payloadTask, nodeAppTask);
 }
 
 export default applicationGenerator;

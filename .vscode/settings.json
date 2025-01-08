@@ -6,6 +6,9 @@
   "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
   "eslint.validate": ["json"],
+  "files.associations": {
+    ".*.*__tmpl__": "plaintext"
+  },
   "jest.runMode": {
     "coverage": true,
     "deferred": true,

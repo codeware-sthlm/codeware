@@ -1,3 +1,3 @@
-import { Schema as ExpressSchema } from '@nx/express/src/generators/init/schema';
+import type { Schema } from '@nx/node/src/generators/init/schema';
 
-export type Schema = ExpressSchema;
+export type InitSchema = Schema;

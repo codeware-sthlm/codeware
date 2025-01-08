@@ -1,4 +1,9 @@
-import { logDebug, logInfo, runCommand } from '@codeware/core/utils';
+import {
+  logDebug,
+  logInfo,
+  logWarning,
+  runCommand
+} from '@codeware/core/utils';
 import {
   type CreateNxWorkspaceProject,
   ensureCreateNxWorkspaceProject,
@@ -39,7 +44,9 @@ describe('Main plugin targets no docker', () => {
     }
   };
 
-  const optOutInference = (option: 'envVariable' | 'nxConfig') => {
+  const optOutInference = (
+    option: 'envVariable' | 'nxConfig'
+  ): string | undefined => {
     switch (option) {
       case 'envVariable':
         process.env['NX_ADD_PLUGINS'] = 'false';
@@ -51,14 +58,35 @@ describe('Main plugin targets no docker', () => {
             nxJson['useInferencePlugins'] = false;
             return JSON.stringify(nxJson);
           });
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-          /* empty */
+          return error;
         }
     }
   };
 
+  /**
+   * Get the dist folder for a given build output and app.
+   *
+   * This helper function is used due to compiling esbuild with platform node.
+   * Nx generates the workspace structure in the normal app dist folder, for example:
+   *
+   * - `dist/apps/my-app/apps/my-app/...`
+   * - `dist/apps/my-app/libs/my-lib/...`
+   * - etc.
+   *
+   * @param target - Get dist path for Payload, Node app or just the root
+   * @param app - The app that was built
+   * @returns The resolved dist folder
+   */
+  const dist = (target: 'payload' | 'server' | 'root', app: string) => {
+    const targetFolder =
+      target === 'payload' ? 'build' : target === 'server' ? 'server' : '';
+    return `dist/apps/${app}${targetFolder ? `/${targetFolder}` : ''}`;
+  };
+
   beforeAll(async () => {
+    // Disable DB connection for all tests since we don't have one
+    process.env.DISABLE_DB_CONNECT = 'true';
     originalEnv = process.env.NX_ADD_PLUGINS;
 
     resetInference();
@@ -68,6 +96,7 @@ describe('Main plugin targets no docker', () => {
   });
 
   afterAll(() => {
+    process.env.DISABLE_DB_CONNECT = 'false';
     process.env.NX_ADD_PLUGINS = originalEnv;
     runNxCommand('reset', { silenceError: true });
   });
@@ -86,16 +115,30 @@ describe('Main plugin targets no docker', () => {
     });
 
     describe('verify inference', () => {
-      it('should add plugin to nx config without custom target names', () => {
+      it('should add plugin to nx config with default target names', () => {
         const nxJson = readJson<NxJsonConfiguration>('nx.json');
         const plugin = nxJson.plugins.find(
-          (p) => p === '@cdwr/nx-payload/plugin'
+          (p) => typeof p === 'object' && p.plugin === '@cdwr/nx-payload/plugin'
         );
-        expect(plugin).toEqual('@cdwr/nx-payload/plugin');
+        expect(plugin).toMatchObject({
+          plugin: '@cdwr/nx-payload/plugin',
+          options: {
+            buildTargetName: 'build',
+            serveTargetName: 'serve',
+            generateTargetName: 'gen',
+            payloadTargetName: 'payload',
+            dxDockerBuildTargetName: 'dx:docker-build',
+            dxDockerRunTargetName: 'dx:docker-run',
+            dxMongodbTargetName: 'dx:mongodb',
+            dxPostgresTargetName: 'dx:postgres',
+            dxStartTargetName: 'dx:start',
+            dxStopTargetName: 'dx:stop'
+          }
+        });
       });
     });
 
-    describe('run targets on initial app', () => {
+    describe('verify targets and outputs on initial app', () => {
       // Save generated payload config before all tests, to be restored after each test
       // since we might patch the config in some tests
       let generatedPayloadConfig: string;
@@ -120,21 +163,34 @@ describe('Main plugin targets no docker', () => {
         );
       });
 
-      it('should build application without generating types and graphql schema', () => {
+      it('should build application and verify generated files', () => {
         const result = runNxCommand(`build ${project.appName}`);
         expect(result).toContain('Successfully ran target build');
 
-        expect(() =>
-          checkFilesExist(
-            `dist/${project.appDirectory}/build/index.html`,
-            `dist/${project.appDirectory}/package.json`,
-            `dist/${project.appDirectory}/src/main.js`
-          )
-        ).not.toThrow();
-
+        // No types or schemas should be generated in app source folder
         expect(
           getFolderFiles(`${project.appDirectory}/src/generated`)
         ).toHaveLength(0);
+
+        // package.json should be generated in dist root
+        expect(() =>
+          checkFilesExist(dist('root', project.appName) + '/package.json')
+        ).not.toThrow();
+
+        // Node app should be built to dist server folder
+        const serverDist = dist('server', project.appName);
+        expect(() =>
+          checkFilesExist(
+            `${serverDist}/${project.appDirectory}/src/main.js`,
+            `${serverDist}/${project.appDirectory}/src/payload.config.js`,
+            `${serverDist}/${project.appDirectory}/src/collections`
+          )
+        ).not.toThrow();
+
+        // Payload admin should be built to dist build folder
+        expect(() =>
+          checkFilesExist(`${dist('payload', project.appName)}/index.html`)
+        ).not.toThrow();
       });
 
       it('should test application', () => {
@@ -156,9 +212,7 @@ describe('Main plugin targets no docker', () => {
         });
 
         expect(
-          output.includes(
-            `Done compiling TypeScript files for project "${project.appName}"`
-          )
+          output.includes('Payload application built successfully')
         ).toBeTruthy();
         expect(output.includes(`[ started ] on port 3000 (test)`)).toBeTruthy();
       });
@@ -229,6 +283,58 @@ describe('Main plugin targets no docker', () => {
     });
   });
 
+  describe('verify usage of library in initial app', () => {
+    beforeAll(async () => {
+      // Install a simple core library to test using libraries in the application
+      runNxCommand(
+        `g @nx/node:lib core --directory=libs/core --compiler=swc --unitTestRunner=none --importPath=@${project.projectName}/core`
+      );
+
+      // Replace library content with a known function to prevent regression
+      updateFile('libs/core/src/lib/core.ts', () => {
+        return `export function consoleLog(message: string) {
+  console.log(message);
+}`;
+      });
+
+      // Add library import to main.ts and make sure it's used run-time
+      updateFile(`${project.appDirectory}/src/main.ts`, (content) => {
+        return `import { consoleLog } from "@${project.projectName}/core";
+${content}
+consoleLog('Hello from core');`;
+      });
+      // and fix formatting
+      await runCommand(
+        `npx prettier --write ${project.appDirectory}/src/main.ts`
+      );
+    });
+
+    it('should build application', () => {
+      const result = runNxCommand(`build ${project.appName}`);
+      expect(result).toContain('Successfully ran target build');
+    });
+
+    it('should test application', () => {
+      const result = runNxCommand(`test ${project.appName}`);
+      expect(result).toContain('Successfully ran target test');
+    });
+
+    it('should lint application', () => {
+      const result = runNxCommand(`lint ${project.appName}`);
+      expect(result).toContain('Successfully ran target lint');
+    });
+
+    it('should serve application and detect run-time library usage', async () => {
+      const output = await runCommand(`nx serve ${project.appName}`, {
+        cwd: tmpProjPath(),
+        doneFn: (log) => log.includes('[ started ]'),
+        errorDetector: /Error:/,
+        verbose: process.env.NX_VERBOSE_LOGGING === 'true'
+      });
+      expect(output.includes('Hello from core')).toBeTruthy();
+    });
+  });
+
   // Generate applications with and without inference
   const testMatrix: Array<{
     name: string;
@@ -279,9 +385,10 @@ describe('Main plugin targets no docker', () => {
 
       beforeAll(() => {
         resetInference();
+        let outOutError: string | undefined;
         if (optOut) {
           if (optOut.apply === 'single') {
-            optOutInference(optOut.by);
+            outOutError = optOutInference(optOut.by);
           } else {
             if (optOut.by === 'nxConfig') {
               // This should be overrided by nx.json setting
@@ -291,6 +398,18 @@ describe('Main plugin targets no docker', () => {
                 `Test case opt out by '${optOut.by}' has no effect for '${optOut.apply}'`
               );
             }
+            outOutError = optOutInference(optOut.by);
+          }
+        }
+
+        if (outOutError) {
+          logWarning(
+            `Something broke when opting out by ${optOut?.by} for ${optOut?.apply}`,
+            outOutError
+          );
+          if (process.env.NX_DAEMON) {
+            logInfo('Reset the daemon and try again');
+            runNxCommand('reset');
             optOutInference(optOut.by);
           }
         }
@@ -340,15 +459,17 @@ describe('Main plugin targets no docker', () => {
         );
       });
 
-      it('should have application files', () => {
+      it('should have application project and main file', () => {
         expect(() =>
           checkFilesExist(
             `${appDirectory}/project.json`,
-            `${appDirectory}/src/main.ts`,
-            `${appDirectory}-e2e/project.json`,
-            `${appDirectory}-e2e/src/${appName}/${appName}.spec.ts`
+            `${appDirectory}/src/main.ts`
           )
         ).not.toThrow();
+      });
+
+      it('should not have e2e project', () => {
+        expect(() => checkFilesExist(`apps/${appName}-e2e`)).toThrow();
       });
     });
   });
@@ -363,7 +484,6 @@ describe('Main plugin targets no docker', () => {
       runNxCommand(
         `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} --tags e2etag,e2ePackage`
       );
-
       expect(readJson(`apps/${appName}/project.json`).tags).toEqual([
         'e2etag',
         'e2ePackage'
@@ -375,21 +495,19 @@ describe('Main plugin targets no docker', () => {
       runNxCommand(
         `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} -t aliasTag`
       );
-
       expect(readJson(`apps/${appName}/project.json`).tags).toEqual([
         'aliasTag'
       ]);
     });
 
-    it('should skip e2e project', () => {
+    it('should generate e2e project', () => {
       const appName = uniq('app');
       runNxCommand(
-        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} --skip-e2e`
+        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} --e2eTestRunner jest`
       );
-
       expect(() =>
         checkFilesExist(`apps/${appName}-e2e/project.json`)
-      ).toThrow();
+      ).not.toThrow();
     });
   });
 });

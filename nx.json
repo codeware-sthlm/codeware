@@ -129,6 +129,12 @@
         "style": "tailwind",
         "linter": "eslint"
       }
+    },
+    "@nx/next": {
+      "application": {
+        "style": "tailwind",
+        "linter": "eslint"
+      }
     }
   },
   "release": {
@@ -254,6 +260,15 @@
         "typecheckTargetName": "typecheck",
         "serveStaticTargetName": "serve-static",
         "staticServeTargetName": "static-serve"
+      }
+    },
+    {
+      "plugin": "@nx/next/plugin",
+      "options": {
+        "startTargetName": "start",
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "serveStaticTargetName": "serve-static"
       }
     }
   ],

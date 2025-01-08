@@ -1,0 +1,9 @@
+{
+  "name": "codeware-se",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/codeware-se",
+  "projectType": "application",
+  "tags": ["scope:codeware-se", "type:app"],
+  "// targets": "to see all targets run: nx show project codeware-se --web",
+  "targets": {}
+}

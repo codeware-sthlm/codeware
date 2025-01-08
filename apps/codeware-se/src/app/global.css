@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Cannot get NextJS recommended solution to work.
+ * https://nextjs.org/docs/basic-features/font-optimization#local-fonts
+ *
+ * File: _app.tsx
+ *   import localFont from '@next/font/local';
+ *   const fonts = localFont({ src: './fonts/nasalization-rg.woff2' });
+ *
+ * Generating compile errors...
+ *   error - Font loader error:
+ *   Cannot read properties of undefined (reading 'fs')
+ *
+ * Instead adding font face here manually.
+ */
+@font-face {
+  font-family: 'nasalization-rg';
+  src: url('./fonts/nasalization-rg.woff2');
+}
+
+html,
+body,
+#__next {
+  height: 100%;
+  width: 100%;
+}

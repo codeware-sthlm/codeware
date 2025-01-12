@@ -1,3 +1,30 @@
+## 1.1.0 (2025-01-12)
+
+### ✨ Features
+
+- **nx-payload:** use node plugin as base to utilize esbuild ([de6ebeb](https://github.com/codeware-sthlm/codeware/commit/de6ebeb))
+- **core:** implement deployment to fly plus fixes and improvements ([1e33a06](https://github.com/codeware-sthlm/codeware/commit/1e33a06))
+
+### 🐞 Bug Fixes
+
+- **nx-payload:** nx version must be strict ([9a361cf](https://github.com/codeware-sthlm/codeware/commit/9a361cf))
+- **deps:** update dependencies to v19 ([a07d14d](https://github.com/codeware-sthlm/codeware/commit/a07d14d))
+- **deps:** update dependency react-router-dom to v7.0.2 ([92a41ed](https://github.com/codeware-sthlm/codeware/commit/92a41ed))
+- **deps:** update dependency react-router-dom to v7 ([e7df36a](https://github.com/codeware-sthlm/codeware/commit/e7df36a))
+
+### ⚙️ Miscellaneous Chores
+
+- **deps:** update dependencies ([2245f58](https://github.com/codeware-sthlm/codeware/commit/2245f58))
+- **deps:** update dependencies ([460336d](https://github.com/codeware-sthlm/codeware/commit/460336d))
+
+### ✅ Tests
+
+- **nx-payload:** more tolerance for timeouts ([2d370a9](https://github.com/codeware-sthlm/codeware/commit/2d370a9))
+
+### 🔙 Revert Code Changes
+
+- **repo:** downgrade to react 18 ([4c1e49c](https://github.com/codeware-sthlm/codeware/commit/4c1e49c))
+
 ## 1.0.2 (2024-11-19)
 
 ### 🐞 Bug Fixes

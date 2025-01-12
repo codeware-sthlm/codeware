@@ -1,3 +1,10 @@
+## 1.2.0 (2025-01-12)
+
+### ✨ Features
+
+- **nx-fly-deployment-action:** destroy apps retroactively ([adc348d](https://github.com/codeware-sthlm/codeware/commit/adc348d))
+- **core:** add zod schema test suite and refactor exposed endpoints ([833f440](https://github.com/codeware-sthlm/codeware/commit/833f440))
+
 ## 1.1.0 (2024-11-19)
 
 ### ✨ Features

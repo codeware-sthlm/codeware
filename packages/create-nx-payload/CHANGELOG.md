@@ -1,3 +1,9 @@
+## 1.0.2 (2025-01-12)
+
+### 🐞 Bug Fixes
+
+- **nx-payload:** nx version must be strict ([9a361cf](https://github.com/codeware-sthlm/codeware/commit/9a361cf))
+
 ## 1.0.1 (2024-11-19)
 
 ### ⚙️ Miscellaneous Chores

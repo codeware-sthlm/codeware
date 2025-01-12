@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
+import { getPackageManagerCommand } from '@nx/devkit';
 import chalk from 'chalk';
 import { releasePublish } from 'nx/release';
 
@@ -20,7 +21,8 @@ export const publish = async (options: {
   console.log(`${chalk.magenta.underline('Publish packages')}\n`);
 
   try {
-    const { stdout } = await promisify(exec)('npm run nx run-many -t build');
+    const pm = getPackageManagerCommand();
+    const { stdout } = await promisify(exec)(`${pm.exec} nx run-many -t build`);
     console.log(stdout);
 
     const result = await releasePublish({

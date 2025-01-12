@@ -9,7 +9,7 @@ const projects = JSON.parse(
   })
 );
 // Allow some custom scopes
-projects.push('deps', 'release', 'repo');
+projects.push('deps', 'release', 'repo', 'workflow');
 
 /** @type {import('cz-git').UserConfig} */
 module.exports = {

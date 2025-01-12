@@ -17,9 +17,6 @@
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
   "targetDefaults": {
-    "gen": {
-      "inputs": ["default", "!{projectRoot}/src/generated/*"]
-    },
     "@nx/jest:jest": {
       "inputs": [
         "default",

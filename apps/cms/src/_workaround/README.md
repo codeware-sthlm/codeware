@@ -3,6 +3,7 @@
 The files in this folder are copies from
 
 - `@codeware/shared/util/node`
+- `@codeware/shared/util/payload`
 - `@codeware/core/secrets`
 - `@codeware/core/zod`
 

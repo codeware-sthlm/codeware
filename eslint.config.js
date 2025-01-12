@@ -106,7 +106,7 @@ module.exports = [
             },
             {
               sourceTag: 'scope:shared',
-              onlyDependOnLibsWithTags: ['scope:shared']
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:core']
             }
           ]
         }

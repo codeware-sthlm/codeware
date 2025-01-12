@@ -1,28 +1,30 @@
-import debugLog from './debug-log';
-import { type Env, EnvSchema, clientSideEnv } from './env.schema';
+/**
+ * Must not contain any imports directly or indirectly to server side code!
+ */
+
+import { type Env, EnvSchema } from './env.schema';
 import isBrowser from './is-browser';
 
 let resolvedEnv: Env;
 
 if (isBrowser) {
-  resolvedEnv = clientSideEnv;
-} else {
-  // Try to resolve the current state
-  const { success, data } = EnvSchema.safeParse(process.env);
-
-  // Apply the default values to `process.env` when required
-  if (success) {
-    resolvedEnv = data;
-  } else {
-    for (const [key, value] of Object.entries(clientSideEnv)) {
-      if (!process.env[key]) {
-        debugLog('apply default value for', key);
-        process.env[key] = value as string;
-      }
-    }
-    // By design it should be safe to parse now
-    resolvedEnv = EnvSchema.parse(process.env);
-  }
+  resolvedEnv = {
+    ALLOWED_URLS: '*',
+    APP_NAME: '',
+    CWD: '',
+    DATABASE_URL: '',
+    DEPLOY_ENV: 'development',
+    LOG_LEVEL: 'info',
+    MIGRATE_FORCE_ACTION: 'default',
+    NODE_ENV: 'development',
+    PAYLOAD_SECRET_KEY: 'secret',
+    PORT: 3000,
+    PR_NUMBER: ''
+  };
+}
+// By design it should be safe to parse server side
+else {
+  resolvedEnv = EnvSchema.parse(process.env);
 }
 
 /**

@@ -24,7 +24,7 @@ module.exports = [
           depConstraints: [
             {
               sourceTag: 'scope:cms',
-              onlyDependOnLibsWithTags: ['scope:cms']
+              onlyDependOnLibsWithTags: ['scope:cms', 'scope:core']
             },
             {
               sourceTag: 'scope:web',

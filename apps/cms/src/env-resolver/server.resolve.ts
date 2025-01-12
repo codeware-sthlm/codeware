@@ -22,9 +22,8 @@
  *   import `client.resolve.ts` instead, free from any server-side concerns.
  */
 
-// TODO: Revert workaround once COD-218 is fixed and released
-//import { withInfisical } from '@codeware/core/secrets';
-import { withInfisical } from '../_workaround/with-infisical';
+import { withInfisical } from '@codeware/core/secrets';
+import { withEnvVars } from '@codeware/core/zod';
 
 import { EnvSchema } from './env.schema';
 import isBrowser from './is-browser';
@@ -34,6 +33,11 @@ if (isBrowser) {
     '[RESOLVER] This file should not be imported by client side code'
   );
 }
+
+/**
+ * Apply environment variable lookup to the schema to resolve the actual values
+ */
+const EnvServerSchema = withEnvVars(EnvSchema);
 
 /**
  * Resolve and validate environment variables server side into `process.env`
@@ -68,7 +72,7 @@ const resolveServerSideEnv = async (): Promise<void> => {
   }
 
   // Validate resolved environment variables
-  const { success, error } = EnvSchema.safeParse(process.env);
+  const { success, error } = EnvServerSchema.safeParse(process.env);
 
   if (!success) {
     console.error('[RESOLVER] Invalid environment variables:');
@@ -87,7 +91,7 @@ export async function getEnv() {
 
   await resolveServerSideEnv();
 
-  const env = EnvSchema.parse(process.env);
+  const env = EnvServerSchema.parse(process.env);
   console.log(
     '[RESOLVER] Successfully resolved environment variables',
     Object.keys(env)

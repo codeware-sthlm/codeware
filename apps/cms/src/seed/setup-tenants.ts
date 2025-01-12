@@ -1,6 +1,6 @@
+import { withInfisical } from '@codeware/core/secrets';
 import { Payload } from 'payload';
 
-import { withInfisical } from '../_workaround/with-infisical';
 import { Env } from '../env-resolver/env.schema';
 
 import { ensureTenant } from './ensure-tenant';

@@ -80,7 +80,7 @@
     "@remix-run/testing": "^2.14.0",
     "@svgr/webpack": "^8.0.1",
     "@swc-node/register": "~1.10.0",
-    "@swc/cli": "~0.5.0",
+    "@swc/cli": "~0.6.0",
     "@swc/core": "~1.10.0",
     "@swc/helpers": "~0.5.11",
     "@swc/jest": "~0.2.36",

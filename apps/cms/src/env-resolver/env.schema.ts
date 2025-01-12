@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { withEnvVars } from '../_workaround/with-env-vars.preprocess';
-
 /**
- * Environment variables for the server side of the CMS
+ * Environment base schema without environment variable lookup.
+ *
+ * Should not be used without `withEnvVars` on server side, only for client side.
  */
 export const EnvSchema = z.object({
   // Database
@@ -20,12 +20,10 @@ export const EnvSchema = z.object({
   PR_NUMBER: z.string({ description: 'Number of the pull request' }),
 
   // Server
-  ALLOWED_URLS: withEnvVars(
-    z
-      .string({ description: 'List of allowed URLs for CORS' })
-      .or(z.literal('*'))
-      .default('*')
-  ),
+  ALLOWED_URLS: z
+    .string({ description: 'List of allowed URLs for CORS' })
+    .or(z.literal('*'))
+    .default('*'),
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
@@ -49,20 +47,3 @@ export const EnvSchema = z.object({
 });
 
 export type Env = z.infer<typeof EnvSchema>;
-
-/**
- * Dummy environment variables for client side
- */
-export const clientSideEnv: Env = {
-  ALLOWED_URLS: '*',
-  APP_NAME: '',
-  CWD: '',
-  DATABASE_URL: '',
-  DEPLOY_ENV: 'development',
-  LOG_LEVEL: 'info',
-  MIGRATE_FORCE_ACTION: 'default',
-  NODE_ENV: 'development',
-  PAYLOAD_SECRET_KEY: 'secret',
-  PORT: 3000,
-  PR_NUMBER: ''
-} as const;

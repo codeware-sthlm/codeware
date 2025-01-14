@@ -1,8 +1,8 @@
-import { MigrateDownArgs, MigrateUpArgs } from '@payloadcms/db-postgres'
-import { sql } from 'drizzle-orm'
+import { MigrateDownArgs, MigrateUpArgs } from '@payloadcms/db-postgres';
+import { sql } from 'drizzle-orm';
 
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
-await payload.db.drizzle.execute(sql`
+  await payload.db.drizzle.execute(sql`
 
 DO $$ BEGIN
  CREATE TYPE "public"."_locales" AS ENUM('en', 'sv');
@@ -152,11 +152,10 @@ CREATE INDEX IF NOT EXISTS "payload_preferences_rels_path_idx" ON "payload_prefe
 CREATE INDEX IF NOT EXISTS "payload_preferences_rels_tenants_id_idx" ON "payload_preferences_rels" USING btree ("tenants_id");
 CREATE INDEX IF NOT EXISTS "payload_preferences_rels_users_id_idx" ON "payload_preferences_rels" USING btree ("users_id");
 CREATE INDEX IF NOT EXISTS "payload_migrations_created_at_idx" ON "payload_migrations" USING btree ("created_at");`);
-
-};
+}
 
 export async function down({ payload }: MigrateDownArgs): Promise<void> {
-await payload.db.drizzle.execute(sql`
+  await payload.db.drizzle.execute(sql`
 
 DROP TABLE "articles";
 DROP TABLE "articles_locales";
@@ -167,5 +166,4 @@ DROP TABLE "users";
 DROP TABLE "payload_preferences";
 DROP TABLE "payload_preferences_rels";
 DROP TABLE "payload_migrations";`);
-
-};
+}

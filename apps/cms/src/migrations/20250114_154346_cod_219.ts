@@ -4,6 +4,22 @@ import { sql } from 'drizzle-orm';
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
 
+-- Handle new field tenants.slug --
+
+-- Add the column as nullable
+ALTER TABLE "tenants" ADD COLUMN "slug" varchar;
+
+-- Update existing records with a default slug if needed
+UPDATE "tenants" SET "slug" = 'tenant-' || id::text WHERE "slug" IS NULL;
+
+-- Then make it NOT NULL after populating
+ALTER TABLE "tenants" ALTER COLUMN "slug" SET NOT NULL;
+
+-- Add the index after ensuring all data is valid
+CREATE INDEX IF NOT EXISTS "tenants_slug_idx" ON "tenants" USING btree ("slug");
+
+-- Auto-generated migration below --
+
 DO $$ BEGIN
  CREATE TYPE "public"."enum_users_tenants_role" AS ENUM('user', 'admin');
 EXCEPTION
@@ -55,7 +71,7 @@ ALTER TABLE "articles" ALTER COLUMN "slug" DROP NOT NULL;
 ALTER TABLE "pages" ALTER COLUMN "slug" DROP NOT NULL;
 ALTER TABLE "pages" ADD COLUMN "content_html" varchar;
 ALTER TABLE "pages" ADD COLUMN "intro_html" varchar;
-ALTER TABLE "tenants" ADD COLUMN "slug" varchar NOT NULL;
+-- ALTER TABLE "tenants" ADD COLUMN "slug" varchar NOT NULL;
 ALTER TABLE "users" ADD COLUMN "description" varchar;
 DO $$ BEGIN
  ALTER TABLE "articles_rels" ADD CONSTRAINT "articles_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."articles"("id") ON DELETE cascade ON UPDATE no action;

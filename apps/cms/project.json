@@ -24,6 +24,20 @@
         "parallel": false
       }
     },
+    "gen": {
+      "metadata": {
+        "description": "Override default target; see payload metadata for more details."
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["npx payload generate:types"],
+        "cwd": "apps/cms",
+        "env": {
+          "CWD": "../..",
+          "PAYLOAD_CONFIG_PATH": "src/payload.config.ts"
+        }
+      }
+    },
     "payload": {
       "metadata": {
         "description": "Override default target to invoke Payload from app root. It's required to properly resolve tsconfig paths. See COD-234 for more details."

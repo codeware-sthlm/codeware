@@ -21,7 +21,7 @@ export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: users.slug,
-    // Always located relative to workspace root (where nx command is invoked)
+    // Always located relative to workspace root (where command is invoked)
     buildPath: resolve(env.CWD, 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     webpack: (config) => ({
@@ -32,7 +32,10 @@ export default buildConfig({
           ...(config.resolve?.alias ?? {}),
           // Support workspace path mappings
           ...resolveTsconfigPathsToAlias(
-            resolve(__dirname, '../../../tsconfig.base.json')
+            // Find tsconfig.base.json in the workspace root (where command is invoked)
+            resolve(env.CWD, 'tsconfig.base.json'),
+            // Webpack workspace context is always relative to this file
+            resolve(__dirname, '../../..')
           ),
           // Disable server-only modules in client bundle
           fs: false

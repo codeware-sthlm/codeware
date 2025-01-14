@@ -31,8 +31,8 @@ RUN npm install --omit=dev
 COPY --from=builder /app/dist               ./dist
 COPY --from=builder /app/.infisical.json    ./
 # Needed as part of the tsconfig paths workaround (and it's not pretty?)
-# Must be located in "workspace root" to keep Nx project references working
-COPY --from=builder /app/tsconfig.base.json ./dist/apps/cms/server/
+# Must be located where the node command is invoked
+COPY --from=builder /app/tsconfig.base.json ./
 
 EXPOSE 3000
 CMD ["node", "dist/apps/cms/server/main.js"]

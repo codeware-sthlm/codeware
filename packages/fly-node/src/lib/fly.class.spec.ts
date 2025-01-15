@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
 import process from 'process';
 
-import { exec } from '@codeware/core/utils';
+import { SpawnOptions, spawn } from '@codeware/core/utils';
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Fly } from './fly.class';
@@ -28,33 +28,138 @@ vi.mock('fs', async () => ({
 }));
 vi.mock('os');
 vi.mock('@codeware/core/utils', async () => ({
-  // Only mock `exec` function
+  // Only mock `spawn` function
   ...(await vi.importActual('@codeware/core/utils')),
-  exec: vi.fn()
+  spawn: vi.fn()
 }));
 
 describe('Fly', () => {
+  /**
+   * Whether to enable debug logging during test development.
+   * Command mock details are printed to console.
+   */
+  const enableDebugLogging = false;
+
   const mockConsoleInfo = vi.spyOn(console, 'log');
   const mockConsoleError = vi.spyOn(console, 'error');
 
-  mockConsoleInfo.mockImplementation(() => vi.fn());
-  mockConsoleError.mockImplementation(() => vi.fn());
+  if (!enableDebugLogging) {
+    mockConsoleInfo.mockImplementation(() => vi.fn());
+    mockConsoleError.mockImplementation(() => vi.fn());
+  }
 
   /**
    * Default fly configuration for the tests
    * - logger is mocked
+   * - token is provided
    */
   const defaultFlyConfig: Config = {
     logger: {
       info: mockConsoleInfo as Mock,
       error: mockConsoleError as Mock,
-      // Tip! Set to `true` to print `exec` mock details
-      traceCLI: false
-    }
+      // Tip! Set to `true` to print mock details
+      traceCLI: enableDebugLogging
+    },
+    token: mockDefs.token
   };
 
-  const mockExec = vi.mocked(exec);
+  const mockSpawn = vi.mocked(spawn);
   const mockExistsSync = vi.mocked(existsSync);
+
+  /**
+   * Assert that `spawn` was called with the given arguments.
+   *
+   * Match provided arguments exactly (`exact`), some should match (`some`)
+   * or the call should not be made (`not`).
+   *
+   * Argument order is also validated.
+   *
+   * By default access token flag is appended to provided arguments,
+   * since a call can only be succesasful when the user is authenticated.
+   *
+   * This can however be disabled by setting options `accessTokenStrategy` to `leave-as-is`.
+   *
+   * @param matchArgs - The matching strategy to use for the arguments
+   * @param args - The arguments to check
+   * @param options - Spawn and test options
+   */
+  const assertSpawn = (
+    matchArgs: 'exact' | 'not' | 'some',
+    args: Array<string>,
+    options?: SpawnOptions & {
+      /** The strategy to use for the `--access-token` flag */
+      accessTokenStrategy?: 'append-to-args' | 'leave-as-is';
+    }
+  ) => {
+    let optionsToCheck: SpawnOptions | undefined = undefined;
+
+    if (options && options.accessTokenStrategy) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { accessTokenStrategy, ...rest } = options;
+      optionsToCheck = Object.keys(rest).length > 0 ? rest : undefined;
+    } else if (options) {
+      optionsToCheck = options;
+    }
+
+    // Check negative test first - ignore options
+    if (matchArgs === 'not') {
+      // Assert that the call was not made
+      expect(mockSpawn).not.toHaveBeenCalledWith(
+        expect.stringMatching(/^fly/),
+        expect.arrayContaining(args),
+        expect.anything()
+      );
+      return;
+    }
+
+    // Append token to args since by design we must be authenticated to user fly commands,
+    // unless the user explicitly needs to control all arguments for a test.
+    const accessTokenStrategy =
+      options?.accessTokenStrategy ?? 'append-to-args';
+
+    const argsToCheck =
+      accessTokenStrategy === 'append-to-args'
+        ? [...args, '--access-token', defaultFlyConfig.token ?? '']
+        : args;
+
+    // Find call that matches our arguments
+    const matchingCall = mockSpawn.mock.calls.find(
+      (call) =>
+        call[0].match(/^fly/) &&
+        argsToCheck.every((arg) => call[1].includes(arg))
+    );
+
+    // Assert normally when a call could not be found.
+    // It should fail but provide a better DX to the user.
+    if (!matchingCall) {
+      expect(mockSpawn).toHaveBeenCalledWith(
+        expect.stringMatching(/^fly/),
+        expect.arrayContaining(argsToCheck),
+        optionsToCheck
+      );
+      // Type guard
+      return;
+    }
+
+    // Analyze the call arguments
+    const actualArgs = matchingCall[1];
+    const actualOptions = matchingCall[2];
+    switch (matchArgs) {
+      case 'exact':
+        expect(actualArgs).toEqual(argsToCheck);
+        expect(actualOptions).toEqual(optionsToCheck);
+        break;
+      case 'some': {
+        // Otherwise, check that the arguments are defined in the correct order
+        const actualArgsInUse = actualArgs.filter((arg) =>
+          argsToCheck.includes(arg)
+        );
+        expect(actualArgsInUse).toEqual(argsToCheck);
+        expect(actualOptions).toEqual(optionsToCheck);
+        break;
+      }
+    }
+  };
 
   /**
    * Setup mock implementations for Fly commands via `exec`.
@@ -185,9 +290,10 @@ describe('Fly', () => {
     // Let user override base rules
     const allRules = [...rules, ...baseRules];
 
-    // Mock exec function with the rules
-    mockExec.mockImplementation((cmd) => {
-      // Find the rules that match the command
+    // Mock spawn function with the rules
+    mockSpawn.mockImplementation((_, args) => {
+      // Find the rules that match the command (without `fly/flyctl` prefix)
+      const cmd = args.join(' ');
       for (const rule of allRules.filter(
         (r) => r.calls !== 0 && cmd.match(r.cmdMatch)
       )) {
@@ -203,7 +309,7 @@ describe('Fly', () => {
           rule.resolveOrReject === 'resolve'
             ? Promise.resolve({ stdout: rule.output, stderr: '' })
             : Promise.reject(new Error(rule.output))
-        ) as ReturnType<typeof exec>;
+        ) as ReturnType<typeof spawn>;
       }
 
       // Default JSON responses for empty results
@@ -218,12 +324,20 @@ describe('Fly', () => {
       if (defaultFlyConfig?.logger?.traceCLI) {
         console.debug('[ MOCK ]', response);
       }
-      return Promise.resolve(response) as ReturnType<typeof exec>;
+      return Promise.resolve(response) as ReturnType<typeof spawn>;
     });
   };
 
-  // Save original process.env before the tests
-  const origProcessEnv = process.env;
+  let origProcessEnv: typeof process.env;
+
+  beforeAll(() => {
+    // Save original process.env before the tests
+    origProcessEnv = process.env;
+  });
+
+  afterAll(() => {
+    process.env = origProcessEnv;
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -234,13 +348,9 @@ describe('Fly', () => {
     setupFlyMocks();
   });
 
-  afterAll(() => {
-    process.env = origProcessEnv;
-  });
-
   describe('cli', () => {
     it('should check installed and return true when cli is installed', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
       expect(await fly.cli.isInstalled()).toBe(true);
     });
 
@@ -252,7 +362,7 @@ describe('Fly', () => {
           output: 'not installed'
         }
       ]);
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
       expect(await fly.cli.isInstalled()).toBe(false);
     });
   });
@@ -268,7 +378,7 @@ describe('Fly', () => {
         }
       ]);
 
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
       await expect(async () => await fly.apps.create()).rejects.toThrow(
         /Fly CLI must be installed to use this library/
       );
@@ -288,7 +398,7 @@ describe('Fly', () => {
         }
       ]);
 
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
 
       expect(async () => await fly.isReady()).not.toThrow();
 
@@ -312,7 +422,7 @@ describe('Fly', () => {
         }
       ]);
 
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
 
       await expect(fly.isReady('assert')).rejects.toThrow(/Command failed:/);
       expect(mockConsoleInfo).not.toHaveBeenCalledWith(
@@ -335,12 +445,10 @@ describe('Fly', () => {
       const fly = new Fly(defaultFlyConfig);
       const status = await fly.isReady();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(/auth whoami$/)
-      );
-      expect(mockExec).not.toHaveBeenCalledWith(
-        expect.stringContaining(`auth token --access-token`)
-      );
+      assertSpawn('exact', ['auth', 'whoami'], {
+        accessTokenStrategy: 'leave-as-is'
+      });
+      assertSpawn('not', ['auth', 'token', '--access-token']);
       expect(status).toBe(true);
     });
 
@@ -358,12 +466,12 @@ describe('Fly', () => {
         }
       ]);
 
-      const fly = new Fly({ ...defaultFlyConfig, token: mockDefs.token });
+      const fly = new Fly(defaultFlyConfig);
       const status = await fly.isReady();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`auth whoami --access-token ${mockDefs.token}`)
-      );
+      assertSpawn('exact', ['auth', 'whoami'], {
+        accessTokenStrategy: 'leave-as-is'
+      });
       expect(status).toBe(true);
     });
 
@@ -383,13 +491,13 @@ describe('Fly', () => {
 
       process.env['FLY_API_TOKEN'] = `${mockDefs.token}-env`;
 
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
       const status = await fly.isReady();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `auth whoami --access-token ${mockDefs.token}-env`
-        )
+      assertSpawn(
+        'exact',
+        ['auth', 'whoami', '--access-token', process.env['FLY_API_TOKEN']],
+        { accessTokenStrategy: 'leave-as-is' }
       );
       expect(status).toBe(true);
     });
@@ -403,12 +511,12 @@ describe('Fly', () => {
         }
       ]);
 
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
       const status = await fly.isReady();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`auth whoami`)
-      );
+      assertSpawn('exact', ['auth', 'whoami'], {
+        accessTokenStrategy: 'leave-as-is'
+      });
       expect(status).toBe(false);
     });
   });
@@ -424,8 +532,8 @@ describe('Fly', () => {
       noOptionFn: (fly: typeof Fly.prototype) => Promise<unknown>;
       appOptionFn: (fly: typeof Fly.prototype) => Promise<unknown>;
       configOptionFn: (fly: typeof Fly.prototype) => Promise<unknown>;
-      appAssert: RegExp;
-      configAssert: RegExp;
+      expectAppCmdArgs: Array<string>;
+      expectConfigCmdArgs: Array<string>;
     }> = [
       {
         name: 'certs.add',
@@ -434,12 +542,22 @@ describe('Fly', () => {
           fly.certs.add('test.com', { app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.certs.add('test.com', { config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `certs add test.com --app ${mockDefs.testApp}`
-        ),
-        configAssert: expect.stringContaining(
-          `certs add test.com --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: [
+          'certs',
+          'add',
+          'test.com',
+          '--app',
+          mockDefs.testApp,
+          '--json'
+        ],
+        expectConfigCmdArgs: [
+          'certs',
+          'add',
+          'test.com',
+          '--config',
+          mockDefs.testConfig,
+          '--json'
+        ]
       },
       {
         name: 'certs.list',
@@ -447,12 +565,20 @@ describe('Fly', () => {
         appOptionFn: async (fly) => fly.certs.list({ app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.certs.list({ config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `certs list --app ${mockDefs.testApp}`
-        ),
-        configAssert: expect.stringContaining(
-          `certs list --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: [
+          'certs',
+          'list',
+          '--app',
+          mockDefs.testApp,
+          '--json'
+        ],
+        expectConfigCmdArgs: [
+          'certs',
+          'list',
+          '--config',
+          mockDefs.testConfig,
+          '--json'
+        ]
       },
       {
         name: 'certs.remove',
@@ -461,12 +587,22 @@ describe('Fly', () => {
           fly.certs.remove('test.com', { app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.certs.remove('test.com', { config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `certs remove test.com --app ${mockDefs.testApp}`
-        ),
-        configAssert: expect.stringContaining(
-          `certs remove test.com --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: [
+          'certs',
+          'remove',
+          'test.com',
+          '--app',
+          mockDefs.testApp,
+          '--yes'
+        ],
+        expectConfigCmdArgs: [
+          'certs',
+          'remove',
+          'test.com',
+          '--config',
+          mockDefs.testConfig,
+          '--yes'
+        ]
       },
       {
         name: 'config.show',
@@ -474,12 +610,8 @@ describe('Fly', () => {
         appOptionFn: async (fly) => fly.config.show({ app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.config.show({ config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `config show --app ${mockDefs.testApp}`
-        ),
-        configAssert: expect.stringContaining(
-          `config show --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: ['config', 'show', '--app', mockDefs.testApp],
+        expectConfigCmdArgs: ['config', 'show', '--config', mockDefs.testConfig]
       },
       {
         name: 'secrets.set',
@@ -491,12 +623,20 @@ describe('Fly', () => {
             { TEST_SECRET: 'value' },
             { config: mockDefs.testConfig }
           ),
-        appAssert: expect.stringContaining(
-          `secrets set --app ${mockDefs.testApp} TEST_SECRET=value`
-        ),
-        configAssert: expect.stringContaining(
-          `secrets set --config ${mockDefs.testConfig} TEST_SECRET=value`
-        )
+        expectAppCmdArgs: [
+          'secrets',
+          'set',
+          '--app',
+          mockDefs.testApp,
+          'TEST_SECRET=value'
+        ],
+        expectConfigCmdArgs: [
+          'secrets',
+          'set',
+          '--config',
+          mockDefs.testConfig,
+          'TEST_SECRET=value'
+        ]
       },
       {
         name: 'secrets.list',
@@ -504,12 +644,20 @@ describe('Fly', () => {
         appOptionFn: async (fly) => fly.secrets.list({ app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.secrets.list({ config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `secrets list --app ${mockDefs.testApp}`
-        ),
-        configAssert: expect.stringContaining(
-          `secrets list --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: [
+          'secrets',
+          'list',
+          '--app',
+          mockDefs.testApp,
+          '--json'
+        ],
+        expectConfigCmdArgs: [
+          'secrets',
+          'list',
+          '--config',
+          mockDefs.testConfig,
+          '--json'
+        ]
       },
       {
         name: 'secrets.unset',
@@ -518,12 +666,20 @@ describe('Fly', () => {
           fly.secrets.unset('TEST_SECRET', { app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.secrets.unset('TEST_SECRET', { config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `secrets unset --app ${mockDefs.testApp} TEST_SECRET`
-        ),
-        configAssert: expect.stringContaining(
-          `secrets unset --config ${mockDefs.testConfig} TEST_SECRET`
-        )
+        expectAppCmdArgs: [
+          'secrets',
+          'unset',
+          '--app',
+          mockDefs.testApp,
+          'TEST_SECRET'
+        ],
+        expectConfigCmdArgs: [
+          'secrets',
+          'unset',
+          '--config',
+          mockDefs.testConfig,
+          'TEST_SECRET'
+        ]
       },
       {
         name: 'status',
@@ -531,10 +687,13 @@ describe('Fly', () => {
         appOptionFn: async (fly) => fly.status({ app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.status({ config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(`status --app ${mockDefs.testApp}`),
-        configAssert: expect.stringContaining(
-          `status --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: ['status', '--app', mockDefs.testApp, '--json'],
+        expectConfigCmdArgs: [
+          'status',
+          '--config',
+          mockDefs.testConfig,
+          '--json'
+        ]
       },
       {
         name: 'statusExtended - certs',
@@ -543,12 +702,20 @@ describe('Fly', () => {
           fly.statusExtended({ app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.statusExtended({ config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `certs list --app ${mockDefs.testApp}`
-        ),
-        configAssert: expect.stringContaining(
-          `certs list --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: [
+          'certs',
+          'list',
+          '--app',
+          mockDefs.testApp,
+          '--json'
+        ],
+        expectConfigCmdArgs: [
+          'certs',
+          'list',
+          '--config',
+          mockDefs.testConfig,
+          '--json'
+        ]
       },
       {
         name: 'statusExtended - secrets',
@@ -557,12 +724,20 @@ describe('Fly', () => {
           fly.statusExtended({ app: mockDefs.testApp }),
         configOptionFn: async (fly) =>
           fly.statusExtended({ config: mockDefs.testConfig }),
-        appAssert: expect.stringContaining(
-          `secrets list --app ${mockDefs.testApp}`
-        ),
-        configAssert: expect.stringContaining(
-          `secrets list --config ${mockDefs.testConfig}`
-        )
+        expectAppCmdArgs: [
+          'secrets',
+          'list',
+          '--app',
+          mockDefs.testApp,
+          '--json'
+        ],
+        expectConfigCmdArgs: [
+          'secrets',
+          'list',
+          '--config',
+          mockDefs.testConfig,
+          '--json'
+        ]
       }
     ];
 
@@ -571,13 +746,13 @@ describe('Fly', () => {
         it('should have --app flag when app is provided to constructor', async () => {
           const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
           await test.noOptionFn(fly);
-          expect(mockExec).toHaveBeenCalledWith(test.appAssert);
+          assertSpawn('exact', test.expectAppCmdArgs);
         });
 
         it('should have --app flag when app is provided to function', async () => {
           const fly = new Fly(defaultFlyConfig);
           await test.appOptionFn(fly);
-          expect(mockExec).toHaveBeenCalledWith(test.appAssert);
+          assertSpawn('exact', test.expectAppCmdArgs);
         });
 
         it('should have --config flag when config is provided to constructor', async () => {
@@ -586,36 +761,31 @@ describe('Fly', () => {
             config: mockDefs.testConfig
           });
           await test.noOptionFn(fly);
-          expect(mockExec).toHaveBeenCalledWith(test.configAssert);
+          assertSpawn('exact', test.expectConfigCmdArgs);
         });
 
         it('should have --config flag when config is provided to function', async () => {
           const fly = new Fly(defaultFlyConfig);
           await test.configOptionFn(fly);
-          expect(mockExec).toHaveBeenCalledWith(test.configAssert);
+          assertSpawn('exact', test.expectConfigCmdArgs);
         });
       });
     }
   });
 
   describe('apps', () => {
-    it('should create application and get a generated name', async () => {
-      const fly = new Fly(defaultFlyConfig);
-      const name = await fly.apps.create();
-
-      expect(name).toBe(mockDefs.generatedAppName);
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`apps create --generate-name`)
-      );
-    });
-
-    it('should create application on personal organization by default', async () => {
+    it('should create application on personal organization with a generated name by default', async () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.apps.create();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`apps create --generate-name --org personal`)
-      );
+      assertSpawn('exact', [
+        'apps',
+        'create',
+        '--generate-name',
+        '--org',
+        'personal',
+        '--json'
+      ]);
     });
 
     it('should create application with a provided name', async () => {
@@ -623,48 +793,58 @@ describe('Fly', () => {
       const name = await fly.apps.create({ app: mockDefs.newApp });
 
       expect(name).toBe(mockDefs.newApp);
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`apps create ${mockDefs.newApp}`)
-      );
+      assertSpawn('exact', [
+        'apps',
+        'create',
+        mockDefs.newApp,
+        '--org',
+        'personal',
+        '--json'
+      ]);
     });
 
     it('should create application for a custom organization', async () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.apps.create({ org: mockDefs.org });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `apps create --generate-name --org ${mockDefs.org}`
-        )
-      );
+      assertSpawn('exact', [
+        'apps',
+        'create',
+        '--generate-name',
+        '--org',
+        mockDefs.org,
+        '--json'
+      ]);
     });
 
     it('should destroy application', async () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.apps.destroy(mockDefs.testApp);
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`apps destroy ${mockDefs.testApp}`)
-      );
+      assertSpawn('exact', ['apps', 'destroy', mockDefs.testApp, '--yes']);
     });
 
     it('should auto-confirm destruction', async () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.apps.destroy(mockDefs.testApp);
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(/apps destroy .* --yes/)
-      );
+      assertSpawn('exact', ['apps', 'destroy', mockDefs.testApp, '--yes']);
     });
 
     it('should detach from postgres cluster when app is attached', async () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.apps.destroy(mockDefs.testApp);
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `postgres detach ${mockDefs.postgresAttached} --app ${mockDefs.testApp}`
-        )
+      assertSpawn(
+        'exact',
+        [
+          'postgres',
+          'detach',
+          mockDefs.postgresAttached,
+          '--app',
+          mockDefs.testApp
+        ],
+        { prompt: expect.any(Function) }
       );
     });
 
@@ -672,27 +852,27 @@ describe('Fly', () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.apps.destroy(mockDefs.newApp);
 
-      expect(mockExec).not.toHaveBeenCalledWith(
-        expect.stringContaining(`postgres detach`)
-      );
+      assertSpawn('not', ['postgres', 'detach']);
     });
 
     it('should force destruction', async () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.apps.destroy(mockDefs.testApp, { force: true });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(/apps destroy .* --force/)
-      );
+      assertSpawn('exact', [
+        'apps',
+        'destroy',
+        mockDefs.testApp,
+        '--yes',
+        '--force'
+      ]);
     });
 
     it('should list applications', async () => {
       const fly = new Fly(defaultFlyConfig);
       const response = await fly.apps.list();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`apps list`)
-      );
+      assertSpawn('exact', ['apps', 'list', '--json']);
       expect(response).toEqual(mockAppsListResponse);
     });
   });
@@ -703,40 +883,55 @@ describe('Fly', () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.certs.add('test.com');
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`certs add test.com --app ${mockDefs.testApp}`)
-      );
+      assertSpawn('exact', [
+        'certs',
+        'add',
+        'test.com',
+        '--app',
+        mockDefs.testApp,
+        '--json'
+      ]);
     });
 
     it('should remove certificate', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.certs.remove('test.com');
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `certs remove test.com --app ${mockDefs.testApp}`
-        )
-      );
+      assertSpawn('exact', [
+        'certs',
+        'remove',
+        'test.com',
+        '--app',
+        mockDefs.testApp,
+        '--yes'
+      ]);
     });
 
     it('should auto-confirm removal', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.certs.remove('test.com');
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `certs remove test.com --app ${mockDefs.testApp} --yes`
-        )
-      );
+      assertSpawn('exact', [
+        'certs',
+        'remove',
+        'test.com',
+        '--app',
+        mockDefs.testApp,
+        '--yes'
+      ]);
     });
 
     it('should list certificates for instance app', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       const response = await fly.certs.list();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`certs list --app ${mockDefs.testApp}`)
-      );
+      assertSpawn('exact', [
+        'certs',
+        'list',
+        '--app',
+        mockDefs.testApp,
+        '--json'
+      ]);
       expect(response).toEqual(mockListCertForAppResponse);
     });
 
@@ -744,9 +939,13 @@ describe('Fly', () => {
       const fly = new Fly(defaultFlyConfig);
       const response = await fly.certs.list({ app: mockDefs.testApp });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`certs list --app ${mockDefs.testApp}`)
-      );
+      assertSpawn('exact', [
+        'certs',
+        'list',
+        '--app',
+        mockDefs.testApp,
+        '--json'
+      ]);
       expect(response).toEqual(mockListCertForAppResponse);
     });
 
@@ -754,19 +953,20 @@ describe('Fly', () => {
       const fly = new Fly(defaultFlyConfig);
       const response = await fly.certs.list('all');
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining('apps list')
-      );
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `certs list --app ${mockListCertForAllResponse[0].app}`
-        )
-      );
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `certs list --app ${mockListCertForAllResponse[1].app}`
-        )
-      );
+      assertSpawn('exact', [
+        'certs',
+        'list',
+        '--app',
+        mockListCertForAllResponse[0].app,
+        '--json'
+      ]);
+      assertSpawn('exact', [
+        'certs',
+        'list',
+        '--app',
+        mockListCertForAllResponse[1].app,
+        '--json'
+      ]);
       expect(response).toEqual(mockListCertForAllResponse);
     });
   });
@@ -776,11 +976,7 @@ describe('Fly', () => {
       const fly = new Fly({ ...defaultFlyConfig, config: mockDefs.testConfig });
       const response = await fly.config.show();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(
-          `config show --config ${mockDefs.testConfig}(--local){0}`
-        )
-      );
+      assertSpawn('exact', ['config', 'show', '--config', mockDefs.testConfig]);
       expect(response).toEqual(mockShowConfigResponse(mockDefs.testApp));
     });
 
@@ -788,11 +984,7 @@ describe('Fly', () => {
       const fly = new Fly(defaultFlyConfig);
       const response = await fly.config.show({ config: mockDefs.testConfig });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(
-          `config show --config ${mockDefs.testConfig}(--local){0}`
-        )
-      );
+      assertSpawn('exact', ['config', 'show', '--config', mockDefs.testConfig]);
       expect(response).toEqual(mockShowConfigResponse(mockDefs.testApp));
     });
 
@@ -803,11 +995,13 @@ describe('Fly', () => {
         local: true
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `config show --config ${mockDefs.testConfig} --local`
-        )
-      );
+      assertSpawn('exact', [
+        'config',
+        'show',
+        '--config',
+        mockDefs.testConfig,
+        '--local'
+      ]);
       expect(response).toEqual(mockShowConfigResponse(mockDefs.testApp));
     });
 
@@ -865,11 +1059,14 @@ describe('Fly', () => {
         org: mockDefs.org
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `apps create ${mockDefs.newApp} --org ${mockDefs.org}`
-        )
-      );
+      assertSpawn('exact', [
+        'apps',
+        'create',
+        mockDefs.newApp,
+        '--org',
+        mockDefs.org,
+        '--json'
+      ]);
       expect(response).toEqual({
         app: mockDefs.newApp,
         hostname: `${mockDefs.newApp}.fly.dev`,
@@ -885,9 +1082,7 @@ describe('Fly', () => {
         org: mockDefs.org
       });
 
-      expect(mockExec).not.toHaveBeenCalledWith(
-        expect.stringContaining('secrets list')
-      );
+      assertSpawn('not', ['secrets', 'list']);
     });
 
     it('should get app secrets when app exists', async () => {
@@ -897,9 +1092,13 @@ describe('Fly', () => {
         config: mockDefs.testConfig
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`secrets list --app ${mockDefs.testApp}`)
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'list',
+        '--app',
+        mockDefs.testApp,
+        '--json'
+      ]);
     });
 
     it('should attach to postgres cluster when not attached to the app', async () => {
@@ -910,11 +1109,14 @@ describe('Fly', () => {
         postgres: mockDefs.postgresNotAttached
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `postgres attach ${mockDefs.postgresNotAttached} --app ${mockDefs.testApp} --yes`
-        )
-      );
+      assertSpawn('exact', [
+        'postgres',
+        'attach',
+        mockDefs.postgresNotAttached,
+        '--app',
+        mockDefs.testApp,
+        '--yes'
+      ]);
     });
 
     it('should not attach to postgres cluster when already attached', async () => {
@@ -925,9 +1127,7 @@ describe('Fly', () => {
         postgres: mockDefs.postgresAttached
       });
 
-      expect(mockExec).not.toHaveBeenCalledWith(
-        expect.stringContaining(`postgres attach`)
-      );
+      assertSpawn('not', ['postgres', 'attach']);
     });
 
     it('should not automatically deploy when secrets are set for the app', async () => {
@@ -938,11 +1138,14 @@ describe('Fly', () => {
         secrets: { NEW_SECRET: 'value' }
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets set --app ${mockDefs.testApp} --stage NEW_SECRET=value`
-        )
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'set',
+        '--app',
+        mockDefs.testApp,
+        '--stage',
+        'NEW_SECRET=value'
+      ]);
     });
 
     it('should preserve existing secrets on second deployment', async () => {
@@ -956,11 +1159,14 @@ describe('Fly', () => {
         }
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets set --app ${mockDefs.testApp} --stage NEW_SECRET=value`
-        )
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'set',
+        '--app',
+        mockDefs.testApp,
+        '--stage',
+        'NEW_SECRET=value'
+      ]);
     });
 
     it('should create app with name from provided config file and deploy with the same config', async () => {
@@ -969,14 +1175,22 @@ describe('Fly', () => {
         config: mockDefs.newConfig
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`apps create ${mockDefs.newApp} --org personal`)
-      );
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `deploy --app ${mockDefs.newApp} --config ${mockDefs.newConfig} --yes`
-        )
-      );
+      assertSpawn('exact', [
+        'apps',
+        'create',
+        mockDefs.newApp,
+        '--org',
+        'personal',
+        '--json'
+      ]);
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.newApp,
+        '--config',
+        mockDefs.newConfig,
+        '--yes'
+      ]);
       expect(response).toEqual({
         app: mockDefs.newApp,
         hostname: `${mockDefs.newApp}.fly.dev`,
@@ -991,14 +1205,22 @@ describe('Fly', () => {
         config: mockDefs.testConfig
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`apps create ${mockDefs.newApp} --org personal`)
-      );
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `deploy --app ${mockDefs.newApp} --config ${mockDefs.testConfig} --yes`
-        )
-      );
+      assertSpawn('exact', [
+        'apps',
+        'create',
+        mockDefs.newApp,
+        '--org',
+        'personal',
+        '--json'
+      ]);
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.newApp,
+        '--config',
+        mockDefs.testConfig,
+        '--yes'
+      ]);
       expect(response).toEqual({
         app: mockDefs.newApp,
         hostname: `${mockDefs.newApp}.fly.dev`,
@@ -1014,9 +1236,16 @@ describe('Fly', () => {
         region: 'eu'
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(/deploy .* --region eu/)
-      );
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        mockDefs.testConfig,
+        '--region',
+        'eu',
+        '--yes'
+      ]);
     });
 
     it('should set DEPLOY_ENV to environment', async () => {
@@ -1027,9 +1256,16 @@ describe('Fly', () => {
         environment: 'production'
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(/deploy .* DEPLOY_ENV=production/)
-      );
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        mockDefs.testConfig,
+        '--env',
+        'DEPLOY_ENV=production',
+        '--yes'
+      ]);
     });
 
     it('should set environment variables', async () => {
@@ -1044,11 +1280,20 @@ describe('Fly', () => {
         }
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(
-          /deploy .* --env TEST_ENV=value --env WITH_BACKSLASH=value\\\\with\\\\backslash --env WITH_SPACE=value\\ with\\ space/
-        )
-      );
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        mockDefs.testConfig,
+        '--env',
+        'TEST_ENV=value',
+        '--env',
+        'WITH_BACKSLASH=value\\\\with\\\\backslash',
+        '--env',
+        'WITH_SPACE=value\\ with\\ space',
+        '--yes'
+      ]);
     });
 
     it('should auto-confirm deployment', async () => {
@@ -1058,9 +1303,14 @@ describe('Fly', () => {
         config: mockDefs.testConfig
       });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringMatching(/deploy .* --yes/)
-      );
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        mockDefs.testConfig,
+        '--yes'
+      ]);
     });
   });
 
@@ -1070,64 +1320,80 @@ describe('Fly', () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.secrets.set({ TEST_SECRET: 'value' });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets set --app ${mockDefs.testApp} TEST_SECRET=value`
-        )
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'set',
+        '--app',
+        mockDefs.testApp,
+        'TEST_SECRET=value'
+      ]);
     });
 
     it('should set secret and skip deployment', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.secrets.set({ TEST_SECRET: 'value' }, { stage: true });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets set --app ${mockDefs.testApp} --stage TEST_SECRET=value`
-        )
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'set',
+        '--app',
+        mockDefs.testApp,
+        '--stage',
+        'TEST_SECRET=value'
+      ]);
     });
 
     it('should set secret with spaces in value', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.secrets.set({ TEST_SECRET: 'value with space' });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets set --app ${mockDefs.testApp} TEST_SECRET=value\\ with\\ space`
-        )
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'set',
+        '--app',
+        mockDefs.testApp,
+        'TEST_SECRET=value\\ with\\ space'
+      ]);
     });
 
     it('should unset secret and auto-deploy', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.secrets.unset('TEST_SECRET');
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets unset --app ${mockDefs.testApp} TEST_SECRET`
-        )
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'unset',
+        '--app',
+        mockDefs.testApp,
+        'TEST_SECRET'
+      ]);
     });
 
     it('should unset secret and skip deployment', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       await fly.secrets.unset('TEST_SECRET', { stage: true });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets unset --app ${mockDefs.testApp} --stage TEST_SECRET`
-        )
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'unset',
+        '--app',
+        mockDefs.testApp,
+        '--stage',
+        'TEST_SECRET'
+      ]);
     });
 
     it('should list secrets for instance app', async () => {
       const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
       const response = await fly.secrets.list();
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`secrets list --app ${mockDefs.testApp}`)
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'list',
+        '--app',
+        mockDefs.testApp,
+        '--json'
+      ]);
       expect(response).toEqual(mockListSecretForAppResponse);
     });
 
@@ -1135,9 +1401,13 @@ describe('Fly', () => {
       const fly = new Fly(defaultFlyConfig);
       const response = await fly.secrets.list({ app: mockDefs.testApp });
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(`secrets list --app ${mockDefs.testApp}`)
-      );
+      assertSpawn('exact', [
+        'secrets',
+        'list',
+        '--app',
+        mockDefs.testApp,
+        '--json'
+      ]);
       expect(response).toEqual(mockListSecretForAppResponse);
     });
 
@@ -1145,19 +1415,21 @@ describe('Fly', () => {
       const fly = new Fly(defaultFlyConfig);
       const response = await fly.secrets.list('all');
 
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining('apps list')
-      );
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets list --app ${mockListSecretForAllResponse[0].app}`
-        )
-      );
-      expect(mockExec).toHaveBeenCalledWith(
-        expect.stringContaining(
-          `secrets list --app ${mockListSecretForAllResponse[1].app}`
-        )
-      );
+      assertSpawn('exact', ['apps', 'list', '--json']);
+      assertSpawn('exact', [
+        'secrets',
+        'list',
+        '--app',
+        mockListSecretForAllResponse[0].app,
+        '--json'
+      ]);
+      assertSpawn('exact', [
+        'secrets',
+        'list',
+        '--app',
+        mockListSecretForAllResponse[1].app,
+        '--json'
+      ]);
       expect(response).toEqual(mockListSecretForAllResponse);
     });
   });

@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { cwd } from 'process';
 
-import { exec } from '@codeware/core/utils';
+import { SpawnOptions, spawn } from '@codeware/core/utils';
 import { ZodError } from 'zod';
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';
@@ -672,7 +672,15 @@ export class Fly {
   private async detachPostgres(postgres: string, app: string): Promise<void> {
     const args = ['postgres', 'detach', postgres, '--app', app];
 
-    await this.execFly(args);
+    // Prompt for confirmation if the database name
+    await this.execFly(args, {
+      prompt: (output) => {
+        if (output.match(/select .* detach/i)) {
+          return app.replace(/-/g, '_');
+        }
+        return;
+      }
+    });
   }
 
   /**
@@ -1099,6 +1107,7 @@ ${JSON.stringify(response, null, 2)}`);
       // First check if a user is logged in locally
       let user = await this.execFly<string>(
         ['auth', 'whoami'],
+        undefined,
         'nullOnError',
         true // won't use token
       );
@@ -1127,7 +1136,10 @@ ${JSON.stringify(response, null, 2)}`);
    * @returns The JSON output of the command, or the raw output if not JSON
    * @throws An error if the command fails
    */
-  private async execFly<T = void>(command: string | Array<string>): Promise<T>;
+  private async execFly<T = void>(
+    command: string | Array<string>,
+    options?: SpawnOptions
+  ): Promise<T>;
   /**
    * @private
    * Execute a fly command and optionally return the output as JSON
@@ -1142,38 +1154,42 @@ ${JSON.stringify(response, null, 2)}`);
    */
   private async execFly<T = null>(
     command: string | Array<string>,
-    onError: 'nullOnError',
+    options?: SpawnOptions,
+    onError?: 'nullOnError',
     skipToken?: boolean
   ): Promise<T>;
   private async execFly<T>(
     command: string | Array<string>,
+    options?: SpawnOptions,
     onError: 'nullOnError' | 'throwOnError' = 'throwOnError',
     skipToken?: boolean
   ): Promise<T> {
-    const cmdArr = Array.isArray(command) ? command : [command];
+    const args = Array.isArray(command) ? command : command.split(' ');
 
     // Authenticate via token when
     // - not skipping token authentication
     // - not authenticated by a logged in user
     // - a token is provided
     if (!skipToken && !this.authByLogin && this._config.token) {
-      cmdArr.push('--access-token', this._config.token);
+      args.push('--access-token', this._config.token);
     }
 
-    const flyCmd = `flyctl ${cmdArr.filter(Boolean).join(' ')}`;
-
+    const flyCmd = 'flyctl';
+    const toLogCmd = `${flyCmd} ${args.join(' ')}`;
     let stdout = '';
 
     try {
-      this.traceCLI('CALL', flyCmd);
-      const result = await exec(flyCmd);
+      this.traceCLI('CALL', toLogCmd);
+      const result = await spawn(flyCmd, args, options);
       stdout = result.stdout.trim();
-      this.traceCLI('RESULT', stdout);
+      const stderr = result.stderr.trim();
+      this.traceCLI('RESULT', `${stdout}${stderr ? `\n${stderr}` : ''}`);
     } catch (error) {
-      this.traceCLI('RESULT', error as string);
+      const errorMsg = (error as Error).message;
+      this.traceCLI('RESULT', errorMsg);
       if (onError === 'throwOnError') {
-        throw new Error(`Command failed: ${flyCmd}
-${error}`);
+        throw new Error(`Command failed: ${toLogCmd}
+${errorMsg}`);
       }
       return null as T;
     }
@@ -1266,7 +1282,7 @@ ${error}`);
    * @returns `true` if the Fly CLI is installed, `false` otherwise
    */
   private async isInstalled(): Promise<boolean> {
-    return (await this.execFly('version', 'nullOnError')) !== null;
+    return (await this.execFly('version', undefined, 'nullOnError')) !== null;
   }
 
   /**

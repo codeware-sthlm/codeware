@@ -36,6 +36,7 @@
     "@actions/github": "^6.0.0",
     "@clack/prompts": "^0.9.0",
     "@infisical/sdk": "^3.0.4",
+    "@homebridge/node-pty-prebuilt-multiarch": "^0.11.14",
     "@nx/devkit": "20.x",
     "@nx/plugin": "20.x",
     "@octokit/request-error": "^5.0.1",

@@ -1,10 +1,10 @@
 import { existsSync } from 'fs';
 import process from 'process';
 
-import { SpawnOptions, spawn } from '@codeware/core/utils';
+import { SpawnOptions, spawn, spawnPty } from '@codeware/core/utils';
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Fly } from './fly.class';
+import { ExecFlyOptions, Fly } from './fly.class';
 import {
   mockAppsListResponse,
   mockCreateAppResponse,
@@ -30,7 +30,8 @@ vi.mock('os');
 vi.mock('@codeware/core/utils', async () => ({
   // Only mock `spawn` function
   ...(await vi.importActual('@codeware/core/utils')),
-  spawn: vi.fn()
+  spawn: vi.fn(),
+  spawnPty: vi.fn()
 }));
 
 describe('Fly', () => {
@@ -64,6 +65,7 @@ describe('Fly', () => {
   };
 
   const mockSpawn = vi.mocked(spawn);
+  const mockSpawnPty = vi.mocked(spawnPty);
   const mockExistsSync = vi.mocked(existsSync);
 
   /**
@@ -86,7 +88,7 @@ describe('Fly', () => {
   const assertSpawn = (
     matchArgs: 'exact' | 'not' | 'some',
     args: Array<string>,
-    options?: SpawnOptions & {
+    options?: ExecFlyOptions & {
       /** The strategy to use for the `--access-token` flag */
       accessTokenStrategy?: 'append-to-args' | 'leave-as-is';
     }
@@ -101,10 +103,13 @@ describe('Fly', () => {
       optionsToCheck = options;
     }
 
+    // Determine which mock to use
+    const mockSpawnUsed = options?.prompt ? mockSpawnPty : mockSpawn;
+
     // Check negative test first - ignore options
     if (matchArgs === 'not') {
       // Assert that the call was not made
-      expect(mockSpawn).not.toHaveBeenCalledWith(
+      expect(mockSpawnUsed).not.toHaveBeenCalledWith(
         expect.stringMatching(/^fly/),
         expect.arrayContaining(args),
         expect.anything()
@@ -123,7 +128,7 @@ describe('Fly', () => {
         : args;
 
     // Find call that matches our arguments
-    const matchingCall = mockSpawn.mock.calls.find(
+    const matchingCall = mockSpawnUsed.mock.calls.find(
       (call) =>
         call[0].match(/^fly/) &&
         argsToCheck.every((arg) => call[1].includes(arg))
@@ -132,7 +137,7 @@ describe('Fly', () => {
     // Assert normally when a call could not be found.
     // It should fail but provide a better DX to the user.
     if (!matchingCall) {
-      expect(mockSpawn).toHaveBeenCalledWith(
+      expect(mockSpawnUsed).toHaveBeenCalledWith(
         expect.stringMatching(/^fly/),
         expect.arrayContaining(argsToCheck),
         optionsToCheck

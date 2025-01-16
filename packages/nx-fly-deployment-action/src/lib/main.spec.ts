@@ -13,6 +13,9 @@ import * as main from './main';
 import type { ActionInputs } from './schemas/action-inputs.schema';
 import type { ActionOutputs } from './schemas/action-outputs.schema';
 
+vi.mock('@homebridge/node-pty-prebuilt-multiarch', () => ({
+  spawn: vi.fn()
+}));
 vi.mock('@actions/core');
 vi.mock('./fly-deployment');
 

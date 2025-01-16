@@ -2,7 +2,12 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { cwd } from 'process';
 
-import { SpawnOptions, spawn } from '@codeware/core/utils';
+import {
+  SpawnOptions,
+  SpawnPtyOptions,
+  spawn,
+  spawnPty
+} from '@codeware/core/utils';
 import { ZodError } from 'zod';
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';
@@ -41,6 +46,8 @@ import type {
   StatusResponse,
   UnsetAppSecretsOptions
 } from './types';
+
+export type ExecFlyOptions = SpawnOptions & SpawnPtyOptions;
 
 /**
  * Manages deployments to Fly.io using the `flyctl` CLI tool.
@@ -171,7 +178,8 @@ export class Fly {
           this.logger.info(
             `Detaching Postgres cluster '${cluster}' from application '${app}'`
           );
-          await this.detachPostgres(cluster, app);
+          const output = await this.detachPostgres(cluster, app);
+          this.logger.info(output);
         }
         // Now it's safe to destroy the app
         await this.destroyApp(app, options?.force);
@@ -329,6 +337,11 @@ export class Fly {
       throw new Error(
         `[deploy] something broke, check your deployments\n${error}`
       );
+    }
+  };
+  postgres = {
+    detach: async (cluster: string, app: string) => {
+      await this.detachPostgres(cluster, app);
     }
   };
   /**
@@ -667,13 +680,14 @@ export class Fly {
 
   /**
    * @private
+   * @returns Log output from the detach process
    * @throws An error if the Postgres database cannot be detached from an app
    */
-  private async detachPostgres(postgres: string, app: string): Promise<void> {
+  private async detachPostgres(postgres: string, app: string): Promise<string> {
     const args = ['postgres', 'detach', postgres, '--app', app];
 
     // Prompt for confirmation if the database name
-    await this.execFly(args, {
+    return await this.execFly<string>(args, {
       prompt: (output) => {
         if (output.match(/select .* detach/i)) {
           return app.replace(/-/g, '_');
@@ -1136,9 +1150,9 @@ ${JSON.stringify(response, null, 2)}`);
    * @returns The JSON output of the command, or the raw output if not JSON
    * @throws An error if the command fails
    */
-  private async execFly<T = void>(
+  private async execFly<T>(
     command: string | Array<string>,
-    options?: SpawnOptions
+    options?: ExecFlyOptions
   ): Promise<T>;
   /**
    * @private
@@ -1152,15 +1166,15 @@ ${JSON.stringify(response, null, 2)}`);
    * @returns The JSON output of the command, or the raw output if not JSON
    * @throws An error if the command fails and `onError` is `throwOnError`
    */
-  private async execFly<T = null>(
+  private async execFly<T>(
     command: string | Array<string>,
-    options?: SpawnOptions,
+    options?: ExecFlyOptions,
     onError?: 'nullOnError',
     skipToken?: boolean
   ): Promise<T>;
   private async execFly<T>(
     command: string | Array<string>,
-    options?: SpawnOptions,
+    options?: ExecFlyOptions,
     onError: 'nullOnError' | 'throwOnError' = 'throwOnError',
     skipToken?: boolean
   ): Promise<T> {
@@ -1176,14 +1190,21 @@ ${JSON.stringify(response, null, 2)}`);
 
     const flyCmd = 'flyctl';
     const toLogCmd = `${flyCmd} ${args.join(' ')}`;
-    let stdout = '';
+    let output = '';
 
     try {
       this.traceCLI('CALL', toLogCmd);
-      const result = await spawn(flyCmd, args, options);
-      stdout = result.stdout.trim();
-      const stderr = result.stderr.trim();
-      this.traceCLI('RESULT', `${stdout}${stderr ? `\n${stderr}` : ''}`);
+      // If the command requires interactive input, use spawnPty
+      if (options?.prompt) {
+        output = await spawnPty(flyCmd, args, { prompt: options.prompt });
+        this.traceCLI('RESULT', output);
+      } else {
+        // Otherwise use spawn
+        const result = await spawn(flyCmd, args, options);
+        output = result.stdout.trim();
+        const stderr = result.stderr.trim();
+        this.traceCLI('RESULT', `${output}${stderr ? `\n${stderr}` : ''}`);
+      }
     } catch (error) {
       const errorMsg = (error as Error).message;
       this.traceCLI('RESULT', errorMsg);
@@ -1195,13 +1216,13 @@ ${errorMsg}`);
     }
 
     try {
-      return JSON.parse(stdout) as T;
+      return JSON.parse(output) as T;
     } catch {
-      if (stdout) {
+      if (output) {
         if (this.logger.traceCLI) {
           this.logger.info(`Failed to parse as JSON, returning raw output`);
         }
-        return stdout as T;
+        return output as T;
       }
     }
     return undefined as T;

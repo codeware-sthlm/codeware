@@ -27,6 +27,9 @@ vi.mock('fs', async () => {
     __esModule: true
   };
 });
+vi.mock('@homebridge/node-pty-prebuilt-multiarch', () => ({
+  spawn: vi.fn()
+}));
 vi.mock('@actions/core');
 vi.mock('@actions/exec');
 vi.mock('@actions/github', () => ({

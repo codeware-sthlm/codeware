@@ -1,7 +1,7 @@
+import type { Page } from '@codeware/shared/util/payload';
 import type { Payload } from 'payload';
 import type { TypeWithID } from 'payload/types';
 
-import type { Page } from '../../generated/payload-types';
 import { getId } from '../../utils/get-id';
 
 export type PageData = Pick<

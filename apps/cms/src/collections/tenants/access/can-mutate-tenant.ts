@@ -1,6 +1,6 @@
+import type { User } from '@codeware/shared/util/payload';
 import type { Access } from 'payload/types';
 
-import type { User } from '../../../generated/payload-types';
 import { getId } from '../../../utils/get-id';
 import { hasRole } from '../../../utils/has-role';
 

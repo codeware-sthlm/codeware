@@ -1,4 +1,4 @@
-import type { Tenant, User } from '../generated/payload-types';
+import type { Tenant, User } from '@codeware/shared/util/payload';
 
 /**
  * Check if the user is a collection user.

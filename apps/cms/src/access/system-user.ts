@@ -1,4 +1,5 @@
-import type { User } from '../generated/payload-types';
+import type { User } from '@codeware/shared/util/payload';
+
 import { hasRole } from '../utils/has-role';
 
 /**

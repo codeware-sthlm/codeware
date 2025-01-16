@@ -1,6 +1,5 @@
+import type { Tenant } from '@codeware/shared/util/payload';
 import type { CollectionBeforeChangeHook } from 'payload/types';
-
-import type { Tenant } from '../../../generated/payload-types';
 
 /**
  * Before change hook.

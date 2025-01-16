@@ -1,6 +1,6 @@
+import type { User } from '@codeware/shared/util/payload';
 import type { Access, Where } from 'payload/types';
 
-import type { User } from '../../../generated/payload-types';
 import { getTenantAccessIDs } from '../../../utils/get-tenant-access-ids';
 import { hasRole } from '../../../utils/has-role';
 

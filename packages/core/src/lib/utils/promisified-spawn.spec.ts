@@ -1,16 +1,14 @@
 import { spawn as cpSpawn } from 'child_process';
 import { EventEmitter } from 'events';
-import { Writable } from 'stream';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type SpawnOptions, spawn } from './interactive-spawn';
+import { type SpawnOptions, spawn } from './promisified-spawn';
 
 // Create types for our mocked process
 type MockProcess = EventEmitter & {
   stdout: EventEmitter;
   stderr: EventEmitter;
-  stdin: Writable;
 };
 
 // Mock child_process
@@ -18,20 +16,14 @@ vi.mock('child_process', () => ({
   spawn: vi.fn().mockImplementation(() => {
     const mockProcess = new EventEmitter();
 
-    // Create mock streams for stdin, stdout, and stderr
+    // Create mock streams for stdout and stderr
     const mockStdout = new EventEmitter();
     const mockStderr = new EventEmitter();
-    const mockStdin = new Writable({
-      write: (_chunk, _encoding, callback) => {
-        callback();
-      }
-    });
 
     // Assign the mock streams to the mock process
     Object.assign(mockProcess, {
       stdout: mockStdout,
-      stderr: mockStderr,
-      stdin: mockStdin
+      stderr: mockStderr
     });
 
     return mockProcess;
@@ -97,25 +89,6 @@ describe('spawn', () => {
     mockProcess.emit('error', testError);
 
     await expect(spawnPromise).rejects.toThrow(testError);
-  });
-
-  it('should handle prompt option and write user input', async () => {
-    const prompt = (output: string) => {
-      if (output.includes('Please enter input:')) {
-        return 'user response';
-      }
-      return undefined;
-    };
-
-    const spawnPromise = invokeSpawn('test-command', ['arg1'], { prompt });
-
-    const writeStub = vi.spyOn(mockProcess.stdin, 'write');
-    mockProcess.stdout.emit('data', Buffer.from('Please enter input:'));
-    mockProcess.emit('close', 0);
-
-    await spawnPromise;
-
-    expect(writeStub).toHaveBeenCalledWith('user response\n');
   });
 
   it('should handle multiple stdout/stderr chunks', async () => {

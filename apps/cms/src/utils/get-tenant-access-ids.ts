@@ -1,4 +1,4 @@
-import type { Tenant, User } from '../generated/payload-types';
+import type { Tenant, User } from '@codeware/shared/util/payload';
 
 import type { TenantRole } from './custom-types';
 import { getId } from './get-id';

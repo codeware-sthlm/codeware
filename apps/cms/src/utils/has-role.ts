@@ -1,4 +1,4 @@
-import type { User } from '../generated/payload-types';
+import type { User } from '@codeware/shared/util/payload';
 
 /**
  * Check if a user has a specific role.

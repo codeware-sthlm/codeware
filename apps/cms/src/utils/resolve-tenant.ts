@@ -1,9 +1,9 @@
 import type { IncomingHttpHeaders } from 'http';
 
+import type { Tenant, User } from '@codeware/shared/util/payload';
 import type { Payload } from 'payload';
 
 import env from '../env-resolver/resolved-env';
-import type { Tenant, User } from '../generated/payload-types';
 import { parseCookies } from '../utils/parse-cookies';
 
 import { isUser } from './is-user';

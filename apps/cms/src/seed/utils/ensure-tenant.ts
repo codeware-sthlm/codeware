@@ -1,7 +1,6 @@
+import type { Tenant } from '@codeware/shared/util/payload';
 import type { Payload } from 'payload';
 import type { TypeWithID } from 'payload/types';
-
-import type { Tenant } from '../../generated/payload-types';
 
 export type TenantData = Pick<Tenant, 'name' | 'description' | 'apiKey'> & {
   hosts: Array<string>;

@@ -90,13 +90,11 @@ export default buildConfig({
   // Generate types and schemas
   typescript: {
     declare: false,
-    outputFile: resolve(__dirname, 'generated/payload-types.ts')
-    // NB! Manually copy the generated file to the shared/util/payload/src/lib/generated folder
-    // to keep the generated types in sync between the apps! To be fixed in COD-204
-    // outputFile: resolve(
-    //   process.cwd(),
-    //   'libs/shared/util/payload/src/lib/generated/payload-types.ts'
-    // )
+    // Keep the generated types in sync between the apps
+    outputFile: resolve(
+      env.CWD,
+      'libs/shared/util/payload/src/lib/generated/payload-types.ts'
+    )
   },
   graphQL: {
     disable: true

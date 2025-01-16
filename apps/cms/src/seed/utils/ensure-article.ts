@@ -1,7 +1,6 @@
+import type { Article } from '@codeware/shared/util/payload';
 import type { Payload } from 'payload';
 import type { TypeWithID } from 'payload/types';
-
-import type { Article } from '../../generated/payload-types';
 
 export type ArticleData = Pick<
   Article,

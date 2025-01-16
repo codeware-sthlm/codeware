@@ -7,16 +7,6 @@
   "targets": {
     "lint": {},
     "test": {},
-    "gen-copy": {
-      "executor": "nx:run-commands",
-      "metadata": {
-        "description": "Generate Payload types and copy the file to shared util. Note! This is a workaround to make the types shared to other projects."
-      },
-      "options": {
-        "command": "cp -R apps/cms/src/generated/payload-types.ts libs/shared/util/payload/src/lib/generated/."
-      },
-      "dependsOn": ["gen"]
-    },
     "serve-fresh": {
       "executor": "nx:run-commands",
       "options": {

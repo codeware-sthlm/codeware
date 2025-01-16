@@ -1,7 +1,6 @@
+import type { Config, User } from '@codeware/shared/util/payload';
 import type { NextFunction, Response } from 'express';
 import type { PayloadRequest } from 'payload/types';
-
-import type { Config, User } from '../generated/payload-types';
 
 export type Prettify<T> = {
   [K in keyof T]: T[K];

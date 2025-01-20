@@ -1,8 +1,9 @@
-import type { User } from '@codeware/shared/util/payload';
+import {
+  type User,
+  getTenantAccessIDs,
+  hasRole
+} from '@codeware/shared/util/payload';
 import type { Condition } from 'payload/types';
-
-import { getTenantAccessIDs } from '../../../utils/get-tenant-access-ids';
-import { hasRole } from '../../../utils/has-role';
 
 /**
  * Show the tenant field for system users or

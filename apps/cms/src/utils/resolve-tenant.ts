@@ -1,12 +1,14 @@
 import type { IncomingHttpHeaders } from 'http';
 
-import type { Tenant, User } from '@codeware/shared/util/payload';
+import {
+  type Tenant,
+  type User,
+  isUser,
+  parseCookies
+} from '@codeware/shared/util/payload';
 import type { Payload } from 'payload';
 
 import env from '../env-resolver/resolved-env';
-import { parseCookies } from '../utils/parse-cookies';
-
-import { isUser } from './is-user';
 
 /**
  * Response is `undefined` when no user or tenant is authenticated.

@@ -1,7 +1,5 @@
+import { getTenantAccessIDs, hasRole } from '@codeware/shared/util/payload';
 import type { FieldAccess } from 'payload/types';
-
-import { getTenantAccessIDs } from '../../../utils/get-tenant-access-ids';
-import { hasRole } from '../../../utils/has-role';
 
 /**
  * Allows system users to update the tenant field.

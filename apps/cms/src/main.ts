@@ -1,8 +1,8 @@
+import { seed } from '@codeware/shared/data-access/seed';
 import express from 'express';
 import payload from 'payload';
 
 import { resolveEnv } from './env-resolver/server.resolve';
-import { seed } from './seed/seed';
 
 const startServer = async () => {
   try {
@@ -56,8 +56,34 @@ const startServer = async () => {
         }
     }
 
-    // Setup data
-    await seed({ payload, env });
+    // Seed database depending on source and strategy
+    payload.logger.info(
+      `Seed source: ${env.SEED_SOURCE}, strategy: ${env.SEED_STRATEGY}`
+    );
+    let runSeed = env.SEED_SOURCE !== 'off';
+    if (runSeed && env.SEED_STRATEGY === 'once') {
+      if (
+        // Do not seed if tenants already exists
+        (
+          await payload.find({
+            collection: 'tenants',
+            depth: 1,
+            limit: 1
+          })
+        ).totalDocs > 0
+      ) {
+        payload.logger.info('Tenants already exists, skip seed');
+        runSeed = false;
+      }
+    }
+
+    if (runSeed) {
+      await seed({
+        environment: env.DEPLOY_ENV,
+        payload,
+        source: env.SEED_SOURCE
+      });
+    }
 
     // Start listening for requests
     app

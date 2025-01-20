@@ -14,7 +14,7 @@ import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 // TODO: Zod types does not get inferred correctly since the schema depends on `@codeware/core/zod`
 // Something is different here since it works in the cms project
 import env from './env-resolver/env';
-import { developmentMapper } from './middlewares/development-mapper.js';
+import { resolveDevApiKey } from './middlewares/resolve-dev-api-key';
 
 // Load the Remix server build
 const build = (await import(
@@ -22,20 +22,12 @@ const build = (await import(
 )) as unknown as ServerBuild;
 
 const app = new Hono()
-  .use(logger())
   // Serve static files from Remix client build
   .use('*', serveStatic({ root: './build/client' }))
   // Let Remix handle all requests
   .use(
     '*',
-    developmentMapper,
-    async (c, next) => {
-      if (c.req.method === 'GET') {
-        console.log('[DEBUG] Middleware GET Request pre-remix', c.req.header());
-      }
-      await next();
-      console.log('[DEBUG] Middleware GET Response pre-remix', c.res.headers);
-    },
+    resolveDevApiKey,
     remix({
       build,
       mode: env.NODE_ENV as RemixMiddlewareOptions['mode'],
@@ -43,12 +35,18 @@ const app = new Hono()
         return {
           ...c.env,
           deviceId: randomUUID(),
+          // Development only
           tenantApiKey: c.get('tenantApiKey'),
           tenantId: c.get('tenantId')
         };
       }
     })
   );
+
+// Disable logger in production
+if (env.DEPLOY_ENV !== 'production') {
+  app.use(logger());
+}
 
 serve(
   {

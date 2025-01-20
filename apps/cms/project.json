@@ -10,7 +10,7 @@
     "serve-fresh": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["nx payload cms migrate:fresh", "nx serve cms"],
+        "commands": ["echo 'y' | nx payload cms migrate:fresh", "nx serve cms"],
         "parallel": false
       }
     },
@@ -40,6 +40,19 @@
         "env": {
           "CWD": "../..",
           "PAYLOAD_CONFIG_PATH": "src/payload.config.ts"
+        }
+      }
+    },
+    "seed": {
+      "metadata": {
+        "description": "Ad-hoc seed process using the local-api only. This is useful for testing the seed process without spinning up the entire server."
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'y' | npx tsx src/utils/seed.ts",
+        "cwd": "apps/cms",
+        "env": {
+          "CWD": "../.."
         }
       }
     }

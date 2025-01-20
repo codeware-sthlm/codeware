@@ -1,8 +1,6 @@
 import type { User } from '@codeware/shared/util/payload';
+import { getTenantAccessIDs, hasRole } from '@codeware/shared/util/payload';
 import type { Access } from 'payload/types';
-
-import { getTenantAccessIDs } from '../../../utils/get-tenant-access-ids';
-import { hasRole } from '../../../utils/has-role';
 
 /**
  * Permission to create users

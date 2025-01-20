@@ -1,0 +1,16 @@
+{
+  "name": "shared-data-access-seed",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/data-access/seed/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:data-access"],
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
+  "targets": {}
+}

@@ -1,9 +1,10 @@
 import type { User } from '@codeware/shared/util/payload';
+import {
+  getTenantAccessIDs,
+  hasRole,
+  parseCookies
+} from '@codeware/shared/util/payload';
 import type { Access, Where } from 'payload/types';
-
-import { getTenantAccessIDs } from '../../../utils/get-tenant-access-ids';
-import { hasRole } from '../../../utils/has-role';
-import { parseCookies } from '../../../utils/parse-cookies';
 
 /**
  * Permission to read users

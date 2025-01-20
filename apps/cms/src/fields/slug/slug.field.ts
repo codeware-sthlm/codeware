@@ -1,6 +1,5 @@
+import type { CollectionSlug } from '@codeware/shared/util/payload';
 import type { Field } from 'payload/types';
-
-import type { CollectionSlug } from '../../utils/custom-types';
 
 import { ensureUniqueSlug } from './hooks/ensure-unique-slug';
 import formatSlug from './hooks/format-slug';

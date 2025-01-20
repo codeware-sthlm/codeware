@@ -26,11 +26,10 @@
 - [Startup Payload multi-tenant in dev mode](#startup-payload-multi-tenant-in-dev-mode)
   - [Terminal 1: Start Postgres and admin UI](#terminal-1-start-postgres-and-admin-ui)
   - [Terminal 2: Start web client](#terminal-2-start-web-client)
-  - [Terminal 3: Start reverse proxy](#terminal-3-start-reverse-proxy)
+  - [Terminal 3: Start reverse proxy to simulate multi-tenancy](#terminal-3-start-reverse-proxy-to-simulate-multi-tenancy)
 - [Development Tools \& Services](#development-tools--services)
   - [Infisical Secrets Management](#infisical-secrets-management)
   - [Fly.io Deployment](#flyio-deployment)
-    - [Connect to the database on local machine](#connect-to-the-database-on-local-machine)
   - [Release Management](#release-management)
 
 ## Packages
@@ -95,25 +94,40 @@ The Payload suite consists of
 
 ### Terminal 1: Start Postgres and admin UI
 
-Start a Docker container
+#### Start Postgres in Docker <!-- omit in toc -->
 
 ```sh
 nx dx:postgres cms
 ```
 
-Make sure database is in a fresh state (when needed)
-
-```sh
-nx payload cms migrate:fresh
-```
-
-Start the admin UI with live-reload
+#### Serve admin UI <!-- omit in toc -->
 
 ```sh
 nx serve cms
 ```
 
-:bulb: Database auto-seed will run
+> [!NOTE]
+> Database is auto-seeded with static data when the admin UI is started.
+
+#### Optional <!-- omit in toc -->
+
+##### Clear database and run migrations <!-- omit in toc -->
+
+```sh
+nx payload cms migrate:fresh
+```
+
+##### Generate seed data <!-- omit in toc -->
+
+Seed data is stored in environment-specific TypeScript files in
+
+- `libs/shared/data-access/seed/src/lib/seed-data`.
+
+You can remove the existing seed data and save the empty object to the file to generate new seed data.
+
+```sh
+nx seed cms
+```
 
 ### Terminal 2: Start web client
 
@@ -124,37 +138,32 @@ nx serve cms
 nx start web
 ```
 
-### Terminal 3: Start reverse proxy
+### Terminal 3: Start reverse proxy to simulate multi-tenancy
 
 ```sh
 nx payload-proxy
-
-# stop the proxy
-nx payload-proxy:down
-
-# or extended command to restart
-nx proxy-cmd shared-util-payload restart
 ```
 
 > [!NOTE]
 > You can now access the different web sites as different tenants:
 >
-> **Admin UI** - Aimed for different maintainers  
 > 🌐 `cms.localhost`
 >
 > :pouting_face: `system@local.dev` @ `dev`
->
-> :pouting_face: `web-one.admin@local.dev` @ `dev`  
-> :pouting_face: `web-one.user@local.dev` @ `dev`
->
-> :pouting_face: `web-two.admin@local.dev` @ `dev`  
-> :pouting_face: `web-two.user@local.dev` @ `dev`
->
-> **Tenant 1**  
-> 🌐 `web-one.localhost`
->
-> **Tenant 2**  
-> 🌐 `web-two.localhost`
+
+#### Optional <!-- omit in toc -->
+
+##### Stop the proxy <!-- omit in toc -->
+
+```sh
+nx payload-proxy:down
+```
+
+##### Restart the proxy <!-- omit in toc -->
+
+```sh
+nx proxy-cmd shared-util-payload restart
+```
 
 ## Development Tools & Services
 
@@ -245,7 +254,7 @@ For deployments to preview the applications will be attached to the Postgres clu
 > fly postgres create --name pg-preview --org codeware --region arn --vm-size shared-cpu-1x --volume-size 1 --initial-cluster-size 1
 > ```
 
-##### Connect to the database on local machine
+##### Connect to the database on local machine <!-- omit in toc -->
 
 Forward server port `5432` to local port `5433` to avoid conflicts with local Postgres running in Docker.
 

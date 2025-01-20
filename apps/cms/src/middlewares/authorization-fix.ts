@@ -1,4 +1,4 @@
-import type { ExpressMiddleware } from '../utils/custom-types';
+import type { ExpressMiddleware } from '@codeware/shared/util/payload';
 
 /**
  * Middleware to handle a missing Authorization header

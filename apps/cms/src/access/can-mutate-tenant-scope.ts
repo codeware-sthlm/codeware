@@ -1,7 +1,6 @@
+import { getId, hasRole } from '@codeware/shared/util/payload';
 import type { Access } from 'payload/types';
 
-import { getId } from '../utils/get-id';
-import { hasRole } from '../utils/has-role';
 import { resolveTenant } from '../utils/resolve-tenant';
 
 /**

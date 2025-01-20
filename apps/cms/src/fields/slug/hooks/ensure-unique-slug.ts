@@ -1,9 +1,10 @@
+import {
+  type CollectionSlug,
+  getTenantAccessIDs,
+  hasRole
+} from '@codeware/shared/util/payload';
 import { ValidationError } from 'payload/errors';
 import { FieldHook } from 'payload/types';
-
-import type { CollectionSlug } from '../../../utils/custom-types';
-import { getTenantAccessIDs } from '../../../utils/get-tenant-access-ids';
-import { hasRole } from '../../../utils/has-role';
 
 export const ensureUniqueSlug = (collection: CollectionSlug): FieldHook => {
   return async ({ data, originalDoc, req: { user, payload }, value }) => {

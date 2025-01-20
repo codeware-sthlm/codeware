@@ -1,6 +1,7 @@
 import { NavLink } from '@remix-run/react';
 import clsx from 'clsx';
 
+import { filterPages } from '../utils/filter-pages';
 import { usePages } from '../utils/pages';
 
 function NavItem({
@@ -40,7 +41,7 @@ export function DesktopNavigation(
   props: React.ComponentPropsWithoutRef<'nav'>
 ) {
   const pages = usePages();
-  const pagesExceptHome = pages.filter((page) => page.slug !== 'home');
+  const pagesExceptHome = filterPages(pages, ['home']);
 
   if (pagesExceptHome.length === 0) {
     return null;
@@ -50,7 +51,7 @@ export function DesktopNavigation(
     <nav {...props}>
       <ul className="flex rounded-full bg-white/90 px-3 text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
         {pagesExceptHome.map((page) => (
-          <NavItem key={page.slug} href={page.slug ?? '/'}>
+          <NavItem key={page.slug} href={page.slug}>
             {page.title}
           </NavItem>
         ))}

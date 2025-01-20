@@ -27,7 +27,7 @@ export const defaultSeedRules: Prettify<
     roleUser: { min: 1, max: 5 }
   },
   tenantArticles: { min: 5, max: 10 },
-  tenantPages: { min: 3, max: 5 }
+  tenantPages: { min: 4, max: 6 }
 } as const;
 
 /**

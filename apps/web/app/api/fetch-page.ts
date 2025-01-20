@@ -28,9 +28,6 @@ export const fetchPage = async (
   );
 
   if (!response.ok) {
-    if (env.DEPLOY_ENV !== 'production') {
-      console.log('[DEBUG] Response', response);
-    }
     throw new Error(
       `Error fetching page '${slug}': ${response.statusText} (${response.status})`
     );

@@ -1,3 +1,7 @@
+import {
+  SeedSourceSchema,
+  SeedStrategySchema
+} from '@codeware/shared/data-access/seed';
 import { z } from 'zod';
 
 /**
@@ -44,17 +48,20 @@ export const EnvSchema = z.object({
     .min(1, {
       message: 'SIGNATURE_SECRET is required'
     }),
-  MIGRATE_ACTION: z
-    .enum(['migrate', 'fresh', 'default'], {
-      description: 'Force a migration action regardsless of the current state'
-    })
-    .optional(),
+
   // Current working directory is required in payload.config.ts when using Docker.
   // Since that file is also used for the client side, process.cwd() is not allowed
   // to be used. Instead, we pass it via environment variable.
   CWD: z
     .string({ description: 'Current working directory' })
-    .default(process.cwd())
+    .default(process.cwd()),
+  MIGRATE_ACTION: z
+    .enum(['migrate', 'fresh', 'default'], {
+      description: 'Force a migration action regardsless of the current state'
+    })
+    .optional(),
+  SEED_SOURCE: SeedSourceSchema.default('cloud-local'),
+  SEED_STRATEGY: SeedStrategySchema.default('delta')
 });
 
 export type Env = z.infer<typeof EnvSchema>;

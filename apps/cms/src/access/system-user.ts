@@ -1,6 +1,5 @@
 import type { User } from '@codeware/shared/util/payload';
-
-import { hasRole } from '../utils/has-role';
+import { hasRole } from '@codeware/shared/util/payload';
 
 /**
  * Access control reading the request for the logged in user.

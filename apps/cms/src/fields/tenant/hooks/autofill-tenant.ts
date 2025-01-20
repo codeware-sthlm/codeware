@@ -1,6 +1,6 @@
+import { getTenantAccessIDs } from '@codeware/shared/util/payload';
 import type { FieldHook } from 'payload/types';
 
-import { getTenantAccessIDs } from '../../../utils/get-tenant-access-ids';
 import { resolveTenant } from '../../../utils/resolve-tenant';
 
 /**

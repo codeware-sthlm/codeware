@@ -38,7 +38,8 @@ export default buildConfig({
             resolve(__dirname, '../../..')
           ),
           // Disable server-only modules in client bundle
-          fs: false
+          fs: false,
+          process: false
         }
       }
     })

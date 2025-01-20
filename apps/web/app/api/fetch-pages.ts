@@ -22,23 +22,10 @@ export const fetchPages = async (
   request: Request
 ): Promise<Page[]> => {
   const init = createRequestInit(context, request);
-  if (env.DEPLOY_ENV !== 'production') {
-    console.log('[DEBUG] Request headers:', init.headers);
-  }
 
   const response = await fetch(`${PAYLOAD_API_URL}?depth=0&limit=100`, init);
 
-  if (env.DEPLOY_ENV !== 'production') {
-    console.log(
-      '[DEBUG] Response headers:',
-      Object.fromEntries(response.headers.entries())
-    );
-  }
-
   if (!response.ok) {
-    if (env.DEPLOY_ENV !== 'production') {
-      console.log('[DEBUG] Response', response);
-    }
     throw new Error(
       `Error fetching pages: ${response.status} - ${response.statusText}`
     );

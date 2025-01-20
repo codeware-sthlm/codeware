@@ -1,8 +1,6 @@
 import type { User } from '@codeware/shared/util/payload';
+import { getId, hasRole } from '@codeware/shared/util/payload';
 import type { Access } from 'payload/types';
-
-import { getId } from '../../../utils/get-id';
-import { hasRole } from '../../../utils/has-role';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const canMutateTenant: Access<any, User> = (args) => {

@@ -79,6 +79,7 @@
       "description": "Skip other third party packages that are managed by Nx",
       "matchPackageNames": [
         "esbuild",
+        "eslint-config-prettier",
         "express",
         "verdaccio",
         "vite",

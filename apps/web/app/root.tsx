@@ -19,9 +19,10 @@ import {
 import type { AppLoadContext } from './api/create-request-init';
 import { fetchPages } from './api/fetch-pages';
 import { Container } from './components/container';
+import { DesktopNavigation } from './components/desktop-navigation';
 import { GeneralErrorBoundary } from './components/error-boundary';
 import { Footer } from './components/footer';
-import { DesktopNavigation } from './components/navigation';
+import { MobileNavigation } from './components/mobile-navigation';
 import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';
 import { ClientHintCheck, getHints } from './utils/client-hints';
@@ -149,9 +150,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="flex flex-1 justify-end md:justify-center">
-                    {/** TODO Add mobile navigation - COD-195
-                     * <MobileNavigation className="pointer-events-auto md:hidden" />
-                     */}
+                    <MobileNavigation className="pointer-events-auto md:hidden" />
                     <DesktopNavigation className="pointer-events-auto hidden md:block" />
                   </div>
                   <div className="flex justify-end items-end md:flex-1">

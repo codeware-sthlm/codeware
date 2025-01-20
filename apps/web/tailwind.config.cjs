@@ -1,9 +1,16 @@
-const path = require('path');
+const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
+const { join } = require('path');
 const typographyStyles = require('./typography.cjs');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [path.join(__dirname, 'app/**/*.{js,jsx,ts,tsx}')],
+  content: [
+    join(
+      __dirname,
+      '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}'
+    ),
+    ...createGlobPatternsForDependencies(__dirname)
+  ],
   darkMode: 'selector',
   theme: {
     fontSize: {

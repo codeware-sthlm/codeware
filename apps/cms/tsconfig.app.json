@@ -4,7 +4,8 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "types": ["node", "express"],
-    "strict": true
+    "strict": true,
+    "jsx": "react-jsx"
   },
   "exclude": [
     "jest.config.ts",
@@ -12,5 +13,5 @@
     "src/**/*.test.ts",
     "src/generated/*.ts"
   ],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

@@ -35,8 +35,7 @@ export const resolveDevApiKey = createMiddleware<{
   }
 
   try {
-    const { apiKey, name } = await resolveTenantFromHost(env.DEPLOY_ENV, host);
-    console.log(`Resolved tenant '${name}' (${apiKey}) from host '${host}'`);
+    const { apiKey } = await resolveTenantFromHost(env.DEPLOY_ENV, host);
     // Set tenant API key in context for use in handlers
     c.set('tenantApiKey', apiKey);
   } catch (error) {

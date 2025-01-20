@@ -1,3 +1,4 @@
+import { CdwrCloud } from '@codeware/shared/ui/react-components';
 import type { Page } from '@codeware/shared/util/payload';
 import type {
   LinksFunction,
@@ -20,7 +21,6 @@ import { fetchPages } from './api/fetch-pages';
 import { Container } from './components/container';
 import { GeneralErrorBoundary } from './components/error-boundary';
 import { Footer } from './components/footer';
-import CdwrCloud from './components/logo';
 import { DesktopNavigation } from './components/navigation';
 import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';

@@ -9,6 +9,7 @@ import articles from './collections/articles/articles.collection';
 import pages from './collections/pages/pages.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
+import { Logo } from './components/Logo';
 import env from './env-resolver/resolved-env';
 import { authorizationFix } from './middlewares/authorization-fix';
 import { debugRequest } from './middlewares/debug-request';
@@ -24,6 +25,11 @@ export default buildConfig({
     // Always located relative to workspace root (where command is invoked)
     buildPath: resolve(env.CWD, 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
+    components: {
+      graphics: {
+        Logo
+      }
+    },
     webpack: (config) => ({
       ...config,
       resolve: {

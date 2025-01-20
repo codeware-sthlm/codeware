@@ -2,54 +2,6 @@
 export const seedData = {
   articles: [
     {
-      title: 'The Manchurian Candidate',
-      slug: 'the-manchurian-candidate',
-      author: 'Richard Condon',
-      tenant: {
-        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
-      }
-    },
-    {
-      title: 'Les Miserables',
-      slug: 'les-miserables',
-      author: 'Victor Hugo',
-      tenant: {
-        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
-      }
-    },
-    {
-      title: 'Enigma',
-      slug: 'enigma',
-      author: 'Robert Harris',
-      tenant: {
-        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
-      }
-    },
-    {
-      title: 'Dracula',
-      slug: 'dracula',
-      author: 'Bram Stoker',
-      tenant: {
-        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
-      }
-    },
-    {
-      title: 'Three Men in a Boat',
-      slug: 'three-men-in-a-boat',
-      author: 'Jerome K Jerome',
-      tenant: {
-        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
-      }
-    },
-    {
-      title: 'Remembrance of Things Past',
-      slug: 'remembrance-of-things-past',
-      author: 'Marcel Proust',
-      tenant: {
-        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
-      }
-    },
-    {
       title: 'A Prayer for Owen Meany',
       slug: 'a-prayer-for-owen-meany',
       author: 'John Irving',
@@ -74,11 +26,19 @@ export const seedData = {
       }
     },
     {
+      title: 'Treasure Island',
+      slug: 'treasure-island',
+      author: 'Robert Louis Stevenson',
+      tenant: {
+        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
+      }
+    },
+    {
       title: 'Frankenstein',
       slug: 'frankenstein',
       author: 'Mary Shelley',
       tenant: {
-        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
       }
     },
     {
@@ -86,7 +46,7 @@ export const seedData = {
       slug: 'the-count-of-monte-cristo',
       author: 'Alexandre Dumas',
       tenant: {
-        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
       }
     },
     {
@@ -94,15 +54,7 @@ export const seedData = {
       slug: 'the-bell-jar',
       author: 'Sylvia Plath',
       tenant: {
-        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
-      }
-    },
-    {
-      title: 'The Grapes of Wrath',
-      slug: 'the-grapes-of-wrath',
-      author: 'John Steinbeck',
-      tenant: {
-        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
       }
     },
     {
@@ -154,11 +106,19 @@ export const seedData = {
       }
     },
     {
+      title: 'Zen and the Art of Motorcycle Maintenance',
+      slug: 'zen-and-the-art-of-motorcycle-maintenance',
+      author: 'Robert Pirsig',
+      tenant: {
+        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+      }
+    },
+    {
       title: 'Enigma',
       slug: 'enigma',
       author: 'Robert Harris',
       tenant: {
-        lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
+        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
       }
     },
     {
@@ -166,15 +126,7 @@ export const seedData = {
       slug: 'no-country-for-old-men',
       author: 'Cormac McCarthy',
       tenant: {
-        lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
-      }
-    },
-    {
-      title: 'White Teeth',
-      slug: 'white-teeth',
-      author: 'Zadie Smith',
-      tenant: {
-        lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
+        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
       }
     },
     {
@@ -232,22 +184,30 @@ export const seedData = {
       tenant: {
         lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
       }
+    },
+    {
+      title: 'The Thin Man',
+      slug: 'the-thin-man',
+      author: 'Dashiell Hammett',
+      tenant: {
+        lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
+      }
+    },
+    {
+      title: 'The Crying of Lot 49',
+      slug: 'the-crying-of-lot-49',
+      author: 'Thomas Pynchon',
+      tenant: {
+        lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
+      }
     }
   ],
   pages: [
     {
       title: 'Diving',
-      header: "I've never seen a smiling face that was not beautiful.",
-      slug: 'diving',
-      tenant: {
-        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
-      }
-    },
-    {
-      title: 'Mountain Bike',
       header:
         "When I was a child I asked my mother what homosexuality was about and she said - and this was 100 years ago in Germany and she was very open-minded - 'It's like hair color. It's nothing. Some people are blond and some people have dark hair. It's not a subject.' This was a very healthy attitude.",
-      slug: 'mountain-bike',
+      slug: 'diving',
       tenant: {
         lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
       }
@@ -262,36 +222,36 @@ export const seedData = {
       }
     },
     {
-      title: 'Rugby',
+      title: 'Mountain Bike',
       header:
         'The phenomenon of home schooling is a wonderful example of the American can-do attitude. Growing numbers of parents have become disenchanted with government-run public schools. Many parents have simply taken matters into their own hands, literally.',
+      slug: 'mountain-bike',
+      tenant: {
+        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
+      }
+    },
+    {
+      title: 'Rugby',
+      header:
+        "That term's definitely got a negative aura to it, because people think a diva is somebody with an attitude who demands things all the time. Of course there is that type of diva, but my idea of a diva has always been a singer - whether male or female - who gets on that stage and captivates you with their presence and their voice.",
       slug: 'rugby',
       tenant: {
         lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
       }
     },
     {
-      title: 'Skeleton',
+      title: 'Athletics',
       header:
-        'We cannot change our past. We can not change the fact that people act in a certain way. We can not change the inevitable. The only thing we can do is play on the one string we have, and that is our attitude.',
-      slug: 'skeleton',
+        'What a stupid attitude we have in this country to personal stories.',
+      slug: 'athletics',
       tenant: {
-        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+        lookupApiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
       }
     },
     {
       title: 'Snowboard',
       header:
-        'Sales are contingent upon the attitude of the salesman - not the attitude of the prospect.',
-      slug: 'snowboard',
-      tenant: {
-        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
-      }
-    },
-    {
-      title: 'Snowboard',
-      header:
-        "I don't think it's a good attitude in your life to feel that you have to be rich to have self-esteem.",
+        "The war changed everybody's attitude. We became international almost overnight.",
       slug: 'snowboard',
       tenant: {
         lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
@@ -300,52 +260,88 @@ export const seedData = {
     {
       title: 'Alpine Skiing',
       header:
-        "It's better for me to play with guys because Rock 'n' Roll has such an aggressive attitude.",
+        "What has happened is that to some degree they have taken an attitude where they don't listen to demos of diverse subject matters. They're looking for demos like the record the guy on the left just did.",
       slug: 'alpine-skiing',
       tenant: {
         lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
       }
     },
     {
-      title: 'Ice Hockey',
+      title: 'Curling',
       header:
-        'If you get up one more time than you fall, you will make it through.',
+        "I don't mean this in a stuck-up way, but I needed an attitude song.",
+      slug: 'curling',
+      tenant: {
+        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+      }
+    },
+    {
+      title: 'Curling',
+      header:
+        "Whenever I'm having a bad day and have an attitude, I stay home. I keep it at home.",
+      slug: 'curling',
+      tenant: {
+        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+      }
+    },
+    {
+      title: 'Ice Hockey',
+      header: "When you ain't got no money, you gotta get an attitude.",
       slug: 'ice-hockey',
       tenant: {
-        lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
+        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
       }
     },
     {
-      title: 'Short Track Speed Skating',
-      header: 'A good rest is half the work.',
-      slug: 'short-track-speed-skating',
+      title: 'Snowboard',
+      header:
+        'When a woman puts on a heel, she has a different posture, a different attitude. She really stands up and has a consciousness of her body.',
+      slug: 'snowboard',
+      tenant: {
+        lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
+      }
+    },
+    {
+      title: 'Athletics',
+      header:
+        "It is not the body's posture, but the heart's attitude that counts when we pray.",
+      slug: 'athletics',
       tenant: {
         lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
       }
     },
     {
-      title: 'Cross-Country Skiing',
+      title: 'Golf',
       header:
-        'Some people say I have attitude - maybe I do... but I think you have to. You have to believe in yourself when no one else does - that makes you a winner right there.',
-      slug: 'cross-country-skiing',
+        'I feel like I have as good a shot as anybody out there and I have gotten close in the past, so why not have the attitude that I can come out and play great tennis and maybe even win this tournament.',
+      slug: 'golf',
       tenant: {
         lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
       }
     },
     {
-      title: 'Short Track Speed Skating',
+      title: 'Trampoline',
       header:
-        "I am shocked by the easy attitude of many in the media towards disclosing our Nation's secrets.",
-      slug: 'short-track-speed-skating',
+        "As I wrote, I found that Aibileen had some things to say that really weren't in her character. She was older, soft-spoken, and she started showing some attitude.",
+      slug: 'trampoline',
       tenant: {
         lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
       }
     },
     {
-      title: 'Figure Skating',
+      title: 'Artistic Gymnastics',
       header:
-        'Invent your world. Surround yourself with people, color, sounds, and work that nourish you.',
-      slug: 'figure-skating',
+        'Not to discriminate every moment some passionate attitude in those about us, and in the very brilliancy of their gifts some tragic dividing on their ways, is, on this short day of frost and sun, to sleep before evening.',
+      slug: 'artistic-gymnastics',
+      tenant: {
+        lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
+      }
+    },
+    {
+      title: 'Taekwondo',
+      header:
+        'Peace of mind is not the absence of conflict from life, but the ability to cope with it.',
+      slug: 'taekwondo',
       tenant: {
         lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
       }

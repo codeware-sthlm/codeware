@@ -40,6 +40,9 @@
       "@codeware/shared/data-access/seed": [
         "libs/shared/data-access/seed/src/index.ts"
       ],
+      "@codeware/shared/ui/react-components": [
+        "libs/shared/ui/react-components/src/index.ts"
+      ],
       "@codeware/shared/util/payload": ["libs/shared/util/payload/src/index.ts"]
     }
   },

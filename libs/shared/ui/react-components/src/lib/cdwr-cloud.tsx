@@ -1,4 +1,10 @@
-const CdwrCloud = ({ className = '', size = 40, ...props }) => {
+/**
+ * React component for the Codeware Cloud logo.
+ *
+ * @param props - The props for the component.
+ * @returns The Codeware Cloud logo as an SVG element.
+ */
+export const CdwrCloud = ({ className = '', size = 40, ...props }) => {
   const viewBoxWidth = 10.583617;
   const viewBoxHeight = 7.4375901;
   const aspectRatio = viewBoxWidth / viewBoxHeight;
@@ -54,5 +60,3 @@ const CdwrCloud = ({ className = '', size = 40, ...props }) => {
     </svg>
   );
 };
-
-export default CdwrCloud;

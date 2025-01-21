@@ -12,15 +12,17 @@ import env from '../env-resolver/resolved-env';
  */
 export const resolveTsconfigPathsToAlias = (
   tsConfigPath: string,
-  webpackBasePath?: string
+  webpackBasePath: string,
+  overrideAlias: Record<string, string> = {}
 ) => {
   if (!fs.existsSync(tsConfigPath)) {
     console.error(`Paths can not be resolved, file not found: ${tsConfigPath}`);
     return {};
   }
 
+  // Assume tsconfig paths are relative to file location,
+  // but could be custom when tsconfig file is located somewhere else.
   if (!webpackBasePath) {
-    // Assume tsconfig paths are relative to file location
     webpackBasePath = dirname(tsConfigPath);
   }
 
@@ -62,7 +64,21 @@ export const resolveTsconfigPathsToAlias = (
     }
   });
 
-  if (env.DEPLOY_ENV === 'development' && env.LOG_LEVEL === 'debug') {
+  // Merge custom aliases after verified
+  Object.keys(overrideAlias).forEach((key) => {
+    if (!aliases[key]) {
+      console.warn(`Custom alias ${key} not found in ${tsConfigPath}`);
+      return;
+    }
+    const value = overrideAlias[key];
+    if (!fs.existsSync(value)) {
+      console.warn(`Custom alias ${key}, path not found: ${value}`);
+      return;
+    }
+    aliases[key] = value;
+  });
+
+  if (env.LOG_LEVEL === 'debug') {
     console.log(
       `[DEBUG] Resolved aliases: ${JSON.stringify(aliases, null, 2)}`
     );

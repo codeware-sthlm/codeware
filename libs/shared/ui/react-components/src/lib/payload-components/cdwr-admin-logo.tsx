@@ -1,4 +1,4 @@
-import { CdwrCloud } from '@codeware/shared/ui/react-components';
+import { CdwrCloud } from '../cdwr-cloud';
 
 const css = `
   html[data-theme="dark"] .cdwr-logo svg path {
@@ -32,7 +32,7 @@ const css = `
   }
 `;
 
-export const Logo = () => {
+export const CdwrAdminLogo = () => {
   return (
     <>
       <style type="text/css">{css}</style>

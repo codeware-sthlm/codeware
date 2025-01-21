@@ -1,5 +1,6 @@
 import { resolve } from 'path';
 
+import { CdwrAdminLogo } from '@codeware/shared/ui/react-components';
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
@@ -9,7 +10,6 @@ import articles from './collections/articles/articles.collection';
 import pages from './collections/pages/pages.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
-import { Logo } from './components/Logo';
 import env from './env-resolver/resolved-env';
 import { authorizationFix } from './middlewares/authorization-fix';
 import { debugRequest } from './middlewares/debug-request';
@@ -27,7 +27,7 @@ export default buildConfig({
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     components: {
       graphics: {
-        Logo
+        Logo: CdwrAdminLogo
       }
     },
     webpack: (config) => ({
@@ -38,11 +38,22 @@ export default buildConfig({
           ...(config.resolve?.alias ?? {}),
           // Support workspace path mappings
           ...resolveTsconfigPathsToAlias(
-            // Find tsconfig.base.json in the workspace root (where command is invoked)
+            // Find tsconfig.base.json where the command is invoked:
+            // - `nx` is executed from the workspace root
+            // - `node` is executed from the Docker WORKDIR
             resolve(env.CWD, 'tsconfig.base.json'),
-            // Webpack workspace context is always relative to this file
-            resolve(__dirname, '../../..')
+            // Webpack workspace context is by design always relative to this file,
+            // i.e. the workspace root or compiled workspace root
+            resolve(__dirname, '../../..'),
+            // Override aliases for pre-built custom admin components
+            {
+              '@codeware/shared/ui/react-components': resolve(
+                env.CWD,
+                'dist/apps/cms/server/libs/shared/ui/react-components/src/index.js'
+              )
+            }
           ),
+
           // Disable server-only modules in client bundle
           fs: false,
           process: false

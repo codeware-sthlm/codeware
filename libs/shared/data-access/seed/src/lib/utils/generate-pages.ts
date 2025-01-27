@@ -1,4 +1,13 @@
-import { randNumber, randQuote, randSports } from '@ngneat/falso';
+import {
+  randCatchPhrase,
+  randEmoji,
+  randJobTitle,
+  randLine,
+  randNumber,
+  randPhrase,
+  randSong,
+  randSuperheroName
+} from '@ngneat/falso';
 
 import { SeedData, SeedRules } from '../seed-types';
 
@@ -17,11 +26,18 @@ export const generatePages = (
       });
 
       // Generate pages for tenant
-      const tenantPages: SeedData['pages'] = randSports({ length }).map(
-        (sport) => ({
-          title: sport,
-          header: randQuote(),
-          slug: sport.replace(/\s+/g, '-').toLowerCase(),
+      const tenantPages: SeedData['pages'] = randSuperheroName({ length }).map(
+        (title) => ({
+          title,
+          header: randCatchPhrase(),
+          content: `## ${randSong()} ${randEmoji()}
+${randPhrase()}
+### ${randJobTitle()}
+${randLine()}
+${randLine()}
+${randLine()}
+`,
+          slug: title.replace(/\s+/g, '-').toLowerCase(),
           tenant: { lookupApiKey: tenant.apiKey }
         })
       );

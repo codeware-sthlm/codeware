@@ -4,7 +4,7 @@ import { PayloadRequest } from 'payload/types';
 
 export type PageData = Pick<
   Page,
-  'header' | 'intro' | 'slug' | 'tenant' | 'title'
+  'content' | 'header' | 'slug' | 'tenant' | 'title'
 > & {
   slug: string;
 };
@@ -24,7 +24,7 @@ export async function ensurePage(
   req: PayloadRequest,
   data: PageData
 ): Promise<Page | string | number> {
-  const { header, slug, tenant, title } = data;
+  const { content, header, slug, tenant, title } = data;
 
   // Check if the page exists with the given slug and tenant
   const pages = await payload.find({
@@ -50,6 +50,7 @@ export async function ensurePage(
     req,
     collection,
     data: {
+      content,
       header,
       slug,
       tenant,

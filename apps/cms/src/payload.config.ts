@@ -3,9 +3,15 @@ import { resolve } from 'path';
 import { CdwrAdminLogo } from '@codeware/shared/ui/react-components';
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import {
+  BlocksFeature,
+  HeadingFeature,
+  TreeViewFeature,
+  lexicalEditor
+} from '@payloadcms/richtext-lexical';
 import { buildConfig } from 'payload/config';
 
+import { Code } from './blocks/code';
 import articles from './collections/articles/articles.collection';
 import pages from './collections/pages/pages.collection';
 import tenants from './collections/tenants/tenants.collection';
@@ -53,7 +59,6 @@ export default buildConfig({
               )
             }
           ),
-
           // Disable server-only modules in client bundle
           fs: false,
           process: false
@@ -66,7 +71,23 @@ export default buildConfig({
     pool: { connectionString: env.DATABASE_URL },
     migrationDir: resolve(__dirname, 'migrations')
   }),
-  editor: lexicalEditor({}),
+  editor: lexicalEditor({
+    // Default features:
+    // https://payloadcms.com/docs/v2/rich-text/lexical#features-overview
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures.filter(
+        (feature) =>
+          // TODO: Exclude default features which we don't support yet
+          !['relationship', 'upload'].includes(feature.key)
+      ),
+      HeadingFeature({
+        enabledHeadingSizes: ['h2', 'h3']
+      }),
+      BlocksFeature({ blocks: [Code] }),
+      // Debugging features for non-production environments
+      ...(env.DEPLOY_ENV !== 'production' ? [TreeViewFeature()] : [])
+    ]
+  }),
   // Express middlewares
   express: {
     preMiddleware: [debugRequest, authorizationFix],

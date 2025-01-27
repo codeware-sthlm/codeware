@@ -1,8 +1,3 @@
-import {
-  HTMLConverterFeature,
-  lexicalEditor,
-  lexicalHTML
-} from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload/types';
 
 import { canMutateTenantScope } from '../../access/can-mutate-tenant-scope';
@@ -63,44 +58,26 @@ const pages: CollectionConfig = {
       }
     },
     {
-      name: 'intro',
-      label: { en: 'Intro', sv: 'Inledning' },
-      type: 'richText',
-      editor: lexicalEditor({
-        features: ({ defaultFeatures }) => [
-          ...defaultFeatures,
-          // The HTMLConverter Feature is the feature which manages the HTML serializers.
-          // If you do not pass any arguments to it, it will use the default serializers.
-          HTMLConverterFeature({})
-        ]
-      }),
-      localized: true,
-      admin: {
-        description: {
-          en: 'The introduction of the page. Will be displayed below the header.',
-          sv: 'Sidans inledning. Kommer att visas under rubriken.'
+      type: 'tabs',
+      tabs: [
+        {
+          label: { en: 'Content', sv: 'Innehåll' },
+          fields: [
+            {
+              name: 'content',
+              type: 'richText',
+              label: false,
+              localized: true,
+              admin: {
+                description: {
+                  en: 'The main content of the page.',
+                  sv: 'Sidans huvudinnehåll.'
+                }
+              }
+            }
+          ]
         }
-      }
-    },
-    {
-      name: 'content',
-      label: { en: 'Content', sv: 'Innehåll' },
-      type: 'richText',
-      editor: lexicalEditor({
-        features: ({ defaultFeatures }) => [
-          ...defaultFeatures,
-          // The HTMLConverter Feature is the feature which manages the HTML serializers.
-          // If you do not pass any arguments to it, it will use the default serializers.
-          HTMLConverterFeature({})
-        ]
-      }),
-      localized: true,
-      admin: {
-        description: {
-          en: 'The main content of the page. Will be displayed below the intro.',
-          sv: 'Sidans huvudinnehåll. Kommer att visas under inledningen.'
-        }
-      }
+      ]
     },
     {
       name: 'publishedAt',
@@ -111,12 +88,6 @@ const pages: CollectionConfig = {
         position: 'sidebar'
       }
     },
-    lexicalHTML('content', {
-      name: 'content_html'
-    }),
-    lexicalHTML('intro', {
-      name: 'intro_html'
-    }),
     slug('pages'),
     tenant
   ]

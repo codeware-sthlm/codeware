@@ -148,6 +148,7 @@ export const runDeployApps = async (options: {
         config: resolvedFlyConfig,
         env,
         environment,
+        optOutDepotBuilder: config.fly.optOutDepotBuilder,
         postgres: postgres || undefined, // rather undefined than empty string
         secrets: config.secrets
       });

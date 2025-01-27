@@ -334,6 +334,7 @@ describe('flyDeployment', () => {
         flyOrg: 'fly-org',
         flyRegion: '',
         mainBranch: '',
+        optOutDepotBuilder: false,
         secrets: [],
         token: 'token'
       },
@@ -381,6 +382,7 @@ describe('flyDeployment', () => {
         flyOrg: 'fly-org',
         flyRegion: '',
         mainBranch: '',
+        optOutDepotBuilder: false,
         secrets: [],
         token: 'token'
       } satisfies ActionInputs);
@@ -488,6 +490,7 @@ describe('flyDeployment', () => {
           PR_NUMBER: '1'
         },
         environment: 'preview',
+        optOutDepotBuilder: false,
         postgres: expect.any(String)
       } satisfies DeployAppOptions);
 
@@ -499,7 +502,7 @@ describe('flyDeployment', () => {
           PR_NUMBER: '1'
         },
         environment: 'preview',
-        postgres: undefined
+        optOutDepotBuilder: false
       } satisfies DeployAppOptions);
 
       expect(result).toEqual({
@@ -539,6 +542,7 @@ describe('flyDeployment', () => {
           ENV_KEY2: 'env-value2',
           PR_NUMBER: '1'
         },
+        optOutDepotBuilder: false,
         postgres: expect.any(String)
       } satisfies DeployAppOptions);
 
@@ -552,7 +556,7 @@ describe('flyDeployment', () => {
           ENV_KEY2: 'env-value2',
           PR_NUMBER: '1'
         },
-        postgres: undefined
+        optOutDepotBuilder: false
       } satisfies DeployAppOptions);
     });
 
@@ -569,6 +573,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'preview',
         env: expect.any(Object),
+        optOutDepotBuilder: false,
         postgres: expect.any(String),
         secrets: {
           SECRET_KEY1: 'secret-value1',
@@ -581,6 +586,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'preview',
         env: expect.any(Object),
+        optOutDepotBuilder: false,
         postgres: undefined,
         secrets: {
           SECRET_KEY1: 'secret-value1',
@@ -601,6 +607,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'preview',
         env: expect.any(Object),
+        optOutDepotBuilder: false,
         postgres: 'pg-preview'
       });
 
@@ -609,7 +616,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'preview',
         env: expect.any(Object),
-        postgres: undefined
+        optOutDepotBuilder: false
       });
     });
 
@@ -624,7 +631,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'preview',
         env: expect.any(Object),
-        postgres: undefined
+        optOutDepotBuilder: false
       });
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -632,7 +639,32 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'preview',
         env: expect.any(Object),
+        optOutDepotBuilder: false,
         postgres: undefined
+      });
+    });
+
+    it('should deploy apps to preview and opt out of depot builder', async () => {
+      setContext('pr-opened');
+      setupMocks();
+      const config = setupTest({ optOutDepotBuilder: true });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-pr-1',
+        config: '/apps/app-one/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        optOutDepotBuilder: true,
+        postgres: expect.any(String)
+      });
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-pr-1',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        optOutDepotBuilder: true
       });
     });
   });
@@ -823,6 +855,7 @@ describe('flyDeployment', () => {
           PR_NUMBER: ''
         },
         environment: 'production',
+        optOutDepotBuilder: false,
         postgres: expect.any(String)
       } satisfies DeployAppOptions);
 
@@ -834,7 +867,7 @@ describe('flyDeployment', () => {
           PR_NUMBER: ''
         },
         environment: 'production',
-        postgres: undefined
+        optOutDepotBuilder: false
       } satisfies DeployAppOptions);
 
       expect(result).toEqual({
@@ -874,6 +907,7 @@ describe('flyDeployment', () => {
         app: 'app-one-config',
         config: '/apps/app-one/fly.toml',
         environment: 'production',
+        optOutDepotBuilder: false,
         postgres: expect.any(String),
         env: {
           APP_NAME: 'app-one-config',
@@ -888,6 +922,7 @@ describe('flyDeployment', () => {
         app: 'app-two-config',
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
+        optOutDepotBuilder: false,
         postgres: undefined,
         env: {
           APP_NAME: 'app-two-config',
@@ -916,6 +951,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'production',
         env: expect.any(Object),
+        optOutDepotBuilder: false,
         postgres: expect.any(String),
         secrets: {
           SECRET_KEY1: 'secret"fnutt',
@@ -929,6 +965,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
         env: expect.any(Object),
+        optOutDepotBuilder: false,
         postgres: undefined,
         secrets: {
           SECRET_KEY1: 'secret"fnutt',
@@ -950,6 +987,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'production',
         env: expect.any(Object),
+        optOutDepotBuilder: false,
         postgres: 'pg-production'
       });
 
@@ -958,7 +996,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
         env: expect.any(Object),
-        postgres: undefined
+        optOutDepotBuilder: false
       });
     });
 
@@ -976,7 +1014,7 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'production',
         env: expect.any(Object),
-        postgres: undefined
+        optOutDepotBuilder: false
       });
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -984,7 +1022,31 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
         env: expect.any(Object),
-        postgres: undefined
+        optOutDepotBuilder: false
+      });
+    });
+
+    it('should deploy apps to production and opt out of depot builder', async () => {
+      setContext('push-main-branch');
+      setupMocks();
+      const config = setupTest({ optOutDepotBuilder: true });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config',
+        config: '/apps/app-one/fly.toml',
+        environment: 'production',
+        env: expect.any(Object),
+        optOutDepotBuilder: true,
+        postgres: expect.any(String)
+      });
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'production',
+        env: expect.any(Object),
+        optOutDepotBuilder: true
       });
     });
   });

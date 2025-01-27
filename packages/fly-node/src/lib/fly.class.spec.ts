@@ -1301,6 +1301,26 @@ describe('Fly', () => {
       ]);
     });
 
+    it('should opt out of depot builder', async () => {
+      const fly = new Fly(defaultFlyConfig);
+      await fly.deploy({
+        app: mockDefs.testApp,
+        config: mockDefs.testConfig,
+        optOutDepotBuilder: true
+      });
+
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        mockDefs.testConfig,
+        '--depot',
+        'false',
+        '--yes'
+      ]);
+    });
+
     it('should auto-confirm deployment', async () => {
       const fly = new Fly(defaultFlyConfig);
       await fly.deploy({

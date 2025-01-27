@@ -221,6 +221,13 @@ export type DeployAppOptions = {
    * Spaces are supported in values.
    */
   secrets?: Record<string, string>;
+
+  /**
+   * Whether to opt out of the Depot Builder.
+   *
+   * Defaults to `false`.
+   */
+  optOutDepotBuilder?: boolean;
 };
 
 /**

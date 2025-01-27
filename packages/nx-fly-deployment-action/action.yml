@@ -35,6 +35,10 @@ inputs:
       The token to use for repository authentication.
       For example `GITHUB_TOKEN`.
     required: true
+  opt-out-depot-builder:
+    description: >
+      Whether to opt out of the default depot builder.
+      Defaults to `false`.
 
 outputs:
   environment:

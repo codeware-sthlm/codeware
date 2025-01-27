@@ -207,7 +207,14 @@ const response = await fly.deploy({
   postgres: 'db-app'
 });
 
-// With all options, could be a pull request preview deployment
+// Opt out of the default depot builder
+const response = await fly.deploy({
+  app: 'pr-19-foo-app',
+  config: 'apps/foo-app/fly.toml',
+  optOutDepotBuilder: true
+});
+
+// With options that could be a pull request preview deployment
 const response = await fly.deploy({
   app: 'pr-19-foo-app',
   config: 'apps/foo-app/fly.toml',

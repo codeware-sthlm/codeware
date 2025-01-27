@@ -41,6 +41,7 @@ export const getDeploymentConfig = async (
     flyOrg,
     flyRegion,
     mainBranch: mainBranchInput,
+    optOutDepotBuilder,
     secrets: secretsInput,
     token
   } = inputs;
@@ -60,7 +61,8 @@ export const getDeploymentConfig = async (
     fly: {
       token: flyApiToken || process.env['FLY_API_TOKEN'] || '',
       org: flyOrg,
-      region: flyRegion
+      region: flyRegion,
+      optOutDepotBuilder
     },
     mainBranch,
     secrets,

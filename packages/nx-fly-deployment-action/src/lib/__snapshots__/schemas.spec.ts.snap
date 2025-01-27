@@ -10,6 +10,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
   "flyOrg": "company",
   "flyRegion": "sea",
   "mainBranch": "main",
+  "optOutDepotBuilder": false,
   "secrets": [
     "SECRET_KEY1=secret-value1",
     "SECRET_KEY2=secret-value2",
@@ -49,6 +50,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
 exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > DeploymentConfigSchema transformed shape 1`] = `
 {
   "fly": {
+    "optOutDepotBuilder": false,
     "org": "company",
     "region": "sea",
     "token": "fly-token",

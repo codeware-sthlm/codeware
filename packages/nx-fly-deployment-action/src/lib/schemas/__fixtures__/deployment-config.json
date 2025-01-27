@@ -3,7 +3,8 @@
   "fly": {
     "token": "fly-token",
     "org": "company",
-    "region": "sea"
+    "region": "sea",
+    "optOutDepotBuilder": false
   },
   "mainBranch": "main",
   "secrets": {

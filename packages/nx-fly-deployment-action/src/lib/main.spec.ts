@@ -57,6 +57,7 @@ describe('main', () => {
       flyOrg: 'fly-org',
       flyRegion: 'fly-region',
       mainBranch: 'main-branch',
+      optOutDepotBuilder: true,
       secrets: [],
       token: 'token'
     } satisfies ActionInputs);
@@ -80,6 +81,7 @@ describe('main', () => {
       flyOrg: '',
       flyRegion: '',
       mainBranch: '',
+      optOutDepotBuilder: true,
       secrets: [],
       token: 'token'
     } satisfies ActionInputs);

@@ -10,6 +10,7 @@ import { ensureTenant } from './local-api/ensure-tenant';
 import { ensureUser } from './local-api/ensure-user';
 import type { SeedSource } from './schemas/seed-source.schema';
 import type { SeedData, SeedEnvironment } from './seed-types';
+import { convertMarkdownToLexical } from './utils/convert-markdown-to-lexical';
 import { tenantStore } from './utils/tenant-store';
 
 /**
@@ -179,6 +180,7 @@ export const seed = async (args: {
 
         try {
           const response = await ensurePage(payload, req, {
+            content: convertMarkdownToLexical(page.content),
             header: page.header,
             slug: page.slug,
             title: page.title,
@@ -213,6 +215,7 @@ export const seed = async (args: {
         try {
           const response = await ensureArticle(payload, req, {
             author: article.author,
+            content: convertMarkdownToLexical(article.content),
             slug: article.slug,
             title: article.title,
             tenant: entity.tenant

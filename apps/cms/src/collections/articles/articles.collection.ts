@@ -1,8 +1,3 @@
-import {
-  HTMLConverterFeature,
-  lexicalEditor,
-  lexicalHTML
-} from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload/types';
 
 import { canMutateTenantScope } from '../../access/can-mutate-tenant-scope';
@@ -60,24 +55,26 @@ const articles: CollectionConfig = {
       }
     },
     {
-      name: 'content',
-      label: { en: 'Content', sv: 'Innehåll' },
-      type: 'richText',
-      editor: lexicalEditor({
-        features: ({ defaultFeatures }) => [
-          ...defaultFeatures,
-          // The HTMLConverter Feature is the feature which manages the HTML serializers.
-          // If you do not pass any arguments to it, it will use the default serializers.
-          HTMLConverterFeature({})
-        ]
-      }),
-      localized: true,
-      admin: {
-        description: {
-          en: 'The main content of the page. Will be displayed below the intro.',
-          sv: 'Sidans huvudinnehåll. Kommer att visas under inledningen.'
+      type: 'tabs',
+      tabs: [
+        {
+          label: { en: 'Content', sv: 'Innehåll' },
+          fields: [
+            {
+              name: 'content',
+              type: 'richText',
+              label: false,
+              localized: true,
+              admin: {
+                description: {
+                  en: 'The main content of the article.',
+                  sv: 'Artikelns huvudinnehåll.'
+                }
+              }
+            }
+          ]
         }
-      }
+      ]
     },
     {
       name: 'publishedAt',
@@ -88,9 +85,6 @@ const articles: CollectionConfig = {
         position: 'sidebar'
       }
     },
-    lexicalHTML('content', {
-      name: 'content_html'
-    }),
     slug('articles'),
     tenant
   ]

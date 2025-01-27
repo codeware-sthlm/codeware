@@ -4,7 +4,7 @@ import { PayloadRequest } from 'payload/types';
 
 export type ArticleData = Pick<
   Article,
-  'author' | 'slug' | 'tenant' | 'title'
+  'author' | 'content' | 'slug' | 'tenant' | 'title'
 > & {
   slug: string;
 };
@@ -24,7 +24,7 @@ export async function ensureArticle(
   req: PayloadRequest,
   data: ArticleData
 ): Promise<Article | string | number> {
-  const { author, slug, tenant, title } = data;
+  const { author, content, slug, tenant, title } = data;
 
   // Check if the article exists with the given slug
   const articles = await payload.find({
@@ -48,6 +48,7 @@ export async function ensureArticle(
     collection,
     data: {
       author,
+      content,
       slug,
       tenant,
       title

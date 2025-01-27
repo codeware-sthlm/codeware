@@ -1,5 +1,5 @@
 import { DeepRequired, Prettify } from '@codeware/shared/util/payload';
-import { seed } from '@ngneat/falso';
+import { randCatchPhrase, randEmoji, randQuote, seed } from '@ngneat/falso';
 import { Payload } from 'payload';
 
 import type {
@@ -99,6 +99,8 @@ export const loadStaticData = (args: {
       title: 'Home',
       slug: 'home',
       header: `Welcome to ${tenant.name}`,
+      content: `_${randCatchPhrase()}_ ${randEmoji()}
+> ${randQuote()}`,
       tenant: { lookupApiKey: tenant.apiKey }
     });
   });

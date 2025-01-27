@@ -55,7 +55,13 @@
     },
     {
       "description": "Skip all Payload packages and its peers",
-      "matchPackageNames": ["payload", "@payloadcms/*", "drizzle-orm"],
+      "matchPackageNames": [
+        "payload",
+        "@payloadcms/*",
+        "drizzle-orm",
+        "lexical",
+        "@lexical/*"
+      ],
       "enabled": false
     },
     {

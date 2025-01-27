@@ -79,6 +79,8 @@ const importSeedData = (args: {
   const { success, data } = seedDataSchema.safeParse(seedData);
 
   if (!success) {
+    logger.warn(`Invalid seed data found in ${environment} environment`);
+    logger.warn('Verify it has not been modified by mistake!');
     return null;
   }
   return data;

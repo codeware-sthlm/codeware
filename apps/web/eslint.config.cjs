@@ -14,11 +14,15 @@ module.exports = [
           ignoredDependencies: [
             '@cdwr/core',
             '@infisical/sdk',
+            '@lexical/headless',
+            '@lexical/markdown',
             '@nx/vite',
+            '@payloadcms/richtext-lexical',
             '@remix-run/testing',
             '@testing-library/jest-dom',
             '@testing-library/react',
             '@vitejs/plugin-react',
+            'prism-react-renderer',
             'vite'
           ],
           ignoredFiles: [

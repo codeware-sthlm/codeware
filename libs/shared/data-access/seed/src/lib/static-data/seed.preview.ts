@@ -2,105 +2,61 @@
 export const seedData = {
   articles: [
     {
-      title: 'Dracula',
-      slug: 'dracula',
-      author: 'Bram Stoker',
+      title: 'The Rise and Fall of the Empire',
+      slug: 'rise-and-fall-of-empire',
+      author: 'Mon Mothma',
+      content:
+        '## The Birth of Imperial Rule\n\nThe transformation of the Republic into the Empire stands as one of the most significant events in galactic history.\n\n> "So this is how liberty dies... with thunderous applause." - Padmé Amidala\n\nThe key factors that enabled Palpatine\'s rise to power:\n\n* The manipulation of the Trade Federation\n* The engineered Clone Wars\n* The systematic dismantling of democratic institutions\n* The turning of Anakin Skywalker\n\n## The Rebellion Rises\n\nFrom the ashes of the Republic, hope emerged. The Rebel Alliance formed from:\n\n* Disillusioned Senators\n* Former Republic military officers\n* Oppressed planetary systems\n* Idealistic freedom fighters\n\n> "The more you tighten your grip, Tarkin, the more star systems will slip through your fingers."\n\n## Legacy\n\nThe Empire\'s fall teaches us that:\n\n* No military might can overcome the will of free peoples\n* Hope remains strongest in the darkest times\n* The light side of the Force will always prevail',
       tenant: {
         lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
       }
     },
     {
-      title: 'The Magic Mountain',
-      slug: 'the-magic-mountain',
-      author: 'Thomas Mann',
+      title: 'Jedi Training Methods',
+      slug: 'jedi-training-methods',
+      author: 'Obi-Wan Kenobi',
+      content:
+        '## Traditional Approaches\n\n> "A Jedi must have the deepest commitment, the most serious mind." - Master Yoda\n\nThe path to becoming a Jedi requires:\n\n* Meditation and Force attunement\n* Lightsaber combat training\n* Study of Jedi philosophy\n* Practical application of Force abilities\n\n## Modern Adaptations\n\nThe changing galaxy has necessitated new training methods:\n\n* Accelerated combat training\n* Focus on practical Force applications\n* Emphasis on stealth and survival\n* Integration of modern technology\n\n> "Your focus determines your reality."\n\nRemember that the Force:\n\n* Flows through all living things\n* Requires balance and harmony\n* Demands patience and discipline',
       tenant: {
         lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
       }
     },
     {
-      title: 'The Wind in the Willows',
-      slug: 'the-wind-in-the-willows',
-      author: 'Kenneth Grahame',
+      title: 'Spacecraft of the Rebellion',
+      slug: 'spacecraft-of-rebellion',
+      author: 'Wedge Antilles',
+      content:
+        '## Famous Vessels\n\nThe Rebel Alliance relied on various spacecraft to combat the Empire:\n\n* X-wing Starfighter\n  * Versatile and agile\n  * Equipped with hyperdrive\n  * Proven track record\n* Y-wing Bomber  * Durable design\n  * Heavy payload capacity\n\n> "She may not look like much, but she\'s got it where it counts, kid."\n\n## Iconic Modifications\n\nThe most successful modifications included:\n\n* Enhanced shield generators\n* Modified weapon systems\n* Upgraded navigation computers\n\n> "Great shot kid, that was one in a million!"\n\nMaintenance tips:\n\n* Regular hyperdrive alignment\n* Frequent shield calibration\n* Careful power distribution',
       tenant: {
         lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
       }
     },
     {
-      title: 'The Talented Mr Ripley',
-      slug: 'the-talented-mr-ripley',
-      author: 'Patricia Highsmith',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'The Turn of the Screw',
-      slug: 'the-turn-of-the-screw',
-      author: 'Henry James',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'Who Do You Think You Are?',
-      slug: 'who-do-you-think-you-are',
-      author: 'Alice Munro',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'Animal Farm',
-      slug: 'animal-farm',
-      author: 'George Orwell',
+      title: 'Evolution of the Avengers',
+      slug: 'evolution-of-avengers',
+      author: 'Phil Coulson',
+      content:
+        '## The Initiative\n\n> "There was an idea... to bring together a group of remarkable people."\n\nThe original team formed from:\n\n* Tony Stark - Technical genius\n* Steve Rogers - Natural leader\n* Thor - Asgardian strength\n* Bruce Banner - Scientific brilliance\n* Natasha Romanoff - Strategic expertise\n* Clint Barton - Precision and skill\n\n## Team Dynamics\n\nKey factors in the team\'s success:\n\n* Complementary abilities\n* Trust building\n* Shared mission focus\n* Adaptability in crisis\n\n> "We may not be able to save the Earth, but you can be damn sure we\'ll avenge it."\n\nLessons learned:\n\n* Unity overcomes individual limitations\n* Leadership requires sacrifice\n* Heroes can come from anywhere',
       tenant: {
         lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
       }
     },
     {
-      title: 'And Then There Were None',
-      slug: 'and-then-there-were-none',
-      author: 'Agatha Christie',
+      title: 'Science of Super Soldiers',
+      slug: 'science-of-super-soldiers',
+      author: 'Dr. Bruce Banner',
+      content:
+        '## Historical Development\n\nThe super soldier program revolutionized human enhancement:\n\n* Dr. Erskine\'s Original Formula\n  * Enhanced strength\n  * Improved agility\n  * Accelerated healing\n* Modern Attempts\n  * Various successes and failures\n  * Ethical considerations\n\n> "The serum amplifies everything that is inside. Good becomes great; bad becomes worse."\n\n## Current Research\n\nAreas of ongoing investigation:\n\n* Genetic modification\n* Biological enhancement\n* Technological integration\n* Neural advancement\n\n> "Our very strength invites challenge. Challenge incites conflict. And conflict... breeds catastrophe."',
       tenant: {
         lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
       }
     },
     {
-      title: 'A Room with a View',
-      slug: 'a-room-with-a-view',
-      author: 'EM Forster',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
-      title: 'Ulysses',
-      slug: 'ulysses',
-      author: 'James Joyce',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
-      title: 'The Magic Mountain',
-      slug: 'the-magic-mountain',
-      author: 'Thomas Mann',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
-      title: 'Cry, the Beloved Country',
-      slug: 'cry-the-beloved-country',
-      author: 'Alan Paton',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
-      title: 'Heart of Darkness',
-      slug: 'heart-of-darkness',
-      author: 'Joseph Conrad',
+      title: 'Tech Revolution',
+      slug: 'tech-revolution',
+      author: 'Tony Stark',
+      content:
+        '## Arc Reactor Technology\n\n> "Sometimes you gotta run before you can walk."\n\nKey innovations include:\n\n* Miniaturized power sources\n* Clean energy applications\n* Advanced propulsion systems\n* Neural interface developments\n\n## Future of Combat Suits\n\nNext-generation features:\n\n* Nano-tech integration\n* AI-driven responses\n* Adaptive armor systems\n* Multi-environment functionality\n\n> "The suit and I are one."\n\nSafety protocols:\n\n* Biometric security\n* Emergency protocols\n* Power management\n* Environmental controls',
       tenant: {
         lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
       }
@@ -108,89 +64,61 @@ export const seedData = {
   ],
   pages: [
     {
-      title: 'Alpine Skiing',
-      header:
-        "Listen, whatever makes the movie better. That's the attitude you have to have.",
-      slug: 'alpine-skiing',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'Figure Skating',
-      header:
-        "It's not who you are that holds you back, it's who you think you're not.",
-      slug: 'figure-skating',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'Luge',
-      header:
-        'When you have vision it affects your attitude. Your attitude is optimistic rather than pessimistic.',
-      slug: 'luge',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'Luge',
-      header:
-        "I love her attitude, but as much as I'd like to bring my medals to a speech or appearance, I never do.",
-      slug: 'luge',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'Ski Jumping',
-      header:
-        "I have always detested any departure from reality, an attitude which I relate to my mother's poor mental health.",
-      slug: 'ski-jumping',
-      tenant: {
-        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
-      }
-    },
-    {
-      title: 'Hockey',
-      header: "You can't beat the beehive for glam punkette attitude.",
-      slug: 'hockey',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
-      title: 'Basketball',
-      header:
-        "Having a child makes you strong and gives you chutzpah. It relaxed my attitude to the job my center of focus shifted, which I think is very helpful, because even if you're not a very indulgent actor you spend a lot of time thinking about yourself. I don't think that is particularly healthy.",
-      slug: 'basketball',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
-      title: 'Track Cycling',
-      header:
-        "I think a lot of times we don't pay enough attention to people with a positive attitude because we assume they are naive or stupid or unschooled.",
-      slug: 'track-cycling',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
-      title: 'Triathlon',
-      header:
-        "Not every religion has to have St. Augustine's attitude to sex. Why even in our culture marriages are celebrated in a church, everyone present knows what is going to happen that night, but that doesn't prevent it being a religious ceremony.",
-      slug: 'triathlon',
-      tenant: {
-        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
-      }
-    },
-    {
       title: 'Home',
       slug: 'home',
-      header: 'Welcome to Demo Inc',
+      header: 'Welcome to the Galaxy Archives',
+      content:
+        "## About Our Galaxy\n\nWelcome to a journey through the Star Wars universe! Here you'll find information about some of the most iconic characters who have shaped the fate of the galaxy. From wise Jedi Masters to brave Rebels, our archives contain knowledge spanning multiple eras of galactic history.\n\n## Featured Content\n\nExplore our collection of character profiles, each telling the story of individuals who have left their mark on the galaxy. Whether you're interested in the ways of the Force or the struggles of the Rebellion, you'll find detailed information about their roles, achievements, and impact on galactic events.",
+      tenant: {
+        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
+      }
+    },
+    {
+      title: 'Obi-Wan',
+      slug: 'obi-wan-kenobi',
+      header: 'Obi-Wan Kenobi: The Legendary Jedi Master',
+      content:
+        "## The Negotiator\n\nObi-Wan Kenobi, also known as Ben Kenobi, was a legendary Jedi Master who served the Galactic Republic during its final years. Renowned for his skills as a negotiator, he earned his nickname through his preferred approach to conflict resolution.\n\n## Legacy of Training\n\nAs a Jedi Master, Obi-Wan was responsible for training Anakin Skywalker, who would later become Darth Vader. Years later, he would also become Luke Skywalker's first mentor in the ways of the Force, setting in motion events that would eventually lead to the fall of the Galactic Empire.",
+      tenant: {
+        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
+      }
+    },
+    {
+      title: 'Leia',
+      slug: 'princess-leia',
+      header: 'Princess Leia Organa: Leader of the Rebellion',
+      content:
+        "## Royal Heritage\n\nPrincess Leia Organa of Alderaan was one of the Rebellion's greatest leaders. Adopted daughter of Bail and Breha Organa, she grew up as part of Alderaan's royal family while secretly being trained in politics and resistance.\n\n## Rebel Leader\n\nAs a leader of the Rebel Alliance, Leia demonstrated exceptional tactical ability and unwavering courage. Her diplomatic skills, combined with her fierce determination, made her an instrumental figure in the fight against the Empire.",
+      tenant: {
+        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
+      }
+    },
+    {
+      title: 'Luke',
+      slug: 'luke-skywalker',
+      header: 'Luke Skywalker: The Last Jedi',
+      content:
+        '## Journey to Becoming a Jedi\n\nLuke Skywalker began his journey as a simple moisture farmer on Tatooine before discovering his connection to the Force. Under the guidance of Obi-Wan Kenobi and later Master Yoda, he embarked on the path to become a Jedi Knight.\n\n## Hero of the Rebellion\n\nAs the pilot who destroyed the first Death Star and later a full-fledged Jedi Knight, Luke became a symbol of hope for the Rebel Alliance. His unwavering belief in the good within his father ultimately led to the redemption of Anakin Skywalker and the downfall of the Empire.',
+      tenant: {
+        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
+      }
+    },
+    {
+      title: 'Yoda',
+      slug: 'master-yoda',
+      header: 'Master Yoda: The Wise Jedi Master',
+      content:
+        '## Grand Master of the Jedi Order\n\nFor over 800 years, Yoda trained Jedi as the Grand Master of the Jedi Order. His wisdom, deep connection to the Force, and unique teaching methods helped shape generations of Jedi Knights.\n\n## Legacy of Wisdom\n\nEven in exile after the fall of the Republic, Yoda continued to serve the light side of the Force. His training of Luke Skywalker proved crucial in preserving the Jedi ways and ultimately bringing balance to the Force.',
+      tenant: {
+        lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
+      }
+    },
+    {
+      title: 'Darth Vader',
+      slug: 'darth-vader',
+      header: 'Darth Vader: Dark Lord of the Sith',
+      content:
+        "## Rise of Vader\n\nOnce a powerful Jedi Knight, Anakin Skywalker was seduced by the dark side of the Force and became Darth Vader. As the Emperor's chief enforcer, he helped hunt down the remaining Jedi and establish Imperial rule across the galaxy.\n\n## The Empire's Enforcer\n\nAs a Dark Lord of the Sith, Vader commanded the Empire's military might with terrifying efficiency. His mastery of the Force and tactical brilliance made him one of the most feared figures in the galaxy.",
       tenant: {
         lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
       }
@@ -198,7 +126,59 @@ export const seedData = {
     {
       title: 'Home',
       slug: 'home',
-      header: 'Welcome to Quigley, Bins and Becker',
+      header: 'Welcome to the Marvel Universe',
+      content:
+        "## About Our Universe\n\nStep into the magnificent world of Marvel! Here you'll discover information about some of Earth's mightiest heroes and most compelling characters. From super soldiers to genius inventors, our archives contain knowledge spanning multiple eras of heroic adventures.\n\n## Featured Content\n\nDive into our collection of character profiles, each telling the story of remarkable individuals who have shaped the fate of our world and beyond. Whether you're interested in technological marvels or mystical powers, you'll find detailed information about their origins, abilities, and greatest achievements.",
+      tenant: {
+        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
+      }
+    },
+    {
+      title: 'Iron Man',
+      slug: 'iron-man',
+      header: 'Tony Stark: The Armored Avenger',
+      content:
+        '## Genius Inventor\n\nTony Stark transformed from a brilliant weapons inventor into a hero who would reshape the future of technology and heroism. His revolutionary Iron Man suit represents the pinnacle of human innovation and determination.\n\n## Leader and Protector\n\nAs a founding member of the Avengers, Tony has dedicated his genius and resources to protecting Earth. His journey from self-centered businessman to selfless hero has inspired generations.',
+      tenant: {
+        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
+      }
+    },
+    {
+      title: 'Thor',
+      slug: 'thor',
+      header: 'Thor: God of Thunder',
+      content:
+        "## Asgardian Heritage\n\nThor, son of Odin, wields the mighty hammer Mjolnir as the God of Thunder. His journey between Asgard and Earth has made him a unique bridge between two worlds.\n\n## Mighty Avenger\n\nAs one of Earth's mightiest heroes, Thor brings both godlike power and noble wisdom to the defense of humanity. His growth from an arrogant prince to a humble protector demonstrates the true meaning of worthiness.",
+      tenant: {
+        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
+      }
+    },
+    {
+      title: 'Spider-Man',
+      slug: 'spider-man',
+      header: 'Peter Parker: The Amazing Spider-Man',
+      content:
+        '## Origin Story\n\nBitten by a radioactive spider, Peter Parker gained extraordinary abilities. Living by his uncle\'s words that "with great power comes great responsibility," he became one of New York\'s greatest protectors.\n\n## Friendly Neighborhood Hero\n\nBalancing everyday life with heroic duties, Spider-Man represents the best of both worlds. His wit, intelligence, and unwavering sense of responsibility make him a unique figure in the superhero community.',
+      tenant: {
+        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
+      }
+    },
+    {
+      title: 'Black Widow',
+      slug: 'black-widow',
+      header: 'Natasha Romanoff: Master Spy and Avenger',
+      content:
+        "## Elite Agent\n\nNatasha Romanoff's journey from Russian spy to Avenger is a testament to the power of redemption. Her unparalleled skills in espionage and combat make her one of the world's deadliest operatives.\n\n## Heart of the Team\n\nDespite lacking superhuman powers, Black Widow's strategic mind and unwavering loyalty have made her essential to the Avengers. Her sacrifices and dedication have helped save the world numerous times.",
+      tenant: {
+        lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
+      }
+    },
+    {
+      title: 'Hulk',
+      slug: 'hulk',
+      header: 'Bruce Banner: The Incredible Hulk',
+      content:
+        "## Scientific Genius\n\nDr. Bruce Banner's exposure to gamma radiation transformed him into the incredibly powerful Hulk. His struggle to balance his brilliant scientific mind with the raw power of the Hulk defines his unique journey.\n\n## Strongest Avenger\n\nDespite being feared by many, the Hulk has proven himself a hero time and again. Banner's scientific genius combined with Hulk's raw strength makes him one of Earth's most formidable defenders.",
       tenant: {
         lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
       }
@@ -206,22 +186,22 @@ export const seedData = {
   ],
   tenants: [
     {
-      name: 'Demo Inc',
-      description: 'Tenant seeded from static data for preview environment.',
+      name: 'Star Wars',
+      description: 'Star Wars inspired tenant.',
       hosts: ['cdwr-web-pr-{PR_NUMBER}.fly.dev'],
       apiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
     },
     {
-      name: 'Quigley, Bins and Becker',
-      description: 'A dummy tenant to test data separation between tenants.',
-      hosts: ['dummy.whatever.noop'],
+      name: 'Marvel',
+      description: 'Marvel inspired tenant.',
+      hosts: ['cdwr-web-pr-{PR_NUMBER}.fly.dev'],
       apiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
     }
   ],
   users: [
     {
       name: 'Yoda',
-      description: 'Admin access to Demo Inc',
+      description: 'Admin access to Star Wars',
       email: 'yoda@local.dev',
       password: '',
       role: 'user',
@@ -234,13 +214,39 @@ export const seedData = {
     },
     {
       name: 'Luke',
-      description: 'User access to Demo Inc',
+      description: 'User access to Star Wars',
       email: 'luke@local.dev',
       password: '',
       role: 'user',
       tenants: [
         {
           lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23',
+          role: 'user'
+        }
+      ]
+    },
+    {
+      name: 'Hulk',
+      description: 'Admin access to Marvel',
+      email: 'hulk@local.dev',
+      password: '',
+      role: 'user',
+      tenants: [
+        {
+          lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c',
+          role: 'admin'
+        }
+      ]
+    },
+    {
+      name: 'Thor',
+      description: 'User access to Marvel',
+      email: 'thor@local.dev',
+      password: '',
+      role: 'user',
+      tenants: [
+        {
+          lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c',
           role: 'user'
         }
       ]

@@ -20,10 +20,16 @@ const tenantLookupSchema = z.object({
 export type TenantLookup = z.infer<typeof tenantLookupSchema>;
 
 type ArticleDataLookup = Prettify<
-  Omit<ArticleData, 'tenant'> & { tenant: Pick<TenantLookup, 'lookupApiKey'> }
+  Omit<ArticleData, 'content' | 'tenant'> & {
+    content: string;
+    tenant: Pick<TenantLookup, 'lookupApiKey'>;
+  }
 >;
 type PageDataLookup = Prettify<
-  Omit<PageData, 'tenant'> & { tenant: Pick<TenantLookup, 'lookupApiKey'> }
+  Omit<PageData, 'content' | 'tenant'> & {
+    content: string;
+    tenant: Pick<TenantLookup, 'lookupApiKey'>;
+  }
 >;
 type UserDataLookup = Prettify<
   Omit<UserData, 'tenants' | 'password'> & {
@@ -43,6 +49,7 @@ export const seedDataSchema = z.object({
       title: z.string(),
       slug: z.string(),
       author: z.string(),
+      content: z.string({ description: 'Markdown content' }),
       tenant: tenantLookupSchema.pick({ lookupApiKey: true })
     })
   ),
@@ -51,6 +58,7 @@ export const seedDataSchema = z.object({
     z.object({
       title: z.string(),
       header: z.string(),
+      content: z.string({ description: 'Markdown content' }),
       slug: z.string(),
       tenant: tenantLookupSchema.pick({ lookupApiKey: true })
     })

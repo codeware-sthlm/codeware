@@ -1,3 +1,4 @@
+import { LexicalRenderer } from '@codeware/shared/ui/react-components';
 import { type LoaderFunctionArgs, json } from '@remix-run/node';
 import { MetaFunction, useLoaderData, useRouteError } from '@remix-run/react';
 
@@ -42,17 +43,10 @@ export default function Index() {
         <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
           {page.header}
         </h1>
-        {page.intro_html && (
-          <h3 className="mt-6 text-zinc-600 dark:text-zinc-400">
-            {page.intro_html}
-          </h3>
-        )}
       </header>
-      {page.content_html && (
-        <div className="mt-16 sm:mt-20">
-          <div className="prose prose-zinc dark:prose-invert">
-            {page.content_html}
-          </div>
+      {page.content && (
+        <div className="mt-8 prose dark:prose-invert">
+          <LexicalRenderer content={page.content} />
         </div>
       )}
     </Container>

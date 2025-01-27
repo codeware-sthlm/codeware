@@ -1,4 +1,4 @@
-import { randBook, randNumber } from '@ngneat/falso';
+import { randBook, randLine, randNumber } from '@ngneat/falso';
 
 import { SeedData, SeedRules } from '../seed-types';
 
@@ -18,13 +18,20 @@ export const generateArticles = (
 
       // Generate articles for tenant
       const tenantArticles: SeedData['articles'] = randBook({ length }).map(
-        ({ author, title }) => ({
+        ({ author, category, title }) => ({
           title,
           slug: title
             .replace(/\s+/g, '-')
             .replace(/[^a-zA-Z0-9-]/g, '')
             .toLowerCase(),
           author,
+          content: `## ${title}
+_By ${author}_
+### ${category}
+${randLine()}
+${randLine()}
+${randLine()}
+`,
           tenant: { lookupApiKey: tenant.apiKey }
         })
       );

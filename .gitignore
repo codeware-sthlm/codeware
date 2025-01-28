@@ -57,3 +57,5 @@ vite.config.*.timestamp*
 
 # No nested lockfiles
 apps/**/pnpm-lock.yaml
+
+vitest.config.*.timestamp*

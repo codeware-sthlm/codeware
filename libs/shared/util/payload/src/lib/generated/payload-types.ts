@@ -73,7 +73,6 @@ export interface Tenant {
  */
 export interface Page {
   id: number;
-  title: string;
   header: string;
   content?: {
     root: {
@@ -90,6 +89,7 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
+  name: string;
   publishedAt?: string | null;
   slug?: string | null;
   tenant?: (number | null) | Tenant;
@@ -161,17 +161,4 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language?:
-    | ('typescript' | 'javascript' | 'tsx' | 'css' | 'markup' | 'python' | 'json' | 'yaml' | 'sql' | 'graphql')
-    | null;
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
 }

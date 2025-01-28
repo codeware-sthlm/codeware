@@ -42,7 +42,7 @@ export function MobileNavigation(
           <ul className="-my-2 divide-y divide-zinc-100 text-base text-zinc-800 dark:divide-zinc-100/5 dark:text-zinc-300">
             {pagesExceptHome.map((page) => (
               <MobileNavItem key={page.slug} href={page.slug}>
-                {page.title}
+                {page.name}
               </MobileNavItem>
             ))}
           </ul>

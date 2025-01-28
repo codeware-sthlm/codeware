@@ -79,9 +79,10 @@ export const loadStaticData = (args: {
     tenants
   });
   // Append opinionated system user with known details
+  // and test environment variable injection
   users.push({
     name: 'System User',
-    description: 'Access to manage the system',
+    description: 'Access to manage the system in {DEPLOY_ENV}',
     email: 'system@local.dev',
     password: '',
     role: 'system-user',

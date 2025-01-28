@@ -9,7 +9,7 @@ import type { UserData } from './local-api/ensure-user';
 export type SeedEnvironment = 'development' | 'preview' | 'production';
 
 // TODO: import roles
-const tenantLookupSchema = z.object({
+const TenantLookupSchema = z.object({
   lookupApiKey: z.string(),
   role: z.enum(['admin', 'user'])
 });
@@ -17,7 +17,7 @@ const tenantLookupSchema = z.object({
 /**
  * Lookup tenant by its API key since it should be unique.
  */
-export type TenantLookup = z.infer<typeof tenantLookupSchema>;
+export type TenantLookup = z.infer<typeof TenantLookupSchema>;
 
 type ArticleDataLookup = Prettify<
   Omit<ArticleData, 'content' | 'tenant'> & {
@@ -43,14 +43,14 @@ type TenantDataLookup = Prettify<
 >;
 
 // TODO: define more schemas for other data types to reuse
-export const seedDataSchema = z.object({
+export const SeedDataSchema = z.object({
   articles: z.array(
     z.object({
       title: z.string(),
       slug: z.string(),
       author: z.string(),
       content: z.string({ description: 'Markdown content' }),
-      tenant: tenantLookupSchema.pick({ lookupApiKey: true })
+      tenant: TenantLookupSchema.pick({ lookupApiKey: true })
     })
   ),
 
@@ -60,7 +60,7 @@ export const seedDataSchema = z.object({
       header: z.string(),
       content: z.string({ description: 'Markdown content' }),
       slug: z.string(),
-      tenant: tenantLookupSchema.pick({ lookupApiKey: true })
+      tenant: TenantLookupSchema.pick({ lookupApiKey: true })
     })
   ),
   users: z.array(
@@ -70,7 +70,7 @@ export const seedDataSchema = z.object({
       email: z.string(),
       password: z.string(),
       role: z.enum(['system-user', 'user']),
-      tenants: z.array(tenantLookupSchema)
+      tenants: z.array(TenantLookupSchema)
     })
   ),
   tenants: z.array(

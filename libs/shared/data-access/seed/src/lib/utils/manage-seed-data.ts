@@ -11,17 +11,21 @@
 import { existsSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
+import { withEnvVars } from '@codeware/core/zod';
 import { Payload } from 'payload';
 
 import {
   type SeedData,
-  type SeedEnvironment,
-  seedDataSchema
+  SeedDataSchema,
+  type SeedEnvironment
 } from '../seed-types';
-//import developmentData from '../static-data/seed.development.json';
-//import previewData from '../static-data/seed.preview.json';
 import { seedData as developmentData } from '../static-data/seed.development';
 import { seedData as previewData } from '../static-data/seed.preview';
+
+/**
+ * Apply environment variable lookup to the schema to resolve the actual values
+ */
+const EnvSeedDataSchema = withEnvVars(SeedDataSchema);
 
 /**
  * Manage static seed data.
@@ -76,7 +80,7 @@ const importSeedData = (args: {
       return null;
   }
 
-  const { success, data } = seedDataSchema.safeParse(seedData);
+  const { success, data } = EnvSeedDataSchema.safeParse(seedData);
 
   if (!success) {
     logger.warn(`Invalid seed data found in ${environment} environment`);

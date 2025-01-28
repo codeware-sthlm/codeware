@@ -2,20 +2,26 @@ import { Highlight, themes } from 'prism-react-renderer';
 import React from 'react';
 
 /**
+ * Map of languages to their display names.
+ */
+export const languageMap = {
+  css: 'CSS',
+  go: 'Go',
+  graphql: 'GraphQL',
+  html: 'HTML',
+  java: 'Java',
+  javascript: 'JavaScript',
+  markdown: 'Markdown',
+  python: 'Python',
+  sql: 'SQL',
+  typescript: 'TypeScript',
+  yaml: 'YAML'
+};
+
+/**
  * Supported languages for code highlighting.
  */
-export type Language =
-  | 'css'
-  | 'go'
-  | 'graphql'
-  | 'javascript'
-  | 'json'
-  | 'markup'
-  | 'python'
-  | 'sql'
-  | 'tsx'
-  | 'typescript'
-  | 'yaml';
+export type Language = keyof typeof languageMap;
 
 type Props = {
   code: string;

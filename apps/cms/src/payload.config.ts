@@ -3,15 +3,9 @@ import { resolve } from 'path';
 import { CdwrAdminLogo } from '@codeware/shared/ui/react-components';
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import {
-  BlocksFeature,
-  HeadingFeature,
-  TreeViewFeature,
-  lexicalEditor
-} from '@payloadcms/richtext-lexical';
+import { HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
 import { buildConfig } from 'payload/config';
 
-import { Code } from './blocks/code';
 import articles from './collections/articles/articles.collection';
 import pages from './collections/pages/pages.collection';
 import tenants from './collections/tenants/tenants.collection';
@@ -82,10 +76,7 @@ export default buildConfig({
       ),
       HeadingFeature({
         enabledHeadingSizes: ['h2', 'h3']
-      }),
-      BlocksFeature({ blocks: [Code] }),
-      // Debugging features for non-production environments
-      ...(env.DEPLOY_ENV !== 'production' ? [TreeViewFeature()] : [])
+      })
     ]
   }),
   // Express middlewares

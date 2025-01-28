@@ -1315,8 +1315,7 @@ describe('Fly', () => {
         mockDefs.testApp,
         '--config',
         mockDefs.testConfig,
-        '--depot',
-        'false',
+        '--depot=false',
         '--yes'
       ]);
     });

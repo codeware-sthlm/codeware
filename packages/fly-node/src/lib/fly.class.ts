@@ -648,7 +648,7 @@ export class Fly {
       args.push('--env', `${key}=${this.safeArg(value)}`);
     }
     if (options?.optOutDepotBuilder) {
-      args.push('--depot', 'false');
+      args.push('--depot=false');
     }
     args.push('--yes');
 

@@ -8,6 +8,6 @@ export const filterPages = (
     pages
       .filter(({ slug }) => slug && !excludeSlugs.includes(slug))
       // Fix correct type for slug
-      .map(({ slug, title }) => ({ slug: String(slug), title }))
+      .map(({ name, slug }) => ({ name, slug: String(slug) }))
   );
 };

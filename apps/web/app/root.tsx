@@ -28,7 +28,7 @@ import stylesheet from './tailwind.css?url';
 import { ClientHintCheck, getHints } from './utils/client-hints';
 import { type Theme, getTheme } from './utils/theme.server';
 
-export type PageDetails = Pick<Page, 'slug' | 'title'> & { slug: string };
+export type PageDetails = Pick<Page, 'name' | 'slug'> & { slug: string };
 
 export const meta: MetaFunction = () => [
   {
@@ -71,9 +71,9 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     // Filter pages to expose to the client
     const pageDetails: Array<PageDetails> = pages
       .filter(({ slug }) => slug)
-      .map(({ slug, title }) => ({
-        slug: String(slug),
-        title
+      .map(({ name, slug }) => ({
+        name,
+        slug: String(slug)
       }));
 
     return {

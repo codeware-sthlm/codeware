@@ -64,7 +64,7 @@ export const seedData = {
   ],
   pages: [
     {
-      title: 'Home',
+      name: 'Home',
       slug: 'home',
       header: 'Welcome to the Galaxy Archives',
       content:
@@ -74,7 +74,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Obi-Wan',
+      name: 'Obi-Wan',
       slug: 'obi-wan-kenobi',
       header: 'Obi-Wan Kenobi: The Legendary Jedi Master',
       content:
@@ -84,7 +84,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Leia',
+      name: 'Leia',
       slug: 'princess-leia',
       header: 'Princess Leia Organa: Leader of the Rebellion',
       content:
@@ -94,7 +94,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Luke',
+      name: 'Luke',
       slug: 'luke-skywalker',
       header: 'Luke Skywalker: The Last Jedi',
       content:
@@ -104,7 +104,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Yoda',
+      name: 'Yoda',
       slug: 'master-yoda',
       header: 'Master Yoda: The Wise Jedi Master',
       content:
@@ -114,7 +114,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Darth Vader',
+      name: 'Darth Vader',
       slug: 'darth-vader',
       header: 'Darth Vader: Dark Lord of the Sith',
       content:
@@ -124,7 +124,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Home',
+      name: 'Home',
       slug: 'home',
       header: 'Welcome to the Marvel Universe',
       content:
@@ -134,7 +134,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Iron Man',
+      name: 'Iron Man',
       slug: 'iron-man',
       header: 'Tony Stark: The Armored Avenger',
       content:
@@ -144,7 +144,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Thor',
+      name: 'Thor',
       slug: 'thor',
       header: 'Thor: God of Thunder',
       content:
@@ -154,7 +154,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Spider-Man',
+      name: 'Spider-Man',
       slug: 'spider-man',
       header: 'Peter Parker: The Amazing Spider-Man',
       content:
@@ -164,7 +164,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Black Widow',
+      name: 'Black Widow',
       slug: 'black-widow',
       header: 'Natasha Romanoff: Master Spy and Avenger',
       content:
@@ -174,7 +174,7 @@ export const seedData = {
       }
     },
     {
-      title: 'Hulk',
+      name: 'Hulk',
       slug: 'hulk',
       header: 'Bruce Banner: The Incredible Hulk',
       content:

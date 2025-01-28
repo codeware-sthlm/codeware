@@ -27,8 +27,8 @@ export const generatePages = (
 
       // Generate pages for tenant
       const tenantPages: SeedData['pages'] = randSuperheroName({ length }).map(
-        (title) => ({
-          title,
+        (name) => ({
+          name,
           header: randCatchPhrase(),
           content: `## ${randSong()} ${randEmoji()}
 ${randPhrase()}
@@ -37,7 +37,7 @@ ${randLine()}
 ${randLine()}
 ${randLine()}
 `,
-          slug: title.replace(/\s+/g, '-').toLowerCase(),
+          slug: name.replace(/\s+/g, '-').toLowerCase(),
           tenant: { lookupApiKey: tenant.apiKey }
         })
       );

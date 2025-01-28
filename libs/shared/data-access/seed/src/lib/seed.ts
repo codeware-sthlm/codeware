@@ -182,8 +182,8 @@ export const seed = async (args: {
           const response = await ensurePage(payload, req, {
             content: convertMarkdownToLexical(page.content),
             header: page.header,
+            name: page.name,
             slug: page.slug,
-            title: page.title,
             tenant: entity.tenant
           });
 

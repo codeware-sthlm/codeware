@@ -56,7 +56,7 @@ export const seedDataSchema = z.object({
 
   pages: z.array(
     z.object({
-      title: z.string(),
+      name: z.string(),
       header: z.string(),
       content: z.string({ description: 'Markdown content' }),
       slug: z.string(),

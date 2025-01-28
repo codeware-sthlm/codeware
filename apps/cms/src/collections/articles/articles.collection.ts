@@ -12,7 +12,7 @@ import { populatePublishedAt } from '../../hooks/populate-published-at';
 const articles: CollectionConfig = {
   slug: 'articles',
   admin: {
-    defaultColumns: ['title', 'slug', 'tenant', 'publishedAt'],
+    defaultColumns: ['title', 'tenant', 'publishedAt'],
     useAsTitle: 'title'
   },
   labels: {
@@ -37,8 +37,8 @@ const articles: CollectionConfig = {
       localized: true,
       admin: {
         description: {
-          en: 'The title of the page. Will be displayed in the browser tab, page meta property and in navigation.',
-          sv: 'Sidans titel. Kommer att visas i webbläsarens flik, sidans metaegenskaper och i navigeringen.'
+          en: 'The title of the article and name used in navigation. Will also be displayed in the browser tab and article meta properties.',
+          sv: 'Artikelns titel och namn som används i navigering. Kommer även att visas i webbläsarens flik och artikelns meta-egenskaper.'
         }
       }
     },

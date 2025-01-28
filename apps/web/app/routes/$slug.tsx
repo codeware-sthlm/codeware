@@ -14,7 +14,7 @@ type LoaderError = {
 
 // TODO: How to use it properly?
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const title = data?.page ? data.page.title : 'Page Not Found';
+  const title = data?.page ? data.page.name : 'Page Not Found';
   return [{ title }];
 };
 

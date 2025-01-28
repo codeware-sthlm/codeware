@@ -12,10 +12,8 @@ import { populatePublishedAt } from '../../hooks/populate-published-at';
 const pages: CollectionConfig = {
   slug: 'pages',
   admin: {
-    // TODO: Payload v3?
-    // baseListFilter,
-    defaultColumns: ['title', 'slug', 'tenant', 'publishedAt'],
-    useAsTitle: 'title'
+    defaultColumns: ['name', 'tenant', 'publishedAt'],
+    useAsTitle: 'name'
   },
   labels: {
     singular: { en: 'Page', sv: 'Sida' },
@@ -31,19 +29,6 @@ const pages: CollectionConfig = {
     beforeChange: [populatePublishedAt]
   },
   fields: [
-    {
-      name: 'title',
-      label: { en: 'Title', sv: 'Titel' },
-      type: 'text',
-      required: true,
-      localized: true,
-      admin: {
-        description: {
-          en: 'The title of the page. Will be displayed in the browser tab, page meta property and in navigation.',
-          sv: 'Sidans titel. Kommer att visas i webbläsarens flik, sidans metaegenskaper och i navigeringen.'
-        }
-      }
-    },
     {
       name: 'header',
       label: { en: 'Header', sv: 'Rubrik' },
@@ -80,15 +65,33 @@ const pages: CollectionConfig = {
       ]
     },
     {
+      name: 'name',
+      label: { en: 'Name', sv: 'Namn' },
+      type: 'text',
+      required: true,
+      localized: true,
+      admin: {
+        description: {
+          en: 'The name of the page used in navigation. Will also be displayed in the browser tab and page meta property.',
+          sv: 'Sidans namn som används i navigeringen. Kommer också att visas i webbläsarens flik och sidans meta-egenskaper.'
+        },
+        position: 'sidebar'
+      }
+    },
+    {
       name: 'publishedAt',
       label: { en: 'Published At', sv: 'Publicerad' },
       type: 'date',
       admin: {
         date: { displayFormat: 'yyyy-MM-dd' },
+        description: {
+          en: 'The date the page is published.',
+          sv: 'Datumet då sidan publiceras.'
+        },
         position: 'sidebar'
       }
     },
-    slug('pages'),
+    slug('pages', { parentField: 'name' }),
     tenant
   ]
 };

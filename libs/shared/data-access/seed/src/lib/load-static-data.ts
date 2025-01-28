@@ -96,7 +96,7 @@ export const loadStaticData = (args: {
   // Append opinionated home page to each tenant
   tenants.forEach((tenant) => {
     pages.push({
-      title: 'Home',
+      name: 'Home',
       slug: 'home',
       header: `Welcome to ${tenant.name}`,
       content: `_${randCatchPhrase()}_ ${randEmoji()}

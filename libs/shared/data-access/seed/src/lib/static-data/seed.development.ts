@@ -595,7 +595,7 @@ export const seedData = {
     },
     {
       name: 'System User',
-      description: 'Access to manage the system',
+      description: 'Access to manage the system in {DEPLOY_ENV}',
       email: 'system@local.dev',
       password: '',
       role: 'system-user',

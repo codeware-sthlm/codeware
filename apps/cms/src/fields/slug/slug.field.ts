@@ -1,36 +1,39 @@
-import type { CollectionSlug } from '@codeware/shared/util/payload';
 import type { Field } from 'payload/types';
 
 import { ensureUniqueSlug } from './hooks/ensure-unique-slug';
-import formatSlug from './hooks/format-slug';
+import { formatSlug } from './hooks/format-slug';
 
-type Slug = (
-  collection: CollectionSlug,
-  args?: { parentField?: string; required?: boolean }
-) => Field;
+type Slug = (args: {
+  /** The field to use as a source for the slug when a slug is not provided. */
+  sourceField: string;
+  /** Whether the slug is required. Defaults to `false`. */
+  required?: boolean;
+}) => Field;
+
+/** The name of the slug field */
+export const slugName = 'slug' as const;
 
 /**
  * Adds an indexed slug field to the sidebar.
  *
- * Makes a slug text from the parent field when not provided.
+ * Makes a slug text from the provided source field when a slug value is not provided.
+ *
+ * Also assures that the slug is unique across the collection and tenant.
  */
-export const slug: Slug = (
-  collection,
-  { parentField = 'title', required = false } = {}
-) => ({
-  name: 'slug',
+export const slug: Slug = ({ sourceField, required = false }) => ({
+  name: slugName,
   type: 'text',
   index: true,
   required,
   label: 'Slug',
   admin: {
     description: {
-      en: 'Used for url paths. Will be automatically generated if left empty.',
-      sv: 'Används för url-sökvägar. Genereras automatiskt om den lämnas tomt.'
+      en: `Used for url paths. Will be automatically generated from ${sourceField} if left empty.`,
+      sv: `Används för url-sökvägar. Genereras automatiskt från ${sourceField} om den lämnas tomt.`
     },
     position: 'sidebar'
   },
   hooks: {
-    beforeValidate: [formatSlug(parentField), ensureUniqueSlug(collection)]
+    beforeValidate: [formatSlug(sourceField), ensureUniqueSlug]
   }
 });

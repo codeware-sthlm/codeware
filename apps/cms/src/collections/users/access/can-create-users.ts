@@ -1,5 +1,5 @@
 import type { User } from '@codeware/shared/util/payload';
-import { getTenantAccessIDs, hasRole } from '@codeware/shared/util/payload';
+import { getUserTenantIDs, hasRole } from '@codeware/shared/util/payload';
 import type { Access } from 'payload/types';
 
 /**
@@ -22,7 +22,7 @@ export const canCreateUsers: Access<any, User> = (args) => {
     return true;
   }
 
-  const adminTenantAccessIDs = getTenantAccessIDs(user, 'admin');
+  const adminTenantAccessIDs = getUserTenantIDs(user, 'admin');
 
   if (adminTenantAccessIDs.length > 0) {
     return true;

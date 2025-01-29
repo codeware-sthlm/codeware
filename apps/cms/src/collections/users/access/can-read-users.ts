@@ -1,6 +1,6 @@
 import type { User } from '@codeware/shared/util/payload';
 import {
-  getTenantAccessIDs,
+  getUserTenantIDs,
   hasRole,
   parseCookies
 } from '@codeware/shared/util/payload';
@@ -32,7 +32,7 @@ export const canReadUsers: Access<any, User> = (args) => {
   const cookieName = `${payload.config.cookiePrefix}-tenant`;
   const self: Where = { id: { equals: user.id } };
 
-  const adminTenantAccessIDs = getTenantAccessIDs(user, 'admin');
+  const adminTenantAccessIDs = getUserTenantIDs(user, 'admin');
   const selectedTenant = parseCookies(headers)[cookieName];
   const systemUser = hasRole(user, 'system-user');
 

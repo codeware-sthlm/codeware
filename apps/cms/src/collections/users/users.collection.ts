@@ -4,6 +4,9 @@ import { canCreateUsers } from './access/can-create-users';
 import { canDeleteUsers } from './access/can-delete-users';
 import { canReadUsers } from './access/can-read-users';
 import { canUpdateUsers } from './access/can-update-users';
+import { hideUsersCollection } from './admin/hide-users-collection';
+import { showRoleField } from './conditions/show-role-field';
+import { showTenantsField } from './conditions/show-tenants-field';
 
 /**
  * Users collection
@@ -11,7 +14,10 @@ import { canUpdateUsers } from './access/can-update-users';
 const users: CollectionConfig = {
   slug: 'users',
   auth: { maxLoginAttempts: 5, lockTime: 1000 * 60 * 60 * 24 },
-  admin: { useAsTitle: 'name' },
+  admin: {
+    useAsTitle: 'name',
+    hidden: hideUsersCollection
+  },
   labels: {
     singular: { en: 'User', sv: 'Användare' },
     plural: { en: 'Users', sv: 'Användare' }
@@ -44,7 +50,8 @@ const users: CollectionConfig = {
         description: {
           en: 'System users can access and manage the whole system.',
           sv: 'Systemanvändare kan komma åt och hantera hela systemet.'
-        }
+        },
+        condition: showRoleField
       },
       required: true,
       defaultValue: 'user'
@@ -52,7 +59,7 @@ const users: CollectionConfig = {
     {
       name: 'tenants',
       type: 'array',
-      label: { en: 'Tenants', sv: 'Arbetsytor' },
+      label: { en: 'Workspaces', sv: 'Arbetsytor' },
       fields: [
         {
           name: 'tenant',
@@ -72,7 +79,7 @@ const users: CollectionConfig = {
           ],
           admin: {
             description: {
-              en: 'The role of the user in the tenant.',
+              en: 'The role of the user in the workspace.',
               sv: 'Rollen som användaren ska ha i arbetsytan.'
             }
           },
@@ -82,9 +89,10 @@ const users: CollectionConfig = {
       ],
       admin: {
         description: {
-          en: 'Users can be limited to one or many tenants.',
+          en: 'Users can be limited to one or many workspaces.',
           sv: 'Användare kan begränsas till en eller flera arbetsytor.'
-        }
+        },
+        condition: showTenantsField
       },
       saveToJWT: true
     },

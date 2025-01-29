@@ -60,7 +60,7 @@ export interface Tenant {
         id?: string | null;
       }[]
     | null;
-  slug: string;
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -103,7 +103,7 @@ export interface Page {
 export interface User {
   id: number;
   name: string;
-  role: 'user' | 'system-user';
+  role?: ('user' | 'system-user') | null;
   tenants?:
     | {
         tenant: number | Tenant;

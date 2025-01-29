@@ -21,6 +21,7 @@ if (isBrowser) {
     PAYLOAD_SECRET_KEY: 'secret',
     PORT: 3000,
     PR_NUMBER: '',
+    REQUEST_DEBUG: false,
     SEED_SOURCE: 'off',
     SEED_STRATEGY: 'delta',
     SIGNATURE_SECRET: ''

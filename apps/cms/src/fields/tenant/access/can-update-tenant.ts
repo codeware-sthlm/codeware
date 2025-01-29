@@ -1,4 +1,4 @@
-import { getTenantAccessIDs, hasRole } from '@codeware/shared/util/payload';
+import { getUserTenantIDs, hasRole } from '@codeware/shared/util/payload';
 import type { FieldAccess } from 'payload/types';
 
 /**
@@ -6,7 +6,7 @@ import type { FieldAccess } from 'payload/types';
  *
  * Otherwise, only allow users with access to at least one tenant.
  */
-export const canUpdateTenantField: FieldAccess = (args) => {
+export const canUpdateTenant: FieldAccess = (args) => {
   const {
     req: { user }
   } = args;
@@ -15,5 +15,5 @@ export const canUpdateTenantField: FieldAccess = (args) => {
     return true;
   }
 
-  return getTenantAccessIDs(user).length > 0;
+  return getUserTenantIDs(user).length > 0;
 };

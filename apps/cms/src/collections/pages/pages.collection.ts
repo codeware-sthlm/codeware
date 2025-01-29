@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload/types';
 
-import { canMutateTenantScope } from '../../access/can-mutate-tenant-scope';
 import { canReadTenantScope } from '../../access/can-read-tenant-scope';
 import { slug } from '../../fields/slug/slug.field';
 import { tenant } from '../../fields/tenant/tenant.field';
@@ -12,7 +11,7 @@ import { populatePublishedAt } from '../../hooks/populate-published-at';
 const pages: CollectionConfig = {
   slug: 'pages',
   admin: {
-    defaultColumns: ['name', 'tenant', 'publishedAt'],
+    defaultColumns: ['name', 'slug', 'tenant', 'publishedAt'],
     useAsTitle: 'name'
   },
   labels: {
@@ -20,10 +19,7 @@ const pages: CollectionConfig = {
     plural: { en: 'Pages', sv: 'Sidor' }
   },
   access: {
-    create: canMutateTenantScope,
-    delete: canMutateTenantScope,
-    read: canReadTenantScope,
-    update: canMutateTenantScope
+    read: canReadTenantScope
   },
   hooks: {
     beforeChange: [populatePublishedAt]
@@ -91,7 +87,7 @@ const pages: CollectionConfig = {
         position: 'sidebar'
       }
     },
-    slug('pages', { parentField: 'name' }),
+    slug({ sourceField: 'name' }),
     tenant
   ]
 };

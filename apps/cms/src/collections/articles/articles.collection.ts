@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload/types';
 
-import { canMutateTenantScope } from '../../access/can-mutate-tenant-scope';
 import { canReadTenantScope } from '../../access/can-read-tenant-scope';
 import { slug } from '../../fields/slug/slug.field';
 import { tenant } from '../../fields/tenant/tenant.field';
@@ -20,10 +19,7 @@ const articles: CollectionConfig = {
     plural: { en: 'Articles', sv: 'Artiklar' }
   },
   access: {
-    create: canMutateTenantScope,
-    delete: canMutateTenantScope,
-    read: canReadTenantScope,
-    update: canMutateTenantScope
+    read: canReadTenantScope
   },
   hooks: {
     beforeChange: [populatePublishedAt]
@@ -85,7 +81,7 @@ const articles: CollectionConfig = {
         position: 'sidebar'
       }
     },
-    slug('articles'),
+    slug({ sourceField: 'title' }),
     tenant
   ]
 };

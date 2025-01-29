@@ -4,13 +4,13 @@ import { TenantRole } from '../types/custom-types';
 import { getId } from './get-id';
 
 /**
- * Get the tenant access IDs for a user.
+ * Get the tenant IDs the user has access to.
  *
- * @param user - The user to get the tenant access IDs for.
+ * @param user - The user to get the tenant IDs for.
  * @param limitToRole - The role to limit the access to (defaults to all roles).
- * @returns The tenant access IDs.
+ * @returns The tenant IDs the user has access to.
  */
-export const getTenantAccessIDs = (
+export const getUserTenantIDs = (
   user: User | null,
   limitToRole?: TenantRole
 ): Array<Tenant['id']> => {

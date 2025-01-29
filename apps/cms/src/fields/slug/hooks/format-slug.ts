@@ -16,32 +16,55 @@ const format = (val: string): string =>
 
 /**
  * Creates a slug for a field to which it is applied.
- * Commonly used as page identifiers.
+ * Commonly used as collection identifier.
  *
- * @param fallbackField The field to use as a fallback if the value is not a string
+ * - Limited to collections only
  *
+ * @param fallbackField The field to use as a fallback if the slug value is not provided
  * @returns The slug
+ * @throws If the fallback field is used and does not exist for the collection
  *
  * @example
  *
- * formatSlug('My page') // 'my-page'
- * formatSlug('My page 123') // 'my-title-123'
- * formatSlug('The header!') // 'the-header'
- * formatSlug('The $?$%^&*() title') // 'the-title'
+ * // 'My page'             -> 'my-page'
+ * // 'My page 123'         -> 'my-title-123'
+ * // 'The header!'         -> 'the-header'
+ * // 'The $?$%^&*() title' -> 'the-title'
  */
-const formatSlug =
+export const formatSlug =
   (fallbackField: string): FieldHook =>
-  ({ value, originalDoc, data }) => {
+  ({ value, originalDoc, data, collection, req: { payload } }) => {
     if (value && typeof value === 'string') {
       return format(value);
     }
+
+    // Type-safe collection guard
+    if (!collection) {
+      payload.logger.error(
+        'formatSlug hook called without a collection, it should not happen'
+      );
+      return value;
+    }
+
+    // Catch developer field name typos
+    if (
+      !collection.fields.find(
+        (field) => 'name' in field && field.name === fallbackField
+      )
+    ) {
+      throw new Error(
+        `formatSlug hook called with fallback field '${fallbackField}' that does not exist`
+      );
+    }
+
+    // Get from patch data or original document data
     const fallbackData = data?.[fallbackField] || originalDoc?.[fallbackField];
 
     if (fallbackData && typeof fallbackData === 'string') {
       return format(fallbackData);
     }
 
+    // The form could be incomplete or the fallback field could have a bad type.
+    // Leave this up to the developer to fix in case the slug is not as expected.
     return value;
   };
-
-export default formatSlug;

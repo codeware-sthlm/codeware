@@ -2,17 +2,22 @@ import type { Field } from 'payload/types';
 
 import { anyone } from '../../access/anyone';
 
-import { canUpdateTenantField } from './access/can-update-tenant-field';
+import { canCreateTenant } from './access/can-create-tenant';
+import { canUpdateTenant } from './access/can-update-tenant';
 import { showTenantField } from './conditions/show-tenant-field';
 import { autofillTenant } from './hooks/autofill-tenant';
+
+/** The name of the tenant field */
+export const tenantName = 'tenant' as const;
 
 /**
  * A field that infers tenant support on collections.
  */
 export const tenant: Field = {
-  name: 'tenant',
+  name: tenantName,
   type: 'relationship',
   relationTo: 'tenants',
+  hasMany: false,
   index: true,
   label: {
     en: 'Workspace',
@@ -28,7 +33,8 @@ export const tenant: Field = {
   },
   access: {
     read: anyone,
-    update: canUpdateTenantField
+    create: canCreateTenant,
+    update: canUpdateTenant
   },
   hooks: {
     beforeChange: [autofillTenant]

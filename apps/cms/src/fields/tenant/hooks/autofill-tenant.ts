@@ -1,13 +1,16 @@
-import { getTenantAccessIDs } from '@codeware/shared/util/payload';
+import { getUserTenantIDs } from '@codeware/shared/util/payload';
+import { ValidationError } from 'payload/dist/errors';
 import type { FieldHook } from 'payload/types';
 
 import { resolveTenant } from '../../../utils/resolve-tenant';
+import { tenantName } from '../tenant.field';
 
 /**
  * Autofills the tenant field when there's no value.
  *
  * 1. Use the scoped tenant when there is one
  * 2. Use the tenant when the user only has one tenant
+ * 3. Throw an error if the user must select a tenant manually
  */
 export const autofillTenant: FieldHook = async ({
   req: { headers, payload, user },
@@ -27,8 +30,17 @@ export const autofillTenant: FieldHook = async ({
     return response.tenantID;
   }
 
-  const tenantIDs = getTenantAccessIDs(user);
+  const tenantIDs = getUserTenantIDs(user);
   if (tenantIDs.length === 1) {
     return tenantIDs[0];
   }
+
+  // Since it's not possible to set the field as required,
+  // we throw an error to the user
+  throw new ValidationError([
+    {
+      message: 'Workspace is required.',
+      field: tenantName
+    }
+  ]);
 };

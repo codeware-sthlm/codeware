@@ -1,5 +1,5 @@
 import type { User } from '@codeware/shared/util/payload';
-import { getTenantAccessIDs, hasRole } from '@codeware/shared/util/payload';
+import { getUserTenantIDs, hasRole } from '@codeware/shared/util/payload';
 import type { Access, Where } from 'payload/types';
 
 /**
@@ -29,7 +29,7 @@ export const canDeleteUsers: Access<any, User> = (args) => {
     return neverSelf;
   }
 
-  const adminTenantAccessIDs = getTenantAccessIDs(user, 'admin');
+  const adminTenantAccessIDs = getUserTenantIDs(user, 'admin');
 
   if (adminTenantAccessIDs.length === 0) {
     return false;

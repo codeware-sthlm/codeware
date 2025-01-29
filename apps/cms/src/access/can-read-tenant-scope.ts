@@ -1,4 +1,4 @@
-import { getTenantAccessIDs, hasRole } from '@codeware/shared/util/payload';
+import { getUserTenantIDs, hasRole } from '@codeware/shared/util/payload';
 import type { Access, Where } from 'payload/types';
 
 import { resolveTenant } from '../utils/resolve-tenant';
@@ -45,7 +45,7 @@ export const canReadTenantScope: Access = async (args) => {
   }
 
   // Admin UI
-  const tenantAccessIDs = getTenantAccessIDs(authUser);
+  const tenantAccessIDs = getUserTenantIDs(authUser);
   const isSystemUser = hasRole(authUser, 'system-user');
 
   // Scoped to a tenant

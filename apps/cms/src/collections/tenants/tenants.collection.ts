@@ -3,8 +3,8 @@ import type { CollectionConfig } from 'payload/types';
 import { systemUser } from '../../access/system-user';
 import { slug } from '../../fields/slug/slug.field';
 
-import { canMutateTenant } from './access/can-mutate-tenant';
 import { canReadTenant } from './access/can-read-tenant';
+import { hideTenantsCollection } from './admin/hide-tenants-collection';
 import { enforceApiKey } from './hooks/enforce-api-key';
 
 /**
@@ -18,9 +18,9 @@ const tenants: CollectionConfig = {
   },
   access: {
     create: systemUser,
-    delete: canMutateTenant,
+    delete: systemUser,
     read: canReadTenant,
-    update: canMutateTenant
+    update: systemUser
   },
   hooks: {
     beforeChange: [enforceApiKey]
@@ -30,7 +30,8 @@ const tenants: CollectionConfig = {
     description: {
       en: 'A workspace works like an organization or a company, scoped to specific users and domains.',
       sv: 'En arbetsyta fungerar som en organisation eller ett företag, begränsad till specifika användare och domäner.'
-    }
+    },
+    hidden: hideTenantsCollection
   },
   labels: {
     singular: { en: 'Workspace', sv: 'Arbetsyta' },
@@ -62,7 +63,7 @@ const tenants: CollectionConfig = {
         }
       ]
     },
-    slug('tenants', { parentField: 'name', required: true })
+    slug({ sourceField: 'name' })
   ]
 };
 

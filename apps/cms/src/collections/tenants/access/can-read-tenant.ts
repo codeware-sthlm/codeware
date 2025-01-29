@@ -1,6 +1,6 @@
 import type { User } from '@codeware/shared/util/payload';
 import {
-  getTenantAccessIDs,
+  getUserTenantIDs,
   hasRole,
   parseCookies
 } from '@codeware/shared/util/payload';
@@ -19,18 +19,17 @@ export const canReadTenant: Access<any, User> = (args) => {
 
   const cookieName = `${payload.config.cookiePrefix}-tenant`;
 
-  const tenantAccessIDs = getTenantAccessIDs(user);
+  const tenantIDs = getUserTenantIDs(user);
   const selectedTenant = parseCookies(headers)[cookieName];
-  const systemUser = hasRole(user, 'system-user');
 
   // Scoped to a tenant via cookie
   if (selectedTenant) {
-    const hasTenantAccess = tenantAccessIDs.some(
+    const hasTenantAccess = tenantIDs.some(
       (id) => id.toString() === selectedTenant
     );
 
-    // System users and tenant members has access to the tenant
-    if (systemUser || hasTenantAccess) {
+    // Tenant members has access to the tenant
+    if (hasTenantAccess) {
       return {
         id: {
           equals: selectedTenant
@@ -44,16 +43,11 @@ export const canReadTenant: Access<any, User> = (args) => {
 
   // No tenant scope
 
-  // System users have access to all tenants
-  if (systemUser) {
-    return true;
-  }
-
   // Users have access to their own tenants
-  if (tenantAccessIDs.length) {
+  if (tenantIDs.length) {
     return {
       id: {
-        in: tenantAccessIDs
+        in: tenantIDs
       }
     };
   }

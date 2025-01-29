@@ -60,6 +60,11 @@ export const EnvSchema = z.object({
       description: 'Force a migration action regardsless of the current state'
     })
     .optional(),
+  REQUEST_DEBUG: z.coerce
+    .boolean({
+      description: 'Print debug log for Express middleware incoming requests'
+    })
+    .optional(),
   SEED_SOURCE: SeedSourceSchema.default('cloud-local'),
   SEED_STRATEGY: SeedStrategySchema.default('delta')
 });

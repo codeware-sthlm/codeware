@@ -1,6 +1,6 @@
 import {
   type User,
-  getTenantAccessIDs,
+  getUserTenantIDs,
   hasRole
 } from '@codeware/shared/util/payload';
 import type { Condition } from 'payload/types';
@@ -17,7 +17,7 @@ export const showTenantField: Condition = (data, siblingData, context) => {
     return true;
   }
 
-  if (getTenantAccessIDs(user).length > 1) {
+  if (getUserTenantIDs(user).length > 1) {
     return true;
   }
 

@@ -37,8 +37,6 @@ export const verifyClientRequest: ExpressMiddleware = async (
         .json('Client not authorized to access this resource');
     }
 
-    payload.logger.debug('Client signature verified successfully');
-
     next();
   } catch (error) {
     console.error('Something broke, proceeding the request', error);

@@ -1,3 +1,15 @@
+## 0.2.0 (2025-01-30)
+
+### ✨ Features
+
+- **fly-node:** optional opt out depot builder on deploy ([5bd15a0e1](https://github.com/codeware-sthlm/codeware/commit/5bd15a0e1))
+
+### 🐞 Bug Fixes
+
+- **fly-node:** fix fly deploy command typo ([fa79f4daf](https://github.com/codeware-sthlm/codeware/commit/fa79f4daf))
+- **fly-node:** use spawn pty for interactive prompts ([3998bc606](https://github.com/codeware-sthlm/codeware/commit/3998bc606))
+- **fly-node:** detach postgres must handle interactive prompt ([6e2c79036](https://github.com/codeware-sthlm/codeware/commit/6e2c79036))
+
 ## 0.1.0 (2025-01-12)
 
 ### ✨ Features

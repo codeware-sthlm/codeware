@@ -1,3 +1,17 @@
+## 1.3.0 (2025-01-30)
+
+### ✨ Features
+
+- **cms:** improved seed process ([bd4af3414](https://github.com/codeware-sthlm/codeware/commit/bd4af3414))
+- **core:** provide custom spawn with interactive prompt support ([ba12f323b](https://github.com/codeware-sthlm/codeware/commit/ba12f323b))
+- **cms:** initial multi-tenant support ([3c629f8bc](https://github.com/codeware-sthlm/codeware/commit/3c629f8bc))
+- **core:** withEnvVars support both object and props level ([32181d07c](https://github.com/codeware-sthlm/codeware/commit/32181d07c))
+
+### 🐞 Bug Fixes
+
+- **core:** pty is needed to properly spawn interactive ([9a3844bc4](https://github.com/codeware-sthlm/codeware/commit/9a3844bc4))
+- **core:** detect package manager before publish release ([db2eb28d5](https://github.com/codeware-sthlm/codeware/commit/db2eb28d5))
+
 ## 1.2.0 (2025-01-12)
 
 ### ✨ Features

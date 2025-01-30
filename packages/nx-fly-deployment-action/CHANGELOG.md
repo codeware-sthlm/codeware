@@ -1,3 +1,14 @@
+## 0.2.0 (2025-01-30)
+
+### ✨ Features
+
+- **fly-node:** optional opt out depot builder on deploy ([5bd15a0e1](https://github.com/codeware-sthlm/codeware/commit/5bd15a0e1))
+- **core:** withEnvVars support both object and props level ([32181d07c](https://github.com/codeware-sthlm/codeware/commit/32181d07c))
+
+### 🐞 Bug Fixes
+
+- **fly-node:** use spawn pty for interactive prompts ([3998bc606](https://github.com/codeware-sthlm/codeware/commit/3998bc606))
+
 ## 0.1.0 (2025-01-12)
 
 ### ✨ Features

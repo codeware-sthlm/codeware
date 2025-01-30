@@ -188,13 +188,13 @@ export const seedData = {
     {
       name: 'Star Wars',
       description: 'Star Wars inspired tenant.',
-      hosts: ['cdwr-web-pr-{PR_NUMBER}.fly.dev'],
+      hosts: ['cdwr-web-pr-{PR_NUMBER}.fly.dev', '{APP_NAME}.fly.dev'],
       apiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
     },
     {
       name: 'Marvel',
       description: 'Marvel inspired tenant.',
-      hosts: ['cdwr-web-pr-{PR_NUMBER}.fly.dev'],
+      hosts: ['cdwr-web-pr-{PR_NUMBER}.fly.dev', '{APP_NAME}.fly.dev'],
       apiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
     }
   ],

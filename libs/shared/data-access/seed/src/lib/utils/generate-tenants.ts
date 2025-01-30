@@ -23,7 +23,7 @@ export const generateTenants = (
       tenants.push({
         name,
         description: randSentence(),
-        hosts: [`${slug}.localhost`, `admin.${slug}.localhost`],
+        hosts: [`${slug}.localhost`, `cms.${slug}.localhost`],
         apiKey: apiKey
       });
 

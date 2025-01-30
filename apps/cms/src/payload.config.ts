@@ -10,6 +10,8 @@ import articles from './collections/articles/articles.collection';
 import pages from './collections/pages/pages.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
+import CheckValidHost from './components/check-valid-host';
+import NotifyInvalidHost from './components/notify-invalid-host';
 import env from './env-resolver/resolved-env';
 import { authorizationFix } from './middlewares/authorization-fix';
 import { debugRequest } from './middlewares/debug-request';
@@ -26,6 +28,8 @@ export default buildConfig({
     buildPath: resolve(env.CWD, 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     components: {
+      beforeLogin: [NotifyInvalidHost],
+      beforeDashboard: [CheckValidHost],
       graphics: {
         Logo: CdwrAdminLogo
       }

@@ -389,21 +389,21 @@ export const seedData = {
       name: 'Hahn - Welch',
       description:
         'Doloribus aliquid vitae non, exercitationem consequatur consequatur dolores, consequatur quia.',
-      hosts: ['hahn.localhost', 'admin.hahn.localhost'],
+      hosts: ['hahn.localhost', 'cms.hahn.localhost'],
       apiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
     },
     {
       name: 'Hintz - Boehm',
       description:
         'Voluptatibus sequi voluptate neque aut voluptatem ullam, consequatur deserunt cupiditate magnam, vitae asperiores nihil dicta facilis aut sequi ullam, maiores vitae beatae aliquid.',
-      hosts: ['hintz.localhost', 'admin.hintz.localhost'],
+      hosts: ['hintz.localhost', 'cms.hintz.localhost'],
       apiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
     },
     {
       name: 'Heidenreich - Aufderhar',
       description:
         'Id consectetur deserunt consequatur, occaecati quos unde fugiat maiores occaecati, quas nihil.',
-      hosts: ['heidenreich.localhost', 'admin.heidenreich.localhost'],
+      hosts: ['heidenreich.localhost', 'cms.heidenreich.localhost'],
       apiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'
     }
   ],

@@ -12,7 +12,8 @@ import {
  * The cookie is used to track the user's current tenant scope
  * and hence the documents they can access.
  *
- * @deprecated For Payload 3.0 this middleware is no longer needed since it's built-in to NextJS.
+ * @deprecated Is tenant cookie needed anymore?
+ * For Payload 3.0 cookie handling is built-in to NextJS.
  *
  * @param req - The request object.
  * @param res - The response object.

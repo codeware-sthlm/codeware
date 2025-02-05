@@ -54,6 +54,7 @@ export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
           },
           production: {}
         },
+        dependsOn: ['^build'],
         cache: true
       },
       serve: {
@@ -112,7 +113,5 @@ export function updateProjectConfig(host: Tree, options: NormalizedSchema) {
     tags: projectConfig.tags
   };
 
-  updateProjectConfiguration(host, options.name, {
-    ...project
-  });
+  updateProjectConfiguration(host, options.name, project);
 }

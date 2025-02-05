@@ -47,11 +47,8 @@ describe('application generator', () => {
   };
 
   beforeEach(() => {
-    tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
-  });
-
-  afterAll(() => {
     jest.clearAllMocks();
+    tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
   });
 
   it('should add payload dependency', async () => {
@@ -120,7 +117,7 @@ describe('application generator', () => {
     ).toBeTruthy();
 
     expect(
-      tree.exists(`${requiredOptions.directory}/eslint.config.js`)
+      tree.exists(`${requiredOptions.directory}/eslint.config.mjs`)
     ).toBeTruthy();
 
     expect(

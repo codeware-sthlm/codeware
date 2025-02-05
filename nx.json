@@ -17,26 +17,6 @@
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
   "targetDefaults": {
-    "@nx/jest:jest": {
-      "inputs": [
-        "default",
-        "^production",
-        "{workspaceRoot}/jest.preset.js",
-        "{workspaceRoot}/**/*.spec.ts"
-      ],
-      "options": {
-        "passWithNoTests": true,
-        "jestConfig": "{projectRoot}/jest.config.ts"
-      },
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
-      },
-      "cache": true
-    },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"]
     },
@@ -75,7 +55,6 @@
       "outputs": ["{options.outputPath}"]
     },
     "nx-release-publish": {
-      "dependsOn": ["build"],
       "options": {
         "packageRoot": "{workspaceRoot}/dist/packages/{projectName}"
       }
@@ -220,20 +199,17 @@
   },
   "plugins": [
     {
-      "plugin": "@nx/vite/plugin",
+      "plugin": "@nx/eslint/plugin",
+      "exclude": ["packages/**/*__tmpl__"],
       "options": {
-        "buildTargetName": "build",
-        "testTargetName": "test",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "serveStaticTargetName": "serve-static",
-        "typecheckTargetName": "typecheck"
+        "targetName": "lint"
       }
     },
     {
-      "plugin": "@nx/eslint/plugin",
+      "plugin": "@nx/jest/plugin",
+      "exclude": ["e2e/**/*"],
       "options": {
-        "targetName": "lint"
+        "targetName": "test"
       }
     },
     {
@@ -242,7 +218,6 @@
         "targetName": "e2e"
       }
     },
-    "@cdwr/nx-payload/plugin",
     {
       "plugin": "@nx/remix/plugin",
       "options": {
@@ -253,7 +228,18 @@
         "serveStaticTargetName": "serve-static",
         "staticServeTargetName": "static-serve"
       }
-    }
-  ],
-  "useLegacyCache": true
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck"
+      }
+    },
+    "@cdwr/nx-payload/plugin"
+  ]
 }

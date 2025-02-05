@@ -11,9 +11,6 @@
       "options": {
         "assets": ["packages/create-nx-payload/*.md"]
       }
-    },
-    "test": {
-      "executor": "@nx/jest:jest"
     }
   }
 }

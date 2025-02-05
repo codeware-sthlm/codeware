@@ -24,7 +24,9 @@ export async function presetGenerator(
 
   tree.delete('libs');
 
-  await formatFiles(tree);
+  if (!options.skipFormat) {
+    await formatFiles(tree);
+  }
 
   return runTasksInSerial(...tasks);
 }

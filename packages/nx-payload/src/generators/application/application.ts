@@ -12,6 +12,7 @@ import { createApplicationFiles } from './libs/create-application-files';
 import { createDockerfile } from './libs/create-dockerfile';
 import { createNodeApplication } from './libs/create-node-application';
 import { createPayloadConfig } from './libs/create-payload-config';
+import { fixTestTarget } from './libs/fix-test-target';
 import { normalizeOptions } from './libs/normalize-options';
 import { updateProjectConfig } from './libs/update-project-config';
 import { updateTsConfigApp } from './libs/update-tsconfig-app';
@@ -29,6 +30,9 @@ export async function applicationGenerator(
 
   // Use Nx node plugin to scaffold a template application
   const nodeAppTask = await createNodeApplication(host, options);
+
+  // Fix the test target
+  fixTestTarget(host, options);
 
   // Create application files from template folder
   createApplicationFiles(host, options);

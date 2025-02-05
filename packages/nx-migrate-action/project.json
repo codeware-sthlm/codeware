@@ -16,9 +16,6 @@
         "format": ["cjs", "esm"]
       }
     },
-    "test": {
-      "executor": "@nx/jest:jest"
-    },
     "act": {
       "command": "act schedule --env-file .env.act -j nx-migrate"
     }

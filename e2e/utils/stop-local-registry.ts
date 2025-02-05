@@ -33,4 +33,6 @@ export default () => {
   } catch (error) {
     console.warn('Failed to clean up local registry config:', error);
   }
+
+  process.exit(0);
 };

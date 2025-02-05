@@ -23,7 +23,10 @@ import { AppGeneratorSchema } from '../application/schema';
  *   _powered by preset `schema.json`_
  *
  */
-export type PresetGeneratorSchema = Pick<AppGeneratorSchema, 'name'> & {
+export type PresetGeneratorSchema = Pick<
+  AppGeneratorSchema,
+  'name' | 'skipFormat'
+> & {
   /** Application name */
   payloadAppName: string;
 

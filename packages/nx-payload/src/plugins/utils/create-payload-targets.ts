@@ -42,10 +42,7 @@ export const createPayloadTargets = async (
   targets[options.buildTargetName] = {
     metadata: metadata.build,
     executor: '@cdwr/nx-payload:build',
-    inputs: [
-      'default',
-      Object.hasOwn(namedInputs, 'production') ? '^production' : '^default'
-    ],
+    inputs: ['production', '^production'],
     outputs: ['{options.outputPath}'],
     defaultConfiguration: 'production',
     options: {
@@ -62,6 +59,7 @@ export const createPayloadTargets = async (
       },
       production: {}
     },
+    dependsOn: ['^build'],
     cache: true
   };
 

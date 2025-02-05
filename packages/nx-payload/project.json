@@ -11,35 +11,24 @@
         "assets": [
           "packages/nx-payload/*.md",
           {
+            "input": "./packages/nx-payload/src",
             "glob": "**/!(*.ts)",
-            "input": "./packages/nx-payload/src",
+            "ignore": ["**/*.snap"],
             "output": "./src"
           },
           {
+            "input": "./packages/nx-payload/src",
             "glob": "**/*.d.ts",
-            "input": "./packages/nx-payload/src",
             "output": "./src"
           },
           {
-            "glob": "executors.json",
             "input": "./packages/nx-payload",
-            "output": "."
-          },
-          {
-            "glob": "generators.json",
-            "input": "./packages/nx-payload",
-            "output": "."
-          },
-          {
-            "glob": "migrations.json",
-            "input": "./packages/nx-payload",
+            "glob": "**/*.json",
+            "ignore": ["**/tsconfig*.json", "project.json"],
             "output": "."
           }
         ]
       }
-    },
-    "test": {
-      "executor": "@nx/jest:jest"
     }
   }
 }

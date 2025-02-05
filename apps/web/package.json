@@ -12,7 +12,7 @@
     "@infisical/sdk": "^3.0.4",
     "@lexical/headless": "0.13.1",
     "@lexical/markdown": "0.13.1",
-    "@nx/react": "20.2.2",
+    "@nx/react": "^20.0.0",
     "@payloadcms/richtext-lexical": "0.11.4",
     "@remix-run/node": "^2.14.0",
     "@remix-run/react": "^2.14.0",
@@ -29,7 +29,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@nx/vite": "20.2.2",
+    "@nx/vite": "^20.0.0",
     "@remix-run/dev": "^2.14.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",

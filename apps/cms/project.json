@@ -5,8 +5,6 @@
   "projectType": "application",
   "tags": ["scope:cms", "type:app"],
   "targets": {
-    "lint": {},
-    "test": {},
     "serve-fresh": {
       "executor": "nx:run-commands",
       "options": {

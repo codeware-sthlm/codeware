@@ -57,6 +57,9 @@ exports[`application generator should not setup plugin inference when 'useInfere
         "production": {},
       },
       "defaultConfiguration": "production",
+      "dependsOn": [
+        "^build",
+      ],
       "executor": "@cdwr/nx-payload:build",
       "metadata": {
         "description": "Build the Payload admin application",
@@ -135,7 +138,8 @@ exports[`application generator should not setup plugin inference when 'useInfere
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "apps/test-dir/jest.config.ts",
+        "jestConfig": "{projectRoot}/jest.config.ts",
+        "passWithNoTests": true,
       },
       "outputs": [
         "{workspaceRoot}/coverage/{projectRoot}",
@@ -160,7 +164,8 @@ exports[`application generator should setup plugin inference when 'useInferenceP
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "apps/test-dir/jest.config.ts",
+        "jestConfig": "{projectRoot}/jest.config.ts",
+        "passWithNoTests": true,
       },
       "outputs": [
         "{workspaceRoot}/coverage/{projectRoot}",
@@ -185,7 +190,8 @@ exports[`application generator should setup plugin inference when 'useInferenceP
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "apps/test-dir/jest.config.ts",
+        "jestConfig": "{projectRoot}/jest.config.ts",
+        "passWithNoTests": true,
       },
       "outputs": [
         "{workspaceRoot}/coverage/{projectRoot}",

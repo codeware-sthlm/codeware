@@ -7,8 +7,7 @@ WORKDIR /app
 # Copy package.json first to leverage Docker cache for dependencies
 COPY package.json ./
 
-# TODO: Remove legacy-peer-deps once the peers for @cdwr/nx-payload are less strict
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 COPY . .
 

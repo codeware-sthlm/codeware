@@ -136,8 +136,8 @@ importers:
         specifier: ^7.14.5
         version: 7.26.3(@babel/core@7.26.7)
       '@cdwr/nx-payload':
-        specifier: 1.1.0
-        version: 1.1.0(ue645y2a5q7kvjzsj4va5ka5wm)
+        specifier: 1.2.0
+        version: 1.2.0(ue645y2a5q7kvjzsj4va5ka5wm)
       '@clack/prompts':
         specifier: ^0.9.0
         version: 0.9.1
@@ -1241,15 +1241,15 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@cdwr/nx-payload@1.1.0':
-    resolution: {integrity: sha512-z/v7k9b04lkcnx5VEdfpp1TKU2m+hpfYxfUD8IQCyAQdJGf4kBkbt4DRpQGN6EfUUO64sS/ufrNWy6xhbdEeDw==}
+  '@cdwr/nx-payload@1.2.0':
+    resolution: {integrity: sha512-ycEwDV30CoNhZ44Vv9v5Pu2BGZq2SR1blx3jm5WGojRyDBn0o4QM3CqLz0PdOdxR3zzTv4JaJsYP21qiNGR3Hg==}
     peerDependencies:
-      '@nx/devkit': 20.2.2
-      '@nx/esbuild': 20.2.2
-      '@nx/js': 20.2.2
-      '@nx/node': 20.2.2
+      '@nx/devkit': ^20.0.0
+      '@nx/esbuild': ^20.0.0
+      '@nx/js': ^20.0.0
+      '@nx/node': ^20.0.0
       '@nx/webpack': '*'
-      nx: 20.2.2
+      nx: ^20.0.0
     peerDependenciesMeta:
       '@nx/webpack':
         optional: true
@@ -13867,7 +13867,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@cdwr/nx-payload@1.1.0(ue645y2a5q7kvjzsj4va5ka5wm)':
+  '@cdwr/nx-payload@1.2.0(ue645y2a5q7kvjzsj4va5ka5wm)':
     dependencies:
       '@nx/devkit': 20.4.0(nx@20.4.0(@swc-node/register@1.10.9(@swc/core@1.10.14(@swc/helpers@0.5.15))(@swc/types@0.1.17)(typescript@5.7.3))(@swc/core@1.10.14(@swc/helpers@0.5.15)))
       '@nx/esbuild': 20.4.0(@babel/traverse@7.26.7)(@swc-node/register@1.10.9(@swc/core@1.10.14(@swc/helpers@0.5.15))(@swc/types@0.1.17)(typescript@5.7.3))(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.12.0)(esbuild@0.19.12)(nx@20.4.0(@swc-node/register@1.10.9(@swc/core@1.10.14(@swc/helpers@0.5.15))(@swc/types@0.1.17)(typescript@5.7.3))(@swc/core@1.10.14(@swc/helpers@0.5.15)))(typescript@5.7.3)(verdaccio@5.33.0(encoding@0.1.13)(typanion@3.14.0))

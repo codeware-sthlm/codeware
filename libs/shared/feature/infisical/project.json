@@ -1,0 +1,9 @@
+{
+  "name": "shared-feature-infisical",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/feature/infisical/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:feature", "domain:apps"],
+  "// targets": "to see all targets run: nx show project infisical --web",
+  "targets": {}
+}

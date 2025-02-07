@@ -1,5 +1,5 @@
 import { CdwrCloud } from '@codeware/shared/ui/react-components';
-import type { Page } from '@codeware/shared/util/payload';
+import type { Page } from '@codeware/shared/util/payload-types';
 import type {
   LinksFunction,
   LoaderFunctionArgs,

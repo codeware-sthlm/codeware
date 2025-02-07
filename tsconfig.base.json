@@ -16,9 +16,17 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@codeware/app-cms/feature/seed": [
+        "libs/app-cms/feature/seed/src/index.ts"
+      ],
+      "@codeware/app-cms/ui/components": [
+        "libs/app-cms/ui/components/src/index.ts"
+      ],
+      "@codeware/app-cms/util/functions": [
+        "libs/app-cms/util/functions/src/index.ts"
+      ],
       "@codeware/core/actions": ["packages/core/src/actions.ts"],
       "@codeware/core/release": ["packages/core/src/release.ts"],
-      "@codeware/core/secrets": ["packages/core/src/secrets.ts"],
       "@codeware/core/testing": ["packages/core/src/testing.ts"],
       "@codeware/core/utils": ["packages/core/src/utils.ts"],
       "@codeware/core/zod": ["packages/core/src/zod.ts"],
@@ -37,13 +45,24 @@
         "packages/nx-migrate-action/src/index.ts"
       ],
       "@codeware/nx-payload": ["packages/nx-payload/index.ts"],
-      "@codeware/shared/data-access/seed": [
-        "libs/shared/data-access/seed/src/index.ts"
+      "@codeware/shared/feature/infisical": [
+        "libs/shared/feature/infisical/src/index.ts"
       ],
       "@codeware/shared/ui/react-components": [
         "libs/shared/ui/react-components/src/index.ts"
       ],
-      "@codeware/shared/util/payload": ["libs/shared/util/payload/src/index.ts"]
+      "@codeware/shared/util/node": ["libs/shared/util/node/src/index.ts"],
+      "@codeware/shared/util/payload-types": [
+        "libs/shared/util/payload-types/src/index.ts"
+      ],
+      "@codeware/shared/util/seed": ["libs/shared/util/seed/src/index.ts"],
+      "@codeware/shared/util/signature": [
+        "libs/shared/util/signature/src/index.ts"
+      ],
+      "@codeware/shared/util/typesafe": [
+        "libs/shared/util/typesafe/src/index.ts"
+      ],
+      "@codeware/shared/util/zod": ["libs/shared/util/zod/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,9 +1,9 @@
-import type { User } from '@codeware/shared/util/payload';
 import {
   getUserTenantIDs,
   hasRole,
   parseCookies
-} from '@codeware/shared/util/payload';
+} from '@codeware/app-cms/util/functions';
+import type { User } from '@codeware/shared/util/payload-types';
 import type { Access, Where } from 'payload/types';
 
 /**

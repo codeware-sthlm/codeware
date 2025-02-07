@@ -6,10 +6,6 @@ export default defineConfig({
   root: __dirname,
   cacheDir: '../../../../node_modules/.vite/libs/shared/ui/react-components',
   plugins: [react(), nxViteTsPaths()],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
   test: {
     watch: false,
     globals: true,

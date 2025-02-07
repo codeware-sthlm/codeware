@@ -1,5 +1,5 @@
-import type { User } from '@codeware/shared/util/payload';
-import { getUserTenantIDs, hasRole } from '@codeware/shared/util/payload';
+import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
+import type { User } from '@codeware/shared/util/payload-types';
 import type { Access, Where } from 'payload/types';
 
 /**

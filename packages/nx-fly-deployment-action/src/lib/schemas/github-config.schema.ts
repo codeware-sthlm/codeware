@@ -1,4 +1,4 @@
-import { withEnvVars } from '@codeware/core/zod';
+import { withEnvVars } from '@codeware/shared/util/zod';
 import { z } from 'zod';
 
 export const GitHubConfigSchema = withEnvVars(

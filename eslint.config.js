@@ -11,7 +11,7 @@ module.exports = [
     }
   },
   {
-    ignores: ['**/dist', '**/vite.config.ts.timestamp*']
+    ignores: ['**/dist', '**/vite.config.[cm]?ts.timestamp*']
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -23,19 +23,29 @@ module.exports = [
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?js$'],
           depConstraints: [
             {
+              sourceTag: 'type:util',
+              onlyDependOnLibsWithTags: ['type:util']
+            },
+            {
               sourceTag: 'scope:cms',
               onlyDependOnLibsWithTags: [
+                'scope:app-cms',
                 'scope:cms',
                 'scope:core',
-                'scope:shared'
+                'scope:shared',
+                'domain:signature'
               ]
+            },
+            {
+              sourceTag: 'scope:app-cms',
+              onlyDependOnLibsWithTags: ['scope:app-cms', 'scope:shared']
             },
             {
               sourceTag: 'scope:web',
               onlyDependOnLibsWithTags: [
                 'scope:web',
-                'scope:core',
-                'scope:shared'
+                'scope:shared',
+                'domain:signature'
               ]
             },
             {

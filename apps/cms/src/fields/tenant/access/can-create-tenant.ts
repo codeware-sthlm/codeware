@@ -1,4 +1,4 @@
-import { hasRole } from '@codeware/shared/util/payload';
+import { hasRole } from '@codeware/app-cms/util/functions';
 import type { FieldAccess } from 'payload/types';
 
 /**

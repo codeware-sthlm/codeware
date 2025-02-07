@@ -121,7 +121,7 @@ nx payload cms migrate:fresh
 
 Seed data is stored in environment-specific TypeScript files in
 
-- `libs/shared/data-access/seed/src/lib/seed-data`.
+- `libs/shared/util/seed/src/lib/static-data`.
 
 You can remove the existing seed data and save the empty object to the file to generate new seed data.
 
@@ -141,7 +141,7 @@ nx start web
 ### Terminal 3: Start reverse proxy to simulate multi-tenancy
 
 ```sh
-nx payload-proxy
+nx payload-proxy:up
 ```
 
 > [!NOTE]
@@ -159,10 +159,10 @@ nx payload-proxy
 nx payload-proxy:down
 ```
 
-##### Restart the proxy <!-- omit in toc -->
+##### Communicate with the proxy <!-- omit in toc -->
 
 ```sh
-nx proxy-cmd shared-util-payload restart
+nx payload-proxy [docker compose options]
 ```
 
 ## Development Tools & Services

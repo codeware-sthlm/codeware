@@ -1,0 +1,8 @@
+{
+  "name": "app-cms-feature-seed",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/feature/seed/src",
+  "tags": ["scope:app-cms", "type:feature"],
+  "projectType": "library",
+  "targets": {}
+}

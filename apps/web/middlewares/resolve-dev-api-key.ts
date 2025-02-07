@@ -1,4 +1,4 @@
-import { resolveTenantFromHost } from '@codeware/shared/data-access/seed';
+import { resolveTenantFromHost } from '@codeware/shared/util/seed';
 import { createMiddleware } from 'hono/factory';
 
 import env from '../env-resolver/env';
@@ -35,7 +35,7 @@ export const resolveDevApiKey = createMiddleware<{
   }
 
   try {
-    const { apiKey } = await resolveTenantFromHost(env.DEPLOY_ENV, host);
+    const { apiKey } = await resolveTenantFromHost(host);
     // Set tenant API key in context for use in handlers
     c.set('tenantApiKey', apiKey);
   } catch (error) {

@@ -1,4 +1,4 @@
-import { getUserTenantIDs, hasRole } from '@codeware/shared/util/payload';
+import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
 import type { FieldAccess } from 'payload/types';
 
 /**

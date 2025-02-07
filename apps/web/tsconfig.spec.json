@@ -12,7 +12,9 @@
   },
   "include": [
     "vite.config.ts",
+    "vite.config.mts",
     "vitest.config.ts",
+    "vitest.config.mts",
     "app/**/*.ts",
     "app/**/*.tsx",
     "app/**/*.js",

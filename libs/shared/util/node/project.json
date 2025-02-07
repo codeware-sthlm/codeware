@@ -1,0 +1,9 @@
+{
+  "name": "shared-util-node",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/util/node/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:util"],
+  "// targets": "to see all targets run: nx show project node --web",
+  "targets": {}
+}

@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "e2e/utils",
   "projectType": "library",
-  "tags": ["scope:e2e-utils", "type:util"],
+  "tags": ["scope:e2e-utils"],
   "targets": {
     "registry-start": {
       "metadata": {

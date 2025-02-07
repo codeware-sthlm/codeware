@@ -1,6 +1,6 @@
-import { type ExpressMiddleware } from '@codeware/shared/util/payload';
-
 import env from '../env-resolver/resolved-env';
+
+import type { ExpressMiddleware } from './types';
 
 export const debugRequest: ExpressMiddleware = async (req, res, next) => {
   if (env.REQUEST_DEBUG === true) {

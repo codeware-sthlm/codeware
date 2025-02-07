@@ -1,4 +1,5 @@
-import { hasRole } from '@codeware/shared/util/payload';
+import { hasRole } from '@codeware/app-cms/util/functions';
+import type { User } from '@codeware/shared/util/payload-types';
 import type { Condition } from 'payload/types';
 
 /**

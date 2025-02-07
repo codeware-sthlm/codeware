@@ -1,5 +1,4 @@
 import { LexicalRenderer } from '@codeware/shared/ui/react-components';
-import type { Page } from '@codeware/shared/util/payload';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json, useLoaderData, useRouteError } from '@remix-run/react';
 

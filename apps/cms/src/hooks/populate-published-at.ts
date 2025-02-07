@@ -1,4 +1,4 @@
-import { Page } from '@codeware/shared/util/payload';
+import { Page } from '@codeware/shared/util/payload-types';
 import type { CollectionBeforeChangeHook } from 'payload/types';
 
 /**

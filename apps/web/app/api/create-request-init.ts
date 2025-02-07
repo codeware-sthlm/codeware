@@ -1,4 +1,5 @@
-import { type Page, generateSignature } from '@codeware/shared/util/payload';
+import type { Page } from '@codeware/shared/util/payload-types';
+import { generateSignature } from '@codeware/shared/util/signature';
 
 import env from '../../env-resolver/env';
 

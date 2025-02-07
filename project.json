@@ -33,22 +33,39 @@
       "command": "pnpm tsx ./packages/core/src/lib/release/run-release.ts"
     },
     "payload-proxy": {
+      "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Run docker compose commands for the Payload proxy"
+      },
+      "options": {
+        "commands": ["docker compose"],
+        "cwd": "tools/payload-proxy",
+        "forwardAllArgs": true
+      }
+    },
+    "payload-proxy:up": {
       "metadata": {
         "description": "Start multi-tenant Payload proxy to simulate multiple web clients"
       },
-      "command": "pnpm nx proxy shared-util-payload"
+      "command": "pnpm nx payload-proxy -- up -d"
     },
     "payload-proxy:down": {
       "metadata": {
         "description": "Stop multi-tenant Payload proxy"
       },
-      "command": "pnpm nx proxy-cmd shared-util-payload down"
+      "command": "pnpm nx payload-proxy -- down"
+    },
+    "generate-js-lib": {
+      "metadata": {
+        "description": "Generate a new TypeScript library"
+      },
+      "command": "test -z '{args.name}' && echo Error: Argument --name required || pnpm nx g @nx/js:lib {args.name} --directory {args.directory} --importPath @codeware/{args.name} --bundler=none --publishable=false --dry-run={args.dry-run}"
     },
     "generate-js-package": {
       "metadata": {
         "description": "Generate a new TypeScript ESBuild package"
       },
-      "command": "test -z '{args.name}' && echo Error: Argument --name required || pnpm nx g @nx/js:lib {args.name} --directory packages/{args.name} --importPath @cdwr/{args.name} --dry-run={args.dry-run}"
+      "command": "test -z '{args.name}' && echo Error: Argument --name required || pnpm nx g @nx/js:lib {args.name} --directory packages/{args.name} --importPath @codeware/{args.name} --dry-run={args.dry-run}"
     }
   }
 }

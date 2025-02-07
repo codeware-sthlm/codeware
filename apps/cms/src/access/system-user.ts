@@ -1,5 +1,5 @@
-import type { User } from '@codeware/shared/util/payload';
-import { hasRole } from '@codeware/shared/util/payload';
+import { hasRole } from '@codeware/app-cms/util/functions';
+import type { User } from '@codeware/shared/util/payload-types';
 
 /**
  * Access control reading the request for the logged in user.

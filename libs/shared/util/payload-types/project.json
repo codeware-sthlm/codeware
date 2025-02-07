@@ -1,0 +1,8 @@
+{
+  "name": "shared-util-payload-types",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/util/payload-types/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:util", "domain:payload"],
+  "targets": {}
+}

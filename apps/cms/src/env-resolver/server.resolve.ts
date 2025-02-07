@@ -24,8 +24,8 @@
  *   once the environment variables are resolved by server-side code.
  */
 
-import { withInfisical } from '@codeware/core/secrets';
-import { withEnvVars } from '@codeware/core/zod';
+import { withInfisical } from '@codeware/shared/feature/infisical';
+import { withEnvVars } from '@codeware/shared/util/zod';
 
 import { EnvSchema } from './env.schema';
 import isBrowser from './is-browser';

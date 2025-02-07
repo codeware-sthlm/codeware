@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 
-import { CdwrAdminLogo } from '@codeware/shared/ui/react-components';
+import { CdwrAdminLogo } from '@codeware/app-cms/ui/components';
 import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
@@ -51,6 +51,10 @@ export default buildConfig({
             resolve(__dirname, '../../..'),
             // Override aliases for pre-built custom admin components
             {
+              '@codeware/app-cms/ui/components': resolve(
+                env.CWD,
+                'dist/apps/cms/server/libs/app-cms/ui/components/src/index.js'
+              ),
               '@codeware/shared/ui/react-components': resolve(
                 env.CWD,
                 'dist/apps/cms/server/libs/shared/ui/react-components/src/index.js'
@@ -127,7 +131,7 @@ export default buildConfig({
     // Keep the generated types in sync between the apps
     outputFile: resolve(
       env.CWD,
-      'libs/shared/util/payload/src/lib/generated/payload-types.ts'
+      'libs/shared/util/payload-types/src/lib/payload-types.ts'
     )
   },
   graphQL: {

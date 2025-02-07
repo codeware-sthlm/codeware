@@ -12,17 +12,18 @@ module.exports = [
         'error',
         {
           ignoredDependencies: [
-            '@cdwr/core',
+            // Loading secrets
             '@infisical/sdk',
-            '@lexical/headless',
-            '@lexical/markdown',
+            // Payload lexical dynamic components
+            'lexical',
+            'prism-react-renderer',
+            // Dev dependencies
             '@nx/vite',
-            '@payloadcms/richtext-lexical',
             '@remix-run/testing',
             '@testing-library/jest-dom',
             '@testing-library/react',
             '@vitejs/plugin-react',
-            'prism-react-renderer',
+            'jsonc-eslint-parser',
             'vite'
           ],
           ignoredFiles: [

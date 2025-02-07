@@ -1,9 +1,8 @@
-import {
-  type ExpressMiddleware,
-  verifySignature
-} from '@codeware/shared/util/payload';
+import { verifySignature } from '@codeware/shared/util/signature';
 
 import env from '../env-resolver/resolved-env';
+
+import type { ExpressMiddleware } from './types';
 
 /**
  * Verify client request signature to ensure the request is from a valid client

@@ -1,4 +1,4 @@
-import { seed } from '@codeware/shared/data-access/seed';
+import { seed } from '@codeware/app-cms/feature/seed';
 import express from 'express';
 import payload from 'payload';
 

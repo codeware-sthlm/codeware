@@ -1,4 +1,4 @@
-import type { User } from '@codeware/shared/util/payload';
+import type { User } from '@codeware/shared/util/payload-types';
 import { useAuth, useConfig } from 'payload/components/utilities';
 import React, { useEffect } from 'react';
 

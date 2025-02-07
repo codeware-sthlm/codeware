@@ -1,9 +1,9 @@
-import {
-  type CollectionSlug,
-  type CollectionTenantScopedType,
-  type CollectionType,
-  getId
-} from '@codeware/shared/util/payload';
+import { getId } from '@codeware/app-cms/util/functions';
+import type {
+  CollectionSlug,
+  CollectionTenantScopedType,
+  CollectionType
+} from '@codeware/shared/util/payload-types';
 import { ValidationError } from 'payload/errors';
 import { FieldHook, RelationshipField } from 'payload/types';
 

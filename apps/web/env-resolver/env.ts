@@ -2,7 +2,7 @@
  * Type-safe environment configuration with Infisical secrets injection
  */
 
-import { withInfisical } from '@codeware/core/secrets';
+import { withInfisical } from '@codeware/shared/feature/infisical';
 
 import { type Env, EnvSchema } from './env.schema';
 

@@ -1,0 +1,15 @@
+{
+  "name": "shared-util-zod",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/util/zod/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:util"],
+  "targets": {
+    "build": {
+      "metadata": {
+        "description": "Build is required since this project is used by a package"
+      },
+      "executor": "@nx/esbuild:esbuild"
+    }
+  }
+}

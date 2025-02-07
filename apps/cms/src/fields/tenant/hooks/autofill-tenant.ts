@@ -1,4 +1,4 @@
-import { getUserTenantIDs } from '@codeware/shared/util/payload';
+import { getUserTenantIDs } from '@codeware/app-cms/util/functions';
 import { ValidationError } from 'payload/dist/errors';
 import type { FieldHook } from 'payload/types';
 

@@ -1,0 +1,8 @@
+{
+  "name": "app-cms-util-functions",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/util/functions/src",
+  "projectType": "library",
+  "tags": ["scope:app-cms", "type:util"],
+  "targets": {}
+}

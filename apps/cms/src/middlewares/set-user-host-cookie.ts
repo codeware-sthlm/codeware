@@ -1,8 +1,6 @@
-import {
-  type ExpressMiddleware,
-  isUser,
-  parseCookies
-} from '@codeware/shared/util/payload';
+import { isUser, parseCookies } from '@codeware/app-cms/util/functions';
+
+import type { ExpressMiddleware } from './types';
 
 /**
  * Set a user cookie with the current tenant ID, derived from the request host

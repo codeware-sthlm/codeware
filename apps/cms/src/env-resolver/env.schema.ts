@@ -1,7 +1,7 @@
 import {
   SeedSourceSchema,
   SeedStrategySchema
-} from '@codeware/shared/data-access/seed';
+} from '@codeware/app-cms/feature/seed';
 import { z } from 'zod';
 
 /**

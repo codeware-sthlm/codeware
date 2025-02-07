@@ -19,7 +19,6 @@
         "additionalEntryPoints": [
           "packages/core/src/actions.ts",
           "packages/core/src/release.ts",
-          "packages/core/src/secrets.ts",
           "packages/core/src/testing.ts",
           "packages/core/src/utils.ts",
           "packages/core/src/zod.ts"

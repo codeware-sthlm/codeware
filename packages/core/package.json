@@ -20,10 +20,8 @@
     "Environment variables",
     "Fixtures",
     "GitHub Actions",
-    "Infisical",
     "Nx",
     "Release management",
-    "Secrets",
     "Testing",
     "Utilities",
     "Zod"
@@ -35,7 +33,6 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@clack/prompts": "^0.9.0",
-    "@infisical/sdk": "^3.0.4",
     "@homebridge/node-pty-prebuilt-multiarch": "^0.11.14",
     "@nx/devkit": "^20.0.0",
     "@nx/plugin": "^20.0.0",
@@ -65,11 +62,6 @@
       "types": "./src/release.d.ts",
       "import": "./release.js",
       "require": "./release.cjs"
-    },
-    "./secrets": {
-      "types": "./src/secrets.d.ts",
-      "import": "./secrets.js",
-      "require": "./secrets.cjs"
     },
     "./testing": {
       "types": "./src/testing.d.ts",

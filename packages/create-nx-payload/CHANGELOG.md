@@ -1,3 +1,9 @@
+## 1.1.0 (2025-02-07)
+
+### ✨ Features
+
+- **repo:** migrate nx to 20.4.0 and fix breaking changes ([ba6c6c5](https://github.com/codeware-sthlm/codeware/commit/ba6c6c5))
+
 ## 1.0.2 (2025-01-12)
 
 ### 🐞 Bug Fixes

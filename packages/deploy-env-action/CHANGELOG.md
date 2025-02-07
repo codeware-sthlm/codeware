@@ -1,3 +1,9 @@
+## 0.1.1 (2025-02-07)
+
+### 🐞 Bug Fixes
+
+- **web:** remove dependency to payload and related packages ([0a7a63e](https://github.com/codeware-sthlm/codeware/commit/0a7a63e))
+
 ## 0.1.0 (2025-01-12)
 
 ### ✨ Features

@@ -1,3 +1,13 @@
+## 0.3.0 (2025-02-07)
+
+### ✨ Features
+
+- **repo:** migrate nx to 20.4.0 and fix breaking changes ([ba6c6c5](https://github.com/codeware-sthlm/codeware/commit/ba6c6c5))
+
+### 🐞 Bug Fixes
+
+- **web:** remove dependency to payload and related packages ([0a7a63e](https://github.com/codeware-sthlm/codeware/commit/0a7a63e))
+
 ## 0.2.0 (2025-01-30)
 
 ### ✨ Features

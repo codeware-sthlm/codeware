@@ -1,3 +1,13 @@
+## 1.4.0 (2025-02-07)
+
+### ✨ Features
+
+- **repo:** migrate nx to 20.4.0 and fix breaking changes ([ba6c6c5](https://github.com/codeware-sthlm/codeware/commit/ba6c6c5))
+
+### 🧹 Code Refactoring
+
+- **core:** move secrets and some zod utilities to internal projects ([0b801c5](https://github.com/codeware-sthlm/codeware/commit/0b801c5))
+
 ## 1.3.0 (2025-01-30)
 
 ### ✨ Features

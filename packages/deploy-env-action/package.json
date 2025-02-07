@@ -1,6 +1,6 @@
 {
   "name": "@cdwr/deploy-env-action",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The Deploy Env Action will analyze the environment to deploy your Fly.io applications to.",
   "repository": {
     "type": "git",

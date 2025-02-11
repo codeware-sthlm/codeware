@@ -29,6 +29,5 @@
   "engines": {
     "node": ">=20"
   },
-  "sideEffects": false,
-  "packageManager": "pnpm@10.2.0"
+  "sideEffects": false
 }

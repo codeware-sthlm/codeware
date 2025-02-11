@@ -33,10 +33,15 @@ jobs:
     outputs:
       e2e-enabled: ${{ steps.e2e-enabled.outputs.status }}
     steps:
+      # Disable e2e for
+      # - merge groups unless it's renovate
+      # - renovate pull requests
       - name: Whether e2e is enabled
         id: e2e-enabled
         run: |
-          if [[ "${{ github.event_name }}" == "merge_group" || "${{ env.IS_RENOVATE }}" == "true" ]]; then
+          if [[ "${{ github.event_name }}" == "merge_group" && "${{ env.IS_RENOVATE }}" == "false" ]]; then
+            echo "status=false" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ env.IS_RENOVATE }}" == "true" ]]; then
             echo "status=false" >> $GITHUB_OUTPUT
           else
             echo "status=true" >> $GITHUB_OUTPUT
@@ -74,6 +79,9 @@ jobs:
 
       - if: steps.cache-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
+
+      - if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: pnpm rebuild sharp
 
   e2e:
     needs: [init, preinstall]

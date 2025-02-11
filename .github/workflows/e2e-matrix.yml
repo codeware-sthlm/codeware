@@ -16,9 +16,9 @@ on:
 # - renovate branches should never use Nx Cloud
 env:
   CDWR_DEBUG_LOGGING: true
-  IS_RENOVATE: ${{ contains(github.head_ref || github.ref_name, 'renovate') }}
+  IS_RENOVATE: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-  NX_NO_CLOUD: ${{ contains(github.head_ref || github.ref_name, 'renovate') || vars.NX_NO_CLOUD }}
+  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') || vars.NX_NO_CLOUD }}
   NX_DAEMON: ${{ vars.NX_DAEMON }}
   NX_PARALLEL: ${{ vars.NX_PARALLEL }}
   NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}

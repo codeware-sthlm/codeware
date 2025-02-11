@@ -44,6 +44,11 @@
       "groupName": "Security updates"
     },
     {
+      "description": "Skip updates for packageManager",
+      "matchPackageNames": ["packageManager"],
+      "enabled": false
+    },
+    {
       "description": "Skip major updates for packages migrated to ESM only",
       "matchPackageNames": [
         "@octokit/request-error",

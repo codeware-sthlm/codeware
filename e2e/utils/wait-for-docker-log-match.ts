@@ -1,18 +1,29 @@
 import { ChildProcess, spawn } from 'child_process';
 
-interface WaitForDockerLogMatchOptions {
+import { logDebug } from '@codeware/core/utils';
+
+type WaitForDockerLogMatchOptions = {
+  /** The name of the container to listen to */
   containerName: string;
-  matchString: string;
+
+  /** The match to wait for to resolve successfully */
+  match: RegExp | string;
+
+  /**
+   * The timeout in seconds before rejecting with an error
+   * @default 30
+   */
   timeoutSeconds?: number;
-}
+};
 
 /**
- * Listen to Docker logs and let this function resolved
- * once the provided match string is detected.
+ * Listen to Docker container logs and resolve once the provided match is detected.
+ *
+ * Otherwise, reject with an error after the timeout.
  */
 export const waitForDockerLogMatch = ({
   containerName,
-  matchString,
+  match,
   timeoutSeconds = 30
 }: WaitForDockerLogMatchOptions): Promise<boolean> => {
   return new Promise<boolean>((resolve, reject) => {
@@ -22,13 +33,19 @@ export const waitForDockerLogMatch = ({
       containerName
     ]);
 
+    const buffer: Buffer[] = [];
     const cleanup = (): void => {
       clearTimeout(timer);
       dockerProcess.kill();
     };
 
     const checkLog = (chunk: Buffer): void => {
-      if (chunk.toString().includes(matchString)) {
+      buffer.push(chunk);
+      if (
+        typeof match === 'string'
+          ? chunk.toString().includes(match)
+          : match.test(chunk.toString())
+      ) {
         cleanup();
         resolve(true);
       }
@@ -51,6 +68,7 @@ export const waitForDockerLogMatch = ({
 
     const timer = setTimeout(() => {
       cleanup();
+      logDebug('Docker log', buffer.join(''));
       reject(
         new Error(
           `Timeout waiting for log match in container '${containerName}'`

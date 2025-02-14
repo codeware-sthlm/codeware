@@ -33,10 +33,10 @@ or
 npx nx dx:postgres <%= name %>
 ```
 
-Then serve the application
+Then serve the application in development mode
 
 ```sh
-npx nx serve <%= name %>
+npx nx dev <%= name %>
 ```
 
 ## Running tests

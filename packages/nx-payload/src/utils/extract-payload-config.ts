@@ -69,7 +69,7 @@ export type ConfigPropertyPath = (typeof configPaths)[number];
  * - The config object is assumed to be a valid Payload config when returned,
  *   due to the file being type-safe by design
  *
- * @param appDirectory - The absolute path to the Payload config file folder
+ * @param appDirectory - Path to the Payload config file folder
  * @param properties Extract only a subset of the config properties
  * @returns The extracted Payload config object with status and metrics
  */
@@ -88,7 +88,7 @@ export function extractPayloadConfig(
 
   try {
     const fileReadStart = performance.now();
-    const configPath = path.join(appDirectory, 'payload.config.ts');
+    const configPath = path.resolve(appDirectory, 'payload.config.ts');
     if (!fs.existsSync(configPath)) {
       throw new Error(`Config file '${configPath}' does not exist`);
     }

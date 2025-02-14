@@ -2,37 +2,53 @@ import { type Tree, addDependenciesToPackageJson, readJson } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import type { PackageJson } from 'nx/src/utils/package-json';
 
+import {
+  graphqlVersion,
+  payloadVersion,
+  sharpVersion,
+  testingLibraryDomVersion,
+  testingLibraryJestDomVersion,
+  testingLibraryReactVersion
+} from '../../utils/versions';
+
 import { initGenerator } from './init';
+import type { InitSchema } from './schema';
 
 describe('init', () => {
   let tree: Tree;
+  const options: InitSchema = {
+    skipFormat: true
+  };
 
   console.log = jest.fn();
   console.warn = jest.fn();
 
   beforeEach(() => {
+    jest.clearAllMocks();
     tree = createTreeWithEmptyWorkspace();
   });
 
   it('should generate correct dependencies in package.json', async () => {
-    await initGenerator(tree, {});
+    await initGenerator(tree, options);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
-    // Versions number can be updated by pipelines or similar tools,
-    // so we only match for semantic patterns.
-    const dynamicVersion = /^[^|~]?\d+\.\d+\.\d+$/;
-    expect(packageJson).toMatchSnapshot({
+    expect(packageJson).toEqual({
       dependencies: {
-        '@payloadcms/bundler-webpack': expect.stringMatching(dynamicVersion),
-        '@payloadcms/db-mongodb': expect.stringMatching(dynamicVersion),
-        '@payloadcms/db-postgres': expect.stringMatching(dynamicVersion),
-        '@payloadcms/richtext-slate': expect.stringMatching(dynamicVersion),
-        payload: expect.stringMatching(dynamicVersion),
-        zod: 'latest'
+        '@payloadcms/db-mongodb': payloadVersion,
+        '@payloadcms/db-postgres': payloadVersion,
+        '@payloadcms/next': payloadVersion,
+        '@payloadcms/richtext-lexical': payloadVersion,
+        graphql: graphqlVersion,
+        payload: payloadVersion,
+        sharp: sharpVersion
       },
       devDependencies: {
-        '@nx/node': expect.stringMatching(/^\d+\.\d+\.\d+$/)
-      }
+        '@payloadcms/graphql': payloadVersion,
+        '@testing-library/dom': testingLibraryDomVersion,
+        '@testing-library/jest-dom': testingLibraryJestDomVersion,
+        '@testing-library/react': testingLibraryReactVersion
+      },
+      name: expect.any(String)
     });
   });
 
@@ -47,7 +63,7 @@ describe('init', () => {
     };
     addDependenciesToPackageJson(tree, dependencies, devDependencies);
 
-    await initGenerator(tree, {});
+    await initGenerator(tree, options);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(packageJson.dependencies[existing]).toBeDefined();

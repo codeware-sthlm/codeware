@@ -1,5 +1,11 @@
 {
   "generators": {
+    "update-2-0-0-delete-env-serve": {
+      "cli": "nx",
+      "version": "2.0.0",
+      "description": "Remove '.env.serve' file from payload projects",
+      "implementation": "./src/migrations/update-2.0.0/delete-env-serve"
+    },
     "update-0-11-2-delete-env-payload": {
       "cli": "nx",
       "version": "0.11.2",

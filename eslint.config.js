@@ -27,6 +27,10 @@ module.exports = [
               onlyDependOnLibsWithTags: ['type:util']
             },
             {
+              sourceTag: 'scope:packages',
+              onlyDependOnLibsWithTags: ['scope:packages']
+            },
+            {
               sourceTag: 'scope:cms',
               onlyDependOnLibsWithTags: [
                 'scope:app-cms',

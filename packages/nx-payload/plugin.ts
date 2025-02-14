@@ -1,2 +1,2 @@
-export type { PayloadPluginOptions } from './src/plugins/utils/types';
-export { createNodes, createDependencies } from './src/plugins/plugin';
+export type { PayloadPluginOptions } from './src/plugins/utils/normalize-plugin-options';
+export { createNodesV2 } from './src/plugins/plugin';

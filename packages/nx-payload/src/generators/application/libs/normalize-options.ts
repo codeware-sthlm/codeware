@@ -1,5 +1,6 @@
-import { names } from '@nx/devkit';
+import { Tree, names, readNxJson } from '@nx/devkit';
 
+import { isPluginInferenceEnabled } from '../../../utils/is-plugin-inference-enabled';
 import type { AppGeneratorSchema } from '../schema';
 
 export type NormalizedSchema = AppGeneratorSchema &
@@ -7,34 +8,46 @@ export type NormalizedSchema = AppGeneratorSchema &
   Required<
     Pick<
       AppGeneratorSchema,
-      | 'bundler'
+      | 'appDir'
       | 'database'
-      | 'docker'
       | 'e2eTestRunner'
-      | 'framework'
       | 'linter'
       | 'skipFormat'
+      | 'src'
+      | 'style'
+      | 'swc'
       | 'tags'
       | 'unitTestRunner'
     >
   >;
 
 export function normalizeOptions(
+  host: Tree,
   options: AppGeneratorSchema
 ): NormalizedSchema {
+  const nxJson = readNxJson(host);
+
   return {
     // Required
     name: names(options.name).fileName,
     directory: options.directory,
-    // Opinionated
-    bundler: options.bundler || 'esbuild',
+
+    // Required defaults (by design) for this plugin,
+    // but the user is free to override them when needed
+    appDir: options.appDir ?? true,
+    src: options.src ?? true,
+
+    // Opinionated defaults
     database: options.database || 'mongodb',
-    docker: false,
     e2eTestRunner: options.e2eTestRunner || 'none',
-    framework: options.framework || 'none',
     linter: options.linter || 'eslint',
-    skipFormat: options.skipFormat || false,
+    skipFormat: options.skipFormat ?? false,
+    style: options.style || 'css',
+    swc: options.swc ?? true,
     tags: options.tags || '',
-    unitTestRunner: options.unitTestRunner || 'jest'
+    unitTestRunner: options.unitTestRunner || 'jest',
+
+    // Internal options
+    addPlugin: options.addPlugin ?? isPluginInferenceEnabled(nxJson)
   };
 }

@@ -1,6 +1,6 @@
 import { constants } from 'fs';
 import { access } from 'fs/promises';
-import { dirname, join, parse, resolve } from 'path';
+import { posix } from 'path';
 import { cwd } from 'process';
 
 /**
@@ -8,19 +8,34 @@ import { cwd } from 'process';
  *
  * Similar to `find-up` but uses `fs` to check for the file.
  *
+ * All paths are treated as POSIX paths for cross-platform compatibility.
+ *
  * @param filename - Name of the file to find
- * @param startDir - Directory to start searching from (defaults to current working directory)
- * @returns Full path to the file or `null` if not found
+ * @param options - Search options
+ * @returns Path to the file or `null` if not found
  */
 export async function findUpFs(
   filename: string,
-  startDir: string = cwd()
+  options: {
+    /**
+     * The path to start searching from.
+     * Defaults to current working directory.
+     */
+    startPath?: string;
+    /**
+     * The path to stop searching for the file.
+     * Defaults to file system root.
+     */
+    stopAtPath?: string;
+  } = {}
 ): Promise<string | null> {
-  let currentDir = resolve(startDir);
-  const root = parse(currentDir).root;
+  let currentDir = posix.resolve(options.startPath ?? cwd());
+  const root = options.stopAtPath
+    ? options.stopAtPath
+    : posix.parse(currentDir).root;
 
   while (true) {
-    const filePath = join(currentDir, filename);
+    const filePath = posix.join(currentDir, filename);
 
     try {
       // Check if file exists and is accessible
@@ -29,12 +44,12 @@ export async function findUpFs(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       // If we've reached the root directory and haven't found the file
-      if (currentDir === root) {
+      if (posix.relative(root, currentDir) === '') {
         return null;
       }
 
       // Move up to parent directory
-      const parentDir = dirname(currentDir);
+      const parentDir = posix.dirname(currentDir);
 
       // If we can't go up any further
       if (parentDir === currentDir) {

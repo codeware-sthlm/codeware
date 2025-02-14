@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`preset generator should generate project config without payload targets 1`] = `
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test-app",
+  "projectType": "application",
+  "root": "app-dir/test-app",
+  "sourceRoot": "app-dir/test-app",
+  "tags": [],
+}
+`;

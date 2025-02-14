@@ -123,7 +123,7 @@ Seed data is stored in environment-specific TypeScript files in
 
 - `libs/shared/util/seed/src/lib/static-data`.
 
-You can remove the existing seed data and save the empty object to the file to generate new seed data.
+You can remove the existing seed data and keep just an empty object to force the generation of new seed data.
 
 ```sh
 nx seed cms
@@ -132,7 +132,7 @@ nx seed cms
 ### Terminal 2: Start web client
 
 > [!NOTE]
-> Live-reload is not fully operational yet.
+> Live-reload is not fully operational.
 
 ```sh
 nx start web
@@ -223,7 +223,9 @@ INFISICAL_SERVICE_TOKEN=
 
 The [Fly.io](https://fly.io) platform is used to host the deployed applications and the required services.
 
-Deployments are done automatically by the [nx-fly-deployment-action](packages/nx-fly-deployment-action) GitHub action, but it's still convenient to have the Fly CLI installed locally.
+Deployments are automatic on push events, detected by the [nx-fly-deployment-action](packages/nx-fly-deployment-action).
+
+Still it's highly recommended to have the Fly CLI installed locally.
 
 1. [Install Fly CLI](https://github.com/superfly/flyctl?tab=readme-ov-file#installation)
 
@@ -242,16 +244,28 @@ Deployments are done automatically by the [nx-fly-deployment-action](packages/nx
 #### Database setup for preview deployments <!-- omit in toc -->
 
 Applications affected by a pull request are deployed to a temporary preview environment.
-To handle the dynamic nature of preview deployments, a Fly Postgres cluster is used to store the temporary databases.
+To handle the dynamic nature of preview deployments, a Fly Postgres cluster `pg-preview` is used to store the temporary databases.
 
-For deployments to preview the applications will be attached to the Postgres cluster, and detached when the pull request is closed.
+Applications deployed to preview will be automatically attached to the Postgres cluster, and detached when the pull request is closed.
 
 > [!NOTE]
-> Commands are for reference and knowledge only!
+> Some commands for reference and knowledge:
 >
 > ```sh
 > # Create a Postgres development cluster
-> fly postgres create --name pg-preview --org codeware --region arn --vm-size shared-cpu-1x --volume-size 1 --initial-cluster-size 1
+> fly pg create --name pg-preview --org codeware --region arn --vm-size shared-cpu-1x --volume-size 1 --initial-cluster-size 2
+>
+> # Detach application from the Postgres cluster
+> fly pg detach pg-preview -a cdwr_cms_pr_{pr-number}
+>
+> # Delete application
+> fly apps destroy cdwr_cms_pr_{pr-number}
+>
+> # List all Postgres databases
+> fly pg db list -a pg-preview
+>
+> # Cleanup dangling database and user
+> sh scripts/cleanup-db.sh cdwr_cms_pr_{pr-number} {cluster-password}
 > ```
 
 ##### Connect to the database on local machine <!-- omit in toc -->
@@ -276,5 +290,5 @@ The release process is semi-automatic which means:
 Simply run the following command to start the release process:
 
 ```sh
-[pnpm dlx] nx release-cli
+nx release-cli
 ```

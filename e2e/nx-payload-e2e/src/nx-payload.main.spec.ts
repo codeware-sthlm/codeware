@@ -1,317 +1,118 @@
-import {
-  logDebug,
-  logInfo,
-  logWarning,
-  runCommand
-} from '@codeware/core/utils';
+import { runCommand } from '@codeware/core/utils';
 import {
   type CreateNxWorkspaceProject,
   ensureCreateNxWorkspaceProject,
+  ensureLockFileIsDetected,
   getFolderFiles,
   removeFolderFiles
 } from '@codeware/e2e/utils';
 import type { NxJsonConfiguration, ProjectConfiguration } from '@nx/devkit';
 import {
   checkFilesExist,
-  readFile,
   readJson,
   runCommandAsync,
   runNxCommand,
-  tmpProjPath,
-  uniq,
   updateFile
 } from '@nx/plugin/testing';
 
-describe('Main plugin targets no docker', () => {
-  /** Default inference project to test targets */
+/**
+ * This test suite use Nx default behavior to add plugins to nx.json
+ * and infer targets to projects.
+ */
+
+describe('Test plugin by creating workspace with preset (extended test suite)', () => {
+  /** Default workspace project */
   let project: CreateNxWorkspaceProject;
-  let originalEnv: string;
 
   jest.setTimeout(300_000);
 
-  const resetInference = () => {
-    delete process.env['NX_ADD_PLUGINS'];
-
-    try {
-      updateFile('nx.json', (content) => {
-        const nxJson = JSON.parse(content);
-        delete nxJson['useInferencePlugins'];
-        return JSON.stringify(nxJson);
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      /* empty */
-    }
-  };
-
-  const optOutInference = (
-    option: 'envVariable' | 'nxConfig'
-  ): string | undefined => {
-    switch (option) {
-      case 'envVariable':
-        process.env['NX_ADD_PLUGINS'] = 'false';
-        break;
-      case 'nxConfig':
-        try {
-          updateFile('nx.json', (content) => {
-            const nxJson = JSON.parse(content);
-            nxJson['useInferencePlugins'] = false;
-            return JSON.stringify(nxJson);
-          });
-        } catch (error) {
-          return error;
-        }
-    }
-  };
-
-  /**
-   * Get the dist folder for a given build output and app.
-   *
-   * This helper function is used due to compiling esbuild with platform node.
-   * Nx generates the workspace structure in the normal app dist folder, for example:
-   *
-   * - `dist/apps/my-app/apps/my-app/...`
-   * - `dist/apps/my-app/libs/my-lib/...`
-   * - etc.
-   *
-   * @param target - Get dist path for Payload, Node app or just the root
-   * @param app - The app that was built
-   * @returns The resolved dist folder
-   */
-  const dist = (target: 'payload' | 'server' | 'root', app: string) => {
-    const targetFolder =
-      target === 'payload' ? 'build' : target === 'server' ? 'server' : '';
-    return `dist/apps/${app}${targetFolder ? `/${targetFolder}` : ''}`;
-  };
-
   beforeAll(async () => {
-    // Disable DB connection for all tests since we don't have one
-    process.env.DISABLE_DB_CONNECT = 'true';
-    originalEnv = process.env.NX_ADD_PLUGINS;
-
-    resetInference();
     project = await ensureCreateNxWorkspaceProject({
       preset: '@cdwr/nx-payload'
     });
+    ensureLockFileIsDetected(project.packageManager);
   });
 
   afterAll(() => {
-    process.env.DISABLE_DB_CONNECT = 'false';
-    process.env.NX_ADD_PLUGINS = originalEnv;
     runNxCommand('reset', { silenceError: true });
   });
 
-  describe('initial workspace project', () => {
-    describe('verify preset', () => {
-      it('should have installed nx-payload plugin', async () => {
-        await runCommandAsync('npm ls @cdwr/nx-payload');
-      });
-
-      it('should have applied app name and directory', () => {
-        expect(readJson(`${project.appDirectory}/project.json`).name).toBe(
-          project.appName
-        );
-      });
+  describe('verify setup', () => {
+    it('should have installed @cdwr/nx-payload', async () => {
+      await runCommandAsync('npm ls @cdwr/nx-payload');
     });
 
-    describe('verify inference', () => {
-      it('should add plugin to nx config with default target names', () => {
-        const nxJson = readJson<NxJsonConfiguration>('nx.json');
-        const plugin = nxJson.plugins.find(
-          (p) => typeof p === 'object' && p.plugin === '@cdwr/nx-payload/plugin'
-        );
-        expect(plugin).toMatchObject({
+    it('should have created an initial payload application', () => {
+      expect(readJson(`${project.appDirectory}/project.json`).name).toBe(
+        project.appName
+      );
+
+      expect(() =>
+        checkFilesExist(`${project.appDirectory}/src/payload.config.ts`)
+      ).not.toThrow();
+    });
+
+    it('should not have any project targets', () => {
+      const projectJson = readJson<ProjectConfiguration>(
+        `${project.appDirectory}/project.json`
+      );
+      expect(projectJson.targets ?? {}).toEqual({});
+    });
+
+    it('should have added nx-payload and related plugins to nx.json', () => {
+      const nxJson = readJson<NxJsonConfiguration>('nx.json');
+
+      expect(nxJson.plugins).toEqual([
+        {
           plugin: '@cdwr/nx-payload/plugin',
           options: {
-            buildTargetName: 'build',
-            serveTargetName: 'serve',
             generateTargetName: 'gen',
             payloadTargetName: 'payload',
-            dxDockerBuildTargetName: 'dx:docker-build',
-            dxDockerRunTargetName: 'dx:docker-run',
+            payloadGraphqlTargetName: 'payload-graphql',
             dxMongodbTargetName: 'dx:mongodb',
             dxPostgresTargetName: 'dx:postgres',
             dxStartTargetName: 'dx:start',
             dxStopTargetName: 'dx:stop'
           }
-        });
-      });
-    });
-
-    describe('verify targets and outputs on initial app', () => {
-      // Save generated payload config before all tests, to be restored after each test
-      // since we might patch the config in some tests
-      let generatedPayloadConfig: string;
-
-      const graphQLDisableFalse =
-        /graphQL:\s*{([^}]*?)disable:\s*false([^}]*?)}/;
-
-      beforeAll(() => {
-        generatedPayloadConfig = readFile(
-          `${project.appDirectory}/src/payload.config.ts`
-        );
-      });
-
-      beforeEach(() => {
-        removeFolderFiles(`${project.appDirectory}/src/generated`);
-      });
-
-      afterEach(() => {
-        updateFile(
-          `${project.appDirectory}/src/payload.config.ts`,
-          generatedPayloadConfig
-        );
-      });
-
-      it('should build application and verify generated files', () => {
-        const result = runNxCommand(`build ${project.appName}`);
-        expect(result).toContain('Successfully ran target build');
-
-        // No types or schemas should be generated in app source folder
-        expect(
-          getFolderFiles(`${project.appDirectory}/src/generated`)
-        ).toHaveLength(0);
-
-        // package.json should be generated in dist root
-        expect(() =>
-          checkFilesExist(dist('root', project.appName) + '/package.json')
-        ).not.toThrow();
-
-        // Node app should be built to dist server folder
-        const serverDist = dist('server', project.appName);
-        expect(() =>
-          checkFilesExist(
-            `${serverDist}/${project.appDirectory}/src/main.js`,
-            `${serverDist}/${project.appDirectory}/src/payload.config.js`,
-            `${serverDist}/${project.appDirectory}/src/collections`
-          )
-        ).not.toThrow();
-
-        // Payload admin should be built to dist build folder
-        expect(() =>
-          checkFilesExist(`${dist('payload', project.appName)}/index.html`)
-        ).not.toThrow();
-      });
-
-      it('should test application', () => {
-        const result = runNxCommand(`test ${project.appName}`);
-        expect(result).toContain('Successfully ran target test');
-      });
-
-      it('should lint application', () => {
-        const result = runNxCommand(`lint ${project.appName}`);
-        expect(result).toContain('Successfully ran target lint');
-      });
-
-      it('should serve application', async () => {
-        const output = await runCommand(`nx serve ${project.appName}`, {
-          cwd: tmpProjPath(),
-          doneFn: (log) => log.includes('[ started ]'),
-          errorDetector: /Error:/,
-          verbose: process.env.NX_VERBOSE_LOGGING === 'true'
-        });
-
-        expect(
-          output.includes('Payload application built successfully')
-        ).toBeTruthy();
-        expect(output.includes(`[ started ] on port 3000 (test)`)).toBeTruthy();
-      });
-
-      it('should generate types and graphql schema', () => {
-        // Verify disable is false before the test
-        expect(
-          readFile(`${project.appDirectory}/src/payload.config.ts`)
-        ).toMatch(graphQLDisableFalse);
-
-        const result = runNxCommand(`gen ${project.appName}`);
-        expect(result).toContain('Successfully ran target gen');
-
-        expect(() =>
-          checkFilesExist(
-            `${project.appDirectory}/src/generated/payload-types.ts`,
-            `${project.appDirectory}/src/generated/schema.graphql`
-          )
-        ).not.toThrow();
-      });
-
-      it('should only generate types when graphql is disabled in payload config', () => {
-        updateFile(
-          `${project.appDirectory}/src/payload.config.ts`,
-          (content) => {
-            // Check whether a falsy disable property exists and set it to true
-            if (content.match(graphQLDisableFalse)) {
-              return content.replace(
-                graphQLDisableFalse,
-                'graphQL: {$1disable: true$2}'
-              );
-            }
-            // Otherwise add it to the graphQL object
-            return content.replace(
-              /graphQL:\s*{([^}]*)}/,
-              'graphQL: {disable: true, $1}'
-            );
-          }
-        );
-
-        // Just verify we start with correct state
-        // - disable is true
-        // - without any generated files
-        expect(
-          readFile(`${project.appDirectory}/src/payload.config.ts`)
-        ).not.toMatch(graphQLDisableFalse);
-        expect(
-          getFolderFiles(`${project.appDirectory}/src/generated`)
-        ).toHaveLength(0);
-
-        logDebug(
-          `Project graph for '${project.appName}'`,
-          runNxCommand(`show project ${project.appName} --json`)
-        );
-
-        const result = runNxCommand(`gen ${project.appName}`);
-        expect(result).toContain('Successfully ran target gen');
-
-        expect(getFolderFiles(`${project.appDirectory}/src/generated`)).toEqual(
-          ['payload-types.ts']
-        );
-      });
-
-      it('should invoke payload cli', () => {
-        const result = runNxCommand(`payload ${project.appName}`);
-        expect(result).toContain('Successfully ran target payload');
-      });
+        },
+        {
+          plugin: '@nx/next/plugin',
+          options: expect.any(Object)
+        },
+        {
+          plugin: '@nx/jest/plugin',
+          options: expect.any(Object)
+        },
+        {
+          plugin: '@nx/eslint/plugin',
+          options: expect.any(Object)
+        }
+      ]);
     });
   });
 
-  describe('verify usage of library in initial app', () => {
-    beforeAll(async () => {
-      // Install a simple core library to test using libraries in the application
-      runNxCommand(
-        `g @nx/node:lib core --directory=libs/core --compiler=swc --unitTestRunner=none --importPath=@${project.projectName}/core`
-      );
-
-      // Replace library content with a known function to prevent regression
-      updateFile('libs/core/src/lib/core.ts', () => {
-        return `export function consoleLog(message: string) {
-  console.log(message);
-}`;
-      });
-
-      // Add library import to main.ts and make sure it's used run-time
-      updateFile(`${project.appDirectory}/src/main.ts`, (content) => {
-        return `import { consoleLog } from "@${project.projectName}/core";
-${content}
-consoleLog('Hello from core');`;
-      });
-      // and fix formatting
-      await runCommand(
-        `npx prettier --write ${project.appDirectory}/src/main.ts`
-      );
-    });
-
+  describe('run targets and verify outputs', () => {
     it('should build application', () => {
       const result = runNxCommand(`build ${project.appName}`);
       expect(result).toContain('Successfully ran target build');
+
+      // No types or schemas should be generated in app source folder
+      expect(
+        getFolderFiles(`${project.appDirectory}/src/generated`)
+      ).toHaveLength(0);
+
+      // Expect a standalone NextJS build
+      const standaloneDir = `${project.appDirectory}/.next/standalone`;
+      const staticDir = `${project.appDirectory}/.next/static`;
+
+      expect(() =>
+        checkFilesExist(
+          `${standaloneDir}/package.json`,
+          `${standaloneDir}/node_modules`,
+          `${standaloneDir}/${project.appDirectory}/server.js`,
+          staticDir
+        )
+      ).not.toThrow();
     });
 
     it('should test application', () => {
@@ -324,186 +125,87 @@ consoleLog('Hello from core');`;
       expect(result).toContain('Successfully ran target lint');
     });
 
-    it('should serve application and detect run-time library usage', async () => {
-      const output = await runCommand(`nx serve ${project.appName}`, {
-        cwd: tmpProjPath(),
-        doneFn: (log) => log.includes('[ started ]'),
+    it('should serve application (dev target)', async () => {
+      await runCommand(`nx dev ${project.appName}`, {
+        doneFn: (log) => /Ready in \d/.test(log),
         errorDetector: /Error:/,
         verbose: process.env.NX_VERBOSE_LOGGING === 'true'
       });
-      expect(output.includes('Hello from core')).toBeTruthy();
+    });
+
+    it('should generate types', () => {
+      expect(
+        getFolderFiles(`${project.appDirectory}/src/generated`)
+      ).toHaveLength(0);
+
+      const result = runNxCommand(`gen ${project.appName}`);
+      expect(result).toContain('Successfully ran target gen');
+
+      // Only types should be generated
+      expect(getFolderFiles(`${project.appDirectory}/src/generated`)).toEqual([
+        'payload-types.ts'
+      ]);
+    });
+
+    it('should invoke payload cli', () => {
+      const result = runNxCommand(`payload ${project.appName} info`);
+      expect(result).toContain('Operating System:');
+      expect(result).toContain('Successfully ran target payload');
     });
   });
 
-  // Generate applications with and without inference
-  const testMatrix: Array<{
-    name: string;
-    optOut?: { by: 'envVariable' | 'nxConfig'; apply: 'single' | 'double' };
-    projectTargets: Array<string>;
-    resolvedTargets?: Array<string>;
-  }> = [
-    {
-      name: 'using inference',
-      projectTargets: ['lint', 'test'],
-      resolvedTargets: [
-        'build',
-        'gen',
-        'lint',
-        'payload',
-        'serve',
-        'test',
-        'dx:docker-build',
-        'dx:docker-run',
-        'dx:mongodb',
-        'dx:postgres',
-        'dx:start',
-        'dx:stop'
-      ]
-    },
-    {
-      name: 'opt out via env',
-      optOut: { by: 'envVariable', apply: 'single' },
-      projectTargets: ['build', 'lint', 'payload', 'serve', 'test']
-    },
-    {
-      name: 'opt out via nx config only',
-      optOut: { by: 'nxConfig', apply: 'single' },
-      projectTargets: ['build', 'lint', 'payload', 'serve', 'test']
-    },
-    {
-      name: 'opt out via nx config overrides env',
-      optOut: { by: 'nxConfig', apply: 'double' },
-      projectTargets: ['build', 'lint', 'payload', 'serve', 'test']
-    }
-  ];
-
-  testMatrix.forEach(({ name, optOut, projectTargets, resolvedTargets }) => {
-    describe(`generate app - ${name}`, () => {
-      const appName = uniq('app');
-      const appDirectory = `apps/${appName}`;
-      resolvedTargets = resolvedTargets ?? projectTargets;
-
-      beforeAll(() => {
-        resetInference();
-        let outOutError: string | undefined;
-        if (optOut) {
-          if (optOut.apply === 'single') {
-            outOutError = optOutInference(optOut.by);
-          } else {
-            if (optOut.by === 'nxConfig') {
-              // This should be overrided by nx.json setting
-              process.env['NX_ADD_PLUGINS'] = 'true';
-            } else if (optOut.by === 'envVariable') {
-              logInfo(
-                `Test case opt out by '${optOut.by}' has no effect for '${optOut.apply}'`
-              );
-            }
-            outOutError = optOutInference(optOut.by);
-          }
-        }
-
-        if (outOutError) {
-          logWarning(
-            `Something broke when opting out by ${optOut?.by} for ${optOut?.apply}`,
-            outOutError
-          );
-          if (process.env.NX_DAEMON) {
-            logInfo('Reset the daemon and try again');
-            runNxCommand('reset');
-            optOutInference(optOut.by);
-          }
-        }
-
-        runNxCommand(
-          `g @cdwr/nx-payload:app ${appName} --directory ${appDirectory}`
-        );
-      });
-
-      it('should have inference flags set properly', () => {
-        const nxJson = readJson<NxJsonConfiguration>('nx.json');
-
-        switch (`${optOut?.by}-${optOut?.apply}`) {
-          case 'envVariable-single':
-            expect(nxJson.useInferencePlugins).toBeUndefined();
-            expect(process.env.NX_ADD_PLUGINS).toBe('false');
-            break;
-          case 'nxConfig-single':
-            expect(nxJson.useInferencePlugins).toBe(false);
-            expect(process.env.NX_ADD_PLUGINS).toBeUndefined();
-            break;
-          case 'nxConfig-double':
-            expect(nxJson.useInferencePlugins).toBe(false);
-            expect(process.env.NX_ADD_PLUGINS).toBe('true');
-            break;
-          default:
-            expect(nxJson.useInferencePlugins).toBeUndefined();
-            expect(process.env.NX_ADD_PLUGINS).toBeUndefined();
-        }
-      });
-
-      it('should have targets in project.json', () => {
-        const projectJson = readJson<ProjectConfiguration>(
-          `${project.appDirectory}/project.json`
-        );
-        expect(Object.keys(projectJson.targets).sort).toEqual(
-          projectTargets.sort
-        );
-      });
-
-      it('should resolve project targets', () => {
-        const projectConfig: ProjectConfiguration = JSON.parse(
-          runNxCommand(`show project ${project.appName} --json`)
-        );
-        expect(Object.keys(projectConfig.targets).sort).toEqual(
-          resolvedTargets.sort
-        );
-      });
-
-      it('should have application project and main file', () => {
-        expect(() =>
-          checkFilesExist(
-            `${appDirectory}/project.json`,
-            `${appDirectory}/src/main.ts`
-          )
-        ).not.toThrow();
-      });
-
-      it('should not have e2e project', () => {
-        expect(() => checkFilesExist(`apps/${appName}-e2e`)).toThrow();
-      });
-    });
-  });
-
-  describe(`generate app with options`, () => {
+  describe('enable graphql', () => {
     beforeAll(() => {
-      resetInference();
+      removeFolderFiles(`${project.appDirectory}/src/generated`);
+      updateFile(`${project.appDirectory}/src/payload.config.ts`, (content) =>
+        content.replace(
+          /(graphQL:\s*{[^}]*?)disable:\s*true([^}]*?})/,
+          '$1disable: false$2'
+        )
+      );
     });
 
+    it('should generate types and graphql schema', () => {
+      expect(
+        getFolderFiles(`${project.appDirectory}/src/generated`)
+      ).toHaveLength(0);
+
+      const result = runNxCommand(`gen ${project.appName}`);
+      expect(result).toContain('Successfully ran target gen');
+
+      expect(getFolderFiles(`${project.appDirectory}/src/generated`)).toEqual([
+        'payload-types.ts',
+        'schema.graphql'
+      ]);
+    });
+  });
+
+  describe('generate applications with options', () => {
     it('should apply tags (--tags)', () => {
-      const appName = uniq('app');
+      const appName = 'app-tags-long';
       runNxCommand(
-        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} --tags e2etag,e2ePackage`
+        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} --tags scope:test,type:e2e`
       );
       expect(readJson(`apps/${appName}/project.json`).tags).toEqual([
-        'e2etag',
-        'e2ePackage'
+        'scope:test',
+        'type:e2e'
       ]);
     });
 
     it('should apply tags (alias -t)', () => {
-      const appName = uniq('app');
+      const appName = 'app-tags-alias';
       runNxCommand(
-        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} -t aliasTag`
+        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} -t tag:alias`
       );
       expect(readJson(`apps/${appName}/project.json`).tags).toEqual([
-        'aliasTag'
+        'tag:alias'
       ]);
     });
 
-    it('should generate e2e project', () => {
-      const appName = uniq('app');
+    it('should generate playwright e2e project', () => {
+      const appName = 'app-playwright';
       runNxCommand(
-        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} --e2eTestRunner jest`
+        `g @cdwr/nx-payload:app ${appName} --directory apps/${appName} --e2eTestRunner playwright`
       );
       expect(() =>
         checkFilesExist(`apps/${appName}-e2e/project.json`)

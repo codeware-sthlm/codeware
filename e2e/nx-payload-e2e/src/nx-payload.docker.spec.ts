@@ -1,5 +1,6 @@
 import { dockerBuild, logError } from '@codeware/core/utils';
 import {
+  type CreateNxWorkspaceProject,
   ensureCleanupDockerContainers,
   ensureCreateNxWorkspaceProject,
   ensureDockerConnectToLocalRegistry,
@@ -9,28 +10,36 @@ import {
 import { checkFilesExist, runNxCommand, tmpProjPath } from '@nx/plugin/testing';
 import { agent } from 'supertest';
 
-describe('Test Dockerfile and related targets', () => {
-  let appName: string;
+/**
+ * !! Important !!
+ *
+ * This test suite requires docker to be running.
+ */
+
+describe('Test docker targets', () => {
+  /** Default workspace project */
+  let project: CreateNxWorkspaceProject;
 
   jest.setTimeout(1000_000);
 
   beforeAll(async () => {
-    const project = await ensureCreateNxWorkspaceProject({
+    project = await ensureCreateNxWorkspaceProject({
       preset: '@cdwr/nx-payload'
     });
-    appName = project.appName;
 
-    ensureDockerConnectToLocalRegistry(appName);
+    ensureDockerConnectToLocalRegistry(project.appName);
     await ensureCleanupDockerContainers();
   });
 
   afterAll(async () => {
-    await resetDocker(appName);
+    await resetDocker(project.appName);
     runNxCommand('reset', { silenceError: true });
   });
 
   it('should hava a Dockerfile', async () => {
-    expect(() => checkFilesExist(`apps/${appName}/Dockerfile`)).not.toThrow();
+    expect(() =>
+      checkFilesExist(`${project.appDirectory}/Dockerfile`)
+    ).not.toThrow();
   });
 
   it('should build image with node', async () => {
@@ -39,8 +48,8 @@ describe('Test Dockerfile and related targets', () => {
       await dockerBuild(
         {
           context: tmpProjPath(),
-          dockerfile: `apps/${appName}/Dockerfile`,
-          name: appName,
+          dockerfile: `${project.appDirectory}/Dockerfile`,
+          name: project.appName,
           tag: 'e2e'
         },
         true
@@ -53,27 +62,28 @@ describe('Test Dockerfile and related targets', () => {
     expect(error).toBeNull();
   });
 
-  it(`should build image with 'dx:docker-build' target`, () => {
-    const result = runNxCommand('dx:docker-build');
-    expect(result).toContain('Successfully ran target dx:docker-build');
-  });
-
-  it('should start application and navigate to first page', async () => {
-    const startLog = runNxCommand('dx:start');
+  it('should start application and detect admin page', async () => {
+    const startLog = runNxCommand(`dx:start ${project.appName}`);
     expect(startLog).toContain('Successfully ran target dx:start');
 
     await waitForDockerLogMatch({
-      containerName: appName,
-      matchString: 'Using DB adapter',
+      containerName: project.appName,
+      match: /Ready in \d/,
       timeoutSeconds: 10
     });
 
-    const startResponse = await agent('http://localhost:3000').get('/');
-    expect(startResponse.status).toBe(302);
-    expect(startResponse.headers['location']).toBe('/admin');
+    // Detect start page status OK
+    const startPage = await agent('http://localhost:3000').get('/');
+    expect(startPage.status).toBe(200);
+
+    // Detect admin page status OK after redirect to create admin user form
+    const adminPage = await agent('http://localhost:3000')
+      .get('/admin')
+      .redirects(1);
+    expect(adminPage.status).toBe(200);
 
     // Shut down
-    const stopLog = runNxCommand('dx:stop');
+    const stopLog = runNxCommand(`dx:stop ${project.appName}`);
     expect(stopLog).toContain('Successfully ran target dx:stop');
 
     let stopCode: string;

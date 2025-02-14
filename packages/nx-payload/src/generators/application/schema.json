@@ -1,5 +1,5 @@
 {
-  "title": "Generate a Payload admin application",
+  "title": "Generate a Payload NextJS application",
   "type": "object",
   "properties": {
     "name": {
@@ -25,7 +25,7 @@
     },
     "e2eTestRunner": {
       "type": "string",
-      "enum": ["jest", "none"],
+      "enum": ["playwright", "none"],
       "description": "Test runner to use for e2e tests.",
       "default": "none"
     },

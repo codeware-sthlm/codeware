@@ -7,6 +7,15 @@ WORKDIR /app
 # Copy package.json first to leverage Docker cache for dependencies
 COPY package.json ./
 
+# TODO: Remove once cms is updated to Payload v3
+# Downgrade to React v18 to be compatible with Payload v2
+RUN \
+  sed -i 's/react": "19.0.0",/react": "18.3.1",/g' package.json && \
+  sed -i 's/react-dom": "19.0.0",/react-dom": "18.3.1",/g' package.json && \
+  sed -i 's/react-router-dom": "6.11.2",/react-router-dom": "5.3.4",/g' package.json && \
+  sed -i 's/@types\/react": "19.0.0",/@types\/react": "18.3.12",/g' package.json && \
+  sed -i 's/@types\/react-dom": "19.0.0",/@types\/react-dom": "18.3.1",/g' package.json
+
 RUN npm install
 
 COPY . .

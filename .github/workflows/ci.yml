@@ -20,8 +20,6 @@ permissions:
 # Environment details:
 # - renovate branches should never use Nx Cloud
 env:
-  CDWR_E2E_PACKAGE_MANAGER: npm
-  CDWR_E2E_VERDACCIO_HOST: localhost
   CDWR_DEBUG_LOGGING: true
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
   NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') || vars.NX_NO_CLOUD }}
@@ -48,9 +46,6 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - run: pnpm dlx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
-        if: ${{ env.NX_NO_CLOUD != 'true' }}
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -61,15 +56,11 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - run: pnpm nx-cloud record -- nx format:check
-        if: ${{ env.NX_NO_CLOUD != 'true' }}
 
-      - run: pnpm nx affected -t lint,test,build,e2e-ci -c ci
-        if: ${{ env.NX_NO_CLOUD != 'true' }}
+      - run: pnpm nx affected -t lint,test,build -c ci
 
-      # nx-payload-e2e hasn't been setup for ci distribution yet
-      # and only runs in e2e-matrix workflow
-      - run: pnpm nx affected -t lint,test,build,e2e -c ci --exclude nx-payload-e2e
-        if: ${{ env.NX_NO_CLOUD == 'true' }}
+      # nx-payload-e2e only runs in e2e-matrix workflow
+      - run: pnpm nx affected -t e2e -c ci --exclude nx-payload-e2e
 
       - uses: codecov/codecov-action@v5
         with:

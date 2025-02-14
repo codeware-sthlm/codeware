@@ -1,13 +1,21 @@
-import { execFile } from 'child_process';
-import { promisify } from 'util';
-
 import { logDebug } from './log-utils';
-
-const execAsync = promisify(execFile);
+import { execFile } from './promisified-exec';
 
 type NpmList = {
   dependencies?: Record<string, { version: string }>;
 };
+
+/**
+ * Get the npm executable for the current platform
+ *
+ * @returns 'npm' or 'npm.cmd'
+ */
+function getNpmExecutable(): string {
+  if (process.platform === 'win32') {
+    return process.env['npm_execpath'] || 'npm.cmd';
+  }
+  return 'npm';
+}
 
 /**
  * Get version of a local installed package
@@ -19,7 +27,7 @@ export async function getPackageVersion(packageName: string): Promise<string> {
   let version: string | undefined;
 
   try {
-    const { stdout } = await execAsync('npm', [
+    const { stdout } = await execFile(getNpmExecutable(), [
       'list',
       packageName,
       '--depth=0',

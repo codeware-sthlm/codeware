@@ -29,7 +29,7 @@
       "outputs": ["{options.outputPath}/server.js"],
       "options": {
         "outputPath": "{workspaceRoot}/apps/web",
-        "configFile": "apps/web/vite.server.config.ts",
+        "configFile": "apps/web/vite.server.config.mts",
         "generatePackageJson": false,
         "postcssConfig": "apps/web/postcss.config.cjs",
         "watch": false

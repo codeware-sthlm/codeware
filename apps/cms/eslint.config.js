@@ -4,14 +4,14 @@ module.exports = [
   ...baseConfig,
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    rules: {},
+    rules: {}
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
-    rules: {},
+    rules: {}
   },
   {
     files: ['**/*.js', '**/*.jsx'],
-    rules: {},
-  },
+    rules: {}
+  }
 ];

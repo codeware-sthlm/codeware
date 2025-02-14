@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { forwardRef } from 'react';
 
 export const ContainerOuter = forwardRef<
-  React.ElementRef<'div'>,
+  React.ComponentRef<'div'>,
   React.ComponentPropsWithoutRef<'div'>
 >(function OuterContainer({ className, children, ...props }, ref) {
   return (
@@ -13,7 +13,7 @@ export const ContainerOuter = forwardRef<
 });
 
 export const ContainerInner = forwardRef<
-  React.ElementRef<'div'>,
+  React.ComponentRef<'div'>,
   React.ComponentPropsWithoutRef<'div'>
 >(function InnerContainer({ className, children, ...props }, ref) {
   return (
@@ -28,7 +28,7 @@ export const ContainerInner = forwardRef<
 });
 
 export const Container = forwardRef<
-  React.ElementRef<typeof ContainerOuter>,
+  React.ComponentRef<typeof ContainerOuter>,
   React.ComponentPropsWithoutRef<typeof ContainerOuter>
 >(function Container({ children, ...props }, ref) {
   return (

@@ -1,7 +1,5 @@
 import type { Page } from '@codeware/shared/util/payload-types';
 
-import env from '../../env-resolver/env';
-
 import {
   type AppLoadContext,
   PAYLOAD_API_URL,

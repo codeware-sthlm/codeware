@@ -1,17 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`application generator should create Dockerfile for npm package manager 1`] = `
-"
-FROM node:22-alpine as base
+exports[`application generator should generate docker files 1`] = `
+"FROM node:20-alpine AS base
 
-FROM base as builder
-
+FROM base AS deps
+# Check the link to understand why libc6-compat might be needed
+# https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json ./
 
-RUN npm install
+# Check the link regarding legacy-peer-deps
+# https://payloadcms.com/docs/getting-started/installation#1-install-the-relevant-packages
+RUN npm i --legacy-peer-deps
 
+# Copy the dependencies to builder stage.
+# Lock file is important for Nx to calculate a correct project graph.
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules      ./node_modules
+COPY --from=deps /app/package-lock.json ./package-lock.json
 COPY . .
 
 # Fix for pnpm workspaces (remove it when not applicable):
@@ -19,184 +28,122 @@ COPY . .
 # Since package-lock.json is needed when building the app, we'll remove it from .gitignore.
 RUN sed -i '/package-lock.json/d' .gitignore
 
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Comment the following line in case you want to enable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
+
 RUN npx nx build test-app
 
-FROM base as runtime
-
-ENV NODE_ENV production
-ENV PAYLOAD_CONFIG_PATH="dist/server/apps/test-dir/src/payload.config.js"
-
+# Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
 
-COPY --from=builder /app/dist/apps/test-dir/package.json ./
+ENV NODE_ENV production
+# Disable telemetry during runtime.
+ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN npm install --omit=dev
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/apps/test-dir/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/test-dir/.next/static     ./apps/test-dir/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/test-dir/public           ./apps/test-dir/public
 
-COPY --from=builder /app/dist/apps/test-dir ./dist
+# Set the correct ownership
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+RUN chown -R nextjs:nodejs /app
+
+USER nextjs
 
 EXPOSE 3000
-CMD ["node", "dist/server/main.js"]
+
+ENV PORT 3000
+
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "apps/test-dir/server.js"]
 "
 `;
 
-exports[`application generator should not setup plugin inference when 'useInferencePlugins' is 'false' 1`] = `
-{
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "test-app",
-  "projectType": "application",
-  "root": "apps/test-dir",
-  "sourceRoot": "apps/test-dir/src",
-  "tags": [],
-  "targets": {
-    "build": {
-      "cache": true,
-      "configurations": {
-        "development": {
-          "sourcemap": true,
-        },
-        "production": {},
-      },
-      "defaultConfiguration": "production",
-      "dependsOn": [
-        "^build",
-      ],
-      "executor": "@cdwr/nx-payload:build",
-      "metadata": {
-        "description": "Build the Payload admin application",
-        "technologies": [
-          "node",
-        ],
-      },
-      "options": {
-        "assets": [
-          "{projectRoot}/src/assets",
-        ],
-        "bundle": false,
-        "deleteOutputPath": true,
-        "esbuildOptions": {
-          "outExtension": {
-            ".js": ".js",
-          },
-          "outdir": "{workspaceRoot}/dist/{projectRoot}/server",
-        },
-        "format": [
-          "cjs",
-        ],
-        "generatePackageJson": true,
-        "main": "apps/test-dir/src/main.ts",
-        "outputFileName": "server/main.js",
-        "outputHashing": "none",
-        "outputPath": "dist/apps/test-dir",
-        "platform": "node",
-        "target": "esnext",
-        "tsConfig": "apps/test-dir/tsconfig.app.json",
-        "watch": false,
-      },
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-    },
-    "payload": {
-      "executor": "nx:run-commands",
-      "metadata": {
-        "description": "Run a native Payload command",
-        "technologies": [
-          "node",
-        ],
-      },
-      "options": {
-        "command": "npx payload",
-        "env": {
-          "PAYLOAD_CONFIG_PATH": "{projectRoot}/src/payload.config.ts",
-        },
-        "forwardAllArgs": true,
-      },
-    },
-    "serve": {
-      "cache": false,
-      "configurations": {
-        "development": {
-          "buildTarget": "test-app:build:development",
-        },
-        "production": {
-          "buildTarget": "test-app:build:production",
-        },
-      },
-      "defaultConfiguration": "development",
-      "executor": "@nx/js:node",
-      "metadata": {
-        "description": "Serve Payload admin application in development mode",
-        "technologies": [
-          "node",
-        ],
-      },
-      "options": {
-        "buildTarget": "test-app:build",
-        "runBuildTargetDependencies": true,
-      },
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "options": {
-        "jestConfig": "{projectRoot}/jest.config.ts",
-        "passWithNoTests": true,
-      },
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}",
-      ],
-    },
+exports[`application generator should generate payload config with mongodb adapter 1`] = `
+"import path from 'path';
+import { fileURLToPath } from 'url';
+
+import { mongooseAdapter } from '@payloadcms/db-mongodb';
+import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import { buildConfig } from 'payload';
+import sharp from 'sharp';
+
+import { Media } from './collections/Media';
+import { Users } from './collections/Users';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+export default buildConfig({
+  admin: {
+    user: Users.slug,
+    importMap: {
+      baseDir: path.resolve(dirname)
+    }
   },
-}
+  collections: [Users, Media],
+  editor: lexicalEditor(),
+  secret: process.env.PAYLOAD_SECRET || '',
+  db: mongooseAdapter({
+    url: process.env.DATABASE_URI || ''
+  }),
+  typescript: {
+    outputFile: path.resolve(dirname, 'generated', 'payload-types.ts'),
+  },
+  graphQL: {
+    disable: true,
+    schemaOutputFile: path.resolve(dirname, 'generated', 'schema.graphql'),
+  },
+  sharp
+});
+"
 `;
 
-exports[`application generator should setup plugin inference when 'useInferencePlugins' doesn't exist 1`] = `
-{
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "test-app",
-  "projectType": "application",
-  "root": "apps/test-dir",
-  "sourceRoot": "apps/test-dir/src",
-  "tags": [],
-  "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "options": {
-        "jestConfig": "{projectRoot}/jest.config.ts",
-        "passWithNoTests": true,
-      },
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}",
-      ],
-    },
-  },
-}
-`;
+exports[`application generator should generate payload config with postgres adapter 1`] = `
+"import path from 'path';
+import { fileURLToPath } from 'url';
 
-exports[`application generator should setup plugin inference when 'useInferencePlugins' is 'true' 1`] = `
-{
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "test-app",
-  "projectType": "application",
-  "root": "apps/test-dir",
-  "sourceRoot": "apps/test-dir/src",
-  "tags": [],
-  "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "options": {
-        "jestConfig": "{projectRoot}/jest.config.ts",
-        "passWithNoTests": true,
-      },
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}",
-      ],
-    },
+import { postgresAdapter } from '@payloadcms/db-postgres';
+import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import { buildConfig } from 'payload';
+import sharp from 'sharp';
+
+import { Media } from './collections/Media';
+import { Users } from './collections/Users';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+export default buildConfig({
+  admin: {
+    user: Users.slug,
+    importMap: {
+      baseDir: path.resolve(dirname)
+    }
   },
-}
+  collections: [Users, Media],
+  editor: lexicalEditor(),
+  secret: process.env.PAYLOAD_SECRET || '',
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URI || ''
+    },
+    prodMigrations: migrations
+  }),
+  typescript: {
+    outputFile: path.resolve(dirname, 'generated', 'payload-types.ts'),
+  },
+  graphQL: {
+    disable: true,
+    schemaOutputFile: path.resolve(dirname, 'generated', 'schema.graphql'),
+  },
+  sharp
+});
+"
 `;

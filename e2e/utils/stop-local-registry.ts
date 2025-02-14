@@ -12,12 +12,12 @@ export default () => {
     return;
   }
 
-  (global as any).stopLocalRegistry();
-  console.log('Killed local registry process');
-
-  // Extra cleanup when local registry config is left behind
-  const { execSync } = require('child_process');
   try {
+    (global as any).stopLocalRegistry();
+    console.log('Killed local registry process');
+
+    // Extra cleanup when local registry config is left behind
+    const { execSync } = require('child_process');
     // Get current npm config
     const npmConfig = execSync('npm config list').toString();
 
@@ -31,8 +31,6 @@ export default () => {
       console.log('Cleaned up localhost:4873 registry auth token');
     }
   } catch (error) {
-    console.warn('Failed to clean up local registry config:', error);
+    console.warn('Failed to stop and clean up local registry config:', error);
   }
-
-  process.exit(0);
 };

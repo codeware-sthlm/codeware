@@ -32,11 +32,6 @@ registry=http://${registry.host}:${registry.port}
 
   // `.npmrc` is normally not required in `Dockerfile`
   updateFile(`apps/${appName}/Dockerfile`, (content) =>
-    content
-      .replace(/(COPY package\.json) \.\//, '$1 .npmrc ./')
-      .replace(
-        /(COPY --from=builder.*package\.json.*\n)/,
-        '$1COPY --from=builder /app/.npmrc ./\n'
-      )
+    content.replace(/^(COPY package\.json.*) \.\/$/, '$1 .npmrc ./')
   );
 };

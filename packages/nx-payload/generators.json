@@ -1,25 +1,26 @@
 {
-  "extends": ["@nx/express"],
+  "name": "cdwr/nx-payload",
+  "extends": ["@nx/next"],
   "generators": {
-    "preset": {
-      "implementation": "./src/generators/preset/preset",
-      "schema": "./src/generators/preset/schema.json",
-      "description": "Generate a new Payload CMS workspace",
-      "hidden": true,
-      "x-use-standalone-layout": false
-    },
     "init": {
-      "implementation": "./src/generators/init/init",
+      "factory": "./src/generators/init/init#initGeneratorInternal",
       "schema": "./src/generators/init/schema.json",
-      "description": "Initialize Express and Payload dependencies",
+      "description": "Initialize the `@cdwr/nx-payload` plugin.",
       "hidden": true
     },
     "application": {
-      "implementation": "./src/generators/application/application",
+      "factory": "./src/generators/application/application#applicationGeneratorInternal",
       "schema": "./src/generators/application/schema.json",
-      "description": "Generate a new Payload application",
+      "description": "Create an application.",
       "aliases": ["app"],
       "x-type": "application"
+    },
+    "preset": {
+      "factory": "./src/generators/preset/preset#presetGenerator",
+      "schema": "./src/generators/preset/schema.json",
+      "description": "Create a workspace with an application.",
+      "hidden": true,
+      "x-use-standalone-layout": false
     }
   }
 }

@@ -58,3 +58,7 @@ vitest.config.*.timestamp*
 
 # No nested lockfiles
 apps/**/pnpm-lock.yaml
+
+# Next.js
+.next
+out

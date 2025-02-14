@@ -24,8 +24,9 @@ import { AppGeneratorSchema } from '../application/schema';
  *
  */
 export type PresetGeneratorSchema = Pick<
+  // Expose addPlugin and skipFormat for testing purposes
   AppGeneratorSchema,
-  'name' | 'skipFormat'
+  'name' | 'addPlugin' | 'skipFormat'
 > & {
   /** Application name */
   payloadAppName: string;

@@ -8,26 +8,27 @@ import { startLocalRegistry } from '@nx/js/plugins/jest/local-registry';
 import { releasePublish, releaseVersion } from 'nx/release';
 
 import { isCI } from './is-ci';
-import { localRegistry } from './local-registry';
 
 export default async () => {
   const verbose = process.env['NX_VERBOSE_LOGGING'] === 'true';
 
-  // use the native local registry function in CI
-  const localRegistryFn = isCI() ? startLocalRegistry : localRegistry;
+  // Listen address depending on run environment.
+  // Must be in sync with workspace project.json.
+  const listenAddress = isCI() ? 'localhost' : '0.0.0.0';
 
   // local registry target to run
   const localRegistryTarget = `codeware:local-registry${isCI() ? ':ci' : ''}`;
 
   console.log(
-    `\nStart local registry target '${localRegistryTarget}' when CI=${isCI()}`
+    `\nStart local registry with listen address '${listenAddress}' (CI=${isCI()})`
   );
 
   // storage folder for the local registry
   const storage = './tmp/local-registry/storage';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (global as any).stopLocalRegistry = await localRegistryFn({
+  (global as any).stopLocalRegistry = await startLocalRegistry({
+    listenAddress,
     localRegistryTarget,
     storage,
     verbose

@@ -16,42 +16,24 @@
   "license": "MIT",
   "keywords": [
     "Docker",
-    "Express",
     "Jest",
     "MongoDB",
+    "NextJS",
     "Nx",
     "Payload",
+    "Playwright",
     "Plugin",
     "Postgres"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "payload": "~2.30.4",
-    "react": "18.3.1",
-    "react-i18next": "15.1.3",
-    "react-router-dom": "7.0.1",
-    "rimraf": "^6.0.1",
-    "tiny-invariant": "^1.3.3",
-    "tslib": "^2.4.0",
-    "typescript": "~5.7.0"
-  },
-  "devDependencies": {
-    "mongodb-memory-server": "^10.1.2",
-    "react-dom": "^18.3.1"
-  },
   "peerDependencies": {
-    "@nx/devkit": "^20.0.0",
-    "@nx/esbuild": "^20.0.0",
-    "@nx/js": "^20.0.0",
-    "@nx/node": "^20.0.0",
-    "nx": "^20.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@nx/webpack": {
-      "optional": true
-    }
+    "@nx/devkit": "^20.4.2",
+    "next": "^15.0.0",
+    "payload": "^3.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "type": "commonjs",
   "main": "./index.js",

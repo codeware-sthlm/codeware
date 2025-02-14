@@ -1,6 +1,6 @@
 import { type Tree, formatFiles, updateProjectConfiguration } from '@nx/devkit';
 
-import { getPayloadProjects } from '../../utils/get-payload-projects';
+import { findPayloadProjects } from '../../utils/find-payload-projects';
 import { hasNxPayloadPlugin } from '../../utils/has-nx-payload-plugin';
 
 export default async function (tree: Tree) {
@@ -8,7 +8,7 @@ export default async function (tree: Tree) {
     return;
   }
 
-  const projects = getPayloadProjects(tree);
+  const projects = findPayloadProjects(tree);
   if (projects.length === 0) {
     return;
   }

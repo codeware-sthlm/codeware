@@ -1,6 +1,7 @@
 export default {
   displayName: 'nx-payload',
   preset: '../../jest.preset.js',
+  setupFilesAfterEnv: ['<rootDir>/test-setup.ts'],
   testEnvironment: 'node',
   globals: {},
   transform: {

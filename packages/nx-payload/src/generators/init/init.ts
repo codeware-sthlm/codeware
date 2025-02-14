@@ -1,44 +1,73 @@
 import {
   type GeneratorCallback,
   type Tree,
-  addDependenciesToPackageJson,
-  convertNxGenerator,
+  createProjectGraphAsync,
   formatFiles,
+  readNxJson,
   runTasksInSerial
 } from '@nx/devkit';
-import { initGenerator as nodeInitGenerator } from '@nx/node/src/generators/init/init';
+import { addPlugin } from '@nx/devkit/src/utils/add-plugin';
 
-import { payloadPluginsVersions, payloadVersion } from '../../utils/versions';
+import type { PayloadTarget } from '../../utils/definitions';
+import { isPluginInferenceEnabled } from '../../utils/is-plugin-inference-enabled';
 
+import { updateDependencies } from './libs/update-dependencies';
 import type { InitSchema } from './schema';
 
-function updateDependencies(tree: Tree) {
-  return addDependenciesToPackageJson(
-    tree,
-    { ...payloadPluginsVersions, payload: payloadVersion, zod: 'latest' },
-    {}
-  );
+/**
+ * Install Payload dependencies.
+ */
+export async function initGenerator(
+  host: Tree,
+  schema: InitSchema
+): Promise<GeneratorCallback> {
+  return initGeneratorInternal(host, { addPlugin: false, ...schema });
 }
 
 /**
- * Add required application dependencies
+ * @internal
+ * Defined as init factory function in `generators.json`
  */
-export async function initGenerator(
-  tree: Tree,
+export async function initGeneratorInternal(
+  host: Tree,
   schema: InitSchema
 ): Promise<GeneratorCallback> {
-  const tasks: GeneratorCallback[] = [];
+  const tasks: Array<GeneratorCallback> = [];
 
-  const nodeTask = await nodeInitGenerator(tree, schema);
-  tasks.push(nodeTask);
+  const nxJson = readNxJson(host);
+  // Only use inference state if not explicitly set
+  schema.addPlugin ??= isPluginInferenceEnabled(nxJson);
 
-  const installTask = updateDependencies(tree);
+  // Install NextJS dependencies and add plugin when inference is enabled
+
+  // Install Payload dependencies
+  const installTask = updateDependencies(host);
   tasks.push(installTask);
 
-  await formatFiles(tree);
+  if (schema.addPlugin) {
+    const { createNodesV2 } = await import('../../plugins/plugin');
+
+    await addPlugin(
+      host,
+      await createProjectGraphAsync(),
+      '@cdwr/nx-payload/plugin',
+      createNodesV2,
+      {
+        generateTargetName: ['gen' satisfies PayloadTarget],
+        payloadTargetName: ['payload' satisfies PayloadTarget],
+        payloadGraphqlTargetName: ['payload-graphql' satisfies PayloadTarget],
+        dxMongodbTargetName: ['dx:mongodb' satisfies PayloadTarget],
+        dxPostgresTargetName: ['dx:postgres' satisfies PayloadTarget],
+        dxStartTargetName: ['dx:start' satisfies PayloadTarget],
+        dxStopTargetName: ['dx:stop' satisfies PayloadTarget]
+      },
+      false
+    );
+  }
+
+  if (!schema.skipFormat) {
+    await formatFiles(host);
+  }
 
   return runTasksInSerial(...tasks);
 }
-
-export default initGenerator;
-export const initSchematic = convertNxGenerator(initGenerator);

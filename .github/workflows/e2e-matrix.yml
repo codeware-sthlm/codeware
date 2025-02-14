@@ -100,16 +100,16 @@ jobs:
           - os: ubuntu-latest
             name: Linux
             timeout: 30
-            configuration: 'skip-docker'
+            configuration: skip-docker
             verdaccio: localhost
           - os: macos-latest
             name: macOS
             timeout: 30
-            configuration: skip-docker
+            configuration: quick
           - os: windows-latest
             name: Windows
             timeout: 60
-            configuration: skip-docker
+            configuration: quick
         exclude:
           - os: macos-latest
             pm: pnpm
@@ -172,7 +172,7 @@ jobs:
           else
             status="skipped"
           fi
-          echo '{"project": "${{ matrix.project }}", "os": "${{ matrix.os }}", "pm": "${{ matrix.pm }}", "node": "${{ matrix.node }}", "configuration": "${{ matrix.configuration }}", "status": "$status"}' > results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
+          echo '{"project": "${{ matrix.project }}", "os": "${{ matrix.os }}", "pm": "${{ matrix.pm }}", "node": "${{ matrix.node }}", "configuration": "${{ matrix.configuration }}", "status": "'"$status"'"}' > results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
         shell: bash
 
       - name: Upload test results

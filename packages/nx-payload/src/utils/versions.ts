@@ -1,13 +1,10 @@
-/** Payload version */
-export const payloadVersion = '^2.30.3';
+/** Payload version which is in sync with all plugins */
+export const payloadVersion = '^3.20.0';
 
-/**
- * Payload plugins supported by the plugin setup
- * @link https://github.com/payloadcms/payload/tree/main/packages
- */
-export const payloadPluginsVersions: Record<string, string> = {
-  '@payloadcms/bundler-webpack': '^1.0.7',
-  '@payloadcms/db-mongodb': '^1.7.3',
-  '@payloadcms/db-postgres': '^0.8.9',
-  '@payloadcms/richtext-slate': '^1.5.2'
-};
+export const graphqlVersion = '^16.10.0';
+
+export const sharpVersion = '^0.33.5';
+
+export const testingLibraryDomVersion = '^10.0.0';
+export const testingLibraryJestDomVersion = '^6.1.0';
+export const testingLibraryReactVersion = '^16.1.0';

@@ -1,3 +1,5 @@
-import type { Schema } from '@nx/node/src/generators/init/schema';
-
-export type InitSchema = Schema;
+export type InitSchema = {
+  skipFormat?: boolean;
+  // Internal options
+  addPlugin?: boolean;
+};

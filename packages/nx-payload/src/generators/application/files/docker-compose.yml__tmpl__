@@ -2,7 +2,7 @@
 # Should be started from workspace root.
 
 # Hard coded environment variables is a valid workaround for using database images locally.
-# Should match what we get from `process.env.DATABASE_URL`.
+# Should match what we get from `process.env.DATABASE_URI`.
 
 services:
   mongodb:
@@ -10,14 +10,14 @@ services:
     image: mongo
     ports:
       - 27017:27017
+    command:
+      - --storageEngine=wiredTiger
     environment:
       - MONGO_DB=<%= name %>
     networks:
       - local
     volumes:
-      - type: volume
-        source: db_mongodb
-        target: /data/db
+      - data:/data/db
 
   postgres:
     container_name: postgres
@@ -31,9 +31,7 @@ services:
     networks:
       - local
     volumes:
-      - type: volume
-        source: db_postgres
-        target: /var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
 
   <%= name %>:
     container_name: <%= name %>
@@ -57,7 +55,5 @@ networks:
     driver: bridge
 
 volumes:
-  db_mongodb:
-    driver: local
-  db_postgres:
-    driver: local
+  data:
+  pgdata:

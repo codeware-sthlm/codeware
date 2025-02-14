@@ -1,60 +1,79 @@
 import {
   type GeneratorCallback,
   type Tree,
-  convertNxGenerator,
   formatFiles,
   runTasksInSerial
 } from '@nx/devkit';
+import { applicationGenerator as nextApplicationGenerator } from '@nx/next';
 
-import initGenerator from '../init/init';
+import { initGenerator as payloadInitGenerator } from '../init/init';
 
+import { addPathAlias } from './libs/add-path-alias';
+import { addProjectTargets } from './libs/add-project-targets';
 import { createApplicationFiles } from './libs/create-application-files';
-import { createDockerfile } from './libs/create-dockerfile';
-import { createNodeApplication } from './libs/create-node-application';
-import { createPayloadConfig } from './libs/create-payload-config';
-import { fixTestTarget } from './libs/fix-test-target';
+import { disableLegacyLinting } from './libs/disable-legacy-linting';
+import { fixNextJsBuildOutput } from './libs/fix-nextjs-build-output';
 import { normalizeOptions } from './libs/normalize-options';
-import { updateProjectConfig } from './libs/update-project-config';
-import { updateTsConfigApp } from './libs/update-tsconfig-app';
-import { updateWorkspaceConfig } from './libs/update-workspace-config';
+import { updateEslintConfig } from './libs/update-eslint-config';
 import type { AppGeneratorSchema } from './schema';
 
+/**
+ * Create a Payload application.
+ */
 export async function applicationGenerator(
   host: Tree,
   schema: AppGeneratorSchema
 ): Promise<GeneratorCallback> {
-  const options = normalizeOptions(schema);
+  return applicationGeneratorInternal(host, { addPlugin: false, ...schema });
+}
 
-  // Initialize for Payload support
-  const payloadTask = await initGenerator(host, schema);
+/**
+ * @internal
+ * Defined as 'application' factory function in `generators.json`
+ */
+export async function applicationGeneratorInternal(
+  host: Tree,
+  schema: AppGeneratorSchema
+): Promise<GeneratorCallback> {
+  const tasks: Array<GeneratorCallback> = [];
 
-  // Use Nx node plugin to scaffold a template application
-  const nodeAppTask = await createNodeApplication(host, options);
+  const options = normalizeOptions(host, schema);
 
-  // Fix the test target
-  fixTestTarget(host, options);
+  // Initialize Payload support
+  const payloadTask = await payloadInitGenerator(host, {
+    ...options,
+    skipFormat: true
+  });
+  tasks.push(payloadTask);
+
+  // Use Nx next plugin to scaffold a template application.
+  // The generator will also setup inference for nextjs plugin
+  // and the plugins itself depends on.
+  const nextAppTask = await nextApplicationGenerator(host, {
+    ...options,
+    skipFormat: true
+  });
+  tasks.push(nextAppTask);
 
   // Create application files from template folder
   createApplicationFiles(host, options);
 
-  // Create other application files dynamically
-  createDockerfile(host, options);
-  createPayloadConfig(host, options);
+  // Application
+  addProjectTargets(host, options);
+  updateEslintConfig(host, options);
 
-  // Application config files
-  updateProjectConfig(host, options);
-  updateTsConfigApp(host, options);
+  // Problems with legacy apps that probably is Nx related,
+  // but are minors since legacy apps are not recommended by this plugin
+  disableLegacyLinting(host, options);
+  fixNextJsBuildOutput(host, options);
 
-  // Workspace root config files
-  updateWorkspaceConfig(host, options);
+  // Workspace
+  addPathAlias(host, options);
 
   // Format files
   if (!options.skipFormat) {
     await formatFiles(host);
   }
 
-  return runTasksInSerial(payloadTask, nodeAppTask);
+  return runTasksInSerial(...tasks);
 }
-
-export default applicationGenerator;
-export const applicationSchematic = convertNxGenerator(applicationGenerator);

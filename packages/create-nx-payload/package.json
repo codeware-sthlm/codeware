@@ -10,8 +10,8 @@
   },
   "license": "MIT",
   "keywords": [
-    "Express",
     "MongoDB",
+    "NextJS",
     "Nx",
     "Payload",
     "Postgres"

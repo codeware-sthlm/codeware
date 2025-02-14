@@ -27,18 +27,19 @@
   - [Configuration](#configuration)
 - [Usage](#usage)
   - [Generate a Payload application](#generate-a-payload-application)
-  - [MongoDB, Postgres or Supabase?](#mongodb-postgres-or-supabase)
+  - [MongoDB, Postgres, Supabase or SQLite?](#mongodb-postgres-supabase-or-sqlite)
 - [Developer Experience (DX)](#developer-experience-dx)
   - [Start Payload and database in Docker](#start-payload-and-database-in-docker)
   - [Start a local database instance of choice](#start-a-local-database-instance-of-choice)
   - [Serve Payload application in development mode](#serve-payload-application-in-development-mode)
-  - [Build and run application in Docker](#build-and-run-application-in-docker)
   - [Run Payload commands](#run-payload-commands)
   - [Generate TypeScript types and GraphQL schema](#generate-typescript-types-and-graphql-schema)
   - [Troubleshooting](#troubleshooting)
 - [You don't have an Nx workspace?](#you-dont-have-an-nx-workspace)
 - [Plugin Generators](#plugin-generators)
-- [Plugin Executors](#plugin-executors)
+- [Migrate from Payload v2 to v3](#migrate-from-payload-v2-to-v3)
+  - [Preparation](#preparation)
+  - [Packages](#packages)
 - [Versions Compatibility](#versions-compatibility)
 
 ## Prerequisites
@@ -65,6 +66,13 @@ npm run nx [...]
 
 ## Installation
 
+> [!IMPORTANT]
+> This documentation is aimed for a **Payload v3** setup.
+>
+> To install **Payload v2** you should use plugin version **1.x**.
+
+_Though it's possible to have applications using Payload v2 and v3 in the same workspace, it's not recommended. Payload v2 supports React 18 and v3 has moved to React 19. But with individual `package.json` files for the applications and some Dockerfiles `sed` magic it's possible to make it work._
+
 ### Add Payload plugin to an existing workspace
 
 ```sh
@@ -73,18 +81,15 @@ nx add @cdwr/nx-payload
 
 ### Inferred tasks
 
-The plugin automatically creates tasks for projects with a `payload.config.ts` configuration file.
+The plugin automatically generates Payload tasks for projects that has a `payload.config.ts` file somewhere in the project. The default location is in `{projectRoot}/src`.
 
-- `build`
 - `gen`
 - `payload`
-- `serve`
+- `payload-graphql`
 
 > [!TIP]
-> A couple of targets to improve [Developer Experience (DX)](#developer-experience-dx) are also inferred:
+> A couple of targets to improve [Developer Experience (DX)](#developer-experience-dx) are also generated:
 >
-> - `dx:docker-build`
-> - `dx:docker-run`
 > - `dx:mongodb`
 > - `dx:postgres`
 > - `dx:start`
@@ -92,28 +97,17 @@ The plugin automatically creates tasks for projects with a `payload.config.ts` c
 
 ### Configuration
 
-```json
-// nx.json
-{
-  "plugins": ["@cdwr/nx-payload/plugin"]
-}
-```
-
-or use `options` for brevity and to be able to set custom target names
+Plugin configuration is added to `nx.json` by default.
 
 ```json
-// nx.json
 {
   "plugins": [
     {
       "plugin": "@cdwr/nx-payload/plugin",
       "options": {
-        "buildTargetName": "build",
         "generateTargetName": "gen",
         "payloadTargetName": "payload",
-        "serveTargetName": "serve",
-        "dxDockerBuildTargetName": "dx:docker-build",
-        "dxDockerRunTargetName": "dx:docker-run",
+        "payloadGraphqlTargetName": "payload-graphql",
         "dxMongodbTargetName": "dx:mongodb",
         "dxPostgresTargetName": "dx:postgres",
         "dxStartTargetName": "dx:start",
@@ -126,39 +120,31 @@ or use `options` for brevity and to be able to set custom target names
 
 #### Opt out from automatic inferrence <!-- omit in toc -->
 
-Plugin configuration is created automatically, but you can opt out using one of these two options:
+To disable automatic targets generation and write explicit targets to `project.json`, use one of these two options:
 
 - Set `useInferencePlugins` in `nx.json` to `false`
 - Set environment variable `NX_ADD_PLUGINS` to `false`
-
-> [!NOTE]
->
-> `useInferencePlugins` has higher priority than `NX_ADD_PLUGINS`
->
-> Generated targets will **not** include the DX targets, nor the `gen` target
 
 ## Usage
 
 ### Generate a Payload application
 
 ```sh
-nx generate @cdwr/nx-payload:app
+nx g @cdwr/nx-payload:app
 ```
 
-### MongoDB, Postgres or Supabase?
+### MongoDB, Postgres, Supabase or SQLite?
 
-Payload has official support for database adapters [MongoDB](https://www.mongodb.com/) and [Postgres](https://www.postgresql.org/about/).
-
-This plugin supports setting up either one via the [`database`](#plugin-generators) option.
+Payload has official support for database adapters [MongoDB](https://www.mongodb.com/), [Postgres](https://www.postgresql.org/about/) and [SQLite](https://www.sqlite.org).
 
 > [!TIP]
 >
-> [Supabase](https://supabase.com/docs) could be set up using the Postgres adapter
+> [Supabase](https://supabase.com/docs) is set up using the Postgres adapter
 
 Changing the adapter for a generated application must be done manually in `payload.config.ts`.
 
 > [!IMPORTANT]
-> We don't want to infer opinionated complexity into Payload configuration
+> We don't want to infer opinionated complexity into the Payload configuration. A new application is just a working template that you will customize and evolve to your needs.
 
 Fortunately, changing the database is straightforward, and only a few parts need to be replaced.
 
@@ -169,7 +155,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb';
 
 export default buildConfig({
   db: mongooseAdapter({
-    url: process.env.DATABASE_URL
+    url: process.env.DATABASE_URI
   })
 });
 ```
@@ -182,7 +168,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres';
 export default buildConfig({
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL
+      connectionString: process.env.DATABASE_URI
     }
   })
 });
@@ -193,16 +179,13 @@ export default buildConfig({
 
 ## Developer Experience (DX)
 
-> [!IMPORTANT]
-> DX targets are only available when **inference** is enabled
-
-Generated applications come with a set of opinionatedtargets to improve developer experience. These targets are prefixed with `dx:` are optional to use.
+The application come with a set of opinionatedtargets to improve developer experience. These targets are prefixed with `dx:` are optional to use.
 
 > [!TIP]
 > Display all the targets with extensive details for an application
 >
 > ```sh
-> nx show project [app-name] --web
+> nx show project [app-name]
 > ```
 
 ### Start Payload and database in Docker
@@ -215,14 +198,7 @@ Using docker compose, both MongoDB and Postgres are started in each container, a
 nx dx:start [app-name]
 ```
 
-The app name is optional for the default app specified in `nx.json`. Specify the app name when launching a non-default app.
-
 Open your browser and navigate to <http://localhost:3000> to setup your first user.
-
-> [!NOTE]
-> Supabase is not included in this Docker setup.
->
-> Instead, start your preferred database manually and run the Payload app in development mode.
 
 #### Stop <!-- omit in toc -->
 
@@ -236,7 +212,7 @@ Database volumes are persistent, hence all data is available on next launch.
 
 ### Start a local database instance of choice
 
-It's better to start the preferred database first, to be properly initialized before Payload is served.
+You can also start the preferred database first, to be properly initialized before Payload is served.
 
 #### MongoDB <!-- omit in toc -->
 
@@ -266,7 +242,7 @@ npx supabase init
 npx supabase start
 ```
 
-Edit `DATABASE_URL` in `.env.local` when needed.
+Edit `DATABASE_URI` in `.env.local` when needed.
 
 ### Serve Payload application in development mode
 
@@ -276,34 +252,14 @@ Payload application is served in watch mode.
 > The configured database must have been started, see [local database](#start-a-local-database-instance-of-choice)
 
 ```sh
-nx serve [app-name]
+nx dev [app-name]
 ```
 
 Open your browser and navigate to <http://localhost:3000>.
 
-> [!IMPORTANT]
-> File changes are detected and the application will restart automatically.  
-> However, the browser must currently be refreshed manually.
-
-### Build and run application in Docker
-
-This is commands that could be used as input to a hosting provider supporting `Dockerfile`.
-
-It's also an alternative to the docker compose commands `dx:start` and `dx:stop`, when you have a custom database setup.
-
-```sh
-nx dx:docker-build [app-name]
-```
-
-Edit `.env.local` to match the database setup and start the application
-
-```sh
-nx dx:docker-run [app-name]
-```
-
 ### Run Payload commands
 
-All commands available from Payload can be used by the generated application via target `payload`.
+All commands available from Payload can be used for the application via targets `payload` and `payload-graphql`.
 
 ```sh
 nx payload [app-name] [payload-command]
@@ -319,58 +275,54 @@ nx payload [app-name] migrate:status
 
 To provide a better developer experience for client development, the plugin can generate TypeScript types and GraphQL schema files from the Payload configuration.
 
-> [!NOTE]
+> [!IMPORTANT]
 > GraphQL schema will not be generated if `graphQL.disable` is set to `true` in `payload.config.ts`
 
 ```sh
 nx gen [app-name]
 ```
 
-The generated files are written to application source `generated` folder.
-They can then be distributed to the client developer manually or saved to a shared library in the monorepo.
+The generated files are written to the `generated` folder.
+The types can be distributed to the client developer manually or saved to a shared library in the monorepo.
 
-> [!IMPORTANT]
-> The `gen` target is only available when **inference** is enabled.  
-> To generate the files manually you can use the versatile `payload` target instead.
+> [!NOTE]
+> The `gen` target is actually an alias for the following commands.
 >
 > ```sh
 > nx payload [app-name] generate:types
-> nx payload [app-name] generate:graphql
+> nx payload-graphql [app-name] generate:schema
 > ```
 
 ### Troubleshooting
 
 #### I can't get Payload to start properly with Postgres in prod mode <!-- omit in toc -->
 
-Using Postgres in dev mode (serve) enables automatic migration. But when starting in prod mode it's turned off. So when the database is started without data, Payload will encounter errors once started (e.g. in Docker).
+Using Postgres in development mode enables automatic database synchronization with the Payload collections. But when starting in production mode it's turned off and the database is expected to have been setup with the collections. So when Postgres is started without a database, Payload will encounter errors.
 
-The solution is to run a migration on the database before Payload is started.
+The solution is to have an initial migration ready for Payload to load during startup.
 
-```sh
-nx payload [app-name] migrate
-```
+##### Create a migration <!-- omit in toc -->
 
-**How do I create a migration file?**
-
-Start Payload in dev mode to seed your collection data. Then create a migration file in a second terminal.
+Make sure Postgres is running. Start Payload in development mode to setup your database with the collections.
 
 ```sh
-nx serve [app-name]
+nx dev [app-name]
 ```
+
+Create a migration.
 
 ```sh
 nx payload [app-name] migrate:create
 ```
 
-View migration files
+Now Payload will run migrations automatically when starting in production mode.
 
-```sh
-nx payload [app-name] migrate:status
-```
+> [!IMPORTANT]
+> The property `db.prodMigrations` in `payload.config.ts` must be set for this to work.
 
 ## You don't have an Nx workspace?
 
-Just use the plugin create package to get started from scratch.
+Just use the plugin sibling to get started from scratch.
 
 See [`create-nx-payload`](https://github.com/codeware-sthlm/codeware/tree/master/packages/create-nx-payload/README.md) for more details.
 
@@ -386,47 +338,70 @@ _No options_.
 
 Alias: `app`
 
-Generate a Payload application served by Express.
+Generate a Payload application powered by Next.js.
 
-| Option           | Type   | Required | Default   | Description                                          |
-| ---------------- | ------ | :------: | --------- | ---------------------------------------------------- |
-| `name`           | string |    ✅    |           | The name of the application.                         |
-| `directory`      | string |    ✅    |           | The path of the application files.                   |
-| `database`       | string |          | `mongodb` | Preferred database to setup [`mongodb`, `postgres`]. |
-| `tags`           | string |          | `''`      | Comma separated tags.                                |
-| `e2eTestRunner`  | string |          | `none`    | The preferred e2e test runner [ `jest`, `none` ].    |
-| `linter`         | string |          | `eslint`  | The tool to use for running lint checks.             |
-| `unitTestRunner` | string |          | `jest`    | The preferred unit test runner [ `jest`, `none` ].   |
+| Option           | Type   | Required | Default   | Description                                             |
+| ---------------- | ------ | :------: | --------- | ------------------------------------------------------- |
+| `name`           | string |    ✅    |           | The name of the application.                            |
+| `directory`      | string |    ✅    |           | The path of the application files.                      |
+| `database`       | string |          | `mongodb` | Preferred database to setup [`mongodb`, `postgres`].    |
+| `tags`           | string |          | `''`      | Comma separated tags.                                   |
+| `e2eTestRunner`  | string |          | `none`    | The preferred e2e test runner [ `playwright`, `none` ]. |
+| `linter`         | string |          | `eslint`  | The tool to use for running lint checks.                |
+| `unitTestRunner` | string |          | `jest`    | The preferred unit test runner [ `jest`, `none` ].      |
 
 > 💡 `name` can also be provided as the first argument (used in the examples in this readme)
 
-## Plugin Executors
+## Migrate from Payload v2 to v3
 
-### `build` <!-- omit in toc -->
+Most of the setup is the same, but there are some breaking changes that you need to be aware of. Besides that, follow the type errors to update the code.
 
-Build the application with `esbuild`.
+### Preparation
 
-Required options below. Custom options can be provided to your build target, see `@nx/esbuild` plugin for more details.
+- Nx must have version `20.4.2` or higher.
+- React must have version `19.0.0` or higher.
+- Install `@nx/next` plugin.
+- Install `@nx/eslint` plugin.
+  - Convert to flat file configuration.
+  - Use `eslint.config.mjs` files.
+- Install `graphql` package.
 
-| Option       | Type   | Inferred value                  | Description                                    |
-| ------------ | ------ | ------------------------------- | ---------------------------------------------- |
-| `main`       | string | `apps/{name}/src/main.ts`       | The name of the main entry-point. file         |
-| `outputPath` | string | `dist/apps/{name}`              | The output path of the generated. files        |
-| `tsConfig`   | string | `apps/{name}/tsconfig.app.json` | The path to the Typescript configuration file. |
+### Packages
+
+Payload now use a common version for its packages.
+
+Install new packages:
+
+- `@payloadcms/next`
+- `@payloadcms/graphql` (dev dependency)
+
+Update to latest:
+
+- `payload`
+- `@payloadcms/db-mongodb`
+- `@payloadcms/db-postgres`
+- `@payloadcms/richtext-lexical`
+
+Remove deprecated packages:
+
+- `@payloadcms/bundler-webpack`
+- `@payloadcms/richtext-slate`
+- `@nx/express` (used elsewhere?)
 
 ## Versions Compatibility
 
 Later versions of Nx or Payload might work as well, but the versions below have been used during tests.
 
-| Plugin version | Nx version | Payload version |
-| -------------- | ---------- | --------------- |
-| `^1.0.0`       | `20.x`     | `^2.30.3`       |
-| `^0.11.0`      | `20.x`     | `^2.30.3`       |
-| `^0.10.0`      | `19.x`     | `^2.8.2`        |
-| `^0.9.5`       | `^19.5.7`  | `^2.8.2`        |
-| `^0.9.0`       | `^19.0.2`  | `^2.8.2`        |
-| `^0.8.0`       | `^18.3.4`  | `^2.8.2`        |
-| `^0.7.0`       | `~18.2.2`  | `^2.8.2`        |
-| `^0.6.0`       | `~18.1.1`  | `^2.8.2`        |
-| `^0.5.0`       | `~18.0.3`  | `^2.8.2`        |
-| `^0.1.0`       | `^17.0.0`  | `^2.5.0`        |
+| Plugin    | Nx        | Payload   | React     | Next.js   |
+| --------- | --------- | --------- | --------- | --------- |
+| `^2.0.0`  | `^20.4.2` | `^3.0.0`  | `^19.0.0` | `^15.0.0` |
+| `^1.0.0`  | `20.x`    | `^2.30.3` | `^18.0.0` | -         |
+| `^0.11.0` | `20.x`    | `^2.30.3` | `^18.0.0` | -         |
+| `^0.10.0` | `19.x`    | `^2.8.2`  | -         | -         |
+| `^0.9.5`  | `^19.5.7` | `^2.8.2`  | -         | -         |
+| `^0.9.0`  | `^19.0.2` | `^2.8.2`  | -         | -         |
+| `^0.8.0`  | `^18.3.4` | `^2.8.2`  | -         | -         |
+| `^0.7.0`  | `~18.2.2` | `^2.8.2`  | -         | -         |
+| `^0.6.0`  | `~18.1.1` | `^2.8.2`  | -         | -         |
+| `^0.5.0`  | `~18.0.3` | `^2.8.2`  | -         | -         |
+| `^0.1.0`  | `^17.0.0` | `^2.5.0`  | -         | -         |

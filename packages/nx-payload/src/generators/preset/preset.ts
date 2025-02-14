@@ -2,33 +2,43 @@ import {
   type GeneratorCallback,
   type Tree,
   formatFiles,
+  readNxJson,
   runTasksInSerial
 } from '@nx/devkit';
 
-import applicationGenerator from '../application/application';
+import { isPluginInferenceEnabled } from '../../utils/is-plugin-inference-enabled';
+import { applicationGenerator } from '../application/application';
 
 import { normalizeOptions } from './libs/normalize-options';
-import { type PresetGeneratorSchema } from './schema';
+import type { PresetGeneratorSchema } from './schema';
 
+/**
+ * Payload application preset when a workspace is created with Nx CLI.
+ *
+ * Defined as factory function in `generators.json` and hence invoked by Nx CLI.
+ */
 export async function presetGenerator(
-  tree: Tree,
-  _options: PresetGeneratorSchema
+  host: Tree,
+  schema: PresetGeneratorSchema
 ) {
-  const tasks: GeneratorCallback[] = [];
+  const tasks: Array<GeneratorCallback> = [];
 
-  const options = normalizeOptions(tree, _options);
+  const nxJson = readNxJson(host);
+  const options = normalizeOptions(host, schema);
 
   // Generate application
-  const appGenTask = await applicationGenerator(tree, options);
+  const appGenTask = await applicationGenerator(host, {
+    ...options,
+    addPlugin: isPluginInferenceEnabled(nxJson),
+    skipFormat: true
+  });
   tasks.push(appGenTask);
 
-  tree.delete('libs');
+  host.delete('libs');
 
   if (!options.skipFormat) {
-    await formatFiles(tree);
+    await formatFiles(host);
   }
 
   return runTasksInSerial(...tasks);
 }
-
-export default presetGenerator;

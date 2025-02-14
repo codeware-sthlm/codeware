@@ -80,9 +80,6 @@ jobs:
       - if: steps.cache-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
 
-      - if: steps.cache-modules.outputs.cache-hit != 'true'
-        run: pnpm rebuild sharp
-
   e2e:
     needs: [init, preinstall]
     if: always()
@@ -143,7 +140,7 @@ jobs:
         id: cache-modules
         with:
           path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
+          key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
 
       - name: Install dependencies
         if: needs.init.outputs.e2e-enabled == 'true'

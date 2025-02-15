@@ -1,6 +1,6 @@
 {
   "name": "@cdwr/core",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": false,
   "description": "A set of core utilities for the Codeware ecosystem.",
   "repository": {

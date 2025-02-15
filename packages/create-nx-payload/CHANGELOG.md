@@ -1,3 +1,17 @@
+# 2.0.0 (2025-02-15)
+
+### ✨ Features
+
+- ⚠️  **nx-payload:** add support for payload v3 ([f663aa9b3](https://github.com/codeware-sthlm/codeware/commit/f663aa9b3))
+
+### 🔙 Revert Code Changes
+
+- **repo:** revert incorrect nx migration ([c9cf098c3](https://github.com/codeware-sthlm/codeware/commit/c9cf098c3))
+
+### ⚠️  Breaking Changes
+
+- ⚠️  **nx-payload:** add support for payload v3 ([f663aa9b3](https://github.com/codeware-sthlm/codeware/commit/f663aa9b3))
+
 ## 1.1.0 (2025-02-07)
 
 ### ✨ Features

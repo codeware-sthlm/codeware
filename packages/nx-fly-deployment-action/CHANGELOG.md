@@ -1,3 +1,9 @@
+## 0.3.1 (2025-02-15)
+
+### ⚙️ Miscellaneous Chores
+
+- **repo:** change to esm files for vite ([b93f286ab](https://github.com/codeware-sthlm/codeware/commit/b93f286ab))
+
 ## 0.3.0 (2025-02-07)
 
 ### ✨ Features

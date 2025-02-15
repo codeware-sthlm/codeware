@@ -1,3 +1,14 @@
+## 1.4.1 (2025-02-15)
+
+### 🐞 Bug Fixes
+
+- **core:** improve windows compatibility ([46057818f](https://github.com/codeware-sthlm/codeware/commit/46057818f))
+- **deps:** update dependencies ([1f7cafad9](https://github.com/codeware-sthlm/codeware/commit/1f7cafad9))
+
+### ⚙️ Miscellaneous Chores
+
+- **repo:** change to esm files for vite ([b93f286ab](https://github.com/codeware-sthlm/codeware/commit/b93f286ab))
+
 ## 1.4.0 (2025-02-07)
 
 ### ✨ Features

@@ -40,7 +40,7 @@
     "http-status-codes": "^2.3.0",
     "isbot": "^5.0.0",
     "lexical": "0.13.1",
-    "next": "15.1.6",
+    "next": "15.1.7",
     "payload": "2.30.4",
     "prism-react-renderer": "^2.4.1",
     "react": "19.0.0",

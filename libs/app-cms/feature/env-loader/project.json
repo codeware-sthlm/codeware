@@ -1,0 +1,8 @@
+{
+  "name": "app-cms-feature-env-loader",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/feature/env-loader/src",
+  "projectType": "library",
+  "tags": ["scope:app-cms", "type:feature"],
+  "targets": {}
+}

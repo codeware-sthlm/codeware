@@ -1,6 +1,6 @@
+import type { Condition } from 'payload';
+
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
-import type { User } from '@codeware/shared/util/payload-types';
-import type { Condition } from 'payload/types';
 
 /**
  * Show the tenants field for system users or
@@ -13,12 +13,9 @@ import type { Condition } from 'payload/types';
  * in the `tenants` array field?
  */
 export const showTenantsField: Condition = (data, siblingData, context) => {
-  // @ts-expect-error Generated user type is not inferred
-  const user = context.user as User;
-
-  if (hasRole(user, 'system-user')) {
+  if (hasRole(context.user, 'system-user')) {
     return true;
   }
 
-  return getUserTenantIDs(user, 'admin').length > 0;
+  return getUserTenantIDs(context.user, 'admin').length > 0;
 };

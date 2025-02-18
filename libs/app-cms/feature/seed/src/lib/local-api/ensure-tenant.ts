@@ -1,6 +1,5 @@
 import type { Tenant } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
-import { PayloadRequest } from 'payload/types';
+import type { Payload, PayloadRequest } from 'payload';
 
 export type TenantData = Pick<Tenant, 'name' | 'description' | 'apiKey'> & {
   hosts: Array<string>;
@@ -59,8 +58,8 @@ export async function ensureTenant(
       description,
       domains: hosts.map((host) => ({ domain: host })),
       name
-    } satisfies Partial<Tenant>
+    }
   });
 
-  return tenant as unknown as Tenant;
+  return tenant;
 }

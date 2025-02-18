@@ -113,6 +113,7 @@ jobs:
           secrets: |
             INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_READ_CLIENT_ID }}
             INFISICAL_CLIENT_SECRET=${{ secrets.INFISICAL_READ_CLIENT_SECRET }}
+            INFISICAL_PROJECT_ID=${{ secrets.INFISICAL_PROJECT_ID }}
           opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
         env:
           # Postgres preview cluster defined in `github.json`

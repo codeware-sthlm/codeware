@@ -1,13 +1,13 @@
+import type { Access } from 'payload';
+
 import {
   getUserTenantIDs,
   hasRole,
   parseCookies
 } from '@codeware/app-cms/util/functions';
-import type { User } from '@codeware/shared/util/payload-types';
-import type { Access, Where } from 'payload/types';
+import type { Tenant } from '@codeware/shared/util/payload-types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const canReadTenant: Access<any, User> = (args) => {
+export const canReadTenant: Access<Tenant> = (args) => {
   const {
     req: { headers, payload, user }
   } = args;
@@ -34,7 +34,7 @@ export const canReadTenant: Access<any, User> = (args) => {
         id: {
           equals: selectedTenant
         }
-      } as Where;
+      };
     }
 
     // Other users have no access to the selected tenant

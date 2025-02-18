@@ -1,4 +1,6 @@
-import type { Config, Tenant, User } from './payload-types';
+import type { ClientUser, User } from 'payload';
+
+import type { User as CollectionUser, Config, Tenant } from './payload-types';
 
 type CollectionWithoutPayload = {
   [key in keyof Config['collections'] as key extends `payload${string}`
@@ -28,3 +30,6 @@ export type CollectionTenantScopedType =
   CollectionWithTenantField[CollectionTenantScopedSlug];
 
 export type TenantRole = NonNullable<User['tenants']>[number]['role'];
+
+/** User type that can be any of the user types defined by Payload */
+export type UserAny = ClientUser | CollectionUser | User;

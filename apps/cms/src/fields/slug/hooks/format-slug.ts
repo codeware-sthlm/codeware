@@ -1,4 +1,4 @@
-import type { FieldHook } from 'payload/types';
+import type { FieldHook } from 'payload';
 
 /**
  * Formats a string into a dash-separated slug.

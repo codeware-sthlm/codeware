@@ -16,11 +16,18 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@codeware/app-cms/feature/env-loader": [
+        "libs/app-cms/feature/env-loader/src/index.ts"
+      ],
       "@codeware/app-cms/feature/seed": [
         "libs/app-cms/feature/seed/src/index.ts"
       ],
       "@codeware/app-cms/ui/components": [
         "libs/app-cms/ui/components/src/index.ts"
+      ],
+      "@codeware/app-cms/ui/fields": ["libs/app-cms/ui/fields/src/index.ts"],
+      "@codeware/app-cms/util/env-schema": [
+        "libs/app-cms/util/env-schema/src/index.ts"
       ],
       "@codeware/app-cms/util/functions": [
         "libs/app-cms/util/functions/src/index.ts"
@@ -62,7 +69,9 @@
       "@codeware/shared/util/typesafe": [
         "libs/shared/util/typesafe/src/index.ts"
       ],
-      "@codeware/shared/util/zod": ["libs/shared/util/zod/src/index.ts"]
+      "@codeware/shared/util/zod": ["libs/shared/util/zod/src/index.ts"],
+      "@payload-cms/*": ["apps/cms/src/*"],
+      "@payload-config": ["apps/cms/src/payload.config.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

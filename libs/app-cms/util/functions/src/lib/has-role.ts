@@ -1,4 +1,6 @@
-import type { User } from '@codeware/shared/util/payload-types';
+import type { User, UserAny } from '@codeware/shared/util/payload-types';
+
+import { isUser } from './is-user';
 
 /**
  * Check if a user has a specific role.
@@ -7,10 +9,9 @@ import type { User } from '@codeware/shared/util/payload-types';
  * @param role - The user role to check for.
  * @returns True if the user has the role, false otherwise.
  */
-export const hasRole = (user: User | null, role: User['role']): boolean => {
-  if (!user) {
+export const hasRole = (user: UserAny | null, role: User['role']): boolean => {
+  if (!isUser(user)) {
     return false;
   }
-
   return user.role === role;
 };

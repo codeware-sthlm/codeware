@@ -1,47 +1,60 @@
-FROM node:22-slim AS base
+FROM node:20-alpine AS base
 
-FROM base AS builder
-
+FROM base AS deps
+# Check the link to understand why libc6-compat might be needed
+# https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package.json first to leverage Docker cache for dependencies
 COPY package.json ./
 
-# TODO: Remove once cms is updated to Payload v3
-# Downgrade to React v18 to be compatible with Payload v2
-RUN \
-  sed -i 's/react": "19.0.0",/react": "18.3.1",/g' package.json && \
-  sed -i 's/react-dom": "19.0.0",/react-dom": "18.3.1",/g' package.json && \
-  sed -i 's/react-router-dom": "6.11.2",/react-router-dom": "5.3.4",/g' package.json && \
-  sed -i 's/@types\/react": "19.0.0",/@types\/react": "18.3.12",/g' package.json && \
-  sed -i 's/@types\/react-dom": "19.0.0",/@types\/react-dom": "18.3.1",/g' package.json
+# Check the link regarding legacy-peer-deps
+# https://payloadcms.com/docs/getting-started/installation#1-install-the-relevant-packages
+RUN npm i --legacy-peer-deps
 
-RUN npm install
-
+# Copy the dependencies to builder stage.
+# Lock file is important for Nx to calculate a correct project graph.
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules      ./node_modules
+COPY --from=deps /app/package-lock.json ./package-lock.json
 COPY . .
 
-# The lock file is needed when building the app so remove it from `.gitignore`
+# The lock file is hidden from the build process when included in the .gitignore file.
+# Since package-lock.json is needed when building the app, we'll remove it from .gitignore.
 RUN sed -i '/package-lock.json/d' .gitignore
+
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Comment the following line in case you want to enable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN npx nx build cms
 
-FROM base
-
-ENV NODE_ENV=production
-# Path is relative to workdir, where `node` is invoked
-ENV PAYLOAD_CONFIG_PATH="dist/apps/cms/server/apps/cms/src/payload.config.js"
-
+# Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
 
-COPY --from=builder /app/dist/apps/cms/package.json ./
+ENV NODE_ENV production
+# Disable telemetry during runtime.
+ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN npm install --omit=dev
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/apps/cms/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/cms/.next/static     ./apps/cms/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/cms/public           ./apps/cms/public
 
-COPY --from=builder /app/dist               ./dist
-COPY --from=builder /app/.infisical.json    ./
-# Needed as part of the tsconfig paths workaround (and it's not pretty?)
-# Must be located where the node command is invoked
-COPY --from=builder /app/tsconfig.base.json ./
+# Set the correct ownership
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+RUN chown -R nextjs:nodejs /app
+
+USER nextjs
 
 EXPOSE 3000
-CMD ["node", "dist/apps/cms/server/main.js"]
+
+ENV PORT 3000
+
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "apps/cms/server.js"]

@@ -1,5 +1,4 @@
-import { MigrateDownArgs, MigrateUpArgs } from '@payloadcms/db-postgres';
-import { sql } from 'drizzle-orm';
+import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
@@ -143,7 +142,7 @@ CREATE INDEX IF NOT EXISTS "tenants_slug_idx" ON "tenants" USING btree ("slug");
 export async function down({ payload }: MigrateDownArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
 
-ALTER TYPE "enum_users_role" ADD VALUE 'admin';
+--ALTER TYPE "enum_users_role" ADD VALUE 'admin';
 DROP TABLE "articles_rels";
 DROP TABLE "pages_rels";
 DROP TABLE "tenants_domains";

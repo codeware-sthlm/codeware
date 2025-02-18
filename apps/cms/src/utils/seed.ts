@@ -1,7 +1,9 @@
-import { seed } from '@codeware/app-cms/feature/seed';
-import payload from 'payload';
+import { getPayload } from 'payload';
 
-import { resolveEnv } from '../env-resolver/server.resolve';
+import { loadEnv } from '@codeware/app-cms/feature/env-loader';
+import { seed } from '@codeware/app-cms/feature/seed';
+
+import config from '../payload.config';
 
 /**
  * Ad-hoc run the seed process using the local-api only.
@@ -9,7 +11,14 @@ import { resolveEnv } from '../env-resolver/server.resolve';
  * This is used for seeding the database without spinning up the entire server.
  */
 const doSeed = async (): Promise<void> => {
-  const env = await resolveEnv();
+  const env = await loadEnv();
+
+  if (!env) {
+    console.warn(
+      'Environment variables could not be loaded, abort seed process'
+    );
+    process.exit(0);
+  }
 
   if (env.DEPLOY_ENV === 'production') {
     console.error(
@@ -18,19 +27,16 @@ const doSeed = async (): Promise<void> => {
     process.exit(0);
   }
 
-  await payload.init({
-    secret: env.PAYLOAD_SECRET_KEY,
-    // Enables local mode, doesn't spin up a server or frontend
-    local: true
-  });
-
-  await payload.db.migrate();
+  const payload = await getPayload({ config });
 
   const status = await seed({
     environment: env.DEPLOY_ENV,
     payload,
-    source: env.SEED_SOURCE
+    source: env.SEED_SOURCE,
+    strategy: env.SEED_STRATEGY
   });
+
+  console.log('Seed data completed');
 
   process.exit(status ? 0 : 1);
 };

@@ -1,6 +1,5 @@
 import type { Article } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
-import { PayloadRequest } from 'payload/types';
+import type { Payload, PayloadRequest } from 'payload';
 
 export type ArticleData = Pick<
   Article,
@@ -52,9 +51,8 @@ export async function ensureArticle(
       slug,
       tenant,
       title
-    } satisfies Partial<Article>
+    }
   });
 
-  // TODO: Hopefully fixed in Payload 3
-  return article as unknown as Article;
+  return article;
 }

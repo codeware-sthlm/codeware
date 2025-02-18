@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload/types';
+import type { CollectionConfig } from 'payload';
 
 import { systemUser } from '../../access/system-user';
 import { slug } from '../../fields/slug/slug.field';

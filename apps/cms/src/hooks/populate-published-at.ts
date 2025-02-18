@@ -1,5 +1,6 @@
+import type { CollectionBeforeChangeHook } from 'payload';
+
 import { Page } from '@codeware/shared/util/payload-types';
-import type { CollectionBeforeChangeHook } from 'payload/types';
 
 /**
  * Populates the `publishedAt` field with the current date and time if it is not already set.

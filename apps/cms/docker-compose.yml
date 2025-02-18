@@ -1,7 +1,7 @@
 # Only for Development.
 # Should be started from workspace root.
 
-# Hard coded environment variables is a valid workaround for using Postgres image locally.
+# Hard coded environment variables is a valid workaround for using database images locally.
 # Should match what we get from `process.env.DATABASE_URL`.
 
 services:
@@ -17,9 +17,7 @@ services:
     networks:
       - local
     volumes:
-      - type: volume
-        source: db_postgres
-        target: /var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
 
   cms:
     container_name: cms
@@ -42,5 +40,4 @@ networks:
     driver: bridge
 
 volumes:
-  db_postgres:
-    driver: local
+  pgdata:

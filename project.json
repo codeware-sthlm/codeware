@@ -3,6 +3,7 @@
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "tags": ["scope:codeware", "type:workspace"],
   "targets": {
+    "lint": { "executor": "nx:noop" },
     "local-registry": {
       "metadata": {
         "description": "Start a local Verdaccio registry"

@@ -1,12 +1,12 @@
+import type { Condition } from 'payload';
+
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
 import type { User } from '@codeware/shared/util/payload-types';
-import type { Condition } from 'payload/types';
 /**
  * Show the tenant field for system users or
  * users with access to multiple tenants.
  */
 export const showTenantField: Condition = (data, siblingData, context) => {
-  // @ts-expect-error Generated user type is not inferred
   const user = context.user as User;
 
   if (hasRole(user, 'system-user')) {

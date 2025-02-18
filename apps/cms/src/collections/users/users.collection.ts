@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload/types';
+import { CollectionConfig } from 'payload';
 
 import { canCreateUsers } from './access/can-create-users';
 import { canDeleteUsers } from './access/can-delete-users';

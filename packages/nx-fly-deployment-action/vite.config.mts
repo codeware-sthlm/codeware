@@ -6,11 +6,8 @@ export default defineConfig({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/nx-fly-deployment-action',
   plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
   test: {
+    name: 'packages-nx-fly-deployment-action',
     watch: false,
     globals: true,
     environment: 'node',

@@ -7,6 +7,7 @@ export default defineConfig({
   cacheDir: '../../node_modules/.vite/packages/deploy-env-action',
   plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
   test: {
+    name: 'packages-deploy-env-action',
     watch: false,
     globals: true,
     environment: 'node',

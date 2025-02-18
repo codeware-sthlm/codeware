@@ -1,6 +1,8 @@
-const baseConfig = require('../../eslint.config.js');
+import jsoncParser from 'jsonc-eslint-parser';
 
-module.exports = [
+import baseConfig from '../../eslint.config.mjs';
+
+export default [
   ...baseConfig,
   {
     files: ['**/*.json'],
@@ -8,7 +10,7 @@ module.exports = [
       '@nx/dependency-checks': [
         'error',
         {
-          ignoredDependencies: ['@cdwr/core'],
+          ignoredDependencies: ['@cdwr/core', '@cdwr/fly-node'],
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs}',
             '{projectRoot}/vite.config.{js,ts,mjs,mts}'
@@ -17,7 +19,7 @@ module.exports = [
       ]
     },
     languageOptions: {
-      parser: require('jsonc-eslint-parser')
+      parser: jsoncParser
     }
   }
 ];

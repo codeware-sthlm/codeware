@@ -1,14 +1,12 @@
-const nx = require('@nx/eslint-plugin');
-const eslintPluginImport = require('eslint-plugin-import');
+import nx from '@nx/eslint-plugin';
+import importPlugin from 'eslint-plugin-import';
 
-module.exports = [
+export default [
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    plugins: {
-      import: eslintPluginImport
-    }
+    plugins: { import: importPlugin }
   },
   {
     ignores: ['**/dist', '**/vite.config.[cm]?ts.timestamp-*.[cm]js']
@@ -128,7 +126,23 @@ module.exports = [
             }
           ]
         }
-      ],
+      ]
+    }
+  },
+  {
+    files: [
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.mjs',
+      '**/*.mts'
+    ],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module'
+    },
+    rules: {
       'sort-imports': [
         'error',
         {

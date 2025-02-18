@@ -1,6 +1,9 @@
+import type {
+  SeedSource,
+  SeedStrategy
+} from '@codeware/app-cms/util/env-schema';
 import { randPassword } from '@ngneat/falso';
-import payload, { type Payload } from 'payload';
-import { PayloadRequest } from 'payload/types';
+import type { Payload, PayloadRequest } from 'payload';
 
 import { loadInfisicalData } from './load-infisical-data';
 import { loadStaticData } from './load-static-data';
@@ -8,7 +11,6 @@ import { ensureArticle } from './local-api/ensure-article';
 import { ensurePage } from './local-api/ensure-page';
 import { ensureTenant } from './local-api/ensure-tenant';
 import { ensureUser } from './local-api/ensure-user';
-import type { SeedSource } from './schemas/seed-source.schema';
 import type { SeedData, SeedEnvironment } from './seed-types';
 import { convertMarkdownToLexical } from './utils/convert-markdown-to-lexical';
 import { tenantStore } from './utils/tenant-store';
@@ -32,16 +34,29 @@ export const seed = async (args: {
   environment: SeedEnvironment;
   payload: Payload;
   source: SeedSource;
+  strategy: SeedStrategy;
 }): Promise<boolean> => {
   // Support transactions
   const req = {} as PayloadRequest;
+  const { environment, payload, source, strategy } = args;
 
   try {
-    const { environment, payload, source } = args;
-
     if (source === 'off') {
       payload.logger.info('[SEED] Seed source is off, skip seeding');
       return true;
+    }
+
+    if (strategy === 'once') {
+      // Do not seed if tenants already exists
+      const { totalDocs } = await payload.db.count({
+        collection: 'tenants'
+      });
+      if (totalDocs > 0) {
+        payload.logger.info(
+          '[SEED] Seed strategy is once, tenants already exists, skip seeding'
+        );
+        return true;
+      }
     }
 
     let seedData: SeedData | null = null;
@@ -180,7 +195,10 @@ export const seed = async (args: {
 
         try {
           const response = await ensurePage(payload, req, {
-            content: convertMarkdownToLexical(page.content),
+            content: await convertMarkdownToLexical(
+              payload.config,
+              page.content
+            ),
             header: page.header,
             name: page.name,
             slug: page.slug,
@@ -215,7 +233,10 @@ export const seed = async (args: {
         try {
           const response = await ensureArticle(payload, req, {
             author: article.author,
-            content: convertMarkdownToLexical(article.content),
+            content: await convertMarkdownToLexical(
+              payload.config,
+              article.content
+            ),
             slug: article.slug,
             title: article.title,
             tenant: entity.tenant

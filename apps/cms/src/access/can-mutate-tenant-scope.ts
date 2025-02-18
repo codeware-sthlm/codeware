@@ -1,5 +1,6 @@
+import type { Access } from 'payload';
+
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
-import type { Access } from 'payload/types';
 
 import { resolveTenant } from '../utils/resolve-tenant';
 

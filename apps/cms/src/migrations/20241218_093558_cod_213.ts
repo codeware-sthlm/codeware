@@ -1,5 +1,4 @@
-import { MigrateDownArgs, MigrateUpArgs } from '@payloadcms/db-postgres';
-import { sql } from 'drizzle-orm';
+import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
@@ -157,13 +156,13 @@ CREATE INDEX IF NOT EXISTS "payload_migrations_created_at_idx" ON "payload_migra
 export async function down({ payload }: MigrateDownArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
 
-DROP TABLE "articles";
-DROP TABLE "articles_locales";
-DROP TABLE "pages";
-DROP TABLE "pages_locales";
-DROP TABLE "tenants";
-DROP TABLE "users";
-DROP TABLE "payload_preferences";
-DROP TABLE "payload_preferences_rels";
-DROP TABLE "payload_migrations";`);
+DROP TABLE "articles" CASCADE;
+DROP TABLE "articles_locales" CASCADE;
+DROP TABLE "pages" CASCADE;
+DROP TABLE "pages_locales" CASCADE;
+DROP TABLE "tenants" CASCADE;
+DROP TABLE "users" CASCADE;
+DROP TABLE "payload_preferences" CASCADE;
+DROP TABLE "payload_preferences_rels" CASCADE;
+DROP TABLE "payload_migrations" CASCADE;`);
 }

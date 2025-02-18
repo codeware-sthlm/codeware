@@ -1,6 +1,5 @@
 import type { User } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
-import { PayloadRequest } from 'payload/types';
+import type { Payload, PayloadRequest } from 'payload';
 
 export type UserData = Pick<
   User,
@@ -52,9 +51,8 @@ export async function ensureUser(
       password,
       role,
       tenants
-    } satisfies Partial<User>
+    }
   });
 
-  // TODO: Hopefully fixed in Payload 3
-  return user as unknown as User;
+  return user;
 }

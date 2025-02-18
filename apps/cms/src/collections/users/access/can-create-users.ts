@@ -1,6 +1,6 @@
+import type { Access } from 'payload';
+
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
-import type { User } from '@codeware/shared/util/payload-types';
-import type { Access } from 'payload/types';
 
 /**
  * Permission to create users
@@ -8,8 +8,7 @@ import type { Access } from 'payload/types';
  * - System users can create users
  * - Admin users can create users
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const canCreateUsers: Access<any, User> = (args) => {
+export const canCreateUsers: Access = (args) => {
   const {
     req: { user }
   } = args;

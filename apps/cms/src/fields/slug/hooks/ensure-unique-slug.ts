@@ -1,11 +1,15 @@
+import {
+  type FieldHook,
+  type RelationshipField,
+  ValidationError
+} from 'payload';
+
 import { getId } from '@codeware/app-cms/util/functions';
 import type {
   CollectionSlug,
   CollectionTenantScopedType,
   CollectionType
 } from '@codeware/shared/util/payload-types';
-import { ValidationError } from 'payload/errors';
-import { FieldHook, RelationshipField } from 'payload/types';
 
 import { slugName } from '../slug.field';
 
@@ -89,12 +93,16 @@ export const ensureUniqueSlug: FieldHook<CollectionType> = async ({
         id: tenantId
       });
 
-      throw new ValidationError([
-        {
-          message: `Workspace '${tenant.name}' already has an entity with the slug '${value}'. Slugs must be unique for the workspace.`,
-          field: slugName
-        }
-      ]);
+      throw new ValidationError({
+        collection: collection.slug,
+        errors: [
+          {
+            message: `Workspace '${tenant.name}' already has an entity with the slug '${value}'. Slugs must be unique for the workspace.`,
+            path: slugName
+          }
+        ],
+        id: tenantId
+      });
     }
   }
   // If the collection is not tenant scoped, check if the slug is unique across the entire workspace
@@ -112,12 +120,15 @@ export const ensureUniqueSlug: FieldHook<CollectionType> = async ({
 
     // Throw if the slug is already taken by another document in the workspace
     if (matchedDocs.docs.length > 0) {
-      throw new ValidationError([
-        {
-          message: `An entity with the slug '${value}' already exists. Slug must be unique.`,
-          field: slugName
-        }
-      ]);
+      throw new ValidationError({
+        collection: collection.slug,
+        errors: [
+          {
+            message: `An entity with the slug '${value}' already exists. Slug must be unique.`,
+            path: slugName
+          }
+        ]
+      });
     }
   }
 

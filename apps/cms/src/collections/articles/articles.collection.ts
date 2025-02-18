@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload/types';
+import type { CollectionConfig } from 'payload';
 
 import { canReadTenantScope } from '../../access/can-read-tenant-scope';
 import { slug } from '../../fields/slug/slug.field';

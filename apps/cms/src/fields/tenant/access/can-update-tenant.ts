@@ -1,5 +1,6 @@
+import type { FieldAccess } from 'payload';
+
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
-import type { FieldAccess } from 'payload/types';
 
 /**
  * Allows system users to update the tenant field.

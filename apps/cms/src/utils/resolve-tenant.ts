@@ -1,10 +1,15 @@
-import type { IncomingHttpHeaders } from 'http';
-
-import { isUser, parseCookies } from '@codeware/app-cms/util/functions';
-import type { Tenant, User } from '@codeware/shared/util/payload-types';
 import type { Payload } from 'payload';
 
-import env from '../env-resolver/resolved-env';
+import {
+  isTenant,
+  isUser,
+  parseCookies
+} from '@codeware/app-cms/util/functions';
+import type {
+  Tenant,
+  User,
+  UserAny
+} from '@codeware/shared/util/payload-types';
 
 /**
  * Response is `undefined` when no user or tenant is authenticated.
@@ -61,9 +66,9 @@ type Response =
  */
 
 export const resolveTenant = async (args: {
-  headers: IncomingHttpHeaders;
+  headers: Headers;
   payload: Payload;
-  userOrTenant: User | Tenant | null;
+  userOrTenant: UserAny | Tenant | null;
 }): Promise<Response> => {
   const { headers, payload, userOrTenant } = args;
 
@@ -84,42 +89,47 @@ export const resolveTenant = async (args: {
     };
   }
 
-  // TODO: How or should we handle domain verification?
-  // Verify the host header is no guarantee for the tenant domain
-  // as the host can be spoofed by the client.
-  const { id: tenantID, domains } = userOrTenant;
+  if (isTenant(userOrTenant)) {
+    // TODO: How or should we handle domain verification?
+    // Verify the host header is no guarantee for the tenant domain
+    // as the host can be spoofed by the client.
+    const { id: tenantID } = userOrTenant;
 
-  // Look for the host header in the api request.
-  // Guard 'x-tenant-host' to development only!
-  // const host =
-  //   (env.DEPLOY_ENV === 'development' ? headers['x-tenant-host'] : '') ||
-  //   headers['host'];
+    // Look for the host header in the api request.
+    // Guard 'x-tenant-host' to development only!
+    // const host =
+    //   (env.DEPLOY_ENV === 'development' ? headers['x-tenant-host'] : '') ||
+    //   headers['host'];
 
-  // if (!host) {
-  //   return {
-  //     authUser: userOrTenant,
-  //     error: 'No host header found',
-  //     scopedBy: 'apiRequest',
-  //     tenantID
-  //   };
-  // }
+    // if (!host) {
+    //   return {
+    //     authUser: userOrTenant,
+    //     error: 'No host header found',
+    //     scopedBy: 'apiRequest',
+    //     tenantID
+    //   };
+    // }
 
-  // Verify the host is a valid domain for the tenant
-  // TODO: It's not possible due to Fly proxy replace client host with cms api host
-  // !! We must find another way !!
-  // if (!domains?.some((d) => d.domain === host)) {
-  //   return {
-  //     authUser: userOrTenant,
-  //     error: `Domain '${host}' is not allowed for tenant '${tenantID}'`,
-  //     scopedBy: 'apiRequest',
-  //     tenantID
-  //   };
-  // }
+    // Verify the host is a valid domain for the tenant
+    // TODO: It's not possible due to Fly proxy replace client host with cms api host
+    // !! We must find another way !!
+    // if (!domains?.some((d) => d.domain === host)) {
+    //   return {
+    //     authUser: userOrTenant,
+    //     error: `Domain '${host}' is not allowed for tenant '${tenantID}'`,
+    //     scopedBy: 'apiRequest',
+    //     tenantID
+    //   };
+    // }
 
-  return {
-    authUser: userOrTenant,
-    error: undefined,
-    scopedBy: 'apiRequest',
-    tenantID
-  };
+    return {
+      authUser: userOrTenant,
+      error: undefined,
+      scopedBy: 'apiRequest',
+      tenantID
+    };
+  }
+
+  payload.logger.error('Could not resolve user or tenant', { userOrTenant });
+  payload.logger.error('[TODO] resolveTenant: Should not happen!');
 };

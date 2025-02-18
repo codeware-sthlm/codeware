@@ -1,110 +1,52 @@
-import { resolve } from 'path';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import { CdwrAdminLogo } from '@codeware/app-cms/ui/components';
-import { webpackBundler } from '@payloadcms/bundler-webpack';
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
-import { buildConfig } from 'payload/config';
+import { buildConfig } from 'payload';
+import sharp from 'sharp';
+
+import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import { seed } from '@codeware/app-cms/feature/seed';
+import { defaultLexical } from '@codeware/app-cms/ui/fields';
 
 import articles from './collections/articles/articles.collection';
+import media from './collections/media/media.collection';
 import pages from './collections/pages/pages.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
-import CheckValidHost from './components/check-valid-host';
-import NotifyInvalidHost from './components/notify-invalid-host';
-import env from './env-resolver/resolved-env';
-import { authorizationFix } from './middlewares/authorization-fix';
-import { debugRequest } from './middlewares/debug-request';
-import { setUserHostCookie } from './middlewares/set-user-host-cookie';
-import { verifyClientRequest } from './middlewares/verify-client-request';
-import { resolveTsconfigPathsToAlias } from './utils/resolve-tsconfig-paths-to-alias';
+import { migrations } from './migrations';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+const env = getEnv();
 
 export default buildConfig({
-  // Required base configuration
   admin: {
-    bundler: webpackBundler(),
     user: users.slug,
-    // Always located relative to workspace root (where command is invoked)
-    buildPath: resolve(env.CWD, 'dist/apps/cms/build'),
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     components: {
-      beforeLogin: [NotifyInvalidHost],
-      beforeDashboard: [CheckValidHost],
+      beforeLogin: ['@payload-cms/components/NotifyInvalidHost'],
+      beforeDashboard: ['@payload-cms/components/CheckValidHost'],
       graphics: {
-        Logo: CdwrAdminLogo
+        Logo: '@payload-cms/components/Logo'
       }
-    },
-    webpack: (config) => ({
-      ...config,
-      resolve: {
-        ...(config.resolve ?? {}),
-        alias: {
-          ...(config.resolve?.alias ?? {}),
-          // Support workspace path mappings
-          ...resolveTsconfigPathsToAlias(
-            // Find tsconfig.base.json where the command is invoked:
-            // - `nx` is executed from the workspace root
-            // - `node` is executed from the Docker WORKDIR
-            resolve(env.CWD, 'tsconfig.base.json'),
-            // Webpack workspace context is by design always relative to this file,
-            // i.e. the workspace root or compiled workspace root
-            resolve(__dirname, '../../..'),
-            // Override aliases for pre-built custom admin components
-            {
-              '@codeware/app-cms/ui/components': resolve(
-                env.CWD,
-                'dist/apps/cms/server/libs/app-cms/ui/components/src/index.js'
-              ),
-              '@codeware/shared/ui/react-components': resolve(
-                env.CWD,
-                'dist/apps/cms/server/libs/shared/ui/react-components/src/index.js'
-              )
-            }
-          ),
-          // Disable server-only modules in client bundle
-          fs: false,
-          process: false
-        }
-      }
-    })
+    }
   },
-  collections: [articles, pages, tenants, users],
-  db: postgresAdapter({
-    pool: { connectionString: env.DATABASE_URL },
-    migrationDir: resolve(__dirname, 'migrations')
-  }),
-  editor: lexicalEditor({
-    // Default features:
-    // https://payloadcms.com/docs/v2/rich-text/lexical#features-overview
-    features: ({ defaultFeatures }) => [
-      ...defaultFeatures.filter(
-        (feature) =>
-          // TODO: Exclude default features which we don't support yet
-          !['relationship', 'upload'].includes(feature.key)
-      ),
-      HeadingFeature({
-        enabledHeadingSizes: ['h2', 'h3']
-      })
-    ]
-  }),
-  // Express middlewares
-  express: {
-    preMiddleware: [debugRequest, authorizationFix],
-    postMiddleware: [verifyClientRequest, setUserHostCookie]
-  },
-  // Security customizations
+  collections: [articles, media, pages, tenants, users],
   cors: env.CORS_URLS === '*' ? '*' : env.CORS_URLS.split(',').filter(Boolean),
   csrf: env.CSRF_URLS.split(',').filter(Boolean),
-  maxDepth: 5,
-  rateLimit: {
-    max: 10000, // limit each IP per windowMs
-    trustProxy: true, // hosted behind nginx (reverse proxy)
-    window: 2 * 60 * 1000 // 2 minutes
-  },
+  db: postgresAdapter({
+    pool: {
+      connectionString: env.DATABASE_URL
+    },
+    push: env.DISABLE_DB_PUSH === false,
+    prodMigrations: migrations
+  }),
+  editor: defaultLexical,
+  secret: env.PAYLOAD_SECRET_KEY,
   // i18n support
-  i18n: {
-    fallbackLng: 'sv'
-  },
+  i18n: { fallbackLanguage: 'sv' },
   localization: {
     locales: [
       {
@@ -125,19 +67,30 @@ export default buildConfig({
     defaultLocale: 'sv',
     fallback: true
   },
+  // Invoke seed process on payload init
+  onInit: async (payload) => {
+    payload.logger.info('Payload is ready');
+    await seed({
+      environment: env.DEPLOY_ENV,
+      payload,
+      source: env.SEED_SOURCE,
+      strategy: env.SEED_STRATEGY
+    });
+  },
   // Generate types and schemas
   typescript: {
-    declare: false,
-    // Keep the generated types in sync between the apps
-    outputFile: resolve(
-      env.CWD,
+    outputFile: path.resolve(
+      dirname,
+      '../../..',
       'libs/shared/util/payload-types/src/lib/payload-types.ts'
     )
   },
   graphQL: {
-    disable: true
+    disable: true,
+    schemaOutputFile: path.resolve(dirname, 'generated', 'schema.graphql')
   },
-  // Debugging
+  // Misc
   debug: env.LOG_LEVEL === 'debug',
-  telemetry: false
+  telemetry: false,
+  sharp
 });

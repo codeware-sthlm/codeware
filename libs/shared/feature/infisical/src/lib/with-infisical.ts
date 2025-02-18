@@ -1,7 +1,6 @@
 import { InfisicalSDK, ListSecretsResult } from '@infisical/sdk';
 
 import { ClientSchema, type Environment } from './infisical.schemas';
-import { readInfisicalConfig } from './read-infisical-config';
 
 type Filter = {
   /**
@@ -41,12 +40,6 @@ type Options<TEnv> = {
    */
   injectEnv?: boolean;
   /**
-   * The project ID to get the secrets from.
-   *
-   * Defaults to the project ID in the Infisical configuration file.
-   */
-  projectId?: string;
-  /**
    * Whether to ignore exceptions and just output warnings.
    *
    * Defaults to `false`.
@@ -72,8 +65,7 @@ type Response<TSilent extends boolean | undefined> = TSilent extends true
  *
  * **Requirements:**
  *
- * - `INFISICAL_CLIENT_ID` and `INFISICAL_CLIENT_SECRET` must be available in the environment variables.
- * - A project ID, either from `options` or the Infisical configuration file `.infisical.json`.
+ * - `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET` and `INFISICAL_PROJECT_ID` must be available in the environment variables.
  *
  * @returns The secrets from the Infisical project
  * @throws An error if the environment variables are invalid or the client fails to authenticate
@@ -87,25 +79,17 @@ export const withInfisical = async <
   const { success, data, error } = ClientSchema.safeParse(process.env);
 
   if (!success) {
-    const msg = 'Could not resolve Infisical credentials';
     if (!options?.silent) {
-      throw new Error(msg, {
+      throw new Error('Could not resolve Infisical credentials', {
         cause: error.flatten().fieldErrors
       });
     }
-
-    console.info(msg);
     return null as Response<TSilent>;
   }
 
   try {
     const environment: string =
       options?.environment?.toString() ?? ('development' satisfies Environment);
-    console.log(`[Infisical] use environment '${environment}'`);
-
-    const projectId =
-      options?.projectId ?? (await readInfisicalConfig()).workspaceId;
-    console.log(`[Infisical] use project '${projectId}'`);
 
     // Default site is US
     const client = new InfisicalSDK({
@@ -126,7 +110,7 @@ export const withInfisical = async <
 
     const { secrets } = await client.secrets().listSecrets({
       environment,
-      projectId,
+      projectId: data.INFISICAL_PROJECT_ID,
       expandSecretReferences: true,
       recursive: options?.filter?.recurse ?? false,
       secretPath: options?.filter?.path,
@@ -135,12 +119,9 @@ export const withInfisical = async <
 
     // Post-actions to perform after the secrets are retrieved
     if (options?.injectEnv) {
-      console.log(
-        `[Infisical] inject ${secrets.length} secrets into process.env`
-      );
       for (const { secretKey, secretValue } of secrets) {
+        console.log(`[Infisical] inject '${secretKey}'`);
         process.env[secretKey] = secretValue;
-        console.log(`[Infisical] injected '${secretKey}'`);
       }
     }
 

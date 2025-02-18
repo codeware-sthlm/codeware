@@ -1,10 +1,11 @@
 import type {
   Tenant,
   TenantRole,
-  User
+  UserAny
 } from '@codeware/shared/util/payload-types';
 
 import { getId } from './get-id';
+import { isUser } from './is-user';
 
 /**
  * Get the tenant IDs the user has access to.
@@ -14,10 +15,10 @@ import { getId } from './get-id';
  * @returns The tenant IDs the user has access to.
  */
 export const getUserTenantIDs = (
-  user: User | null,
+  user: UserAny | null,
   limitToRole?: TenantRole
 ): Array<Tenant['id']> => {
-  if (!user) {
+  if (!isUser(user)) {
     return [];
   }
 

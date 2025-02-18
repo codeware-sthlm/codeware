@@ -1,10 +1,10 @@
+import type { Access, Where } from 'payload';
+
 import {
   getUserTenantIDs,
   hasRole,
   parseCookies
 } from '@codeware/app-cms/util/functions';
-import type { User } from '@codeware/shared/util/payload-types';
-import type { Access, Where } from 'payload/types';
 
 /**
  * Permission to read users
@@ -19,8 +19,7 @@ import type { Access, Where } from 'payload/types';
  *   - Tenant admins have access to all users in their own tenants
  *   - Users have access to themselves
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const canReadUsers: Access<any, User> = (args) => {
+export const canReadUsers: Access = (args) => {
   const {
     req: { headers, payload, user }
   } = args;
@@ -81,5 +80,5 @@ export const canReadUsers: Access<any, User> = (args) => {
           }
         : {}
     ]
-  } as Where;
+  };
 };

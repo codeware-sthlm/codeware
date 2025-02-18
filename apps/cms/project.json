@@ -1,56 +1,28 @@
 {
   "name": "cms",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/cms/src",
+  "sourceRoot": "apps/cms",
   "projectType": "application",
   "tags": ["scope:cms", "type:app"],
   "targets": {
-    "serve-fresh": {
+    "dev-fresh": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["echo 'y' | nx payload cms migrate:fresh", "nx serve cms"],
+        "commands": ["echo 'y' | nx payload cms migrate:fresh", "nx dev cms"],
         "parallel": false
-      }
-    },
-    "gen": {
-      "metadata": {
-        "description": "Override default target; see payload metadata for more details."
-      },
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": ["npx payload generate:types"],
-        "cwd": "apps/cms",
-        "env": {
-          "CWD": "../..",
-          "PAYLOAD_CONFIG_PATH": "src/payload.config.ts"
-        }
-      }
-    },
-    "payload": {
-      "metadata": {
-        "description": "Override default target to invoke Payload from app root. It's required to properly resolve tsconfig paths. See COD-234 for more details."
-      },
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npx payload",
-        "forwardAllArgs": true,
-        "cwd": "apps/cms",
-        "env": {
-          "CWD": "../..",
-          "PAYLOAD_CONFIG_PATH": "src/payload.config.ts"
-        }
       }
     },
     "seed": {
       "metadata": {
-        "description": "Ad-hoc seed process using the local-api only. This is useful for testing the seed process without spinning up the entire server."
+        "description": "Ad-hoc seed process using the local-api."
       },
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'y' | npx tsx src/utils/seed.ts",
+        "command": "npx tsx src/utils/seed.ts",
         "cwd": "apps/cms",
         "env": {
-          "CWD": "../.."
+          "DISABLE_DB_PUSH": "true",
+          "NODE_ENV": "development"
         }
       }
     }

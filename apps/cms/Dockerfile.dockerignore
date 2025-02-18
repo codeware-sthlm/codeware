@@ -1,6 +1,5 @@
 .DS_Store
 .git
-.github
 
 # Config
 .settings
@@ -19,15 +18,15 @@ dist
 node_modules
 tmp
 
-# Lock files
+# Don't let host lock files detect wrong package manager in Dockerfile
 bun.lockb
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
-# Apps
+# Other apps
 /apps/*
 !/apps/cms
 
-# Prevent overriding Infisical environment variables
+# Target environment variables for local development
 .env.*

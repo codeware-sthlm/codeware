@@ -1,7 +1,6 @@
 import { getId } from '@codeware/app-cms/util/functions';
 import type { Page } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
-import { PayloadRequest } from 'payload/types';
+import type { Payload, PayloadRequest } from 'payload';
 
 export type PageData = Pick<
   Page,
@@ -56,9 +55,8 @@ export async function ensurePage(
       name,
       slug,
       tenant
-    } satisfies Partial<Page>
+    }
   });
 
-  // TODO: Hopefully fixed in Payload 3
-  return page as unknown as Page;
+  return page;
 }

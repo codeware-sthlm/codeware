@@ -1,6 +1,6 @@
+import type { Access, Where } from 'payload';
+
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/functions';
-import type { User } from '@codeware/shared/util/payload-types';
-import type { Access, Where } from 'payload/types';
 
 /**
  * Permission to update users
@@ -9,8 +9,7 @@ import type { Access, Where } from 'payload/types';
  * - System users can update all users
  * - Admin users can update users in their own tenants
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const canUpdateUsers: Access<any, User> = (args) => {
+export const canUpdateUsers: Access = (args) => {
   const {
     req: { user }
   } = args;
@@ -24,10 +23,11 @@ export const canUpdateUsers: Access<any, User> = (args) => {
   }
 
   const adminTenantAccessIDs = getUserTenantIDs(user, 'admin');
+  const self: Where = { id: { equals: user.id } };
 
   return {
     or: [
-      { id: { equals: user.id } },
+      self,
       adminTenantAccessIDs.length
         ? {
             'tenants.tenant': {
@@ -36,5 +36,5 @@ export const canUpdateUsers: Access<any, User> = (args) => {
           }
         : {}
     ]
-  } as Where;
+  };
 };

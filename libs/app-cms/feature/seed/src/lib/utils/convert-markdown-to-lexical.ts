@@ -3,12 +3,9 @@ import { $convertFromMarkdownString } from '@lexical/markdown';
 import {
   defaultEditorFeatures,
   getEnabledNodes,
-  sanitizeEditorConfig
+  sanitizeServerEditorConfig
 } from '@payloadcms/richtext-lexical';
-import type { SerializedEditorState } from 'lexical';
-
-// Need to append unknown record to satisfy Payload generated Lexical types
-type LexicalJson = SerializedEditorState & Record<string, unknown>;
+import type { SanitizedConfig } from 'payload';
 
 /**
  * Convert a markdown string to lexical state.
@@ -19,16 +16,21 @@ type LexicalJson = SerializedEditorState & Record<string, unknown>;
  * @param markdown - The markdown string to convert.
  * @returns The lexical JSON object or undefined if markdown is not provided.
  */
-export const convertMarkdownToLexical = (
+export const convertMarkdownToLexical = async (
+  config: SanitizedConfig,
   markdown?: string
-): LexicalJson | undefined => {
+) => {
   if (!markdown) {
     return undefined;
   }
 
-  const editorConfig = sanitizeEditorConfig({
-    features: defaultEditorFeatures
-  });
+  const editorConfig = await sanitizeServerEditorConfig(
+    {
+      // TODO: Should be the features applied in `payload.config.ts`
+      features: defaultEditorFeatures
+    },
+    config
+  );
   const headlessEditor = createHeadlessEditor({
     nodes: getEnabledNodes({ editorConfig })
   });
@@ -43,10 +45,11 @@ export const convertMarkdownToLexical = (
     { discrete: true }
   );
 
-  const json = headlessEditor.getEditorState().toJSON() as LexicalJson;
+  const json = headlessEditor.getEditorState().toJSON();
   if (!json) {
     console.warn(`Failed to convert markdown to lexical:\n${markdown}`);
   }
 
-  return json;
+  // Need to append unknown record to satisfy Payload generated Lexical types
+  return json as typeof json & Record<string, unknown>;
 };

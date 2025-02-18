@@ -7,6 +7,7 @@ export default defineConfig({
   cacheDir: '../../../../node_modules/.vite/libs/shared/ui/react-components',
   plugins: [react(), nxViteTsPaths()],
   test: {
+    name: 'shared-ui-react-components',
     watch: false,
     globals: true,
     environment: 'jsdom',

@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: __dirname,
@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [nxViteTsPaths()],
 
   test: {
+    name: 'shared-util-typesafe',
     watch: false,
     globals: true,
     environment: 'node',

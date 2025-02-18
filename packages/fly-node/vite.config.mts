@@ -7,6 +7,7 @@ export default defineConfig({
   cacheDir: '../../node_modules/.vite/packages/fly-node',
   plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
   test: {
+    name: 'packages-fly-node',
     watch: false,
     globals: true,
     environment: 'node',

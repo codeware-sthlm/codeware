@@ -6,6 +6,7 @@ export default defineConfig({
   cacheDir: '../../../../node_modules/.vite/libs/app-cms/feature/seed',
   plugins: [nxViteTsPaths()],
   test: {
+    name: 'app-cms-feature-seed',
     watch: false,
     globals: true,
     environment: 'node',

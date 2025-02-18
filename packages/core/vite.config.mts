@@ -6,11 +6,8 @@ export default defineConfig({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/core',
   plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
   test: {
+    name: 'packages-core',
     watch: false,
     globals: true,
     environment: 'node',

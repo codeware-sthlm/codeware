@@ -1,6 +1,5 @@
 export default [
-  '**/*/vite.config.ts',
-  '**/*/vite.config.mts',
-  '**/*/vitest.config.ts',
-  '**/*/vitest.config.mts'
+  'apps/*/vite.config.mts',
+  'libs/*/vite.config.mts',
+  'packages/*/vite.config.mts'
 ];

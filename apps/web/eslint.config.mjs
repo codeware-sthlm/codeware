@@ -1,7 +1,13 @@
-const baseConfig = require('../../eslint.config.js');
+import importPlugin from 'eslint-plugin-import';
+import jsoncParser from 'jsonc-eslint-parser';
 
-module.exports = [
+import baseConfig from '../../eslint.config.mjs';
+
+export default [
   ...baseConfig,
+  {
+    plugins: { import: importPlugin }
+  },
   {
     ignores: ['**/build', '**/server.js', '**/vitest.config.ts.timestamp*']
   },
@@ -34,7 +40,7 @@ module.exports = [
       ]
     },
     languageOptions: {
-      parser: require('jsonc-eslint-parser')
+      parser: jsoncParser
     }
   }
 ];

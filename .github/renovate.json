@@ -1,11 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
-  "extends": ["config:recommended", ":semanticCommitScopeDisabled"],
-  "baseBranches": ["main"],
+  "extends": [
+    ":ignoreModulesAndTests",
+    ":semanticCommitScopeDisabled",
+    ":timezone(Europe/Stockholm)",
+    "replacements:all",
+    "schedule:weekly",
+    "workarounds:all"
+  ],
 
-  "schedule": ["after 12am on sunday"],
-  "timezone": "Europe/Stockholm",
+  "groupName": "weekly dependencies",
+  "updateNotScheduled": false,
 
   "automerge": true,
   "automergeType": "branch",
@@ -14,23 +20,16 @@
   "prConcurrentLimit": 10,
   "prHourlyLimit": 4,
 
-  "labels": ["dependencies"],
+  "labels": ["dependencies", "renovate"],
   "semanticCommits": "enabled",
   "semanticCommitType": "chore",
   "semanticCommitScope": "deps",
 
-  "groupName": "Weekly Dependencies",
-  "group": {
-    "commitMessageTopic": "dependencies"
-  },
-
   "rangeStrategy": "auto",
-
   "dependencyDashboard": true,
 
   "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": ["after 12am on sunday"]
+    "enabled": true
   },
 
   "packageRules": [
@@ -41,7 +40,7 @@
       "automerge": true,
       "prCreation": "immediate",
       "prConcurrentLimit": 0,
-      "groupName": "Security updates"
+      "groupName": "security updates"
     },
     {
       "description": "Skip updates for packageManager",
@@ -61,43 +60,53 @@
     {
       "description": "Skip all Payload packages and its peers",
       "matchPackageNames": [
-        "payload",
+        "@lexical/*",
         "@payloadcms/*",
-        "drizzle-orm",
+        "graphql",
         "lexical",
-        "@lexical/*"
+        "payload",
+        "sharp"
       ],
       "enabled": false
     },
     {
       "description": "Skip all Nx packages",
-      "matchPackageNames": ["create-nx-workspace", "nx", "@nx/**", "@nrwl/**"],
+      "matchPackageNames": ["@nx/*", "@nrwl/*", "create-nx-workspace", "nx"],
       "enabled": false
     },
     {
       "description": "Skip all React packages and its peers",
       "matchPackageNames": [
+        "@hono/*",
+        "@remix-run/*",
+        "prism-react-renderer",
         "react*",
         "*/*react*",
         "remix-hono",
-        "remix-utils",
-        "@hono/*",
-        "@remix-run/*"
+        "remix-utils"
       ],
       "enabled": false
     },
     {
       "description": "Skip other third party packages that are managed by Nx",
       "matchPackageNames": [
+        "@swc/*",
+        "@types/express",
+        "@types/jest",
+        "@vitejs/*",
+        "@vitest/*",
         "esbuild",
+        "eslint",
+        "eslint-config-next",
         "eslint-config-prettier",
         "express",
+        "jest*",
+        "next",
+        "typescript-eslint",
+        "typescript",
         "verdaccio",
         "vite",
-        "vitest",
-        "@types/express",
-        "@vitejs/*",
-        "@vitest/*"
+        "vitest"
       ],
       "enabled": false
     }

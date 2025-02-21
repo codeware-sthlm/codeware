@@ -41,3 +41,4 @@ networks:
 
 volumes:
   pgdata:
+    name: cms_pgdata

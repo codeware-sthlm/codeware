@@ -1,4 +1,11 @@
+import {
+  BlocksFeature,
+  HeadingFeature,
+  lexicalEditor
+} from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
+
+import { codeBlock } from '@codeware/app-cms/ui/blocks';
 
 import { canReadTenantScope } from '../../access/can-read-tenant-scope';
 import { slug } from '../../fields/slug/slug.field';
@@ -42,11 +49,18 @@ const pages: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: { en: 'Content', sv: 'Innehåll' },
+          label: { en: 'Content', sv: 'InnehållX' },
           fields: [
             {
               name: 'content',
               type: 'richText',
+              editor: lexicalEditor({
+                features: ({ rootFeatures }) => [
+                  ...rootFeatures,
+                  HeadingFeature({ enabledHeadingSizes: ['h2', 'h3'] }),
+                  BlocksFeature({ blocks: [codeBlock] })
+                ]
+              }),
               label: false,
               localized: true,
               admin: {

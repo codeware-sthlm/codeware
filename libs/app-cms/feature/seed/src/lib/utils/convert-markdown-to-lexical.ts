@@ -1,10 +1,14 @@
-import { createHeadlessEditor } from '@lexical/headless';
-import { $convertFromMarkdownString } from '@lexical/markdown';
 import {
+  $convertFromMarkdownString,
   defaultEditorFeatures,
   getEnabledNodes,
   sanitizeServerEditorConfig
 } from '@payloadcms/richtext-lexical';
+import type {
+  SerializedEditorState,
+  SerializedLexicalNode
+} from '@payloadcms/richtext-lexical/lexical';
+import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
 import type { SanitizedConfig } from 'payload';
 
 /**
@@ -19,14 +23,18 @@ import type { SanitizedConfig } from 'payload';
 export const convertMarkdownToLexical = async (
   config: SanitizedConfig,
   markdown?: string
-) => {
+): Promise<
+  | (SerializedEditorState<SerializedLexicalNode> & Record<string, unknown>)
+  | undefined
+> => {
   if (!markdown) {
     return undefined;
   }
 
   const editorConfig = await sanitizeServerEditorConfig(
     {
-      // TODO: Should be the features applied in `payload.config.ts`
+      // Might not be exactly the same as being used by the app,
+      // but it's meant for seeding data and not for rendering in the UI
       features: defaultEditorFeatures
     },
     config

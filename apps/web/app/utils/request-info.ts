@@ -8,7 +8,11 @@ import { type loader as rootLoader } from '../root';
  */
 export function useRequestInfo() {
   const data = useRouteLoaderData<typeof rootLoader>('root');
-  invariant(data?.requestInfo, 'No requestInfo found in root loader');
+
+  if (!data?.requestInfo) {
+    console.error('No request info found in root loader');
+    return null;
+  }
 
   return data.requestInfo;
 }

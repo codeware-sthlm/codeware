@@ -22,10 +22,13 @@
       "@codeware/app-cms/feature/seed": [
         "libs/app-cms/feature/seed/src/index.ts"
       ],
-      "@codeware/app-cms/ui/components": [
-        "libs/app-cms/ui/components/src/index.ts"
-      ],
+      "@codeware/app-cms/ui/blocks": ["libs/app-cms/ui/blocks/src/index.ts"],
+      "@codeware/app-cms/ui/blocks/*": ["libs/app-cms/ui/blocks/src/lib/*"],
       "@codeware/app-cms/ui/fields": ["libs/app-cms/ui/fields/src/index.ts"],
+      "@codeware/app-cms/ui/fields/*": ["libs/app-cms/ui/fields/src/lib/*"],
+      "@codeware/app-cms/util/definitions": [
+        "libs/app-cms/util/definitions/src/index.ts"
+      ],
       "@codeware/app-cms/util/env-schema": [
         "libs/app-cms/util/env-schema/src/index.ts"
       ],
@@ -54,6 +57,9 @@
       "@codeware/nx-payload": ["packages/nx-payload/index.ts"],
       "@codeware/shared/feature/infisical": [
         "libs/shared/feature/infisical/src/index.ts"
+      ],
+      "@codeware/shared/ui/payload-components": [
+        "libs/shared/ui/payload-components/src/index.ts"
       ],
       "@codeware/shared/ui/react-components": [
         "libs/shared/ui/react-components/src/index.ts"

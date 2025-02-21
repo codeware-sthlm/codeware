@@ -10,21 +10,9 @@ import {
 import { useRevalidator } from '@remix-run/react';
 import * as React from 'react';
 
-import { useRequestInfo } from './request-info';
-
 const hintsUtils = getHintUtils({ theme: colourSchemeHint });
 
 export const { getHints } = hintsUtils;
-
-/**
- * Hook to get the client hints from the request info
- *
- * @returns an object with the client hints and their values
- */
-export function useHints() {
-  const requestInfo = useRequestInfo();
-  return requestInfo.hints;
-}
 
 /**
  * Client hint check script

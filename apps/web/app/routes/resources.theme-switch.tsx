@@ -5,7 +5,6 @@ import { data, redirect, useFetcher, useFetchers } from '@remix-run/react';
 import { ServerOnly } from 'remix-utils/server-only';
 import { z } from 'zod';
 
-import { useHints } from '../utils/client-hints';
 import { useRequestInfo } from '../utils/request-info';
 import { Theme, setTheme } from '../utils/theme.server';
 
@@ -85,7 +84,7 @@ export function ThemeSwitch({
     >
       <ServerOnly>
         {() => (
-          <input type="hidden" name="redirectTo" value={requestInfo.path} />
+          <input type="hidden" name="redirectTo" value={requestInfo?.path} />
         )}
       </ServerOnly>
       <input type="hidden" name="theme" value={nextMode} />
@@ -106,13 +105,15 @@ export function ThemeSwitch({
  * has not set a preference.
  */
 export function useTheme() {
-  const hints = useHints();
   const requestInfo = useRequestInfo();
   const optimisticMode = useOptimisticThemeMode();
+
+  const hints = requestInfo?.hints;
+
   if (optimisticMode) {
-    return optimisticMode === 'system' ? hints.theme : optimisticMode;
+    return optimisticMode === 'system' ? hints?.theme : optimisticMode;
   }
-  return requestInfo.userPrefs.theme ?? hints.theme;
+  return requestInfo?.userPrefs.theme ?? hints?.theme;
 }
 
 /**

@@ -65,6 +65,7 @@ export interface Config {
     tenants: TenantAuthOperations;
     users: UserAuthOperations;
   };
+  blocks: {};
   collections: {
     articles: Article;
     media: Media;
@@ -522,6 +523,17 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock".
+ */
+export interface CodeBlock {
+  language?: ('ts' | 'plaintext' | 'tsx' | 'js' | 'jsx') | null;
+  code?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

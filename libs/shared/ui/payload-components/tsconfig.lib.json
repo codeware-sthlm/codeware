@@ -2,16 +2,22 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../../dist/out-tsc",
-    "declaration": true,
-    "types": ["node"]
+    "types": [
+      "node",
+      "@nx/react/typings/cssmodule.d.ts",
+      "@nx/react/typings/image.d.ts"
+    ]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.tsx",
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",
     "vitest.config.mts",
     "src/**/*.spec.ts",
     "src/**/*.spec.tsx"
-  ]
+  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

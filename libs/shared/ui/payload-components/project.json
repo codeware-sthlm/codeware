@@ -1,0 +1,8 @@
+{
+  "name": "shared-ui-payload-components",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui/payload-components/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "targets": {}
+}

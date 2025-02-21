@@ -1,7 +1,7 @@
 {
-  "name": "app-cms-ui-components",
+  "name": "app-cms-ui-blocks",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/app-cms/ui/components/src",
+  "sourceRoot": "libs/app-cms/ui/blocks/src",
   "projectType": "library",
   "tags": ["scope:app-cms", "type:ui"],
   "targets": {}

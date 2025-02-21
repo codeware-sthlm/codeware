@@ -1,10 +1,12 @@
-import { LexicalRenderer } from '@codeware/shared/ui/react-components';
+import { RichText } from '@codeware/shared/ui/payload-components';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json, useLoaderData, useRouteError } from '@remix-run/react';
 
 import { AppLoadContext } from '../api/create-request-init';
 import { fetchPage } from '../api/fetch-page';
 import { Container } from '../components/container';
+
+import { useTheme } from './resources.theme-switch';
 
 type LoaderError = {
   message: string;
@@ -48,6 +50,7 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
 
 export default function Page() {
   const { page } = useLoaderData<typeof loader>();
+  const theme = useTheme();
 
   return (
     <Container className="mt-16 sm:mt-32">
@@ -58,7 +61,7 @@ export default function Page() {
       </header>
       {page.content && (
         <div className="mt-8 prose dark:prose-invert">
-          <LexicalRenderer content={page.content} />
+          <RichText data={page.content} isDark={theme === 'dark'} />
         </div>
       )}
     </Container>

@@ -1,20 +1,19 @@
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../../../node_modules/.vite/libs/app-cms/ui/fields',
-  plugins: [react(), nxViteTsPaths()],
+  cacheDir: '../../../../node_modules/.vite/libs/app-cms/util/definitions',
+  plugins: [nxViteTsPaths()],
   test: {
-    name: 'app-cms-ui-fields',
+    name: 'app-cms-util-definitions',
     watch: false,
     globals: true,
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../../../coverage/libs/app-cms/ui/fields',
+      reportsDirectory: '../../../../coverage/libs/app-cms/util/definitions',
       provider: 'v8'
     },
     passWithNoTests: true

@@ -60,3 +60,5 @@ export const CdwrCloud = ({ className = '', size = 40, ...props }) => {
     </svg>
   );
 };
+
+export default CdwrCloud;

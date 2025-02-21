@@ -1,4 +1,8 @@
-import { HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
+import {
+  FixedToolbarFeature,
+  HeadingFeature,
+  lexicalEditor
+} from '@payloadcms/richtext-lexical';
 import type { Config } from 'payload';
 
 /**
@@ -14,8 +18,7 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
         // Exclude default features which we don't support yet
         !['relationship', 'upload'].includes(feature.key)
     ),
-    HeadingFeature({
-      enabledHeadingSizes: ['h2', 'h3']
-    })
+    FixedToolbarFeature({ applyToFocusedEditor: true }),
+    HeadingFeature()
   ]
 });

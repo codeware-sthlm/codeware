@@ -12,6 +12,18 @@
         "parallel": false
       }
     },
+    "reset-db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx tsx src/utils/reset-db.ts",
+        "cwd": "apps/cms",
+        "env": {
+          "DISABLE_DB_PUSH": "true",
+          "NODE_ENV": "development",
+          "SEED_SOURCE": "off"
+        }
+      }
+    },
     "seed": {
       "metadata": {
         "description": "Ad-hoc seed process using the local-api."

@@ -1,21 +1,34 @@
-import type { TenantLookup } from '@codeware/shared/util/seed';
+import type {
+  CategoryLookup,
+  TenantLookup,
+  UserLookup
+} from '@codeware/shared/util/seed';
 import type { Prettify } from '@codeware/shared/util/typesafe';
 
-import type { ArticleData } from './local-api/ensure-article';
+import type { CategoryData } from './local-api/ensure-category';
 import type { PageData } from './local-api/ensure-page';
+import type { PostData } from './local-api/ensure-post';
 import type { TenantData } from './local-api/ensure-tenant';
 import type { UserData } from './local-api/ensure-user';
 export type SeedEnvironment = 'development' | 'preview' | 'production';
 
-type ArticleDataLookup = Prettify<
-  Omit<ArticleData, 'content' | 'tenant'> & {
-    content: string;
+type CategoryDataLookup = Prettify<
+  Omit<CategoryData, 'slug' | 'tenant'> & {
+    slug: string;
+    tenant: Pick<TenantLookup, 'lookupApiKey'>;
+  }
+>;
+type PostDataLookup = Prettify<
+  Omit<PostData, 'authors' | 'categories' | 'content' | 'tenant'> & {
+    authors: Array<UserLookup>;
+    categories: Array<CategoryLookup>;
+    content: string; // Markdown content
     tenant: Pick<TenantLookup, 'lookupApiKey'>;
   }
 >;
 type PageDataLookup = Prettify<
-  Omit<PageData, 'content' | 'tenant'> & {
-    content: string;
+  Omit<PageData, 'layout' | 'tenant'> & {
+    layoutContent: string; // Markdown content
     tenant: Pick<TenantLookup, 'lookupApiKey'>;
   }
 >;
@@ -32,10 +45,11 @@ type TenantDataLookup = Prettify<
 
 // TODO: infer from seedDataSchema when it's refactored
 export type SeedData = {
+  categories: Array<CategoryDataLookup>;
+  pages: Array<PageDataLookup>;
+  posts: Array<PostDataLookup>;
   tenants: Array<TenantDataLookup>;
   users: Array<UserDataLookup>;
-  pages: Array<PageDataLookup>;
-  articles: Array<ArticleDataLookup>;
 };
 
 export type ItemsRange = {
@@ -74,9 +88,14 @@ export type SeedRules = {
   };
 
   /**
-   * Number of articles to generate per tenant.
+   * Number of categories to generate per tenant.
    */
-  tenantArticles?: ItemsRange;
+  tenantCategories?: ItemsRange;
+
+  /**
+   * Number of posts to generate per tenant.
+   */
+  tenantPosts?: ItemsRange;
 
   /**
    * Number of pages to generate per tenant.

@@ -65,11 +65,16 @@ export interface Config {
     tenants: TenantAuthOperations;
     users: UserAuthOperations;
   };
-  blocks: {};
+  blocks: {
+    code: CodeBlock;
+    content: ContentBlock;
+    media: MediaBlock;
+  };
   collections: {
-    articles: Article;
+    categories: Category;
     media: Media;
     pages: Page;
+    posts: Post;
     tenants: Tenant;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
@@ -78,9 +83,10 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents':
@@ -149,22 +155,76 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles".
+ * via the `definition` "CodeBlock".
  */
-export interface Article {
+export interface CodeBlock {
+  language: 'ts' | 'plaintext' | 'tsx' | 'js' | 'jsx';
+  code: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock".
+ */
+export interface ContentBlock {
+  columns?:
+    | {
+        size?: ('one-third' | 'half' | 'two-thirds' | 'full') | null;
+        richText?: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format:
+              | 'left'
+              | 'start'
+              | 'center'
+              | 'right'
+              | 'end'
+              | 'justify'
+              | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'media';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
   id: number;
   /**
-   * The title of the article and name used in navigation. Will also be displayed in the browser tab and article meta properties.
+   * The alternative text for the media.
    */
-  title: string;
+  alt?: string | null;
   /**
-   * The author of the article.
+   * The caption for the media.
    */
-  author: string;
-  /**
-   * The main content of the article.
-   */
-  content?: {
+  caption?: {
     root: {
       type: string;
       children: {
@@ -179,17 +239,80 @@ export interface Article {
     };
     [k: string]: unknown;
   } | null;
-  publishedAt?: string | null;
-  /**
-   * Used for url paths. Will be automatically generated from title if left empty.
-   */
-  slug?: string | null;
   /**
    * The workspace this document belongs to.
    */
   tenant?: (number | null) | Tenant;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    square?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    xlarge?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * A workspace works like an organization or a company, scoped to specific users and domains.
@@ -219,22 +342,24 @@ export interface Tenant {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "categories".
  */
-export interface Media {
+export interface Category {
   id: number;
-  alt: string;
+  /**
+   * The name of the category.
+   */
+  name: string;
+  /**
+   * Used for url paths. Will be automatically generated from name if left empty.
+   */
+  slug?: string | null;
+  /**
+   * The workspace this document belongs to.
+   */
+  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -243,13 +368,55 @@ export interface Media {
 export interface Page {
   id: number;
   /**
-   * The header of the page. Will be displayed at the top of the page.
+   * The name of the page used in navigation. Will also be displayed in the browser tab and page meta property.
    */
-  header: string;
+  name: string;
   /**
-   * The main content of the page.
+   * A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in "Layout builder".
    */
-  content?: {
+  header?: string | null;
+  /**
+   * Build the page content by adding the layout blocks you need.
+   */
+  layout: (ContentBlock | MediaBlock | CodeBlock)[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  /**
+   * The date the page is published.
+   */
+  publishedAt?: string | null;
+  /**
+   * Used for url paths. Will be automatically generated from name if left empty.
+   */
+  slug?: string | null;
+  /**
+   * The workspace this document belongs to.
+   */
+  tenant?: (number | null) | Tenant;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  /**
+   * The title of the post and name used in navigation.
+   */
+  title: string;
+  heroImage?: (number | null) | Media;
+  /**
+   * The main content of the article.
+   */
+  content: {
     root: {
       type: string;
       children: {
@@ -263,17 +430,24 @@ export interface Page {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
-  /**
-   * The name of the page used in navigation. Will also be displayed in the browser tab and page meta property.
-   */
-  name: string;
-  /**
-   * The date the page is published.
-   */
+  };
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
   publishedAt?: string | null;
   /**
-   * Used for url paths. Will be automatically generated from name if left empty.
+   * The authors of the post.
+   */
+  authors?: (number | User)[] | null;
+  /**
+   * Used for url paths. Will be automatically generated from title if left empty.
    */
   slug?: string | null;
   /**
@@ -330,8 +504,8 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'articles';
-        value: number | Article;
+        relationTo: 'categories';
+        value: number | Category;
       } | null)
     | ({
         relationTo: 'media';
@@ -340,6 +514,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
       } | null)
     | ({
         relationTo: 'tenants';
@@ -403,13 +581,10 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles_select".
+ * via the `definition` "categories_select".
  */
-export interface ArticlesSelect<T extends boolean = true> {
-  title?: T;
-  author?: T;
-  content?: T;
-  publishedAt?: T;
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
   slug?: T;
   tenant?: T;
   updatedAt?: T;
@@ -421,6 +596,9 @@ export interface ArticlesSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
+  tenant?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -432,16 +610,121 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        square?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        xlarge?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
-  header?: T;
-  content?: T;
   name?: T;
+  header?: T;
+  layout?: T | {};
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
   publishedAt?: T;
+  slug?: T;
+  tenant?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  heroImage?: T;
+  content?: T;
+  relatedPosts?: T;
+  categories?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  authors?: T;
   slug?: T;
   tenant?: T;
   updatedAt?: T;
@@ -523,17 +806,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language?: ('ts' | 'plaintext' | 'tsx' | 'js' | 'jsx') | null;
-  code?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

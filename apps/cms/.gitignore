@@ -1,2 +1,5 @@
 # Could possibly contain database credentials
 .env
+
+# Media folder for development
+public/media

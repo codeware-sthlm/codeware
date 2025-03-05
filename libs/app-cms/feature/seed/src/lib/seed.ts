@@ -7,13 +7,14 @@ import type { Payload, PayloadRequest } from 'payload';
 
 import { loadInfisicalData } from './load-infisical-data';
 import { loadStaticData } from './load-static-data';
-import { ensureArticle } from './local-api/ensure-article';
+import { ensureCategory } from './local-api/ensure-category';
 import { ensurePage } from './local-api/ensure-page';
+import { ensurePost } from './local-api/ensure-post';
 import { ensureTenant } from './local-api/ensure-tenant';
 import { ensureUser } from './local-api/ensure-user';
 import type { SeedData, SeedEnvironment } from './seed-types';
 import { convertMarkdownToLexical } from './utils/convert-markdown-to-lexical';
-import { tenantStore } from './utils/tenant-store';
+import { tempStore } from './utils/temp-store';
 
 /**
  * Seed Payload collections.
@@ -126,7 +127,7 @@ export const seed = async (args: {
           tenantId = Number(response);
         }
         // Save tenant id to map to lookup tenants later
-        tenantStore.store(tenant.apiKey, tenantId);
+        tempStore.storeTenant(tenant.apiKey, tenantId);
       } catch (error) {
         // Abort when we have a problem with a tenant
         payload.logger.error(
@@ -143,7 +144,7 @@ export const seed = async (args: {
       let userFailed = false;
 
       for (const user of seedData.users) {
-        const tenants = tenantStore.lookupWithRole(payload, user.tenants);
+        const tenants = tempStore.lookupTenantWithRole(payload, user.tenants);
 
         try {
           const password =
@@ -164,6 +165,7 @@ export const seed = async (args: {
             tenants
           });
 
+          let userId: number;
           if (typeof response === 'object') {
             payload.logger.info(
               `[SEED] User '${user.name}' on tenants ${
@@ -172,9 +174,14 @@ export const seed = async (args: {
                   .join(', ') || '<none>'
               }`
             );
+            userId = response.id;
+          } else {
+            userId = Number(response);
           }
+          // Save user id to map to lookup users later
+          tempStore.storeUser(user.email, userId);
         } catch (error) {
-          payload.logger.error(error);
+          payload.logger.error((error as Error).message);
           userFailed = true;
         }
       }
@@ -185,21 +192,69 @@ export const seed = async (args: {
       );
     }
 
+    // CATEGORIES
+
+    if (seedData.categories.length > 0) {
+      let categoryFailed = false;
+
+      for (const category of seedData.categories) {
+        const [entity] = tempStore.lookupTenant(payload, [category.tenant]);
+
+        try {
+          const response = await ensureCategory(payload, req, {
+            name: category.name,
+            slug: category.slug,
+            tenant: entity.tenant
+          });
+
+          let categoryId: number;
+          if (typeof response === 'object') {
+            payload.logger.info(
+              `[SEED] Category '${category.slug}' on tenant #${entity.tenant}`
+            );
+            categoryId = response.id;
+          } else {
+            categoryId = Number(response);
+          }
+          // Save category id to map to lookup categories later
+          tempStore.storeCategory(category.slug, categoryId);
+        } catch (error) {
+          payload.logger.error((error as Error).message);
+          categoryFailed = true;
+        }
+      }
+      payload.logger.info(
+        categoryFailed
+          ? '[SEED] Problem occurred with categories, check your data!'
+          : '[SEED] >> Categories up to date'
+      );
+    }
+
     // PAGES
 
     if (seedData.pages.length > 0) {
       let pageFailed = false;
 
       for (const page of seedData.pages) {
-        const [entity] = tenantStore.lookup(payload, [page.tenant]);
+        const [entity] = tempStore.lookupTenant(payload, [page.tenant]);
 
         try {
           const response = await ensurePage(payload, req, {
-            content: await convertMarkdownToLexical(
-              payload.config,
-              page.content
-            ),
             header: page.header,
+            layout: [
+              {
+                blockType: 'content',
+                columns: [
+                  {
+                    size: 'full',
+                    richText: await convertMarkdownToLexical(
+                      payload.config,
+                      page.layoutContent
+                    )
+                  }
+                ]
+              }
+            ],
             name: page.name,
             slug: page.slug,
             tenant: entity.tenant
@@ -211,7 +266,7 @@ export const seed = async (args: {
             );
           }
         } catch (error) {
-          payload.logger.error(error);
+          payload.logger.error((error as Error).message);
           pageFailed = true;
         }
       }
@@ -222,40 +277,43 @@ export const seed = async (args: {
       );
     }
 
-    // ARTICLES
+    // POSTS
 
-    if (seedData.articles.length > 0) {
-      let articleFailed = false;
+    if (seedData.posts.length > 0) {
+      let postFailed = false;
 
-      for (const article of seedData.articles) {
-        const [entity] = tenantStore.lookup(payload, [article.tenant]);
+      for (const post of seedData.posts) {
+        const categories = tempStore.lookupCategory(payload, post.categories);
+        const [entity] = tempStore.lookupTenant(payload, [post.tenant]);
+        const authors = tempStore.lookupUser(payload, post.authors);
 
         try {
-          const response = await ensureArticle(payload, req, {
-            author: article.author,
+          const response = await ensurePost(payload, req, {
+            authors,
+            categories,
             content: await convertMarkdownToLexical(
               payload.config,
-              article.content
+              post.content
             ),
-            slug: article.slug,
-            title: article.title,
+            slug: post.slug,
+            title: post.title,
             tenant: entity.tenant
           });
 
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] Article '${article.slug}' on tenant #${entity.tenant}`
+              `[SEED] Post '${post.slug}' on tenant #${entity.tenant}`
             );
           }
         } catch (error) {
           payload.logger.error(error);
-          articleFailed = true;
+          postFailed = true;
         }
       }
       payload.logger.info(
-        articleFailed
-          ? '[SEED] Problem occurred with articles, check your data!'
-          : '[SEED] >> Articles up to date'
+        postFailed
+          ? '[SEED] Problem occurred with posts, check your data!'
+          : '[SEED] >> Posts up to date'
       );
     }
 
@@ -267,12 +325,12 @@ export const seed = async (args: {
       await payload.db.commitTransaction(req.transactionID);
     }
   } catch (error) {
-    payload.logger.error(error);
+    payload.logger.error((error as Error).message);
     payload.logger.error('[SEED] Something broke :(');
 
     // Rollback transaction if started
     if (req.transactionID && payload.db.rollbackTransaction) {
-      payload.logger.debug(`[SEED] Rollback transaction ${req.transactionID}`);
+      payload.logger.info(`[SEED] Rollback transaction ${req.transactionID}`);
       await payload.db.rollbackTransaction(req.transactionID);
     }
     return false;

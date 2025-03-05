@@ -23,7 +23,11 @@ export const EnvSchema = z.object({
     }),
   TENANT_ID: z
     .string({ description: 'Application identifier' })
-    .min(1, { message: 'TENANT_ID is required' })
+    .min(1, { message: 'TENANT_ID is required' }),
+  DEBUG: z
+    .string({ description: 'Debug mode' })
+    .transform((d) => d === 'true')
+    .default('false')
 });
 
 export type Env = z.infer<typeof EnvSchema>;

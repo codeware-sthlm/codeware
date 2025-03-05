@@ -1,8 +1,7 @@
-import {
-  Code,
-  type Props as CodeProps
-} from '@codeware/shared/ui/react-components';
-import type { CodeBlock } from '@codeware/shared/util/payload-types';
+import type {
+  CodeBlock as CodeBlockProps,
+  MediaBlock as MediaBlockProps
+} from '@codeware/shared/util/payload-types';
 import type {
   DefaultNodeTypes,
   SerializedBlockNode
@@ -14,9 +13,13 @@ import {
 } from '@payloadcms/richtext-lexical/react';
 import { clsx } from 'clsx';
 
+import { CodeBlock } from './CodeBlock';
+import { MediaBlock } from './MediaBlock';
+import type { RenderBlocksExtraProps } from './render-blocks.type';
+
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<CodeProps & Pick<CodeBlock, 'blockType'>>;
+  | SerializedBlockNode<CodeBlockProps | MediaBlockProps>;
 
 /**
  * Converts custom Payload blocks from Lexical to React JSX components.
@@ -24,43 +27,42 @@ type NodeTypes =
  * Blocks defined in `app-cms-ui-blocks` must be added here to be rendered in a client.
  */
 const jsxConverters =
-  (isDark?: boolean): JSXConvertersFunction<NodeTypes> =>
+  (args: {
+    apiUrl: string;
+    enableProse: boolean;
+    isDark: boolean;
+  }): JSXConvertersFunction<NodeTypes> =>
   ({ defaultConverters }) => ({
     ...defaultConverters,
     blocks: {
-      code: ({ node }) => (
-        <Code theme={isDark ? 'vsDark' : 'vsLight'} {...node.fields} />
+      code: ({ node }) => <CodeBlock isDark={args.isDark} {...node.fields} />,
+      media: ({ node }) => (
+        <MediaBlock
+          apiUrl={args.apiUrl}
+          enableProse={args.enableProse}
+          isDark={args.isDark}
+          {...node.fields}
+        />
       )
     }
   });
 
 type Props = {
   data: SerializedEditorState;
-  enableGutter?: boolean;
-  enableProse?: boolean;
-  isDark: boolean;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & Pick<RenderBlocksExtraProps, 'enableProse' | 'apiUrl' | 'isDark'> &
+  React.HTMLAttributes<HTMLDivElement>;
 
 /**
- * Rich text React component for Payload Lexical editor data.
+ * Rich text component to render Payload Lexical editor data.
  */
 export const RichText = (props: Props) => {
-  const {
-    className,
-    enableProse = true,
-    enableGutter = true,
-    isDark,
-    ...rest
-  } = props;
+  const { className = '', enableProse, apiUrl, isDark, ...rest } = props;
   return (
     <RichTextWithoutBlocks
-      converters={jsxConverters(isDark)}
+      converters={jsxConverters({ apiUrl, enableProse, isDark })}
       className={clsx(
         {
-          // TODO: Does this work for us; might be adapted to Payload Next.js template?
-          'container ': enableGutter,
-          'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md dark:prose-invert ': enableProse
+          'mx-auto prose md:prose-md dark:prose-invert': enableProse
         },
         className
       )}

@@ -19,6 +19,7 @@ export const codeBlock: Block = {
         label: value,
         value: key
       })),
+      required: true,
       defaultValue: 'ts' satisfies CodeLanguage
     },
     codeField

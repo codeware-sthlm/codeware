@@ -26,6 +26,7 @@
       "@codeware/app-cms/ui/blocks/*": ["libs/app-cms/ui/blocks/src/lib/*"],
       "@codeware/app-cms/ui/fields": ["libs/app-cms/ui/fields/src/index.ts"],
       "@codeware/app-cms/ui/fields/*": ["libs/app-cms/ui/fields/src/lib/*"],
+      "@codeware/app-cms/ui/tabs": ["libs/app-cms/ui/tabs/src/index.ts"],
       "@codeware/app-cms/util/definitions": [
         "libs/app-cms/util/definitions/src/index.ts"
       ],
@@ -34,6 +35,9 @@
       ],
       "@codeware/app-cms/util/functions": [
         "libs/app-cms/util/functions/src/index.ts"
+      ],
+      "@codeware/app-cms/util/plugins": [
+        "libs/app-cms/util/plugins/src/index.ts"
       ],
       "@codeware/core/actions": ["packages/core/src/actions.ts"],
       "@codeware/core/release": ["packages/core/src/release.ts"],
@@ -65,6 +69,9 @@
         "libs/shared/ui/react-components/src/index.ts"
       ],
       "@codeware/shared/util/node": ["libs/shared/util/node/src/index.ts"],
+      "@codeware/shared/util/payload-api": [
+        "libs/shared/util/payload-api/src/index.ts"
+      ],
       "@codeware/shared/util/payload-types": [
         "libs/shared/util/payload-types/src/index.ts"
       ],
@@ -75,6 +82,7 @@
       "@codeware/shared/util/typesafe": [
         "libs/shared/util/typesafe/src/index.ts"
       ],
+      "@codeware/shared/util/ui": ["libs/shared/util/ui/src/index.ts"],
       "@codeware/shared/util/zod": ["libs/shared/util/zod/src/index.ts"],
       "@payload-cms/*": ["apps/cms/src/*"],
       "@payload-config": ["apps/cms/src/payload.config.ts"]

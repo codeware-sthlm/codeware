@@ -1,11 +1,10 @@
 import type { CollectionConfig } from 'payload';
 
-import { systemUser } from '../../access/system-user';
-import { slug } from '../../fields/slug/slug.field';
+import { slugField } from '@codeware/app-cms/ui/fields';
+import { hasRole, systemUserAccess } from '@codeware/app-cms/util/functions';
 
-import { canReadTenant } from './access/can-read-tenant';
-import { hideTenantsCollection } from './admin/hide-tenants-collection';
-import { enforceApiKey } from './hooks/enforce-api-key';
+import { canReadTenantAccess } from './access/can-read-tenant.access';
+import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';
 
 /**
  * Tenants collection
@@ -17,13 +16,13 @@ const tenants: CollectionConfig = {
     disableLocalStrategy: true
   },
   access: {
-    create: systemUser,
-    delete: systemUser,
-    read: canReadTenant,
-    update: systemUser
+    create: systemUserAccess,
+    delete: systemUserAccess,
+    read: canReadTenantAccess,
+    update: systemUserAccess
   },
   hooks: {
-    beforeChange: [enforceApiKey]
+    beforeChange: [enforceApiKeyHook]
   },
   admin: {
     useAsTitle: 'name',
@@ -31,7 +30,8 @@ const tenants: CollectionConfig = {
       en: 'A workspace works like an organization or a company, scoped to specific users and domains.',
       sv: 'En arbetsyta fungerar som en organisation eller ett företag, begränsad till specifika användare och domäner.'
     },
-    hidden: hideTenantsCollection
+    // Only system users can see the tenants collection
+    hidden: (args) => !hasRole(args.user, 'system-user')
   },
   labels: {
     singular: { en: 'Workspace', sv: 'Arbetsyta' },
@@ -63,7 +63,7 @@ const tenants: CollectionConfig = {
         }
       ]
     },
-    slug({ sourceField: 'name' })
+    slugField({ sourceField: 'name' })
   ]
 };
 

@@ -32,7 +32,7 @@ const Code: React.FC<CodeFieldClientProps> = ({
 
   // Get the selected code language from the language field or default to 'ts'
   const selectedCodeLanguage = (languageField?.value ||
-    languageField.initialValue ||
+    languageField?.initialValue ||
     ('ts' satisfies CodeLanguage)) as CodeLanguage;
 
   // Get the corresponding Monaco language

@@ -1,8 +1,13 @@
 import type { ClientUser, User } from 'payload';
 
-import type { User as CollectionUser, Config, Tenant } from './payload-types';
+import type {
+  User as CollectionUser,
+  Config,
+  ContentBlock,
+  Tenant
+} from './payload-types';
 
-type CollectionWithoutPayload = {
+export type CollectionWithoutPayload = {
   [key in keyof Config['collections'] as key extends `payload${string}`
     ? never
     : key]: Config['collections'][key];
@@ -33,3 +38,8 @@ export type TenantRole = NonNullable<User['tenants']>[number]['role'];
 
 /** User type that can be any of the user types defined by Payload */
 export type UserAny = ClientUser | CollectionUser | User;
+
+/** Content block column size */
+export type ContentBlockSize = NonNullable<
+  NonNullable<NonNullable<ContentBlock['columns']>[number]>['size']
+>;

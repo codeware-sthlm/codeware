@@ -6,8 +6,6 @@ export type UserData = Pick<
   'description' | 'email' | 'name' | 'password' | 'role' | 'tenants'
 >;
 
-const collection = 'users';
-
 /**
  * Ensure that a user exist with the given email.
  *
@@ -27,7 +25,7 @@ export async function ensureUser(
   // Check if the user exists with the given email
   const users = await payload.find({
     req,
-    collection,
+    collection: 'users',
     where: {
       email: { equals: email }
     },
@@ -43,7 +41,7 @@ export async function ensureUser(
 
   const user = await payload.create({
     req,
-    collection,
+    collection: 'users',
     data: {
       description,
       email,

@@ -7,11 +7,18 @@ import sharp from 'sharp';
 
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { seed } from '@codeware/app-cms/feature/seed';
+import {
+  codeBlock,
+  contentBlock,
+  mediaBlock
+} from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
+import { getPugins } from '@codeware/app-cms/util/plugins';
 
-import articles from './collections/articles/articles.collection';
+import categories from './collections/categories/categories.collection';
 import media from './collections/media/media.collection';
 import pages from './collections/pages/pages.collection';
+import posts from './collections/posts/posts.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
 import { migrations } from './migrations';
@@ -33,7 +40,10 @@ export default buildConfig({
       }
     }
   },
-  collections: [articles, media, pages, tenants, users],
+  // Declare blocks globally and reference then by slug elsewhere
+  // https://payloadcms.com/docs/fields/blocks#block-references
+  blocks: [codeBlock, contentBlock, mediaBlock],
+  collections: [categories, media, pages, posts, tenants, users],
   cors: env.CORS_URLS === '*' ? '*' : env.CORS_URLS.split(',').filter(Boolean),
   csrf: env.CSRF_URLS.split(',').filter(Boolean),
   db: postgresAdapter({
@@ -44,6 +54,7 @@ export default buildConfig({
     prodMigrations: migrations
   }),
   editor: defaultLexical,
+  plugins: getPugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
   // i18n support
   i18n: { fallbackLanguage: 'sv' },
@@ -91,6 +102,18 @@ export default buildConfig({
   },
   // Misc
   debug: env.LOG_LEVEL === 'debug',
+  hooks: {
+    afterError: [
+      ({ error, req, collection }) => {
+        if (env.LOG_LEVEL === 'debug') {
+          const { headers, href } = req;
+          console.log(`[DEBUG|afterError] ${collection?.slug} | ${href}`);
+          console.log(`[DEBUG|afterError] ${error}`);
+          console.log(`[DEBUG|afterError]`, headers);
+        }
+      }
+    ]
+  },
   telemetry: false,
   sharp
 });

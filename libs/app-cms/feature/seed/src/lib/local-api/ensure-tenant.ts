@@ -5,8 +5,6 @@ export type TenantData = Pick<Tenant, 'name' | 'description' | 'apiKey'> & {
   hosts: Array<string>;
 };
 
-const collection = 'tenants';
-
 /**
  * Ensure that a tenant exists and has an API key created.
  *
@@ -30,7 +28,7 @@ export async function ensureTenant(
   // Check if the tenant exists with the given host (name )
   const tenants = await payload.find({
     req,
-    collection,
+    collection: 'tenants',
     where: {
       and: [{ name: { equals: name } }, { 'domains.domain': { in: hosts } }]
     },
@@ -51,7 +49,7 @@ export async function ensureTenant(
 
   const tenant = await payload.create({
     req,
-    collection,
+    collection: 'tenants',
     data: {
       enableAPIKey: true,
       apiKey,

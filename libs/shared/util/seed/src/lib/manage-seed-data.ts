@@ -82,11 +82,17 @@ const loadSeedData = <TData>(
       return null;
   }
 
-  const { success, data } = EnvSeedDataSchema.safeParse(seedData);
+  const { success, data, error } = EnvSeedDataSchema.safeParse(seedData);
 
   if (!success) {
-    logger.warn(`Invalid seed data found in ${environment} environment`);
-    logger.warn('Verify it has not been modified by mistake!');
+    logger.warn(
+      `Invalid seed data found in '${environment}' environment:\n${JSON.stringify(
+        error.errors,
+        null,
+        2
+      )}`
+    );
+    logger.warn('Verify the seed file has not been modified by mistake!');
     return null;
   }
 

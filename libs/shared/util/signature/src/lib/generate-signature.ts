@@ -61,7 +61,7 @@ type Args = {
  *
  * @param args - The arguments to generate the signature headers.
  * @returns The signature headers
- * @throws If the headers are not valid.
+ * @throws `ZodError` if the headers are not valid.
  *
  * @example
  * ```ts

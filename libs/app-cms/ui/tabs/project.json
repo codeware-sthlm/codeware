@@ -1,0 +1,8 @@
+{
+  "name": "app-cms-ui-tabs",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/ui/tabs/src",
+  "projectType": "library",
+  "tags": ["scope:app-cms", "type:ui"],
+  "targets": {}
+}

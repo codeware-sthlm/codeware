@@ -256,17 +256,36 @@ Applications deployed to preview will be automatically attached to the Postgres 
 > fly pg create --name pg-preview --org codeware --region arn --vm-size shared-cpu-1x --volume-size 1 --initial-cluster-size 2
 >
 > # Detach application from the Postgres cluster
-> fly pg detach pg-preview -a cdwr_cms_pr_{pr-number}
+> fly pg detach pg-preview -a cdwr-cms-pr-{pr-number}
 >
 > # Delete application
-> fly apps destroy cdwr_cms_pr_{pr-number}
+> fly apps destroy cdwr-cms-pr-{pr-number}
 >
 > # List all Postgres databases
 > fly pg db list -a pg-preview
 >
-> # Cleanup dangling database and user
-> sh scripts/cleanup-db.sh cdwr_cms_pr_{pr-number} {cluster-password}
 > ```
+
+##### Pull request database maintenance <!-- omit in toc -->
+
+Cleanup dangling database and user when the PR has been closed.
+
+```sh
+sh scripts/cleanup-db.sh {pr-number} {cluster-password}
+```
+
+Drop the database when you want to start fresh on next app start/restart.
+
+```sh
+sh scripts/drop-db.sh {pr-number} {cluster-password}
+```
+
+Then stop and restart the application machine.
+
+```sh
+fly machine stop {machine-id}
+fly machine restart {machine-id}
+```
 
 ##### Connect to the database on local machine <!-- omit in toc -->
 

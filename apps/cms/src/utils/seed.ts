@@ -1,7 +1,6 @@
 import { getPayload } from 'payload';
 
 import { loadEnv } from '@codeware/app-cms/feature/env-loader';
-import { seed } from '@codeware/app-cms/feature/seed';
 
 import config from '../payload.config';
 
@@ -27,18 +26,10 @@ const doSeed = async (): Promise<void> => {
     process.exit(0);
   }
 
-  const payload = await getPayload({ config });
+  // Seed will trigger on payload init
+  await getPayload({ config });
 
-  const status = await seed({
-    environment: env.DEPLOY_ENV,
-    payload,
-    source: env.SEED_SOURCE,
-    strategy: env.SEED_STRATEGY
-  });
-
-  console.log('Seed data completed');
-
-  process.exit(status ? 0 : 1);
+  process.exit(0);
 };
 
 doSeed();

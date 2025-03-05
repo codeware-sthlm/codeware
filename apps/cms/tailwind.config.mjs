@@ -17,6 +17,9 @@ const config = {
     ),
     ...createGlobPatternsForDependencies(dirname)
   ],
+  corePlugins: {
+    preflight: false
+  },
   darkMode: ['selector', '[data-theme="dark"]', '.dark'],
   //theme: {}
   plugins: [typography, tailwindcssAnimate]

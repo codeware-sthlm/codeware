@@ -7,7 +7,9 @@ import {
 } from '@codeware/app-cms/util/functions';
 
 /**
- * Permission to read users
+ * Permission to read users.
+ *
+ * Only authenticated users have access to users.
  *
  * - Tenant is scoped via cookie
  *   - System users have access to all scoped tenant users

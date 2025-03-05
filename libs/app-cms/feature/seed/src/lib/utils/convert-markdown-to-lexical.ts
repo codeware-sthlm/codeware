@@ -24,11 +24,19 @@ export const convertMarkdownToLexical = async (
   config: SanitizedConfig,
   markdown?: string
 ): Promise<
-  | (SerializedEditorState<SerializedLexicalNode> & Record<string, unknown>)
-  | undefined
+  SerializedEditorState<SerializedLexicalNode> & Record<string, unknown>
 > => {
   if (!markdown) {
-    return undefined;
+    return {
+      root: {
+        children: [],
+        type: 'root',
+        version: 1,
+        direction: 'ltr',
+        format: 'left',
+        indent: 0
+      }
+    };
   }
 
   const editorConfig = await sanitizeServerEditorConfig(

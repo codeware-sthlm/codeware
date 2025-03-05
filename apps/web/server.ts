@@ -35,16 +35,16 @@ const app = new Hono()
         return {
           ...c.env,
           deviceId: randomUUID(),
-          // Development only
-          tenantApiKey: c.get('tenantApiKey'),
-          tenantId: c.get('tenantId')
+          // Special handling in development, otherwise use environment variables
+          tenantApiKey: c.get('tenantApiKey') ?? env.PAYLOAD_API_KEY,
+          tenantId: c.get('tenantId') ?? env.TENANT_ID
         };
       }
     })
   );
 
 // Disable logger in production
-if (env.DEPLOY_ENV !== 'production') {
+if (env.DEBUG) {
   app.use(logger());
 }
 

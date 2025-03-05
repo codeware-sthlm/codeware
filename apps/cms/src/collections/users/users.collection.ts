@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload';
 
+import { authenticatedAccess } from '@codeware/app-cms/util/functions';
+
 import { canCreateUsers } from './access/can-create-users';
 import { canDeleteUsers } from './access/can-delete-users';
 import { canReadUsers } from './access/can-read-users';
@@ -23,6 +25,7 @@ const users: CollectionConfig = {
     plural: { en: 'Users', sv: 'Användare' }
   },
   access: {
+    admin: authenticatedAccess,
     create: canCreateUsers,
     delete: canDeleteUsers,
     read: canReadUsers,

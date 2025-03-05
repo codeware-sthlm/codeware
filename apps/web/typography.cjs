@@ -275,6 +275,11 @@ module.exports = function typographyStyles({ theme }) {
         },
         ':is(tbody, tfoot) td:not(:last-child)': {
           paddingRight: theme('spacing.2')
+        },
+
+        // Grid
+        '.grid :is(h1, h2, h3, h4, p):first-of-type': {
+          marginTop: 0
         }
       }
     }

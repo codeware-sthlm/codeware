@@ -30,7 +30,7 @@ export const generatePages = (
         (name) => ({
           name,
           header: randCatchPhrase(),
-          content: `## ${randSong()} ${randEmoji()}
+          layoutContent: `## ${randSong()} ${randEmoji()}
 ${randPhrase()}
 ### ${randJobTitle()}
 ${randLine()}

@@ -8,8 +8,9 @@ import type {
   SeedEnvironment,
   StaticSeedOptions
 } from './seed-types';
-import { generateArticles } from './utils/generate-articles';
+import { generateCategories } from './utils/generate-categories';
 import { generatePages } from './utils/generate-pages';
+import { generatePosts } from './utils/generate-posts';
 import { generateTenants } from './utils/generate-tenants';
 import { generateUsers } from './utils/generate-users';
 
@@ -22,11 +23,12 @@ export const defaultSeedRules: Prettify<
 > = {
   tenants: { min: 2, max: 3 },
   systemUsers: { min: 2, max: 3 },
+  tenantCategories: { min: 2, max: 3 },
   tenantUsers: {
     roleAdmin: { min: 1, max: 2 },
     roleUser: { min: 1, max: 5 }
   },
-  tenantArticles: { min: 5, max: 10 },
+  tenantPosts: { min: 5, max: 10 },
   tenantPages: { min: 4, max: 6 }
 } as const;
 
@@ -54,9 +56,9 @@ export const loadStaticData = (args: {
   }
 
   const jsonData = manageSeedData.load(environment, {
-    error: payload.logger.error,
-    log: payload.logger.info,
-    warn: payload.logger.warn
+    error: (msg, ...args) => payload.logger.error(msg, args),
+    log: (msg, ...args) => payload.logger.info(msg, args),
+    warn: (msg, ...args) => payload.logger.warn(msg, args)
   });
 
   if (jsonData) {
@@ -66,6 +68,14 @@ export const loadStaticData = (args: {
     return jsonData;
   }
 
+  // Generating data should be for development only
+  if (environment !== 'development') {
+    throw new Error(
+      `Generating seed data is not allowed in '${environment}' environment`
+    );
+  }
+
+  // Generate new seed data
   if (constantSeedKey !== null) {
     const seedKey = constantSeedKey ?? environment;
     payload.logger.info(`[SEED] Seeding constant data using key '${seedKey}'`);
@@ -97,6 +107,12 @@ export const loadStaticData = (args: {
     tenants: []
   });
 
+  // Generate categories
+  const categories = generateCategories(
+    seedRules.tenantCategories ?? defaultSeedRules.tenantCategories,
+    tenants
+  );
+
   // Generate pages
   const pages = generatePages(
     seedRules.tenantPages ?? defaultSeedRules.tenantPages,
@@ -108,22 +124,25 @@ export const loadStaticData = (args: {
       name: 'Home',
       slug: 'home',
       header: `Welcome to ${tenant.name}`,
-      content: `_${randCatchPhrase()}_ ${randEmoji()}
+      layoutContent: `_${randCatchPhrase()}_ ${randEmoji()}
 > ${randQuote()}`,
       tenant: { lookupApiKey: tenant.apiKey }
     });
   });
 
-  // Generate articles
-  const articles = generateArticles(
-    seedRules.tenantArticles ?? defaultSeedRules.tenantArticles,
-    tenants
+  // Generate posts
+  const posts = generatePosts(
+    seedRules.tenantPosts ?? defaultSeedRules.tenantPosts,
+    categories,
+    tenants,
+    users
   );
 
   // Combine all data to the final seed object
   const seedData: SeedData = {
-    articles,
+    categories,
     pages,
+    posts,
     tenants,
     users
   };
@@ -131,9 +150,9 @@ export const loadStaticData = (args: {
   // Write seed data to file to be re-used next time.
   // It will prevent us from generating random data every time.
   manageSeedData.save(environment, seedData, {
-    error: payload.logger.error,
-    log: payload.logger.info,
-    warn: payload.logger.warn
+    error: (msg, ...args) => payload.logger.error(msg, args),
+    log: (msg, ...args) => payload.logger.info(msg, args),
+    warn: (msg, ...args) => payload.logger.warn(msg, args)
   });
 
   return seedData;

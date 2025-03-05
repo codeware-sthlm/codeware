@@ -1,10 +1,11 @@
-import { RichText } from '@codeware/shared/ui/payload-components';
+import { RenderBlocks } from '@codeware/shared/ui/payload-components';
+import { findBySlug } from '@codeware/shared/util/payload-api';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json, useLoaderData, useRouteError } from '@remix-run/react';
 
-import { AppLoadContext } from '../api/create-request-init';
-import { fetchPage } from '../api/fetch-page';
+import env from '../../env-resolver/env';
 import { Container } from '../components/container';
+import { getApiOptions } from '../utils/get-api-options';
 
 import { useTheme } from './resources.theme-switch';
 
@@ -33,7 +34,11 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
   }
 
   try {
-    const page = await fetchPage(context as AppLoadContext, slug, request);
+    const page = await findBySlug(
+      'pages',
+      slug,
+      getApiOptions(context, request)
+    );
     if (!page) {
       const error: LoaderError = {
         message: 'Page not found',
@@ -41,7 +46,7 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
       };
       throw Response.json(error);
     }
-    return json({ page });
+    return json({ page, apiUrl: env.PAYLOAD_URL });
   } catch (e) {
     const error = e as Error;
     throw Response.json({ message: error.message }, { status: 404 });
@@ -49,21 +54,26 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
 }
 
 export default function Page() {
-  const { page } = useLoaderData<typeof loader>();
+  const { page, apiUrl } = useLoaderData<typeof loader>();
   const theme = useTheme();
 
   return (
     <Container className="mt-16 sm:mt-32">
-      <header className="max-w-2xl">
-        <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
-          {page.header}
-        </h1>
-      </header>
-      {page.content && (
-        <div className="mt-8 prose dark:prose-invert">
-          <RichText data={page.content} isDark={theme === 'dark'} />
-        </div>
+      {page.header && (
+        <header className="max-w-2xl">
+          <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
+            {page.header}
+          </h1>
+        </header>
       )}
+      <article className="mt-16 prose md:prose-md dark:prose-invert">
+        <RenderBlocks
+          apiUrl={apiUrl}
+          blocks={page.layout}
+          enableProse={false}
+          isDark={theme === 'dark'}
+        />
+      </article>
     </Container>
   );
 }

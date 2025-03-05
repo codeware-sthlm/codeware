@@ -1,5 +1,6 @@
 import { CdwrCloud } from '@codeware/shared/ui/react-components';
-import type { Page } from '@codeware/shared/util/payload-types';
+import { getShallow } from '@codeware/shared/util/payload-api';
+import type { Page, Post } from '@codeware/shared/util/payload-types';
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -16,8 +17,6 @@ import {
   useLoaderData
 } from '@remix-run/react';
 
-import type { AppLoadContext } from './api/create-request-init';
-import { fetchPages } from './api/fetch-pages';
 import { Container } from './components/container';
 import { DesktopNavigation } from './components/desktop-navigation';
 import { GeneralErrorBoundary } from './components/error-boundary';
@@ -26,9 +25,11 @@ import { MobileNavigation } from './components/mobile-navigation';
 import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';
 import { ClientHintCheck, getHints } from './utils/client-hints';
+import { getApiOptions } from './utils/get-api-options';
 import { type Theme, getTheme } from './utils/theme.server';
 
 export type PageDetails = Pick<Page, 'name' | 'slug'> & { slug: string };
+export type PostDetails = Pick<Post, 'title' | 'slug'> & { slug: string };
 
 export const meta: MetaFunction = () => [
   {
@@ -58,27 +59,36 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     /** Error message to display to the user when we have e.g. API issues */
     let displayError = '';
     let pages: Array<Page> = [];
+    let posts: Array<Post> = [];
 
-    // Fetch pages but don't propagate the exception to the error boundary
+    // Fetch layout data but don't propagate the exception to the error boundary
     try {
-      pages = await fetchPages(context as AppLoadContext, request);
+      pages = await getShallow('pages', getApiOptions(context, request));
+      posts = await getShallow('posts', getApiOptions(context, request));
     } catch (e) {
       const error = e as Error;
-      console.error(`Failed to load pages: ${error.message}\n`, error.cause);
-      displayError = 'Unable to load pages. Please try again later.';
+      console.error(`Failed to load shallow data: ${error.message}`);
+      displayError = 'Unable to load content. Please try again later.';
     }
 
-    // Filter pages to expose to the client
+    // Filter what to expose to the client
     const pageDetails: Array<PageDetails> = pages
       .filter(({ slug }) => slug)
       .map(({ name, slug }) => ({
         name,
         slug: String(slug)
       }));
+    const postDetails: Array<PostDetails> = posts
+      .filter(({ slug }) => slug)
+      .map(({ title, slug }) => ({
+        title,
+        slug: String(slug)
+      }));
 
     return {
       displayError,
       pages: pageDetails,
+      posts: postDetails,
       requestInfo: {
         hints: getHints(request),
         path: new URL(request.url).pathname,

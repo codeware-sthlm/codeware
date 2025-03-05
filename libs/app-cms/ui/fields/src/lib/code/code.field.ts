@@ -1,4 +1,4 @@
-import { CodeField } from 'payload';
+import type { CodeField } from 'payload';
 
 export const codeField: CodeField = {
   name: 'code',
@@ -7,5 +7,6 @@ export const codeField: CodeField = {
     components: {
       Field: '@codeware/app-cms/ui/fields/code/Code.client'
     }
-  }
+  },
+  required: true
 };

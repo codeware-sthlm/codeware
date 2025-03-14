@@ -3,9 +3,6 @@ import { fileURLToPath } from 'url';
 
 import type { CollectionConfig } from 'payload';
 
-import { tenantField } from '@codeware/app-cms/ui/fields';
-import { canReadTenantScopeAccess } from '@codeware/app-cms/util/functions';
-
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
@@ -17,12 +14,14 @@ const media: CollectionConfig = {
   admin: {
     defaultColumns: ['filename', 'mimeType', 'tenant', 'createdAt']
   },
+  access: {
+    // Media files like images are not fetched, hence no api key to verify.
+    // For admin access, the plugin appends proper permission filters.
+    read: () => true
+  },
   labels: {
     singular: { en: 'Media', sv: 'Media' },
     plural: { en: 'Media', sv: 'Media' }
-  },
-  access: {
-    read: canReadTenantScopeAccess
   },
   fields: [
     {
@@ -45,8 +44,7 @@ const media: CollectionConfig = {
           sv: 'Bildtext för media.'
         }
       }
-    },
-    tenantField
+    }
   ],
   upload: {
     // Local storage will be disabled when S3 storage is configured.

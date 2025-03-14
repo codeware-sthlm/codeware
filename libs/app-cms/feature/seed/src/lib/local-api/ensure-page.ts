@@ -1,6 +1,6 @@
-import { getId } from '@codeware/app-cms/util/functions';
+import { getId } from '@codeware/app-cms/util/misc';
 import type { Page } from '@codeware/shared/util/payload-types';
-import type { Payload, PayloadRequest } from 'payload';
+import type { Payload } from 'payload';
 
 export type PageData = Pick<
   Page,
@@ -13,20 +13,19 @@ export type PageData = Pick<
  * Ensure that a page exist with the given slug.
  *
  * @param payload - Payload instance
- * @param req - Payload request with transaction ID when supported by the database
+ * @param transactionID - Transaction ID when supported by the database
  * @param data - Page data
  * @returns The created page or the id if the page exists
  */
 export async function ensurePage(
   payload: Payload,
-  req: PayloadRequest,
+  transactionID: string | number | undefined,
   data: PageData
 ): Promise<Page | string | number> {
   const { header, layout, name, slug, tenant } = data;
 
   // Check if the page exists with the given slug and tenant
   const pages = await payload.find({
-    req,
     collection: 'pages',
     where: {
       and: [
@@ -35,7 +34,8 @@ export async function ensurePage(
       ]
     },
     depth: 0,
-    limit: 1
+    limit: 1,
+    req: { transactionID }
   });
 
   if (pages.totalDocs) {
@@ -45,7 +45,6 @@ export async function ensurePage(
   // No page found, create one
 
   const page = await payload.create({
-    req,
     collection: 'pages',
     data: {
       header,
@@ -53,7 +52,8 @@ export async function ensurePage(
       name,
       slug,
       tenant
-    }
+    },
+    req: { transactionID }
   });
 
   return page;

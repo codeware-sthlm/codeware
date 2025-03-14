@@ -24,21 +24,33 @@
       ],
       "@codeware/app-cms/ui/blocks": ["libs/app-cms/ui/blocks/src/index.ts"],
       "@codeware/app-cms/ui/blocks/*": ["libs/app-cms/ui/blocks/src/lib/*"],
+      "@codeware/app-cms/ui/components": [
+        "libs/app-cms/ui/components/src/index.ts"
+      ],
+      "@codeware/app-cms/ui/components/*": [
+        "libs/app-cms/ui/components/src/lib/*"
+      ],
       "@codeware/app-cms/ui/fields": ["libs/app-cms/ui/fields/src/index.ts"],
       "@codeware/app-cms/ui/fields/*": ["libs/app-cms/ui/fields/src/lib/*"],
       "@codeware/app-cms/ui/tabs": ["libs/app-cms/ui/tabs/src/index.ts"],
+      "@codeware/app-cms/util/access": [
+        "libs/app-cms/util/access/src/index.ts"
+      ],
       "@codeware/app-cms/util/definitions": [
         "libs/app-cms/util/definitions/src/index.ts"
       ],
       "@codeware/app-cms/util/env-schema": [
         "libs/app-cms/util/env-schema/src/index.ts"
       ],
-      "@codeware/app-cms/util/functions": [
-        "libs/app-cms/util/functions/src/index.ts"
+      "@codeware/app-cms/util/filters": [
+        "libs/app-cms/util/filters/src/index.ts"
       ],
+      "@codeware/app-cms/util/hooks": ["libs/app-cms/util/hooks/src/index.ts"],
+      "@codeware/app-cms/util/misc": ["libs/app-cms/util/misc/src/index.ts"],
       "@codeware/app-cms/util/plugins": [
         "libs/app-cms/util/plugins/src/index.ts"
       ],
+      "@codeware/apps/cms/components/*": ["apps/cms/src/components/*"],
       "@codeware/core/actions": ["packages/core/src/actions.ts"],
       "@codeware/core/release": ["packages/core/src/release.ts"],
       "@codeware/core/testing": ["packages/core/src/testing.ts"],
@@ -84,7 +96,6 @@
       ],
       "@codeware/shared/util/ui": ["libs/shared/util/ui/src/index.ts"],
       "@codeware/shared/util/zod": ["libs/shared/util/zod/src/index.ts"],
-      "@payload-cms/*": ["apps/cms/src/*"],
       "@payload-config": ["apps/cms/src/payload.config.ts"]
     }
   },

@@ -16,6 +16,7 @@
     "runAllTestsOnStartup": false,
     "type": "on-save"
   },
+  "vitest.filesWatcherInclude": "apps/**,libs/**,packages/**",
   "[json]": {
     "editor.codeActionsOnSave": {
       "source.fixAll": "never"

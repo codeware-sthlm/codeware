@@ -4,7 +4,8 @@ import type {
   User as CollectionUser,
   Config,
   ContentBlock,
-  Tenant
+  Tenant,
+  TenantsArrayField
 } from './payload-types';
 
 export type CollectionWithoutPayload = {
@@ -34,7 +35,7 @@ export type CollectionTenantScopedSlug = keyof CollectionWithTenantField;
 export type CollectionTenantScopedType =
   CollectionWithTenantField[CollectionTenantScopedSlug];
 
-export type TenantRole = NonNullable<User['tenants']>[number]['role'];
+export type TenantRole = NonNullable<TenantsArrayField>[number]['role'];
 
 /** User type that can be any of the user types defined by Payload */
 export type UserAny = ClientUser | CollectionUser | User;

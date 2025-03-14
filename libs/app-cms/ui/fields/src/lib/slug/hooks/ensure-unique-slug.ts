@@ -1,4 +1,4 @@
-import { getId } from '@codeware/app-cms/util/functions';
+import { getId } from '@codeware/app-cms/util/misc';
 import type {
   CollectionSlug,
   CollectionTenantScopedType,

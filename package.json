@@ -25,12 +25,13 @@
     "@payloadcms/db-mongodb": "^3.23.0",
     "@payloadcms/db-postgres": "^3.23.0",
     "@payloadcms/next": "^3.23.0",
+    "@payloadcms/plugin-multi-tenant": "^3.23.0",
     "@payloadcms/plugin-seo": "^3.23.0",
     "@payloadcms/richtext-lexical": "^3.23.0",
     "@payloadcms/storage-s3": "^3.23.0",
     "@payloadcms/ui": "^3.23.0",
-    "@remix-run/node": "^2.14.0",
-    "@remix-run/react": "^2.14.0",
+    "@remix-run/node": "^2.16.0",
+    "@remix-run/react": "^2.16.0",
     "@tailwindcss/typography": "^0.5.15",
     "axios": "^1.6.0",
     "clsx": "^2.1.1",
@@ -38,7 +39,7 @@
     "graphql": "^16.10.0",
     "hono": "^4.6.10",
     "http-status-codes": "^2.3.0",
-    "isbot": "^5.0.0",
+    "isbot": "^4.4.0",
     "next": "15.1.7",
     "payload": "^3.23.0",
     "prism-react-renderer": "^2.4.1",
@@ -46,7 +47,7 @@
     "react-dom": "19.0.0",
     "react-router-dom": "6.11.2",
     "remix-hono": "^0.0.16",
-    "remix-utils": "^7.7.0",
+    "remix-utils": "^8.4.0",
     "replace-in-file": "^7.2.0",
     "sharp": "^0.33.5",
     "simple-git": "^3.27.0",
@@ -83,6 +84,7 @@
     "@nx/web": "20.4.5",
     "@nx/webpack": "20.4.5",
     "@nx/workspace": "20.4.5",
+    "@octokit/core": "6.1.4",
     "@octokit/graphql-schema": "^15.25.0",
     "@octokit/plugin-rest-endpoint-methods": "^13.2.6",
     "@octokit/types": "^13.6.1",
@@ -173,5 +175,11 @@
   "packageManager": "pnpm@9.15.5",
   "engines": {
     "node": ">=20"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
   }
 }

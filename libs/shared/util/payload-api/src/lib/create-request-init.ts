@@ -1,7 +1,20 @@
 import { generateSignature } from '@codeware/shared/util/signature';
 
+import { apiKeyPrefix, authorizationHeader } from './definitions';
+
 export type RequestInitOptions = {
   request: Request;
+
+  /**
+   * Whether to allow HTTP-only cookies depending on client and server domains.
+   *
+   * When the client is on a different domain than the Payload API and `useSignature` is provided,
+   * the value should be set to `'include'`.
+   *
+   * @default undefined
+   */
+  requestCredentials?: RequestCredentials;
+
   /**
    * Provide the signature configuration
    * to enable signature verification for the request.
@@ -26,7 +39,7 @@ export const createRequestInit = (
   method: 'GET',
   options: RequestInitOptions
 ): RequestInit => {
-  const { request, useSignature, tenantApiKey } = options;
+  const { request, requestCredentials, useSignature, tenantApiKey } = options;
 
   let initHeaders: HeadersInit = request.headers;
 
@@ -38,10 +51,10 @@ export const createRequestInit = (
     };
   }
 
-  // Apply tenant API key authorization header
+  // Apply API key authorization header
   initHeaders = {
     ...initHeaders,
-    Authorization: `tenants API-Key ${tenantApiKey}`
+    [authorizationHeader]: `${apiKeyPrefix} ${tenantApiKey}`
   };
 
   // Generate signature verification headers if useSignature is provided
@@ -64,6 +77,7 @@ export const createRequestInit = (
   }
 
   return {
+    credentials: requestCredentials,
     headers: {
       ...initHeaders,
       ...signature

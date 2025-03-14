@@ -5,7 +5,7 @@ type Args = {
   /**
    * Incoming request headers.
    */
-  headers: Record<string, string>;
+  headers: Headers;
 
   /**
    * The same secret key used to sign the signature.
@@ -41,7 +41,13 @@ export const verifySignature = ({
   secret,
   ttl = 300_000
 }: Args): Response => {
-  const parsed = SignatureLowercaseSchema.safeParse(headers);
+  // Map to record to validate with zod
+  const headersRecord: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    headersRecord[key] = value;
+  });
+
+  const parsed = SignatureLowercaseSchema.safeParse(headersRecord);
 
   if (!parsed.success) {
     return {

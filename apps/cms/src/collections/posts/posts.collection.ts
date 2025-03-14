@@ -3,11 +3,15 @@ import { HeadingFeature } from '@payloadcms/richtext-lexical';
 import { BlocksFeature } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
 
-import { slugField, tenantField } from '@codeware/app-cms/ui/fields';
+import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import { slugField } from '@codeware/app-cms/ui/fields';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
-import { canReadTenantScopeAccess } from '@codeware/app-cms/util/functions';
+import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
+import { filterByTenantScope } from '@codeware/app-cms/util/filters';
 
 import { updatePublishedAtHook } from './hooks/update-published-at.hook';
+
+const env = getEnv();
 
 /**
  * Posts collection
@@ -18,16 +22,13 @@ const posts: CollectionConfig<'posts'> = {
     defaultColumns: ['title', 'tenant', 'updatedAt'],
     useAsTitle: 'title'
   },
+  access: {
+    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
+  },
   labels: {
     singular: { en: 'Post', sv: 'Inlägg' },
     plural: { en: 'Posts', sv: 'Inlägg' }
   },
-  access: {
-    read: canReadTenantScopeAccess
-  },
-  // hooks: {
-  //   afterRead: [populateAuthorsHook]
-  // },
   fields: [
     {
       name: 'title',
@@ -124,6 +125,7 @@ const posts: CollectionConfig<'posts'> = {
       type: 'relationship',
       relationTo: 'users',
       hasMany: true,
+      filterOptions: ({ req }) => filterByTenantScope(req, 'users'),
       admin: {
         description: {
           en: 'The authors of the post.',
@@ -132,8 +134,7 @@ const posts: CollectionConfig<'posts'> = {
         position: 'sidebar'
       }
     },
-    slugField({ sourceField: 'title' }),
-    tenantField
+    slugField({ sourceField: 'title' })
   ]
 };
 

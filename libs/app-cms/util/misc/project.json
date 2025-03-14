@@ -1,0 +1,8 @@
+{
+  "name": "app-cms-util-misc",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/util/misc/src",
+  "projectType": "library",
+  "tags": ["scope:app-cms", "type:util"],
+  "targets": {}
+}

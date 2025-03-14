@@ -1,5 +1,5 @@
 import type { Post } from '@codeware/shared/util/payload-types';
-import type { Payload, PayloadRequest } from 'payload';
+import type { Payload } from 'payload';
 
 export type PostData = Pick<
   Post,
@@ -12,25 +12,25 @@ export type PostData = Pick<
  * Ensure that a post exist with the given slug.
  *
  * @param payload - Payload instance
- * @param req - Payload request with transaction ID when supported by the database
+ * @param transactionID - Transaction ID when supported by the database
  * @param data - Post data
  * @returns The created post or the id if the post exists
  */
 export async function ensurePost(
   payload: Payload,
-  req: PayloadRequest,
+  transactionID: string | number | undefined,
   data: PostData
 ): Promise<Post | string | number> {
   const { authors, categories, content, slug, tenant, title } = data;
 
   // Check if the post exists with the given slug
   const posts = await payload.find({
-    req,
     collection: 'posts',
     where: {
       slug: { equals: slug }
     },
     depth: 0,
+    req: { transactionID },
     limit: 1
   });
 
@@ -41,7 +41,6 @@ export async function ensurePost(
   // No post found, create one
 
   const post = await payload.create({
-    req,
     collection: 'posts',
     data: {
       authors,
@@ -50,7 +49,9 @@ export async function ensurePost(
       slug,
       tenant,
       title
-    }
+    },
+    context: { seedAction: true },
+    req: { transactionID }
   });
 
   return post;

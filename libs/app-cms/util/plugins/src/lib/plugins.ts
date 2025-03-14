@@ -1,9 +1,11 @@
 import type { Env } from '@codeware/app-cms/util/env-schema';
+import { hasRole } from '@codeware/app-cms/util/misc';
 import type { Page, Post } from '@codeware/shared/util/payload-types';
+import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
 import { seoPlugin } from '@payloadcms/plugin-seo';
 import type { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types';
 import { s3Storage } from '@payloadcms/storage-s3';
-import type { Plugin } from 'payload';
+import type { Config, Plugin } from 'payload';
 
 /**
  * Get the Payload plugins.
@@ -35,6 +37,27 @@ export const getPugins = (env: Env): Array<Plugin> => {
     ['build', 'gen', 'payload'].includes(env.NX_TASK_TARGET_TARGET);
 
   return [
+    // Multi-tenant
+    multiTenantPlugin<Config>({
+      // Default values, but specified for clarity
+      cleanupAfterTenantDelete: true,
+      tenantsSlug: 'tenants',
+      tenantField: {
+        name: 'tenant'
+      },
+      collections: {
+        categories: {},
+        media: {},
+        pages: {},
+        posts: {}
+      },
+      tenantsArrayField: {
+        includeDefaultField: false
+      },
+      tenantSelectorLabel: { en: 'Workspace scope', sv: 'Vald arbetsyta' },
+      userHasAccessToAllTenants: (user) => hasRole(user, 'system-user')
+    }),
+
     // SEO
     seoPlugin({
       uploadsCollection: 'media',

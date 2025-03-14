@@ -3,7 +3,7 @@ import type {
   SeedStrategy
 } from '@codeware/app-cms/util/env-schema';
 import { randPassword } from '@ngneat/falso';
-import type { Payload, PayloadRequest } from 'payload';
+import type { Payload } from 'payload';
 
 import { loadInfisicalData } from './load-infisical-data';
 import { loadStaticData } from './load-static-data';
@@ -37,9 +37,44 @@ export const seed = async (args: {
   source: SeedSource;
   strategy: SeedStrategy;
 }): Promise<boolean> => {
-  // Support transactions
-  const req = {} as PayloadRequest;
   const { environment, payload, source, strategy } = args;
+
+  // Support transactions
+  let transactionID: string | number | undefined;
+
+  /**
+   * Start a new transaction when there is no transaction active.
+   *
+   * Accessable via `transactionID`
+   */
+  const ensureTransaction = async () => {
+    if (transactionID) {
+      return;
+    }
+    transactionID = (await payload.db.beginTransaction()) ?? undefined;
+    if (transactionID) {
+      payload.logger.info(`[SEED] Started transaction ${transactionID}`);
+    }
+  };
+
+  /** Commit or rollback the current transaction when available */
+  const endTransaction = async (action: 'commit' | 'rollback') => {
+    if (!transactionID) {
+      return;
+    }
+    if (action === 'commit') {
+      payload.logger.info(`[SEED] Commit transaction ${transactionID}`);
+      await payload.db.commitTransaction(transactionID);
+    } else {
+      payload.logger.info(`[SEED] Rollback transaction ${transactionID}`);
+      await payload.db.rollbackTransaction(transactionID);
+    }
+    transactionID = undefined;
+  };
+
+  // Set to true when an error occurs to rollback the transaction at the end,
+  // though there has been no exception thrown.
+  let seedError = false;
 
   try {
     if (source === 'off') {
@@ -49,7 +84,7 @@ export const seed = async (args: {
 
     if (strategy === 'once') {
       // Do not seed if tenants already exists
-      const { totalDocs } = await payload.db.count({
+      const { totalDocs } = await payload.count({
         collection: 'tenants'
       });
       if (totalDocs > 0) {
@@ -100,19 +135,12 @@ export const seed = async (args: {
 
     // We have seed data, sync it to the database
 
-    // Start a transaction when supported by the database
-    if (payload.db.beginTransaction) {
-      req.transactionID = (await payload.db.beginTransaction()) || undefined;
-      if (req.transactionID) {
-        payload.logger.debug(`[SEED] Started transaction ${req.transactionID}`);
-      }
-    }
-
     // TENANTS
 
+    await ensureTransaction();
     for (const tenant of seedData.tenants) {
       try {
-        const response = await ensureTenant(payload, req, {
+        const response = await ensureTenant(payload, transactionID, {
           apiKey: tenant.apiKey,
           description: tenant.description,
           name: tenant.name,
@@ -121,7 +149,9 @@ export const seed = async (args: {
 
         let tenantId: number;
         if (typeof response === 'object') {
-          payload.logger.info(`[SEED] Tenant '${tenant.name}'`);
+          payload.logger.info(
+            `[SEED] Tenant '${tenant.name}' created (#${response.id})`
+          );
           tenantId = response.id;
         } else {
           tenantId = Number(response);
@@ -136,12 +166,22 @@ export const seed = async (args: {
         throw error;
       }
     }
-    payload.logger.info('[SEED] >> Tenants up to date');
+
+    // Need to commit the data otherwise Postgres will fail on foreign key constraints
+    // for the related collections.
+    await endTransaction('commit');
+    const { totalDocs: tenantCount } = await payload.count({
+      collection: 'tenants'
+    });
+    payload.logger.info(`[SEED] >> Tenants up to date (count: ${tenantCount})`);
 
     // USERS
 
-    if (seedData.users.length > 0) {
-      let userFailed = false;
+    // Only seed users when no errors occurred
+    if (!seedError && seedData.users.length > 0) {
+      await ensureTransaction();
+
+      let userFailed = 0;
 
       for (const user of seedData.users) {
         const tenants = tempStore.lookupTenantWithRole(payload, user.tenants);
@@ -156,7 +196,7 @@ export const seed = async (args: {
                 : // Production will not happen, but just in case
                   randPassword().toString());
 
-          const response = await ensureUser(payload, req, {
+          const response = await ensureUser(payload, transactionID, {
             description: user.description,
             email: user.email,
             name: user.name,
@@ -180,28 +220,39 @@ export const seed = async (args: {
           }
           // Save user id to map to lookup users later
           tempStore.storeUser(user.email, userId);
-        } catch (error) {
-          payload.logger.error((error as Error).message);
-          userFailed = true;
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `User '${user.email}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          userFailed++;
         }
       }
+      const { totalDocs: userCount } = await payload.count({
+        collection: 'users',
+        req: { transactionID }
+      });
       payload.logger.info(
         userFailed
-          ? '[SEED] Problem occurred with users, check your data!'
-          : '[SEED] >> Users up to date'
+          ? `[SEED] Problem occurred for ${userFailed}/${seedData.users.length} users (count: ${userCount})`
+          : `[SEED] >> Users up to date (count: ${userCount})`
       );
+      seedError = seedError || userFailed > 0;
     }
 
     // CATEGORIES
 
     if (seedData.categories.length > 0) {
-      let categoryFailed = false;
+      let categoryFailed = 0;
 
       for (const category of seedData.categories) {
         const [entity] = tempStore.lookupTenant(payload, [category.tenant]);
 
         try {
-          const response = await ensureCategory(payload, req, {
+          const response = await ensureCategory(payload, transactionID, {
             name: category.name,
             slug: category.slug,
             tenant: entity.tenant
@@ -218,28 +269,39 @@ export const seed = async (args: {
           }
           // Save category id to map to lookup categories later
           tempStore.storeCategory(category.slug, categoryId);
-        } catch (error) {
-          payload.logger.error((error as Error).message);
-          categoryFailed = true;
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Category '${category.slug}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          categoryFailed++;
         }
       }
+      const { totalDocs: categoryCount } = await payload.count({
+        collection: 'categories',
+        req: { transactionID }
+      });
       payload.logger.info(
         categoryFailed
-          ? '[SEED] Problem occurred with categories, check your data!'
-          : '[SEED] >> Categories up to date'
+          ? `[SEED] Problem occurred for ${categoryFailed}/${seedData.categories.length} categories (count: ${categoryCount})`
+          : `[SEED] >> Categories up to date (count: ${categoryCount})`
       );
+      seedError = seedError || categoryFailed > 0;
     }
 
     // PAGES
 
     if (seedData.pages.length > 0) {
-      let pageFailed = false;
+      let pageFailed = 0;
 
       for (const page of seedData.pages) {
         const [entity] = tempStore.lookupTenant(payload, [page.tenant]);
 
         try {
-          const response = await ensurePage(payload, req, {
+          const response = await ensurePage(payload, transactionID, {
             header: page.header,
             layout: [
               {
@@ -265,22 +327,39 @@ export const seed = async (args: {
               `[SEED] Page '${page.slug}' on tenant #${entity.tenant}`
             );
           }
-        } catch (error) {
-          payload.logger.error((error as Error).message);
-          pageFailed = true;
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Page '${page.slug}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          pageFailed++;
         }
       }
+      const { totalDocs: pageCount } = await payload.count({
+        collection: 'pages',
+        req: { transactionID }
+      });
       payload.logger.info(
         pageFailed
-          ? '[SEED] Problem occurred with pages, check your data!'
-          : '[SEED] >> Pages up to date'
+          ? `[SEED] Problem occurred for ${pageFailed}/${seedData.pages.length} pages (count: ${pageCount})`
+          : `[SEED] >> Pages up to date (count: ${pageCount})`
       );
+      seedError = seedError || pageFailed > 0;
     }
+
+    // Need to commit since posts require previous seed data
+    await endTransaction(seedError ? 'rollback' : 'commit');
 
     // POSTS
 
-    if (seedData.posts.length > 0) {
-      let postFailed = false;
+    // Only seed posts when no errors occurred
+    if (!seedError && seedData.posts.length > 0) {
+      await ensureTransaction();
+
+      let postFailed = 0;
 
       for (const post of seedData.posts) {
         const categories = tempStore.lookupCategory(payload, post.categories);
@@ -288,7 +367,7 @@ export const seed = async (args: {
         const authors = tempStore.lookupUser(payload, post.authors);
 
         try {
-          const response = await ensurePost(payload, req, {
+          const response = await ensurePost(payload, transactionID, {
             authors,
             categories,
             content: await convertMarkdownToLexical(
@@ -305,34 +384,42 @@ export const seed = async (args: {
               `[SEED] Post '${post.slug}' on tenant #${entity.tenant}`
             );
           }
-        } catch (error) {
-          payload.logger.error(error);
-          postFailed = true;
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Post '${post.slug}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          postFailed++;
         }
       }
+      const { totalDocs: postCount } = await payload.count({
+        collection: 'posts',
+        req: { transactionID }
+      });
       payload.logger.info(
         postFailed
-          ? '[SEED] Problem occurred with posts, check your data!'
-          : '[SEED] >> Posts up to date'
+          ? `[SEED] Problem occurred for ${postFailed}/${seedData.posts.length} posts (count: ${postCount})`
+          : `[SEED] >> Posts up to date (count: ${postCount})`
       );
+      seedError = seedError || postFailed > 0;
     }
 
-    payload.logger.info('[SEED] >> Completed');
+    await endTransaction(seedError ? 'rollback' : 'commit');
 
-    // Commit transaction if started
-    if (req.transactionID && payload.db.commitTransaction) {
-      payload.logger.debug(`[SEED] Commit transaction ${req.transactionID}`);
-      await payload.db.commitTransaction(req.transactionID);
+    if (seedError) {
+      payload.logger.warn(
+        '[SEED] >> Seed completed with issues, check your data!'
+      );
+    } else {
+      payload.logger.info('[SEED] >> Completed successfully');
     }
   } catch (error) {
     payload.logger.error((error as Error).message);
     payload.logger.error('[SEED] Something broke :(');
-
-    // Rollback transaction if started
-    if (req.transactionID && payload.db.rollbackTransaction) {
-      payload.logger.info(`[SEED] Rollback transaction ${req.transactionID}`);
-      await payload.db.rollbackTransaction(req.transactionID);
-    }
+    await endTransaction('rollback');
     return false;
   }
 

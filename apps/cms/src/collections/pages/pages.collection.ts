@@ -1,11 +1,12 @@
 import type { CollectionConfig } from 'payload';
 
-import { slugField, tenantField } from '@codeware/app-cms/ui/fields';
+import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import { slugField } from '@codeware/app-cms/ui/fields';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
-import {
-  canReadTenantScopeAccess,
-  populatePublishedAtHook
-} from '@codeware/app-cms/util/functions';
+import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
+import { populatePublishedAtHook } from '@codeware/app-cms/util/hooks';
+
+const env = getEnv();
 
 /**
  * Pages collection
@@ -16,12 +17,12 @@ const pages: CollectionConfig<'pages'> = {
     defaultColumns: ['name', 'slug', 'tenant', 'updatedAt'],
     useAsTitle: 'name'
   },
+  access: {
+    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
+  },
   labels: {
     singular: { en: 'Page', sv: 'Sida' },
     plural: { en: 'Pages', sv: 'Sidor' }
-  },
-  access: {
-    read: canReadTenantScopeAccess
   },
   hooks: {
     beforeChange: [populatePublishedAtHook]
@@ -99,8 +100,7 @@ const pages: CollectionConfig<'pages'> = {
         position: 'sidebar'
       }
     },
-    slugField({ sourceField: 'name' }),
-    tenantField
+    slugField({ sourceField: 'name' })
   ]
 };
 

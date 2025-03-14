@@ -12,12 +12,12 @@ type GETResponse<T extends CollectionSlug> = {
 
 export type RequestOptions = RequestInitOptions & {
   /**
-   * The URL of the Payload CMS API.
+   * The URL of the Payload CMS API host.
    * @example 'https://payload-cms.com'
    */
   apiUrl: string;
   /**
-   * Whether to enable debug logging when the request fails.
+   * Whether to enable debug logging on requests.
    * @default false
    */
   debug?: boolean;
@@ -66,15 +66,26 @@ export const invokeRequest = async <T extends CollectionSlug>(
     .filter(Boolean)
     .join('&');
 
-  const response = await fetch(
-    `${collectionApiUrl(apiUrl, collection)}${queryParams ? `?${queryParams}` : ''}`,
-    init
-  );
+  const requestUrl = `${collectionApiUrl(apiUrl, collection)}${queryParams ? `?${queryParams}` : ''}`;
+
+  if (initOptions.debug) {
+    console.log(`[PAYLOAD REQUEST] ${requestUrl}`, init);
+  }
+
+  const response = await fetch(requestUrl, init);
+
+  if (initOptions.debug) {
+    const responseHeaders: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
+    console.log(
+      `[PAYLOAD RESPONSE] ${response.status} ${response.statusText} | ${requestUrl}`,
+      responseHeaders
+    );
+  }
 
   if (!response.ok) {
-    if (initOptions.debug) {
-      console.log('[DEBUG] request init', init);
-    }
     return {
       error: `${response.statusText} (${response.status})`
     };

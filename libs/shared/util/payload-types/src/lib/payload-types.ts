@@ -7,6 +7,22 @@
  */
 
 /**
+ * Users can be restricted to one or many workspaces.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TenantsArrayField".
+ */
+export type TenantsArrayField =
+  | {
+      tenant: number | Tenant;
+      /**
+       * The role the user has in the workspace.
+       */
+      role: 'user' | 'admin';
+      id?: string | null;
+    }[]
+  | null;
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -217,6 +233,7 @@ export interface MediaBlock {
  */
 export interface Media {
   id: number;
+  tenant?: (number | null) | Tenant;
   /**
    * The alternative text for the media.
    */
@@ -239,10 +256,6 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  /**
-   * The workspace this document belongs to.
-   */
-  tenant?: (number | null) | Tenant;
   prefix?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -346,6 +359,7 @@ export interface Tenant {
  */
 export interface Category {
   id: number;
+  tenant?: (number | null) | Tenant;
   /**
    * The name of the category.
    */
@@ -354,10 +368,6 @@ export interface Category {
    * Used for url paths. Will be automatically generated from name if left empty.
    */
   slug?: string | null;
-  /**
-   * The workspace this document belongs to.
-   */
-  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -367,6 +377,7 @@ export interface Category {
  */
 export interface Page {
   id: number;
+  tenant?: (number | null) | Tenant;
   /**
    * The name of the page used in navigation. Will also be displayed in the browser tab and page meta property.
    */
@@ -395,10 +406,6 @@ export interface Page {
    * Used for url paths. Will be automatically generated from name if left empty.
    */
   slug?: string | null;
-  /**
-   * The workspace this document belongs to.
-   */
-  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -408,6 +415,7 @@ export interface Page {
  */
 export interface Post {
   id: number;
+  tenant?: (number | null) | Tenant;
   /**
    * The title of the post and name used in navigation.
    */
@@ -450,10 +458,6 @@ export interface Post {
    * Used for url paths. Will be automatically generated from title if left empty.
    */
   slug?: string | null;
-  /**
-   * The workspace this document belongs to.
-   */
-  tenant?: (number | null) | Tenant;
   updatedAt: string;
   createdAt: string;
 }
@@ -467,20 +471,8 @@ export interface User {
   /**
    * System users can access and manage the whole system.
    */
-  role?: ('user' | 'system-user') | null;
-  /**
-   * Users can be limited to one or many workspaces.
-   */
-  tenants?:
-    | {
-        tenant: number | Tenant;
-        /**
-         * The role of the user in the workspace.
-         */
-        role: 'user' | 'admin';
-        id?: string | null;
-      }[]
-    | null;
+  role: 'user' | 'system-user';
+  tenants?: TenantsArrayField;
   /**
    * Short description of the user
    */
@@ -584,9 +576,9 @@ export interface PayloadMigration {
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   slug?: T;
-  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -595,9 +587,9 @@ export interface CategoriesSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
   alt?: T;
   caption?: T;
-  tenant?: T;
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -690,6 +682,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   header?: T;
   layout?: T | {};
@@ -702,7 +695,6 @@ export interface PagesSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   slug?: T;
-  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -711,6 +703,7 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   heroImage?: T;
   content?: T;
@@ -726,7 +719,6 @@ export interface PostsSelect<T extends boolean = true> {
   publishedAt?: T;
   authors?: T;
   slug?: T;
-  tenant?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -757,13 +749,7 @@ export interface TenantsSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
-  tenants?:
-    | T
-    | {
-        tenant?: T;
-        role?: T;
-        id?: T;
-      };
+  tenants?: T | TenantsArrayFieldSelect<T>;
   description?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -774,6 +760,15 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TenantsArrayField_select".
+ */
+export interface TenantsArrayFieldSelect<T extends boolean = true> {
+  tenant?: T;
+  role?: T;
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -33,10 +33,11 @@ export default buildConfig({
     user: users.slug,
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     components: {
-      beforeLogin: ['@payload-cms/components/NotifyInvalidHost'],
-      beforeDashboard: ['@payload-cms/components/CheckValidHost'],
+      beforeDashboard: [
+        '@codeware/app-cms/ui/components/CheckValidHost.client'
+      ],
       graphics: {
-        Logo: '@payload-cms/components/Logo'
+        Logo: '@codeware/apps/cms/components/Logo.client'
       }
     }
   },
@@ -45,7 +46,7 @@ export default buildConfig({
   blocks: [codeBlock, contentBlock, mediaBlock],
   collections: [categories, media, pages, posts, tenants, users],
   cors: env.CORS_URLS === '*' ? '*' : env.CORS_URLS.split(',').filter(Boolean),
-  csrf: env.CSRF_URLS.split(',').filter(Boolean),
+  csrf: env.CSRF_URLS ? env.CSRF_URLS.split(',').filter(Boolean) : undefined,
   db: postgresAdapter({
     pool: {
       connectionString: env.DATABASE_URL
@@ -80,6 +81,7 @@ export default buildConfig({
   },
   // Invoke seed process on payload init
   onInit: async (payload) => {
+    payload.logger.info(`Using ${payload.db.name} database adapter`);
     payload.logger.info('Payload is ready');
     await seed({
       environment: env.DEPLOY_ENV,

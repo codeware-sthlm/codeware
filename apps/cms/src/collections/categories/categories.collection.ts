@@ -1,7 +1,10 @@
 import type { CollectionConfig } from 'payload';
 
-import { slugField, tenantField } from '@codeware/app-cms/ui/fields';
-import { canReadTenantScopeAccess } from '@codeware/app-cms/util/functions';
+import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import { slugField } from '@codeware/app-cms/ui/fields';
+import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
+
+const env = getEnv();
 
 /**
  * Categories collection
@@ -12,12 +15,12 @@ const categories: CollectionConfig = {
     defaultColumns: ['name', 'slug', 'tenant'],
     useAsTitle: 'name'
   },
+  access: {
+    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
+  },
   labels: {
     singular: { en: 'Category', sv: 'Kategori' },
     plural: { en: 'Categories', sv: 'Kategorier' }
-  },
-  access: {
-    read: canReadTenantScopeAccess
   },
   fields: [
     {
@@ -32,8 +35,7 @@ const categories: CollectionConfig = {
         }
       }
     },
-    slugField({ sourceField: 'name' }),
-    tenantField
+    slugField({ sourceField: 'name' })
   ]
 };
 

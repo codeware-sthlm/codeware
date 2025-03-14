@@ -1,9 +1,12 @@
 import type { CollectionConfig } from 'payload';
 
 import { slugField } from '@codeware/app-cms/ui/fields';
-import { hasRole, systemUserAccess } from '@codeware/app-cms/util/functions';
+import {
+  authenticatedAccess,
+  systemUserAccess
+} from '@codeware/app-cms/util/access';
+import { hasRole } from '@codeware/app-cms/util/misc';
 
-import { canReadTenantAccess } from './access/can-read-tenant.access';
 import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';
 
 /**
@@ -18,7 +21,7 @@ const tenants: CollectionConfig = {
   access: {
     create: systemUserAccess,
     delete: systemUserAccess,
-    read: canReadTenantAccess,
+    read: authenticatedAccess,
     update: systemUserAccess
   },
   hooks: {
@@ -31,13 +34,28 @@ const tenants: CollectionConfig = {
       sv: 'En arbetsyta fungerar som en organisation eller ett företag, begränsad till specifika användare och domäner.'
     },
     // Only system users can see the tenants collection
-    hidden: (args) => !hasRole(args.user, 'system-user')
+    hidden: ({ user }) => !hasRole(user, 'system-user')
   },
   labels: {
     singular: { en: 'Workspace', sv: 'Arbetsyta' },
     plural: { en: 'Workspaces', sv: 'Arbetsytor' }
   },
   fields: [
+    // Customize the API key fields to be protected from being updated
+    {
+      name: 'enableAPIKey',
+      type: 'checkbox',
+      access: {
+        update: () => false
+      }
+    },
+    {
+      name: 'apiKey',
+      type: 'text',
+      access: {
+        update: () => false
+      }
+    },
     {
       name: 'name',
       type: 'text',
@@ -61,7 +79,10 @@ const tenants: CollectionConfig = {
           label: { en: 'Domain', sv: 'Domän' },
           required: true
         }
-      ]
+      ],
+      admin: {
+        position: 'sidebar'
+      }
     },
     slugField({ sourceField: 'name' })
   ]

@@ -1,103 +1,80 @@
 import { CollectionConfig } from 'payload';
 
-import { authenticatedAccess } from '@codeware/app-cms/util/functions';
+import {
+  systemUserAccess,
+  systemUserOrTenantAdminAccess
+} from '@codeware/app-cms/util/access';
 
-import { canCreateUsers } from './access/can-create-users';
-import { canDeleteUsers } from './access/can-delete-users';
-import { canReadUsers } from './access/can-read-users';
-import { canUpdateUsers } from './access/can-update-users';
-import { hideUsersCollection } from './admin/hide-users-collection';
-import { showRoleField } from './conditions/show-role-field';
-import { showTenantsField } from './conditions/show-tenants-field';
+import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
+import { tenantsArrayField } from './fields/tenants-array.field';
+import { ensureTenantHook } from './hooks/ensure-tenant.hook';
 
 /**
  * Users collection
  */
-const users: CollectionConfig = {
+const users: CollectionConfig<'users'> = {
   slug: 'users',
   auth: { maxLoginAttempts: 5, lockTime: 1000 * 60 * 60 * 24 },
   admin: {
-    useAsTitle: 'name',
-    hidden: hideUsersCollection
+    useAsTitle: 'name'
   },
   labels: {
     singular: { en: 'User', sv: 'Användare' },
     plural: { en: 'Users', sv: 'Användare' }
   },
   access: {
-    admin: authenticatedAccess,
-    create: canCreateUsers,
-    delete: canDeleteUsers,
-    read: canReadUsers,
-    update: canUpdateUsers
+    create: systemUserOrTenantAdminAccess,
+    update: adminAccessToAllDocTenants('allowSelf'),
+    delete: adminAccessToAllDocTenants('denySelf')
+  },
+  hooks: {
+    beforeValidate: [ensureTenantHook]
   },
   fields: [
     {
-      name: 'name',
-      type: 'text',
-      label: { en: 'Name', sv: 'Namn' },
-      required: true
-    },
-    {
-      name: 'role',
-      type: 'select',
-      label: { en: 'Role', sv: 'Roll' },
-      options: [
-        { label: { en: 'User', sv: 'Användare' }, value: 'user' },
+      type: 'tabs',
+      tabs: [
         {
-          label: { en: 'System User', sv: 'Systemanvändare' },
-          value: 'system-user'
-        }
-      ],
-      admin: {
-        description: {
-          en: 'System users can access and manage the whole system.',
-          sv: 'Systemanvändare kan komma åt och hantera hela systemet.'
-        },
-        condition: showRoleField
-      },
-      required: true,
-      defaultValue: 'user'
-    },
-    {
-      name: 'tenants',
-      type: 'array',
-      label: { en: 'Workspaces', sv: 'Arbetsytor' },
-      fields: [
-        {
-          name: 'tenant',
-          type: 'relationship',
-          relationTo: 'tenants',
-          index: true,
-          required: true,
-          saveToJWT: true
-        },
-        {
-          name: 'role',
-          type: 'select',
-          label: { en: 'Role', sv: 'Roll' },
-          options: [
-            { label: { en: 'User', sv: 'Användare' }, value: 'user' },
-            { label: { en: 'Admin', sv: 'Administratör' }, value: 'admin' }
-          ],
-          admin: {
-            description: {
-              en: 'The role of the user in the workspace.',
-              sv: 'Rollen som användaren ska ha i arbetsytan.'
+          label: { en: 'User', sv: 'Användare' },
+          fields: [
+            {
+              name: 'name',
+              type: 'text',
+              label: { en: 'Name', sv: 'Namn' },
+              required: true
+            },
+            {
+              name: 'role',
+              type: 'select',
+              label: { en: 'Role', sv: 'Roll' },
+              access: {
+                // For others than system users the field is read-only with default value
+                create: systemUserAccess,
+                update: systemUserAccess
+              },
+              options: [
+                { label: { en: 'User', sv: 'Användare' }, value: 'user' },
+                {
+                  label: { en: 'System User', sv: 'Systemanvändare' },
+                  value: 'system-user'
+                }
+              ],
+              admin: {
+                description: {
+                  en: 'System users can access and manage the whole system.',
+                  sv: 'Systemanvändare kan komma åt och hantera hela systemet.'
+                }
+              },
+              required: true,
+              defaultValue: 'user'
             }
-          },
-          required: true,
-          defaultValue: 'user'
-        }
-      ],
-      admin: {
-        description: {
-          en: 'Users can be limited to one or many workspaces.',
-          sv: 'Användare kan begränsas till en eller flera arbetsytor.'
+          ]
         },
-        condition: showTenantsField
-      },
-      saveToJWT: true
+        {
+          label: { en: 'Workspaces', sv: 'Arbetsytor' },
+          fields: [tenantsArrayField()]
+        }
+      ]
     },
     {
       name: 'description',

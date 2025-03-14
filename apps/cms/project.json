@@ -33,7 +33,6 @@
         "command": "npx tsx src/utils/seed.ts",
         "cwd": "apps/cms",
         "env": {
-          "DISABLE_DB_PUSH": "true",
           "NODE_ENV": "development"
         }
       }

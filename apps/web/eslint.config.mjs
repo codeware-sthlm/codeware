@@ -20,9 +20,12 @@ export default [
           ignoredDependencies: [
             // Loading secrets
             '@infisical/sdk',
+            // Payload
+            'react-dom',
             // Remix
             '@heroicons/react',
             '@payloadcms/richtext-lexical',
+            'isbot',
             'prism-react-renderer',
             // Dev dependencies
             '@nx/vite',

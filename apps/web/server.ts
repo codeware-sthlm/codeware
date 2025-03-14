@@ -14,7 +14,11 @@ import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 // TODO: Zod types does not get inferred correctly since the schema depends on `@codeware/core/zod`
 // Something is different here since it works in the cms project
 import env from './env-resolver/env';
+import { debugHeadersMiddleware } from './middlewares/debug-headers';
 import { resolveDevApiKey } from './middlewares/resolve-dev-api-key';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
 
 // Load the Remix server build
 const build = (await import(
@@ -27,6 +31,8 @@ const app = new Hono()
   // Let Remix handle all requests
   .use(
     '*',
+    logger(env.DEBUG ? undefined : noop),
+    debugHeadersMiddleware,
     resolveDevApiKey,
     remix({
       build,
@@ -42,11 +48,6 @@ const app = new Hono()
       }
     })
   );
-
-// Disable logger in production
-if (env.DEBUG) {
-  app.use(logger());
-}
 
 serve(
   {

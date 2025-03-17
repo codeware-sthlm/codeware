@@ -13,6 +13,7 @@ import {
   mediaBlock
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
+import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { getPugins } from '@codeware/app-cms/util/plugins';
 
 import categories from './collections/categories/categories.collection';
@@ -54,6 +55,7 @@ export default buildConfig({
     prodMigrations: migrations
   }),
   editor: defaultLexical,
+  email: getEmailAdapter(env),
   plugins: getPugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
   // i18n support
@@ -81,6 +83,19 @@ export default buildConfig({
   // Invoke seed process on payload init
   onInit: async (payload) => {
     payload.logger.info(`Using ${payload.db.name} database adapter`);
+    if (env.EMAIL?.ethereal) {
+      payload.logger.info('Using Ethereal email adapter');
+      payload.logger.info(`[ethereal] Inbox: https://ethereal.email/messages`);
+      payload.logger.info(`[ethereal] Username: ${env.EMAIL.ethereal.user}`);
+      payload.logger.info(`[ethereal] Password: ${env.EMAIL.ethereal.pass}`);
+    }
+    if (env.EMAIL?.sendgrid) {
+      payload.logger.info('Using SendGrid email adapter');
+    }
+    if (!env.EMAIL) {
+      payload.logger.info('Email is disabled');
+    }
+
     payload.logger.info('Payload is ready');
     await seed({
       environment: env.DEPLOY_ENV,

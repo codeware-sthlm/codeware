@@ -51,8 +51,8 @@ export const loadInfisicalData = async (args: {
       seedData.tenants.push({
         apiKey: tenant.PAYLOAD_API_KEY,
         description: tenant.PAYLOAD_API_DESCRIPTION,
-        name: tenant.PAYLOAD_API_NAME,
-        hosts: [tenant.PAYLOAD_API_HOST]
+        domains: [{ domain: tenant.PAYLOAD_API_HOST, pageTypes: ['cms'] }],
+        name: tenant.PAYLOAD_API_NAME
       });
 
       // Tenant admin user

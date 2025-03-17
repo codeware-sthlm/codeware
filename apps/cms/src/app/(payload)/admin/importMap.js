@@ -30,7 +30,8 @@ import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8c
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc';
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client';
 
-import { default as default_2bdfd008f93d145f7030f29ec17e1b19 } from '@codeware/app-cms/ui/components/CheckValidHost.client';
+import { default as default_83b0dfab156f3636ed94b94854d15ad5 } from '@codeware/app-cms/ui/components/RedirectNotifier';
+import { default as default_7925a79d2af6389df70d2dd269ffbfbb } from '@codeware/app-cms/ui/components/VerifyTenantDomain';
 import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/app-cms/ui/fields/code/Code.client';
 import { default as default_52b6c8f3cfeb54cb642a26fe54c075b9 } from '@codeware/apps/cms/components/ArrayRowLabel';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
@@ -98,8 +99,10 @@ export const importMap = {
     default_52b6c8f3cfeb54cb642a26fe54c075b9,
   '@codeware/apps/cms/components/Logo.client#default':
     default_42ab7a6f795fd44e8c166a2bb6b2adc0,
-  '@codeware/app-cms/ui/components/CheckValidHost.client#default':
-    default_2bdfd008f93d145f7030f29ec17e1b19,
+  '@codeware/app-cms/ui/components/VerifyTenantDomain#default':
+    default_7925a79d2af6389df70d2dd269ffbfbb,
+  '@codeware/app-cms/ui/components/RedirectNotifier#default':
+    default_83b0dfab156f3636ed94b94854d15ad5,
   '@payloadcms/plugin-multi-tenant/client#TenantSelector':
     TenantSelector_1d0591e3cf4f332c83a86da13a0de59a,
   '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider':

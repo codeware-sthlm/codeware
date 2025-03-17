@@ -61,8 +61,8 @@ const users: CollectionConfig<'users'> = {
               ],
               admin: {
                 description: {
-                  en: 'System users can access and manage the whole system.',
-                  sv: 'Systemanvändare kan komma åt och hantera hela systemet.'
+                  en: 'System users have access to manage the whole system and do not need to be members of a workspace. For normal users, it is a requirement to be members of a workspace.',
+                  sv: 'Systemanvändare har behörighet att hantera hela systemet och behöver därför inte vara medlemmar i en arbetsyta. För normala användare är det ett krav att vara medlemmar i en arbetsyta.'
                 }
               },
               required: true,
@@ -82,8 +82,8 @@ const users: CollectionConfig<'users'> = {
       label: { en: 'Description', sv: 'Beskrivning' },
       admin: {
         description: {
-          en: 'Short description of the user',
-          sv: 'Kort beskrivning av användaren'
+          en: 'Short description of the user.',
+          sv: 'Kort beskrivning av användaren.'
         },
         position: 'sidebar'
       },

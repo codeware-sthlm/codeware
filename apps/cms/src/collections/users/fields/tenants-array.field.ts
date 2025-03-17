@@ -26,8 +26,8 @@ export const tenantsArrayField = (): Field => {
         ],
         admin: {
           description: {
-            en: 'The role the user has in the workspace.',
-            sv: 'Användarens roll i arbetsytan.'
+            en: 'Admins have access to manage the users in the workspace.',
+            sv: 'Administratörer har behörighet att hantera användare i arbetsytan.'
           }
         },
         required: true,

@@ -12,7 +12,11 @@ const dirname = path.dirname(filename);
 const media: CollectionConfig = {
   slug: 'media',
   admin: {
-    defaultColumns: ['filename', 'mimeType', 'tenant', 'createdAt']
+    defaultColumns: ['filename', 'mimeType', 'tenant', 'createdAt'],
+    description: {
+      en: 'Media files currently only support images and can be used in posts and pages.',
+      sv: 'Media stödjer för närvarande endast bilder och kan användas i inlägg och sidor.'
+    }
   },
   access: {
     // Media files like images are not fetched, hence no api key to verify.
@@ -44,6 +48,23 @@ const media: CollectionConfig = {
           sv: 'Bildtext för media.'
         }
       }
+    },
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: { en: 'Posts', sv: 'Inlägg' },
+          fields: [
+            {
+              name: 'relatedPosts',
+              label: { en: 'Posts', sv: 'Inlägg' },
+              type: 'join',
+              collection: 'posts',
+              on: 'heroImage'
+            }
+          ]
+        }
+      ]
     }
   ],
   upload: {

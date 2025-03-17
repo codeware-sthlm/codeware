@@ -19,7 +19,7 @@ export const ContentBlock: React.FC<Props> = (props) => {
   const { apiUrl, columns, enableProse, isDark } = props;
 
   return (
-    <div className="grid grid-cols-12 gap-y-8 gap-x-16">
+    <div className="grid grid-cols-12 gap-y-8 gap-x-4 md:gap-x-8 lg:gap-x-16 w-full overflow-hidden">
       {columns?.map((col, index) => {
         const { richText } = col;
         const size = col.size ?? 'full';

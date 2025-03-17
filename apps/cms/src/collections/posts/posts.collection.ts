@@ -20,7 +20,11 @@ const posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   admin: {
     defaultColumns: ['title', 'tenant', 'updatedAt'],
-    useAsTitle: 'title'
+    useAsTitle: 'title',
+    description: {
+      en: 'Posts are standalone pages such as articles or blog posts and can be categorized.',
+      sv: 'Inlägg är fristående sidor som exempelvis artiklar eller bloggposter vilket kan bestämmas via kategorier.'
+    }
   },
   access: {
     read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
@@ -73,7 +77,9 @@ const posts: CollectionConfig<'posts'> = {
                 description: {
                   en: 'The main content of the article.',
                   sv: 'Artikelns huvudinnehåll.'
-                }
+                },
+                disableListColumn: true,
+                disableListFilter: true
               }
             }
           ]
@@ -86,7 +92,8 @@ const posts: CollectionConfig<'posts'> = {
               type: 'relationship',
               label: { en: 'Related Posts', sv: 'Relaterade inlägg' },
               admin: {
-                position: 'sidebar'
+                position: 'sidebar',
+                disableListColumn: true
               },
               filterOptions: ({ id }) => ({ id: { not_in: [id] } }),
               hasMany: true,

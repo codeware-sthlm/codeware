@@ -15,7 +15,11 @@ const pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   admin: {
     defaultColumns: ['name', 'slug', 'tenant', 'updatedAt'],
-    useAsTitle: 'name'
+    useAsTitle: 'name',
+    description: {
+      en: 'Pages are the building blocks of the site and are used to create menus and navigation.',
+      sv: 'Sidor är webbsidans byggstenar och används för att skapa menyer och navigering.'
+    }
   },
   access: {
     read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
@@ -36,8 +40,8 @@ const pages: CollectionConfig<'pages'> = {
       localized: true,
       admin: {
         description: {
-          en: 'The name of the page used in navigation. Will also be displayed in the browser tab and page meta property.',
-          sv: 'Sidans namn som används i navigeringen. Kommer också att visas i webbläsarens flik och sidans meta-egenskaper.'
+          en: 'The name of the page used for navigation links.',
+          sv: 'Sidans namn som används för navigeringslänkar.'
         }
       }
     },
@@ -79,6 +83,7 @@ const pages: CollectionConfig<'pages'> = {
                   en: 'Build the page content by adding the layout blocks you need.',
                   sv: 'Bygg sidan genom att lägga till de layout-block du behöver.'
                 },
+                disableListColumn: true,
                 initCollapsed: true
               }
             }

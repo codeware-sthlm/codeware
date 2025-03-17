@@ -23,7 +23,10 @@ export const generateTenants = (
       tenants.push({
         name,
         description: randSentence(),
-        hosts: [`${slug}.localhost`, `cms.${slug}.localhost`],
+        domains: [
+          { domain: `${slug}.localhost`, pageTypes: ['client'] },
+          { domain: `cms.${slug}.localhost`, pageTypes: ['cms'] }
+        ],
         apiKey: apiKey
       });
 

@@ -58,7 +58,12 @@ export const SeedDataSchema = z.object({
     z.object({
       name: z.string(),
       description: z.string(),
-      hosts: z.array(z.string()),
+      domains: z.array(
+        z.object({
+          domain: z.string(),
+          pageTypes: z.array(z.enum(['cms', 'client', 'disabled']))
+        })
+      ),
       apiKey: z.string()
     })
   )

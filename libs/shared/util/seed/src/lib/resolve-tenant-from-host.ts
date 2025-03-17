@@ -18,7 +18,9 @@ export const resolveTenantFromHost = async (host: string) => {
     throw new Error('Seed data for development not found');
   }
 
-  const tenant = seedData.tenants.find((tenant) => tenant.hosts.includes(host));
+  const tenant = seedData.tenants.find((t) =>
+    t.domains.some((d) => d.domain === host)
+  );
   if (!tenant) {
     throw new Error(`Tenant '${host}' not found`);
   }

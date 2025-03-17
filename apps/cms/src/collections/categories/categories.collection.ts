@@ -35,6 +35,23 @@ const categories: CollectionConfig = {
         }
       }
     },
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: { en: 'Posts', sv: 'Inlägg' },
+          fields: [
+            {
+              name: 'relatedPosts',
+              label: { en: 'Posts', sv: 'Inlägg' },
+              type: 'join',
+              collection: 'posts',
+              on: 'categories'
+            }
+          ]
+        }
+      ]
+    },
     slugField({ sourceField: 'name' })
   ]
 };

@@ -33,9 +33,8 @@ export default buildConfig({
     user: users.slug,
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     components: {
-      beforeDashboard: [
-        '@codeware/app-cms/ui/components/CheckValidHost.client'
-      ],
+      beforeDashboard: ['@codeware/app-cms/ui/components/VerifyTenantDomain'],
+      beforeLogin: ['@codeware/app-cms/ui/components/RedirectNotifier'],
       graphics: {
         Logo: '@codeware/apps/cms/components/Logo.client'
       }

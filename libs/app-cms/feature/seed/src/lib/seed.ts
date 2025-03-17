@@ -143,8 +143,8 @@ export const seed = async (args: {
         const response = await ensureTenant(payload, transactionID, {
           apiKey: tenant.apiKey,
           description: tenant.description,
-          name: tenant.name,
-          hosts: tenant.hosts
+          domains: tenant.domains,
+          name: tenant.name
         });
 
         let tenantId: number;

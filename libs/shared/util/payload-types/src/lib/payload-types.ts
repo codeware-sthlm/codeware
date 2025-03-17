@@ -16,7 +16,7 @@ export type TenantsArrayField =
   | {
       tenant: number | Tenant;
       /**
-       * The role the user has in the workspace.
+       * Admins have access to manage the users in the workspace.
        */
       role: 'user' | 'admin';
       id?: string | null;
@@ -97,7 +97,21 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    categories: {
+      relatedPosts: 'posts';
+    };
+    media: {
+      relatedPosts: 'posts';
+    };
+    tenants: {
+      relatedUsers: 'users';
+      relatedPages: 'pages';
+      relatedPosts: 'posts';
+      relatedCategories: 'categories';
+      relatedMedia: 'media';
+    };
+  };
   collectionsSelect: {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -228,6 +242,8 @@ export interface MediaBlock {
   blockType: 'media';
 }
 /**
+ * Media files currently only support images and can be used in posts and pages.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -256,6 +272,11 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  relatedPosts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   prefix?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -328,7 +349,7 @@ export interface Media {
   };
 }
 /**
- * A workspace works like an organization or a company, scoped to specific users and domains.
+ * A workspace is like an organization or a company and is often called a "tenant". The content is scoped to the members of the workspace.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenants".
@@ -340,9 +361,35 @@ export interface Tenant {
   domains?:
     | {
         domain: string;
+        pageTypes: ('cms' | 'client' | 'disabled')[];
         id?: string | null;
       }[]
     | null;
+  relatedUsers?: {
+    docs?: (number | User)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedPages?: {
+    docs?: (number | Page)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedPosts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedCategories?: {
+    docs?: (number | Category)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedMedia?: {
+    docs?: (number | Media)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
    * Used for url paths. Will be automatically generated from name if left empty.
    */
@@ -355,23 +402,34 @@ export interface Tenant {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
+ * via the `definition` "users".
  */
-export interface Category {
+export interface User {
   id: number;
-  tenant?: (number | null) | Tenant;
-  /**
-   * The name of the category.
-   */
   name: string;
   /**
-   * Used for url paths. Will be automatically generated from name if left empty.
+   * System users have access to manage the whole system and do not need to be members of a workspace. For normal users, it is a requirement to be members of a workspace.
    */
-  slug?: string | null;
+  role: 'user' | 'system-user';
+  tenants?: TenantsArrayField;
+  /**
+   * Short description of the user.
+   */
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
 }
 /**
+ * Pages are the building blocks of the site and are used to create menus and navigation.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
@@ -379,7 +437,7 @@ export interface Page {
   id: number;
   tenant?: (number | null) | Tenant;
   /**
-   * The name of the page used in navigation. Will also be displayed in the browser tab and page meta property.
+   * The name of the page used for navigation links.
    */
   name: string;
   /**
@@ -410,6 +468,8 @@ export interface Page {
   createdAt: string;
 }
 /**
+ * Posts are standalone pages such as articles or blog posts and can be categorized.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
@@ -463,30 +523,26 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "categories".
  */
-export interface User {
+export interface Category {
   id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The name of the category.
+   */
   name: string;
+  relatedPosts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
-   * System users can access and manage the whole system.
+   * Used for url paths. Will be automatically generated from name if left empty.
    */
-  role: 'user' | 'system-user';
-  tenants?: TenantsArrayField;
-  /**
-   * Short description of the user
-   */
-  description?: string | null;
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -578,6 +634,7 @@ export interface PayloadMigration {
 export interface CategoriesSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
+  relatedPosts?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -590,6 +647,7 @@ export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
   caption?: T;
+  relatedPosts?: T;
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -733,8 +791,14 @@ export interface TenantsSelect<T extends boolean = true> {
     | T
     | {
         domain?: T;
+        pageTypes?: T;
         id?: T;
       };
+  relatedUsers?: T;
+  relatedPages?: T;
+  relatedPosts?: T;
+  relatedCategories?: T;
+  relatedMedia?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;

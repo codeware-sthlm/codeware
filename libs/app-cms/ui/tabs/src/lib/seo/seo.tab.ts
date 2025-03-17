@@ -23,5 +23,8 @@ export const seoTab: Tab = {
     }),
     MetaDescriptionField({}),
     PreviewField({ hasGenerateFn: true })
-  ]
+  ],
+  admin: {
+    disableListColumn: true
+  }
 };

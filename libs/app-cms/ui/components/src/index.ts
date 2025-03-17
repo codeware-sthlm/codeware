@@ -1,2 +1,2 @@
-export * from './lib/CheckValidHost.client';
 export * from './lib/Logo.client';
+export * from './lib/VerifyTenantDomain';

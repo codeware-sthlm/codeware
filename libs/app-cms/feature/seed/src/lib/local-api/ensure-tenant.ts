@@ -1,9 +1,10 @@
 import type { Tenant } from '@codeware/shared/util/payload-types';
 import type { Payload } from 'payload';
 
-export type TenantData = Pick<Tenant, 'name' | 'description' | 'apiKey'> & {
-  hosts: Array<string>;
-};
+export type TenantData = Pick<
+  Tenant,
+  'domains' | 'name' | 'description' | 'apiKey'
+>;
 
 /**
  * Ensure that a tenant exists and has an API key created.
@@ -23,9 +24,10 @@ export async function ensureTenant(
   transactionID: string | number | undefined,
   data: TenantData
 ): Promise<Tenant | string | number> {
-  const { apiKey, description, hosts, name } = data;
+  const { apiKey, description, domains, name } = data;
 
-  // Check if the tenant exists with the given host (name )
+  // Check if the tenant exists with the given name and domains (ignore page types)
+  const hosts = domains?.map((d) => d.domain) ?? [];
   const tenants = await payload.find({
     collection: 'tenants',
     where: {
@@ -37,7 +39,7 @@ export async function ensureTenant(
 
   if (tenants.totalDocs > 1) {
     throw new Error(
-      `Multiple tenants found with name '${name}' and a matching host '${hosts.join(', ')}', skip`
+      `Multiple tenants found with name '${name}' and a matching host '${hosts.join(', ') ?? '<none>'}', skip`
     );
   }
 
@@ -53,7 +55,7 @@ export async function ensureTenant(
       enableAPIKey: true,
       apiKey,
       description,
-      domains: hosts.map((host) => ({ domain: host })),
+      domains,
       name
     },
     req: { transactionID }

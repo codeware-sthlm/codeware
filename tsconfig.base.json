@@ -39,6 +39,7 @@
       "@codeware/app-cms/util/definitions": [
         "libs/app-cms/util/definitions/src/index.ts"
       ],
+      "@codeware/app-cms/util/email": ["libs/app-cms/util/email/src/index.ts"],
       "@codeware/app-cms/util/env-schema": [
         "libs/app-cms/util/env-schema/src/index.ts"
       ],

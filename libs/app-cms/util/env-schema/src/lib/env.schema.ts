@@ -1,9 +1,11 @@
 import { withEnvVars } from '@codeware/shared/util/zod';
 import { z } from 'zod';
 
+import { EtherealSchema } from './ethereal.schema';
 import { S3StorageSchema } from './s3-storage.schema';
 import { SeedSourceSchema } from './seed-source.schema';
 import { SeedStrategySchema } from './seed-strategy.schema';
+import { SendGridSchema } from './sendgrid.schema';
 
 /**
  * Environment base schema with environment variable lookup.
@@ -69,18 +71,31 @@ export const EnvSchema = withEnvVars(
     })
     // S3 storage is optional
     .merge(S3StorageSchema.partial())
+    // Ethereal is optional
+    .merge(EtherealSchema.partial())
+    // SendGrid is optional
+    .merge(SendGridSchema.partial())
 ).transform(
   ({
+    ETHEREAL_FROM_ADDRESS,
+    ETHEREAL_FROM_NAME,
+    ETHEREAL_HOST,
+    ETHEREAL_PASSWORD,
+    ETHEREAL_PORT,
+    ETHEREAL_USERNAME,
     S3_ACCESS_KEY_ID,
     S3_BUCKET,
     S3_ENDPOINT,
     S3_FORCE_PATH_STYLE,
     S3_REGION,
     S3_SECRET_ACCESS_KEY,
+    SENDGRID_API_KEY,
+    SENDGRID_FROM_ADDRESS,
+    SENDGRID_FROM_NAME,
     ...env
   }) => ({
     ...env,
-    // Transform to storage object if access key id is provided
+    // Transform to storage object if S3 access key id is provided
     S3_STORAGE: S3_ACCESS_KEY_ID
       ? {
           bucket: String(S3_BUCKET),
@@ -92,7 +107,30 @@ export const EnvSchema = withEnvVars(
             secretAccessKey: String(S3_SECRET_ACCESS_KEY)
           }
         }
-      : undefined
+      : undefined,
+    EMAIL:
+      // Transform to sendgrid object if sendgrid api key is provided
+      SENDGRID_API_KEY
+        ? {
+            sendgrid: {
+              apiKey: SENDGRID_API_KEY,
+              defaultFromAddress: String(SENDGRID_FROM_ADDRESS),
+              defaultFromName: String(SENDGRID_FROM_NAME)
+            }
+          }
+        : // Transform to ethereal object if ethereal credentials are provided
+          ETHEREAL_USERNAME && ETHEREAL_PASSWORD
+          ? {
+              ethereal: {
+                defaultFromAddress: String(ETHEREAL_FROM_ADDRESS),
+                defaultFromName: String(ETHEREAL_FROM_NAME),
+                host: String(ETHEREAL_HOST),
+                port: Number(ETHEREAL_PORT),
+                user: ETHEREAL_USERNAME,
+                pass: ETHEREAL_PASSWORD
+              }
+            }
+          : undefined
   })
 );
 

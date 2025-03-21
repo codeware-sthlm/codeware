@@ -1,0 +1,18 @@
+{
+  "watch": [".", "../../libs/**/*"],
+  "ext": "cjs,css,ts,tsx",
+  "ignore": [
+    "build/",
+    "node_modules/",
+    ".git",
+    "**/*.json",
+    "**/*.spec.*",
+    "**/*.timestamp-*",
+    "**/*.timestamp-*.mjs",
+    "**/vite.config.mts.timestamp-*.mjs"
+  ],
+  "verbose": false,
+  "exec": "nx build web && tsx server.ts",
+  "legacyWatch": false,
+  "delay": "1000"
+}

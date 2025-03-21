@@ -61,16 +61,17 @@
       },
       "dependsOn": ["build"]
     },
-    "static-serve": {
-      "executor": "nx:noop",
+    "dev": {
+      "executor": "nx:run-commands",
       "metadata": {
-        "description": "Use start target instead"
-      }
-    },
-    "serve-static": {
-      "executor": "nx:noop",
-      "metadata": {
-        "description": "Use start target instead"
+        "description": "Start Hono and Remix in development mode",
+        "help": {
+          "command": "nx dev web"
+        }
+      },
+      "options": {
+        "command": "npx concurrently -n \"RMX,HNO\" -c \"magenta,blue\" --pad-prefix \"remix vite:dev\" \"nodemon\"",
+        "cwd": "apps/web"
       }
     }
   }

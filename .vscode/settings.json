@@ -8,7 +8,8 @@
   "eslint.validate": ["json"],
   "files.associations": {
     ".*.*__tmpl__": "plaintext",
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    "*.scss": "tailwindcss"
   },
   "jest.runMode": {
     "coverage": true,

@@ -1,0 +1,9 @@
+{
+  "name": "shared-ui-shadcn",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui/shadcn/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "// targets": "to see all targets run: nx show project shadcn --web",
+  "targets": {}
+}

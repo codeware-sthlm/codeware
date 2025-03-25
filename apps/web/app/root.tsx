@@ -1,3 +1,7 @@
+import {
+  PayloadProvider,
+  type PayloadValue
+} from '@codeware/shared/ui/payload-components';
 import { CdwrCloud } from '@codeware/shared/ui/react-components';
 import { getShallow } from '@codeware/shared/util/payload-api';
 import type { Page, Post } from '@codeware/shared/util/payload-types';
@@ -14,8 +18,11 @@ import {
   Scripts,
   ScrollRestoration,
   data,
-  useLoaderData
+  useLoaderData,
+  useNavigate
 } from '@remix-run/react';
+
+import env from '../env-resolver/env';
 
 import { Container } from './components/container';
 import { DesktopNavigation } from './components/desktop-navigation';
@@ -25,9 +32,8 @@ import { MobileNavigation } from './components/mobile-navigation';
 import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';
 import { ClientHintCheck, getHints } from './utils/client-hints';
-import { getApiOptions } from './utils/get-api-options';
+import { getPayloadRequestOptions } from './utils/get-payload-request-options';
 import { type Theme, getTheme } from './utils/theme.server';
-
 export type PageDetails = Pick<Page, 'name' | 'slug'> & { slug: string };
 export type PostDetails = Pick<Post, 'title' | 'slug'> & { slug: string };
 
@@ -63,8 +69,13 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
     // Fetch layout data but don't propagate the exception to the error boundary
     try {
-      pages = await getShallow('pages', getApiOptions(context, request));
-      posts = await getShallow('posts', getApiOptions(context, request));
+      const requestOptions = getPayloadRequestOptions(
+        'GET',
+        context,
+        request.headers
+      );
+      pages = await getShallow('pages', requestOptions);
+      posts = await getShallow('posts', requestOptions);
     } catch (e) {
       const error = e as Error;
       console.error(`Failed to load shallow data: ${error.message}`);
@@ -87,6 +98,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
     return {
       displayError,
+      env,
       pages: pageDetails,
       posts: postDetails,
       requestInfo: {
@@ -137,10 +149,53 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const data = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const theme = useTheme();
+
+  // Provide app opinionated context to Payload components
+  const context: PayloadValue = {
+    navigate: (path: string) => {
+      if (path.match(/^https?:\/\//)) {
+        console.warn(
+          'Payload navigation to external URL is not supported:',
+          path
+        );
+      } else {
+        navigate(path);
+      }
+    },
+    payloadUrl: loaderData.env.PAYLOAD_URL,
+    submitForm: async (formData) => {
+      try {
+        // Send to server-side action to use secure API key authentication
+        const response = await fetch('/form-submission', {
+          method: 'POST',
+          body: JSON.stringify(formData),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}`);
+        }
+
+        const result = await response.json();
+        return { data: result, success: true };
+      } catch (e) {
+        const error = e as Error;
+        return {
+          success: false,
+          data: { error: error?.message ?? 'Unknown error' }
+        };
+      }
+    },
+    theme
+  };
 
   return (
-    <>
+    <PayloadProvider value={context}>
       <div className="flex w-full">
         <div className="fixed inset-0 flex justify-center sm:px-8">
           <div className="flex w-full max-w-7xl lg:px-8">
@@ -155,7 +210,7 @@ export default function App() {
                   <div className="flex flex-1 ">
                     <div className="flex items-center h-10 w-10 backdrop-blur">
                       <Link to="/" className="pointer-events-auto">
-                        <CdwrCloud className="text-black dark:text-white" />
+                        <CdwrCloud className="text-zinc-600 dark:text-zinc-400" />
                       </Link>
                     </div>
                   </div>
@@ -166,7 +221,7 @@ export default function App() {
                   <div className="flex justify-end items-end md:flex-1">
                     <div className="pointer-events-auto">
                       <ThemeSwitch
-                        userPreference={data.requestInfo.userPrefs.theme}
+                        userPreference={loaderData.requestInfo.userPrefs.theme}
                       />
                     </div>
                   </div>
@@ -176,16 +231,16 @@ export default function App() {
           </header>
           <main className="flex-auto">
             <Outlet />
-            {data.displayError && (
+            {loaderData.displayError && (
               <div className="flex items-center justify-center p-4">
-                <p className="text-red-500">{data.displayError}</p>
+                <p className="text-red-500">{loaderData.displayError}</p>
               </div>
             )}
           </main>
           <Footer />
         </div>
       </div>
-    </>
+    </PayloadProvider>
   );
 }
 

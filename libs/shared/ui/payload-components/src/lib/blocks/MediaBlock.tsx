@@ -2,14 +2,14 @@ import { Image, Video } from '@codeware/shared/ui/react-components';
 import type { MediaBlock as MediaBlockProps } from '@codeware/shared/util/payload-types';
 import React from 'react';
 
-import type { RenderBlocksExtraProps } from './render-blocks.type';
+import { usePayload } from '../providers/PayloadProvider';
+
 import { RichText } from './RichText';
 
-type Props = MediaBlockProps &
-  Pick<RenderBlocksExtraProps, 'apiUrl' | 'enableProse' | 'isDark'>;
+type Props = MediaBlockProps;
 
-export const MediaBlock: React.FC<Props> = (props) => {
-  const { apiUrl, enableProse, isDark, media } = props;
+export const MediaBlock: React.FC<Props> = ({ media }) => {
+  const { payloadUrl } = usePayload();
 
   const caption = media && typeof media === 'object' ? media.caption : '';
   const isImage =
@@ -22,7 +22,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
   }
 
   const alt = media.alt ?? '';
-  const src = `${apiUrl}${media.url ?? ''}`;
+  const src = `${payloadUrl}${media.url ?? ''}`;
 
   return (
     <div>
@@ -30,12 +30,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
       {isVideo && <Video src={src} />}
       {caption && (
         <div className="mt-2">
-          <RichText
-            apiUrl={apiUrl}
-            data={caption}
-            enableProse={enableProse}
-            isDark={isDark}
-          />
+          <RichText data={caption} />
         </div>
       )}
     </div>

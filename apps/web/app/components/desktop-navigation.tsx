@@ -1,5 +1,5 @@
+import { cn } from '@codeware/shared/ui/shadcn';
 import { NavLink } from '@remix-run/react';
-import clsx from 'clsx';
 
 import { filterPages } from '../utils/filter-pages';
 import { usePages } from '../utils/pages';
@@ -16,7 +16,7 @@ function NavItem({
       <NavLink
         to={href}
         className={({ isActive }) =>
-          clsx(
+          cn(
             'relative block px-3 py-2 transition min-w-max',
             isActive
               ? 'text-teal-500 dark:text-teal-400'

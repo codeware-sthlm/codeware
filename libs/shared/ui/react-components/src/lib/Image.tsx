@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { cn } from '@codeware/shared/ui/shadcn';
 import React, { useEffect, useRef, useState } from 'react';
 
 type ImageProps = {
@@ -44,7 +44,7 @@ export const Image: React.FC<ImageProps> = ({
     // If in error state, show error message
     (error && (
       <div
-        className={clsx('overflow-hidden bg-red-50 rounded-lg', className)}
+        className={cn('overflow-hidden bg-red-50 rounded-lg', className)}
         style={containerStyles}
       >
         <div className="flex flex-col items-center justify-center w-full h-full text-red-500 text-center p-5">

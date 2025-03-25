@@ -74,7 +74,7 @@ const pages: CollectionConfig<'pages'> = {
               name: 'layout',
               type: 'blocks',
               label: 'Layout builder',
-              blockReferences: ['content', 'media', 'code'],
+              blockReferences: ['content', 'form', 'media', 'code'],
               blocks: [],
               required: true,
               localized: true,

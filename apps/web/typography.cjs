@@ -70,7 +70,7 @@ module.exports = function typographyStyles({ theme }) {
         color: 'var(--tw-prose-body)',
         lineHeight: theme('lineHeight.7'),
         '> *': {
-          marginTop: theme('spacing.10'),
+          // marginTop: theme('spacing.10'),
           marginBottom: theme('spacing.10')
         },
         p: {
@@ -86,18 +86,18 @@ module.exports = function typographyStyles({ theme }) {
         h2: {
           fontSize: theme('fontSize.xl')[0],
           lineHeight: theme('lineHeight.7'),
-          marginTop: theme('spacing.20'),
+          // marginTop: theme('spacing.20'),
           marginBottom: theme('spacing.4')
         },
         h3: {
           fontSize: theme('fontSize.base')[0],
           lineHeight: theme('lineHeight.7'),
-          marginTop: theme('spacing.16'),
+          // marginTop: theme('spacing.16'),
           marginBottom: theme('spacing.4')
         },
-        ':is(h2, h3) + *': {
-          marginTop: 0
-        },
+        // ':is(h2, h3) + *': {
+        //   marginTop: 0
+        // },
 
         // Images
         img: {
@@ -275,11 +275,6 @@ module.exports = function typographyStyles({ theme }) {
         },
         ':is(tbody, tfoot) td:not(:last-child)': {
           paddingRight: theme('spacing.2')
-        },
-
-        // Grid
-        '.grid :is(h1, h2, h3, h4, p):first-of-type': {
-          marginTop: 0
         }
       }
     }

@@ -1,20 +1,19 @@
 import { Code } from '@codeware/shared/ui/react-components';
 import type { CodeBlock as CodeBlockProps } from '@codeware/shared/util/payload-types';
 
-import type { RenderBlocksExtraProps } from './render-blocks.type';
+import { usePayload } from '../providers/PayloadProvider';
 
-type Props = CodeBlockProps & Pick<RenderBlocksExtraProps, 'isDark'>;
+type Props = CodeBlockProps;
 
 export const CodeBlock: React.FC<Props> = (props) => {
-  const { code, isDark, language } = props;
+  const { code, language } = props;
+  const { theme } = usePayload();
 
   return (
     <Code
       code={code}
       language={language}
-      theme={isDark ? 'vsDark' : 'vsLight'}
+      theme={theme === 'dark' ? 'vsDark' : 'vsLight'}
     />
   );
 };
-
-export default CodeBlock;

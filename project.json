@@ -67,6 +67,30 @@
         "description": "Generate a new TypeScript ESBuild package"
       },
       "command": "test -z '{args.name}' && echo Error: Argument --name required || pnpm nx g @nx/js:lib {args.name} --directory packages/{args.name} --importPath @codeware/{args.name} --dry-run={args.dry-run}"
+    },
+    "shadcn:info": {
+      "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Print Shadcn information"
+      },
+      "options": {
+        "command": "pnpm shadcn info",
+        "env": {
+          "TS_NODE_PROJECT": "tsconfig.base.json"
+        }
+      }
+    },
+    "shadcn:add": {
+      "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Generate a new Shadcn UI component"
+      },
+      "options": {
+        "command": "pnpm shadcn add",
+        "env": {
+          "TS_NODE_PROJECT": "tsconfig.base.json"
+        }
+      }
     }
   }
 }

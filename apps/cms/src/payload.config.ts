@@ -10,6 +10,7 @@ import { seed } from '@codeware/app-cms/feature/seed';
 import {
   codeBlock,
   contentBlock,
+  formBlock,
   mediaBlock
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
@@ -43,7 +44,7 @@ export default buildConfig({
   },
   // Declare blocks globally and reference then by slug elsewhere
   // https://payloadcms.com/docs/fields/blocks#block-references
-  blocks: [codeBlock, contentBlock, mediaBlock],
+  blocks: [codeBlock, contentBlock, formBlock, mediaBlock],
   collections: [categories, media, pages, posts, tenants, users],
   cors: env.CORS_URLS === '*' ? '*' : env.CORS_URLS.split(',').filter(Boolean),
   csrf: env.CSRF_URLS ? env.CSRF_URLS.split(',').filter(Boolean) : undefined,

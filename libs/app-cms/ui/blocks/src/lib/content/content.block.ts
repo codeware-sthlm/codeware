@@ -49,8 +49,10 @@ export const contentBlock: Block = {
             features: ({ rootFeatures }) => {
               return [
                 ...rootFeatures,
-                BlocksFeature({ blocks: ['code', 'media'] }),
-                HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] })
+                BlocksFeature({ blocks: ['code', 'form', 'media'] }),
+                HeadingFeature({
+                  enabledHeadingSizes: ['h2', 'h3', 'h4', 'h5']
+                })
               ];
             }
           }),

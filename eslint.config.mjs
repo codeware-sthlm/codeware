@@ -36,11 +36,13 @@ export default [
                 'scope:core',
                 'scope:shared',
                 'domain:signature'
-              ]
+              ],
+              notDependOnLibsWithTags: ['domain:client']
             },
             {
               sourceTag: 'scope:app-cms',
-              onlyDependOnLibsWithTags: ['scope:app-cms', 'scope:shared']
+              onlyDependOnLibsWithTags: ['scope:app-cms', 'scope:shared'],
+              notDependOnLibsWithTags: ['domain:client']
             },
             {
               sourceTag: 'scope:web',

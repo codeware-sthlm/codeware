@@ -3,11 +3,8 @@ import { findBySlug } from '@codeware/shared/util/payload-api';
 import { type LoaderFunctionArgs, json } from '@remix-run/node';
 import { MetaFunction, useLoaderData, useRouteError } from '@remix-run/react';
 
-import env from '../../env-resolver/env';
 import { Container } from '../components/container';
-import { getApiOptions } from '../utils/get-api-options';
-
-import { useTheme } from './resources.theme-switch';
+import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
 
 type LoaderError = {
   message: string;
@@ -27,7 +24,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   const page = await findBySlug(
     'pages',
     'home',
-    getApiOptions(context, request)
+    getPayloadRequestOptions('GET', context, request.headers)
   );
 
   if (!page) {
@@ -38,12 +35,11 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     throw Response.json(error);
   }
 
-  return json({ page, apiUrl: env.PAYLOAD_URL });
+  return json({ page });
 }
 
 export default function Index() {
-  const { page, apiUrl } = useLoaderData<typeof loader>();
-  const theme = useTheme();
+  const { page } = useLoaderData<typeof loader>();
 
   return (
     <Container className="mt-16 sm:mt-32">
@@ -54,13 +50,8 @@ export default function Index() {
           </h1>
         </header>
       )}
-      <article className="mt-16 prose md:prose-md dark:prose-invert">
-        <RenderBlocks
-          apiUrl={apiUrl}
-          blocks={page.layout}
-          enableProse={false}
-          isDark={theme === 'dark'}
-        />
+      <article className="mt-16">
+        <RenderBlocks blocks={page.layout} />
       </article>
     </Container>
   );

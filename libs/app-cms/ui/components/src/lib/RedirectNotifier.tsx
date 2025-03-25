@@ -18,12 +18,13 @@ export const RedirectNotifier: React.FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const extractedParams = extractSearchParams(searchParams);
+  const { isTenantDomainRedirect, redirectParams } =
+    extractSearchParams(searchParams);
 
   useEffect(() => {
-    if (extractedParams) {
+    if (isTenantDomainRedirect) {
       // Clean up URL by removing redirect parameters
-      const params = new URLSearchParams(extractedParams.origin);
+      const params = new URLSearchParams(redirectParams);
       for (const key of Array.from(params.keys())) {
         params.delete(key);
       }
@@ -37,12 +38,12 @@ export const RedirectNotifier: React.FC = () => {
       router.replace(newUrl);
 
       // TODO: Apply email to login form if possible?
-      //const email = extractedParams.redirect.email;
+      //const email = redirectExpected.email;
 
       // Open modal
       setIsOpen(true);
     }
-  }, [extractedParams, pathname, router]);
+  }, [isTenantDomainRedirect, pathname, router]);
 
   return (
     <Dialog

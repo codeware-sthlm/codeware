@@ -15,20 +15,47 @@ type RedirectParams = Record<
   string
 >;
 
+type Result = {
+  /**
+   * Whether the redirect comes from a restricted tenant domain.
+   *
+   * When this is `true`, the expected params and values exists in `redirectExpected`.
+   */
+  isTenantDomainRedirect: boolean;
+
+  /**
+   * Extracted redirect search params.
+   */
+  redirectParams: Record<string, string>;
+
+  /**
+   * The expected redirect params from `redirectParams`
+   * to identify the redirect related to a restricted tenant domain.
+   */
+  redirectExpected: RedirectParams;
+};
+
 /**
- * Get the redirect params from the URL search params.
+ * Get the redirect params from the URL search params
+ * with an indicator whether this comes from a restricted tenant domain redirect.
  *
  * Expecting search params pattern (decoded string):
  *
  * `redirect=?from=localhost:3000&email=vega@local.dev`
  *
  * @param params - The URL search params from `useSearchParams`.
- * @returns Original and redirect params or `null` if there are no redirect params.
+ * @returns Extracted query params result.
  */
-export const extractSearchParams = (params: ReadonlyURLSearchParams) => {
+export const extractSearchParams = (
+  params: ReadonlyURLSearchParams
+): Result => {
   const entries = Array.from(params.entries());
   if (!(entries.length === 1 && entries[0][0] === paramKey.redirect)) {
-    return null;
+    return {
+      isTenantDomainRedirect: false,
+      redirectParams: {},
+      redirectExpected: {} as RedirectParams
+    };
   }
 
   const redirectParamsWithQuestionMark = entries[0][1];
@@ -39,7 +66,7 @@ export const extractSearchParams = (params: ReadonlyURLSearchParams) => {
   const searchEntries = Array.from(url.searchParams.entries());
 
   // Extract all search params
-  const origin = searchEntries.reduce(
+  const redirectParams = searchEntries.reduce(
     (acc, [key, value]) => {
       acc[key] = value;
       return acc;
@@ -48,12 +75,16 @@ export const extractSearchParams = (params: ReadonlyURLSearchParams) => {
   );
 
   // Extract redirect params
-  const redirect = searchEntries.reduce((acc, [key, value]) => {
+  const redirectExpected = searchEntries.reduce((acc, [key, value]) => {
     if (redirectParamKeys.includes(key)) {
       acc[key as keyof RedirectParams] = value;
     }
     return acc;
   }, {} as RedirectParams);
 
-  return { origin, redirect };
+  const isTenantDomainRedirect =
+    Object.keys(redirectExpected).length === redirectParamKeys.length &&
+    Object.values(redirectExpected).every((value) => value && value !== '');
+
+  return { isTenantDomainRedirect, redirectParams, redirectExpected };
 };

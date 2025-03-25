@@ -23,10 +23,28 @@ export default [
             // Payload
             'react-dom',
             // Remix
+            'isbot',
+            // Payload components
             '@heroicons/react',
             '@payloadcms/richtext-lexical',
-            'isbot',
             'prism-react-renderer',
+            // Payload components - Tailwind/Shadcn
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-label',
+            '@radix-ui/react-menubar',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-select',
+            '@radix-ui/react-slot',
+            'class-variance-authority',
+            'clsx',
+            'lucide-react',
+            'next-themes',
+            'react-hook-form',
+            'sonner',
+            'tailwind-merge',
+            'tailwindcss-animate',
             // Dev dependencies
             '@nx/vite',
             '@remix-run/testing',

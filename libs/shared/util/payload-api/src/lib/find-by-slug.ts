@@ -1,6 +1,9 @@
-import type { CollectionSlug } from '@codeware/shared/util/payload-types';
+import type {
+  CollectionSlug,
+  CollectionWithoutPayload
+} from '@codeware/shared/util/payload-types';
 
-import { type RequestOptions, invokeRequest } from './invoke-request';
+import { type RequestBaseOptions, invokeRequest } from './utils/invoke-request';
 
 /**
  * Find a document by the slug field.
@@ -9,15 +12,16 @@ import { type RequestOptions, invokeRequest } from './invoke-request';
  * @param slug - The slug of the document to find.
  * @param options - The options to find the document with.
  * @returns The document for the slug or `null` if the document is not found.
- * @throws An error when the request fails.
+ * @throws A formatted error message when the request fails.
  */
 export const findBySlug = async <T extends CollectionSlug>(
   collection: T,
   slug: string,
-  options: RequestOptions
-) => {
+  options: RequestBaseOptions
+): Promise<CollectionWithoutPayload[T] | null> => {
   const response = await invokeRequest(collection, {
     ...options,
+    method: 'GET',
     query: `where[slug][equals]=${slug}`
   });
 

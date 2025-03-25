@@ -1,3 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Variables required by shadcn/ui.
+ * Keep in sync with Tailwind theme variables.
+ */
+@layer base {
+  :root {
+    --background: theme('colors.white');
+    --foreground: theme('colors.zinc.600');
+    --primary: theme('colors.zinc.900');
+    --primary-foreground: theme('colors.zinc.50');
+    --secondary: theme('colors.zinc.100');
+    --secondary-foreground: theme('colors.zinc.900');
+    --accent: theme('colors.zinc.100');
+    --accent-foreground: theme('colors.zinc.900');
+    --muted: theme('colors.zinc.100');
+    --muted-foreground: theme('colors.zinc.500');
+    --destructive: theme('colors.red.500');
+    --destructive-foreground: theme('colors.zinc.50');
+    --border: theme('colors.zinc.100');
+    --ring: theme('colors.zinc.900');
+    --card: theme('colors.zinc.50');
+    --card-foreground: theme('colors.zinc.900');
+    --input: theme('colors.zinc.100');
+    --popover: theme('colors.zinc.50');
+    --popover-foreground: theme('colors.zinc.900');
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: theme('colors.zinc.900');
+    --foreground: theme('colors.zinc.400');
+    --primary: theme('colors.zinc.700');
+    --primary-foreground: theme('colors.zinc.300');
+    --secondary: theme('colors.zinc.800');
+    --secondary-foreground: theme('colors.zinc.100');
+    --accent: theme('colors.zinc.800');
+    --accent-foreground: theme('colors.zinc.100');
+    --muted: theme('colors.zinc.400');
+    --muted-foreground: theme('colors.zinc.500');
+    --destructive: theme('colors.red.600');
+    --destructive-foreground: theme('colors.zinc.100');
+    --border: theme('colors.zinc.700/0.4');
+    --ring: theme('colors.zinc.700');
+    --card: theme('colors.zinc.800');
+    --card-foreground: theme('colors.zinc.100');
+    --input: theme('colors.zinc.700/0.4');
+    --popover: theme('colors.zinc.800');
+    --popover-foreground: theme('colors.zinc.100');
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* font-feature-settings:
+      'rlig' 1,
+      'calt' 1; */
+  }
+}

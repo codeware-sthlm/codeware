@@ -3,11 +3,8 @@ import { findBySlug } from '@codeware/shared/util/payload-api';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json, useLoaderData, useRouteError } from '@remix-run/react';
 
-import env from '../../env-resolver/env';
 import { Container } from '../components/container';
-import { getApiOptions } from '../utils/get-api-options';
-
-import { useTheme } from './resources.theme-switch';
+import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
 
 type LoaderError = {
   message: string;
@@ -37,7 +34,7 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
     const page = await findBySlug(
       'pages',
       slug,
-      getApiOptions(context, request)
+      getPayloadRequestOptions('GET', context, request.headers)
     );
     if (!page) {
       const error: LoaderError = {
@@ -46,7 +43,7 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
       };
       throw Response.json(error);
     }
-    return json({ page, apiUrl: env.PAYLOAD_URL });
+    return json({ page });
   } catch (e) {
     const error = e as Error;
     throw Response.json({ message: error.message }, { status: 404 });
@@ -54,8 +51,7 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
 }
 
 export default function Page() {
-  const { page, apiUrl } = useLoaderData<typeof loader>();
-  const theme = useTheme();
+  const { page } = useLoaderData<typeof loader>();
 
   return (
     <Container className="mt-16 sm:mt-32">
@@ -66,13 +62,8 @@ export default function Page() {
           </h1>
         </header>
       )}
-      <article className="mt-16 prose md:prose-md dark:prose-invert">
-        <RenderBlocks
-          apiUrl={apiUrl}
-          blocks={page.layout}
-          enableProse={false}
-          isDark={theme === 'dark'}
-        />
+      <article className="mt-16">
+        <RenderBlocks blocks={page.layout} />
       </article>
     </Container>
   );

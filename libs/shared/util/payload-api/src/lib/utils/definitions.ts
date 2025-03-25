@@ -9,3 +9,8 @@ export const authorizationHeader = 'Authorization';
  * @example 'tenants API-Key <api-key>'
  */
 export const apiKeyPrefix = 'tenants API-Key';
+
+/**
+ * The method for the request.
+ */
+export type RequestMethod = 'GET' | 'POST';

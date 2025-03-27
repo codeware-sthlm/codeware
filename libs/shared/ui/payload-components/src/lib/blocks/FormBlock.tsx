@@ -178,14 +178,14 @@ export const FormBlock: React.FC<Props> = ({
   }
 
   return (
-    <div className="border rounded-lg py-6 px-5">
+    <div className="rounded-lg border px-5 py-6">
       {enableIntro && introContent && (
         <RichText className="mb-6 lg:mb-8" data={introContent} />
       )}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, onError)}
-          className="space-y-6 mr-1 mb-1"
+          className="mb-1 mr-1 space-y-6"
         >
           <div
             className={cn('grid grid-cols-12', {
@@ -201,7 +201,7 @@ export const FormBlock: React.FC<Props> = ({
                 return (
                   fieldDef.message && (
                     <div
-                      className="col-span-12 my-4 last:mb-0 bg-inherit p-3 border-l-4"
+                      className="col-span-12 my-4 border-l-4 bg-inherit p-3 last:mb-0"
                       key={index}
                     >
                       <RichText data={fieldDef.message} disableProse={true} />

@@ -183,6 +183,12 @@
             "title": "🧹 Code Refactoring"
           }
         },
+        "style": {
+          "semverBump": "patch",
+          "changelog": {
+            "title": "🎨 Code Style"
+          }
+        },
         "test": {
           "semverBump": "none",
           "changelog": {

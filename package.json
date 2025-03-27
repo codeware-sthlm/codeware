@@ -170,6 +170,7 @@
     "nx-cloud": "19.1.0",
     "postcss": "8.5.2",
     "prettier": "^3.0.0",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "react-refresh": "^0.14.0",
     "rimraf": "latest",
     "shadcn": "~2.3.0",

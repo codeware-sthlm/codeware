@@ -44,12 +44,12 @@ export const Image: React.FC<ImageProps> = ({
     // If in error state, show error message
     (error && (
       <div
-        className={cn('overflow-hidden bg-red-50 rounded-lg', className)}
+        className={cn('overflow-hidden rounded-lg bg-red-50', className)}
         style={containerStyles}
       >
-        <div className="flex flex-col items-center justify-center w-full h-full text-red-500 text-center p-5">
+        <div className="flex h-full w-full flex-col items-center justify-center p-5 text-center text-red-500">
           <svg
-            className="w-6 h-6 mx-auto"
+            className="mx-auto h-6 w-6"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -81,7 +81,7 @@ export const Image: React.FC<ImageProps> = ({
           height={height}
           loading="lazy"
           onError={(e) => setError(true)}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
         />
       </div>
     )

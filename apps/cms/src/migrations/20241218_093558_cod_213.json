@@ -147,12 +147,8 @@
           "name": "articles_locales_parent_id_fk",
           "tableFrom": "articles_locales",
           "tableTo": "articles",
-          "columnsFrom": [
-            "_parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -162,10 +158,7 @@
         "articles_locales_locale_parent_id_unique": {
           "name": "articles_locales_locale_parent_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "_locale",
-            "_parent_id"
-          ]
+          "columns": ["_locale", "_parent_id"]
         }
       }
     },
@@ -312,12 +305,8 @@
           "name": "pages_locales_parent_id_fk",
           "tableFrom": "pages_locales",
           "tableTo": "pages",
-          "columnsFrom": [
-            "_parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -327,10 +316,7 @@
         "pages_locales_locale_parent_id_unique": {
           "name": "pages_locales_locale_parent_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "_locale",
-            "_parent_id"
-          ]
+          "columns": ["_locale", "_parent_id"]
         }
       }
     },
@@ -722,12 +708,8 @@
           "name": "payload_preferences_rels_parent_fk",
           "tableFrom": "payload_preferences_rels",
           "tableTo": "payload_preferences",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -735,12 +717,8 @@
           "name": "payload_preferences_rels_tenants_fk",
           "tableFrom": "payload_preferences_rels",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenants_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenants_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -748,12 +726,8 @@
           "name": "payload_preferences_rels_users_fk",
           "tableFrom": "payload_preferences_rels",
           "tableTo": "users",
-          "columnsFrom": [
-            "users_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["users_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -824,18 +798,12 @@
     "public._locales": {
       "name": "_locales",
       "schema": "public",
-      "values": [
-        "en",
-        "sv"
-      ]
+      "values": ["en", "sv"]
     },
     "public.enum_users_role": {
       "name": "enum_users_role",
       "schema": "public",
-      "values": [
-        "admin",
-        "user"
-      ]
+      "values": ["admin", "user"]
     }
   },
   "schemas": {},

@@ -56,10 +56,10 @@ export const RedirectNotifier: React.FC = () => {
         aria-hidden="true"
       />
 
-      <DialogPanel className="relative w-full max-w-md rounded-2xl bg-gray-800 p-6 text-center transform transition-all duration-300 ease-out scale-100 data-[closed]:scale-95">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Redirected</h2>
+      <DialogPanel className="relative w-full max-w-md scale-100 transform rounded-2xl bg-gray-800 p-6 text-center transition-all duration-300 ease-out data-[closed]:scale-95">
+        <h2 className="mb-4 text-2xl font-semibold text-white">Redirected</h2>
 
-        <div className="text-lg my-8 text-gray-300">
+        <div className="my-8 text-lg text-gray-300">
           You were redirected to your tenant CMS domain. For security reasons
           the session can not be reused.
           <div className="mt-6 font-bold">Please log in again!</div>
@@ -68,7 +68,7 @@ export const RedirectNotifier: React.FC = () => {
         <div className="w-full px-4">
           <button
             onClick={() => setIsOpen(false)}
-            className="hover:cursor-pointer w-full p-4 rounded-lg border-0 hover:opacity-80 hover:text-white transition-opacity"
+            className="w-full rounded-lg border-0 p-4 transition-opacity hover:cursor-pointer hover:text-white hover:opacity-80"
           >
             Got it!
           </button>

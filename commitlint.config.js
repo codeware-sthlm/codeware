@@ -29,6 +29,7 @@ module.exports = {
         'perf',
         'refactor',
         'revert',
+        'style',
         'test',
         'release'
       ]

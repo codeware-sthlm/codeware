@@ -31,7 +31,7 @@ export const Code: React.FC<Props> = ({
       <Highlight code={code} language={language} theme={themes[theme]}>
         {({ className, getLineProps, getTokenProps, style, tokens }) => (
           <pre
-            className={`${className} p-4 overflow-x-auto rounded-lg text-xs border border-slate-100 dark:border-slate-800`}
+            className={`${className} overflow-x-auto rounded-lg border border-slate-100 p-4 text-xs dark:border-slate-800`}
             style={style}
           >
             {tokens.map((line, i) => (

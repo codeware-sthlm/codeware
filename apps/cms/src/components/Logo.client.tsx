@@ -8,10 +8,10 @@ const Logo: React.FC = () => {
         <CdwrCloud
           width="100"
           height="100"
-          className="text-black dark:text-white opacity-80"
+          className="text-black opacity-80 dark:text-white"
         />
       </div>
-      <span className="text-black dark:text-white opacity-30 text-xl font-medium tracking-widest">
+      <span className="text-xl font-medium tracking-widest text-black opacity-30 dark:text-white">
         Codeware CMS
       </span>
     </div>

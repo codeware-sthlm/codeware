@@ -57,7 +57,7 @@ export default function Page() {
     <Container className="mt-16 sm:mt-32">
       {page.header && (
         <header className="max-w-2xl">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
             {page.header}
           </h1>
         </header>
@@ -74,7 +74,7 @@ export function ErrorBoundary() {
 
   return (
     <Container className="mt-16 sm:mt-32">
-      <div className="flex items-center justify-center min-h-[30vh]">
+      <div className="flex min-h-[30vh] items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             {error.message}

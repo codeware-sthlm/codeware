@@ -11,7 +11,7 @@ const Logo: React.FC = () => {
           className="text-black dark:text-white"
         />
       </div>
-      <span className="text-black dark:text-white opacity-30 text-xl font-medium tracking-widest">
+      <span className="text-xl font-medium tracking-widest text-black opacity-30 dark:text-white">
         Codeware CMS
       </span>
     </div>

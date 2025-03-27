@@ -59,7 +59,7 @@ export const RichText = (props: Props) => {
       converters={jsxConverters}
       className={cn(
         {
-          'mx-auto prose md:prose-md dark:prose-invert': !disableProse,
+          'prose md:prose-md dark:prose-invert mx-auto': !disableProse,
           'not-prose': disableProse
         },
         className

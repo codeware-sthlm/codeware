@@ -207,8 +207,8 @@ export default function App() {
             <div className="top-0 z-10 h-16 pt-6">
               <Container className="w-full">
                 <div className="relative flex gap-4">
-                  <div className="flex flex-1 ">
-                    <div className="flex items-center h-10 w-10 backdrop-blur">
+                  <div className="flex flex-1">
+                    <div className="flex h-10 w-10 items-center backdrop-blur">
                       <Link to="/" className="pointer-events-auto">
                         <CdwrCloud className="text-zinc-600 dark:text-zinc-400" />
                       </Link>
@@ -218,7 +218,7 @@ export default function App() {
                     <MobileNavigation className="pointer-events-auto md:hidden" />
                     <DesktopNavigation className="pointer-events-auto hidden md:block" />
                   </div>
-                  <div className="flex justify-end items-end md:flex-1">
+                  <div className="flex items-end justify-end md:flex-1">
                     <div className="pointer-events-auto">
                       <ThemeSwitch
                         userPreference={loaderData.requestInfo.userPrefs.theme}

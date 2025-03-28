@@ -25,7 +25,8 @@ import { countryOptions } from '../form-items/country-options';
 import { Input } from '../form-items/Input';
 import { Select } from '../form-items/Select';
 import { Textarea } from '../form-items/Textarea';
-import ColSpan from '../layout/ColSpan';
+import { ColSpan } from '../layout/ColSpan';
+import { Grid } from '../layout/Grid';
 import { usePayload } from '../providers/PayloadProvider';
 
 import { RichText } from './RichText';
@@ -183,14 +184,10 @@ export const FormBlock: React.FC<Props> = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, onError)}
-          className="mb-1 mr-1 space-y-6"
+          className="mr-1 mb-1 space-y-6"
         >
-          <div
-            className={cn('grid grid-cols-12', {
-              // Adding gap to a single grid cell overflows the container
-              'gap-4': formBuilder.fields && formBuilder.fields.length > 1
-            })}
-          >
+          {/* Grid columns must be in sync with forms plugin, width field */}
+          <Grid columns={6}>
             {/* Loop through form builder field definitions */}
             {formBuilder?.fields?.map((fieldDef, index) => {
               // Handle message separately since it's not a form field.
@@ -198,12 +195,12 @@ export const FormBlock: React.FC<Props> = ({
               if (fieldDef.blockType === 'message') {
                 return (
                   fieldDef.message && (
-                    <div
-                      className="col-span-12 my-4 border-l-4 bg-inherit p-3 last:mb-0"
+                    <ColSpan
+                      className="my-4 border-l-4 bg-inherit p-3 last:mb-0"
                       key={index}
                     >
                       <RichText data={fieldDef.message} disableProse={true} />
-                    </div>
+                    </ColSpan>
                   )
                 );
               }
@@ -280,9 +277,9 @@ export const FormBlock: React.FC<Props> = ({
                 </ColSpan>
               );
             })}
-          </div>
+          </Grid>
 
-          <Button type="submit" isLoading={isLoading}>
+          <Button type="submit" isLoading={isLoading} className="mt-4">
             {submitButtonLabel}
           </Button>
         </form>

@@ -36,7 +36,7 @@ export const Code: React.FC<Props> = ({
           >
             {tokens.map((line, i) => (
               <div key={i} {...getLineProps({ className: 'table-row', line })}>
-                <span className="table-cell select-none text-right text-slate-400 dark:text-slate-500">
+                <span className="table-cell text-right text-slate-400 select-none dark:text-slate-500">
                   {i + 1}
                 </span>
                 <span className="table-cell pl-4">

@@ -1,4 +1,3 @@
-import type { FieldWidth } from '@codeware/shared/util/payload-types';
 import { cn } from '@codeware/shared/util/ui';
 import React from 'react';
 
@@ -10,7 +9,7 @@ type Props = {
    *
    * Defaults to full width.
    */
-  columns?: FieldWidth;
+  columns?: number | null;
 };
 
 /**
@@ -31,18 +30,18 @@ export const ColSpan: React.FC<Props> = ({
       className={cn(
         'col-span-full',
         {
-          'col-span-1': width === '1',
-          'col-span-2': width === '2',
-          'col-span-3': width === '3',
-          'col-span-4': width === '4',
-          'col-span-5': width === '5',
-          'col-span-6': width === '6',
-          'col-span-7': width === '7',
-          'col-span-8': width === '8',
-          'col-span-9': width === '9',
-          'col-span-10': width === '10',
-          'col-span-11': width === '11',
-          'col-span-12': width === '12'
+          'col-span-1': width === 1,
+          'col-span-2': width === 2,
+          'col-span-3': width === 3,
+          'col-span-4': width === 4,
+          'col-span-5': width === 5,
+          'col-span-6': width === 6,
+          'col-span-7': width === 7,
+          'col-span-8': width === 8,
+          'col-span-9': width === 9,
+          'col-span-10': width === 10,
+          'col-span-11': width === 11,
+          'col-span-12': width === 12
         },
         className
       )}
@@ -51,5 +50,3 @@ export const ColSpan: React.FC<Props> = ({
     </div>
   );
 };
-
-export default ColSpan;

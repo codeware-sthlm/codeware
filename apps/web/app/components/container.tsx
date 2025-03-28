@@ -1,4 +1,4 @@
-import { cn } from '@codeware/shared/ui/shadcn';
+import { cn } from '@codeware/shared/util/ui';
 import { forwardRef } from 'react';
 
 export const ContainerOuter = forwardRef<

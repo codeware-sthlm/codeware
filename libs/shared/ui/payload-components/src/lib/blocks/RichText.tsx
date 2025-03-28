@@ -1,9 +1,9 @@
-import { cn } from '@codeware/shared/ui/shadcn';
 import type {
   CodeBlock as CodeBlockProps,
   FormBlock as FormBlockProps,
   MediaBlock as MediaBlockProps
 } from '@codeware/shared/util/payload-types';
+import { cn } from '@codeware/shared/util/ui';
 import type {
   DefaultNodeTypes,
   SerializedBlockNode

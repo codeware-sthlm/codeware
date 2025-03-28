@@ -1,10 +1,7 @@
-import {
-  Button as BaseButton,
-  type ButtonProps
-} from '@codeware/shared/ui/shadcn';
+import { Button as BaseButton } from '@codeware/shared/ui/shadcn';
 import { Loader2 } from 'lucide-react';
 
-type Props = ButtonProps & {
+type Props = React.ComponentProps<typeof BaseButton> & {
   isLoading?: boolean;
 };
 

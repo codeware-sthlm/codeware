@@ -4,31 +4,25 @@ import { type Block, Field } from 'payload';
 /**
  * Customized width field for form builder.
  *
- * Replace the default width field with a select field
- * to allow selecting the width from a list of predefined values.
+ * Replace the default width field with a number field
+ * to allow entering the width in number of columns 1-6.
+ *
+ * **Important!**
+ *
+ * This solution is proof-of-concept and could be subject to change.
+ *
+ * We avoid using a select field since this will create database enums and contraints,
+ * which makes it harder to migrate in case this logic needs to be changed.
  */
 const widthSelect: Field = {
   name: 'width',
-  type: 'select',
-  interfaceName: 'FieldWidth',
+  type: 'number',
   label: 'Field width',
-  options: [
-    { label: '1', value: '1' },
-    { label: '2', value: '2' },
-    { label: '3', value: '3' },
-    { label: '4', value: '4' },
-    { label: '5', value: '5' },
-    { label: '6', value: '6' },
-    { label: '7', value: '7' },
-    { label: '8', value: '8' },
-    { label: '9', value: '9' },
-    { label: '10', value: '10' },
-    { label: '11', value: '11' },
-    { label: '12 (full width)', value: '12' }
-  ],
-  defaultValue: '12',
+  min: 1,
+  max: 6,
   admin: {
-    description: 'Set the width of the field in the 12 column grid layout.'
+    description:
+      'Set number of columns the field should span (defaults to 6 = full width).'
   }
 };
 

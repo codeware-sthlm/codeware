@@ -23,15 +23,6 @@ export type TenantsArrayField =
     }[]
   | null;
 /**
- * Set the width of the field in the 12 column grid layout.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FieldWidth".
- */
-export type FieldWidth =
-  | ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12')
-  | null;
-/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -286,7 +277,10 @@ export interface Form {
         | {
             name: string;
             label?: string | null;
-            width?: FieldWidth;
+            /**
+             * Set number of columns the field should span (defaults to 6 = full width).
+             */
+            width?: number | null;
             required?: boolean | null;
             defaultValue?: boolean | null;
             id?: string | null;
@@ -297,7 +291,10 @@ export interface Form {
             name: string;
             label?: string | null;
             placeholder?: string | null;
-            width?: FieldWidth;
+            /**
+             * Set number of columns the field should span (defaults to 6 = full width).
+             */
+            width?: number | null;
             required?: boolean | null;
             id?: string | null;
             blockName?: string | null;
@@ -307,7 +304,10 @@ export interface Form {
             name: string;
             label?: string | null;
             placeholder?: string | null;
-            width?: FieldWidth;
+            /**
+             * Set number of columns the field should span (defaults to 6 = full width).
+             */
+            width?: number | null;
             required?: boolean | null;
             id?: string | null;
             blockName?: string | null;
@@ -344,7 +344,10 @@ export interface Form {
             name: string;
             label?: string | null;
             placeholder?: string | null;
-            width?: FieldWidth;
+            /**
+             * Set number of columns the field should span (defaults to 6 = full width).
+             */
+            width?: number | null;
             defaultValue?: number | null;
             required?: boolean | null;
             id?: string | null;
@@ -355,7 +358,10 @@ export interface Form {
             name: string;
             label?: string | null;
             placeholder?: string | null;
-            width?: FieldWidth;
+            /**
+             * Set number of columns the field should span (defaults to 6 = full width).
+             */
+            width?: number | null;
             defaultValue?: string | null;
             options?:
               | {
@@ -373,7 +379,10 @@ export interface Form {
             name: string;
             label?: string | null;
             placeholder?: string | null;
-            width?: FieldWidth;
+            /**
+             * Set number of columns the field should span (defaults to 6 = full width).
+             */
+            width?: number | null;
             defaultValue?: string | null;
             required?: boolean | null;
             id?: string | null;
@@ -384,7 +393,10 @@ export interface Form {
             name: string;
             label?: string | null;
             placeholder?: string | null;
-            width?: FieldWidth;
+            /**
+             * Set number of columns the field should span (defaults to 6 = full width).
+             */
+            width?: number | null;
             defaultValue?: string | null;
             required?: boolean | null;
             id?: string | null;

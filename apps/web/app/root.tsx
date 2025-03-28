@@ -209,8 +209,11 @@ export default function App() {
                 <div className="relative flex gap-4">
                   <div className="flex flex-1">
                     <div className="flex h-10 w-10 items-center backdrop-blur">
-                      <Link to="/" className="pointer-events-auto">
-                        <CdwrCloud className="text-zinc-600 dark:text-zinc-400" />
+                      <Link
+                        to="/"
+                        className="pointer-events-auto text-zinc-600 dark:text-zinc-400"
+                      >
+                        <CdwrCloud size={40} />
                       </Link>
                     </div>
                   </div>

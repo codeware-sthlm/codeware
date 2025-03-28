@@ -1,5 +1,5 @@
-import { cn } from '@codeware/shared/ui/shadcn';
 import type { ContentBlock as ContentBlockProps } from '@codeware/shared/util/payload-types';
+import { cn } from '@codeware/shared/util/ui';
 import React from 'react';
 
 import { RichText } from './RichText';

@@ -11,5 +11,3 @@ export * from './lib/components/radio-group';
 export * from './lib/components/select';
 export * from './lib/components/sonner';
 export * from './lib/components/textarea';
-
-export * from './lib/utils/cn';

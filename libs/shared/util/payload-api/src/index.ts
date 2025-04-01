@@ -10,3 +10,4 @@ export type {
 export { findBySlug } from './lib/find-by-slug';
 export { getShallow } from './lib/get-shallow';
 export { post } from './lib/post';
+export { getSiteSettings } from './lib/get-site-settings';

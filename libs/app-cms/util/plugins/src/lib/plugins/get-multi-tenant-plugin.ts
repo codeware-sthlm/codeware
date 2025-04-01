@@ -17,7 +17,8 @@ export const getMultiTenantPlugin = () => {
       'form-submissions': {},
       media: {},
       pages: {},
-      posts: {}
+      posts: {},
+      'site-settings': { isGlobal: true }
     },
     tenantsArrayField: {
       includeDefaultField: false

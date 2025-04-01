@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url';
 
 import type { CollectionConfig } from 'payload';
 
+import { adminGroups } from '@codeware/app-cms/util/definitions';
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
@@ -12,6 +14,7 @@ const dirname = path.dirname(filename);
 const media: CollectionConfig = {
   slug: 'media',
   admin: {
+    group: adminGroups.fileArea,
     defaultColumns: ['filename', 'mimeType', 'tenant', 'createdAt'],
     description: {
       en: 'Media files currently only support images and can be used in posts and pages.',

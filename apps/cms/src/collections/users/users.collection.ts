@@ -4,6 +4,7 @@ import {
   systemUserAccess,
   systemUserOrTenantAdminAccess
 } from '@codeware/app-cms/util/access';
+import { adminGroups } from '@codeware/app-cms/util/definitions';
 
 import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
 import { tenantsArrayField } from './fields/tenants-array.field';
@@ -16,6 +17,7 @@ const users: CollectionConfig<'users'> = {
   slug: 'users',
   auth: { maxLoginAttempts: 5, lockTime: 1000 * 60 * 60 * 24 },
   admin: {
+    group: adminGroups.settings,
     useAsTitle: 'name'
   },
   labels: {

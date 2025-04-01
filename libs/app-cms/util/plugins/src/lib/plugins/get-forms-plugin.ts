@@ -1,3 +1,4 @@
+import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
 
 import { customizedFields } from './forms/customized-fields';
@@ -11,7 +12,15 @@ export const getFormsPlugin = () => {
       payment: false,
       state: false
     },
+    formOverrides: {
+      admin: {
+        group: adminGroups['forms']
+      }
+    },
     formSubmissionOverrides: {
+      admin: {
+        group: adminGroups['forms']
+      },
       hooks: {
         beforeValidate: [ensureTenant]
       }

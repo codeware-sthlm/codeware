@@ -5,7 +5,7 @@ import {
   authenticatedAccess,
   systemUserAccess
 } from '@codeware/app-cms/util/access';
-import { hasRole } from '@codeware/app-cms/util/misc';
+import { adminGroups } from '@codeware/app-cms/util/definitions';
 
 import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';
 
@@ -28,6 +28,7 @@ const tenants: CollectionConfig = {
     beforeChange: [enforceApiKeyHook]
   },
   admin: {
+    group: adminGroups.settings,
     useAsTitle: 'name',
     description: {
       en: 'A workspace is like an organization or a company and is often called a "tenant". The content is scoped to the members of the workspace.',

@@ -7,6 +7,7 @@ import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
+import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { filterByTenantScope } from '@codeware/app-cms/util/filters';
 
 import { updatePublishedAtHook } from './hooks/update-published-at.hook';
@@ -19,6 +20,7 @@ const env = getEnv();
 const posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   admin: {
+    group: adminGroups.content,
     defaultColumns: ['title', 'tenant', 'updatedAt'],
     useAsTitle: 'title',
     description: {

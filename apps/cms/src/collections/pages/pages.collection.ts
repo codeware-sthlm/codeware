@@ -4,6 +4,7 @@ import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
+import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { populatePublishedAtHook } from '@codeware/app-cms/util/hooks';
 
 const env = getEnv();
@@ -14,6 +15,7 @@ const env = getEnv();
 const pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   admin: {
+    group: adminGroups.content,
     defaultColumns: ['name', 'slug', 'tenant', 'updatedAt'],
     useAsTitle: 'name',
     description: {

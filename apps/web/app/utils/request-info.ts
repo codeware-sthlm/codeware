@@ -1,5 +1,4 @@
 import { useRouteLoaderData } from '@remix-run/react';
-import invariant from 'tiny-invariant';
 
 import { type loader as rootLoader } from '../root';
 

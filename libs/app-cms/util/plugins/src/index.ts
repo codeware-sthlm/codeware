@@ -1,1 +1,1 @@
-export { getPugins } from './lib/get-plugins';
+export { getPlugins } from './lib/get-plugins';

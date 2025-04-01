@@ -12,7 +12,7 @@ import { getSeoPlugin } from './plugins/get-seo-plugin';
  * @param env - The environment variables
  * @returns Array of plugins
  */
-export const getPugins = (env: Env): Array<Plugin> => [
+export const getPlugins = (env: Env): Array<Plugin> => [
   getFormsPlugin(),
   getMultiTenantPlugin(),
   getSeoPlugin(),

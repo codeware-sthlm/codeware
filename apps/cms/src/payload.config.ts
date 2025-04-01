@@ -15,7 +15,7 @@ import {
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
-import { getPugins } from '@codeware/app-cms/util/plugins';
+import { getPlugins } from '@codeware/app-cms/util/plugins';
 
 import categories from './collections/categories/categories.collection';
 import media from './collections/media/media.collection';
@@ -68,7 +68,7 @@ export default buildConfig({
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
-  plugins: getPugins(env),
+  plugins: getPlugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
   // i18n support
   i18n: { fallbackLanguage: 'sv' },

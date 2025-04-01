@@ -4,11 +4,11 @@ import invariant from 'tiny-invariant';
 import { type loader as rootLoader } from '../root';
 
 /**
- * @returns the pages from the root loader
+ * @returns the navigation tree from the root loader
  */
-export function usePages() {
+export function useNavigationTree() {
   const data = useRouteLoaderData<typeof rootLoader>('root');
-  invariant(data?.pages, 'No pages found in root loader');
+  invariant(data?.navigationTree, 'No navigation tree found in root loader');
 
-  return data.pages;
+  return data.navigationTree;
 }

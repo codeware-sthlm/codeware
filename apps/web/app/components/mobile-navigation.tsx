@@ -6,18 +6,16 @@ import {
 } from '@headlessui/react';
 import { Link } from '@remix-run/react';
 
-import { filterPages } from '../utils/filter-pages';
-import { usePages } from '../utils/pages';
+import { useNavigationTree } from '../utils/use-navigation-tree';
 
 export function MobileNavigation(
   props: React.ComponentPropsWithoutRef<typeof Popover>
 ) {
-  const pages = usePages();
-  const pagesExceptHome = filterPages(pages, ['home']);
+  const navigationTree = useNavigationTree();
 
   return (
     <Popover {...props}>
-      <PopoverButton className="group flex items-center rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10 dark:hover:ring-white/20">
+      <PopoverButton className="group flex items-center rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg ring-1 shadow-zinc-800/5 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10 dark:hover:ring-white/20">
         Menu
         <ChevronDownIcon className="ml-3 h-auto w-2 stroke-zinc-500 group-hover:stroke-zinc-700 dark:group-hover:stroke-zinc-400" />
       </PopoverButton>
@@ -40,9 +38,9 @@ export function MobileNavigation(
         </div>
         <nav className="mt-6">
           <ul className="-my-2 divide-y divide-zinc-100 text-base text-zinc-800 dark:divide-zinc-100/5 dark:text-zinc-300">
-            {pagesExceptHome.map((page) => (
-              <MobileNavItem key={page.slug} href={page.slug}>
-                {page.name}
+            {navigationTree.map(({ key, label, url }) => (
+              <MobileNavItem key={key} href={url}>
+                {label}
               </MobileNavItem>
             ))}
           </ul>

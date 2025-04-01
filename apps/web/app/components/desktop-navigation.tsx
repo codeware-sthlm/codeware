@@ -1,8 +1,7 @@
 import { cn } from '@codeware/shared/util/ui';
 import { NavLink } from '@remix-run/react';
 
-import { filterPages } from '../utils/filter-pages';
-import { usePages } from '../utils/pages';
+import { useNavigationTree } from '../utils/use-navigation-tree';
 
 function NavItem({
   href,
@@ -40,19 +39,17 @@ function NavItem({
 export function DesktopNavigation(
   props: React.ComponentPropsWithoutRef<'nav'>
 ) {
-  const pages = usePages();
-  const pagesExceptHome = filterPages(pages, ['home']);
-
-  if (pagesExceptHome.length === 0) {
+  const navigationTree = useNavigationTree();
+  if (navigationTree.length === 0) {
     return null;
   }
 
   return (
     <nav {...props}>
       <ul className="flex rounded-full bg-white/90 px-3 text-sm font-medium text-zinc-800 shadow-lg ring-1 shadow-zinc-800/5 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
-        {pagesExceptHome.map((page) => (
-          <NavItem key={page.slug} href={page.slug}>
-            {page.name}
+        {navigationTree.map(({ key, label, url }) => (
+          <NavItem key={key} href={url}>
+            {label}
           </NavItem>
         ))}
       </ul>

@@ -3,12 +3,12 @@ import {
   type PayloadValue
 } from '@codeware/shared/ui/payload-components';
 import { CdwrCloud } from '@codeware/shared/ui/react-components';
-import { getShallow, getSiteSettings } from '@codeware/shared/util/payload-api';
-import type {
-  Page,
-  Post,
-  SiteSetting
-} from '@codeware/shared/util/payload-types';
+import {
+  type NavigationItem,
+  getNavigationTree,
+  getSiteSettings
+} from '@codeware/shared/util/payload-api';
+import type { SiteSetting } from '@codeware/shared/util/payload-types';
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -38,8 +38,6 @@ import stylesheet from './tailwind.css?url';
 import { ClientHintCheck, getHints } from './utils/client-hints';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
 import { type Theme, getTheme } from './utils/theme.server';
-export type PageDetails = Pick<Page, 'name' | 'slug'> & { slug: string };
-export type PostDetails = Pick<Post, 'title' | 'slug'> & { slug: string };
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => [
   {
@@ -68,8 +66,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
     /** Error message to display to the user when we have e.g. API issues */
     let displayError = '';
-    let pages: Array<Page> = [];
-    let posts: Array<Post> = [];
+
+    let navigationTree: Array<NavigationItem> = [];
     let siteSettings = {} as SiteSetting;
 
     // Fetch layout data but don't propagate the exception to the error boundary
@@ -84,33 +82,17 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         throw new Error('Site settings not found');
       }
       siteSettings = gss;
-      pages = await getShallow('pages', requestOptions);
-      posts = await getShallow('posts', requestOptions);
+      navigationTree = await getNavigationTree(requestOptions);
     } catch (e) {
       const error = e as Error;
-      console.error(`Failed to load shallow data: ${error.message}`);
+      console.error(`Failed to load data: ${error.message}`);
       displayError = 'Unable to load content. Please try again later.';
     }
-
-    // Filter what to expose to the client
-    const pageDetails: Array<PageDetails> = pages
-      .filter(({ slug }) => slug)
-      .map(({ name, slug }) => ({
-        name,
-        slug: String(slug)
-      }));
-    const postDetails: Array<PostDetails> = posts
-      .filter(({ slug }) => slug)
-      .map(({ title, slug }) => ({
-        title,
-        slug: String(slug)
-      }));
 
     return {
       displayError,
       env,
-      pages: pageDetails,
-      posts: postDetails,
+      navigationTree,
       requestInfo: {
         hints: getHints(request),
         path: new URL(request.url).pathname,

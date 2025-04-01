@@ -1,0 +1,95 @@
+import type { CollectionConfig, Condition } from 'payload';
+
+import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import {
+  systemUserOrTenantAdminAccess,
+  verifyApiKeyAccess
+} from '@codeware/app-cms/util/access';
+import { adminGroups } from '@codeware/app-cms/util/definitions';
+import type { Navigation } from '@codeware/shared/util/payload-types';
+
+const env = getEnv();
+
+/**
+ * Whether a custom label source is selected.
+ */
+const isCustomLabelSource: Condition<
+  Navigation,
+  NonNullable<Navigation['items']>[number]
+> = (_, siblingData) => siblingData.labelSource === 'custom';
+
+/**
+ * Navigation collection.
+ */
+const navigation: CollectionConfig = {
+  slug: 'navigation',
+  admin: {
+    group: adminGroups.settings
+  },
+  access: {
+    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET }),
+    update: systemUserOrTenantAdminAccess
+  },
+  labels: {
+    singular: { en: 'Navigation', sv: 'Navigation' },
+    plural: { en: 'Navigation', sv: 'Navigation' }
+  },
+  fields: [
+    {
+      name: 'items',
+      type: 'array',
+      label: { en: 'Navigation Tree', sv: 'Navigationsträd' },
+      fields: [
+        {
+          name: 'reference',
+          type: 'relationship',
+          label: {
+            en: 'Navigate to document',
+            sv: 'Navigera till dokument'
+          },
+          relationTo: ['pages', 'posts'],
+          required: true
+        },
+        {
+          name: 'labelSource',
+          type: 'radio',
+          label: false,
+          admin: {
+            layout: 'horizontal'
+          },
+          defaultValue: 'document',
+          options: [
+            {
+              label: {
+                en: 'Use document name as link label',
+                sv: 'Använd dokumentets namn som länktext'
+              },
+              value: 'document'
+            },
+            {
+              label: { en: 'Custom link label', sv: 'Anpassad länktext' },
+              value: 'custom'
+            }
+          ]
+        },
+        {
+          name: 'customLabel',
+          type: 'text',
+          label: { en: 'Link label', sv: 'Länktext' },
+          admin: {
+            condition: isCustomLabelSource
+          },
+          required: true
+        }
+      ],
+      admin: {
+        initCollapsed: true,
+        components: {
+          RowLabel: '@codeware/apps/cms/components/NavigationArrayRowLabel'
+        }
+      }
+    }
+  ]
+};
+
+export default navigation;

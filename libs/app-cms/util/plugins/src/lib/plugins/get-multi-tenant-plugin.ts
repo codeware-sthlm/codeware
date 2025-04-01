@@ -2,8 +2,8 @@ import { hasRole } from '@codeware/app-cms/util/misc';
 import type { Config } from '@codeware/shared/util/payload-types';
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
 
-export const getMultiTenantPlugin = () => {
-  return multiTenantPlugin<Config>({
+export const getMultiTenantPlugin = () =>
+  multiTenantPlugin<Config>({
     // Default values, but specified for clarity
     cleanupAfterTenantDelete: true,
     debug: false,
@@ -15,6 +15,7 @@ export const getMultiTenantPlugin = () => {
       categories: {},
       forms: {},
       'form-submissions': {},
+      navigation: { isGlobal: true },
       media: {},
       pages: {},
       posts: {},
@@ -26,4 +27,3 @@ export const getMultiTenantPlugin = () => {
     tenantSelectorLabel: { en: 'Workspace scope', sv: 'Vald arbetsyta' },
     userHasAccessToAllTenants: (user) => hasRole(user, 'system-user')
   });
-};

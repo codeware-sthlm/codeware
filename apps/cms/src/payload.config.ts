@@ -19,6 +19,7 @@ import { getPugins } from '@codeware/app-cms/util/plugins';
 
 import categories from './collections/categories/categories.collection';
 import media from './collections/media/media.collection';
+import navigation from './collections/navigation/navigation.collection';
 import pages from './collections/pages/pages.collection';
 import posts from './collections/posts/posts.collection';
 import siteSettings from './collections/site-settings/site-settings.collection';
@@ -46,7 +47,16 @@ export default buildConfig({
   // Declare blocks globally and reference then by slug elsewhere
   // https://payloadcms.com/docs/fields/blocks#block-references
   blocks: [codeBlock, contentBlock, formBlock, mediaBlock],
-  collections: [categories, media, pages, posts, siteSettings, tenants, users],
+  collections: [
+    categories,
+    media,
+    navigation,
+    pages,
+    posts,
+    siteSettings,
+    tenants,
+    users
+  ],
   cors: env.CORS_URLS === '*' ? '*' : env.CORS_URLS.split(',').filter(Boolean),
   csrf: env.CSRF_URLS ? env.CSRF_URLS.split(',').filter(Boolean) : undefined,
   db: postgresAdapter({

@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
+import { adminGroups } from '@codeware/app-cms/util/definitions';
 
 const env = getEnv();
 
@@ -12,6 +13,7 @@ const env = getEnv();
 const categories: CollectionConfig = {
   slug: 'categories',
   admin: {
+    group: adminGroups.content,
     defaultColumns: ['name', 'slug', 'tenant'],
     useAsTitle: 'name'
   },

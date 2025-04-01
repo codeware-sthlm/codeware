@@ -57,7 +57,7 @@ export const tenantsArrayField = (): Field => {
       plural: { en: 'Workspaces', sv: 'Arbetsytor' }
     },
     access: {
-      create: systemUserAccess,
+      create: systemUserOrTenantAdminAccess,
       update: systemUserOrTenantAdminAccess
     },
     admin: {
@@ -70,7 +70,7 @@ export const tenantsArrayField = (): Field => {
         // Hide the top level label since we have a similar label in the tab
         Label: undefined,
         // Custom tenant/role header
-        RowLabel: '@codeware/apps/cms/components/ArrayRowLabel'
+        RowLabel: '@codeware/apps/cms/components/TenantsArrayRowLabel'
       },
       initCollapsed: true
     }

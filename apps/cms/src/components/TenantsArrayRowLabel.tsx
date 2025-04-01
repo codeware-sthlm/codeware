@@ -1,19 +1,16 @@
-import type { RowLabelProps } from '@payloadcms/ui';
-import type { ArrayFieldServerProps } from 'payload';
 import React from 'react';
+
+import { ArrayRowLabel } from './array-row-label.type';
 
 /**
  * Custom array row label for the tenants array field.
  *
  * Displays the tenant name instead of the default row number.
  */
-export const ArrayRowLabel: React.FC<
-  // Couldn't find a dedicated type?
-  ArrayFieldServerProps &
-    Pick<RowLabelProps, 'rowNumber'> & { rowLabel: string }
-> = async (props) => {
+export const TenantsArrayRowLabel: React.FC<ArrayRowLabel> = async (props) => {
   const { payload, path, formState, rowLabel, rowNumber } = props;
 
+  // TODO: Can this be type safe?
   const tenantPath = `${path}.${Number(rowNumber ?? 0) - 1}.tenant`;
   const tenantId = formState[tenantPath]?.value as number;
 
@@ -32,4 +29,4 @@ export const ArrayRowLabel: React.FC<
   return <div>{tenant.name}</div>;
 };
 
-export default ArrayRowLabel;
+export default TenantsArrayRowLabel;

@@ -3,8 +3,12 @@ import {
   type PayloadValue
 } from '@codeware/shared/ui/payload-components';
 import { CdwrCloud } from '@codeware/shared/ui/react-components';
-import { getShallow } from '@codeware/shared/util/payload-api';
-import type { Page, Post } from '@codeware/shared/util/payload-types';
+import { getShallow, getSiteSettings } from '@codeware/shared/util/payload-api';
+import type {
+  Page,
+  Post,
+  SiteSetting
+} from '@codeware/shared/util/payload-types';
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -37,9 +41,9 @@ import { type Theme, getTheme } from './utils/theme.server';
 export type PageDetails = Pick<Page, 'name' | 'slug'> & { slug: string };
 export type PostDetails = Pick<Post, 'title' | 'slug'> & { slug: string };
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
   {
-    title: 'Codeware Web'
+    title: data?.siteSettings.general.appName
   }
 ];
 
@@ -66,6 +70,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     let displayError = '';
     let pages: Array<Page> = [];
     let posts: Array<Post> = [];
+    let siteSettings = {} as SiteSetting;
 
     // Fetch layout data but don't propagate the exception to the error boundary
     try {
@@ -74,6 +79,11 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         context,
         request.headers
       );
+      const gss = await getSiteSettings(requestOptions);
+      if (!gss) {
+        throw new Error('Site settings not found');
+      }
+      siteSettings = gss;
       pages = await getShallow('pages', requestOptions);
       posts = await getShallow('posts', requestOptions);
     } catch (e) {
@@ -107,7 +117,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         userPrefs: {
           theme: theme
         }
-      }
+      },
+      siteSettings
     };
   } catch (error) {
     console.error('Failed to load root data:\n', error);

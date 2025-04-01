@@ -1,13 +1,31 @@
+import { SiteSetting } from '@codeware/shared/util/payload-types';
+import * as RemixReact from '@remix-run/react';
 import { createRemixStub } from '@remix-run/testing';
 import { render, screen, waitFor } from '@testing-library/react';
 
 import Index, { ErrorBoundary } from '../../app/routes/_index';
 
 it('renders loader data', async () => {
+  vi.spyOn(RemixReact, 'useRouteLoaderData').mockImplementation((routeId) => {
+    if (routeId === 'root') {
+      return {
+        siteSettings: {
+          general: {
+            appName: 'Test App',
+            landingPage: {
+              header: 'Welcome home!',
+              name: 'home'
+            }
+          }
+        } as Partial<SiteSetting>
+      };
+    }
+    return undefined;
+  });
+
   const RemixStub = createRemixStub([
     {
       path: '/',
-      loader: () => ({ page: { title: 'Home', header: 'Welcome home!' } }),
       Component: Index
     }
   ]);

@@ -6,6 +6,7 @@ import type {
   ContentBlock,
   Form,
   FormSubmission,
+  Navigation,
   Tenant,
   TenantsArrayField
 } from './payload-types';
@@ -67,3 +68,8 @@ export type FormFieldForBlockType<T extends FormBlockType> = FormField & {
 export type FormSubmissionData = NonNullable<
   NonNullable<FormSubmission['submissionData']>
 >;
+
+/** Navigation reference collection */
+export type NavigationReferenceCollection = NonNullable<
+  NonNullable<Navigation['items']>[number]
+>['reference']['relationTo'];

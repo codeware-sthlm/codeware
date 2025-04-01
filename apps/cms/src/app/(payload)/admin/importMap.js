@@ -35,6 +35,7 @@ import { default as default_7925a79d2af6389df70d2dd269ffbfbb } from '@codeware/a
 import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/app-cms/ui/fields/code/Code.client';
 import { default as default_52b6c8f3cfeb54cb642a26fe54c075b9 } from '@codeware/apps/cms/components/ArrayRowLabel';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
+import { default as default_d497a38447405736d600359900364450 } from '@codeware/apps/cms/components/NavigationArrayRowLabel';
 
 export const importMap = {
   '@payloadcms/plugin-multi-tenant/client#TenantField':
@@ -81,6 +82,8 @@ export const importMap = {
     BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#ItalicFeatureClient':
     ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@codeware/apps/cms/components/NavigationArrayRowLabel#default':
+    default_d497a38447405736d600359900364450,
   '@payloadcms/plugin-seo/client#OverviewComponent':
     OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/plugin-seo/client#MetaTitleComponent':

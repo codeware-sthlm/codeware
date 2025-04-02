@@ -3,6 +3,7 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json, useLoaderData, useRouteError } from '@remix-run/react';
 
 import { Container } from '../components/container';
+import { ErrorContainer } from '../components/error-container';
 import { RenderPagesDoc } from '../components/render-pages-doc';
 import { RenderPostsDoc } from '../components/render-posts-doc';
 import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
@@ -73,17 +74,8 @@ export function ErrorBoundary() {
   const error = useRouteError() as LoaderError;
 
   return (
-    <Container className="mt-16 sm:mt-32">
-      <div className="flex min-h-[30vh] items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-            {error.message}
-          </h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-            The page you're looking for doesn't exist.
-          </p>
-        </div>
-      </div>
-    </Container>
+    <ErrorContainer severity="error" stackTrace={error.message}>
+      The page you're looking for could not be rendered.
+    </ErrorContainer>
   );
 }

@@ -40,6 +40,7 @@ export function DesktopNavigation(
   props: React.ComponentPropsWithoutRef<'nav'>
 ) {
   const navigationTree = useNavigationTree();
+
   if (navigationTree.length === 0) {
     return null;
   }

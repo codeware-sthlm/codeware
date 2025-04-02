@@ -19,6 +19,7 @@
     "@radix-ui/react-menubar": "^1.1.6",
     "@radix-ui/react-radio-group": "^1.2.3",
     "@radix-ui/react-select": "^2.1.6",
+    "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "@remix-run/node": "^2.16.0",
     "@remix-run/react": "^2.16.0",

@@ -1,3 +1,4 @@
+import { Separator } from '@codeware/shared/ui/shadcn';
 import {
   type ErrorResponse,
   isRouteErrorResponse,
@@ -9,6 +10,8 @@ import * as React from 'react';
 // TODO Use Sentry for error tracking - COD-202
 // import { captureRemixErrorBoundaryError } from '@sentry/remix'
 import { getErrorMessage } from '../utils/misc';
+
+import { ErrorContainer } from './error-container';
 
 type StatusHandler = (info: {
   error: ErrorResponse;
@@ -37,13 +40,15 @@ export function GeneralErrorBoundary({
   }
 
   return (
-    <div className="text-h2 container flex items-center justify-center p-20">
+    <ErrorContainer severity="error">
+      <p>Please contact the administrator if the problem persists.</p>
+      <Separator className="my-4" />
       {isRouteErrorResponse(error)
         ? (statusHandlers?.[error.status] ?? defaultStatusHandler)({
             error,
             params
           })
         : unexpectedErrorHandler(error)}
-    </div>
+    </ErrorContainer>
   );
 }

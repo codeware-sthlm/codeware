@@ -8,7 +8,10 @@ import { type loader as rootLoader } from '../root';
  */
 export function useNavigationTree() {
   const data = useRouteLoaderData<typeof rootLoader>('root');
-  invariant(data?.navigationTree, 'No navigation tree found in root loader');
+  invariant(
+    data && data.navigationTree,
+    'No navigation tree found in root loader'
+  );
 
   return data.navigationTree;
 }

@@ -65,14 +65,14 @@ const collectionApiUrl = (apiUrl: string, collection: CollectionSlug) =>
  *
  * @param collection - The collection to invoke the request on.
  * @param options - The options to invoke the request with.
- * @returns The response from the request or an error description.
+ * @returns The response from the request (`null` is returned when the request is not found) or an error message.
  */
 export async function invokeRequest<TCollection extends CollectionSlug>(
   collection: TCollection,
   options: RequestOptions
 ): Promise<
   | {
-      data: Array<CollectionWithoutPayload[TCollection]>;
+      data: Array<CollectionWithoutPayload[TCollection]> | null;
       status: number;
     }
   | {
@@ -152,7 +152,7 @@ export async function invokeRequest<TCollection extends CollectionSlug>(
 
   // POST response
   return {
-    data: [res as FetchResponse<'POST', TCollection>],
+    data: res ? [res as FetchResponse<'POST', TCollection>] : null,
     status: response.status
   };
 }

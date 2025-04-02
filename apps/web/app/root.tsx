@@ -21,7 +21,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  data,
   useLoaderData,
   useNavigate
 } from '@remix-run/react';
@@ -31,6 +30,7 @@ import env from '../env-resolver/env';
 import { Container } from './components/container';
 import { DesktopNavigation } from './components/desktop-navigation';
 import { GeneralErrorBoundary } from './components/error-boundary';
+import { ErrorContainer } from './components/error-container';
 import { Footer } from './components/footer';
 import { MobileNavigation } from './components/mobile-navigation';
 import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
@@ -41,7 +41,7 @@ import { type Theme, getTheme } from './utils/theme.server';
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => [
   {
-    title: data?.siteSettings.general.appName
+    title: data?.siteSettings?.general?.appName ?? ''
   }
 ];
 
@@ -60,15 +60,15 @@ export const links: LinksFunction = () => [
 ];
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  /** Error message to display to the user when we have e.g. API issues */
+  let loaderErrorMessage = '';
+
   try {
     // Get the theme before fetching pages in case it fails
     const theme = await getTheme(request);
 
-    /** Error message to display to the user when we have e.g. API issues */
-    let displayError = '';
-
     let navigationTree: Array<NavigationItem> = [];
-    let siteSettings = {} as SiteSetting;
+    let siteSettings: SiteSetting | null = null;
 
     // Fetch layout data but don't propagate the exception to the error boundary
     try {
@@ -77,21 +77,18 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         context,
         request.headers
       );
-      const gss = await getSiteSettings(requestOptions);
-      if (!gss) {
-        throw new Error('Site settings not found');
-      }
-      siteSettings = gss;
       navigationTree = await getNavigationTree(requestOptions);
+      siteSettings = await getSiteSettings(requestOptions);
     } catch (e) {
       const error = e as Error;
       console.error(`Failed to load data: ${error.message}`);
-      displayError = 'Unable to load content. Please try again later.';
+      loaderErrorMessage =
+        'Unable to load application content. Please try again later.';
     }
 
     return {
-      displayError,
       env,
+      loaderErrorMessage,
       navigationTree,
       requestInfo: {
         hints: getHints(request),
@@ -104,10 +101,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     };
   } catch (error) {
     console.error('Failed to load root data:\n', error);
-    throw data(
-      { message: 'Failed to load application. Please try again later.' },
-      { status: 500 }
-    );
+    // Delegate to error boundary
+    throw error;
   }
 }
 
@@ -226,12 +221,12 @@ export default function App() {
             </div>
           </header>
           <main className="flex-auto">
-            <Outlet />
-            {loaderData.displayError && (
-              <div className="flex items-center justify-center p-4">
-                <p className="text-red-500">{loaderData.displayError}</p>
-              </div>
-            )}
+            {/* Display loader error message if it exists instead of the outlet */}
+            {(loaderData.loaderErrorMessage && (
+              <ErrorContainer severity="error">
+                {loaderData.loaderErrorMessage}
+              </ErrorContainer>
+            )) || <Outlet />}
           </main>
           <Footer />
         </div>

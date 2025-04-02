@@ -36,6 +36,7 @@ export default [
             '@radix-ui/react-menubar',
             '@radix-ui/react-radio-group',
             '@radix-ui/react-select',
+            '@radix-ui/react-separator',
             '@radix-ui/react-slot',
             'class-variance-authority',
             'clsx',

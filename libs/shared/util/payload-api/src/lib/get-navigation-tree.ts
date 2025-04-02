@@ -44,7 +44,7 @@ export type NavigationItem = {
  * use `findNavigationDoc` function which will match the signature.
  *
  * @param options - The options to get the site navigation tree with.
- * @returns The site navigation tree.
+ * @returns The site navigation tree or an empty array if it has not been setup in the CMS.
  * @throws A formatted error message when the request fails.
  */
 export const getNavigationTree = async (
@@ -59,7 +59,7 @@ export const getNavigationTree = async (
     throw new Error(`Error fetching navigation: ${response.error}`);
   }
 
-  const items = response.data[0].items ?? [];
+  const items = response.data?.[0]?.items ?? [];
 
   return items.reduce((acc, { customLabel, id, labelSource, reference }) => {
     if (typeof reference.value === 'number') {

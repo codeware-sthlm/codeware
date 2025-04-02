@@ -14,13 +14,13 @@ import {
  *
  * @param collection - The collection to create the document in.
  * @param options - The options to create the document with.
- * @returns The created document.
+ * @returns The created document or `null` if the document was not created.
  * @throws A formatted error message when the request fails.
  */
 export const post = async <T extends CollectionSlug>(
   collection: T,
   options: RequestBaseOptions & MethodOptions<'POST'>
-): Promise<CollectionWithoutPayload[T]> => {
+): Promise<CollectionWithoutPayload[T] | null> => {
   const response = await invokeRequest(collection, {
     ...options,
     method: 'POST'
@@ -30,5 +30,6 @@ export const post = async <T extends CollectionSlug>(
     throw new Error(`Error posting to '${collection}': ${response.error}`);
   }
 
-  return response.data[0];
+  // TODO: Check the response type when a document is not created for a POST request
+  return response.data?.[0] ?? null;
 };

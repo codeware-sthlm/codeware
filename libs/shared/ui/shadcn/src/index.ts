@@ -1,3 +1,4 @@
+export * from './lib/components/alert';
 export * from './lib/components/button';
 export * from './lib/components/card';
 export * from './lib/components/checkbox';
@@ -9,5 +10,6 @@ export * from './lib/components/label';
 export * from './lib/components/menubar';
 export * from './lib/components/radio-group';
 export * from './lib/components/select';
+export * from './lib/components/separator';
 export * from './lib/components/sonner';
 export * from './lib/components/textarea';

@@ -39,17 +39,15 @@ const RenderAlert: React.FC<Props> = ({
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
       <Alert className="max-w-lg">
-        {severity === 'error' && (
-          <LucideAlertTriangle className="h-4 w-4 text-red-500" />
-        )}
-        {severity === 'info' && <InfoIcon className="h-4 w-4" />}
+        {severity === 'error' && <LucideAlertTriangle />}
+        {severity === 'info' && <InfoIcon />}
         <AlertTitle>{title}</AlertTitle>
         <AlertDescription>
-          {children}
+          <div className="my-4">{children}</div>
           {stackTrace && (
-            <p className="text-muted-foreground border-l-2 py-2 text-sm">
+            <div className="border-l-4 border-red-400 py-2 pl-2 font-mono text-xs dark:border-red-800">
               {stackTrace}
-            </p>
+            </div>
           )}
         </AlertDescription>
       </Alert>

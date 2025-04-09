@@ -2,6 +2,8 @@ import type { ContentBlock as ContentBlockProps } from '@codeware/shared/util/pa
 import { cn } from '@codeware/shared/util/ui';
 import React from 'react';
 
+import { ColumnSizeProvider } from '../providers/ColumnSizeProvider';
+
 import { RichText } from './RichText';
 
 type Props = ContentBlockProps;
@@ -21,16 +23,18 @@ export const ContentBlock: React.FC<Props> = ({ columns }) => {
         const size = col.size ?? 'full';
 
         return (
-          <div
-            className={cn('col-span-12', {
-              'md:col-span-4': size === 'one-third',
-              'md:col-span-6': size === 'half',
-              'md:col-span-8': size === 'two-thirds'
-            })}
-            key={index}
-          >
-            {richText && <RichText data={richText} />}
-          </div>
+          <ColumnSizeProvider size={size}>
+            <div
+              className={cn('col-span-12', {
+                'md:col-span-4': size === 'one-third',
+                'md:col-span-6': size === 'half',
+                'md:col-span-8': size === 'two-thirds'
+              })}
+              key={index}
+            >
+              {richText && <RichText data={richText} />}
+            </div>
+          </ColumnSizeProvider>
         );
       })}
     </div>

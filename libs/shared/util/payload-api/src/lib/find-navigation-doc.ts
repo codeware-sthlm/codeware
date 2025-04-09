@@ -1,22 +1,11 @@
 import type {
-  Media,
   NavigationReferenceCollection,
   Page,
   Post
 } from '@codeware/shared/util/payload-types';
 
-import { type RequestBaseOptions, invokeRequest } from './utils/invoke-request';
-
-// Limit what can be exposed client side
-export type NavigationDoc =
-  | ({
-      collection: 'pages';
-    } & Pick<Page, 'header' | 'layout' | 'name'>)
-  | ({
-      collection: 'posts';
-    } & Pick<Post, 'content' | 'title'> & {
-        heroImage?: Media | null | undefined;
-      });
+import { invokeRequest } from './utils/invoke-request';
+import type { NavigationDoc, RequestBaseOptions } from './utils/types';
 
 /**
  * Find a navigation document by the URL collection and slug parameters.

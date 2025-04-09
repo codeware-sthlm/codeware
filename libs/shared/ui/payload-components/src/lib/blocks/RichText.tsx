@@ -1,4 +1,5 @@
 import type {
+  CardBlock as CardBlockProps,
   CodeBlock as CodeBlockProps,
   FormBlock as FormBlockProps,
   MediaBlock as MediaBlockProps
@@ -14,13 +15,16 @@ import {
   RichText as RichTextWithoutBlocks
 } from '@payloadcms/richtext-lexical/react';
 
+import { CardBlock } from './CardBlock';
 import { CodeBlock } from './CodeBlock';
 import { FormBlock } from './FormBlock';
 import { MediaBlock } from './MediaBlock';
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<CodeBlockProps | FormBlockProps | MediaBlockProps>;
+  | SerializedBlockNode<
+      CardBlockProps | CodeBlockProps | FormBlockProps | MediaBlockProps
+    >;
 
 /**
  * Converts custom Payload blocks from Lexical to React JSX components.
@@ -32,6 +36,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({
 }) => ({
   ...defaultConverters,
   blocks: {
+    card: ({ node }) => <CardBlock {...node.fields} />,
     code: ({ node }) => <CodeBlock {...node.fields} />,
     form: ({ node }) => <FormBlock {...node.fields} />,
     media: ({ node }) => <MediaBlock {...node.fields} />

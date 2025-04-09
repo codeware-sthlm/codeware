@@ -8,6 +8,7 @@ import sharp from 'sharp';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { seed } from '@codeware/app-cms/feature/seed';
 import {
+  cardBlock,
   codeBlock,
   contentBlock,
   formBlock,
@@ -17,6 +18,7 @@ import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
 
+import cards from './collections/cards/cards.collection';
 import categories from './collections/categories/categories.collection';
 import media from './collections/media/media.collection';
 import navigation from './collections/navigation/navigation.collection';
@@ -46,8 +48,9 @@ export default buildConfig({
   },
   // Declare blocks globally and reference then by slug elsewhere
   // https://payloadcms.com/docs/fields/blocks#block-references
-  blocks: [codeBlock, contentBlock, formBlock, mediaBlock],
+  blocks: [cardBlock, codeBlock, contentBlock, formBlock, mediaBlock],
   collections: [
+    cards,
     categories,
     media,
     navigation,

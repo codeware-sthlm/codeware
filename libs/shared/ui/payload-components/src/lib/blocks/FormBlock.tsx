@@ -186,7 +186,7 @@ export const FormBlock: React.FC<Props> = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, onError)}
-          className="mr-1 mb-1 space-y-6"
+          className="my-6 mr-1 mb-1 last:mb-0"
         >
           {/* Grid columns must be in sync with forms plugin, width field */}
           <Grid columns={6}>

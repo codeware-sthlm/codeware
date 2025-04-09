@@ -1,63 +1,7 @@
 import { generateSignature } from '@codeware/shared/util/signature';
 
-import {
-  type RequestMethod,
-  apiKeyPrefix,
-  authorizationHeader
-} from './definitions';
-
-export type RequestInitOptions = {
-  /**
-   * Optional headers to include in the request.
-   *
-   * @default undefined
-   */
-  headers?: HeadersInit;
-
-  /**
-   * Whether to allow HTTP-only cookies depending on client and server domains.
-   *
-   * When the client is on a different domain than the Payload API and `useSignature` is provided,
-   * the value should be set to `'include'`.
-   *
-   * @default undefined
-   */
-  requestCredentials?: RequestCredentials;
-
-  /**
-   * Enable signature verification for the request
-   * by providing the required application details.
-   *
-   * @default undefined
-   */
-  signatureVertification?: {
-    deployEnv: string;
-    deviceId: string;
-    secret: string;
-    tenantId: string;
-    /**
-     * Browser user agent to include in the signature.
-     *
-     * Set to `null` when the request is invoked from a server-side context
-     * without access to the request object.
-     * The user agent will be set to `'SSR'` in this case.
-     *
-     * @example
-     * ```ts
-     * const userAgent = request.headers.get('User-Agent')
-     * ```
-     */
-    userAgent: string | null;
-  };
-
-  /**
-   * Enable API key authorization for the request
-   * by providing the tenant API key for the application.
-   *
-   * @default undefined
-   */
-  tenantApiKey?: string;
-};
+import { apiKeyPrefix, authorizationHeader } from './definitions';
+import type { RequestInitOptions, RequestMethod } from './types';
 
 /**
  * Create request configuration for `fetch` requests.

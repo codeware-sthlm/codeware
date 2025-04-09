@@ -4,8 +4,8 @@ import type {
 } from '@codeware/shared/util/payload-types';
 
 import { createRequestInit } from './create-request-init';
-import type { RequestInitOptions } from './create-request-init';
-import type { RequestMethod } from './definitions';
+import { getDepth } from './get-depth';
+import type { RequestMethod, RequestOptions } from './types';
 
 type FetchResponse<
   T extends RequestMethod,
@@ -15,46 +15,6 @@ type FetchResponse<
       docs: Array<CollectionWithoutPayload[C]>;
     }
   : CollectionWithoutPayload[C];
-
-export type MethodOptions<T extends RequestMethod> = T extends 'GET'
-  ? {
-      /**
-       * The depth of the request.
-       * @default 2
-       */
-      depth?: number;
-      /**
-       * The limit of the request, must be greater than 0 when provided.
-       */
-      limit?: number;
-      /**
-       * The query to invoke the request with.
-       * @example 'where[slug][equals]=home'
-       */
-      query?: string;
-    }
-  : {
-      body: Record<string, unknown>;
-    };
-
-export type RequestBaseOptions = RequestInitOptions & {
-  /**
-   * The URL of the Payload CMS API host.
-   * @example 'https://payload-cms.com'
-   */
-  apiUrl: string;
-  /**
-   * Whether to enable debug logging on requests.
-   * @default false
-   */
-  debug?: boolean;
-};
-
-type RequestOptions = RequestBaseOptions &
-  (
-    | ({ method: 'GET' } & MethodOptions<'GET'>)
-    | ({ method: 'POST' } & MethodOptions<'POST'>)
-  );
 
 const collectionApiUrl = (apiUrl: string, collection: CollectionSlug) =>
   `${apiUrl}/api/${collection}`;
@@ -102,7 +62,7 @@ export async function invokeRequest<TCollection extends CollectionSlug>(
     method === 'GET'
       ? [
           options.query,
-          `depth=${options.depth ?? 2}`,
+          `depth=${getDepth(collection, options)}`,
           options.limit ? `limit=${options.limit ?? 0}` : ''
         ]
           .filter(Boolean)

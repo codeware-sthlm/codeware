@@ -1,4 +1,4 @@
-import { Toaster } from '@codeware/shared/ui/shadcn';
+import { Toaster } from '@codeware/shared/ui/shadcn/components/sonner';
 import type { FormSubmission } from '@codeware/shared/util/payload-types';
 import { type ReactNode, createContext, use } from 'react';
 
@@ -26,11 +26,12 @@ export type FormSubmitResponse =
 export type PayloadValue = {
   /**
    * Provide a navigate function based on your framework.
-   * It's used to navigate to a new path.
+   * It's used to navigate to a new path or URL.
    *
    * @param path - The path to navigate to.
+   * @param newTab - Whether to open the link in a new tab.
    */
-  navigate: (path: string) => void;
+  navigate: (path: string, newTab?: boolean) => void;
 
   /**
    * Provide the fully qualified URL to the Payload app host.

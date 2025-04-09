@@ -3,7 +3,8 @@ import type {
   CollectionWithoutPayload
 } from '@codeware/shared/util/payload-types';
 
-import { type RequestBaseOptions, invokeRequest } from './utils/invoke-request';
+import { invokeRequest } from './utils/invoke-request';
+import type { RequestBaseOptions } from './utils/types';
 
 /**
  * Find a document by the slug field.

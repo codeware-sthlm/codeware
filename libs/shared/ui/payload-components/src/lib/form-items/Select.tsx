@@ -1,12 +1,14 @@
 import {
-  Select as BaseSelect,
   FormControl,
-  FormLabel,
+  FormLabel
+} from '@codeware/shared/ui/shadcn/components/form';
+import {
+  Select as BaseSelect,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@codeware/shared/ui/shadcn';
+} from '@codeware/shared/ui/shadcn/components/select';
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 type Option = {

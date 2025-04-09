@@ -1,8 +1,8 @@
+import { Checkbox as BaseCheckbox } from '@codeware/shared/ui/shadcn/components/checkbox';
 import {
-  Checkbox as BaseCheckbox,
   FormControl,
   FormLabel
-} from '@codeware/shared/ui/shadcn';
+} from '@codeware/shared/ui/shadcn/components/form';
 import type { FormFieldForBlockType } from '@codeware/shared/util/payload-types';
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 

@@ -50,7 +50,7 @@ export function ErrorBoundary() {
 
   return (
     <ErrorContainer severity="error" stackTrace={error.message}>
-      The page you're looking for could not be rendered.
+      The landing page could not be rendered.
     </ErrorContainer>
   );
 }

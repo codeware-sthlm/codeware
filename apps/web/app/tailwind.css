@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-@plugin 'tailwindcss-animate';
 @plugin "@tailwindcss/typography";
 
 @config '../tailwind-typography.cjs';
@@ -22,11 +21,12 @@
   --border: var(--color-zinc-100);
   --ring: var(--color-zinc-900);
   --card: var(--color-zinc-50);
-  --card-foreground: var(--color-zinc-900);
+  --card-foreground: var(--color-zinc-600);
   --input: var(--color-zinc-100);
   --popover: var(--color-zinc-50);
   --popover-foreground: var(--color-zinc-900);
   --radius: 0.5rem;
+  --link: var(--color-teal-500);
 }
 
 .dark {
@@ -44,12 +44,13 @@
   --destructive-foreground: var(--color-zinc-100);
   --border: theme('colors.zinc.700/0.4');
   --ring: var(--color-zinc-700);
-  --card: var(--color-zinc-800);
-  --card-foreground: var(--color-zinc-100);
+  --card: theme('colors.zinc.800/0.5');
+  --card-foreground: var(--color-zinc-400);
   --input: theme('colors.zinc.700/0.4');
   --popover: var(--color-zinc-800);
   --popover-foreground: var(--color-zinc-100);
   --radius: 0.5rem;
+  --link: var(--color-teal-400);
 }
 
 @theme inline {
@@ -72,6 +73,7 @@
   --color-input: var(--input);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-link: var(--link);
 }
 
 @layer base {

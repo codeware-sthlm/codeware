@@ -82,12 +82,14 @@ export interface Config {
     users: UserAuthOperations;
   };
   blocks: {
+    card: CardBlock;
     code: CodeBlock;
     content: ContentBlock;
     form: FormBlock;
     media: MediaBlock;
   };
   collections: {
+    cards: Card;
     categories: Category;
     media: Media;
     navigation: Navigation;
@@ -118,6 +120,7 @@ export interface Config {
     };
   };
   collectionsSelect: {
+    cards: CardsSelect<false> | CardsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
@@ -196,14 +199,175 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
+ * via the `definition` "CardBlock".
  */
-export interface CodeBlock {
-  language: 'ts' | 'plaintext' | 'tsx' | 'js' | 'jsx';
-  code: string;
+export interface CardBlock {
+  /**
+   * Select the reusable cards to be displayed
+   */
+  collectionCards?: (number | Card)[] | null;
+  /**
+   * Complement with custom cards
+   */
+  customCards?:
+    | {
+        card: CardGroup;
+        id?: string | null;
+      }[]
+    | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'code';
+  blockType: 'card';
+}
+/**
+ * Create reusable cards
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cards".
+ */
+export interface Card {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * Select an icon that represent the card
+   */
+  icon?: string | null;
+  title: string;
+  /**
+   * A text that will complement the title
+   */
+  description?: string | null;
+  content: string;
+  /**
+   * Let the card link to a page or external URL
+   */
+  enableLink?: boolean | null;
+  link?: CardGroupLink;
+  /**
+   * Used for url paths. Will be automatically generated from title if left empty.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * A workspace is like an organization or a company and is often called a "tenant". The content is scoped to the members of the workspace.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  name: string;
+  description?: string | null;
+  domains?:
+    | {
+        domain: string;
+        pageTypes: ('cms' | 'client' | 'disabled')[];
+        id?: string | null;
+      }[]
+    | null;
+  relatedUsers?: {
+    docs?: (number | User)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedPages?: {
+    docs?: (number | Page)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedPosts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedCategories?: {
+    docs?: (number | Category)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  relatedMedia?: {
+    docs?: (number | Media)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Used for url paths. Will be automatically generated from name if left empty.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name: string;
+  /**
+   * System users have access to manage the whole system and do not need to be members of a workspace. For normal users, it is a requirement to be members of a workspace.
+   */
+  role: 'user' | 'system-user';
+  tenants?: TenantsArrayField;
+  /**
+   * Short description of the user.
+   */
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
+}
+/**
+ * Pages are the building blocks of the site and are used to create menus and navigation.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The name of the page used for navigation links.
+   */
+  name: string;
+  /**
+   * A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in "Layout builder".
+   */
+  header?: string | null;
+  /**
+   * Build the page content by adding the layout blocks you need.
+   */
+  layout: (ContentBlock | CardBlock | FormBlock | MediaBlock | CodeBlock)[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  /**
+   * The date the page is published.
+   */
+  publishedAt?: string | null;
+  /**
+   * Used for url paths. Will be automatically generated from name if left empty.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -480,125 +644,6 @@ export interface Form {
   createdAt: string;
 }
 /**
- * A workspace is like an organization or a company and is often called a "tenant". The content is scoped to the members of the workspace.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants".
- */
-export interface Tenant {
-  id: number;
-  name: string;
-  description?: string | null;
-  domains?:
-    | {
-        domain: string;
-        pageTypes: ('cms' | 'client' | 'disabled')[];
-        id?: string | null;
-      }[]
-    | null;
-  relatedUsers?: {
-    docs?: (number | User)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedPages?: {
-    docs?: (number | Page)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedPosts?: {
-    docs?: (number | Post)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedCategories?: {
-    docs?: (number | Category)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedMedia?: {
-    docs?: (number | Media)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  /**
-   * Used for url paths. Will be automatically generated from name if left empty.
-   */
-  slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name: string;
-  /**
-   * System users have access to manage the whole system and do not need to be members of a workspace. For normal users, it is a requirement to be members of a workspace.
-   */
-  role: 'user' | 'system-user';
-  tenants?: TenantsArrayField;
-  /**
-   * Short description of the user.
-   */
-  description?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  password?: string | null;
-}
-/**
- * Pages are the building blocks of the site and are used to create menus and navigation.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
-  id: number;
-  tenant?: (number | null) | Tenant;
-  /**
-   * The name of the page used for navigation links.
-   */
-  name: string;
-  /**
-   * A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in "Layout builder".
-   */
-  header?: string | null;
-  /**
-   * Build the page content by adding the layout blocks you need.
-   */
-  layout: (ContentBlock | FormBlock | MediaBlock | CodeBlock)[];
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  /**
-   * The date the page is published.
-   */
-  publishedAt?: string | null;
-  /**
-   * Used for url paths. Will be automatically generated from name if left empty.
-   */
-  slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock".
  */
@@ -794,6 +839,61 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock".
+ */
+export interface CodeBlock {
+  language: 'ts' | 'plaintext' | 'tsx' | 'js' | 'jsx';
+  code: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CardGroupLink".
+ */
+export interface CardGroupLink {
+  type?: ('reference' | 'custom') | null;
+  newTab?: boolean | null;
+  reference?:
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null);
+  /**
+   * Add protocol (http:// or https://) if the link is external
+   */
+  url?: string | null;
+  navTrigger?: ('card' | 'link') | null;
+  label?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CardGroup".
+ */
+export interface CardGroup {
+  /**
+   * Select an icon that represent the card
+   */
+  icon?: string | null;
+  title: string;
+  /**
+   * A text that will complement the title
+   */
+  description?: string | null;
+  content: string;
+  /**
+   * Let the card link to a page or external URL
+   */
+  enableLink?: boolean | null;
+  link?: CardGroupLink;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation".
  */
 export interface Navigation {
@@ -860,6 +960,10 @@ export interface FormSubmission {
 export interface PayloadLockedDocument {
   id: number;
   document?:
+    | ({
+        relationTo: 'cards';
+        value: number | Card;
+      } | null)
     | ({
         relationTo: 'categories';
         value: number | Category;
@@ -951,6 +1055,34 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cards_select".
+ */
+export interface CardsSelect<T extends boolean = true> {
+  tenant?: T;
+  icon?: T;
+  title?: T;
+  description?: T;
+  content?: T;
+  enableLink?: T;
+  link?: T | CardGroupLinkSelect<T>;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CardGroupLink_select".
+ */
+export interface CardGroupLinkSelect<T extends boolean = true> {
+  type?: T;
+  newTab?: T;
+  reference?: T;
+  url?: T;
+  navTrigger?: T;
+  label?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

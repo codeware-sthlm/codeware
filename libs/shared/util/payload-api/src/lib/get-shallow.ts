@@ -3,11 +3,8 @@ import type {
   CollectionWithoutPayload
 } from '@codeware/shared/util/payload-types';
 
-import {
-  type MethodOptions,
-  type RequestBaseOptions,
-  invokeRequest
-} from './utils/invoke-request';
+import { invokeRequest } from './utils/invoke-request';
+import type { MethodOptions, RequestBaseOptions } from './utils/types';
 
 /**
  * Get documents shallow (hence depth 0) from a collection.

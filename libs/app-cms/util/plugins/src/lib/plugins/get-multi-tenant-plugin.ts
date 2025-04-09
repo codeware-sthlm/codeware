@@ -12,6 +12,7 @@ export const getMultiTenantPlugin = () =>
       name: 'tenant'
     },
     collections: {
+      cards: {},
       categories: {},
       forms: {},
       'form-submissions': {},

@@ -2,6 +2,7 @@ import type { BlockSlug, Page } from '@codeware/shared/util/payload-types';
 import React, { Fragment } from 'react';
 
 // import { CallToActionBlock } from '@/blocks/CallToAction/Component'
+import { CardBlock } from './blocks/CardBlock';
 import { CodeBlock } from './blocks/CodeBlock';
 import { ContentBlock } from './blocks/ContentBlock';
 import { FormBlock } from './blocks/FormBlock';
@@ -12,6 +13,7 @@ const blocksMap: Record<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   React.JSXElementConstructor<any>
 > = {
+  card: CardBlock,
   code: CodeBlock,
   content: ContentBlock,
   form: FormBlock,
@@ -36,7 +38,7 @@ export const RenderBlocks: React.FC<Props> = ({ blocks }) => {
 
           if (Block) {
             return (
-              <div className="space-y-8" key={index}>
+              <div className="my-8" key={index}>
                 <Block {...block} />
               </div>
             );

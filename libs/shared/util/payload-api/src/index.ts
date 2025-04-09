@@ -1,21 +1,15 @@
-export {
-  apiKeyPrefix,
-  authorizationHeader,
-  type RequestMethod
-} from './lib/utils/definitions';
+export { apiKeyPrefix, authorizationHeader } from './lib/utils/definitions';
 export type {
   MethodOptions,
-  RequestBaseOptions
-} from './lib/utils/invoke-request';
+  NavigationDoc,
+  NavigationItem,
+  RequestBaseOptions,
+  RequestMethod
+} from './lib/utils/types';
+
 export { findBySlug } from './lib/find-by-slug';
-export {
-  findNavigationDoc,
-  type NavigationDoc
-} from './lib/find-navigation-doc';
+export { findNavigationDoc } from './lib/find-navigation-doc';
 export { getShallow } from './lib/get-shallow';
 export { post } from './lib/post';
-export {
-  getNavigationTree,
-  type NavigationItem
-} from './lib/get-navigation-tree';
+export { getNavigationTree } from './lib/get-navigation-tree';
 export { getSiteSettings } from './lib/get-site-settings';

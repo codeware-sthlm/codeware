@@ -1,6 +1,7 @@
 import type { SiteSetting } from '@codeware/shared/util/payload-types';
 
-import { type RequestBaseOptions, invokeRequest } from './utils/invoke-request';
+import { invokeRequest } from './utils/invoke-request';
+import type { RequestBaseOptions } from './utils/types';
 
 /**
  * Get the site settings.

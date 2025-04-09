@@ -1,30 +1,5 @@
-import type { NavigationReferenceCollection } from '@codeware/shared/util/payload-types';
-
-import { type RequestBaseOptions, invokeRequest } from './utils/invoke-request';
-
-export type NavigationItem = {
-  /**
-   * The collection for the navigation item.
-   */
-  collection: NavigationReferenceCollection;
-
-  /**
-   * Unique identifier for the navigation item.
-   */
-  key: string;
-
-  /**
-   * Navigation label in the language declared in the request.
-   */
-  label: string;
-
-  /**
-   * The URL of the navigation item as a `collection/slug` string.
-   *
-   * Use `findNavigationDoc` to fetch the document from the CMS.
-   */
-  url: string;
-};
+import { invokeRequest } from './utils/invoke-request';
+import type { NavigationItem, RequestBaseOptions } from './utils/types';
 
 /**
  * Get the site navigation tree.

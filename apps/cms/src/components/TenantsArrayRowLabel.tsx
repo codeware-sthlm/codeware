@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ArrayRowLabel } from './array-row-label.type';
 
 /**

@@ -11,7 +11,6 @@ export type CategoryData = Pick<Category, 'name' | 'slug' | 'tenant'>;
  * @param transactionID - Transaction ID when supported by the database
  * @param data - Category data
  * @returns The category ID if exists or created, otherwise undefined
- * @throws Never - just logs errors
  */
 export async function ensureCategory(
   payload: Payload,

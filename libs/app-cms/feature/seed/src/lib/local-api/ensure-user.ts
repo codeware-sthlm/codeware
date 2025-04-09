@@ -13,7 +13,6 @@ export type UserData = Pick<
  * @param transactionID - Transaction ID when supported by the database
  * @param data - User data
  * @returns The user ID if exists or created, otherwise undefined
- * @throws Never - just logs errors
  */
 export async function ensureUser(
   payload: Payload,

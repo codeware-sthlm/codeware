@@ -1,23 +1,23 @@
 import type { TenantRole } from '@codeware/shared/util/payload-types';
-import type {
-  CategoryLookup,
-  TenantLookup,
-  UserLookup
-} from '@codeware/shared/util/seed';
+import type { TenantLookup, UserLookup } from '@codeware/shared/util/seed';
 import type { Payload } from 'payload';
 
+type MapKey = { apiKey: string; slug: string };
 type TenantId = { tenant: number };
 type TenantIdRole = { tenant: number; role: TenantRole };
 type TenantLookupApiKey = Pick<TenantLookup, 'lookupApiKey'>;
 
 const mapper = {
-  // Map category slug to category id
+  // Map to category id (unique per tenant)
   category: new Map<string, number>(),
 
-  // Map api key to tenant id
+  // Map to page id (unique per tenant)
+  page: new Map<string, number>(),
+
+  // Map api key to tenant id (unique across tenants)
   tenant: new Map<string, number>(),
 
-  // Map name to user id
+  // Map email to user id (unique across tenants)
   user: new Map<string, number>()
 };
 
@@ -28,22 +28,41 @@ const mapper = {
  */
 export const tempStore = {
   /**
-   * Store category slug and id in map.
+   * Store category to map.
    *
-   * @param slug - The slug of the category.
+   * @param category - The category to store.
    * @param categoryId - The id of the category.
    */
-  storeCategory: (slug: string, categoryId: number) => {
-    mapper.category.set(slug, categoryId);
+  storeCategory: (category: MapKey, categoryId: number) => {
+    mapper.category.set(JSON.stringify(category), categoryId);
   },
   /**
-   * Lookup category id by slug.
+   * Lookup category id's.
    *
    * @param payload - The payload instance.
    * @param categories - The categories to lookup.
    */
-  lookupCategory: (payload: Payload, categories: Array<CategoryLookup>) => {
+  lookupCategory: (payload: Payload, categories: Array<MapKey>) => {
     return lookupCategory(payload, categories);
+  },
+
+  /**
+   * Store page to map.
+   *
+   * @param page - The page to store.
+   * @param pageId - The id of the page.
+   */
+  storePage: (page: MapKey, pageId: number) => {
+    mapper.page.set(JSON.stringify(page), pageId);
+  },
+  /**
+   * Lookup page id's.
+   *
+   * @param payload - The payload instance.
+   * @param pages - The pages to lookup.
+   */
+  lookupPage: (payload: Payload, pages: Array<MapKey>) => {
+    return lookupPage(payload, pages);
   },
 
   /**
@@ -98,15 +117,31 @@ export const tempStore = {
 
 function lookupCategory(
   payload: Payload,
-  categories: Array<CategoryLookup>
+  categories: Array<MapKey>
 ): Array<number> {
   return categories.reduce((acc, category) => {
-    const categoryId = mapper.category.get(category.lookupSlug);
+    const categoryId = mapper.category.get(JSON.stringify(category));
     if (!categoryId) {
-      payload.logger.error(`Skip: Category '${category.lookupSlug}' not found`);
+      payload.logger.error(
+        `Skip: Category '${category.slug}' for tenant '${category.apiKey}' not found`
+      );
       return acc;
     }
     acc.push(categoryId);
+    return acc;
+  }, [] as Array<number>);
+}
+
+function lookupPage(payload: Payload, pages: Array<MapKey>): Array<number> {
+  return pages.reduce((acc, page) => {
+    const pageId = mapper.page.get(JSON.stringify(page));
+    if (!pageId) {
+      payload.logger.error(
+        `Skip: Page '${page.slug}' for tenant '${page.apiKey}' not found`
+      );
+      return acc;
+    }
+    acc.push(pageId);
     return acc;
   }, [] as Array<number>);
 }

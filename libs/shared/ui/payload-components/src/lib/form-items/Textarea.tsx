@@ -1,8 +1,8 @@
 import {
-  Textarea as BaseTextarea,
   FormControl,
   FormLabel
-} from '@codeware/shared/ui/shadcn';
+} from '@codeware/shared/ui/shadcn/components/form';
+import { Textarea as BaseTextarea } from '@codeware/shared/ui/shadcn/components/textarea';
 import type { FormFieldForBlockType } from '@codeware/shared/util/payload-types';
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 

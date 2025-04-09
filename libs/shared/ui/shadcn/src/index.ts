@@ -1,15 +1,4 @@
-export * from './lib/components/alert';
-export * from './lib/components/button';
-export * from './lib/components/card';
-export * from './lib/components/checkbox';
-export * from './lib/components/dialog';
-export * from './lib/components/dropdown-menu';
-export * from './lib/components/form';
-export * from './lib/components/input';
-export * from './lib/components/label';
-export * from './lib/components/menubar';
-export * from './lib/components/radio-group';
-export * from './lib/components/select';
-export * from './lib/components/separator';
-export * from './lib/components/sonner';
-export * from './lib/components/textarea';
+// Import shadcn components individually to bundle only the components used in the app
+
+// @example
+// import { Button } from '@codeware/shared/ui/shadcn/components/button';

@@ -2,7 +2,7 @@ import {
   Alert,
   AlertDescription,
   AlertTitle
-} from '@codeware/shared/ui/shadcn';
+} from '@codeware/shared/ui/shadcn/components/alert';
 import { InfoIcon, LucideAlertTriangle } from 'lucide-react';
 
 import { Container } from './container';

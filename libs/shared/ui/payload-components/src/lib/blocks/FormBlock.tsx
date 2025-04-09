@@ -3,12 +3,14 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
+} from '@codeware/shared/ui/shadcn/components/dialog';
+import {
   Form,
   FormField,
   FormItem,
   FormMessage
-} from '@codeware/shared/ui/shadcn';
+} from '@codeware/shared/ui/shadcn/components/form';
 import type {
   FormBlock as FormBlockProps,
   FormSubmissionData,

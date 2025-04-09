@@ -1,4 +1,4 @@
-import { Separator } from '@codeware/shared/ui/shadcn';
+import { Separator } from '@codeware/shared/ui/shadcn/components/separator';
 import {
   type ErrorResponse,
   isRouteErrorResponse,

@@ -8,8 +8,10 @@ import type { Payload } from 'payload';
 import { loadInfisicalData } from './load-infisical-data';
 import { loadStaticData } from './load-static-data';
 import { ensureCategory } from './local-api/ensure-category';
+import { ensureNavigation } from './local-api/ensure-navigation';
 import { ensurePage } from './local-api/ensure-page';
 import { ensurePost } from './local-api/ensure-post';
+import { ensureSiteSetting } from './local-api/ensure-site-setting';
 import { ensureTenant } from './local-api/ensure-tenant';
 import { ensureUser } from './local-api/ensure-user';
 import type { SeedData, SeedEnvironment } from './seed-types';
@@ -267,8 +269,11 @@ export const seed = async (args: {
           } else {
             categoryId = Number(response);
           }
-          // Save category id to map to lookup categories later
-          tempStore.storeCategory(category.slug, categoryId);
+          // Save category to map to lookup id's later
+          tempStore.storeCategory(
+            { apiKey: category.tenant.lookupApiKey, slug: category.slug },
+            categoryId
+          );
         } catch (e) {
           const error = e as Error;
           payload.logger.error(error.message);
@@ -322,11 +327,20 @@ export const seed = async (args: {
             tenant: entity.tenant
           });
 
+          let pageId: number;
           if (typeof response === 'object') {
             payload.logger.info(
               `[SEED] Page '${page.slug}' on tenant #${entity.tenant}`
             );
+            pageId = response.id;
+          } else {
+            pageId = Number(response);
           }
+          // Save page to map to lookup id's later
+          tempStore.storePage(
+            { apiKey: page.tenant.lookupApiKey, slug: page.slug },
+            pageId
+          );
         } catch (e) {
           const error = e as Error;
           payload.logger.error(error.message);
@@ -362,7 +376,13 @@ export const seed = async (args: {
       let postFailed = 0;
 
       for (const post of seedData.posts) {
-        const categories = tempStore.lookupCategory(payload, post.categories);
+        const categories = tempStore.lookupCategory(
+          payload,
+          post.categories.map(({ lookupSlug }) => ({
+            apiKey: post.tenant.lookupApiKey,
+            slug: lookupSlug
+          }))
+        );
         const [entity] = tempStore.lookupTenant(payload, [post.tenant]);
         const authors = tempStore.lookupUser(payload, post.authors);
 
@@ -405,6 +425,129 @@ export const seed = async (args: {
           : `[SEED] >> Posts up to date (count: ${postCount})`
       );
       seedError = seedError || postFailed > 0;
+    }
+
+    // NAVIGATION
+
+    // Create navigation for each tenant
+    if (seedData.tenants.length > 0) {
+      await ensureTransaction();
+
+      let navigationFailed = 0;
+
+      for (const tenant of seedData.tenants) {
+        const [tenantEntity] = tempStore.lookupTenant(payload, [
+          { lookupApiKey: tenant.apiKey }
+        ]);
+        // Lookup the first 5 tenant pages excluding the home page
+        const pageIds = tempStore.lookupPage(
+          payload,
+          seedData.pages
+            .filter(
+              ({ slug, tenant: { lookupApiKey } }) =>
+                lookupApiKey === tenant.apiKey && slug !== 'home'
+            )
+            .map(({ slug, tenant: { lookupApiKey } }) => ({
+              apiKey: lookupApiKey,
+              slug
+            }))
+            .slice(0, 5)
+        );
+
+        try {
+          const response = await ensureNavigation(payload, transactionID, {
+            items: pageIds.map((id) => ({
+              reference: { relationTo: 'pages', value: id }
+            })),
+            tenant: tenantEntity.tenant
+          });
+
+          if (typeof response === 'object') {
+            payload.logger.info(
+              `[SEED] Navigation for tenant '${tenant.apiKey}' created`
+            );
+          }
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Navigation for tenant '${tenant.apiKey}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          navigationFailed++;
+        }
+      }
+      const { totalDocs: navigationCount } = await payload.count({
+        collection: 'navigation',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        navigationFailed
+          ? `[SEED] Problem occurred for ${navigationFailed}/${seedData.tenants.length} navigations (count: ${navigationCount})`
+          : `[SEED] >> Navigations up to date (count: ${navigationCount})`
+      );
+      seedError = seedError || navigationFailed > 0;
+    }
+
+    // SITE SETTINGS
+
+    // Create settings for each tenant
+    if (seedData.tenants.length > 0) {
+      await ensureTransaction();
+
+      let siteSettingFailed = 0;
+
+      for (const tenant of seedData.tenants) {
+        const [tenantEntity] = tempStore.lookupTenant(payload, [
+          { lookupApiKey: tenant.apiKey }
+        ]);
+        // Landing page is "home" page
+        const [page] = tempStore.lookupPage(payload, [
+          { apiKey: tenant.apiKey, slug: 'home' }
+        ]);
+
+        if (!page) {
+          siteSettingFailed++;
+          continue;
+        }
+
+        try {
+          const response = await ensureSiteSetting(payload, transactionID, {
+            general: { appName: `${tenant.name} App`, landingPage: page },
+            tenant: tenantEntity.tenant
+          });
+
+          if (typeof response === 'object') {
+            payload.logger.info(
+              `[SEED] Site setting for tenant '${tenant.apiKey}' created`
+            );
+          }
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Site setting for tenant '${tenant.apiKey}'\n${JSON.stringify(
+                error.data,
+                null,
+                2
+              )}`
+            );
+          }
+          siteSettingFailed++;
+        }
+      }
+      const { totalDocs: siteSettingCount } = await payload.count({
+        collection: 'site-settings',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        siteSettingFailed
+          ? `[SEED] Problem occurred for ${siteSettingFailed}/${seedData.tenants.length} site settings (count: ${siteSettingCount})`
+          : `[SEED] >> Site settings up to date (count: ${siteSettingCount})`
+      );
+      seedError = seedError || siteSettingFailed > 0;
     }
 
     await endTransaction(seedError ? 'rollback' : 'commit');

@@ -21,6 +21,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  json,
   useLoaderData,
   useNavigate
 } from '@remix-run/react';
@@ -86,7 +87,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         'Unable to load application content. Please try again later.';
     }
 
-    return {
+    return json({
       env,
       loaderErrorMessage,
       navigationTree,
@@ -98,7 +99,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         }
       },
       siteSettings
-    };
+    });
   } catch (error) {
     console.error('Failed to load root data:\n', error);
     // Delegate to error boundary
@@ -143,15 +144,20 @@ export default function App() {
 
   // Provide app opinionated context to Payload components
   const context: PayloadValue = {
-    navigate: (path: string) => {
-      if (path.match(/^https?:\/\//)) {
-        console.warn(
-          'Payload navigation to external URL is not supported:',
-          path
-        );
-      } else {
-        navigate(path);
+    navigate: (path, newTab) => {
+      const isExternal = path.startsWith('http');
+      // Open new tab
+      if (newTab) {
+        window.open(path, '_blank');
+        return;
       }
+      // Native redirect external links
+      if (isExternal) {
+        window.location.href = path;
+        return;
+      }
+      // Invoke router event for internal links
+      navigate(path);
     },
     payloadUrl: loaderData.env.PAYLOAD_URL,
     submitForm: async (formData) => {

@@ -1,4 +1,7 @@
-import { HeroIcon, IconRenderer } from '@codeware/shared/ui/react-components';
+import {
+  type HeroIcon,
+  IconRenderer
+} from '@codeware/shared/ui/react-components';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import {
   Card,
@@ -12,6 +15,7 @@ import type {
   CardBlock as CardBlockProps,
   CardGroup
 } from '@codeware/shared/util/payload-types';
+import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
 import { cn } from '@codeware/shared/util/ui';
 import { ExternalLinkIcon, LinkIcon } from 'lucide-react';
 
@@ -64,7 +68,8 @@ export const CardBlock: React.FC<Props> = ({
       )}
     >
       {cards.map((card, index) => {
-        const { title, description, content, enableLink, link, icon } = card;
+        const { title, description, content, enableLink, link, brand } = card;
+        const { icon, color } = brand ?? {};
 
         const hasHeader = title || description || icon;
         const linkDetails = enableLink ? extractLink(link) : null;
@@ -82,16 +87,40 @@ export const CardBlock: React.FC<Props> = ({
               {
                 'cursor-pointer':
                   linkDetails && linkDetails.navTrigger === 'card'
+              },
+              {
+                'max-w-sm': maxColumns === 1
               }
             )}
           >
             {hasHeader && (
               <CardHeader>
                 {icon && (
-                  <div className="border-primary/10 bg-card ring-primary/20 ring-offset-background dark:bg-primary/20 dark:border-primary-foreground/10 dark:ring-primary-foreground/20 group-hover:ring-link/50 dark:group-hover:ring-link/50 flex size-14 items-center justify-center rounded-full border shadow-sm ring-1 ring-offset-1 transition-all duration-300 ease-in-out group-hover:border-transparent group-hover:shadow-md group-hover:ring-2">
+                  <div
+                    // Workaround to prevent all colors to be bundled just-in-case:
+                    // Tailwind can not resolve dynamic colors that are not pre-defined
+                    // so we need to use inline styles to set the border color.
+                    style={{
+                      borderColor: tailwind.colorMaybe(color)
+                    }}
+                    className={cn(
+                      'border-primary/10 bg-card ring-offset-background dark:bg-primary/20 dark:border-primary-foreground/10 flex size-14 items-center justify-center rounded-full border shadow-sm ring-1 ring-offset-1 transition-all duration-300 ease-in-out group-hover:border-transparent group-hover:shadow-md',
+                      {
+                        'group-hover:border-link/50 dark:group-hover:border-link/50 ring-primary/20 dark:ring-primary-foreground/20':
+                          !color
+                      }
+                    )}
+                  >
                     <IconRenderer
                       icon={icon as HeroIcon}
-                      className="text-primary/70 dark:text-primary-foreground/80 group-hover:text-link dark:group-hover:text-link size-7 transition-all duration-300 ease-in-out group-hover:scale-110"
+                      color={color as TailwindColor}
+                      className={cn(
+                        'size-7 transition-all duration-300 ease-in-out group-hover:scale-110',
+                        {
+                          'text-primary/70 dark:text-primary-foreground/80 group-hover:text-link dark:group-hover:text-link':
+                            !color
+                        }
+                      )}
                     />
                   </div>
                 )}

@@ -229,9 +229,12 @@ export interface Card {
   id: number;
   tenant?: (number | null) | Tenant;
   /**
-   * Select an icon that represent the card
+   * Select an icon and color that represent the card
    */
-  icon?: string | null;
+  brand?: {
+    icon?: string | null;
+    color?: string | null;
+  };
   title: string;
   /**
    * A text that will complement the title
@@ -877,9 +880,12 @@ export interface CardGroupLink {
  */
 export interface CardGroup {
   /**
-   * Select an icon that represent the card
+   * Select an icon and color that represent the card
    */
-  icon?: string | null;
+  brand?: {
+    icon?: string | null;
+    color?: string | null;
+  };
   title: string;
   /**
    * A text that will complement the title
@@ -1062,7 +1068,12 @@ export interface PayloadMigration {
  */
 export interface CardsSelect<T extends boolean = true> {
   tenant?: T;
-  icon?: T;
+  brand?:
+    | T
+    | {
+        icon?: T;
+        color?: T;
+      };
   title?: T;
   description?: T;
   content?: T;

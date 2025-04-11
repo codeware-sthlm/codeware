@@ -4,6 +4,7 @@ import type {
 } from '@codeware/shared/util/payload-types';
 import type { Condition, GroupField, TypeWithID } from 'payload';
 
+import { colorPickerField } from '../color-picker/color-picker.field';
 import { iconPickerField } from '../icon-picker/icon-picker.field';
 import { linkGroupField } from '../link-group/link-group.field';
 
@@ -38,17 +39,38 @@ export const cardGroupField: GroupField = {
   },
   fields: [
     {
-      ...iconPickerField,
-      label: false,
+      name: 'brand',
+      type: 'group',
       admin: {
-        ...(iconPickerField.admin ?? {}),
         description: {
-          en: 'Select an icon that represent the card',
-          sv: 'Välj en ikon som representerar kortet'
+          en: 'Select an icon and color that represent the card',
+          sv: 'Välj en ikon och färg som representerar kortet'
         },
-        disableListColumn: true,
-        disableListFilter: true
-      }
+        hideGutter: true
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            iconPickerField({
+              props: { hideLabel: true },
+              override: {
+                admin: {
+                  width: '25%'
+                }
+              }
+            }),
+            colorPickerField({
+              props: { hideLabel: true },
+              override: {
+                admin: {
+                  width: '25%'
+                }
+              }
+            })
+          ]
+        }
+      ]
     },
     {
       name: 'title',

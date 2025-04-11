@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@codeware/shared/ui/shadcn/components/tooltip';
+import type { TailwindColor } from '@codeware/shared/util/tailwind';
 import { cn } from '@codeware/shared/util/ui';
 import type { VariantProps } from 'class-variance-authority';
 import { useState } from 'react';
@@ -63,6 +64,11 @@ type Props = {
    * The initial value of the icon picker.
    */
   value?: HeroIcon;
+
+  /**
+   * The Tailwind color name of the icon.
+   */
+  color?: TailwindColor;
 };
 
 const defaultLabels: Required<DialogLabels & TriggerLabels> = {
@@ -71,7 +77,7 @@ const defaultLabels: Required<DialogLabels & TriggerLabels> = {
   dialogTitle: 'Select an Icon',
   noIconsFound: 'No icons found...',
   searchClearButton: 'Clear search',
-  searchFieldPlaceholder: 'Search...',
+  searchFieldPlaceholder: 'Search icon...',
   // Trigger labels
   labelChange: (icon) => icon.friendlyName,
   labelSelect: 'Select icon'
@@ -87,7 +93,8 @@ export const IconPicker: React.FC<Props> = ({
   labels,
   onChange,
   trigger,
-  value
+  value,
+  color
 }) => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<null | HeroIcon>(value ?? null);
@@ -114,13 +121,14 @@ export const IconPicker: React.FC<Props> = ({
     } = trigger ?? {};
     triggerElement = (icon) => (
       <Button
+        size={'lg'}
         variant={buttonVariant}
         className={cn('hover:cursor-pointer', buttonClassName)}
         onClick={onClick}
       >
         {icon ? (
           <>
-            <IconRenderer className="size-6" icon={icon} />
+            <IconRenderer className="size-6" icon={icon} color={color} />
             {labelChange({
               name: icon,
               friendlyName: heroIconMap[icon].friendlyName
@@ -135,7 +143,7 @@ export const IconPicker: React.FC<Props> = ({
 
   return (
     <div className="twp">
-      <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{triggerElement(selected)}</DialogTrigger>
         <DialogContent>
           <DialogHeader>

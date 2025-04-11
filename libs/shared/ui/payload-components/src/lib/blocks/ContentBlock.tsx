@@ -23,14 +23,13 @@ export const ContentBlock: React.FC<Props> = ({ columns }) => {
         const size = col.size ?? 'full';
 
         return (
-          <ColumnSizeProvider size={size}>
+          <ColumnSizeProvider size={size} key={index}>
             <div
               className={cn('col-span-12', {
                 'md:col-span-4': size === 'one-third',
                 'md:col-span-6': size === 'half',
                 'md:col-span-8': size === 'two-thirds'
               })}
-              key={index}
             >
               {richText && <RichText data={richText} />}
             </div>

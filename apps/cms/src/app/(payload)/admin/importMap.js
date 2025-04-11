@@ -35,6 +35,7 @@ import { default as default_83b0dfab156f3636ed94b94854d15ad5 } from '@codeware/a
 import { default as default_7925a79d2af6389df70d2dd269ffbfbb } from '@codeware/app-cms/ui/components/VerifyTenantDomain';
 import { default as default_9f66f0d44caf76088020099a6b3fd616 } from '@codeware/app-cms/ui/fields/card-group/CardGroupArrayRowLabel.client';
 import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/app-cms/ui/fields/code/Code.client';
+import { default as default_8586e6ac5ddd6a3f87ffe1dd472673f5 } from '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client';
 import { default as default_ae19db27eee762af26f037dd7af0b736 } from '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
 import { default as default_d497a38447405736d600359900364450 } from '@codeware/apps/cms/components/NavigationArrayRowLabel';
@@ -45,6 +46,8 @@ export const importMap = {
     TenantField_1d0591e3cf4f332c83a86da13a0de59a,
   '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client#default':
     default_ae19db27eee762af26f037dd7af0b736,
+  '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client#default':
+    default_8586e6ac5ddd6a3f87ffe1dd472673f5,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell':
     RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalField':

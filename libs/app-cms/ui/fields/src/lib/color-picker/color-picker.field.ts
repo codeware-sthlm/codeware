@@ -1,21 +1,21 @@
 import { deepMerge } from '@codeware/shared/util/pure';
 import type { TextField } from 'payload';
 
-import type { IconPickerFieldProps } from './IconPickerField.client';
+import type { ColorPickerFieldProps } from './ColorPickerField.client';
 
 type Props = {
   /** Custom field component properties */
-  props?: IconPickerFieldProps;
+  props?: ColorPickerFieldProps;
 
   /** Override field configuration with selected properties */
   override?: Partial<TextField>;
 };
 
 /**
- * Icon picker field configuration for Payload CMS.
+ * Color picker field configuration for Payload CMS.
  *
- * This field allows users to select an icon from a list of available heroicons.
- * The selected icon is displayed next to the picker field.
+ * This field allows users to select a color from Tailwind CSS colors.
+ * The selected color is displayed next to the picker field.
  *
  * The field configuration can be overridden by providing a partial configuration,
  * that will be deep merged with the default configuration.
@@ -23,19 +23,19 @@ type Props = {
  * Applied optional properties:
  *  - `label`
  */
-export const iconPickerField = ({ props, override }: Props = {}): TextField => {
+export const colorPickerField = ({
+  props,
+  override
+}: Props = {}): TextField => {
   const field = deepMerge<TextField>(
     {
-      name: 'icon',
+      name: 'color',
       type: 'text',
-      label: {
-        en: 'Icon',
-        sv: 'Ikon'
-      },
+      label: { en: 'Color', sv: 'Färg' },
       admin: {
         components: {
           Field: {
-            path: '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client',
+            path: '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client',
             clientProps: props
           }
         }

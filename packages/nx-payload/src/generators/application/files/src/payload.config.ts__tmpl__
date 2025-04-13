@@ -6,7 +6,6 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 <% } %>import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { buildConfig } from 'payload';
-import sharp from 'sharp';
 
 import { Media } from './collections/Media';
 import { Users } from './collections/Users';
@@ -40,6 +39,5 @@ export default buildConfig({
   graphQL: {
     disable: true,
     schemaOutputFile: path.resolve(dirname, 'generated', 'schema.graphql'),
-  },
-  sharp
+  }
 });

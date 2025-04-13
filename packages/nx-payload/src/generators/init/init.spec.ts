@@ -5,7 +5,6 @@ import type { PackageJson } from 'nx/src/utils/package-json';
 import {
   graphqlVersion,
   payloadVersion,
-  sharpVersion,
   testingLibraryDomVersion,
   testingLibraryJestDomVersion,
   testingLibraryReactVersion
@@ -39,8 +38,7 @@ describe('init', () => {
         '@payloadcms/next': payloadVersion,
         '@payloadcms/richtext-lexical': payloadVersion,
         graphql: graphqlVersion,
-        payload: payloadVersion,
-        sharp: sharpVersion
+        payload: payloadVersion
       },
       devDependencies: {
         '@payloadcms/graphql': payloadVersion,

@@ -3,7 +3,6 @@ import { type Tree, addDependenciesToPackageJson } from '@nx/devkit';
 import {
   graphqlVersion,
   payloadVersion,
-  sharpVersion,
   testingLibraryDomVersion,
   testingLibraryJestDomVersion,
   testingLibraryReactVersion
@@ -25,8 +24,7 @@ export function updateDependencies(tree: Tree) {
       '@payloadcms/next': payloadVersion,
       '@payloadcms/richtext-lexical': payloadVersion,
       payload: payloadVersion,
-      graphql: graphqlVersion,
-      sharp: sharpVersion
+      graphql: graphqlVersion
     },
     {
       '@payloadcms/graphql': payloadVersion,

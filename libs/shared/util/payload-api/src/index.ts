@@ -1,7 +1,6 @@
 export { apiKeyPrefix, authorizationHeader } from './lib/utils/definitions';
 export type {
   MethodOptions,
-  NavigationDoc,
   NavigationItem,
   RequestBaseOptions,
   RequestMethod

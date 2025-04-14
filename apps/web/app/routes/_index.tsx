@@ -1,9 +1,11 @@
 import { RenderBlocks } from '@codeware/shared/ui/payload-components';
-import type { SiteSetting } from '@codeware/shared/util/payload-types';
+import { resolveMeta } from '@codeware/shared/util/payload-utils';
 import { type MetaFunction, useRouteError } from '@remix-run/react';
 
 import { Container } from '../components/container';
 import { ErrorContainer } from '../components/error-container';
+import { defaultAppName } from '../utils/default-app-name';
+import { getSiteSettingsFromRoot } from '../utils/get-site-settings-from-root';
 import { useSiteSettings } from '../utils/use-site-settings';
 
 type LoaderError = {
@@ -12,21 +14,13 @@ type LoaderError = {
 };
 
 export const meta: MetaFunction = ({ matches }) => {
-  // Get loading page from root loader data
-  const rootData = matches.find((match) => match.id === 'root')?.data as Record<
-    string,
-    SiteSetting
-  >;
+  // Get site settings from root loader data
+  const siteSettings = getSiteSettingsFromRoot(matches);
+  const appName = siteSettings?.general?.appName ?? defaultAppName;
 
-  let title = 'Home';
+  const meta = resolveMeta(siteSettings);
 
-  if (rootData && 'siteSettings' in rootData) {
-    if (typeof rootData.siteSettings.general.landingPage === 'object') {
-      title = rootData.siteSettings.general.landingPage.meta?.title ?? title;
-    }
-  }
-
-  return [{ title }];
+  return [{ title: `${appName} - ${meta?.title ?? 'Home'}` }];
 };
 
 export default function Index() {

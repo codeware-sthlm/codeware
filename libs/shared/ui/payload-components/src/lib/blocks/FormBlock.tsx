@@ -25,6 +25,7 @@ import { Button } from '../form-items/Button';
 import { Checkbox } from '../form-items/Checkbox';
 import { countryOptions } from '../form-items/country-options';
 import { Input } from '../form-items/Input';
+import { Radio } from '../form-items/Radio';
 import { Select } from '../form-items/Select';
 import { Textarea } from '../form-items/Textarea';
 import { ColSpan } from '../layout/ColSpan';
@@ -244,6 +245,13 @@ export const FormBlock: React.FC<Props> = ({
                               type="number"
                               label={fieldDef.label}
                               placeholder={fieldDef.placeholder}
+                              {...field}
+                            />
+                          )}
+                          {fieldDef.blockType === 'radio' && (
+                            <Radio
+                              label={fieldDef.label}
+                              options={fieldDef.options}
                               {...field}
                             />
                           )}

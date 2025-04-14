@@ -1,4 +1,5 @@
 import { RenderBlocks } from '@codeware/shared/ui/payload-components';
+import type { SiteSetting } from '@codeware/shared/util/payload-types';
 import { type MetaFunction, useRouteError } from '@remix-run/react';
 
 import { Container } from '../components/container';
@@ -10,10 +11,22 @@ type LoaderError = {
   status: number;
 };
 
-// TODO: How to use it properly?
-export const meta: MetaFunction = () => {
-  const { landingPage } = useSiteSettings();
-  return [{ title: landingPage?.name }];
+export const meta: MetaFunction = ({ matches }) => {
+  // Get loading page from root loader data
+  const rootData = matches.find((match) => match.id === 'root')?.data as Record<
+    string,
+    SiteSetting
+  >;
+
+  let title = 'Home';
+
+  if (rootData && 'siteSettings' in rootData) {
+    if (typeof rootData.siteSettings.general.landingPage === 'object') {
+      title = rootData.siteSettings.general.landingPage.meta?.title ?? title;
+    }
+  }
+
+  return [{ title }];
 };
 
 export default function Index() {

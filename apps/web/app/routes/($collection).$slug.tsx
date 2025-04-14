@@ -1,4 +1,5 @@
 import { findNavigationDoc } from '@codeware/shared/util/payload-api';
+import { resolveMeta } from '@codeware/shared/util/payload-utils';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json, useLoaderData, useRouteError } from '@remix-run/react';
 
@@ -6,22 +7,23 @@ import { Container } from '../components/container';
 import { ErrorContainer } from '../components/error-container';
 import { RenderPagesDoc } from '../components/render-pages-doc';
 import { RenderPostsDoc } from '../components/render-posts-doc';
+import { defaultAppName } from '../utils/default-app-name';
 import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
+import { getSiteSettingsFromRoot } from '../utils/get-site-settings-from-root';
 
 type LoaderError = {
   message: string;
   status: number;
 };
 
-// TODO: How to use it properly?
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (data?.doc.collection === 'pages') {
-    return [{ title: data.doc.name }];
-  }
-  if (data?.doc.collection === 'posts') {
-    return [{ title: data.doc.title }];
-  }
-  return [{ title: 'Page Not Found' }];
+export const meta: MetaFunction<typeof loader> = ({ data, matches }) => {
+  // Get site settings from root loader data
+  const siteSettings = getSiteSettingsFromRoot(matches);
+  const appName = siteSettings?.general?.appName ?? defaultAppName;
+
+  const meta = resolveMeta(data?.doc);
+
+  return [{ title: `${appName} - ${meta?.title ?? 'Page'}` }];
 };
 
 /**

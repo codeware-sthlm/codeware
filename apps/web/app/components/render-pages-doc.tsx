@@ -1,5 +1,5 @@
 import { RenderBlocks } from '@codeware/shared/ui/payload-components';
-import type { NavigationDoc } from '@codeware/shared/util/payload-api';
+import type { NavigationDoc } from '@codeware/shared/util/payload-types';
 
 /**
  * Render a pages collection document.

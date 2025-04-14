@@ -1,3 +1,4 @@
+import type { StripTypes } from '@codeware/shared/util/typesafe';
 import type { ClientUser, User } from 'payload';
 
 import type {
@@ -6,7 +7,10 @@ import type {
   ContentBlock,
   Form,
   FormSubmission,
+  Media,
   Navigation,
+  Page,
+  Post,
   Tenant,
   TenantsArrayField
 } from './payload-types';
@@ -68,6 +72,36 @@ export type FormFieldForBlockType<T extends FormBlockType> = FormField & {
 export type FormSubmissionData = NonNullable<
   NonNullable<FormSubmission['submissionData']>
 >;
+
+type PageMetaDefined = NonNullable<Page['meta']>;
+type PostMetaDefined = NonNullable<Post['meta']>;
+
+/** Page meta type */
+export type PageMeta = {
+  [K in keyof PageMetaDefined]: StripTypes<PageMetaDefined[K], number | null>;
+};
+
+/** Post meta type */
+export type PostMeta = {
+  [K in keyof PostMetaDefined]: StripTypes<PostMetaDefined[K], number | null>;
+};
+
+/**
+ * Document details for a navigation item.
+ */
+export type NavigationDoc =
+  // limit what can be exposed client side
+  | ({
+      collection: 'pages';
+    } & Pick<Page, 'header' | 'layout' | 'name'> & {
+        meta: PageMeta;
+      })
+  | ({
+      collection: 'posts';
+    } & Pick<Post, 'content' | 'title'> & {
+        heroImage?: Media | null | undefined;
+        meta: PostMeta;
+      });
 
 /** Navigation reference collection */
 export type NavigationReferenceCollection = NonNullable<

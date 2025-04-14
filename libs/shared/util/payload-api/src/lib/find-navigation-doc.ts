@@ -1,11 +1,12 @@
 import type {
+  NavigationDoc,
   NavigationReferenceCollection,
   Page,
   Post
 } from '@codeware/shared/util/payload-types';
 
 import { invokeRequest } from './utils/invoke-request';
-import type { NavigationDoc, RequestBaseOptions } from './utils/types';
+import type { RequestBaseOptions } from './utils/types';
 
 /**
  * Find a navigation document by the URL collection and slug parameters.
@@ -45,6 +46,14 @@ export const findNavigationDoc = async (
       collection: lookupCollection,
       header: page.header,
       layout: page.layout,
+      meta: {
+        description: page.meta?.description ?? undefined,
+        image:
+          (typeof page.meta?.image === 'object'
+            ? page.meta?.image
+            : undefined) ?? undefined,
+        title: page.meta?.title ?? undefined
+      },
       name: page.name
     };
   }
@@ -56,6 +65,14 @@ export const findNavigationDoc = async (
       content: post.content,
       heroImage:
         typeof post.heroImage === 'object' ? post.heroImage : undefined,
+      meta: {
+        description: post.meta?.description ?? undefined,
+        image:
+          (typeof post.meta?.image === 'object'
+            ? post.meta?.image
+            : undefined) ?? undefined,
+        title: post.meta?.title ?? undefined
+      },
       title: post.title
     };
   }

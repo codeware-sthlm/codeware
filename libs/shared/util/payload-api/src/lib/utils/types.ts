@@ -1,9 +1,4 @@
-import type {
-  Media,
-  NavigationReferenceCollection,
-  Page,
-  Post
-} from '@codeware/shared/util/payload-types';
+import type { NavigationReferenceCollection } from '@codeware/shared/util/payload-types';
 
 /**
  * Available request options depending on the request method.
@@ -35,20 +30,6 @@ export type MethodOptions<T extends RequestMethod> = T extends 'GET'
   : {
       body: Record<string, unknown>;
     };
-
-/**
- * Document details for a navigation item.
- */
-export type NavigationDoc =
-  // limit what can be exposed client side
-  | ({
-      collection: 'pages';
-    } & Pick<Page, 'header' | 'layout' | 'name'>)
-  | ({
-      collection: 'posts';
-    } & Pick<Post, 'content' | 'title'> & {
-        heroImage?: Media | null | undefined;
-      });
 
 /**
  * Navigation tree item.

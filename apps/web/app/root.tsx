@@ -9,11 +9,7 @@ import {
   getSiteSettings
 } from '@codeware/shared/util/payload-api';
 import type { SiteSetting } from '@codeware/shared/util/payload-types';
-import type {
-  LinksFunction,
-  LoaderFunctionArgs,
-  MetaFunction
-} from '@remix-run/node';
+import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node';
 import {
   Link,
   Links,
@@ -39,12 +35,6 @@ import stylesheet from './tailwind.css?url';
 import { ClientHintCheck, getHints } from './utils/client-hints';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
 import { type Theme, getTheme } from './utils/theme.server';
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => [
-  {
-    title: data?.siteSettings?.general?.appName ?? ''
-  }
-];
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

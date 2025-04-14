@@ -42,8 +42,8 @@ export const customizedFields = Object.keys(defaultFields).reduce(
       return acc;
     }
 
-    // Ignore checkbox since a placeholder makes no sense.
-    if (fieldName !== 'checkbox') {
+    // Ignore elements where a placeholder makes no sense.
+    if (['checkbox', 'radio'].includes(fieldName) === false) {
       // Check if a placeholder is already present as a field or row field.
       const phField = block.fields?.find(
         (f) => f.type === 'text' && f.name === 'placeholder'

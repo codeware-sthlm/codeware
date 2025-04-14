@@ -4,7 +4,15 @@
   "sourceRoot": "apps/cms",
   "projectType": "application",
   "tags": ["scope:cms", "type:app"],
+  "// targets": "remove custom dev target once @cdwr/nx-payload supports turbopack (COD-319)",
   "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "next dev --turbopack",
+        "cwd": "apps/cms"
+      }
+    },
     "dev-fresh": {
       "executor": "nx:run-commands",
       "options": {

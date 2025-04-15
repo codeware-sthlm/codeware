@@ -4,6 +4,7 @@ import {
   systemUserAccess,
   systemUserOrTenantAdminAccess
 } from '@codeware/app-cms/util/access';
+import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 
 import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
@@ -54,6 +55,7 @@ const users: CollectionConfig<'users'> = {
                 create: systemUserAccess,
                 update: systemUserAccess
               },
+              enumName: enumName('user_role'),
               options: [
                 { label: { en: 'User', sv: 'Användare' }, value: 'user' },
                 {

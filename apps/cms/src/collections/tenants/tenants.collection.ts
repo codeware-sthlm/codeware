@@ -5,6 +5,7 @@ import {
   authenticatedAccess,
   systemUserAccess
 } from '@codeware/app-cms/util/access';
+import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 
 import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';
@@ -85,6 +86,7 @@ const tenants: CollectionConfig = {
           name: 'pageTypes',
           type: 'select',
           label: { en: 'Page types', sv: 'Typ av sidor' },
+          enumName: enumName('tenant_domain_page_type'),
           options: [
             { label: { en: 'CMS', sv: 'CMS' }, value: 'cms' },
             { label: { en: 'Web client', sv: 'Webbklient' }, value: 'client' },

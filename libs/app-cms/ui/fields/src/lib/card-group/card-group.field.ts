@@ -1,3 +1,4 @@
+import { enumName } from '@codeware/app-cms/util/db';
 import type {
   CardGroup,
   CardGroupLink
@@ -143,6 +144,7 @@ export const cardGroupField: GroupField = {
           admin: {
             layout: 'horizontal'
           },
+          enumName: enumName('nav_trigger'),
           options: [
             {
               label: {

@@ -1,10 +1,8 @@
 import { tenantsArrayField as tenantsArrayFieldPlugin } from '@payloadcms/plugin-multi-tenant/fields';
 import type { Field } from 'payload';
 
-import {
-  systemUserAccess,
-  systemUserOrTenantAdminAccess
-} from '@codeware/app-cms/util/access';
+import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
+import { enumName } from '@codeware/app-cms/util/db';
 
 /**
  * Customized tenants array field in the users collection, based on the `tenantsArrayField` plugin utility function.
@@ -20,6 +18,7 @@ export const tenantsArrayField = (): Field => {
         name: 'role',
         type: 'select',
         label: { en: 'Role', sv: 'Roll' },
+        enumName: enumName('tenant_user_role'),
         options: [
           { label: { en: 'User', sv: 'Användare' }, value: 'user' },
           { label: { en: 'Admin', sv: 'Administratör' }, value: 'admin' }

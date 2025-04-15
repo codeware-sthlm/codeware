@@ -1,3 +1,4 @@
+import { enumName } from '@codeware/app-cms/util/db';
 import {
   BlocksFeature,
   HeadingFeature,
@@ -23,6 +24,7 @@ export const contentBlock: Block = {
           name: 'size',
           type: 'select',
           defaultValue: 'full',
+          enumName: enumName('content_column_size'),
           options: [
             {
               label: { en: 'One Third', sv: 'En tredjedel' },

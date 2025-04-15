@@ -1,3 +1,4 @@
+import { enumName } from '@codeware/app-cms/util/db';
 import type { Field, GroupField } from 'payload';
 
 type LinkType = (options?: {
@@ -29,6 +30,7 @@ export const linkGroupField: LinkType = ({ disableLabel = false } = {}) => {
               width: '50%'
             },
             defaultValue: 'reference',
+            enumName: enumName('link_type'),
             options: [
               {
                 label: {

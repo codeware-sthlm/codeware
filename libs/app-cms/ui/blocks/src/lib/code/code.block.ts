@@ -1,4 +1,5 @@
 import { codeField } from '@codeware/app-cms/ui/fields';
+import { enumName } from '@codeware/app-cms/util/db';
 import {
   type CodeLanguage,
   codeLanguages
@@ -15,6 +16,7 @@ export const codeBlock: Block = {
     {
       type: 'select',
       name: 'language',
+      enumName: enumName('code_language'),
       options: Object.entries(codeLanguages).map(([key, value]) => ({
         label: value,
         value: key

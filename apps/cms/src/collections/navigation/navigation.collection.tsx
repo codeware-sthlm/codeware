@@ -5,6 +5,7 @@ import {
   systemUserOrTenantAdminAccess,
   verifyApiKeyAccess
 } from '@codeware/app-cms/util/access';
+import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import type { Navigation } from '@codeware/shared/util/payload-types';
 
@@ -57,6 +58,7 @@ const navigation: CollectionConfig = {
           admin: {
             layout: 'horizontal'
           },
+          enumName: enumName('navigation_label_source'),
           defaultValue: 'document',
           options: [
             {

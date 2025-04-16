@@ -50,11 +50,6 @@ const pages: CollectionConfig<'pages'> = {
     {
       type: 'tabs',
       tabs: [
-        // TODO: Maybe here or as a block
-        // {
-        //   label: 'Hero',
-        //   fields: []
-        // },
         {
           label: { en: 'Content', sv: 'Innehåll' },
           fields: [
@@ -76,7 +71,14 @@ const pages: CollectionConfig<'pages'> = {
               name: 'layout',
               type: 'blocks',
               label: 'Layout builder',
-              blockReferences: ['content', 'card', 'form', 'media', 'code'],
+              blockReferences: [
+                'content',
+                'card',
+                'form',
+                'media',
+                'code',
+                'reusable-content'
+              ],
               blocks: [],
               required: true,
               localized: true,

@@ -56,7 +56,7 @@ export const CardBlock: React.FC<Props> = ({
   // or be more than will fit in the container
   const maxColumns = Math.min(
     cards.length,
-    effectiveFraction < 0.5 ? 1 : effectiveFraction < 0.75 ? 2 : 3
+    effectiveFraction <= 0.5 ? 1 : effectiveFraction <= 0.75 ? 2 : 3
   );
 
   return (
@@ -89,7 +89,8 @@ export const CardBlock: React.FC<Props> = ({
                   linkDetails && linkDetails.navTrigger === 'card'
               },
               {
-                'max-w-sm': maxColumns === 1
+                // Limit card width when a single column have more than half the page width
+                'max-w-sm': maxColumns === 1 && effectiveFraction > 0.5
               }
             )}
           >

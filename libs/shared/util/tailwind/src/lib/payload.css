@@ -1,0 +1,25 @@
+/*
+ * Custom Tailwind css for Payload CMS.
+ * Must be imported in all apps that uses shared Payload components.
+ */
+
+/*
+ * Remove top margin from the first child of a component.
+ */
+@utility first-child-no-margin {
+  & > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  & > *:first-child > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  & .prose > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  & .prose > *:first-child > *:first-child {
+    margin-top: 0 !important;
+  }
+}

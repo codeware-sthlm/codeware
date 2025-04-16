@@ -20,6 +20,7 @@ export const getMultiTenantPlugin = () =>
       media: {},
       pages: {},
       posts: {},
+      'reusable-content': {},
       'site-settings': { isGlobal: true }
     },
     tenantsArrayField: {

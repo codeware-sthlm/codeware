@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Custom Tailwind css for Payload CMS */
+@import '../../../../../libs/shared/util/tailwind/src/lib/payload.css';
+
 /* Let Tailwind know about the shadcn components */
 @source '../../../../../libs/shared/ui';
 

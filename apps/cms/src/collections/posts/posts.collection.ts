@@ -69,7 +69,9 @@ const posts: CollectionConfig<'posts'> = {
                   HeadingFeature({
                     enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4']
                   }),
-                  BlocksFeature({ blocks: ['card', 'code', 'media'] })
+                  BlocksFeature({
+                    blocks: ['card', 'code', 'media', 'reusable-content']
+                  })
                 ]
               }),
               label: false,

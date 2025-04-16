@@ -91,7 +91,6 @@ export interface Config {
     'reusable-content': ReusableContentBlock;
   };
   collections: {
-    cards: Card;
     categories: Category;
     media: Media;
     navigation: Navigation;
@@ -123,7 +122,6 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    cards: CardsSelect<false> | CardsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
@@ -208,16 +206,26 @@ export interface UserAuthOperations {
  * via the `definition` "CardBlock".
  */
 export interface CardBlock {
-  /**
-   * Select the reusable cards to be displayed
-   */
-  collectionCards?: (number | Card)[] | null;
-  /**
-   * Complement with custom cards
-   */
-  customCards?:
+  cards?:
     | {
-        card: CardGroup;
+        /**
+         * Select an icon and color that represent the card
+         */
+        brand?: {
+          icon?: string | null;
+          color?: string | null;
+        };
+        title: string;
+        /**
+         * A text that will complement the title
+         */
+        description?: string | null;
+        content: string;
+        /**
+         * Let the card link to a page or external URL
+         */
+        enableLink?: boolean | null;
+        link?: CardBlockLink;
         id?: string | null;
       }[]
     | null;
@@ -226,34 +234,70 @@ export interface CardBlock {
   blockType: 'card';
 }
 /**
- * Create reusable cards
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CardBlockLink".
+ */
+export interface CardBlockLink {
+  type?: ('reference' | 'custom') | null;
+  newTab?: boolean | null;
+  reference?:
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null);
+  /**
+   * Add protocol (http:// or https://) if the link is external
+   */
+  url?: string | null;
+  navTrigger?: ('card' | 'link') | null;
+  label?: string | null;
+}
+/**
+ * Pages are the building blocks of the site and are used to create menus and navigation.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "cards".
+ * via the `definition` "pages".
  */
-export interface Card {
+export interface Page {
   id: number;
   tenant?: (number | null) | Tenant;
   /**
-   * Select an icon and color that represent the card
+   * The name of the page used for navigation links.
    */
-  brand?: {
-    icon?: string | null;
-    color?: string | null;
+  name: string;
+  /**
+   * A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in "Layout builder".
+   */
+  header?: string | null;
+  /**
+   * Build the page content by adding the layout blocks you need.
+   */
+  layout: (
+    | ContentBlock
+    | CardBlock
+    | FormBlock
+    | MediaBlock
+    | CodeBlock
+    | ReusableContentBlock
+  )[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
   };
-  title: string;
   /**
-   * A text that will complement the title
+   * The date the page is published.
    */
-  description?: string | null;
-  content: string;
+  publishedAt?: string | null;
   /**
-   * Let the card link to a page or external URL
-   */
-  enableLink?: boolean | null;
-  link?: CardGroupLink;
-  /**
-   * Used for url paths. Will be automatically generated from title if left empty.
+   * Used for url paths. Will be automatically generated from name if left empty.
    */
   slug?: string | null;
   updatedAt: string;
@@ -339,33 +383,39 @@ export interface User {
   password?: string | null;
 }
 /**
- * Pages are the building blocks of the site and are used to create menus and navigation.
+ * Posts are standalone pages such as articles or blog posts and can be categorized.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
+ * via the `definition` "posts".
  */
-export interface Page {
+export interface Post {
   id: number;
   tenant?: (number | null) | Tenant;
   /**
-   * The name of the page used for navigation links.
+   * The title of the post and name used in navigation.
    */
-  name: string;
+  title: string;
+  heroImage?: (number | null) | Media;
   /**
-   * A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in "Layout builder".
+   * The main content of the article.
    */
-  header?: string | null;
-  /**
-   * Build the page content by adding the layout blocks you need.
-   */
-  layout: (
-    | ContentBlock
-    | CardBlock
-    | FormBlock
-    | MediaBlock
-    | CodeBlock
-    | ReusableContentBlock
-  )[];
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
   meta?: {
     title?: string | null;
     /**
@@ -374,10 +424,141 @@ export interface Page {
     image?: (number | null) | Media;
     description?: string | null;
   };
-  /**
-   * The date the page is published.
-   */
   publishedAt?: string | null;
+  /**
+   * The authors of the post.
+   */
+  authors?: (number | User)[] | null;
+  /**
+   * Used for url paths. Will be automatically generated from title if left empty.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Media files currently only support images and can be used in posts and pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The alternative text for the media.
+   */
+  alt?: string | null;
+  /**
+   * The caption for the media.
+   */
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  relatedPosts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    square?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    xlarge?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The name of the category.
+   */
+  name: string;
+  relatedPosts?: {
+    docs?: (number | Post)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
    * Used for url paths. Will be automatically generated from name if left empty.
    */
@@ -687,190 +868,6 @@ export interface MediaBlock {
   blockType: 'media';
 }
 /**
- * Media files currently only support images and can be used in posts and pages.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  tenant?: (number | null) | Tenant;
-  /**
-   * The alternative text for the media.
-   */
-  alt?: string | null;
-  /**
-   * The caption for the media.
-   */
-  caption?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  relatedPosts?: {
-    docs?: (number | Post)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    square?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    small?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    medium?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    large?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    xlarge?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    og?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
-}
-/**
- * Posts are standalone pages such as articles or blog posts and can be categorized.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  tenant?: (number | null) | Tenant;
-  /**
-   * The title of the post and name used in navigation.
-   */
-  title: string;
-  heroImage?: (number | null) | Media;
-  /**
-   * The main content of the article.
-   */
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  /**
-   * The authors of the post.
-   */
-  authors?: (number | User)[] | null;
-  /**
-   * Used for url paths. Will be automatically generated from title if left empty.
-   */
-  slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  tenant?: (number | null) | Tenant;
-  /**
-   * The name of the category.
-   */
-  name: string;
-  relatedPosts?: {
-    docs?: (number | Post)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  /**
-   * Used for url paths. Will be automatically generated from name if left empty.
-   */
-  slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CodeBlock".
  */
@@ -911,53 +908,6 @@ export interface ReusableContent {
   layout: (CardBlock | CodeBlock | ContentBlock | FormBlock | MediaBlock)[];
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CardGroupLink".
- */
-export interface CardGroupLink {
-  type?: ('reference' | 'custom') | null;
-  newTab?: boolean | null;
-  reference?:
-    | ({
-        relationTo: 'pages';
-        value: number | Page;
-      } | null)
-    | ({
-        relationTo: 'posts';
-        value: number | Post;
-      } | null);
-  /**
-   * Add protocol (http:// or https://) if the link is external
-   */
-  url?: string | null;
-  navTrigger?: ('card' | 'link') | null;
-  label?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CardGroup".
- */
-export interface CardGroup {
-  /**
-   * Select an icon and color that represent the card
-   */
-  brand?: {
-    icon?: string | null;
-    color?: string | null;
-  };
-  title: string;
-  /**
-   * A text that will complement the title
-   */
-  description?: string | null;
-  content: string;
-  /**
-   * Let the card link to a page or external URL
-   */
-  enableLink?: boolean | null;
-  link?: CardGroupLink;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1027,10 +977,6 @@ export interface FormSubmission {
 export interface PayloadLockedDocument {
   id: number;
   document?:
-    | ({
-        relationTo: 'cards';
-        value: number | Card;
-      } | null)
     | ({
         relationTo: 'categories';
         value: number | Category;
@@ -1126,39 +1072,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "cards_select".
- */
-export interface CardsSelect<T extends boolean = true> {
-  tenant?: T;
-  brand?:
-    | T
-    | {
-        icon?: T;
-        color?: T;
-      };
-  title?: T;
-  description?: T;
-  content?: T;
-  enableLink?: T;
-  link?: T | CardGroupLinkSelect<T>;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CardGroupLink_select".
- */
-export interface CardGroupLinkSelect<T extends boolean = true> {
-  type?: T;
-  newTab?: T;
-  reference?: T;
-  url?: T;
-  navTrigger?: T;
-  label?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

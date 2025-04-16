@@ -1,24 +1,24 @@
-import type { CardGroupLink } from '@codeware/shared/util/payload-types';
+import type { CardBlockLink } from '@codeware/shared/util/payload-types';
 
 /**
- * Extract link details from a Link field object.
+ * Extract link details from a card block link field.
  *
  * It can be useful in a component that should render a link.
  *
- * @param link - The Link field object to extract data from.
+ * @param link - The card block link field to extract data from.
  * @returns Link details or `null` if link is not active.
  */
-export const extractLink = (
-  link?: CardGroupLink
+export const extractCardLink = (
+  link?: CardBlockLink
 ):
   | {
       label: string;
-      navTrigger: Extract<CardGroupLink['navTrigger'], 'link'>;
+      navTrigger: Extract<CardBlockLink['navTrigger'], 'link'>;
       newTab: boolean;
       url: string;
     }
   | {
-      navTrigger: Extract<CardGroupLink['navTrigger'], 'card'>;
+      navTrigger: Extract<CardBlockLink['navTrigger'], 'card'>;
       newTab: boolean;
       url: string;
     }

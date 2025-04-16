@@ -32,9 +32,9 @@ import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8c
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc';
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client';
 
+import { default as default_1b21cdd8d72b60f58886e03c7a7a4ebd } from '@codeware/app-cms/ui/blocks/card/CardBlockArrayRowLabel.client';
 import { default as default_83b0dfab156f3636ed94b94854d15ad5 } from '@codeware/app-cms/ui/components/RedirectNotifier';
 import { default as default_7925a79d2af6389df70d2dd269ffbfbb } from '@codeware/app-cms/ui/components/VerifyTenantDomain';
-import { default as default_9f66f0d44caf76088020099a6b3fd616 } from '@codeware/app-cms/ui/fields/card-group/CardGroupArrayRowLabel.client';
 import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/app-cms/ui/fields/code/Code.client';
 import { default as default_8586e6ac5ddd6a3f87ffe1dd472673f5 } from '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client';
 import { default as default_ae19db27eee762af26f037dd7af0b736 } from '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client';
@@ -45,10 +45,6 @@ import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/a
 export const importMap = {
   '@payloadcms/plugin-multi-tenant/client#TenantField':
     TenantField_1d0591e3cf4f332c83a86da13a0de59a,
-  '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client#default':
-    default_ae19db27eee762af26f037dd7af0b736,
-  '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client#default':
-    default_8586e6ac5ddd6a3f87ffe1dd472673f5,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell':
     RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalField':
@@ -107,8 +103,12 @@ export const importMap = {
     PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/richtext-lexical/client#BlocksFeatureClient':
     BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@codeware/app-cms/ui/fields/card-group/CardGroupArrayRowLabel.client#default':
-    default_9f66f0d44caf76088020099a6b3fd616,
+  '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client#default':
+    default_ae19db27eee762af26f037dd7af0b736,
+  '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client#default':
+    default_8586e6ac5ddd6a3f87ffe1dd472673f5,
+  '@codeware/app-cms/ui/blocks/card/CardBlockArrayRowLabel.client#default':
+    default_1b21cdd8d72b60f58886e03c7a7a4ebd,
   '@codeware/app-cms/ui/fields/code/Code.client#default':
     default_06af4458abd1296f9d6bccce90425927,
   '@codeware/apps/cms/components/TenantsArrayRowLabel#default':

@@ -1,6 +1,12 @@
 @import 'tailwindcss';
+
+/* Custom Tailwind css for Payload CMS */
+@import '../../../libs/shared/util/tailwind/src/lib/payload.css';
+
+/* Tailwind typography for prose usage */
 @plugin "@tailwindcss/typography";
 
+/* Tailwind legacy JS config */
 @config '../tailwind-typography.cjs';
 
 @custom-variant dark (&:is(.dark *));

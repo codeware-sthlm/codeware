@@ -12,7 +12,8 @@ import {
   codeBlock,
   contentBlock,
   formBlock,
-  mediaBlock
+  mediaBlock,
+  reusableContentBlock
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
@@ -24,6 +25,7 @@ import media from './collections/media/media.collection';
 import navigation from './collections/navigation/navigation.collection';
 import pages from './collections/pages/pages.collection';
 import posts from './collections/posts/posts.collection';
+import reusableContent from './collections/reusable-content/reusable-content.collection';
 import siteSettings from './collections/site-settings/site-settings.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
@@ -48,7 +50,14 @@ export default buildConfig({
   },
   // Declare blocks globally and reference then by slug elsewhere
   // https://payloadcms.com/docs/fields/blocks#block-references
-  blocks: [cardBlock, codeBlock, contentBlock, formBlock, mediaBlock],
+  blocks: [
+    cardBlock,
+    codeBlock,
+    contentBlock,
+    formBlock,
+    mediaBlock,
+    reusableContentBlock
+  ],
   collections: [
     cards,
     categories,
@@ -56,6 +65,7 @@ export default buildConfig({
     navigation,
     pages,
     posts,
+    reusableContent,
     siteSettings,
     tenants,
     users

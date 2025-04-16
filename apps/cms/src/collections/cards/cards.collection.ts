@@ -9,6 +9,7 @@ const env = getEnv();
 
 /**
  * Cards collection where one or many reusable cards can be created
+ * @deprecated use reusable-content instead
  */
 const cards: CollectionConfig = {
   slug: 'cards',

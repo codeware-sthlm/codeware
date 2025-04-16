@@ -10,6 +10,7 @@ export const cardBlock: Block = {
   interfaceName: 'CardBlock',
   fields: [
     {
+      // TODO: Not needed, replaced by reusable-content
       name: 'collectionCards',
       type: 'relationship',
       relationTo: 'cards',
@@ -26,6 +27,7 @@ export const cardBlock: Block = {
       }
     },
     {
+      // TODO: Refactor names
       name: 'customCards',
       type: 'array',
       label: {

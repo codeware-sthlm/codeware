@@ -88,6 +88,7 @@ export interface Config {
     content: ContentBlock;
     form: FormBlock;
     media: MediaBlock;
+    'reusable-content': ReusableContentBlock;
   };
   collections: {
     cards: Card;
@@ -96,6 +97,7 @@ export interface Config {
     navigation: Navigation;
     pages: Page;
     posts: Post;
+    'reusable-content': ReusableContent;
     'site-settings': SiteSetting;
     tenants: Tenant;
     users: User;
@@ -127,6 +129,9 @@ export interface Config {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    'reusable-content':
+      | ReusableContentSelect<false>
+      | ReusableContentSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -353,7 +358,14 @@ export interface Page {
   /**
    * Build the page content by adding the layout blocks you need.
    */
-  layout: (ContentBlock | CardBlock | FormBlock | MediaBlock | CodeBlock)[];
+  layout: (
+    | ContentBlock
+    | CardBlock
+    | FormBlock
+    | MediaBlock
+    | CodeBlock
+    | ReusableContentBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -871,6 +883,37 @@ export interface CodeBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ReusableContentBlock".
+ */
+export interface ReusableContentBlock {
+  reusableContent: number | ReusableContent;
+  /**
+   * Optional reference that can be used to identify this block with CSS or JavaScript.
+   */
+  refId?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'reusable-content';
+}
+/**
+ * Reusable content is a collection of blocks that can be combined freely and used in various places.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reusable-content".
+ */
+export interface ReusableContent {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * What is the reusable content about?
+   */
+  title: string;
+  layout: (CardBlock | CodeBlock | ContentBlock | FormBlock | MediaBlock)[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CardGroupLink".
  */
 export interface CardGroupLink {
@@ -1007,6 +1050,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'reusable-content';
+        value: number | ReusableContent;
       } | null)
     | ({
         relationTo: 'site-settings';
@@ -1280,6 +1327,17 @@ export interface PostsSelect<T extends boolean = true> {
   publishedAt?: T;
   authors?: T;
   slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reusable-content_select".
+ */
+export interface ReusableContentSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  layout?: T | {};
   updatedAt?: T;
   createdAt?: T;
 }

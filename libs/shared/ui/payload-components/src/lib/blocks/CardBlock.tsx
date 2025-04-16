@@ -11,44 +11,24 @@ import {
   CardHeader,
   CardTitle
 } from '@codeware/shared/ui/shadcn/components/card';
-import type {
-  CardBlock as CardBlockProps,
-  CardGroup
-} from '@codeware/shared/util/payload-types';
+import type { CardBlock as CardBlockProps } from '@codeware/shared/util/payload-types';
 import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
 import { cn } from '@codeware/shared/util/ui';
 import { ExternalLinkIcon, LinkIcon } from 'lucide-react';
 
 import { useColumnSize } from '../providers/ColumnSizeProvider';
 import { usePayload } from '../providers/PayloadProvider';
-import { extractLink } from '../utils/extract-link';
-
-type Props = CardBlockProps;
+import { extractCardLink } from '../utils/extract-card-link';
 
 /**
- * Render Payload card block cards in a responsive grid.
- * Features subtle hover effects and modern styling.
+ * Render Payload card block cards in a responsive grid,
+ * with a subtle hover effect and modern styling.
  */
-export const CardBlock: React.FC<Props> = ({
-  collectionCards,
-  customCards
-}) => {
+export const CardBlock: React.FC<CardBlockProps> = ({ cards }) => {
   const { navigate } = usePayload();
   const { effectiveFraction = 1 } = useColumnSize({ silent: true }) ?? {};
 
-  const cards =
-    collectionCards?.reduce((acc, card) => {
-      if (typeof card === 'object') {
-        acc.push(card);
-      }
-      return acc;
-    }, [] as Array<CardGroup>) ?? [];
-
-  if (customCards) {
-    cards.push(...customCards.map((c) => c.card));
-  }
-
-  if (cards.length === 0) {
+  if (!cards?.length) {
     return null;
   }
 
@@ -72,7 +52,7 @@ export const CardBlock: React.FC<Props> = ({
         const { icon, color } = brand ?? {};
 
         const hasHeader = title || description || icon;
-        const linkDetails = enableLink ? extractLink(link) : null;
+        const linkDetails = enableLink ? extractCardLink(link) : null;
 
         return (
           <Card

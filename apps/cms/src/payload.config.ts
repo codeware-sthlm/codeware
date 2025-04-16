@@ -19,7 +19,6 @@ import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
 
-import cards from './collections/cards/cards.collection';
 import categories from './collections/categories/categories.collection';
 import media from './collections/media/media.collection';
 import navigation from './collections/navigation/navigation.collection';
@@ -59,7 +58,6 @@ export default buildConfig({
     reusableContentBlock
   ],
   collections: [
-    cards,
     categories,
     media,
     navigation,

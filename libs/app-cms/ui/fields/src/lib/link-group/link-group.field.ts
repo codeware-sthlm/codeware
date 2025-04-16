@@ -1,18 +1,52 @@
 import { enumName } from '@codeware/app-cms/util/db';
+import { deepMerge } from '@codeware/shared/util/pure';
 import type { Field, GroupField } from 'payload';
 
-type LinkType = (options?: {
-  disableLabel?: boolean;
-  overrides?: Partial<GroupField>;
-}) => GroupField;
+type LinkType = (
+  options?: {
+    /**
+     * Custom fields to be added to the group field.
+     */
+    customFields?: Array<Field>;
+    /**
+     * Override properties which will be deep merged with the group field.
+     */
+    overrides?: Partial<GroupField>;
+  } & (
+    | {
+        /**
+         * Whether to apply localization to the label field.
+         *
+         * @default true
+         */
+        localizedLabel: boolean;
+      }
+    | {
+        /**
+         * Whether to skip generating the label field.
+         *
+         * @default false
+         */
+        skipLabel?: true;
+      }
+  )
+) => GroupField;
 
 /**
  * Link group field that can be used to link to a document or a custom URL.
  *
- * @param options - Options for the link field
+ * @param options - Options for the field
  */
-export const linkGroupField: LinkType = ({ disableLabel = false } = {}) => {
-  const linkResult: GroupField = {
+export const linkGroupField: LinkType = ({
+  customFields,
+  overrides,
+  ...options
+} = {}) => {
+  const localizedLabel =
+    'localizedLabel' in options && (options.localizedLabel ?? true);
+  const skipLabel = 'skipLabel' in options && options.skipLabel;
+
+  const linkGroup: GroupField = {
     name: 'link',
     type: 'group',
     admin: {
@@ -67,12 +101,14 @@ export const linkGroupField: LinkType = ({ disableLabel = false } = {}) => {
     ]
   };
 
-  const linkTypes: Field[] = [
+  // Link options share the row with the label when it's not disabled
+  const linkOptions: Array<Field> = [
     {
       name: 'reference',
       type: 'relationship',
       admin: {
-        condition: (_, siblingData) => siblingData?.type === 'reference'
+        condition: (_, siblingData) => siblingData?.type === 'reference',
+        width: skipLabel ? undefined : '50%'
       },
       label: {
         en: 'Document to link to',
@@ -89,7 +125,8 @@ export const linkGroupField: LinkType = ({ disableLabel = false } = {}) => {
           en: 'Add protocol (http:// or https://) if the link is external',
           sv: 'Lägg till protokoll (http:// eller https://) om länken är extern'
         },
-        condition: (_, siblingData) => siblingData?.type === 'custom'
+        condition: (_, siblingData) => siblingData?.type === 'custom',
+        width: skipLabel ? undefined : '50%'
       },
       label: {
         en: 'Custom URL',
@@ -99,34 +136,30 @@ export const linkGroupField: LinkType = ({ disableLabel = false } = {}) => {
     }
   ];
 
-  if (disableLabel) {
-    linkResult.fields = [...linkResult.fields, ...linkTypes];
-    return linkResult;
+  if (skipLabel) {
+    linkGroup.fields.push(...linkOptions);
+  } else {
+    linkGroup.fields.push({
+      type: 'row',
+      fields: [
+        ...linkOptions,
+        {
+          name: 'label',
+          type: 'text',
+          admin: {
+            width: '50%'
+          },
+          label: 'Label',
+          localized: localizedLabel,
+          required: true
+        }
+      ]
+    });
   }
 
-  linkTypes.map((linkType) => ({
-    ...linkType,
-    admin: {
-      ...linkType.admin,
-      width: '50%'
-    }
-  }));
+  if (customFields) {
+    linkGroup.fields.push(...customFields);
+  }
 
-  linkResult.fields.push({
-    type: 'row',
-    fields: [
-      ...linkTypes,
-      {
-        name: 'label',
-        type: 'text',
-        admin: {
-          width: '50%'
-        },
-        label: 'Label',
-        required: true
-      }
-    ]
-  });
-
-  return linkResult;
+  return overrides ? deepMerge(linkGroup, overrides) : linkGroup;
 };

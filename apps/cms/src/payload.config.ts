@@ -13,13 +13,13 @@ import {
   contentBlock,
   formBlock,
   mediaBlock,
-  reusableContentBlock
+  reusableContentBlock,
+  socialMediaBlock
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
 
-import cards from './collections/cards/cards.collection';
 import categories from './collections/categories/categories.collection';
 import media from './collections/media/media.collection';
 import navigation from './collections/navigation/navigation.collection';
@@ -56,10 +56,10 @@ export default buildConfig({
     contentBlock,
     formBlock,
     mediaBlock,
-    reusableContentBlock
+    reusableContentBlock,
+    socialMediaBlock
   ],
   collections: [
-    cards,
     categories,
     media,
     navigation,

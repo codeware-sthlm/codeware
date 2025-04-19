@@ -1,5 +1,4 @@
 export { defaultLexical } from './lib/default-lexical';
-export { cardGroupField } from './lib/card-group/card-group.field';
 export { codeField } from './lib/code/code.field';
 export { colorPickerField } from './lib/color-picker/color-picker.field';
 export { iconPickerField } from './lib/icon-picker/icon-picker.field';

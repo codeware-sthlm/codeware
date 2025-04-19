@@ -2,6 +2,7 @@ import type { StripTypes } from '@codeware/shared/util/typesafe';
 import type { ClientUser, User } from 'payload';
 
 import type {
+  CardBlock,
   User as CollectionUser,
   Config,
   ContentBlock,
@@ -11,6 +12,7 @@ import type {
   Navigation,
   Page,
   Post,
+  SocialMediaBlock,
   Tenant,
   TenantsArrayField
 } from './payload-types';
@@ -49,6 +51,9 @@ export type UserAny = ClientUser | CollectionUser | User;
 
 /** Block type */
 export type BlockSlug = keyof Config['blocks'];
+
+/** Card block card details */
+export type CardBlockCard = NonNullable<CardBlock['cards']>[number];
 
 /** Content block column size */
 export type ContentBlockSize = NonNullable<
@@ -107,3 +112,8 @@ export type NavigationDoc =
 export type NavigationReferenceCollection = NonNullable<
   NonNullable<Navigation['items']>[number]
 >['reference']['relationTo'];
+
+/** Social media block social details */
+export type SocialMediaBlockSocial = NonNullable<
+  NonNullable<SocialMediaBlock['social']>[number]
+>;

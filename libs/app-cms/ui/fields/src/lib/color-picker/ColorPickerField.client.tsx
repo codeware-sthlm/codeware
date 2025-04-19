@@ -1,25 +1,20 @@
 'use client';
 
-import { ColorPicker } from '@codeware/shared/ui/react-components';
+import {
+  ColorPicker,
+  type ColorPickerColor
+} from '@codeware/shared/ui/react-components';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '@codeware/shared/ui/shadcn/components/tooltip';
-import type { TailwindColor } from '@codeware/shared/util/tailwind';
 import { FieldDescription, FieldLabel, useField } from '@payloadcms/ui';
 import { XIcon } from 'lucide-react';
 import type { TextFieldClientProps } from 'payload';
 
-export type ColorPickerFieldProps = {
-  /**
-   * Hide the label of the field.
-   *
-   * Useful when the field should have a label but not be visible in the UI.
-   */
-  hideLabel?: boolean;
-};
+import type { ColorPickerFieldProps } from './color-picker.field';
 
 /**
  * Color picker field component for client-side rendering.
@@ -30,7 +25,7 @@ export type ColorPickerFieldProps = {
 export const ColorPickerField: React.FC<
   TextFieldClientProps & ColorPickerFieldProps
 > = ({ path, field, hideLabel }) => {
-  const { value, setValue } = useField<TailwindColor | null>({ path });
+  const { value, setValue } = useField<ColorPickerColor | null>({ path });
 
   return (
     <div className="twp field-type text">

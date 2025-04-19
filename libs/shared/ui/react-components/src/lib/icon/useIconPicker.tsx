@@ -1,11 +1,10 @@
+import { heroIcons } from '@codeware/shared/ui/react-universal-components';
 import React, { useMemo, useState } from 'react';
-
-import { Icon, heroIcon } from './hero-icons';
 
 type IconPicker = {
   search: string;
   setSearch: React.Dispatch<React.SetStateAction<string>>;
-  icons: Array<Icon>;
+  icons: typeof heroIcons;
 };
 
 /**
@@ -18,7 +17,7 @@ export const useIconPicker = (): IconPicker => {
   const [search, setSearch] = useState('');
 
   // Memoize the hero icon components
-  const icons = useMemo(() => heroIcon, []);
+  const icons = useMemo(() => heroIcons, []);
 
   // Memoize the search functionality
   const filteredIcons = useMemo(() => {

@@ -1,0 +1,9 @@
+{
+  "name": "shared-ui-react-universal-components",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui/react-universal-components/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "// targets": "to see all targets run: nx show project react-universal-components --web",
+  "targets": {}
+}

@@ -2,7 +2,8 @@ import type {
   CardBlock as CardBlockProps,
   CodeBlock as CodeBlockProps,
   FormBlock as FormBlockProps,
-  MediaBlock as MediaBlockProps
+  MediaBlock as MediaBlockProps,
+  SocialMediaBlock as SocialMediaBlockProps
 } from '@codeware/shared/util/payload-types';
 import { cn } from '@codeware/shared/util/ui';
 import type {
@@ -19,11 +20,16 @@ import { CardBlock } from './CardBlock';
 import { CodeBlock } from './CodeBlock';
 import { FormBlock } from './FormBlock';
 import { MediaBlock } from './MediaBlock';
+import { SocialMediaBlock } from './SocialMediaBlock';
 
 type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<
-      CardBlockProps | CodeBlockProps | FormBlockProps | MediaBlockProps
+      | CardBlockProps
+      | CodeBlockProps
+      | FormBlockProps
+      | MediaBlockProps
+      | SocialMediaBlockProps
     >;
 
 /**
@@ -39,7 +45,8 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({
     card: ({ node }) => <CardBlock {...node.fields} />,
     code: ({ node }) => <CodeBlock {...node.fields} />,
     form: ({ node }) => <FormBlock {...node.fields} />,
-    media: ({ node }) => <MediaBlock {...node.fields} />
+    media: ({ node }) => <MediaBlock {...node.fields} />,
+    'social-media': ({ node }) => <SocialMediaBlock {...node.fields} />
   }
 });
 

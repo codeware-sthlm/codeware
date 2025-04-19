@@ -3,8 +3,24 @@ import type { CollectionConfig } from 'payload';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
+import { BlockSlug } from '@codeware/shared/util/payload-types';
+import { getActiveKeys } from '@codeware/shared/util/pure';
 
 const env = getEnv();
+
+/**
+ * Define which blocks are available for the layout builder.
+ */
+// Using a record to make sure all blocks are included and not forgotten
+const blocks: Record<BlockSlug, boolean> = {
+  card: true,
+  code: true,
+  content: true,
+  form: true,
+  media: true,
+  'social-media': true,
+  'reusable-content': false
+};
 
 /**
  * Reusable content collection
@@ -43,7 +59,7 @@ const reusableContent: CollectionConfig = {
     {
       name: 'layout',
       type: 'blocks',
-      blockReferences: ['card', 'code', 'content', 'form', 'media'],
+      blockReferences: getActiveKeys<BlockSlug>(blocks),
       blocks: [],
       required: true
     }

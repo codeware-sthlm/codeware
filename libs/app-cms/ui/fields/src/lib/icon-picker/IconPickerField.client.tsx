@@ -1,20 +1,13 @@
 'use client';
 
 import {
-  type HeroIcon,
-  IconPicker
+  IconPicker,
+  type IconPickerIcon
 } from '@codeware/shared/ui/react-components';
 import { FieldDescription, FieldLabel, useField } from '@payloadcms/ui';
 import type { TextFieldClientProps } from 'payload';
 
-export type IconPickerFieldProps = {
-  /**
-   * Hide the label of the field.
-   *
-   * Useful when the field should have a label but not be visible in the UI.
-   */
-  hideLabel?: boolean;
-};
+import { IconPickerFieldProps } from './icon-picker.field';
 
 /**
  * Icon picker field component for client-side rendering.
@@ -25,7 +18,7 @@ export type IconPickerFieldProps = {
 export const IconPickerField: React.FC<
   TextFieldClientProps & IconPickerFieldProps
 > = ({ path, field, hideLabel }) => {
-  const { value, setValue } = useField<HeroIcon>({ path });
+  const { value, setValue } = useField<IconPickerIcon>({ path });
 
   return (
     <div className="field-type text">

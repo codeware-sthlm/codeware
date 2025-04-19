@@ -1,5 +1,4 @@
-'use client';
-import { CdwrCloud } from '@codeware/shared/ui/react-components';
+import { CdwrCloud } from '@codeware/shared/ui/react-universal-components';
 
 const Logo: React.FC = () => {
   return (

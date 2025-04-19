@@ -25,6 +25,7 @@ export default [
             // Remix
             'isbot',
             // Payload components
+            '@icons-pack/react-simple-icons',
             '@heroicons/react',
             '@payloadcms/richtext-lexical',
             'prism-react-renderer',
@@ -34,10 +35,12 @@ export default [
             '@radix-ui/react-dropdown-menu',
             '@radix-ui/react-label',
             '@radix-ui/react-menubar',
+            '@radix-ui/react-popover',
             '@radix-ui/react-radio-group',
             '@radix-ui/react-select',
             '@radix-ui/react-separator',
             '@radix-ui/react-slot',
+            '@radix-ui/react-tooltip',
             'class-variance-authority',
             'clsx',
             'lucide-react',

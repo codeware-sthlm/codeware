@@ -89,6 +89,7 @@ export interface Config {
     form: FormBlock;
     media: MediaBlock;
     'reusable-content': ReusableContentBlock;
+    'social-media': SocialMediaBlock;
   };
   collections: {
     categories: Category;
@@ -283,6 +284,7 @@ export interface Page {
     | MediaBlock
     | CodeBlock
     | ReusableContentBlock
+    | SocialMediaBlock
   )[];
   meta?: {
     title?: string | null;
@@ -905,9 +907,41 @@ export interface ReusableContent {
    * What is the reusable content about?
    */
   title: string;
-  layout: (CardBlock | CodeBlock | ContentBlock | FormBlock | MediaBlock)[];
+  layout: (
+    | CardBlock
+    | CodeBlock
+    | ContentBlock
+    | FormBlock
+    | MediaBlock
+    | SocialMediaBlock
+  )[];
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SocialMediaBlock".
+ */
+export interface SocialMediaBlock {
+  social?:
+    | {
+        platform:
+          | 'discord'
+          | 'facebook'
+          | 'github'
+          | 'instagram'
+          | 'linkedin'
+          | 'npm'
+          | 'web'
+          | 'x'
+          | 'youtube';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'social-media';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

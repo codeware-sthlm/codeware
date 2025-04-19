@@ -10,6 +10,7 @@ import { CodeBlock } from './blocks/CodeBlock';
 import { ContentBlock } from './blocks/ContentBlock';
 import { FormBlock } from './blocks/FormBlock';
 import { MediaBlock } from './blocks/MediaBlock';
+import { SocialMediaBlock } from './blocks/SocialMediaBlock';
 
 const blocksMap: Record<
   BlockSlug,
@@ -21,6 +22,7 @@ const blocksMap: Record<
   content: ContentBlock,
   form: FormBlock,
   media: MediaBlock,
+  'social-media': SocialMediaBlock,
   // Reusable content block invokes RenderBlocks to resolve the nested blocks.
   // Keep implementation here to avoid circular dependency.
   'reusable-content': ({ reusableContent, refId }: ReusableContentBlock) => {

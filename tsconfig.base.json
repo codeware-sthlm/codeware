@@ -82,6 +82,9 @@
       "@codeware/shared/ui/react-components": [
         "libs/shared/ui/react-components/src/index.ts"
       ],
+      "@codeware/shared/ui/react-universal-components": [
+        "libs/shared/ui/react-universal-components/src/index.ts"
+      ],
       "@codeware/shared/ui/shadcn": ["libs/shared/ui/shadcn/src/index.ts"],
       "@codeware/shared/ui/shadcn/*": ["libs/shared/ui/shadcn/src/lib/*"],
       "@codeware/shared/util/node": ["libs/shared/util/node/src/index.ts"],

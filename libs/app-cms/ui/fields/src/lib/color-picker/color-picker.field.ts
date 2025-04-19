@@ -1,7 +1,14 @@
 import { deepMerge } from '@codeware/shared/util/pure';
 import type { TextField } from 'payload';
 
-import type { ColorPickerFieldProps } from './ColorPickerField.client';
+export type ColorPickerFieldProps = {
+  /**
+   * Hide the label of the field.
+   *
+   * Useful when the field should have a label but not be visible in the UI.
+   */
+  hideLabel?: boolean;
+};
 
 type Props = {
   /** Custom field component properties */

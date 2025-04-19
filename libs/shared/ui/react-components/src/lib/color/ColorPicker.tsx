@@ -22,6 +22,9 @@ import { VariantProps } from 'class-variance-authority';
 import { Paintbrush } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+/** Color picker Tailwind color type */
+export type ColorPickerColor = TailwindColor;
+
 type PopoverLabels = {
   noColorsFound?: string;
   searchFieldPlaceholder?: string;
@@ -44,7 +47,7 @@ type Props = {
   trigger?: {
     onClick?: () => void;
   } & (
-    | { element: (color: TailwindColor | null) => React.ReactNode }
+    | { element: (color: ColorPickerColor | null) => React.ReactNode }
     | (TriggerLabels & {
         buttonClassName?: string;
         buttonSize?: VariantProps<typeof Button>['size'];
@@ -55,12 +58,12 @@ type Props = {
   /**
    * A callback function that is called when a color is selected.
    */
-  onChange?: (color: TailwindColor | null) => void;
+  onChange?: (color: ColorPickerColor | null) => void;
 
   /**
    * The initial color value of the color picker.
    */
-  value?: TailwindColor | null;
+  value?: ColorPickerColor | null;
 };
 
 const defaultLabels: Required<PopoverLabels & TriggerLabels> = {
@@ -79,7 +82,9 @@ export const ColorPicker: React.FC<Props> = ({
   value
 }) => {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<TailwindColor | null>(value ?? null);
+  const [selected, setSelected] = useState<ColorPickerColor | null>(
+    value ?? null
+  );
 
   useEffect(() => {
     setSelected(value ?? null);
@@ -92,7 +97,7 @@ export const ColorPicker: React.FC<Props> = ({
 
   const { onClick = () => void 0 } = trigger ?? {};
 
-  let triggerElement: (color: TailwindColor | null) => React.ReactNode;
+  let triggerElement: (color: ColorPickerColor | null) => React.ReactNode;
   if (trigger && 'element' in trigger) {
     triggerElement = trigger.element;
   } else {
@@ -162,9 +167,9 @@ export const ColorPicker: React.FC<Props> = ({
                           }
                         )}
                         onSelect={(name) => {
-                          setSelected(name as TailwindColor);
+                          setSelected(name as ColorPickerColor);
                           setOpen(false);
-                          onChange?.(name as TailwindColor);
+                          onChange?.(name as ColorPickerColor);
                         }}
                       />
                     )

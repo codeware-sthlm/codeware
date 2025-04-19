@@ -9,10 +9,27 @@ import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { filterByTenantScope } from '@codeware/app-cms/util/filters';
+import type { BlockSlug } from '@codeware/shared/util/payload-types';
+import { getActiveKeys } from '@codeware/shared/util/pure';
 
 import { updatePublishedAtHook } from './hooks/update-published-at.hook';
 
 const env = getEnv();
+
+/**
+ * Define which blocks are available for the rich text editor.
+ */
+// Using a record to make sure all blocks are included and not forgotten
+const blocks: Record<BlockSlug, boolean> = {
+  card: true,
+  media: true,
+  code: true,
+  'social-media': true,
+  // Unsupported blocks
+  form: false,
+  content: false,
+  'reusable-content': false
+};
 
 /**
  * Posts collection
@@ -70,7 +87,7 @@ const posts: CollectionConfig<'posts'> = {
                     enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4']
                   }),
                   BlocksFeature({
-                    blocks: ['card', 'code', 'media', 'reusable-content']
+                    blocks: getActiveKeys<BlockSlug>(blocks)
                   })
                 ]
               }),

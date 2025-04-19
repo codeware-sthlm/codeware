@@ -1,21 +1,21 @@
 import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
 import React from 'react';
 
-import { HeroIcon, heroIconMap } from './hero-icons';
+import { type HeroIconName, heroIconMap } from './hero-icons';
 
 /**
- * A universal component for rendering a heroicon.
+ * A universal component that renders a heroicon.
  *
  * @param icon - The name of the heroicon to render.
  * @param color - The Tailwind color name to apply to the icon.
  * @param rest - The rest of the props to pass to the heroicon component.
  */
-export const IconRenderer = ({
+export const HeroIcon = ({
   icon,
   color,
   ...rest
 }: React.ComponentPropsWithoutRef<'svg'> & {
-  icon: HeroIcon;
+  icon: HeroIconName;
   color?: TailwindColor;
 }) => {
   const IconComponent = heroIconMap[icon]?.Component;

@@ -936,9 +936,18 @@ export interface SocialMediaBlock {
           | 'x'
           | 'youtube';
         url: string;
+        withLabel?: boolean | null;
+        /**
+         * Short text to display next to the icon
+         */
+        label?: string | null;
         id?: string | null;
       }[]
     | null;
+  /**
+   * How the social media links are displayed
+   */
+  direction?: ('horizontal' | 'vertical') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'social-media';

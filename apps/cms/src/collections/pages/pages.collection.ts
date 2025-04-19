@@ -6,8 +6,24 @@ import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { populatePublishedAtHook } from '@codeware/app-cms/util/hooks';
+import { BlockSlug } from '@codeware/shared/util/payload-types';
+import { getActiveKeys } from '@codeware/shared/util/pure';
 
 const env = getEnv();
+
+/**
+ * Define which blocks are available for the layout builder.
+ */
+// Using a record to make sure all blocks are included and not forgotten
+const blocks: Record<BlockSlug, boolean> = {
+  content: true,
+  card: true,
+  form: true,
+  media: true,
+  code: true,
+  'reusable-content': true,
+  'social-media': true
+};
 
 /**
  * Pages collection
@@ -71,14 +87,7 @@ const pages: CollectionConfig<'pages'> = {
               name: 'layout',
               type: 'blocks',
               label: 'Layout builder',
-              blockReferences: [
-                'content',
-                'card',
-                'form',
-                'media',
-                'code',
-                'reusable-content'
-              ],
+              blockReferences: getActiveKeys<BlockSlug>(blocks),
               blocks: [],
               required: true,
               localized: true,

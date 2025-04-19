@@ -1,7 +1,7 @@
 import {
-  type HeroIcon,
-  IconRenderer
-} from '@codeware/shared/ui/react-components';
+  HeroIcon,
+  type HeroIconName
+} from '@codeware/shared/ui/react-universal-components';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import {
   Card,
@@ -92,8 +92,8 @@ export const CardBlock: React.FC<CardBlockProps> = ({ cards }) => {
                       }
                     )}
                   >
-                    <IconRenderer
-                      icon={icon as HeroIcon}
+                    <HeroIcon
+                      icon={icon as HeroIconName}
                       color={color as TailwindColor}
                       className={cn(
                         'size-7 transition-all duration-300 ease-in-out group-hover:scale-110',

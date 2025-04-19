@@ -1,3 +1,8 @@
+import {
+  HeroIcon,
+  type HeroIconName,
+  heroIconMap
+} from '@codeware/shared/ui/react-universal-components';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import {
   Dialog,
@@ -19,9 +24,10 @@ import { cn } from '@codeware/shared/util/ui';
 import type { VariantProps } from 'class-variance-authority';
 import { useState } from 'react';
 
-import { HeroIcon, Icon, heroIconMap } from './hero-icons';
-import { IconRenderer } from './IconRenderer';
 import { useIconPicker } from './useIconPicker';
+
+/** Icon picker heroicon name type */
+export type IconPickerIcon = HeroIconName;
 
 type DialogLabels = {
   dialogDescription?: string;
@@ -32,7 +38,10 @@ type DialogLabels = {
 };
 
 type TriggerLabels = {
-  labelChange?: (icon: Pick<Icon, 'name' | 'friendlyName'>) => string;
+  labelChange?: (icon: {
+    name: IconPickerIcon;
+    friendlyName: string;
+  }) => string;
   labelSelect?: string;
 };
 
@@ -48,7 +57,7 @@ type Props = {
   trigger?: {
     onClick?: () => void;
   } & (
-    | { element: (icon: HeroIcon | null) => React.ReactNode }
+    | { element: (icon: IconPickerIcon | null) => React.ReactNode }
     | (TriggerLabels & {
         buttonClassName?: string;
         buttonVariant?: VariantProps<typeof Button>['variant'];
@@ -58,12 +67,12 @@ type Props = {
   /**
    * A callback function that is called when an icon is selected.
    */
-  onChange?: (icon: HeroIcon) => void;
+  onChange?: (icon: IconPickerIcon) => void;
 
   /**
    * The initial value of the icon picker.
    */
-  value?: HeroIcon;
+  value?: IconPickerIcon;
 
   /**
    * The Tailwind color name of the icon.
@@ -84,7 +93,7 @@ const defaultLabels: Required<DialogLabels & TriggerLabels> = {
 };
 
 /**
- * A client-side component for selecting an icon from a dialog.
+ * A client-side component for selecting a heroicon from a dialog.
  *
  * @param onChange - A callback function that is called when an icon is selected.
  * @param trigger - Custom dialog trigger element and options.
@@ -97,7 +106,9 @@ export const IconPicker: React.FC<Props> = ({
   color
 }) => {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<null | HeroIcon>(value ?? null);
+  const [selected, setSelected] = useState<null | IconPickerIcon>(
+    value ?? null
+  );
 
   const {
     dialogDescription = defaultLabels.dialogDescription,
@@ -109,7 +120,7 @@ export const IconPicker: React.FC<Props> = ({
 
   const { onClick = () => void 0 } = trigger ?? {};
 
-  let triggerElement: (icon: HeroIcon | null) => React.ReactNode;
+  let triggerElement: (icon: IconPickerIcon | null) => React.ReactNode;
   if (trigger && 'element' in trigger) {
     triggerElement = trigger.element;
   } else {
@@ -128,7 +139,7 @@ export const IconPicker: React.FC<Props> = ({
       >
         {icon ? (
           <>
-            <IconRenderer className="size-6" icon={icon} color={color} />
+            <HeroIcon className="size-6" icon={icon} color={color} />
             {labelChange({
               name: icon,
               friendlyName: heroIconMap[icon].friendlyName
@@ -170,7 +181,7 @@ export const IconPicker: React.FC<Props> = ({
 };
 
 /**
- * A searchable icon grid for selecting an icon.
+ * A searchable icon grid for selecting a heroicon.
  *
  * @param onChange - A callback function that is called when an icon is selected.
  */
@@ -181,7 +192,7 @@ const IconSelectGrid: React.FC<{
       'noIconsFound' | 'searchClearButton' | 'searchFieldPlaceholder'
     >
   >;
-  onChange: (icon: HeroIcon) => void;
+  onChange: (icon: HeroIconName) => void;
 }> = ({
   labels: { noIconsFound, searchClearButton, searchFieldPlaceholder },
   onChange

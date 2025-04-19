@@ -12,6 +12,7 @@ import type {
   Navigation,
   Page,
   Post,
+  SocialMediaBlock,
   Tenant,
   TenantsArrayField
 } from './payload-types';
@@ -111,3 +112,8 @@ export type NavigationDoc =
 export type NavigationReferenceCollection = NonNullable<
   NonNullable<Navigation['items']>[number]
 >['reference']['relationTo'];
+
+/** Social media block social details */
+export type SocialMediaBlockSocial = NonNullable<
+  NonNullable<SocialMediaBlock['social']>[number]
+>;

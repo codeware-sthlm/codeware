@@ -9,10 +9,7 @@ import { type RowLabelProps, useRowLabel } from '@payloadcms/ui';
  * Displays the card title instead of the default row number.
  */
 export const CardBlockArrayRowLabel: React.FC<RowLabelProps> = () => {
-  // The cards group fields have a parent group type that is not included in `CardGroup`
-  // so we need to use a record to access the card data
   const { data, rowNumber } = useRowLabel<CardBlockCard>();
-
   const { title } = data ?? {};
 
   // TODO: Language support

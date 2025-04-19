@@ -1,10 +1,27 @@
 import { enumName } from '@codeware/app-cms/util/db';
+import type { BlockSlug } from '@codeware/shared/util/payload-types';
+import { getActiveKeys } from '@codeware/shared/util/pure';
 import {
   BlocksFeature,
   HeadingFeature,
   lexicalEditor
 } from '@payloadcms/richtext-lexical';
 import type { Block } from 'payload';
+
+/**
+ * Define which blocks are available as rich text plugins.
+ */
+// Using a record to make sure all blocks are included and not forgotten
+const blocks: Record<BlockSlug, boolean> = {
+  card: true,
+  code: true,
+  form: true,
+  media: true,
+  'social-media': true,
+  // Unsupported blocks
+  content: false,
+  'reusable-content': false
+};
 
 /**
  * Content block for defining a column layout with rich text content.
@@ -51,7 +68,7 @@ export const contentBlock: Block = {
             features: ({ rootFeatures }) => {
               return [
                 ...rootFeatures,
-                BlocksFeature({ blocks: ['card', 'code', 'form', 'media'] }),
+                BlocksFeature({ blocks: getActiveKeys<BlockSlug>(blocks) }),
                 HeadingFeature({
                   enabledHeadingSizes: ['h2', 'h3', 'h4', 'h5']
                 })

@@ -9,6 +9,7 @@ import {
   TooltipTrigger
 } from '@codeware/shared/ui/shadcn/components/tooltip';
 import type { SocialMediaBlock as SocialMediaBlockProps } from '@codeware/shared/util/payload-types';
+import { cn } from '@codeware/shared/util/ui';
 
 import { usePayload } from '../providers/PayloadProvider';
 
@@ -18,6 +19,7 @@ import { usePayload } from '../providers/PayloadProvider';
  * Displays social media icons with clickable links to the platform's URL.
  */
 export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
+  direction,
   social
 }) => {
   const { navigate } = usePayload();
@@ -27,23 +29,38 @@ export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-6">
-      {social.map(({ platform, url }) => (
-        <TooltipProvider key={platform}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <SocialIcon
-                className="hover:text-link text-muted-foreground transition-all duration-300 hover:scale-125 hover:cursor-pointer"
-                platform={platform}
-                size="small"
-                onClick={() => navigate(url)}
-              />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{getSocialIconName(platform)}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <div
+      className={cn(
+        'flex',
+        direction === 'vertical' ? 'flex-col gap-4' : 'flex-wrap gap-6'
+      )}
+    >
+      {social.map(({ label, platform, url, withLabel }) => (
+        <div
+          key={platform}
+          className="group flex items-center gap-4 transition-all duration-300"
+        >
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SocialIcon
+                  className="text-muted-foreground group-hover:text-link transition-all duration-300 group-hover:scale-125 group-hover:cursor-pointer"
+                  platform={platform}
+                  size="small"
+                  onClick={() => navigate(url)}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{getSocialIconName(platform)}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {withLabel && (
+            <span className="group-hover:text-link transition-all duration-300 group-hover:cursor-pointer">
+              {label}
+            </span>
+          )}
+        </div>
       ))}
     </div>
   );

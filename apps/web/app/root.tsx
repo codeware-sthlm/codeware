@@ -2,7 +2,7 @@ import {
   PayloadProvider,
   type PayloadValue
 } from '@codeware/shared/ui/payload-components';
-import { CdwrCloud } from '@codeware/shared/ui/react-components';
+import { CdwrCloud } from '@codeware/shared/ui/react-universal-components';
 import {
   type NavigationItem,
   getNavigationTree,

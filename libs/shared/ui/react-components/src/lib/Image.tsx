@@ -1,91 +1,84 @@
-import { cn } from '@codeware/shared/util/ui';
-import React, { useEffect, useRef, useState } from 'react';
+import { ImageOffIcon } from 'lucide-react';
+import { JSX, useState } from 'react';
 
-type ImageProps = {
+export type Size = {
+  /** Image source */
   src: string;
-  alt: string;
+
+  /** Whether to ignore media queries for this image */
+  ignoreMedia?: boolean;
+
+  /** Image MIME type */
+  mimeType?: string;
+
+  /** Image width */
   width?: string | number;
-  height?: string | number;
-  className?: string;
 };
 
 /**
- * Lazy loading image component with basic error handling.
+ * Responsive image component that uses the `<picture>` element
+ * to serve different images for different screen sizes.
  *
- * This component is using the native browser lazy loading feature to load images only when they are in the viewport.
- * When the image fails to load, an error message card is rendered.
+ * This is a good way to improve performance by serving smaller images
+ * to smaller screens. The browser will automatically select the best image
+ * based on the screen size and resolution.
  *
- * It's meant to be a very basic image component without any fancy features.
+ * When the image fails to load, a broken image icon with an error message will be displayed.
+ * This can be customized by passing a component to `errorComponent` property.
  */
-export const Image: React.FC<ImageProps> = ({
-  src,
+export const Image = ({
+  src: fallbackSrc,
   alt,
-  width,
   height,
-  className = ''
+  width: fallbackWidth,
+  sizes,
+  errorComponent = (
+    <div className="flex flex-col items-center text-red-500 opacity-70">
+      <ImageOffIcon className="" />
+      <span className="mt-2 text-sm">Image failed to load.</span>
+    </div>
+  )
+}: {
+  /** Fallback image source to use when an image can not be loaded from `sizes` */
+  src: string;
+  /** Image alternative text for improved SEO and accessibility */
+  alt: string;
+  /** Fallback image height information */
+  height?: string | number;
+  /** Fallback image width information */
+  width?: string | number;
+
+  /** Responsive image sizes */
+  sizes?: Array<Size>;
+
+  /** Error component to display when image fails to load */
+  errorComponent?: JSX.Element;
 }) => {
-  const ref = useRef<HTMLImageElement>(null);
   const [error, setError] = useState(false);
 
-  // Workaround for SSR and React hydration race condition
-  useEffect(() => {
-    const el = ref.current;
-    if (el?.complete && el.naturalWidth === 0) {
-      setError(true);
-    }
-  }, []);
-
-  const containerStyles = {
-    width: width || 'auto',
-    height: height || 'auto'
-  };
-
   return (
-    // If in error state, show error message
-    (error && (
-      <div
-        className={cn('overflow-hidden rounded-lg bg-red-50', className)}
-        style={containerStyles}
-      >
-        <div className="flex h-full w-full flex-col items-center justify-center p-5 text-center text-red-500">
-          <svg
-            className="mx-auto h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-          <div className="mt-2 text-xs">
-            Failed to load image
-            {/* This hack prevents the error message from disappearing after a short delay */}
-            <span className="text-transparent">
-              {ref.current?.naturalWidth}
-            </span>
-          </div>
-        </div>
-      </div>
-    )) || (
-      // Otherwise render the image with native browser lazy loading
-      <div className={className} style={containerStyles}>
+    (error && errorComponent) || (
+      <picture>
+        {(sizes ?? [])
+          .sort((a, b) => Number(a.width ?? 0) - Number(b.width ?? 0))
+          .map(({ ignoreMedia, mimeType, src, width }, index) => (
+            <source
+              key={index}
+              srcSet={`${src}${width ? ` ${width}w` : ''}`}
+              media={
+                width && !ignoreMedia ? `(max-width: ${width}px)` : undefined
+              }
+              type={mimeType}
+            />
+          ))}
         <img
-          src={src}
-          ref={ref}
+          src={fallbackSrc}
           alt={alt}
-          width={width}
+          width={fallbackWidth}
           height={height}
-          loading="lazy"
-          onError={(e) => setError(true)}
-          className="h-full w-full object-cover"
+          onError={() => setError(true)}
         />
-      </div>
+      </picture>
     )
   );
 };
-
-export default Image;

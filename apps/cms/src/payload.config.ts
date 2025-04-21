@@ -83,6 +83,7 @@ export default buildConfig({
   email: getEmailAdapter(env),
   plugins: getPlugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
+  upload: { safeFileNames: true },
   // i18n support
   i18n: { fallbackLanguage: 'sv' },
   localization: {

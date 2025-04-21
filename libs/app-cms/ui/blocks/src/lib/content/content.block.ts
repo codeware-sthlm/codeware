@@ -1,11 +1,7 @@
 import { enumName } from '@codeware/app-cms/util/db';
 import type { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
-import {
-  BlocksFeature,
-  HeadingFeature,
-  lexicalEditor
-} from '@payloadcms/richtext-lexical';
+import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
 import type { Block } from 'payload';
 
 /**
@@ -68,10 +64,7 @@ export const contentBlock: Block = {
             features: ({ rootFeatures }) => {
               return [
                 ...rootFeatures,
-                BlocksFeature({ blocks: getActiveKeys<BlockSlug>(blocks) }),
-                HeadingFeature({
-                  enabledHeadingSizes: ['h2', 'h3', 'h4', 'h5']
-                })
+                BlocksFeature({ blocks: getActiveKeys<BlockSlug>(blocks) })
               ];
             }
           }),

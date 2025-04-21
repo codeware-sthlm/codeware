@@ -1,5 +1,4 @@
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import { HeadingFeature } from '@payloadcms/richtext-lexical';
 import { BlocksFeature } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
 
@@ -83,9 +82,6 @@ const posts: CollectionConfig<'posts'> = {
               editor: lexicalEditor({
                 features: ({ rootFeatures }) => [
                   ...rootFeatures,
-                  HeadingFeature({
-                    enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4']
-                  }),
                   BlocksFeature({
                     blocks: getActiveKeys<BlockSlug>(blocks)
                   })

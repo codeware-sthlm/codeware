@@ -19,6 +19,8 @@ export const defaultLexical: Config['editor'] = lexicalEditor({
         !['relationship', 'upload'].includes(feature.key)
     ),
     FixedToolbarFeature({ applyToFocusedEditor: true }),
-    HeadingFeature()
+    HeadingFeature({
+      enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h5']
+    })
   ]
 });

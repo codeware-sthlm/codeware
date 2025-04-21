@@ -1,5 +1,3 @@
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import { HeadingFeature } from '@payloadcms/richtext-lexical';
 import type { Block } from 'payload';
 
 /**
@@ -33,15 +31,7 @@ export const formBlock: Block = {
       label: { en: 'Introduction', sv: 'Introduktion' },
       admin: {
         condition: (_, { enableIntro }) => Boolean(enableIntro)
-      },
-      editor: lexicalEditor({
-        features: ({ rootFeatures }) => {
-          return [
-            ...rootFeatures,
-            HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] })
-          ];
-        }
-      })
+      }
     }
   ]
 };

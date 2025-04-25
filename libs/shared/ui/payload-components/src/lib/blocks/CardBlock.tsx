@@ -87,7 +87,7 @@ export const CardBlock: React.FC<CardBlockProps> = ({ cards }) => {
                     className={cn(
                       'border-primary/10 bg-card ring-offset-background dark:bg-primary/20 dark:border-primary-foreground/10 flex size-14 items-center justify-center rounded-full border shadow-sm ring-1 ring-offset-1 transition-all duration-300 ease-in-out group-hover:border-transparent group-hover:shadow-md',
                       {
-                        'group-hover:border-link/50 dark:group-hover:border-link/50 ring-primary/20 dark:ring-primary-foreground/20':
+                        'group-hover:border-core-link/50 dark:group-hover:border-core-link/50 ring-primary/20 dark:ring-primary-foreground/20':
                           !color
                       }
                     )}
@@ -98,7 +98,7 @@ export const CardBlock: React.FC<CardBlockProps> = ({ cards }) => {
                       className={cn(
                         'size-7 transition-all duration-300 ease-in-out group-hover:scale-110',
                         {
-                          'text-primary/70 dark:text-primary-foreground/80 group-hover:text-link dark:group-hover:text-link':
+                          'text-primary/70 dark:text-primary-foreground/80 group-hover:text-core-link':
                             !color
                         }
                       )}
@@ -125,7 +125,7 @@ export const CardBlock: React.FC<CardBlockProps> = ({ cards }) => {
               <CardFooter>
                 <Button
                   variant="link"
-                  className="text-secondary-foreground group-hover:text-link flex h-auto items-center gap-2 p-0 text-sm transition-all duration-300 hover:cursor-pointer"
+                  className="text-secondary-foreground group-hover:text-core-link flex h-auto items-center gap-2 p-0 text-sm transition-all duration-300 hover:cursor-pointer"
                   onClick={() => navigate(linkDetails.url, linkDetails.newTab)}
                 >
                   {(linkDetails.newTab && (

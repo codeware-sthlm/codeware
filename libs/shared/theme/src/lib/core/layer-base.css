@@ -1,0 +1,18 @@
+/* Apply global base styles */
+
+@layer base {
+  * {
+    /* Needed by shadcn */
+    @apply border-border outline-ring/50;
+  }
+  body {
+    /*
+     * Set color and background from core variables.
+     *
+     * Note!
+     * IntelliSense might not work properly here when core variables are not imported by the cms app.
+     * It still works well in TSX files.
+     */
+    @apply bg-core-background-body text-core-text;
+  }
+}

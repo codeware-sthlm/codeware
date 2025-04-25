@@ -76,6 +76,7 @@
       "@codeware/shared/feature/infisical": [
         "libs/shared/feature/infisical/src/index.ts"
       ],
+      "@codeware/shared/theme": ["libs/shared/theme/src/index.ts"],
       "@codeware/shared/ui/payload-components": [
         "libs/shared/ui/payload-components/src/index.ts"
       ],

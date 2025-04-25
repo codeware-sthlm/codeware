@@ -30,7 +30,7 @@ export default function Index() {
     <Container className="mt-16 sm:mt-32">
       {landingPage?.header && (
         <header className="max-w-2xl">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
+          <h1 className="text-core-headline text-4xl font-bold tracking-tight sm:text-5xl">
             {landingPage.header}
           </h1>
         </header>

@@ -44,7 +44,7 @@ export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <SocialIcon
-                  className="text-muted-foreground group-hover:text-link transition-all duration-300 group-hover:scale-125 group-hover:cursor-pointer"
+                  className="text-muted-foreground group-hover:text-core-link transition-all duration-300 group-hover:scale-125 group-hover:cursor-pointer"
                   platform={platform}
                   size="small"
                   onClick={() => navigate(url)}
@@ -56,7 +56,7 @@ export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
             </Tooltip>
           </TooltipProvider>
           {withLabel && (
-            <span className="group-hover:text-link transition-all duration-300 group-hover:cursor-pointer">
+            <span className="group-hover:text-core-link transition-all duration-300 group-hover:cursor-pointer">
               {label}
             </span>
           )}

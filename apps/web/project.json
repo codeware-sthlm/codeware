@@ -72,7 +72,8 @@
       "options": {
         "command": "npx concurrently -n \"RMX,HNO\" -c \"magenta,blue\" --pad-prefix \"remix vite:dev\" \"nodemon\"",
         "cwd": "apps/web"
-      }
+      },
+      "cache": false
     }
   }
 }

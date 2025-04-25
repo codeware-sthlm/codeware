@@ -1,0 +1,14 @@
+/* Spotlight theme color tokens */
+@import './theme-light.css';
+@import './theme-dark.css';
+
+/* Core utilities */
+@import '../core/utility-payload.css';
+
+/* Add color utilities to theme layer */
+@import '../core/theme-map-brand.css' layer(theme);
+@import '../core/theme-map-core.css' layer(theme);
+@import '../core/theme-map-shadcn.css' layer(theme);
+
+/* Base layer */
+@import '../core/layer-base.css';

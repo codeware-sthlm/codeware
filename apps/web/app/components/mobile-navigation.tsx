@@ -4,7 +4,8 @@ import {
   PopoverButton,
   PopoverPanel
 } from '@headlessui/react';
-import { Link } from '@remix-run/react';
+import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { NavLink } from '@remix-run/react';
 
 import { useNavigationTree } from '../utils/use-navigation-tree';
 
@@ -19,82 +20,41 @@ export function MobileNavigation(
 
   return (
     <Popover {...props}>
-      <PopoverButton className="group flex items-center rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg ring-1 shadow-zinc-800/5 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10 dark:hover:ring-white/20">
+      <PopoverButton className="group bg-core-navbar text-core-nav-link shadow-core-action-btn-shadow ring-core-action-btn-border hover:ring-core-action-btn-border-hover flex h-full items-center rounded-full object-contain px-4 py-2 text-sm font-medium shadow-lg ring-1 backdrop-blur">
         Menu
-        <ChevronDownIcon className="ml-3 h-auto w-2 stroke-zinc-500 group-hover:stroke-zinc-700 dark:group-hover:stroke-zinc-400" />
+        <ChevronDownIcon className="stroke-core-nav-link/80 group-hover:stroke-core-nav-link ml-2 size-3" />
       </PopoverButton>
       <PopoverBackdrop
         transition
-        className="fixed inset-0 z-50 bg-zinc-800/40 backdrop-blur-sm duration-150 data-[closed]:opacity-0 data-[enter]:ease-out data-[leave]:ease-in dark:bg-black/80"
+        className="bg-core-background-body/60 fixed inset-0 z-50 backdrop-blur-sm duration-150 data-[closed]:opacity-0 data-[enter]:ease-out data-[leave]:ease-in"
       />
       <PopoverPanel
         focus
         transition
-        className="fixed inset-x-4 top-8 z-50 origin-top rounded-3xl bg-white p-8 ring-1 ring-zinc-900/5 duration-150 data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:ease-out data-[leave]:ease-in dark:bg-zinc-900 dark:ring-zinc-800"
+        className="bg-core-background-content ring-core-action-btn-border-hover fixed inset-x-4 top-8 z-50 origin-top rounded-3xl p-8 ring-1 duration-150 data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:ease-out data-[leave]:ease-in"
       >
         <div className="flex flex-row-reverse items-center justify-between">
           <PopoverButton aria-label="Close menu" className="-m-1 p-1">
-            <CloseIcon className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
+            <XMarkIcon className="size-6 hover:cursor-pointer" />
           </PopoverButton>
-          <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-            Navigation
-          </h2>
+          <h2 className="text-sm font-medium">Navigation</h2>
         </div>
         <nav className="mt-6">
-          <ul className="-my-2 divide-y divide-zinc-100 text-base text-zinc-800 dark:divide-zinc-100/5 dark:text-zinc-300">
+          <ul className="text-core-nav-link -my-2">
             {navigationTree.map(({ key, label, url }) => (
-              <MobileNavItem key={key} href={url}>
-                {label}
-              </MobileNavItem>
+              <li key={key}>
+                <PopoverButton
+                  as={NavLink}
+                  to={url}
+                  className="hover:text-core-nav-link-hover block py-2"
+                >
+                  {label}
+                </PopoverButton>
+              </li>
             ))}
           </ul>
         </nav>
       </PopoverPanel>
     </Popover>
-  );
-}
-
-function CloseIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        d="m17.25 6.75-10.5 10.5M6.75 6.75l10.5 10.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function ChevronDownIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
-  return (
-    <svg viewBox="0 0 8 6" aria-hidden="true" {...props}>
-      <path
-        d="M1.75 1.75 4 4.25l2.25-2.5"
-        fill="none"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function MobileNavItem({
-  href,
-  children
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <li>
-      <PopoverButton as={Link} to={href} className="block py-2">
-        {children}
-      </PopoverButton>
-    </li>
   );
 }

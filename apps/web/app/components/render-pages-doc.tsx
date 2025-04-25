@@ -13,7 +13,7 @@ export const RenderPagesDoc: React.FC<{ doc: NavigationDoc }> = ({ doc }) => {
     <>
       {doc.header && (
         <header className="max-w-2xl">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
+          <h1 className="text-core-headline text-4xl font-bold tracking-tight sm:text-5xl">
             {doc.header}
           </h1>
         </header>

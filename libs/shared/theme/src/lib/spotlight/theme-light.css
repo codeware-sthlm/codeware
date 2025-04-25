@@ -1,0 +1,92 @@
+:root {
+  /* === brand palette tokens === */
+  --brand-50: var(--color-teal-50);
+  --brand-100: var(--color-teal-100);
+  --brand-200: var(--color-teal-200);
+  --brand-300: var(--color-teal-300);
+  --brand-400: var(--color-teal-400);
+  --brand-500: var(--color-teal-500);
+  --brand-600: var(--color-teal-600);
+  --brand-700: var(--color-teal-700);
+  --brand-800: var(--color-teal-800);
+  --brand-900: var(--color-teal-900);
+  --brand-950: var(--color-teal-950);
+
+  /* === core tokens === */
+  --core-action-btn-foreground: var(--color-zinc-600);
+  --core-action-btn-foreground-hover: var(--color-teal-500);
+  --core-action-btn-background: theme('colors.white / 0.9');
+  --core-action-btn-border: theme('colors.zinc.900 / 0.05');
+  --core-action-btn-border-hover: theme('colors.zinc.900 / 0.1');
+  --core-action-btn-icon-fill: var(--color-zinc-100);
+  --core-action-btn-shadow: theme('colors.zinc.800 / 0.05');
+  --core-background-body: var(--color-zinc-50);
+  --core-background-content: var(--color-white);
+  --core-content-border: var(--color-zinc-100);
+  --core-headline: var(--color-zinc-800);
+  --core-header: var(--color-zinc-900);
+  --core-link: var(--color-teal-500);
+  --core-navbar: theme('colors.white / 0.9');
+  --core-navbar-border: theme('colors.zinc.900 / 0.05');
+  --core-navbar-shadow: theme('colors.zinc.800 / 0.05');
+  --core-nav-link: var(--color-zinc-800);
+  --core-nav-link-active: var(--color-teal-500);
+  --core-nav-link-hover: var(--color-teal-500);
+  --core-text: var(--color-zinc-600);
+
+  /* === shadcn/ui tokens === */
+  --radius: 0.5rem;
+  --background: var(--core-background-content);
+  --foreground: var(--core-text);
+  --card: var(--color-zinc-50);
+  --card-foreground: var(--color-zinc-600);
+  --popover: var(--color-zinc-50);
+  --popover-foreground: var(--color-zinc-900);
+  --primary: var(--color-zinc-900);
+  --primary-foreground: var(--color-zinc-50);
+  --secondary: var(--color-zinc-100);
+  --secondary-foreground: var(--color-zinc-900);
+  --muted: var(--color-zinc-100);
+  --muted-foreground: var(--color-zinc-500);
+  --accent: var(--color-zinc-100);
+  --accent-foreground: var(--color-zinc-900);
+  --destructive: var(--color-red-500);
+  --border: var(--color-zinc-100);
+  --input: var(--color-zinc-100);
+  --ring: var(--color-zinc-900);
+  /* default zinc colors for now - replace when charts and sidebar is implemented */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  /* === prose tokens === */
+  --body: var(--core-text);
+  --bold: var(--primary);
+  --bullets: var(--primary);
+  --captions: var(--color-zinc-500);
+  --code: var(--color-zinc-700);
+  --code-bg: theme('colors.zinc.300 / 0.2');
+  --counters: var(--primary);
+  --headings: var(--core-header);
+  --hr: var(--color-zinc-300);
+  --links: var(--color-brand-600);
+  --links-hover: var(--color-brand-600);
+  --pre-bg: var(--color-zinc-900);
+  --pre-border: transparent;
+  --pre-code: var(--secondary);
+  --quote-borders: var(--color-zinc-200);
+  --td-borders: var(--secondary);
+  --th-borders: var(--color-zinc-200);
+  --underline: theme('colors.teal.500 / 0.2');
+  --underline-hover: var(--color-brand-500);
+}

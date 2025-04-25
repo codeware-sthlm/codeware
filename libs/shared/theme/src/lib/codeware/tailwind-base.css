@@ -1,0 +1,23 @@
+/* Codeware theme color tokens */
+@import './theme-light.css';
+@import './theme-dark.css';
+
+@import '../core/theme-map-shadcn.css' layer(theme);
+
+@theme inline {
+  --color-cdwr-steel-blue: var(--steel-blue);
+  --color-cdwr-yale-blue: var(--yale-blue);
+  --color-cdwr-space-cadet: var(--space-cadet);
+  --color-cdwr-light-gray: var(--light-gray);
+  --color-cdwr-eerie-black: var(--eerie-black);
+  --color-cdwr-darker-black: var(--darker-black);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -12,7 +12,7 @@
     "**/vite.config.mts.timestamp-*.mjs"
   ],
   "verbose": false,
-  "exec": "nx build web && tsx server.ts",
+  "exec": "nx build web --skip-nx-cache && tsx server.ts",
   "legacyWatch": false,
   "delay": "1000"
 }

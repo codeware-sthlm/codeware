@@ -1,0 +1,53 @@
+/*
+ * Token usage:
+ * Core tokens are opinionated names for core styling and must be in sync
+ * with className usage, shadcn tokens and prose tokens.
+ *
+ * --core-action-btn-foreground: foreground color of action buttons
+ * --core-action-btn-foreground-hover: foreground color of action buttons on hover
+ * --core-action-btn-background: background color of action buttons
+ * --core-action-btn-border: border color of action buttons
+ * --core-action-btn-border-hover: border color of action buttons on hover
+ * --core-action-btn-shadow: shadow color of action buttons
+ * --core-action-btn-icon-fill: icon fill color of action buttons (Note! transparancy does not work)
+ * --core-background-body: body background that is not covered by content
+ * --core-background-content: the main background color of the site
+ * --core-content-border: color of the borders between content and body
+ * --core-header: color of the headers (h1, h2, h3, h4, h5, h6)
+ * --core-headline: color of the big sized title on top of a page
+ * --core-navbar: color of the navigation toolbar
+ * --core-navbar-border: border color of the navigation toolbar
+ * --core-navbar-shadow: color of the shadow below the navigation toolbar
+ * --core-nav-link: color of the navigation links
+ * --core-nav-link-active: active color of navigation links
+ * --core-nav-link-hover: hover color of navigation links
+ * --core-text: the main text color of the site
+ *
+ * TODO: Consider CSS name conventions for the tokens whether to follow shadcn pattern:
+ *
+ */
+
+@theme {
+  --color-core-action-btn-foreground: var(--core-action-btn-foreground);
+  --color-core-action-btn-foreground-hover: var(
+    --core-action-btn-foreground-hover
+  );
+  --color-core-action-btn-background: var(--core-action-btn-background);
+  --color-core-action-btn-border: var(--core-action-btn-border);
+  --color-core-action-btn-border-hover: var(--core-action-btn-border-hover);
+  --color-core-action-btn-icon-fill: var(--core-action-btn-icon-fill);
+  --color-core-action-btn-shadow: var(--core-action-btn-shadow);
+  --color-core-background-body: var(--core-background-body);
+  --color-core-background-content: var(--core-background-content);
+  --color-core-content-border: var(--core-content-border);
+  --color-core-header: var(--core-header);
+  --color-core-headline: var(--core-headline);
+  --color-core-link: var(--core-link);
+  --color-core-navbar: var(--core-navbar);
+  --color-core-navbar-border: var(--core-navbar-border);
+  --color-core-navbar-shadow: var(--core-navbar-shadow);
+  --color-core-nav-link: var(--core-nav-link);
+  --color-core-nav-link-active: var(--core-nav-link-active);
+  --color-core-nav-link-hover: var(--core-nav-link-hover);
+  --color-core-text: var(--core-text);
+}

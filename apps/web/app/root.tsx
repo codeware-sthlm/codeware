@@ -113,7 +113,7 @@ function Document({
         <Meta />
         <Links />
       </head>
-      <body className="flex h-full bg-zinc-50 dark:bg-black">
+      <body className="flex h-full">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -181,11 +181,14 @@ export default function App() {
   return (
     <PayloadProvider value={context}>
       <div className="flex w-full">
+        {/* Create a center aligned section with background space on each side */}
         <div className="fixed inset-0 flex justify-center sm:px-8">
           <div className="flex w-full max-w-7xl lg:px-8">
-            <div className="w-full bg-white ring-1 ring-zinc-100 dark:bg-zinc-900 dark:ring-zinc-300/20" />
+            {/* Content section */}
+            <div className="bg-core-background-content ring-core-content-border w-full ring-1" />
           </div>
         </div>
+        {/* Display header, main and footer inside the content section */}
         <div className="relative flex w-full flex-col">
           <header className="pointer-events-none relative z-50 flex flex-none flex-col">
             <div className="top-0 z-10 h-16 pt-6">
@@ -193,10 +196,7 @@ export default function App() {
                 <div className="relative flex gap-4">
                   <div className="flex flex-1">
                     <div className="flex h-10 w-10 items-center backdrop-blur">
-                      <Link
-                        to="/"
-                        className="pointer-events-auto text-zinc-600 dark:text-zinc-400"
-                      >
+                      <Link to="/" className="pointer-events-auto">
                         <CdwrCloud size={40} />
                       </Link>
                     </div>

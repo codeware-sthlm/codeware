@@ -81,6 +81,7 @@ export function ThemeSwitch({
           className="group bg-core-action-btn-background shadow-core-action-btn-shadow ring-core-action-btn-border hover:ring-core-action-btn-border-hover rounded-full px-3 py-2 shadow-lg ring-1 backdrop-blur transition"
         >
           {icon}
+          <span className="sr-only capitalize">{mode}</span>
         </button>
       </div>
     </fetcher.Form>
@@ -149,8 +150,6 @@ function getThemeIcon(mode: Theme | 'system'): React.ReactElement {
             mode === 'dark'
         }
       )}
-    >
-      <span className="sr-only capitalize">{mode}</span>
-    </Icon>
+    />
   );
 }

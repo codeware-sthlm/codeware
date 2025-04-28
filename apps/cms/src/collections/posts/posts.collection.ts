@@ -1,3 +1,4 @@
+import { multiTenantLinkFeature } from '@codeware/app-cms/ui/lexical';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { BlocksFeature } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
@@ -83,8 +84,9 @@ const posts: CollectionConfig<'posts'> = {
                 features: ({ rootFeatures }) => [
                   ...rootFeatures,
                   BlocksFeature({
-                    blocks: getActiveKeys<BlockSlug>(blocks)
-                  })
+                    blocks: [...getActiveKeys<BlockSlug>(blocks)]
+                  }),
+                  multiTenantLinkFeature()
                 ]
               }),
               label: false,

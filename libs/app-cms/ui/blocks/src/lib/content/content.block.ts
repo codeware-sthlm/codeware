@@ -1,3 +1,4 @@
+import { multiTenantLinkFeature } from '@codeware/app-cms/ui/lexical';
 import { enumName } from '@codeware/app-cms/util/db';
 import type { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
@@ -64,7 +65,8 @@ export const contentBlock: Block = {
             features: ({ rootFeatures }) => {
               return [
                 ...rootFeatures,
-                BlocksFeature({ blocks: getActiveKeys<BlockSlug>(blocks) })
+                BlocksFeature({ blocks: getActiveKeys<BlockSlug>(blocks) }),
+                multiTenantLinkFeature()
               ];
             }
           }),

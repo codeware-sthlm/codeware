@@ -13,11 +13,17 @@ import type { Config } from 'payload';
  */
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: ({ defaultFeatures }) => [
-    ...defaultFeatures.filter(
-      (feature) =>
-        // Exclude default features which we don't support yet
-        !['relationship', 'upload'].includes(feature.key)
-    ),
+    ...defaultFeatures.filter(({ key }) => {
+      // Custom link feature with multi-tenant support must be added on field level
+      if (key === 'link') {
+        return false;
+      }
+      // Exclude features which we don't support yet
+      if (key === 'relationship' || key === 'upload') {
+        return false;
+      }
+      return true;
+    }),
     FixedToolbarFeature({ applyToFocusedEditor: true }),
     HeadingFeature({
       enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h5']

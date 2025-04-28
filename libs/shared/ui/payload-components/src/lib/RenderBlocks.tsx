@@ -3,6 +3,7 @@ import type {
   Page,
   ReusableContentBlock
 } from '@codeware/shared/util/payload-types';
+import { cn } from '@codeware/shared/util/ui';
 import { useRef } from 'react';
 
 import { CardBlock } from './blocks/CardBlock';
@@ -11,6 +12,7 @@ import { ContentBlock } from './blocks/ContentBlock';
 import { FormBlock } from './blocks/FormBlock';
 import { MediaBlock } from './blocks/MediaBlock';
 import { SocialMediaBlock } from './blocks/SocialMediaBlock';
+import { SpacingBlock } from './blocks/SpacingBlock';
 
 const blocksMap: Record<
   BlockSlug,
@@ -23,6 +25,7 @@ const blocksMap: Record<
   form: FormBlock,
   media: MediaBlock,
   'social-media': SocialMediaBlock,
+  spacing: SpacingBlock,
   // Reusable content block invokes RenderBlocks to resolve the nested blocks.
   // Keep implementation here to avoid circular dependency.
   'reusable-content': ({ reusableContent, refId }: ReusableContentBlock) => {
@@ -52,9 +55,21 @@ export const RenderBlocks: React.FC<Props> = ({ blocks, refId }) => {
         {blocks.map((block, index) => {
           const Block = blocksMap[block.blockType];
 
+          // Spacing block or the first block after spacing block
+          const isSpacingBlockOrFollowing =
+            block.blockType === 'spacing' ||
+            (index > 0 && blocks[index - 1].blockType === 'spacing');
+
           if (Block) {
             return (
-              <div className="my-8" key={index}>
+              <div
+                // Do not set any margins around spacing block since it has its own margin options.
+                // For all other blocks, set a top margin unless it's the first block.
+                className={cn({
+                  'not-first:mt-8': !isSpacingBlockOrFollowing
+                })}
+                key={index}
+              >
                 <Block {...block} />
               </div>
             );

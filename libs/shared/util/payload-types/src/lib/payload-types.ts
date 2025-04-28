@@ -90,6 +90,7 @@ export interface Config {
     media: MediaBlock;
     'reusable-content': ReusableContentBlock;
     'social-media': SocialMediaBlock;
+    spacing: SpacingBlock;
   };
   collections: {
     categories: Category;
@@ -285,6 +286,7 @@ export interface Page {
     | CodeBlock
     | ReusableContentBlock
     | SocialMediaBlock
+    | SpacingBlock
   )[];
   meta?: {
     title?: string | null;
@@ -898,6 +900,7 @@ export interface ReusableContent {
     | FormBlock
     | MediaBlock
     | SocialMediaBlock
+    | SpacingBlock
   )[];
   updatedAt: string;
   createdAt: string;
@@ -935,6 +938,24 @@ export interface SocialMediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'social-media';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SpacingBlock".
+ */
+export interface SpacingBlock {
+  /**
+   * Regular spacing size matches the default spacing between blocks
+   */
+  size: 'tight' | 'regular' | 'loose';
+  divider?: boolean | null;
+  /**
+   * Override divider theme color
+   */
+  color?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'spacing';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

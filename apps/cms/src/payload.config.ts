@@ -14,7 +14,8 @@ import {
   formBlock,
   mediaBlock,
   reusableContentBlock,
-  socialMediaBlock
+  socialMediaBlock,
+  spacingBlock
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
@@ -57,7 +58,8 @@ export default buildConfig({
     formBlock,
     mediaBlock,
     reusableContentBlock,
-    socialMediaBlock
+    socialMediaBlock,
+    spacingBlock
   ],
   collections: [
     categories,

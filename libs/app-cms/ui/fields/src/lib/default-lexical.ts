@@ -14,13 +14,12 @@ import type { Config } from 'payload';
 export const defaultLexical: Config['editor'] = lexicalEditor({
   features: ({ defaultFeatures }) => [
     ...defaultFeatures.filter(({ key }) => {
-      // Custom link feature with multi-tenant support must be added on field level
-      if (key === 'link') {
-        return false;
-      }
-      // Exclude features which we don't support yet
-      if (key === 'relationship' || key === 'upload') {
-        return false;
+      // Disabled default features
+      switch (key) {
+        case 'link': // Custom link feature (with multi-tenant support) must be added on field level.
+        case 'relationship': // Feature seems flaky. Use inline link instead until we have a strong use case.
+        case 'upload': // Doesn't add much (or anything) compared to the media block.
+          return false;
       }
       return true;
     }),

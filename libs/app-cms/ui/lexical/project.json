@@ -1,0 +1,9 @@
+{
+  "name": "app-cms-ui-lexical",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/ui/lexical/src",
+  "projectType": "library",
+  "tags": ["scope:app-cms", "type:ui"],
+  "// targets": "to see all targets run: nx show project lexical --web",
+  "targets": {}
+}

@@ -1,6 +1,5 @@
-import type { CollectionSlug } from '@codeware/shared/util/payload-types';
 import { getTenantListFilter } from '@payloadcms/plugin-multi-tenant/utilities';
-import type { PayloadRequest } from 'payload';
+import type { CollectionSlug, PayloadRequest } from 'payload';
 
 /**
  * Filter collection by the current tenant scope.

@@ -19,6 +19,7 @@ const blocks: Record<BlockSlug, boolean> = {
   form: true,
   media: true,
   'social-media': true,
+  spacing: true,
   'reusable-content': false
 };
 

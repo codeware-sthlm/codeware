@@ -22,7 +22,8 @@ const blocks: Record<BlockSlug, boolean> = {
   media: true,
   code: true,
   'reusable-content': true,
-  'social-media': true
+  'social-media': true,
+  spacing: true
 };
 
 /**

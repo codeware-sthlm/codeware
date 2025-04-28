@@ -25,6 +25,7 @@ const blocks: Record<BlockSlug, boolean> = {
   media: true,
   code: true,
   'social-media': true,
+  spacing: true,
   // Unsupported blocks
   form: false,
   content: false,

@@ -5,3 +5,4 @@ export { formBlock } from './lib/form/form.block';
 export { mediaBlock } from './lib/media/media.block';
 export { reusableContentBlock } from './lib/reusable-content/reusable-content.block';
 export { socialMediaBlock } from './lib/social-media/social-media.block';
+export { spacingBlock } from './lib/spacing/spacing.block';

@@ -7,7 +7,11 @@ import { payloadTargets } from '../../utils/definitions';
 import { applicationGenerator } from './application';
 import type { AppGeneratorSchema } from './schema';
 
-describe('application generator', () => {
+// Temporary disable until we've found a way to run the tests without disabling the daemon.
+// Currently the tests runs on the real filesystem which is a test anti-pattern and makes the tests slow.
+// Should be fixed in COD-274.
+
+describe.skip('application generator', () => {
   let tree: Tree;
   const options: AppGeneratorSchema = {
     directory: 'apps/test-dir',

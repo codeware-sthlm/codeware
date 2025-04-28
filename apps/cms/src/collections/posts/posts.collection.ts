@@ -1,10 +1,10 @@
-import { multiTenantLinkFeature } from '@codeware/app-cms/ui/lexical';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { BlocksFeature } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
 
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { slugField } from '@codeware/app-cms/ui/fields';
+import { multiTenantLinkFeature } from '@codeware/app-cms/ui/lexical';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';

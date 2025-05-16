@@ -11,11 +11,14 @@ import {
   cardBlock,
   codeBlock,
   contentBlock,
+  fileAreaBlock,
   formBlock,
+  imageBlock,
   mediaBlock,
   reusableContentBlock,
   socialMediaBlock,
-  spacingBlock
+  spacingBlock,
+  videoBlock
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
@@ -28,6 +31,7 @@ import pages from './collections/pages/pages.collection';
 import posts from './collections/posts/posts.collection';
 import reusableContent from './collections/reusable-content/reusable-content.collection';
 import siteSettings from './collections/site-settings/site-settings.collection';
+import tags from './collections/tags/tags.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
 import { migrations } from './migrations';
@@ -55,11 +59,14 @@ export default buildConfig({
     cardBlock,
     codeBlock,
     contentBlock,
+    fileAreaBlock,
     formBlock,
+    imageBlock,
     mediaBlock,
     reusableContentBlock,
     socialMediaBlock,
-    spacingBlock
+    spacingBlock,
+    videoBlock
   ],
   collections: [
     categories,
@@ -69,6 +76,7 @@ export default buildConfig({
     posts,
     reusableContent,
     siteSettings,
+    tags,
     tenants,
     users
   ],
@@ -128,6 +136,7 @@ export default buildConfig({
     await seed({
       environment: env.DEPLOY_ENV,
       payload,
+      remoteDataUrl: env.SEED_DATA_URL,
       source: env.SEED_SOURCE,
       strategy: env.SEED_STRATEGY
     });

@@ -21,7 +21,7 @@ export async function ensurePage(
   payload: Payload,
   transactionID: string | number | undefined,
   data: PageData
-): Promise<Page | string | number> {
+): Promise<Page | number> {
   const { header, layout, name, slug, tenant } = data;
 
   // Check if the page exists with the given slug and tenant

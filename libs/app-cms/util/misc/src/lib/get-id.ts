@@ -10,6 +10,6 @@ import type { CollectionType } from '@codeware/shared/util/payload-types';
  * @returns The id of the entity or 0 if the entity is undefined.
  */
 export const getId = <T extends CollectionType>(
-  entity: T | T['id'] | undefined
+  entity: T | T['id'] | null | undefined
 ): T['id'] =>
   entity && typeof entity === 'object' ? entity.id : (entity ?? 0);

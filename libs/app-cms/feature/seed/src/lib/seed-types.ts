@@ -1,13 +1,17 @@
 import type {
   CategoryLookup,
+  SeedOptions,
+  TagLookup,
   TenantLookup,
   UserLookup
 } from '@codeware/shared/util/seed';
 import type { Prettify } from '@codeware/shared/util/typesafe';
 
 import type { CategoryData } from './local-api/ensure-category';
+import type { MediaData } from './local-api/ensure-media';
 import type { PageData } from './local-api/ensure-page';
 import type { PostData } from './local-api/ensure-post';
+import type { TagData } from './local-api/ensure-tag';
 import type { TenantData } from './local-api/ensure-tenant';
 import type { UserData } from './local-api/ensure-user';
 export type SeedEnvironment = 'development' | 'preview' | 'production';
@@ -15,6 +19,12 @@ export type SeedEnvironment = 'development' | 'preview' | 'production';
 type CategoryDataLookup = Prettify<
   Omit<CategoryData, 'slug' | 'tenant'> & {
     slug: string;
+    tenant: Pick<TenantLookup, 'lookupApiKey'>;
+  }
+>;
+type MediaDataLookup = Prettify<
+  Omit<MediaData, 'tags' | 'tenant'> & {
+    tags: Array<TagLookup>;
     tenant: Pick<TenantLookup, 'lookupApiKey'>;
   }
 >;
@@ -32,13 +42,19 @@ type PageDataLookup = Prettify<
     tenant: Pick<TenantLookup, 'lookupApiKey'>;
   }
 >;
+type TagDataLookup = Prettify<
+  Omit<TagData, 'brand' | 'slug' | 'tenant'> & {
+    brand: NonNullable<TagData['brand']>;
+    slug: string;
+    tenant: Pick<TenantLookup, 'lookupApiKey'>;
+  }
+>;
 type UserDataLookup = Prettify<
   Omit<UserData, 'tenants' | 'password'> & {
     tenants: Array<TenantLookup>;
     password: string;
   }
 >;
-
 type TenantDataLookup = Prettify<
   Omit<TenantData, 'apiKey'> & { apiKey: string }
 >;
@@ -46,8 +62,10 @@ type TenantDataLookup = Prettify<
 // TODO: infer from seedDataSchema when it's refactored
 export type SeedData = {
   categories: Array<CategoryDataLookup>;
+  media: Array<MediaDataLookup>;
   pages: Array<PageDataLookup>;
   posts: Array<PostDataLookup>;
+  tags: Array<TagDataLookup>;
   tenants: Array<TenantDataLookup>;
   users: Array<UserDataLookup>;
 };
@@ -93,6 +111,11 @@ export type SeedRules = {
   tenantCategories?: ItemsRange;
 
   /**
+   * Number of tags to generate per tenant.
+   */
+  tenantTags?: ItemsRange;
+
+  /**
    * Number of posts to generate per tenant.
    */
   tenantPosts?: ItemsRange;
@@ -115,4 +138,4 @@ export type StaticSeedOptions = {
    * Defines the amount of data to generate.
    */
   seedRules?: SeedRules;
-};
+} & Pick<SeedOptions, 'remoteDataUrl'>;

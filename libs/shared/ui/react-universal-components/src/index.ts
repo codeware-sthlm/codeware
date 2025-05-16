@@ -1,5 +1,7 @@
 export * from './lib/CdwrCloud';
 
+export * from './lib/callout/Callout';
+
 export * from './lib/hero-icon/HeroIcon';
 export * from './lib/hero-icon/hero-icons';
 

@@ -20,7 +20,8 @@ export const getMultiTenantPlugin = () =>
       pages: {},
       posts: {},
       'reusable-content': {},
-      'site-settings': { isGlobal: true }
+      'site-settings': { isGlobal: true },
+      tags: {}
     },
     tenantsArrayField: {
       includeDefaultField: false

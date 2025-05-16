@@ -86,11 +86,14 @@ export interface Config {
     card: CardBlock;
     code: CodeBlock;
     content: ContentBlock;
+    'file-area': FileAreaBlock;
     form: FormBlock;
+    image: ImageBlock;
     media: MediaBlock;
     'reusable-content': ReusableContentBlock;
     'social-media': SocialMediaBlock;
     spacing: SpacingBlock;
+    video: VideoBlock;
   };
   collections: {
     categories: Category;
@@ -100,6 +103,7 @@ export interface Config {
     posts: Post;
     'reusable-content': ReusableContent;
     'site-settings': SiteSetting;
+    tags: Tag;
     tenants: Tenant;
     users: User;
     forms: Form;
@@ -112,8 +116,8 @@ export interface Config {
     categories: {
       relatedPosts: 'posts';
     };
-    media: {
-      relatedPosts: 'posts';
+    tags: {
+      relatedMedia: 'media';
     };
     tenants: {
       relatedUsers: 'users';
@@ -133,6 +137,7 @@ export interface Config {
       | ReusableContentSelect<false>
       | ReusableContentSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -281,7 +286,9 @@ export interface Page {
   layout: (
     | ContentBlock
     | CardBlock
+    | FileAreaBlock
     | FormBlock
+    | ImageBlock
     | MediaBlock
     | CodeBlock
     | ReusableContentBlock
@@ -441,8 +448,6 @@ export interface Post {
   createdAt: string;
 }
 /**
- * Media images to use in posts and pages.
- *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -454,7 +459,7 @@ export interface Media {
    */
   alt: string;
   /**
-   * The caption for the media.
+   * Caption to display below an image or video.
    */
   caption?: {
     root: {
@@ -471,11 +476,11 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  relatedPosts?: {
-    docs?: (number | Post)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+  tags?: (number | Tag)[] | null;
+  /**
+   * Allow external access to the file without authentication. For example, this is required for file areas and document images.
+   */
+  external?: boolean | null;
   prefix?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -530,6 +535,36 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The name of the tag.
+   */
+  name: string;
+  /**
+   * Select an icon and color that represent the tag.
+   */
+  brand?: {
+    icon?: string | null;
+    color?: string | null;
+  };
+  relatedMedia?: {
+    docs?: (number | Media)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Used for url paths. Will be automatically generated from name if left empty.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -590,6 +625,25 @@ export interface ContentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FileAreaBlock".
+ */
+export interface FileAreaBlock {
+  /**
+   * Select tags that represent the files to show in the file area.
+   */
+  tags?: (number | Tag)[] | null;
+  files?:
+    | {
+        media?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'file-area';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -847,6 +901,19 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageBlock".
+ */
+export interface ImageBlock {
+  /**
+   * Select an image.
+   */
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'image';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock".
  */
 export interface MediaBlock {
@@ -897,7 +964,9 @@ export interface ReusableContent {
     | CardBlock
     | CodeBlock
     | ContentBlock
+    | FileAreaBlock
     | FormBlock
+    | ImageBlock
     | MediaBlock
     | SocialMediaBlock
     | SpacingBlock
@@ -956,6 +1025,19 @@ export interface SpacingBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'spacing';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoBlock".
+ */
+export interface VideoBlock {
+  /**
+   * Select a video.
+   */
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'video';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1054,6 +1136,10 @@ export interface PayloadLockedDocument {
         value: number | SiteSetting;
       } | null)
     | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
         relationTo: 'tenants';
         value: number | Tenant;
       } | null)
@@ -1141,7 +1227,8 @@ export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
   caption?: T;
-  relatedPosts?: T;
+  tags?: T;
+  external?: T;
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1294,6 +1381,24 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         appName?: T;
         landingPage?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  brand?:
+    | T
+    | {
+        icon?: T;
+        color?: T;
+      };
+  relatedMedia?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

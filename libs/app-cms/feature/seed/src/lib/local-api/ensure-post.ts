@@ -20,7 +20,7 @@ export async function ensurePost(
   payload: Payload,
   transactionID: string | number | undefined,
   data: PostData
-): Promise<Post | string | number> {
+): Promise<Post | number> {
   const { authors, categories, content, slug, tenant, title } = data;
 
   // Check if the post exists with the given slug

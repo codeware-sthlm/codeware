@@ -1,8 +1,11 @@
 export { cardBlock } from './lib/card/card.block';
 export { codeBlock } from './lib/code/code.block';
 export { contentBlock } from './lib/content/content.block';
+export { fileAreaBlock } from './lib/file-area/file-area.block';
 export { formBlock } from './lib/form/form.block';
+export { imageBlock } from './lib/image/image.block';
 export { mediaBlock } from './lib/media/media.block';
 export { reusableContentBlock } from './lib/reusable-content/reusable-content.block';
 export { socialMediaBlock } from './lib/social-media/social-media.block';
 export { spacingBlock } from './lib/spacing/spacing.block';
+export { videoBlock } from './lib/video/video.block';

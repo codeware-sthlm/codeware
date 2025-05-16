@@ -1,5 +1,5 @@
 import type { StripTypes } from '@codeware/shared/util/typesafe';
-import type { ClientUser, User } from 'payload';
+import type { ClientUser, Field, User } from 'payload';
 
 import type {
   CardBlock,

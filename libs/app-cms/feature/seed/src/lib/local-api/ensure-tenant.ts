@@ -23,7 +23,7 @@ export async function ensureTenant(
   payload: Payload,
   transactionID: string | number | undefined,
   data: TenantData
-): Promise<Tenant | string | number> {
+): Promise<Tenant | number> {
   const { apiKey, description, domains, name } = data;
 
   // Check if the tenant exists with the given name and domains (ignore page types)

@@ -3,7 +3,7 @@ import { BlocksFeature } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
 
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
-import { slugField } from '@codeware/app-cms/ui/fields';
+import { mediaUploadField, slugField } from '@codeware/app-cms/ui/fields';
 import { multiTenantLinkFeature } from '@codeware/app-cms/ui/lexical';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
@@ -24,12 +24,15 @@ const blocks: Record<BlockSlug, boolean> = {
   card: true,
   media: true,
   code: true,
+  image: true,
   'social-media': true,
   spacing: true,
   // Unsupported blocks
+  'file-area': false,
   form: false,
   content: false,
-  'reusable-content': false
+  'reusable-content': false,
+  video: false
 };
 
 /**
@@ -39,7 +42,7 @@ const posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   admin: {
     group: adminGroups.content,
-    defaultColumns: ['title', 'tenant', 'updatedAt'],
+    defaultColumns: ['title', 'updatedAt'],
     useAsTitle: 'title',
     description: {
       en: 'Posts are standalone pages such as articles or blog posts and can be categorized.',
@@ -73,11 +76,10 @@ const posts: CollectionConfig<'posts'> = {
         {
           label: { en: 'Content', sv: 'Innehåll' },
           fields: [
-            {
+            mediaUploadField({
               name: 'heroImage',
-              type: 'upload',
-              relationTo: 'media'
-            },
+              mimeTypeSlugs: ['image']
+            }),
             {
               name: 'content',
               type: 'richText',

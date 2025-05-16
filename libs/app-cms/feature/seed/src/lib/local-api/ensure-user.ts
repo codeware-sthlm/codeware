@@ -18,7 +18,7 @@ export async function ensureUser(
   payload: Payload,
   transactionID: string | number | undefined,
   data: UserData
-): Promise<User | string | number> {
+): Promise<User | number> {
   const { description, email, name, password, role, tenants } = data;
 
   // Check if the user exists with the given email

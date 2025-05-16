@@ -14,8 +14,8 @@ import { resolve } from 'path';
 import { withEnvVars } from '@codeware/shared/util/zod';
 
 import { SeedDataSchema } from './schema';
-import { seedData as developmentData } from './static-data/seed.development';
-import { seedData as previewData } from './static-data/seed.preview';
+import { seedData as getDevelopmentData } from './static-data/seed.development';
+import { seedData as getPreviewData } from './static-data/seed.preview';
 
 type Logger = {
   log: typeof console.log;
@@ -23,8 +23,30 @@ type Logger = {
   error: typeof console.error;
 };
 
+export type SeedOptions = {
+  /**
+   * Custom log functions.
+   * @default console
+   */
+  logger?: Logger;
+
+  /**
+   * Remote URL to seed data files.
+   *
+   * This is used to be able to load seed files from a remote source.
+   * It's required to make this endpoint publicly accessible.
+   */
+  remoteDataUrl: string | undefined;
+};
+
 /** Available seed data environments */
 type SeedEnvironment = 'development' | 'preview';
+
+const defaultLogger: Logger = {
+  log: console.log,
+  warn: console.warn,
+  error: console.error
+};
 
 /**
  * Apply environment variable lookup to the schema to resolve the actual values
@@ -41,11 +63,13 @@ export const manageSeedData = {
    * Load static seed data for a given environment.
    *
    * @param environment - The environment to load the seed data for.
-   * @param logger - The logger to use for the load operation (defaults to `console`)
+   * @param options - Options for the load operation
    * @returns The seed data or null if the data is not valid or the environment is not supported.
    */
-  load: <TData extends object>(environment: SeedEnvironment, logger?: Logger) =>
-    loadSeedData<TData>(environment, logger),
+  load: <TData extends object>(
+    environment: SeedEnvironment,
+    options?: SeedOptions
+  ) => loadSeedData<TData>(environment, options),
 
   /**
    * Save seed data to environment-specific file.
@@ -54,7 +78,7 @@ export const manageSeedData = {
    *
    * @param environment - The environment to save the data for.
    * @param data - The seed data to save.
-   * @param logger - The logger to use for the save operation (defaults to `console`)
+   * @param options - Options for the save operation
    */
   save: <TData extends object>(
     environment: SeedEnvironment,
@@ -66,16 +90,18 @@ export const manageSeedData = {
 // Load seed data
 const loadSeedData = <TData>(
   environment: SeedEnvironment,
-  logger = { log: console.log, warn: console.warn, error: console.error }
+  options?: SeedOptions
 ) => {
+  const { logger = defaultLogger, remoteDataUrl } = options ?? {};
+
   let seedData: TData;
 
   switch (environment) {
     case 'development':
-      seedData = developmentData as TData;
+      seedData = getDevelopmentData(remoteDataUrl) as TData;
       break;
     case 'preview':
-      seedData = previewData as TData;
+      seedData = getPreviewData(remoteDataUrl) as TData;
       break;
     default:
       logger.warn(`Static seed data for ${environment} not supported`);
@@ -103,7 +129,7 @@ const loadSeedData = <TData>(
 const saveSeedData = <TData>(
   environment: SeedEnvironment,
   data: TData,
-  logger = { log: console.log, warn: console.warn, error: console.error }
+  logger: Logger = defaultLogger
 ): void => {
   if (environment !== 'development' && environment !== 'preview') {
     logger.warn(`Save seed data to file is not supported in ${environment}`);

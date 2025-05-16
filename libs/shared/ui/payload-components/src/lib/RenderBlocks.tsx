@@ -9,10 +9,13 @@ import { useRef } from 'react';
 import { CardBlock } from './blocks/CardBlock';
 import { CodeBlock } from './blocks/CodeBlock';
 import { ContentBlock } from './blocks/ContentBlock';
+import { FileAreaBlock } from './blocks/FileAreaBlock';
 import { FormBlock } from './blocks/FormBlock';
+import { ImageBlock } from './blocks/ImageBlock';
 import { MediaBlock } from './blocks/MediaBlock';
 import { SocialMediaBlock } from './blocks/SocialMediaBlock';
 import { SpacingBlock } from './blocks/SpacingBlock';
+import { VideoBlock } from './blocks/VideoBlock';
 
 const blocksMap: Record<
   BlockSlug,
@@ -22,10 +25,13 @@ const blocksMap: Record<
   card: CardBlock,
   code: CodeBlock,
   content: ContentBlock,
+  'file-area': FileAreaBlock,
   form: FormBlock,
+  image: ImageBlock,
   media: MediaBlock,
   'social-media': SocialMediaBlock,
   spacing: SpacingBlock,
+  video: VideoBlock,
   // Reusable content block invokes RenderBlocks to resolve the nested blocks.
   // Keep implementation here to avoid circular dependency.
   'reusable-content': ({ reusableContent, refId }: ReusableContentBlock) => {

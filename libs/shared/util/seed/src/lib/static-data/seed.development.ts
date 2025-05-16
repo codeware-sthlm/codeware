@@ -1,4 +1,19 @@
-// This file is auto-generated. Do not edit directly.
+// This file is custom generated and should not be edited unless necessary.
+
+import { readdirSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+import { capitalize } from '@codeware/shared/util/pure';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+const mediaFiles = readdirSync(path.resolve(dirname, 'media'), {
+  encoding: 'utf-8',
+  recursive: false,
+  withFileTypes: true
+}).filter((file) => file.isFile());
+
 export const seedData = {
   categories: [
     {
@@ -42,6 +57,15 @@ export const seedData = {
       tenant: { lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985' }
     }
   ],
+  // Only moon tenant is seeded with media files
+  media: mediaFiles.map(({ parentPath, name }) => ({
+    alt: capitalize(name.replace(/-/g, ' ').replace(/\.[^/.]+$/, '')),
+    external: true,
+    filename: name,
+    filePath: path.join(parentPath, name),
+    tags: [{ lookupSlug: 'file-area' }],
+    tenant: { lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37' }
+  })),
   pages: [
     {
       name: 'Red Giants',
@@ -248,6 +272,39 @@ export const seedData = {
       content:
         "# The Sun's Atmosphere\nUnlike Earth's atmosphere with its well-defined boundary, the Sun's atmosphere consists of several distinct layers that extend from its visible surface out into space. These layers exhibit fascinating and sometimes counterintuitive properties that continue to challenge our understanding of stellar physics.\n\nThe photosphere, or visible \"surface\" of the Sun, marks the lowest layer of the solar atmosphere. This relatively thin layer (about 500 kilometers thick) has a temperature of around 5,500°C (10,000°F) and is where most of the Sun's visible light originates. The granular appearance of the photosphere reveals convection cells where hot plasma rises, cools, and sinks back down.\n\nAbove the photosphere lies the chromosphere, a layer approximately 2,000 kilometers thick that appears as a thin red rim during total solar eclipses. Counter to normal expectations, temperature actually rises through the chromosphere, reaching about 20,000°C at its upper boundary. This temperature inversion represents one of the ongoing puzzles in solar physics.\n\n## The Mysterious Corona\nThe outermost layer of the Sun's atmosphere is the corona, a tenuous but extremely hot region extending millions of kilometers into space. With temperatures exceeding 1 million degrees Celsius, the corona is mysteriously hundreds of times hotter than the layers below it—a phenomenon known as the coronal heating problem.\n\nThe corona is normally invisible due to the overwhelming brightness of the photosphere, but becomes spectacularly visible during total solar eclipses as a pearly white halo around the darkened Sun. Space-based instruments with coronagraphs, which block out the Sun's disk, allow scientists to study the corona continuously. The corona has no definite outer boundary and gradually transitions into the solar wind that fills the heliosphere.\n\n",
       tenant: { lookupApiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985' }
+    }
+  ],
+  // Moon get some extra tags for media seeding besides the color tags
+  tags: [
+    ...[
+      'a76d0168-f9b2-48d2-bc57-96e45aaf8542',
+      'b9c2fb25-df77-4304-a60a-028779a2cb37',
+      'f3799063-d55e-43ab-a96f-b6a386ced985'
+    ].flatMap((lookupApiKey) => [
+      {
+        name: 'Indigo',
+        slug: 'indigo',
+        brand: { color: 'indigo-500', icon: 'TagIcon' },
+        tenant: { lookupApiKey }
+      },
+      {
+        name: 'Orange',
+        slug: 'orange',
+        brand: { color: 'orange-500', icon: 'TagIcon' },
+        tenant: { lookupApiKey }
+      },
+      {
+        name: 'Teal',
+        slug: 'teal',
+        brand: { color: 'teal-500', icon: 'TagIcon' },
+        tenant: { lookupApiKey }
+      }
+    ]),
+    {
+      name: 'File area',
+      slug: 'file-area',
+      brand: { color: 'green-500', icon: 'EyeIcon' },
+      tenant: { lookupApiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37' }
     }
   ],
   tenants: [

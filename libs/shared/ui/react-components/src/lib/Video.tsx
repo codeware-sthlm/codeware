@@ -1,18 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { ComponentPropsWithoutRef, useEffect, useRef } from 'react';
 
 export type VideoProps = {
+  /** Image alternative text for improved SEO and accessibility */
+  alt: string;
+
+  /** Video source URL */
   src: string;
-  className?: string;
+
+  /** Function to handle click events on the video */
   onClick?: () => void;
-};
+} & ComponentPropsWithoutRef<'video'>;
 
 /**
  * Video component with autoplay and no controls.
  *
+ * **Draft status!**
+ *
+ * Not ready for production use yet.
+ *
  * @param props Video properties
  * @returns Video component
  */
-export const Video: React.FC<VideoProps> = ({ className, onClick, src }) => {
+export const Video: React.FC<VideoProps> = ({
+  alt,
+  className,
+  onClick,
+  src
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // const [showFallback] = useState<boolean>()
 
@@ -38,6 +52,7 @@ export const Video: React.FC<VideoProps> = ({ className, onClick, src }) => {
       ref={videoRef}
     >
       <source src={src} />
+      <span className="sr-only">{alt}</span>
     </video>
   );
 };

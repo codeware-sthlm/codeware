@@ -1,5 +1,5 @@
 import { ImageOffIcon } from 'lucide-react';
-import { JSX, useState } from 'react';
+import { ComponentPropsWithoutRef, JSX, useState } from 'react';
 
 export type Size = {
   /** Image source */
@@ -53,7 +53,7 @@ export const Image = ({
 
   /** Error component to display when image fails to load */
   errorComponent?: JSX.Element;
-}) => {
+} & ComponentPropsWithoutRef<'picture'>) => {
   const [error, setError] = useState(false);
 
   return (

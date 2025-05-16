@@ -7,6 +7,13 @@ export type Prettify<T> = {
 } & {};
 
 /**
+ * Extract types from a union type.
+ *
+ * A type-safe wrapper around TypeScript's built-in Extract utility type.
+ */
+export type ExtractTypes<T, U extends T> = Extract<T, U>;
+
+/**
  * Strip types from a type
  *
  * @example

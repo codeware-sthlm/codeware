@@ -1,43 +1,95 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import type { CollectionConfig, GenerateImageName } from 'payload';
+import mimeTypes from 'mime-types';
+import type {
+  CollectionBeforeValidateHook,
+  CollectionConfig,
+  Condition,
+  GenerateImageName,
+  TypeWithID
+} from 'payload';
 
-import { adminGroups } from '@codeware/app-cms/util/definitions';
+import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import { tagsSelectField } from '@codeware/app-cms/ui/fields';
+import { adminGroups, getMimeTypes } from '@codeware/app-cms/util/definitions';
+import { Media } from '@codeware/shared/util/payload-types';
+
+import { externalOrApiKeyAccess } from './access/external-or-api-key-access';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const env = getEnv();
 
 /** Custom image name */
 const imageName: GenerateImageName = ({ extension, originalName, sizeName }) =>
   `${originalName}-${sizeName}.${extension}`;
 
+const isImageOrVideo: Condition<TypeWithID, Media> = (_, siblingData) =>
+  !!siblingData.mimeType && siblingData.mimeType.match(/image|video/) !== null;
+
+// Extracting mime type during seed has a flaky bewhavior.
+// The mime type is not always available when the file is uploaded.
+const ensureMimeType: CollectionBeforeValidateHook<Media> = ({
+  data,
+  operation
+}) => {
+  if (!data) {
+    return data;
+  }
+  if (data.mimeType) {
+    return data;
+  }
+  if (operation === 'create' || operation === 'update') {
+    // Try to lookup the mime type from the filename
+    data.mimeType = mimeTypes.lookup(data.filename ?? '') || undefined;
+  }
+  return data;
+};
+
 /**
- * Media images collection.
+ * Media collection for files with supported mime types.
  *
- * Upload limited to `image/*` mime types and images are converted to webp format.
+ * Uploaded images are converted to webp format.
+ *
+ * **Mime types**
+ *
+ * `@codeware/app-cms/util/definitions`
  */
 const media: CollectionConfig = {
   slug: 'media',
   admin: {
     group: adminGroups.fileArea,
-    defaultColumns: ['filename', 'alt', 'tenant', 'updatedAt'],
-    description: {
-      en: 'Media images to use in posts and pages.',
-      sv: 'Bilder som kan användas i inlägg och sidor.'
+    defaultColumns: ['filename', 'mimeType', 'fileSize', 'tags', 'createdAt'],
+    components: {
+      beforeListTable: [
+        {
+          path: '@codeware/app-cms/ui/components/Callout',
+          serverProps: {
+            kind: 'tip',
+            title: 'Using tags to organize media files',
+            description: [
+              'Use tags to organize your media files and easily select them in file areas.',
+              'Tags can be created in the "Tags" collection.',
+              'You can assign multiple tags to a media file.'
+            ]
+          }
+        }
+      ]
     }
   },
   access: {
-    // Media files like images are not fetched, hence no api key to verify.
-    // For admin access, the plugin appends proper permission filters.
-    read: () => true
+    read: externalOrApiKeyAccess(env.SIGNATURE_SECRET)
+  },
+  hooks: {
+    beforeValidate: [ensureMimeType]
   },
   labels: {
     singular: { en: 'Media', sv: 'Media' },
     plural: { en: 'Media', sv: 'Media' }
   },
   upload: {
-    mimeTypes: ['image/*'],
+    mimeTypes: getMimeTypes(),
     // Uploaded image is converted to a backward compatible format known by all browsers.
     // This image should be used as the default image in a `<picture />` element.
     formatOptions: { format: 'jpeg' },
@@ -102,28 +154,35 @@ const media: CollectionConfig = {
       type: 'richText',
       localized: true,
       admin: {
+        condition: isImageOrVideo,
         description: {
-          en: 'The caption for the media.',
-          sv: 'Bildtext för media.'
+          en: 'Caption to display below an image or video.',
+          sv: 'Text som visas under en bild eller video.'
         }
       }
     },
+    tagsSelectField({
+      buildIndex: true,
+      overrides: {
+        // TODO: Would like to use 'drawer' but it doesn't work with bulk upload media.
+        // Better to be safe and wait for a fix.
+        admin: { appearance: 'select' }
+      }
+    }),
     {
-      type: 'tabs',
-      tabs: [
-        {
-          label: { en: 'Posts', sv: 'Inlägg' },
-          fields: [
-            {
-              name: 'relatedPosts',
-              label: { en: 'Posts', sv: 'Inlägg' },
-              type: 'join',
-              collection: 'posts',
-              on: 'heroImage'
-            }
-          ]
-        }
-      ]
+      // Media files are not fetched, hence there's no api key to verify.
+      // This property will be used as alternative access control for static file requests.
+      name: 'external',
+      type: 'checkbox',
+      label: { en: 'External access', sv: 'Extern åtkomst' },
+      admin: {
+        description: {
+          en: 'Allow external access to the file without authentication. For example, this is required for file areas and document images.',
+          sv: 'Tillåt extern åtkomst till filen utan autentisering. Detta krävs till exempel för filytor och bilder i dokument.'
+        },
+        position: 'sidebar'
+      },
+      defaultValue: false
     }
   ]
 };

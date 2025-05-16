@@ -16,7 +16,7 @@ export async function ensureCategory(
   payload: Payload,
   transactionID: string | number | undefined,
   data: CategoryData
-): Promise<Category | string | number> {
+): Promise<Category | number> {
   const { name, slug, tenant } = data;
 
   // Check if the category exists with the given slug and tenant

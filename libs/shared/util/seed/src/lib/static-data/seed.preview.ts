@@ -1,4 +1,19 @@
-// This file is auto-generated. Do not edit directly.
+// This file is custom generated and should not be edited unless necessary.
+
+import { readdirSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+import { capitalize } from '@codeware/shared/util/pure';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+const mediaFiles = readdirSync(path.resolve(dirname, 'media'), {
+  encoding: 'utf-8',
+  recursive: false,
+  withFileTypes: true
+}).filter((file) => file.isFile());
+
 export const seedData = {
   categories: [
     {
@@ -12,6 +27,15 @@ export const seedData = {
       tenant: { lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c' }
     }
   ],
+  // Only Star Wars tenant is seeded with media files
+  media: mediaFiles.map(({ parentPath, name }) => ({
+    alt: capitalize(name.replace(/-/g, ' ').replace(/\.[^/.]+$/, '')),
+    external: true,
+    filename: name,
+    filePath: path.join(parentPath, name),
+    tags: [{ lookupSlug: 'file-area' }],
+    tenant: { lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23' }
+  })),
   pages: [
     {
       name: 'Home',
@@ -167,6 +191,38 @@ export const seedData = {
       content:
         '## Arc Reactor Technology\n\n> "Sometimes you gotta run before you can walk."\n\nKey innovations include:\n\n* Miniaturized power sources\n* Clean energy applications\n* Advanced propulsion systems\n* Neural interface developments\n\n## Future of Combat Suits\n\nNext-generation features:\n\n* Nano-tech integration\n* AI-driven responses\n* Adaptive armor systems\n* Multi-environment functionality\n\n> "The suit and I are one."\n\nSafety protocols:\n\n* Biometric security\n* Emergency protocols\n* Power management\n* Environmental controls',
       tenant: { lookupApiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c' }
+    }
+  ],
+  // Star Wars get some extra tags for media seeding besides the color tags
+  tags: [
+    ...[
+      '8a5af03d-7382-40af-bb75-ee12c62ace23',
+      'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'
+    ].flatMap((lookupApiKey) => [
+      {
+        name: 'Indigo',
+        slug: 'indigo',
+        brand: { color: 'indigo-500', icon: 'TagIcon' },
+        tenant: { lookupApiKey }
+      },
+      {
+        name: 'Orange',
+        slug: 'orange',
+        brand: { color: 'orange-500', icon: 'TagIcon' },
+        tenant: { lookupApiKey }
+      },
+      {
+        name: 'Teal',
+        slug: 'teal',
+        brand: { color: 'teal-500', icon: 'TagIcon' },
+        tenant: { lookupApiKey }
+      }
+    ]),
+    {
+      name: 'File area',
+      slug: 'file-area',
+      brand: { color: 'green-500', icon: 'EyeIcon' },
+      tenant: { lookupApiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23' }
     }
   ],
   tenants: [

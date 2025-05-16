@@ -18,12 +18,16 @@ const env = getEnv();
 const blocks: Record<BlockSlug, boolean> = {
   content: true,
   card: true,
+  'file-area': true,
   form: true,
+  image: true,
   media: true,
   code: true,
   'reusable-content': true,
   'social-media': true,
-  spacing: true
+  spacing: true,
+  // Unsupported blocks
+  video: false
 };
 
 /**
@@ -33,7 +37,7 @@ const pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   admin: {
     group: adminGroups.content,
-    defaultColumns: ['name', 'slug', 'tenant', 'updatedAt'],
+    defaultColumns: ['name', 'slug', 'updatedAt'],
     useAsTitle: 'name',
     description: {
       en: 'Pages are the building blocks of the site and are used to create menus and navigation.',

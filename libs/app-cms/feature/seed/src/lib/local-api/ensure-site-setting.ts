@@ -18,7 +18,7 @@ export async function ensureSiteSetting(
   payload: Payload,
   transactionID: string | number | undefined,
   data: SiteSettingData
-): Promise<SiteSetting | string | number> {
+): Promise<SiteSetting | number> {
   const { general: generalFromProps, tenant } = data;
 
   if (!tenant) {

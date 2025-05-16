@@ -17,6 +17,7 @@
     "runAllTestsOnStartup": false,
     "type": "on-save"
   },
+  "nxConsole.generateAiAgentRules": true,
   "vitest.filesWatcherInclude": "apps/**,libs/**,packages/**",
   "[json]": {
     "editor.codeActionsOnSave": {

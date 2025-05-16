@@ -54,6 +54,9 @@ export const EnvSchema = withEnvVars(
         }),
 
       // Seed configuration
+      SEED_DATA_URL: z
+        .string({ description: 'URL to public seed data files' })
+        .optional(),
       SEED_SOURCE: SeedSourceSchema.default('cloud-local'),
       SEED_STRATEGY: SeedStrategySchema.default('delta'),
 

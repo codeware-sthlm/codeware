@@ -4,6 +4,10 @@ const CategoryLookupSchema = z.object({
   lookupSlug: z.string()
 });
 
+const TagLookupSchema = z.object({
+  lookupSlug: z.string()
+});
+
 // TODO: import roles
 const TenantLookupSchema = z.object({
   lookupApiKey: z.string(),
@@ -20,6 +24,16 @@ export const SeedDataSchema = z.object({
     z.object({
       name: z.string(),
       slug: z.string(),
+      tenant: TenantLookupSchema.pick({ lookupApiKey: true })
+    })
+  ),
+  media: z.array(
+    z.object({
+      alt: z.string(),
+      external: z.boolean(),
+      filename: z.string(),
+      filePath: z.string(),
+      tags: z.array(TagLookupSchema),
       tenant: TenantLookupSchema.pick({ lookupApiKey: true })
     })
   ),
@@ -54,6 +68,17 @@ export const SeedDataSchema = z.object({
       tenants: z.array(TenantLookupSchema)
     })
   ),
+  tags: z.array(
+    z.object({
+      name: z.string(),
+      slug: z.string(),
+      brand: z.object({
+        color: z.string(),
+        icon: z.string()
+      }),
+      tenant: TenantLookupSchema.pick({ lookupApiKey: true })
+    })
+  ),
   tenants: z.array(
     z.object({
       name: z.string(),
@@ -70,17 +95,22 @@ export const SeedDataSchema = z.object({
 });
 
 /**
- * Lookup category by its slug since it should be unique per tenant.
+ * Lookup category must also consider the tenant.
  */
 export type CategoryLookup = z.infer<typeof CategoryLookupSchema>;
 
 /**
- * Lookup tenant by its API key since it should be unique.
+ * Lookup tag must also consider the tenant.
+ */
+export type TagLookup = z.infer<typeof TagLookupSchema>;
+
+/**
+ * Lookup tenant should be unique.
  */
 export type TenantLookup = z.infer<typeof TenantLookupSchema>;
 
 /**
- * Lookup user by its email since it should be unique per tenant.
+ * Lookup user should consider the tenant.
  */
 export type UserLookup = z.infer<typeof UserLookupSchema>;
 

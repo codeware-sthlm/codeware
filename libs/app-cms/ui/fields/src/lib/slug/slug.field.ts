@@ -8,6 +8,8 @@ type Slug = (args: {
   sourceField: string;
   /** Whether the slug is required. Defaults to `false`. */
   required?: boolean;
+  /** The maximum length of the slug. Defaults to no limit. */
+  maxLength?: number;
 }) => Field;
 
 /** The name of the slug field */
@@ -20,11 +22,16 @@ export const slugName = 'slug' as const;
  *
  * Also assures that the slug is unique across the collection and tenant.
  */
-export const slugField: Slug = ({ sourceField, required = false }) => ({
+export const slugField: Slug = ({
+  sourceField,
+  required = false,
+  maxLength
+}) => ({
   name: slugName,
   type: 'text',
   index: true,
   required,
+  maxLength,
   label: 'Slug',
   admin: {
     description: {

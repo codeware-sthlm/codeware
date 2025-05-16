@@ -14,7 +14,7 @@ const categories: CollectionConfig = {
   slug: 'categories',
   admin: {
     group: adminGroups.content,
-    defaultColumns: ['name', 'slug', 'tenant'],
+    defaultColumns: ['name', 'slug'],
     useAsTitle: 'name'
   },
   access: {

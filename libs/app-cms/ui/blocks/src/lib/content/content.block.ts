@@ -13,12 +13,15 @@ const blocks: Record<BlockSlug, boolean> = {
   card: true,
   code: true,
   form: true,
+  image: true,
   media: true,
   'social-media': true,
   spacing: true,
   // Unsupported blocks
   content: false,
-  'reusable-content': false
+  'file-area': false,
+  'reusable-content': false,
+  video: false
 };
 
 /**

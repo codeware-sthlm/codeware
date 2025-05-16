@@ -1,5 +1,5 @@
 import type { StripTypes } from '@codeware/shared/util/typesafe';
-import type { ClientUser, User } from 'payload';
+import type { ClientUser, Field, FieldAccess, User } from 'payload';
 
 import type {
   CardBlock,
@@ -64,6 +64,12 @@ export type ContentBlockSize = NonNullable<
 export type FormBlockType = NonNullable<
   NonNullable<NonNullable<Form['fields']>[number]>['blockType']
 >;
+
+/** Field access arguments type */
+export type FieldAccessArgs = Parameters<FieldAccess>[0];
+
+/** Field access response type */
+export type FieldAccessResponse = ReturnType<FieldAccess>;
 
 /** Form field type */
 export type FormField = NonNullable<NonNullable<Form['fields']>[number]>;

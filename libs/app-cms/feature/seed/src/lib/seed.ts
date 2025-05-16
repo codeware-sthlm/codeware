@@ -7,14 +7,21 @@ import type { Payload } from 'payload';
 
 import { loadInfisicalData } from './load-infisical-data';
 import { loadStaticData } from './load-static-data';
+import { customSeed } from './local-api/custom-seed';
 import { ensureCategory } from './local-api/ensure-category';
+import { ensureMedia } from './local-api/ensure-media';
 import { ensureNavigation } from './local-api/ensure-navigation';
 import { ensurePage } from './local-api/ensure-page';
 import { ensurePost } from './local-api/ensure-post';
 import { ensureSiteSetting } from './local-api/ensure-site-setting';
+import { ensureTag } from './local-api/ensure-tag';
 import { ensureTenant } from './local-api/ensure-tenant';
 import { ensureUser } from './local-api/ensure-user';
-import type { SeedData, SeedEnvironment } from './seed-types';
+import type {
+  SeedData,
+  SeedEnvironment,
+  StaticSeedOptions
+} from './seed-types';
 import { convertMarkdownToLexical } from './utils/convert-markdown-to-lexical';
 import { tempStore } from './utils/temp-store';
 
@@ -33,13 +40,15 @@ import { tempStore } from './utils/temp-store';
  * @returns `true` if seeding was successful or skipped for a reason, otherwise `false`
  * @throws Never - just logs errors
  */
-export const seed = async (args: {
-  environment: SeedEnvironment;
-  payload: Payload;
-  source: SeedSource;
-  strategy: SeedStrategy;
-}): Promise<boolean> => {
-  const { environment, payload, source, strategy } = args;
+export const seed = async (
+  args: {
+    environment: SeedEnvironment;
+    payload: Payload;
+    source: SeedSource;
+    strategy: SeedStrategy;
+  } & Pick<StaticSeedOptions, 'remoteDataUrl'>
+): Promise<boolean> => {
+  const { environment, payload, remoteDataUrl, source, strategy } = args;
 
   // Support transactions
   let transactionID: string | number | undefined;
@@ -103,7 +112,7 @@ export const seed = async (args: {
 
     // Try to load seed data from Infisical when source has cloud
     if (source === 'cloud' || source === 'cloud-local') {
-      seedData = await loadInfisicalData(args);
+      seedData = await loadInfisicalData({ environment, payload });
     }
 
     // !! Production guard !! //
@@ -121,12 +130,20 @@ export const seed = async (args: {
       payload.logger.info(
         '[SEED] Could not load secrets from cloud, fallback to local data'
       );
-      seedData = loadStaticData(args);
+      seedData = loadStaticData({
+        environment,
+        payload,
+        options: { remoteDataUrl }
+      });
     }
 
     // Still no seed data, which is expected for local only, so get it
     if (!seedData && source === 'local') {
-      seedData = loadStaticData(args);
+      seedData = loadStaticData({
+        environment,
+        payload,
+        options: { remoteDataUrl }
+      });
     }
 
     // Check seed data is loaded
@@ -297,6 +314,59 @@ export const seed = async (args: {
       seedError = seedError || categoryFailed > 0;
     }
 
+    // TAGS
+
+    if (seedData.tags.length > 0) {
+      let tagFailed = 0;
+
+      for (const tag of seedData.tags) {
+        const [entity] = tempStore.lookupTenant(payload, [tag.tenant]);
+
+        try {
+          const response = await ensureTag(payload, transactionID, {
+            brand: tag.brand,
+            name: tag.name,
+            slug: tag.slug,
+            tenant: entity.tenant
+          });
+
+          let tagId: number;
+          if (typeof response === 'object') {
+            payload.logger.info(
+              `[SEED] Tag '${tag.slug}' on tenant #${entity.tenant}`
+            );
+            tagId = response.id;
+          } else {
+            tagId = Number(response);
+          }
+          // Save tag to map to lookup id's later
+          tempStore.storeTag(
+            { apiKey: tag.tenant.lookupApiKey, slug: tag.slug },
+            tagId
+          );
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Tag '${tag.slug}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          tagFailed++;
+        }
+      }
+      const { totalDocs: tagCount } = await payload.count({
+        collection: 'tags',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        tagFailed
+          ? `[SEED] Problem occurred for ${tagFailed}/${seedData.tags.length} tags (count: ${tagCount})`
+          : `[SEED] >> Tags up to date (count: ${tagCount})`
+      );
+      seedError = seedError || tagFailed > 0;
+    }
+
     // PAGES
 
     if (seedData.pages.length > 0) {
@@ -364,8 +434,74 @@ export const seed = async (args: {
       seedError = seedError || pageFailed > 0;
     }
 
-    // Need to commit since posts require previous seed data
+    // !! COMMIT POINT !!
+    // Need to commit since the collections that follow require previous seed data
     await endTransaction(seedError ? 'rollback' : 'commit');
+
+    // MEDIA
+
+    // Only seed media when no errors occurred
+    if (!seedError && seedData.media.length > 0) {
+      await ensureTransaction();
+
+      let mediaFailed = 0;
+
+      for (const media of seedData.media) {
+        const tags = tempStore.lookupTag(
+          payload,
+          media.tags.map(({ lookupSlug }) => ({
+            apiKey: media.tenant.lookupApiKey,
+            slug: lookupSlug
+          }))
+        );
+        const [entity] = tempStore.lookupTenant(payload, [media.tenant]);
+
+        try {
+          const response = await ensureMedia(payload, transactionID, {
+            alt: media.alt,
+            external: media.external,
+            filename: media.filename,
+            filePath: media.filePath,
+            tags,
+            tenant: entity.tenant
+          });
+
+          let mediaId: number;
+          if (typeof response === 'object') {
+            payload.logger.info(
+              `[SEED] Media '${media.filename}' on tenant #${entity.tenant}`
+            );
+            mediaId = response.id;
+          } else {
+            mediaId = Number(response);
+          }
+          // Save media to map to lookup id's later
+          tempStore.storeMedia(
+            { apiKey: media.tenant.lookupApiKey, slug: media.filename },
+            mediaId
+          );
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Media '${media.filePath}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          mediaFailed++;
+        }
+      }
+      const { totalDocs: mediaCount } = await payload.count({
+        collection: 'media',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        mediaFailed
+          ? `[SEED] Problem occurred for ${mediaFailed}/${seedData.media.length} media (count: ${mediaCount})`
+          : `[SEED] >> Media up to date (count: ${mediaCount})`
+      );
+      seedError = seedError || mediaFailed > 0;
+    }
 
     // POSTS
 
@@ -429,7 +565,7 @@ export const seed = async (args: {
 
     // NAVIGATION
 
-    // Create navigation for each tenant
+    // Create navigation for each tenant using the first 5 tenant pages excluding the home page
     if (seedData.tenants.length > 0) {
       await ensureTransaction();
 
@@ -455,16 +591,20 @@ export const seed = async (args: {
         );
 
         try {
-          const response = await ensureNavigation(payload, transactionID, {
-            items: pageIds.map((id) => ({
-              reference: { relationTo: 'pages', value: id }
-            })),
-            tenant: tenantEntity.tenant
-          });
+          const { navigation, items } = await ensureNavigation(
+            payload,
+            transactionID,
+            {
+              items: pageIds.map((id) => ({
+                reference: { relationTo: 'pages', value: id }
+              })),
+              tenant: tenantEntity.tenant
+            }
+          );
 
-          if (typeof response === 'object') {
+          if (typeof navigation === 'object') {
             payload.logger.info(
-              `[SEED] Navigation for tenant '${tenant.apiKey}' created`
+              `[SEED] Navigation with ${items.length} items for tenant '${tenant.apiKey}' created`
             );
           }
         } catch (e) {
@@ -548,6 +688,25 @@ export const seed = async (args: {
           : `[SEED] >> Site settings up to date (count: ${siteSettingCount})`
       );
       seedError = seedError || siteSettingFailed > 0;
+    }
+
+    // CUSTOM SEED
+
+    // Only run when no errors occurred
+    if (!seedError) {
+      await ensureTransaction();
+      try {
+        await customSeed(payload, transactionID);
+      } catch (e) {
+        const error = e as Error;
+        payload.logger.error(error.message);
+        if ('data' in error) {
+          payload.logger.error(
+            `Custom seed error\n${JSON.stringify(error.data, null, 2)}`
+          );
+        }
+        seedError = true;
+      }
     }
 
     await endTransaction(seedError ? 'rollback' : 'commit');

@@ -8,6 +8,9 @@ import { RichText } from './RichText';
 
 type Props = MediaBlockProps;
 
+/**
+ * @deprecated Replaced by `ImageBlock` and `VideoBlock`.
+ */
 export const MediaBlock: React.FC<Props> = ({ media }) => {
   const { payloadUrl } = usePayload();
 
@@ -59,7 +62,7 @@ export const MediaBlock: React.FC<Props> = ({ media }) => {
           width={media.width ?? undefined}
         />
       )}
-      {isVideo && <Video src={src} />}
+      {isVideo && <Video alt={alt} src={src} />}
       {caption && (
         <div className="mt-2">
           <RichText data={caption} />

@@ -40,14 +40,14 @@ importers:
         specifier: ^1.13.7
         version: 1.14.1(hono@4.7.8)
       '@hookform/resolvers':
-        specifier: ^4.1.3
-        version: 4.1.3(react-hook-form@7.56.0(react@19.0.0))
+        specifier: ^5.0.0
+        version: 5.0.1(react-hook-form@7.56.0(react@19.0.0))
       '@icons-pack/react-simple-icons':
         specifier: ^12.6.0
         version: 12.7.0(react@19.0.0)
       '@infisical/sdk':
-        specifier: ^3.0.4
-        version: 3.0.91
+        specifier: ^4.0.0
+        version: 4.0.0
       '@ngneat/falso':
         specifier: ^7.3.0
         version: 7.3.0
@@ -154,8 +154,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       isbot:
-        specifier: ^4.4.0
-        version: 4.4.0
+        specifier: ^5.0.0
+        version: 5.1.28
       lucide-react:
         specifier: ^0.508.0
         version: 0.508.0(react@19.0.0)
@@ -166,8 +166,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       nodemailer:
-        specifier: ^6.10.0
-        version: 6.10.1
+        specifier: ^7.0.0
+        version: 7.0.3
       nodemailer-sendgrid:
         specifier: ^1.0.3
         version: 1.0.3
@@ -242,8 +242,8 @@ importers:
         specifier: ^1.1.1
         version: 1.2.9(eslint@9.20.1(jiti@2.4.2))
       '@eslint/eslintrc':
-        specifier: ^2.1.1
-        version: 2.1.4
+        specifier: ^3.0.0
+        version: 3.3.1
       '@eslint/js':
         specifier: ^9.8.0
         version: 9.26.0
@@ -291,7 +291,7 @@ importers:
         version: 20.4.5(@babel/traverse@7.27.1)(@swc-node/register@1.10.10(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/helpers@0.5.17)(@types/node@22.15.17)(@zkochan/js-yaml@0.0.7)(esbuild@0.19.12)(eslint@9.20.1(jiti@2.4.2))(next@15.2.3(@babel/core@7.27.1)(@playwright/test@1.52.0)(babel-plugin-macros@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.86.3))(nx@20.4.5(@swc-node/register@1.10.10(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.17)))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3)(verdaccio@5.33.0(encoding@0.1.13)(typanion@3.14.0))(webpack@5.99.6(@swc/core@1.10.18(@swc/helpers@0.5.17))(esbuild@0.19.12))
       '@nx/remix':
         specifier: 20.4.5
-        version: 20.4.5(leu4putuwwjfviblywyphtnbjq)
+        version: 20.4.5(ede41ea2587071946549336a780ef211)
       '@nx/vite':
         specifier: 20.4.5
         version: 20.4.5(@babel/traverse@7.27.1)(@swc-node/register@1.10.10(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.17))(@types/node@22.15.17)(nx@20.4.5(@swc-node/register@1.10.10(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.17)))(typescript@5.7.3)(verdaccio@5.33.0(encoding@0.1.13)(typanion@3.14.0))(vite@5.4.18(@types/node@22.15.17)(less@4.1.3)(lightningcss@1.29.2)(sass@1.86.3)(stylus@0.64.0)(terser@5.39.0))(vitest@1.6.1)
@@ -311,11 +311,11 @@ importers:
         specifier: ^15.25.0
         version: 15.26.0
       '@octokit/plugin-rest-endpoint-methods':
-        specifier: ^13.2.6
-        version: 13.5.0(@octokit/core@6.1.5)
+        specifier: ^14.0.0
+        version: 14.0.0(@octokit/core@6.1.5)
       '@octokit/types':
-        specifier: ^13.6.1
-        version: 13.10.0
+        specifier: ^14.0.0
+        version: 14.0.0
       '@octokit/webhooks-types':
         specifier: ^7.6.1
         version: 7.6.1
@@ -2713,10 +2713,6 @@ packages:
     resolution: {integrity: sha512-yfkgDw1KR66rkT5A8ci4irzDysN7FRpq3ttJolR88OqQikAWqwA8j5VZyas+vjyBNFIJ7MfybJ9plMILI2UrCw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/eslintrc@2.1.4':
-    resolution: {integrity: sha512-269Z39MS6wVJtsoUl10L60WdkhJVdPG24Q4eZTH3nnF6lpvSShEK3wQjDX9JRWAUPvPh7COouPpU9IrqaZFvtQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-
   '@eslint/eslintrc@3.3.1':
     resolution: {integrity: sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -2921,10 +2917,10 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hookform/resolvers@4.1.3':
-    resolution: {integrity: sha512-Jsv6UOWYTrEFJ/01ZrnwVXs7KDvP8XIo115i++5PWvNkNvkrsTfGiLS6w+eJ57CYtUtDQalUWovCZDHFJ8u1VQ==}
+  '@hookform/resolvers@5.0.1':
+    resolution: {integrity: sha512-u/+Jp83luQNx9AdyW2fIPGY6Y7NG68eN2ZW8FOJYL+M0i4s49+refdJdOp/A9n9HFQtQs3HIDHQvX3ZET2o7YA==}
     peerDependencies:
-      react-hook-form: ^7.0.0
+      react-hook-form: ^7.55.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -3056,8 +3052,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@infisical/sdk@3.0.91':
-    resolution: {integrity: sha512-aEODWQOijsoPPnaJ3S/wl1m+ZhAQIrhDAtE5sp5dfjssoIE4vruHtJ3wT2HSiG4LUyGh3TnfxgVt4DIGrapnCA==}
+  '@infisical/sdk@4.0.0':
+    resolution: {integrity: sha512-0rness/OO6R7OZVtCjs6QDDmQ1gJrBC+4VzMsyKdVz57eXTm49OzvQ9i8C2N1Kazgt/j4I0RIGLQUTW78wsFsw==}
 
   '@inquirer/confirm@5.1.9':
     resolution: {integrity: sha512-NgQCnHqFTjF7Ys2fsqK2WtnA8X1kHyInyG+nMIuHowVTIgIuS10T4AznI/PvbqSpJqjCUqNBlKGh1v3bwLFL4w==}
@@ -3959,8 +3955,8 @@ packages:
     peerDependencies:
       '@octokit/core': '5'
 
-  '@octokit/plugin-rest-endpoint-methods@13.5.0':
-    resolution: {integrity: sha512-9Pas60Iv9ejO3WlAX3maE1+38c5nqbJXV5GrncEfkndIpZrJ/WPMRd2xYDcPPEt5yzpxcjw9fWNoPhsSGzqKqw==}
+  '@octokit/plugin-rest-endpoint-methods@14.0.0':
+    resolution: {integrity: sha512-iQt6ovem4b7zZYZQtdv+PwgbL5VPq37th1m2x2TdkgimIDJpsi2A6Q/OI/23i/hR6z5mL0EgisNR4dcbmckSZQ==}
     engines: {node: '>= 18'}
     peerDependencies:
       '@octokit/core': '>=6'
@@ -9410,8 +9406,8 @@ packages:
   isarray@2.0.5:
     resolution: {integrity: sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==}
 
-  isbot@4.4.0:
-    resolution: {integrity: sha512-8ZvOWUA68kyJO4hHJdWjyreq7TYNWTS9y15IzeqVdKxR9pPr3P/3r9AHcoIv9M0Rllkao5qWz2v1lmcyKIVCzQ==}
+  isbot@5.1.28:
+    resolution: {integrity: sha512-qrOp4g3xj8YNse4biorv6O5ZShwsJM0trsoda4y7j/Su7ZtTTfVXFzbKkpgcSoDrHS8FcTuUwcU04YimZlZOxw==}
     engines: {node: '>=18'}
 
   isexe@2.0.0:
@@ -10768,12 +10764,12 @@ packages:
   nodemailer-sendgrid@1.0.3:
     resolution: {integrity: sha512-To/veO2M4evjtv1XrY7BUgE+LDypgs/FBx4wOHb2UNTpvZhiARtvMaBI0685Yxkho0lIPJc4jS0cUE7v+XGNgg==}
 
-  nodemailer@6.10.1:
-    resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
-    engines: {node: '>=6.0.0'}
-
   nodemailer@6.9.16:
     resolution: {integrity: sha512-psAuZdTIRN08HKVd/E8ObdV6NO7NTBY3KsC30F7M4H1OnmLCUNaS56FpYxyb26zWLSyYF9Ozch9KYHhHegsiOQ==}
+    engines: {node: '>=6.0.0'}
+
+  nodemailer@7.0.3:
+    resolution: {integrity: sha512-Ajq6Sz1x7cIK3pN6KesGTah+1gnwMnx5gKl3piQlQQE/PwyJ4Mbc8is2psWYxK3RJTVeqsDaCv8ZzXLCDHMTZw==}
     engines: {node: '>=6.0.0'}
 
   nodemon@3.1.10:
@@ -16201,20 +16197,6 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
 
-  '@eslint/eslintrc@2.1.4':
-    dependencies:
-      ajv: 6.12.6
-      debug: 4.4.0(supports-color@5.5.0)
-      espree: 9.6.1
-      globals: 13.24.0
-      ignore: 5.3.2
-      import-fresh: 3.3.1
-      js-yaml: 4.1.0
-      minimatch: 3.1.2
-      strip-json-comments: 3.1.1
-    transitivePeerDependencies:
-      - supports-color
-
   '@eslint/eslintrc@3.3.1':
     dependencies:
       ajv: 6.12.6
@@ -16491,7 +16473,7 @@ snapshots:
     dependencies:
       hono: 4.7.8
 
-  '@hookform/resolvers@4.1.3(react-hook-form@7.56.0(react@19.0.0))':
+  '@hookform/resolvers@5.0.1(react-hook-form@7.56.0(react@19.0.0))':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.56.0(react@19.0.0)
@@ -16588,7 +16570,7 @@ snapshots:
   '@img/sharp-win32-x64@0.33.5':
     optional: true
 
-  '@infisical/sdk@3.0.91':
+  '@infisical/sdk@4.0.0':
     dependencies:
       aws-sdk: 2.1311.0
       axios: 1.9.0
@@ -18038,7 +18020,7 @@ snapshots:
       - webpack
       - webpack-cli
 
-  '@nx/remix@20.4.5(leu4putuwwjfviblywyphtnbjq)':
+  '@nx/remix@20.4.5(ede41ea2587071946549336a780ef211)':
     dependencies:
       '@nx/devkit': 20.4.5(nx@20.4.5(@swc-node/register@1.10.10(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.17)))
       '@nx/js': 20.4.5(@babel/traverse@7.27.1)(@swc-node/register@1.10.10(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.17))(@types/node@22.15.17)(nx@20.4.5(@swc-node/register@1.10.10(@swc/core@1.10.18(@swc/helpers@0.5.17))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.17)))(typescript@5.7.3)(verdaccio@5.33.0(encoding@0.1.13)(typanion@3.14.0))
@@ -18262,10 +18244,10 @@ snapshots:
       '@octokit/core': 5.2.1
       '@octokit/types': 12.6.0
 
-  '@octokit/plugin-rest-endpoint-methods@13.5.0(@octokit/core@6.1.5)':
+  '@octokit/plugin-rest-endpoint-methods@14.0.0(@octokit/core@6.1.5)':
     dependencies:
       '@octokit/core': 6.1.5
-      '@octokit/types': 13.10.0
+      '@octokit/types': 14.0.0
 
   '@octokit/request-error@5.1.1':
     dependencies:
@@ -21695,7 +21677,7 @@ snapshots:
   buffer@4.9.2:
     dependencies:
       base64-js: 1.5.1
-      ieee754: 1.1.13
+      ieee754: 1.2.1
       isarray: 1.0.0
 
   buffer@5.6.0:
@@ -24672,7 +24654,7 @@ snapshots:
 
   isarray@2.0.5: {}
 
-  isbot@4.4.0: {}
+  isbot@5.1.28: {}
 
   isexe@2.0.0: {}
 
@@ -26566,9 +26548,9 @@ snapshots:
     dependencies:
       '@sendgrid/mail': 6.5.5
 
-  nodemailer@6.10.1: {}
-
   nodemailer@6.9.16: {}
+
+  nodemailer@7.0.3: {}
 
   nodemon@3.1.10:
     dependencies:
@@ -30044,7 +30026,7 @@ snapshots:
 
   xml2js@0.4.19:
     dependencies:
-      sax: 1.2.1
+      sax: 1.4.1
       xmlbuilder: 9.0.7
 
   xmlbuilder@9.0.7: {}

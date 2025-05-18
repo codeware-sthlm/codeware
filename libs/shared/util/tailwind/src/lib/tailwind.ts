@@ -1,5 +1,5 @@
 import { tailwindColors } from './tailwind-colors';
-import { TailwindColor } from './types';
+import { ColorName, TailwindColor } from './types';
 
 // Performant color lookup from color name
 const tailwindColorMap = Object.entries(tailwindColors).reduce(
@@ -21,6 +21,11 @@ const tailwindColorMap = Object.entries(tailwindColors).reduce(
  * A collection of utilities for performant and type-safe Tailwind color lookups.
  */
 export const tailwind = {
+  /**
+   * A list of all tailwind color names.
+   */
+  names: Object.keys(tailwindColors) as Array<ColorName>,
+
   /**
    * A map of tailwind color names and corresponding colors.
    *

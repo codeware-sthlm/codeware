@@ -9,7 +9,12 @@ export default [
     plugins: { import: importPlugin }
   },
   {
-    ignores: ['**/dist', '**/vite.config.[cm]?ts.timestamp-*.[cm]js']
+    ignores: [
+      '**/dist',
+      '**/vite.config.[cm]?ts.timestamp-*.[cm]js',
+      '**/vite.config.*.timestamp*',
+      '**/vitest.config.*.timestamp*'
+    ]
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],

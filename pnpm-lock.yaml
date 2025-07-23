@@ -131,7 +131,7 @@ importers:
         version: 0.5.16(tailwindcss@4.1.11)
       axios:
         specifier: ^1.6.0
-        version: 1.10.0
+        version: 1.11.0
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -513,7 +513,7 @@ importers:
         version: 6.0.1
       shadcn:
         specifier: canary
-        version: 2.7.0-canary.0(@types/node@22.15.31)(typescript@5.7.3)
+        version: 2.9.3-canary.0(@types/node@22.15.31)(typescript@5.7.3)
       supertest:
         specifier: ^7.0.0
         version: 7.1.1
@@ -6522,8 +6522,8 @@ packages:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
     engines: {node: '>=4'}
 
-  axios@1.10.0:
-    resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
+  axios@1.11.0:
+    resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -8466,12 +8466,12 @@ packages:
     resolution: {integrity: sha512-1lLKB2Mu3aGP1Q/2eCOx0fNbRMe7XdwktwOruhfqqd0rIJWwN4Dh+E3hrPSlDCXnSR7UtZ1N38rVXm+6+MEhJQ==}
     engines: {node: '>= 0.12'}
 
-  form-data@2.5.3:
-    resolution: {integrity: sha512-XHIrMD0NpDrNM/Ckf7XJiBbLl57KEhT3+i3yY+eWm+cqYZJQTZrKo8Y8AWKnuV5GT4scfuUGt9LzNoIx3dU1nQ==}
+  form-data@2.5.5:
+    resolution: {integrity: sha512-jqdObeR2rxZZbPSGL+3VckHMYtu+f9//KXBsVny6JSX/pa38Fy+bGjuG8eW/H6USNQWhLi8Num++cU2yOCNz4A==}
     engines: {node: '>= 0.12'}
 
-  form-data@4.0.3:
-    resolution: {integrity: sha512-qsITQPfmvMOSAdeyZ+12I1c+CKSstAFAwu+97zrnWAbIr5u8wfsExUzCesVLC8NgHuRUqNN4Zy6UPWUTRGslcA==}
+  form-data@4.0.4:
+    resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
     engines: {node: '>= 6'}
 
   format@0.2.2:
@@ -9817,8 +9817,8 @@ packages:
   lexical@0.28.0:
     resolution: {integrity: sha512-dLE3O1PZg0TlZxRQo9YDpjCjDUj8zluGyBO9MHdjo21qZmMUNrxQPeCRt8fn2s5l4HKYFQ1YNgl7k1pOJB/vZQ==}
 
-  lib0@0.2.109:
-    resolution: {integrity: sha512-jP0gbnyW0kwlx1Atc4dcHkBbrVAkdHjuyHxtClUPYla7qCmwIif1qZ6vQeJdR5FrOVdn26HvQT0ko01rgW7/Xw==}
+  lib0@0.2.114:
+    resolution: {integrity: sha512-gcxmNFzA4hv8UYi8j43uPlQ7CGcyMJ2KQb5kZASw6SnAKAf10hK12i2fjrS3Cl/ugZa5Ui6WwIu1/6MIXiHttQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -12347,8 +12347,8 @@ packages:
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  shadcn@2.7.0-canary.0:
-    resolution: {integrity: sha512-jZv1mZkAESECTOJ/7hLdEir1URVMricZ9P3TZg3aPRLf8JN1x79o9nDiXRuCldG31D7dXcp+afvciIJup/bi2A==}
+  shadcn@2.9.3-canary.0:
+    resolution: {integrity: sha512-2oOusRSdNZoy8zzj6TlwWMlL6IhVZTcfPkqYXNLPAANj92J42zJ5G2QqIep/rKbrfRwFO8QRDq7evVdmYsC+1w==}
     hasBin: true
 
   shallow-clone@3.0.1:
@@ -12776,10 +12776,12 @@ packages:
   superagent@10.2.1:
     resolution: {integrity: sha512-O+PCv11lgTNJUzy49teNAWLjBZfc+A1enOwTpLlH6/rsvKcTwcdTT8m9azGkVqM7HBl5jpyZ7KTPhHweokBcdg==}
     engines: {node: '>=14.18.0'}
+    deprecated: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   supertest@7.1.1:
     resolution: {integrity: sha512-aI59HBTlG9e2wTjxGJV+DygfNLgnWbGdZxiA/sgrnNNikIW8lbDvCtF6RnhZoJ82nU7qv7ZLjrvWqCEm52fAmw==}
     engines: {node: '>=14.18.0'}
+    deprecated: Please upgrade to supertest v7.1.3+, see release notes at https://github.com/forwardemail/supertest/releases/tag/v7.1.3 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
@@ -15473,7 +15475,7 @@ snapshots:
       combined-stream: 1.0.8
       extend: 3.0.2
       forever-agent: 0.6.1
-      form-data: 4.0.3
+      form-data: 4.0.4
       http-signature: 1.4.0
       is-typedarray: 1.0.0
       isstream: 0.1.2
@@ -16533,7 +16535,7 @@ snapshots:
   '@infisical/sdk@3.0.91':
     dependencies:
       aws-sdk: 2.1311.0
-      axios: 1.10.0
+      axios: 1.11.0
       typescript: 5.7.3
       zod: 3.25.67
     transitivePeerDependencies:
@@ -17069,7 +17071,7 @@ snapshots:
       '@module-federation/third-party-dts-extractor': 0.15.0
       adm-zip: 0.5.16
       ansi-colors: 4.1.3
-      axios: 1.10.0
+      axios: 1.11.0
       chalk: 3.0.0
       fs-extra: 9.1.0
       isomorphic-ws: 5.0.0(ws@8.18.0)
@@ -17094,7 +17096,7 @@ snapshots:
       '@module-federation/third-party-dts-extractor': 0.8.12
       adm-zip: 0.5.16
       ansi-colors: 4.1.3
-      axios: 1.10.0
+      axios: 1.11.0
       chalk: 3.0.0
       fs-extra: 9.1.0
       isomorphic-ws: 5.0.0(ws@8.18.0)
@@ -20385,7 +20387,7 @@ snapshots:
       '@types/caseless': 0.12.5
       '@types/node': 22.15.31
       '@types/tough-cookie': 4.0.5
-      form-data: 2.5.3
+      form-data: 2.5.5
 
   '@types/retry@0.12.2': {}
 
@@ -20419,7 +20421,7 @@ snapshots:
       '@types/cookiejar': 2.1.5
       '@types/methods': 1.1.4
       '@types/node': 22.15.31
-      form-data: 4.0.3
+      form-data: 4.0.4
 
   '@types/supertest@6.0.3':
     dependencies:
@@ -21357,10 +21359,10 @@ snapshots:
 
   axe-core@4.10.3: {}
 
-  axios@1.10.0:
+  axios@1.11.0:
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.1)
-      form-data: 4.0.3
+      form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -22121,7 +22123,7 @@ snapshots:
 
   create-nx-workspace@20.4.5:
     dependencies:
-      axios: 1.10.0
+      axios: 1.11.0
       chalk: 4.1.2
       enquirer: 2.3.6
       flat: 5.0.2
@@ -23698,15 +23700,16 @@ snapshots:
       combined-stream: 1.0.8
       mime-types: 2.1.35
 
-  form-data@2.5.3:
+  form-data@2.5.5:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       es-set-tostringtag: 2.1.0
+      hasown: 2.0.2
       mime-types: 2.1.35
       safe-buffer: 5.2.1
 
-  form-data@4.0.3:
+  form-data@4.0.4:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
@@ -25087,7 +25090,7 @@ snapshots:
       decimal.js: 10.5.0
       domexception: 4.0.0
       escodegen: 2.1.0
-      form-data: 4.0.3
+      form-data: 4.0.4
       html-encoding-sniffer: 3.0.0
       http-proxy-agent: 5.0.0
       https-proxy-agent: 5.0.1
@@ -25370,7 +25373,7 @@ snapshots:
 
   lexical@0.28.0: {}
 
-  lib0@0.2.109:
+  lib0@0.2.114:
     dependencies:
       isomorphic.js: 0.2.5
 
@@ -26608,7 +26611,7 @@ snapshots:
   nx-cloud@19.1.0:
     dependencies:
       '@nrwl/nx-cloud': 19.1.0
-      axios: 1.10.0
+      axios: 1.11.0
       chalk: 4.1.2
       dotenv: 10.0.0
       fs-extra: 11.3.0
@@ -26626,7 +26629,7 @@ snapshots:
       '@yarnpkg/lockfile': 1.1.0
       '@yarnpkg/parsers': 3.0.2
       '@zkochan/js-yaml': 0.0.7
-      axios: 1.10.0
+      axios: 1.11.0
       chalk: 4.1.2
       cli-cursor: 3.1.0
       cli-spinners: 2.6.1
@@ -28277,7 +28280,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@2.7.0-canary.0(@types/node@22.15.31)(typescript@5.7.3):
+  shadcn@2.9.3-canary.0(@types/node@22.15.31)(typescript@5.7.3):
     dependencies:
       '@antfu/ni': 23.3.1
       '@babel/core': 7.27.7
@@ -28819,7 +28822,7 @@ snapshots:
       cookiejar: 2.1.4
       debug: 4.4.1(supports-color@5.5.0)
       fast-safe-stringify: 2.1.1
-      form-data: 4.0.3
+      form-data: 4.0.4
       formidable: 3.5.4
       methods: 1.1.2
       mime: 2.6.0
@@ -30057,7 +30060,7 @@ snapshots:
 
   yjs@13.6.27:
     dependencies:
-      lib0: 0.2.109
+      lib0: 0.2.114
 
   ylru@1.4.0: {}
 

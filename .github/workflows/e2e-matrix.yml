@@ -58,7 +58,7 @@ jobs:
 
     name: Cache install (${{ matrix.os }}, node v${{ matrix.node }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -120,7 +120,7 @@ jobs:
 
     name: E2E ${{ matrix.os }}/${{ matrix.pm }}/${{ matrix.node }} ${{ join(matrix.project) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: needs.init.outputs.e2e-enabled == 'true'
         with:
           fetch-depth: 0
@@ -186,7 +186,7 @@ jobs:
     if: always()
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: artifacts
           pattern: results-*

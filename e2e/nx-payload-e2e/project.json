@@ -13,11 +13,15 @@
         "runInBand": true
       },
       "configurations": {
-        "docker": { "testPathPattern": ["docker", "ui"] },
+        "docker": {
+          "testPathPatterns": ["docker", "ui"]
+        },
         "skip-docker": {
           "testPathIgnorePatterns": ["docker", "ui"]
         },
-        "quick": { "testPathPattern": ["quick"] }
+        "quick": {
+          "testPathPatterns": ["quick"]
+        }
       }
     }
   }

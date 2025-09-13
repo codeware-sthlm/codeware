@@ -38,7 +38,7 @@ importers:
         version: 2.2.0(react@19.0.0)
       '@hono/node-server':
         specifier: ^1.13.7
-        version: 1.18.2(hono@4.9.6)
+        version: 1.18.2(hono@4.9.7)
       '@hookform/resolvers':
         specifier: ^4.1.3
         version: 4.1.3(react-hook-form@7.62.0(react@19.0.0))
@@ -149,7 +149,7 @@ importers:
         version: 16.11.0
       hono:
         specifier: ^4.6.10
-        version: 4.9.6
+        version: 4.9.7
       http-status-codes:
         specifier: ^2.3.0
         version: 2.3.0
@@ -8970,8 +8970,8 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
-  hono@4.9.6:
-    resolution: {integrity: sha512-doVjXhSFvYZ7y0dNokjwwSahcrAfdz+/BCLvAMa/vHLzjj8+CFyV5xteThGUsKdkaasgN+gF2mUxao+SGLpUeA==}
+  hono@4.9.7:
+    resolution: {integrity: sha512-t4Te6ERzIaC48W3x4hJmBwgNlLhmiEdEE5ViYb02ffw4ignHNHa5IBtPjmbKstmtKa8X6C35iWwK4HaqvrzG9w==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@6.1.3:
@@ -16654,9 +16654,9 @@ snapshots:
       node-addon-api: 7.1.1
       prebuild-install: 7.1.3
 
-  '@hono/node-server@1.18.2(hono@4.9.6)':
+  '@hono/node-server@1.18.2(hono@4.9.7)':
     dependencies:
-      hono: 4.9.6
+      hono: 4.9.7
 
   '@hookform/resolvers@4.1.3(react-hook-form@7.62.0(react@19.0.0))':
     dependencies:
@@ -24492,7 +24492,7 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono@4.9.6: {}
+  hono@4.9.7: {}
 
   hosted-git-info@6.1.3:
     dependencies:
@@ -28253,7 +28253,7 @@ snapshots:
   remix-hono@0.0.16(typescript@5.7.3)(zod@3.25.76):
     dependencies:
       '@remix-run/server-runtime': 2.17.0(typescript@5.7.3)
-      hono: 4.9.6
+      hono: 4.9.7
       pretty-cache-header: 1.0.0
     optionalDependencies:
       zod: 3.25.76

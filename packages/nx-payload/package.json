@@ -29,7 +29,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@nx/devkit": "^20.4.2",
+    "@nx/devkit": "^21.0.0",
     "next": "^15.0.0",
     "payload": "^3.0.0",
     "react": "^19.0.0",

@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { releaseChangelog } from 'nx/release';
-import type { VersionData } from 'nx/src/command-line/release/version';
+import type { ChangelogOptions } from 'nx/src/command-line/release/command-object';
 
 /**
  * Generate changelogs
@@ -9,7 +9,7 @@ import type { VersionData } from 'nx/src/command-line/release/version';
  * @returns `true` if changelog ran successfully, otherwise `false`
  */
 export const changelogs = async (options: {
-  versionData: VersionData;
+  versionData: ChangelogOptions['versionData'];
   dryRun?: boolean;
   verbose?: boolean;
 }): Promise<boolean> => {

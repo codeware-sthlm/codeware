@@ -1,6 +1,6 @@
 import { readJsonFile, writeJsonFile } from '@nx/devkit';
 import chalk from 'chalk';
-import type { VersionData } from 'nx/src/command-line/release/version';
+import type { NxReleaseVersionResult } from 'nx/src/command-line/release/version';
 import type { PackageJson } from 'nx/src/utils/package-json';
 
 /**
@@ -18,7 +18,7 @@ import type { PackageJson } from 'nx/src/utils/package-json';
  */
 export const revertPackageJson = (
   originPackageFile: PackageJson,
-  projectsVersionData: VersionData
+  projectsVersionData: NxReleaseVersionResult['projectsVersionData']
 ) => {
   if (!projectsVersionData['nx-payload'].newVersion) {
     return;

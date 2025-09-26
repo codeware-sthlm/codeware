@@ -38,21 +38,6 @@ describe('Test user login and onboarding', () => {
     password: 'dev'
   };
 
-  const selectors = {
-    header: 'h1',
-    subHeader: 'p',
-    adminLink: 'a[href="/admin"]',
-    emailInput: '#field-email',
-    nameInput: '#field-name',
-    passwordInput: '#field-password',
-    passwordConfirmInput: '#field-password-confirm',
-    roleSelect: '#field-role',
-    roleOption: 'text=admin',
-    submitButton: '.form-submit button[type="submit"]',
-    dashboardUserCard: '#card-users',
-    dashboardMediaCard: '#card-media'
-  };
-
   jest.setTimeout(300_000);
 
   beforeAll(async () => {
@@ -101,39 +86,40 @@ describe('Test user login and onboarding', () => {
   });
 
   it('should have start page with hero and admin page link', async () => {
-    await page.waitForSelector(selectors.header);
-    expect(await page.textContent(selectors.header)).toContain('Welcome');
+    const header = page.locator('h1');
+    await header.waitFor();
+    expect(await header.textContent()).toContain('Welcome');
 
-    await page.waitForSelector(selectors.adminLink);
-    expect(await page.textContent(selectors.adminLink)).toContain('Admin');
+    const adminLink = page.locator('a[href="/admin"]');
+    await adminLink.waitFor();
+    expect(await adminLink.textContent()).toContain('Admin');
   });
 
   it('should navigate to admin page and login or onboard user', async () => {
-    await page.waitForSelector(selectors.adminLink);
+    const adminLink = page.locator('a[href="/admin"]');
+    await adminLink.waitFor();
 
     // Get admin page in the new tab after clicking the admin link
     const [adminPage] = await Promise.all([
       context.waitForEvent('page'),
-      page.click(selectors.adminLink)
+      adminLink.click()
     ]);
     await adminPage.waitForLoadState();
 
-    const button = await adminPage.waitForSelector(selectors.submitButton);
+    const button = adminPage.getByRole('button');
 
     // Check if we have to onboard or login
     if ((await button.textContent()) === 'Login') {
-      await adminPage.fill(selectors.emailInput, credentials.email);
-      await adminPage.fill(selectors.passwordInput, credentials.password);
+      await adminPage.getByLabel('Email').fill(credentials.email);
+      await adminPage.getByLabel('Password').fill(credentials.password);
     } else {
-      await adminPage.fill(selectors.nameInput, 'Admin User');
-      await adminPage.fill(selectors.emailInput, credentials.email);
-      await adminPage.fill(selectors.passwordInput, credentials.password);
-      await adminPage.fill(
-        selectors.passwordConfirmInput,
-        credentials.password
-      );
-      await adminPage.locator(selectors.roleSelect).click();
-      await adminPage.locator(selectors.roleOption).click();
+      await adminPage.getByLabel('Name').fill('Admin User');
+      await adminPage.getByLabel('Email').fill(credentials.email);
+      await adminPage.getByLabel('New Password').fill(credentials.password);
+      await adminPage.getByLabel('Confirm Password').fill(credentials.password);
+      // It's not a proper select field, so we have to click to reveal options and then click the option
+      await adminPage.locator('#field-role').click();
+      await adminPage.getByRole('option', { name: 'Admin' }).click();
     }
 
     // Submit form
@@ -141,8 +127,8 @@ describe('Test user login and onboarding', () => {
 
     // Verify we reach the dashboard with Users and Media cards
     await Promise.all([
-      adminPage.waitForSelector(selectors.dashboardUserCard),
-      adminPage.waitForSelector(selectors.dashboardMediaCard)
+      adminPage.locator('#card-users').waitFor(),
+      adminPage.locator('#card-media').waitFor()
     ]);
   });
 });

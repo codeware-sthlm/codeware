@@ -2,6 +2,7 @@ export default {
   displayName: 'nx-payload-e2e',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  testEnvironment: 'node',
   globals: {},
   transform: {
     '^.+\\.[tj]s$': [

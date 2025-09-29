@@ -9,9 +9,9 @@ import { applicationGenerator as nextApplicationGenerator } from '@nx/next';
 import { initGenerator as payloadInitGenerator } from '../init/init';
 
 import { addPathAlias } from './libs/add-path-alias';
-import { addProjectTargets } from './libs/add-project-targets';
 import { createApplicationFiles } from './libs/create-application-files';
 import { disableLegacyLinting } from './libs/disable-legacy-linting';
+import { ensureProjectTargets } from './libs/ensure-project-targets';
 import { fixNextJsBuildOutput } from './libs/fix-nextjs-build-output';
 import { normalizeOptions } from './libs/normalize-options';
 import { updateEslintConfig } from './libs/update-eslint-config';
@@ -59,7 +59,7 @@ export async function applicationGeneratorInternal(
   createApplicationFiles(host, options);
 
   // Application
-  addProjectTargets(host, options);
+  ensureProjectTargets(host, options);
   updateEslintConfig(host, options);
 
   // Problems with legacy apps that probably is Nx related,

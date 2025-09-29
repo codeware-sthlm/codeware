@@ -116,7 +116,8 @@ describe('Test plugin by creating workspace with preset (extended test suite)', 
     });
 
     it('should test application', () => {
-      const result = runNxCommand(`test ${project.appName}`);
+      // https://github.com/nrwl/nx/issues/32880
+      const result = runNxCommand(`test ${project.appName} --force-exit`);
       expect(result).toContain('Successfully ran target test');
     });
 

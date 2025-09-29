@@ -107,7 +107,8 @@ describe('Test plugin by starting with an empty workspace (limited test suite)',
     });
 
     it('should test application', async () => {
-      await runNxCommandAsync(`test ${appName}`);
+      // https://github.com/nrwl/nx/issues/32880
+      await runNxCommandAsync(`test ${appName} --force-exit`);
     });
 
     it('should lint application', async () => {

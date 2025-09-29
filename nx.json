@@ -136,7 +136,8 @@
       "preVersionCommand": "pnpm nx run-many -t build",
       "conventionalCommits": true,
       "generatorOptions": {
-        "fallbackCurrentVersionResolver": "disk"
+        "fallbackCurrentVersionResolver": "disk",
+        "preserveLocalDependencyProtocols": false
       }
     },
     "conventionalCommits": {

@@ -96,7 +96,8 @@ describe('Test plugin by creating workspace with preset (legacy test suite)', ()
     });
 
     it('should test application', async () => {
-      await runNxCommandAsync(`test ${project.appName}`);
+      // https://github.com/nrwl/nx/issues/32880
+      await runNxCommandAsync(`test ${project.appName} --force-exit`);
     });
 
     it('should lint application', async () => {

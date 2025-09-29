@@ -45,6 +45,8 @@ testem.log
 Thumbs.db
 
 # Nx
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
 .nx/cache
 .nx/workspace-data
 migrations.json

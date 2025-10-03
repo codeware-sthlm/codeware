@@ -1,3 +1,13 @@
+## 1.3.1 (2025-10-03)
+
+### ⚙️ Miscellaneous Chores
+
+- **repo:** migrate to eslint esm ([6581a92](https://github.com/codeware-sthlm/codeware/commit/6581a92))
+
+### 🧱 Updated Dependencies
+
+- Updated core to 1.4.2
+
 ## 1.3.0 (2025-02-07)
 
 ### ✨ Features

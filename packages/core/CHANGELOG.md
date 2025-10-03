@@ -1,3 +1,14 @@
+## 1.4.2 (2025-10-03)
+
+### ⚙️ Miscellaneous Chores
+
+- **deps:** update weekly dependencies ([113a8d9](https://github.com/codeware-sthlm/codeware/commit/113a8d9))
+- **deps:** update weekly dependencies ([6efe16e](https://github.com/codeware-sthlm/codeware/commit/6efe16e))
+- **deps:** update weekly dependencies ([00a340c](https://github.com/codeware-sthlm/codeware/commit/00a340c))
+- **repo:** defaults to bundler resolution ([4fd1a61](https://github.com/codeware-sthlm/codeware/commit/4fd1a61))
+- **repo:** fix vite name conflicts ([624d9eb](https://github.com/codeware-sthlm/codeware/commit/624d9eb))
+- **repo:** migrate to eslint esm ([6581a92](https://github.com/codeware-sthlm/codeware/commit/6581a92))
+
 ## 1.4.1 (2025-02-15)
 
 ### 🐞 Bug Fixes

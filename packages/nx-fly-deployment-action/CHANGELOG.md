@@ -1,3 +1,15 @@
+## 0.3.2 (2025-10-03)
+
+### ⚙️ Miscellaneous Chores
+
+- **repo:** fix vite name conflicts ([624d9eb](https://github.com/codeware-sthlm/codeware/commit/624d9eb))
+- **repo:** migrate to eslint esm ([6581a92](https://github.com/codeware-sthlm/codeware/commit/6581a92))
+
+### 🧱 Updated Dependencies
+
+- Updated fly-node to 0.2.2
+- Updated core to 1.4.2
+
 ## 0.3.1 (2025-02-15)
 
 ### ⚙️ Miscellaneous Chores

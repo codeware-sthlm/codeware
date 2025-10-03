@@ -1,3 +1,10 @@
+## 2.0.1 (2025-10-03)
+
+### ⚙️ Miscellaneous Chores
+
+- **repo:** defaults to bundler resolution ([4fd1a61](https://github.com/codeware-sthlm/codeware/commit/4fd1a61))
+- **repo:** migrate to eslint esm ([6581a92](https://github.com/codeware-sthlm/codeware/commit/6581a92))
+
 # 2.0.0 (2025-02-15)
 
 ### ✨ Features

@@ -1,3 +1,27 @@
+## 2.1.0 (2025-10-03)
+
+### ✨ Features
+
+- **cms:** update to payload 3 and fix breaking changes ([7ff8a8d](https://github.com/codeware-sthlm/codeware/commit/7ff8a8d))
+
+### 🐞 Bug Fixes
+
+- **nx-payload:** stay on older payload version due to pnpm issue ([191cfcf](https://github.com/codeware-sthlm/codeware/commit/191cfcf))
+- **nx-payload:** let plugin user install sharp when needed ([68431ed](https://github.com/codeware-sthlm/codeware/commit/68431ed))
+
+### 📄 Documentation
+
+- **nx-payload:** next release is for nx 21 ([288ad0f](https://github.com/codeware-sthlm/codeware/commit/288ad0f))
+
+### ⚙️ Miscellaneous Chores
+
+- **repo:** defaults to bundler resolution ([4fd1a61](https://github.com/codeware-sthlm/codeware/commit/4fd1a61))
+- **repo:** migrate to eslint esm ([6581a92](https://github.com/codeware-sthlm/codeware/commit/6581a92))
+
+### ✅ Tests
+
+- **nx-payload:** temporary disable slow tests until properly fixed ([c74ec35](https://github.com/codeware-sthlm/codeware/commit/c74ec35))
+
 # 2.0.0 (2025-02-15)
 
 ### ✨ Features

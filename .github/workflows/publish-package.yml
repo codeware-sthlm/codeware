@@ -1,6 +1,10 @@
 # Semi-automated Nx releases where pre-created tags gets published to NPM.
 # The tags has been created locally using `nx release-cli`.
-# This workflow will publish a single package to NPM identified by the tag.
+#
+# This workflow will publish to NPM:
+#  - a single package identified by a pushed tag
+#  - a single package identified by a tag given when manually triggered
+#  - all pending packages when manually triggered without a tag
 
 name: Publish package
 
@@ -8,60 +12,135 @@ on:
   push:
     # Should match the patterns in our GitHub tag rulesets to be consistent
     tags:
-      - '*-[0-9]*.[0-9]*.[0-9]*' # Matches any package name followed by semver
+      - '*-[0-9]*.[0-9]*.[0-9]*' # Matches any package name followed by semver, e.g. core-2.0.0
       - '*-[0-9]*.[0-9]*.[0-9]*-*.[0-9]*' # Also matches prerelease versions, e.g. core-2.0.0-beta.1
+
+  # Fall back if tag push doesn't fire, since tags and releases are created together by `nx release-cli`
+  release:
+    types: [published]
+
+  # Manually trigger publish for pending packages or a specific tag
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Optional: publish a specific tag (e.g. nx-payload-2.1.0). Leave empty to publish pending packages.'
+        required: false
+        type: string
+      dry-run:
+        description: 'Do not publish anything, just see what would be published.'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     permissions:
       contents: read
-      id-token: write
+      id-token: write # npm provenance
+
+    # Avoid duplicate runs if both push and release fire
+    concurrency:
+      group: publish-${{ github.event.release.tag_name || github.ref || github.run_id }}
+      cancel-in-progress: true
 
     steps:
+      - name: Resolve context (tag or pending)
+        id: ctx
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          DISPATCH_TAG: ${{ github.event.inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          DRY_RUN: ${{ github.event.inputs['dry-run'] || 'false' }}
+        run: |
+          DRY_FLAG=""
+          PACKAGE=""
+          TAG=""
+          if [ -n "$DISPATCH_TAG" ]; then
+            TAG="$DISPATCH_TAG"
+          elif [ "$EVENT_NAME" = "release" ]; then
+            TAG="$RELEASE_TAG"
+          elif [ "$EVENT_NAME" = "push" ]; then
+            TAG="$REF_NAME"
+          fi
+          if [ -n "$TAG" ]; then
+          MODE="tag"
+            PACKAGE="${TAG%-*}"
+          else
+            MODE="pending"
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            DRY_FLAG="--dry-run"
+          fi
+
+          echo "dry_flag=$DRY_FLAG" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE"        >> "$GITHUB_OUTPUT"
+          echo "package=$PACKAGE"  >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG"          >> "$GITHUB_OUTPUT"
+          echo "Resolved mode=$MODE tag=$TAG package=$PACKAGE dry_flag=$DRY_FLAG"
+
+      # Unified checkout for all cases:
+      # - tag push or release -> checks out that tag
+      # - manual w/o tag -> checks out the branch chosen in the UI (or default branch)
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ctx.outputs.tag || github.ref }}
+          fetch-depth: 0
+          filter: tree:0
 
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
           registry-url: https://registry.npmjs.org/
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Assume tag format '<package>-<version>'
-      - name: Extract package name
-        id: extract
-        run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          PACKAGE=${TAG%-*}
-          echo "package=$PACKAGE" >> $GITHUB_OUTPUT
-          echo "Running with tag: $TAG, extracted package: $PACKAGE"
-
-        # Projects with target 'nx-release-publish' can be published
-      - name: Verify publishable package
+      # Verify a package by tag is actually configured for publishing
+      - name: Verify publishable package by tag
+        if: steps.ctx.outputs.mode == 'tag'
         run: |
           PROJECTS=$(pnpm nx show projects --with-target nx-release-publish)
-          if echo "$PROJECTS" | grep -q "^${{ steps.extract.outputs.package }}$"; then
-            echo "Package '${{ steps.extract.outputs.package }}' is valid for publishing"
+          if echo "$PROJECTS" | grep -qx "^${{ steps.ctx.outputs.package }}$"; then
+            echo "Package '${{ steps.ctx.outputs.package }}' is valid for publishing"
           else
-            echo "'${{ steps.extract.outputs.package }}' is not a project configured for publishing"
-            echo "Available publishable projects:"
+            echo "'${{ steps.ctx.outputs.package }}' is not a project configured for publishing"
+            echo "Publishable projects:"
             echo "$PROJECTS"
             echo "Skipping publish"
             exit 0
           fi
 
-      - name: Build package
-        run: pnpm nx build ${{ steps.extract.outputs.package }}
+      # Build package by tag or all publishable packages
+      - name: Build
+        run: |
+          if [ "${{ steps.ctx.outputs.mode }}" = "tag" ]; then
+            pnpm nx build "${{ steps.ctx.outputs.package }}"
+          else
+            pnpm nx run-many -t build --with-target nx-release-publish
+          fi
 
-      - name: Publish package
-        run: pnpm nx release publish -p ${{ steps.extract.outputs.package }}
+      - name: Verify NPM token
+        run: |
+          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "NPM_TOKEN is not set"
+            exit 1
+          fi
+
+      # Publish package by tag or pending packages if any
+      - name: Publish
+        run: |
+          if [ "${{ steps.ctx.outputs.mode }}" = "tag" ]; then
+            pnpm nx release publish -p "${{ steps.ctx.outputs.package }}" ${{ steps.ctx.outputs.dry_flag }}
+          else
+            pnpm nx release publish ${{ steps.ctx.outputs.dry_flag }}
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

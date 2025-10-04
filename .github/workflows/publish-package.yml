@@ -23,11 +23,11 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Optional: publish a specific tag (e.g. nx-payload-2.1.0). Leave empty to publish pending packages.'
+        description: Publish a specific tag (e.g. nx-payload-2.1.0). Leave empty to publish pending packages.
         required: false
         type: string
       dry-run:
-        description: 'Do not publish anything, just see what would be published.'
+        description: Do not publish anything, just see what would be published.
         required: false
         default: false
         type: boolean
@@ -126,7 +126,7 @@ jobs:
           if [ "${{ steps.ctx.outputs.mode }}" = "tag" ]; then
             pnpm nx build "${{ steps.ctx.outputs.package }}"
           else
-            pnpm nx run-many -t build --with-target nx-release-publish
+            pnpm nx show projects --with-target nx-release-publish | xargs -t pnpm nx run-many -t build -p
           fi
 
       - name: Verify NPM token

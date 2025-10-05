@@ -30,6 +30,7 @@ export default [
             '@payloadcms/richtext-lexical',
             'prism-react-renderer',
             // Payload components - Tailwind/Shadcn
+            '@radix-ui/react-aspect-ratio',
             '@radix-ui/react-checkbox',
             '@radix-ui/react-dialog',
             '@radix-ui/react-dropdown-menu',

@@ -26,7 +26,12 @@ export type FormSubmitResponse =
 export type PayloadValue = {
   /**
    * Provide a navigate function based on your framework.
-   * It's used to navigate to a new path or URL.
+   * It's used to navigate to a path or URL.
+   *
+   * The `path` value can be a local path or an absolute URL.
+   * The implementation is up to the app developer but it's recommended to:
+   * - setup route definitions to local paths in your app
+   * - apply external URL handling to absolute URLs (e.g. `window.location.href`)
    *
    * @param path - The path to navigate to.
    * @param newTab - Whether to open the link in a new tab.

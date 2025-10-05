@@ -4,7 +4,7 @@ import { tailwindColors } from './tailwind-colors';
 type ColorLevel = keyof (typeof tailwindColors)['amber'];
 
 // Resolve color names that have levels
-type ColorName = keyof typeof tailwindColors;
+export type ColorName = keyof typeof tailwindColors;
 type ColorWithLevel = {
   [K in ColorName]: (typeof tailwindColors)[K] extends Record<string, string>
     ? K

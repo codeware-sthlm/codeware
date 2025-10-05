@@ -11,8 +11,14 @@ const mapper = {
   // Map to category id (unique per tenant)
   category: new Map<string, number>(),
 
+  // Map to media id (unique per tenant)
+  media: new Map<string, number>(),
+
   // Map to page id (unique per tenant)
   page: new Map<string, number>(),
+
+  // Map to tag id (unique per tenant)
+  tag: new Map<string, number>(),
 
   // Map api key to tenant id (unique across tenants)
   tenant: new Map<string, number>(),
@@ -47,6 +53,25 @@ export const tempStore = {
   },
 
   /**
+   * Store media to map.
+   *
+   * @param media - The media to store.
+   * @param mediaId - The id of the media.
+   */
+  storeMedia: (media: MapKey, mediaId: number) => {
+    mapper.media.set(JSON.stringify(media), mediaId);
+  },
+  /**
+   * Lookup media id's.
+   *
+   * @param payload - The payload instance.
+   * @param media - The media to lookup.
+   */
+  lookupMedia: (payload: Payload, media: Array<MapKey>) => {
+    return lookupMedia(payload, media);
+  },
+
+  /**
    * Store page to map.
    *
    * @param page - The page to store.
@@ -63,6 +88,25 @@ export const tempStore = {
    */
   lookupPage: (payload: Payload, pages: Array<MapKey>) => {
     return lookupPage(payload, pages);
+  },
+
+  /**
+   * Store tag to map.
+   *
+   * @param tag - The tag to store.
+   * @param tagId - The id of the tag.
+   */
+  storeTag: (tag: MapKey, tagId: number) => {
+    mapper.tag.set(JSON.stringify(tag), tagId);
+  },
+  /**
+   * Lookup tag id's.
+   *
+   * @param payload - The payload instance.
+   * @param tags - The tags to lookup.
+   */
+  lookupTag: (payload: Payload, tags: Array<MapKey>) => {
+    return lookupTag(payload, tags);
   },
 
   /**
@@ -132,6 +176,20 @@ function lookupCategory(
   }, [] as Array<number>);
 }
 
+function lookupMedia(payload: Payload, media: Array<MapKey>): Array<number> {
+  return media.reduce((acc, media) => {
+    const mediaId = mapper.category.get(JSON.stringify(media));
+    if (!mediaId) {
+      payload.logger.error(
+        `Skip: Media '${media.slug}' for tenant '${media.apiKey}' not found`
+      );
+      return acc;
+    }
+    acc.push(mediaId);
+    return acc;
+  }, [] as Array<number>);
+}
+
 function lookupPage(payload: Payload, pages: Array<MapKey>): Array<number> {
   return pages.reduce((acc, page) => {
     const pageId = mapper.page.get(JSON.stringify(page));
@@ -142,6 +200,20 @@ function lookupPage(payload: Payload, pages: Array<MapKey>): Array<number> {
       return acc;
     }
     acc.push(pageId);
+    return acc;
+  }, [] as Array<number>);
+}
+
+function lookupTag(payload: Payload, tags: Array<MapKey>): Array<number> {
+  return tags.reduce((acc, tag) => {
+    const tagId = mapper.tag.get(JSON.stringify(tag));
+    if (!tagId) {
+      payload.logger.error(
+        `Skip: Tag '${tag.slug}' for tenant '${tag.apiKey}' not found`
+      );
+      return acc;
+    }
+    acc.push(tagId);
     return acc;
   }, [] as Array<number>);
 }

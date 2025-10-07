@@ -166,8 +166,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       nodemailer:
-        specifier: ^6.10.0
-        version: 6.10.1
+        specifier: ^7.0.0
+        version: 7.0.9
       nodemailer-sendgrid:
         specifier: ^1.0.3
         version: 1.0.3
@@ -2746,6 +2746,7 @@ packages:
 
   '@evilmartians/lefthook@1.13.0':
     resolution: {integrity: sha512-3wBSI6FhIpmw0lGNcL8EvAPfxRrKlegmEZ3uRtMRWDjtm4pTJP6K5HEuTCOL0+H3qNxoLBkhiufjLYhOU8QYOw==}
+    cpu: [x64, arm64, ia32]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -11109,12 +11110,12 @@ packages:
   nodemailer-sendgrid@1.0.3:
     resolution: {integrity: sha512-To/veO2M4evjtv1XrY7BUgE+LDypgs/FBx4wOHb2UNTpvZhiARtvMaBI0685Yxkho0lIPJc4jS0cUE7v+XGNgg==}
 
-  nodemailer@6.10.1:
-    resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
-    engines: {node: '>=6.0.0'}
-
   nodemailer@6.9.16:
     resolution: {integrity: sha512-psAuZdTIRN08HKVd/E8ObdV6NO7NTBY3KsC30F7M4H1OnmLCUNaS56FpYxyb26zWLSyYF9Ozch9KYHhHegsiOQ==}
+    engines: {node: '>=6.0.0'}
+
+  nodemailer@7.0.9:
+    resolution: {integrity: sha512-9/Qm0qXIByEP8lEV2qOqcAW7bRpL8CR9jcTwk3NBnHJNmP9fIJ86g2fgmIXqHY+nj55ZEMwWqYAT2QTDpRUYiQ==}
     engines: {node: '>=6.0.0'}
 
   nodemon@3.1.10:
@@ -27876,9 +27877,9 @@ snapshots:
     dependencies:
       '@sendgrid/mail': 6.5.5
 
-  nodemailer@6.10.1: {}
-
   nodemailer@6.9.16: {}
+
+  nodemailer@7.0.9: {}
 
   nodemon@3.1.10:
     dependencies:

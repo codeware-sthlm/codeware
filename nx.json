@@ -118,7 +118,6 @@
   "release": {
     "projects": ["packages/*"],
     "projectsRelationship": "independent",
-    "releaseTagPattern": "{projectName}-{version}",
     "changelog": {
       "automaticFromRef": true,
       "git": {
@@ -135,10 +134,8 @@
     "version": {
       "preVersionCommand": "pnpm nx run-many -t build",
       "conventionalCommits": true,
-      "generatorOptions": {
-        "fallbackCurrentVersionResolver": "disk",
-        "preserveLocalDependencyProtocols": false
-      }
+      "fallbackCurrentVersionResolver": "disk",
+      "preserveLocalDependencyProtocols": false
     },
     "conventionalCommits": {
       "types": {
@@ -209,6 +206,9 @@
           }
         }
       }
+    },
+    "releaseTag": {
+      "pattern": "{projectName}-{version}"
     }
   },
   "plugins": [

@@ -4,6 +4,7 @@ import { getPackageManagerCommand } from '@nx/devkit';
 import { replaceInFile } from 'replace-in-file';
 
 import type { MigrateConfig } from './types';
+import { updateDependencies } from './update-dependencies';
 
 export const runMigration = async (
   config: MigrateConfig,
@@ -39,35 +40,18 @@ export const runMigration = async (
 
   core.info('Update version references in package.json files');
 
-  core.debug('Find and update semantic versions');
-
   await replaceInFile({
     files: config.packagePatterns,
-    from: /"(?:create-nx-workspace|nx|@nx\/[^"]*)": "\d+\.\d+\.\d+"/g,
-    to: (match) => {
-      const packageName = match.split(':')[0];
-      const newValue = `${packageName}: "${latestVersion}"`;
-
-      core.debug(`Found semver version '${match}' -> '${newValue}'`);
-
-      return newValue;
-    },
-    allowEmptyPaths: true
-  });
-
-  core.debug('Find and update major versions');
-
-  await replaceInFile({
-    files: config.packagePatterns,
-    from: /"(?:create-nx-workspace|nx|@nx\/[^"]*)": "(\d+)\.x"/g,
-    to: (match) => {
-      const packageName = match.split(':')[0];
-      const major = latestVersion.split('.')[0];
-      const newValue = `${packageName}: "${major}.x"`;
-
-      core.debug(`Found dynamic version '${match}' -> '${newValue}'`);
-
-      return newValue;
+    // Match entire file contents in one go
+    from: /[\s\S]*/g,
+    to: (fileContent) => {
+      const next = updateDependencies(fileContent, latestVersion);
+      if (next !== fileContent) {
+        core.debug('package.json versions were updated');
+      } else {
+        core.debug('no matching package specs found for update');
+      }
+      return next;
     },
     allowEmptyPaths: true
   });

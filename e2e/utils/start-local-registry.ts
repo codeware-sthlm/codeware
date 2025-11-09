@@ -40,7 +40,7 @@ export default async () => {
     gitCommit: false,
     gitTag: false,
     firstRelease: true,
-    generatorOptionsOverrides: {
+    versionActionsOptionsOverrides: {
       skipLockFileUpdate: true
     },
     verbose

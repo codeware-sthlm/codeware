@@ -1,7 +1,7 @@
 import { dirname, join, relative } from 'path/posix';
 
 import {
-  type CreateNodesContext,
+  type CreateNodesContextV2,
   type CreateNodesResult,
   type ProjectConfiguration,
   type TargetConfiguration,
@@ -31,7 +31,7 @@ import {
  */
 export const createPayloadNodes = async (
   configFilePath: string,
-  context: CreateNodesContext,
+  context: CreateNodesContextV2,
   options: PayloadPluginOptions | undefined,
   targetsCache: Record<
     string,

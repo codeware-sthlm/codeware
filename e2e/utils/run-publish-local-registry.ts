@@ -39,7 +39,7 @@ const runPublishLocalRegistry = async () => {
       gitCommit: false,
       gitTag: false,
       firstRelease: true,
-      generatorOptionsOverrides: {
+      versionActionsOptionsOverrides: {
         skipLockFileUpdate: true
       },
       projects,

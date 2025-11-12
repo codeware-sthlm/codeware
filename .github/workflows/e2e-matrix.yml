@@ -12,6 +12,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 # Environment details:
 # - renovate branches should never use Nx Cloud
 env:

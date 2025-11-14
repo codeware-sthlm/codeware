@@ -16,6 +16,8 @@ export async function run(): Promise<void> {
       committer: core.getInput('committer'),
       author: core.getInput('author'),
       mainBranch: core.getInput('main-branch'),
+      frequency: (core.getInput('frequency') ||
+        'patch') as ActionInputs['frequency'],
       packagePatterns: core.getMultilineInput('package-patterns'),
       prAssignees: core.getInput('pull-request-assignees'),
       skipTests: core.getBooleanInput('skip-tests'),
@@ -28,16 +30,16 @@ export async function run(): Promise<void> {
     // Run nx migration
     const {
       currentVersion,
-      isMajorUpdate,
       isMigrated,
       latestVersion,
-      pullRequest
+      pullRequest,
+      updateType
     } = await nxMigrate(inputs);
 
     // Set action outputs
     core.setOutput('current-version', currentVersion);
     core.setOutput('latest-version', latestVersion);
-    core.setOutput('is-major-update', isMajorUpdate);
+    core.setOutput('update-type', updateType);
     core.setOutput('is-migrated', isMigrated);
     core.setOutput('pull-request', pullRequest);
   } catch (error) {

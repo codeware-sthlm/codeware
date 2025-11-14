@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Every day at 6am UTC
-    - cron: '0 6 * * *'
+    - cron: 0 6 * * *
 
 env:
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -46,6 +46,7 @@ jobs:
           auto-merge: ${{ vars.NX_AUTO_MIGRATE }}
           check-token: ${{ vars.NX_MIGRATE_CHECK_TOKEN }}
           committer: ${{ vars.CDWR_COMMITTER }}
+          frequency: ${{ vars.NX_MIGRATE_FREQUENCY }}
           skip-tests: ${{ vars.NX_MIGRATE_SKIP_TESTS }}
           skip-e2e: ${{ vars.NX_MIGRATE_SKIP_E2E }}
           dry-run: ${{ vars.NX_MIGRATE_DRY_RUN }}

@@ -88,17 +88,51 @@ export async function nxMigrate(
     core.endGroup();
 
     core.startGroup('Analyze current migration state');
-    const { currentVersion, isMajorUpdate, isOutdated, latestVersion } =
+    const { currentVersion, latestVersion, updateType } =
       await getNxVersionInfo();
 
     // Exit early if workspace is up to date
-    if (!isOutdated) {
+    if (updateType === 'none') {
       core.info('Nx workspace is up to date, skipping migration');
       return {
         currentVersion,
         latestVersion,
-        isMajorUpdate,
+        updateType,
         isMigrated: false,
+        pullRequest: undefined
+      };
+    }
+
+    // Check if the type of update should be considered
+    let shouldSkipMigration = false;
+
+    switch (config.frequency) {
+      case 'major': {
+        if (updateType !== 'major') {
+          core.info('Skipping migration: Only major updates are considered');
+          shouldSkipMigration = true;
+        }
+        break;
+      }
+      case 'minor': {
+        if (updateType === 'patch') {
+          core.info('Skipping migration: Patch updates are not considered');
+          shouldSkipMigration = true;
+        }
+        break;
+      }
+      case 'patch': {
+        // All updates are considered
+        break;
+      }
+    }
+
+    if (shouldSkipMigration) {
+      return {
+        currentVersion,
+        latestVersion,
+        isMigrated: false,
+        updateType,
         pullRequest: undefined
       };
     }
@@ -120,7 +154,7 @@ export async function nxMigrate(
       );
       return {
         currentVersion,
-        isMajorUpdate,
+        updateType,
         isMigrated: false,
         latestVersion,
         pullRequest: existingPullRequest
@@ -187,7 +221,7 @@ export async function nxMigrate(
       }
       await addPullRequestLabel(config, pullRequest);
       if (config.autoMerge) {
-        if (isMajorUpdate) {
+        if (updateType === 'major') {
           core.info('Skip auto-merge for major version migrations');
           await addPullRequestComment(
             config.token,
@@ -210,9 +244,9 @@ export async function nxMigrate(
 
       return {
         currentVersion,
-        isMajorUpdate,
         isMigrated: true,
         latestVersion,
+        updateType,
         pullRequest
       };
     } else {
@@ -220,9 +254,9 @@ export async function nxMigrate(
 
       return {
         currentVersion,
-        isMajorUpdate,
         isMigrated: false,
         latestVersion,
+        updateType,
         pullRequest: undefined
       };
     }

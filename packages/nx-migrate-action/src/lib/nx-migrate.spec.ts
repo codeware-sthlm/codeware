@@ -74,7 +74,7 @@ describe('nxMigrate', () => {
    * @returns Action inputs required values with optional overrides
    */
   const setupTest = (
-    mode: 'up-to-date' | 'major-update' | 'minor-update',
+    mode: 'up-to-date' | 'major-update' | 'minor-update' | 'patch-update',
     configOverride?: Partial<ActionInputs>
   ): ActionInputs => {
     switch (mode) {
@@ -82,24 +82,28 @@ describe('nxMigrate', () => {
         getNxVersionInfoMock.mockResolvedValue({
           currentVersion: '1.0.0',
           latestVersion: '1.0.0',
-          isMajorUpdate: false,
-          isOutdated: false
+          updateType: 'none'
         });
         break;
       case 'major-update':
         getNxVersionInfoMock.mockResolvedValue({
           currentVersion: '1.0.0',
           latestVersion: '2.0.0',
-          isMajorUpdate: true,
-          isOutdated: true
+          updateType: 'major'
         });
         break;
       case 'minor-update':
         getNxVersionInfoMock.mockResolvedValue({
           currentVersion: '1.0.0',
+          latestVersion: '1.1.0',
+          updateType: 'minor'
+        });
+        break;
+      case 'patch-update':
+        getNxVersionInfoMock.mockResolvedValue({
+          currentVersion: '1.0.0',
           latestVersion: '1.0.1',
-          isMajorUpdate: false,
-          isOutdated: true
+          updateType: 'patch'
         });
         break;
     }
@@ -112,6 +116,7 @@ describe('nxMigrate', () => {
         committer: '',
         author: '',
         mainBranch: '',
+        frequency: 'patch',
         packagePatterns: [],
         prAssignees: '',
         skipTests: false,
@@ -153,6 +158,7 @@ describe('nxMigrate', () => {
         committer: '',
         dryRun: false,
         mainBranch: '',
+        frequency: 'patch',
         packagePatterns: [],
         prAssignees: '',
         skipTests: false,
@@ -230,7 +236,7 @@ describe('nxMigrate', () => {
       expect(result).toEqual({
         currentVersion: '1.0.0',
         latestVersion: '1.0.0',
-        isMajorUpdate: false,
+        updateType: 'none',
         isMigrated: false,
         pullRequest: undefined
       });
@@ -243,7 +249,7 @@ describe('nxMigrate', () => {
       expect(result).toEqual({
         currentVersion: '1.0.0',
         latestVersion: '1.0.0',
-        isMajorUpdate: false,
+        updateType: 'none',
         isMigrated: false,
         pullRequest: undefined
       });
@@ -252,13 +258,13 @@ describe('nxMigrate', () => {
     it('should return status when pull request exists', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getExecOutputMock.mockResolvedValue({ stdout: 'remote branch' } as any);
-      const config = setupTest('minor-update');
+      const config = setupTest('patch-update');
       const result = await nxMigrate(config, true);
 
       expect(result).toEqual({
         currentVersion: '1.0.0',
         latestVersion: '1.0.1',
-        isMajorUpdate: false,
+        updateType: 'patch',
         isMigrated: false,
         pullRequest: 1
       });
@@ -267,13 +273,13 @@ describe('nxMigrate', () => {
     it('should return status when pull request exists (dry-run)', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getExecOutputMock.mockResolvedValue({ stdout: 'remote branch' } as any);
-      const config = setupTest('minor-update', { dryRun: true });
+      const config = setupTest('patch-update', { dryRun: true });
       const result = await nxMigrate(config, true);
 
       expect(result).toEqual({
         currentVersion: '1.0.0',
         latestVersion: '1.0.1',
-        isMajorUpdate: false,
+        updateType: 'patch',
         isMigrated: false,
         pullRequest: 1
       });
@@ -285,8 +291,8 @@ describe('nxMigrate', () => {
 
       expect(result).toEqual({
         currentVersion: '1.0.0',
-        latestVersion: '1.0.1',
-        isMajorUpdate: false,
+        latestVersion: '1.1.0',
+        updateType: 'minor',
         isMigrated: true,
         pullRequest: 1
       });
@@ -298,8 +304,8 @@ describe('nxMigrate', () => {
 
       expect(result).toEqual({
         currentVersion: '1.0.0',
-        latestVersion: '1.0.1',
-        isMajorUpdate: false,
+        latestVersion: '1.1.0',
+        updateType: 'minor',
         isMigrated: false,
         pullRequest: undefined
       });
@@ -312,7 +318,7 @@ describe('nxMigrate', () => {
       expect(result).toEqual({
         currentVersion: '1.0.0',
         latestVersion: '2.0.0',
-        isMajorUpdate: true,
+        updateType: 'major',
         isMigrated: true,
         pullRequest: 1
       });
@@ -325,16 +331,107 @@ describe('nxMigrate', () => {
       expect(result).toEqual({
         currentVersion: '1.0.0',
         latestVersion: '2.0.0',
-        isMajorUpdate: true,
+        updateType: 'major',
         isMigrated: false,
         pullRequest: undefined
       });
     });
   });
 
+  describe('frequency-based migration control', () => {
+    it('should always proceed with migration when frequency is patch', async () => {
+      let config = setupTest('patch-update', { frequency: 'patch' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.1',
+        updateType: 'patch',
+        isMigrated: true,
+        pullRequest: 1
+      });
+
+      config = setupTest('minor-update', { frequency: 'patch' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.1.0',
+        updateType: 'minor',
+        isMigrated: true,
+        pullRequest: 1
+      });
+
+      config = setupTest('major-update', { frequency: 'patch' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '2.0.0',
+        updateType: 'major',
+        isMigrated: true,
+        pullRequest: 1
+      });
+    });
+
+    it('should skip patch migrations when frequency is minor', async () => {
+      let config = setupTest('patch-update', { frequency: 'minor' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.1',
+        updateType: 'patch',
+        isMigrated: false,
+        pullRequest: undefined
+      });
+
+      config = setupTest('minor-update', { frequency: 'minor' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.1.0',
+        updateType: 'minor',
+        isMigrated: true,
+        pullRequest: 1
+      });
+
+      config = setupTest('major-update', { frequency: 'minor' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '2.0.0',
+        updateType: 'major',
+        isMigrated: true,
+        pullRequest: 1
+      });
+    });
+
+    it('should skip minor and patch migrations when frequency is major', async () => {
+      let config = setupTest('patch-update', { frequency: 'major' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.1',
+        updateType: 'patch',
+        isMigrated: false,
+        pullRequest: undefined
+      });
+
+      config = setupTest('minor-update', { frequency: 'major' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '1.1.0',
+        updateType: 'minor',
+        isMigrated: false,
+        pullRequest: undefined
+      });
+
+      config = setupTest('major-update', { frequency: 'major' });
+      expect(await nxMigrate(config, true)).toEqual({
+        currentVersion: '1.0.0',
+        latestVersion: '2.0.0',
+        updateType: 'major',
+        isMigrated: true,
+        pullRequest: 1
+      });
+    });
+  });
+
   describe('happy migration flows', () => {
     it('should update remote url to use token authentication', async () => {
-      const config = setupTest('minor-update', { mainBranch: 'main' });
+      const config = setupTest('minor-update', {
+        mainBranch: 'main'
+      });
       await nxMigrate(config, true);
 
       expect(execMock).toHaveBeenCalledWith('git', [
@@ -346,14 +443,16 @@ describe('nxMigrate', () => {
     });
 
     it('should create/reset feature branch from latest main commit without tracking', async () => {
-      const config = setupTest('minor-update', { mainBranch: 'main' });
+      const config = setupTest('minor-update', {
+        mainBranch: 'main'
+      });
       await nxMigrate(config, true);
 
       expect(execMock).toHaveBeenCalledWith('git', [
         'checkout',
         '--no-track',
         '-B',
-        'update-nx-workspace-1.0.1',
+        'update-nx-workspace-1.1.0',
         'origin/main'
       ]);
     });
@@ -366,7 +465,7 @@ describe('nxMigrate', () => {
         expect(execMock).toHaveBeenCalledWith('npx', [
           'nx',
           'migrate',
-          '1.0.1'
+          '1.1.0'
         ]);
       });
 
@@ -377,7 +476,7 @@ describe('nxMigrate', () => {
         expect(execMock).toHaveBeenCalledWith('npx', [
           'nx',
           'add',
-          'create-nx-workspace@1.0.1'
+          'create-nx-workspace@1.1.0'
         ]);
       });
 
@@ -449,26 +548,30 @@ describe('nxMigrate', () => {
         'commit',
         '--author="actor <1+actor@users.noreply.github.com>"',
         '-m',
-        'build(repo): update nx workspace to 1.0.1',
+        'build(repo): update nx workspace to 1.1.0',
         '--no-verify'
       ]);
       expect(execMock).toHaveBeenCalledWith('git', [
         'push',
         '-u',
         'origin',
-        'update-nx-workspace-1.0.1'
+        'update-nx-workspace-1.1.0'
       ]);
     });
 
     it('should call run nx tests function when not skipped', async () => {
-      const config = setupTest('minor-update', { skipTests: false });
+      const config = setupTest('minor-update', {
+        skipTests: false
+      });
       await nxMigrate(config, true);
 
       expect(runNxTestsMock).toHaveBeenCalled();
     });
 
     it('should not call run nx tests function when skipped', async () => {
-      const config = setupTest('minor-update', { skipTests: true });
+      const config = setupTest('minor-update', {
+        skipTests: true
+      });
       await nxMigrate(config, true);
 
       expect(runNxTestsMock).not.toHaveBeenCalled();
@@ -476,21 +579,27 @@ describe('nxMigrate', () => {
 
     it('should call run nx e2e function when nx tests pass', async () => {
       runNxTestsMock.mockResolvedValue(true);
-      const config = setupTest('minor-update', { skipTests: false });
+      const config = setupTest('minor-update', {
+        skipTests: false
+      });
       await nxMigrate(config, true);
 
       expect(runNxE2eMock).toHaveBeenCalled();
     });
 
     it('should call run nx e2e function when nx tests skipped', async () => {
-      const config = setupTest('minor-update', { skipTests: true });
+      const config = setupTest('minor-update', {
+        skipTests: true
+      });
       await nxMigrate(config, true);
 
       expect(runNxE2eMock).toHaveBeenCalled();
     });
 
     it('should not call run nx e2e function when nx e2e skipped', async () => {
-      const config = setupTest('minor-update', { skipE2E: true });
+      const config = setupTest('minor-update', {
+        skipE2E: true
+      });
       await nxMigrate(config, true);
 
       expect(runNxE2eMock).not.toHaveBeenCalled();
@@ -509,7 +618,9 @@ describe('nxMigrate', () => {
 
     it('should not call run nx e2e function when nx tests fail', async () => {
       runNxTestsMock.mockResolvedValue(false);
-      const config = setupTest('minor-update', { skipTests: false });
+      const config = setupTest('minor-update', {
+        skipTests: false
+      });
       await nxMigrate(config, true);
 
       expect(runNxE2eMock).not.toHaveBeenCalled();
@@ -528,7 +639,7 @@ describe('nxMigrate', () => {
 
       expect(createPullRequestMock).toHaveBeenCalledWith(
         expect.any(Object),
-        { currentVersion: '1.0.0', latestVersion: '1.0.1' },
+        { currentVersion: '1.0.0', latestVersion: '1.1.0' },
         {
           e2ePass: true,
           testsPass: true
@@ -547,7 +658,9 @@ describe('nxMigrate', () => {
     });
 
     it('should call add pull request assignees function', async () => {
-      const config = setupTest('minor-update', { prAssignees: 'user1,user2' });
+      const config = setupTest('minor-update', {
+        prAssignees: 'user1,user2'
+      });
       await nxMigrate(config, true);
 
       expect(addPullRequestAssigneesMock).toHaveBeenCalledWith(
@@ -560,14 +673,18 @@ describe('nxMigrate', () => {
     });
 
     it('should not call add pull request assignees function when no assignees are provided', async () => {
-      const config = setupTest('minor-update', { prAssignees: '' });
+      const config = setupTest('minor-update', {
+        prAssignees: ''
+      });
       await nxMigrate(config, true);
 
       expect(addPullRequestAssigneesMock).not.toHaveBeenCalled();
     });
 
     it('should call enable pull request auto merge function when enabled', async () => {
-      const config = setupTest('minor-update', { autoMerge: true });
+      const config = setupTest('minor-update', {
+        autoMerge: true
+      });
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).toHaveBeenCalledWith(
@@ -578,14 +695,18 @@ describe('nxMigrate', () => {
     });
 
     it('should not call enable pull request auto merge function when disabled', async () => {
-      const config = setupTest('minor-update', { autoMerge: false });
+      const config = setupTest('minor-update', {
+        autoMerge: false
+      });
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
     });
 
     it('should not call enable pull request auto merge function for major version update', async () => {
-      const config = setupTest('major-update', { autoMerge: true });
+      const config = setupTest('major-update', {
+        autoMerge: true
+      });
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
@@ -598,7 +719,9 @@ describe('nxMigrate', () => {
 
     it('should not call enable pull request auto merge function when nx tests failed', async () => {
       runNxTestsMock.mockResolvedValue(false);
-      const config = setupTest('minor-update', { autoMerge: true });
+      const config = setupTest('minor-update', {
+        autoMerge: true
+      });
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
@@ -611,7 +734,9 @@ describe('nxMigrate', () => {
 
     it('should not call enable pull request auto merge function when nx e2e failed', async () => {
       runNxE2eMock.mockResolvedValue(false);
-      const config = setupTest('minor-update', { autoMerge: true });
+      const config = setupTest('minor-update', {
+        autoMerge: true
+      });
       await nxMigrate(config, true);
 
       expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
@@ -739,7 +864,9 @@ describe('nxMigrate', () => {
     });
 
     it(`should print 'skip' log`, async () => {
-      const config = setupTest('minor-update', { dryRun: true });
+      const config = setupTest('minor-update', {
+        dryRun: true
+      });
       await nxMigrate(config, true);
 
       expect(core.info).toHaveBeenCalledWith('Skip nx migration [dry-run]');

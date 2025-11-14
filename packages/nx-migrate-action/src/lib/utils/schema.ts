@@ -28,6 +28,7 @@ export const ActionInputsSchema = z.object({
   committer: z.string(),
   dryRun: z.boolean(),
   mainBranch: z.string(),
+  frequency: z.enum(['major', 'minor', 'patch']),
   packagePatterns: z.array(z.string()),
   prAssignees: z.string(),
   skipTests: z.boolean(),

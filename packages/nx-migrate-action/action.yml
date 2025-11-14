@@ -12,6 +12,11 @@ inputs:
     description: >
       Name of the main branch to merge into.
       Defaults to the repository's default branch.
+  frequency:
+    description: >
+      Whether to check for major, minor, or patch updates.
+      When the update is lower than the configured value, the migration will be skipped.
+      Defaults to 'patch' (migrate all updates).
   auto-merge:
     description: >
       Whether to enable auto-merge for non-major updates.
@@ -57,9 +62,9 @@ outputs:
   latest-version:
     description: >
       Latest version of @nx/workspace.
-  is-major-update:
+  update-type:
     description: >
-      Whether this is a major version update.
+      What kind of update this is (major, minor, patch, none = no update).
   is-migrated:
     description: >
       Whether a migration was performed.

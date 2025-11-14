@@ -31,16 +31,23 @@ export async function getNxVersionInfo(): Promise<VersionInfo> {
   const latestMajor = parseInt(latestVersion.split('.')[0]);
   core.info(`Latest major: ${latestMajor}`);
 
-  const isMajorUpdate = latestMajor > currentMajor;
-  core.info(`Major update: ${isMajorUpdate}`);
+  const currentMinor = parseInt(currentVersion.split('.')[1]);
+  const latestMinor = parseInt(latestVersion.split('.')[1]);
 
-  const isOutdated = currentVersion !== latestVersion;
-  core.info(`Outdated: ${isOutdated}`);
+  const updateType: VersionInfo['updateType'] =
+    currentVersion === latestVersion
+      ? 'none'
+      : latestMajor > currentMajor
+        ? 'major'
+        : latestMinor > currentMinor
+          ? 'minor'
+          : 'patch';
+
+  core.info(`Update type: ${updateType}`);
 
   return {
     currentVersion,
     latestVersion,
-    isMajorUpdate,
-    isOutdated
+    updateType
   };
 }

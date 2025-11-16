@@ -336,6 +336,7 @@ describe('flyDeployment', () => {
         mainBranch: '',
         optOutDepotBuilder: false,
         secrets: [],
+        tenants: [],
         token: 'token'
       },
       ...configOverride
@@ -384,6 +385,7 @@ describe('flyDeployment', () => {
         mainBranch: '',
         optOutDepotBuilder: false,
         secrets: [],
+        tenants: [],
         token: 'token'
       } satisfies ActionInputs);
 
@@ -1048,6 +1050,102 @@ describe('flyDeployment', () => {
         env: expect.any(Object),
         optOutDepotBuilder: true
       });
+    });
+
+    it('should deploy apps to production with multiple tenants', async () => {
+      setContext('push-main-branch');
+      setupMocks();
+      const config = setupTest({
+        tenants: ['demo', 'customer1']
+      });
+      const result = await flyDeployment(config, true);
+
+      // Each project should be deployed once for each tenant
+      expect(getMockFly().deploy).toHaveBeenCalledTimes(4); // 2 projects * 2 tenants
+
+      // app-one for demo tenant
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-demo',
+        config: '/apps/app-one/fly.toml',
+        env: {
+          APP_NAME: 'app-one-config-demo',
+          PR_NUMBER: '',
+          TENANT_ID: 'demo'
+        },
+        environment: 'production',
+        optOutDepotBuilder: false,
+        postgres: expect.any(String)
+      });
+
+      // app-one for customer1 tenant
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-customer1',
+        config: '/apps/app-one/fly.toml',
+        env: {
+          APP_NAME: 'app-one-config-customer1',
+          PR_NUMBER: '',
+          TENANT_ID: 'customer1'
+        },
+        environment: 'production',
+        optOutDepotBuilder: false,
+        postgres: expect.any(String)
+      });
+
+      // app-two for demo tenant
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-demo',
+        config: '/apps/app-two/src/fly.toml',
+        env: {
+          APP_NAME: 'app-two-config-demo',
+          PR_NUMBER: '',
+          TENANT_ID: 'demo'
+        },
+        environment: 'production',
+        optOutDepotBuilder: false
+      });
+
+      // app-two for customer1 tenant
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-customer1',
+        config: '/apps/app-two/src/fly.toml',
+        env: {
+          APP_NAME: 'app-two-config-customer1',
+          PR_NUMBER: '',
+          TENANT_ID: 'customer1'
+        },
+        environment: 'production',
+        optOutDepotBuilder: false
+      });
+
+      expect(result).toEqual({
+        environment: 'production',
+        projects: [
+          {
+            action: 'deploy',
+            app: 'app-one-config-demo',
+            name: 'app-one (demo)',
+            url: 'https://app-one-config-demo.fly.dev'
+          },
+          {
+            action: 'deploy',
+            app: 'app-one-config-customer1',
+            name: 'app-one (customer1)',
+            url: 'https://app-one-config-customer1.fly.dev'
+          },
+          {
+            action: 'deploy',
+            app: 'app-two-config-demo',
+            name: 'app-two (demo)',
+            url: 'https://app-two-config-demo.fly.dev'
+          },
+          {
+            action: 'deploy',
+            app: 'app-two-config-customer1',
+            name: 'app-two (customer1)',
+            url: 'https://app-two-config-customer1.fly.dev'
+          }
+        ]
+      } satisfies ActionOutputs);
     });
   });
 

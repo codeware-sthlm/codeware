@@ -215,11 +215,9 @@
   "engines": {
     "node": ">=20 <22"
   },
-  "pnpm": {
-    "overrides": {
-      "@swc/core": "1.13.20",
-      "react": "$react",
-      "react-dom": "$react-dom"
-    }
+  "overrides": {
+    "@swc/core": "1.13.20",
+    "react": "$react",
+    "react-dom": "$react-dom"
   }
 }

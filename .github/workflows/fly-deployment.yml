@@ -98,8 +98,20 @@ jobs:
           main-branch-name: main
           set-environment-variables-for-job: true
 
-      # TODO: Fetch all tenants and make a deployment for each with their `TENANT_ID`
-      # TODO: Alternatively, create a new input with multi-tenant values
+      - name: Fetch tenants from Infisical
+        id: fetch-tenants
+        run: |
+          echo "Fetching tenants from Infisical..."
+          TENANTS=$(tsx scripts/fetch-tenants.ts)
+          echo "tenants<<EOF" >> $GITHUB_OUTPUT
+          echo "$TENANTS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_READ_CLIENT_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_READ_CLIENT_SECRET }}
+          INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+          DEPLOY_ENV: ${{ needs.deploy-env.outputs.environment }}
+
       - name: Run Deployment to Fly
         id: deployment
         uses: ./packages/nx-fly-deployment-action
@@ -108,8 +120,7 @@ jobs:
           fly-org: ${{ vars.FLY_ORG }}
           fly-region: ${{ vars.FLY_REGION }}
           token: ${{ steps.generate-token.outputs.token }}
-          env: |
-            TENANT_ID=demo
+          tenants: ${{ steps.fetch-tenants.outputs.tenants }}
           secrets: |
             INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_READ_CLIENT_ID }}
             INFISICAL_CLIENT_SECRET=${{ secrets.INFISICAL_READ_CLIENT_SECRET }}

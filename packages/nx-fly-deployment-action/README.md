@@ -92,6 +92,25 @@ See [action.yaml](action.yml) for descriptions of the inputs.
 
 ### Additional input details
 
+`tenants`
+
+When deploying multi-tenant applications, you can provide a list of tenant IDs. Each affected project will be deployed once per tenant with:
+- A unique app name: `<base-app-name>-<tenant-id>` (e.g., `cdwr-web-demo`, `cdwr-web-customer1`)
+- The `TENANT_ID` environment variable set to the tenant ID
+
+Provide the tenant IDs as multiline values.
+
+```yaml
+- uses: ./packages/nx-fly-deployment-action
+  with:
+    tenants: |
+      demo
+      customer1
+      customer2
+```
+
+If no tenants are provided, the action behaves as before (single deployment per project).
+
 `postgres-preview`
 
 When a Fly Postgres cluser has been created, you can attach the application to a postgres database automatically on deployment to the `preview` environment.

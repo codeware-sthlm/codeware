@@ -19,6 +19,7 @@ export async function run(): Promise<void> {
       mainBranch: core.getInput('main-branch'),
       optOutDepotBuilder: core.getBooleanInput('opt-out-depot-builder'),
       secrets: core.getMultilineInput('secrets'),
+      tenants: core.getMultilineInput('tenants'),
       token: core.getInput('token', { required: true })
     } satisfies ActionInputs);
 

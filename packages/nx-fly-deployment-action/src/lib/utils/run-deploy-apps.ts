@@ -11,6 +11,7 @@ import { addOpinionatedEnv } from './add-opinionated-env';
 import { getDeployableProjects } from './get-deployable-projects';
 import { getPreviewAppName } from './get-preview-app-name';
 import { getProjectConfiguration } from './get-project-configuration';
+import { getTenantAppName } from './get-tenant-app-name';
 import { lookupGitHubConfigFile } from './lookup-github-config-file';
 
 /**
@@ -119,58 +120,80 @@ export const runDeployApps = async (options: {
     // Requirements are met, ready to deploy
     core.info(`[${projectName}] Ready to fly >>>`);
 
-    // Get app name
-    const appName =
-      environment === 'preview'
-        ? getPreviewAppName(configAppName, pullRequest ?? 0)
-        : configAppName;
+    // Determine which tenants to deploy for
+    // If no tenants provided, deploy once without tenant suffix
+    const tenantsToDeployFor = config.tenants.length > 0 ? config.tenants : [''];
 
-    // Add environment variables
-    const env = addOpinionatedEnv(
-      { appName, prNumber: pullRequest },
-      config.env
-    );
+    // Deploy once for each tenant
+    for (const tenantId of tenantsToDeployFor) {
+      const tenantLabel = tenantId ? ` for tenant '${tenantId}'` : '';
+      core.info(`[${projectName}] Deploying${tenantLabel}...`);
 
-    // Get postgres connection string
-    const postgres =
-      environment === 'preview'
-        ? githubConfig.flyPostgresPreview
-        : githubConfig.flyPostgresProduction;
+      // Get app name with tenant suffix
+      let appName: string;
+      if (environment === 'preview') {
+        appName = getPreviewAppName(configAppName, pullRequest ?? 0);
+        // Add tenant suffix for preview if tenant specified
+        if (tenantId) {
+          appName = getTenantAppName(appName, tenantId);
+        }
+      } else {
+        // For production, add tenant suffix if tenant specified
+        appName = tenantId ? getTenantAppName(configAppName, tenantId) : configAppName;
+      }
 
-    core.info(
-      `[${projectName}] Deploy app '${appName}' to '${environment}'...`
-    );
+      // Add environment variables
+      const envVars = addOpinionatedEnv(
+        { appName, prNumber: pullRequest },
+        config.env
+      );
 
-    // Deploy app
-    try {
-      const result = await fly.deploy({
-        app: appName,
-        config: resolvedFlyConfig,
-        env,
-        environment,
-        optOutDepotBuilder: config.fly.optOutDepotBuilder,
-        postgres: postgres || undefined, // rather undefined than empty string
-        secrets: config.secrets
-      });
+      // Add TENANT_ID environment variable if tenant is specified
+      if (tenantId) {
+        envVars['TENANT_ID'] = tenantId;
+      }
 
-      core.info(`[${projectName}] 🚀 Deployed to '${result.url}'`);
+      // Get postgres connection string
+      const postgres =
+        environment === 'preview'
+          ? githubConfig.flyPostgresPreview
+          : githubConfig.flyPostgresProduction;
 
-      projects.push({
-        action: 'deploy',
-        app: result.app,
-        name: projectName,
-        url: result.url
-      });
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
+      core.info(
+        `[${projectName}] Deploy app '${appName}' to '${environment}'${tenantLabel}...`
+      );
 
-      core.warning(`[${projectName}] ❌ Failed to deploy project: ${msg}`);
+      // Deploy app
+      try {
+        const result = await fly.deploy({
+          app: appName,
+          config: resolvedFlyConfig,
+          env: envVars,
+          environment,
+          optOutDepotBuilder: config.fly.optOutDepotBuilder,
+          postgres: postgres || undefined, // rather undefined than empty string
+          secrets: config.secrets
+        });
 
-      projects.push({
-        appOrProject: projectName,
-        action: 'skip',
-        reason: 'Failed to deploy project'
-      });
+        core.info(`[${projectName}] 🚀 Deployed to '${result.url}'${tenantLabel}`);
+
+        projects.push({
+          action: 'deploy',
+          app: result.app,
+          name: tenantId ? `${projectName} (${tenantId})` : projectName,
+          url: result.url
+        });
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+
+        core.warning(`[${projectName}] ❌ Failed to deploy project${tenantLabel}: ${msg}`);
+
+        projects.push({
+          appOrProject: tenantId ? `${projectName} (${tenantId})` : projectName,
+          action: 'skip',
+          reason: `Failed to deploy project${tenantLabel}`
+        });
+      }
     }
   }
 

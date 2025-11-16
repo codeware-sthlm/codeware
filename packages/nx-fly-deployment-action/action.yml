@@ -35,6 +35,12 @@ inputs:
       The token to use for repository authentication.
       For example `GITHUB_TOKEN`.
     required: true
+  tenants:
+    description: >
+      A multiline string of tenant IDs to deploy for multi-tenant applications.
+      Each tenant ID should be on a new line.
+      If provided, each affected project will be deployed once per tenant with TENANT_ID env var set.
+      Defaults to an empty string (no multi-tenant deployment).
   opt-out-depot-builder:
     description: >
       Whether to opt out of the default depot builder.

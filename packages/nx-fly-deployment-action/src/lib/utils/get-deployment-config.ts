@@ -43,6 +43,7 @@ export const getDeploymentConfig = async (
     mainBranch: mainBranchInput,
     optOutDepotBuilder,
     secrets: secretsInput,
+    tenants,
     token
   } = inputs;
 
@@ -66,6 +67,7 @@ export const getDeploymentConfig = async (
     },
     mainBranch,
     secrets,
+    tenants,
     token
   };
   core.info(JSON.stringify(config, null, 2));

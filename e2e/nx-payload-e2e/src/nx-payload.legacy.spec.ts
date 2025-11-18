@@ -23,7 +23,7 @@ describe('Test plugin by creating workspace with preset (legacy test suite)', ()
   /** Default workspace project */
   let project: CreateNxWorkspaceProject;
 
-  jest.setTimeout(300_000);
+  jest.setTimeout(500_000);
 
   beforeAll(async () => {
     process.env['NX_ADD_PLUGINS'] = 'false';

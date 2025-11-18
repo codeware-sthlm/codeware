@@ -42,7 +42,7 @@ export function normalizeOptions(
     e2eTestRunner: options.e2eTestRunner || 'none',
     linter: options.linter || 'eslint',
     skipFormat: options.skipFormat ?? false,
-    style: options.style || 'css',
+    style: options.style || 'scss',
     swc: options.swc ?? true,
     tags: options.tags || '',
     unitTestRunner: options.unitTestRunner || 'jest',

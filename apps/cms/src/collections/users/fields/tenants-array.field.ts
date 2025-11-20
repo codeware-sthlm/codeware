@@ -66,6 +66,8 @@ export const tenantsArrayField = (): Field => {
         sv: 'Användare kan begränsas till en eller flera arbetsytor.'
       },
       components: {
+        // Dynamic "add workspace" button behavior
+        Field: '@codeware/apps/cms/components/TenantsArrayField',
         // Hide the top level label since we have a similar label in the tab
         Label: undefined,
         // Custom tenant/role header

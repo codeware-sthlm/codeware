@@ -9,11 +9,9 @@ type Options = {
   cwd?: string;
   /** The environment variables to pass to the command */
   env?: NodeJS.ProcessEnv;
-  /** Whether to log debug messages */
   verbose?: boolean;
   /** Error detector RegExp to determine when to terminate the running process and fail */
   errorDetector?: RegExp;
-  /** Predicate function to determine when to exit the running process */
   doneFn?: (log: string) => boolean;
 };
 
@@ -56,7 +54,7 @@ export function runCommand(
   const controller = new AbortController();
   const { signal } = controller;
 
-  const p = exec(command, {
+  const child = exec(command, {
     cwd,
     encoding: 'utf-8',
     env,
@@ -67,33 +65,16 @@ export function runCommand(
     let output = '';
     let complete = false;
 
-    // Check if the optional predicate function is met
-    const checkLog = (log: string) => {
-      if (verbose) {
-        logDebug(log);
-      }
-      output += log;
-
-      if (errorDetector && log.match(errorDetector)) {
-        logDebug(
-          'Error detector found a match, terminate command with failure',
-          log
-        );
-        return terminate(output, 'fail');
-      }
-
-      if (doneFn && doneFn(log) && !complete) {
-        complete = true;
-        logDebug('Predicate function met, terminate command successfully', log);
-        terminate(output, 'success');
-      }
-    };
-
-    // Abort the process and resolve when successful, otherwise reject with the error
     const terminate = (result: string, status: 'success' | 'fail') => {
+      if (complete) {
+        return;
+      }
+      complete = true;
+
       if (!signal.aborted) {
         controller.abort();
       }
+
       if (status === 'success') {
         resolve(result);
       } else {
@@ -101,12 +82,36 @@ export function runCommand(
       }
     };
 
-    // Listen for stdout and stderr
-    p.stdout?.on('data', checkLog);
-    p.stderr?.on('data', checkLog);
+    const checkLog = (chunk: string) => {
+      if (verbose) {
+        logDebug(chunk);
+      }
 
-    // Listen for error and terminate when process is still running
-    p.on('error', (err) => {
+      output += chunk;
+
+      if (errorDetector && chunk.match(errorDetector)) {
+        logDebug(
+          'Error detector found a match, terminate command with failure',
+          chunk
+        );
+        return terminate(output, 'fail');
+      }
+
+      // Pass cumulative output to be checked by consumer's predicate
+      if (doneFn && doneFn(output)) {
+        logDebug(
+          'Predicate function met, terminate command successfully',
+          output
+        );
+        return terminate(output, 'success');
+      }
+    };
+
+    // Listen to all outputs
+    child.stdout?.on('data', checkLog);
+    child.stderr?.on('data', checkLog);
+
+    child.on('error', (err) => {
       if (signal.aborted) {
         return;
       }
@@ -114,8 +119,13 @@ export function runCommand(
       terminate(err.message, 'fail');
     });
 
-    // Listen for exit event
-    p.on('exit', (code) => {
+    child.on('exit', (code) => {
+      if (signal.aborted) {
+        // child was killed via terminate()
+        return;
+      }
+
+      // If we had a predicate but it never fired, this is a failure
       if (doneFn && !complete) {
         logError(
           'Command output:',
@@ -124,9 +134,13 @@ export function runCommand(
             .map((l) => `    ${l}`)
             .join('\n')
         );
-        reject(`Exited with ${code}`);
-      } else {
+        return terminate(`Exited with ${code}`, 'fail');
+      }
+
+      if (code === 0) {
         terminate(output, 'success');
+      } else {
+        terminate(`Exited with ${code}`, 'fail');
       }
     });
   });

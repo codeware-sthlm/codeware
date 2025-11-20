@@ -4,8 +4,8 @@ import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc';
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
-import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
+import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client';
 import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client';
@@ -34,6 +34,7 @@ import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc056
 
 import { default as default_1b21cdd8d72b60f58886e03c7a7a4ebd } from '@codeware/app-cms/ui/blocks/card/CardBlockArrayRowLabel.client';
 import { default as default_75fddbc22d1b88f24f1cec1b82919953 } from '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client';
+import { default as default_4cdb396fdb94ce9776953fed2fe6bc6a } from '@codeware/app-cms/ui/components/Callout';
 import { default as default_83b0dfab156f3636ed94b94854d15ad5 } from '@codeware/app-cms/ui/components/RedirectNotifier';
 import { default as default_7925a79d2af6389df70d2dd269ffbfbb } from '@codeware/app-cms/ui/components/VerifyTenantDomain';
 import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/app-cms/ui/fields/code/Code.client';
@@ -41,6 +42,7 @@ import { default as default_8586e6ac5ddd6a3f87ffe1dd472673f5 } from '@codeware/a
 import { default as default_ae19db27eee762af26f037dd7af0b736 } from '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
 import { default as default_d497a38447405736d600359900364450 } from '@codeware/apps/cms/components/NavigationArrayRowLabel';
+import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
 import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/apps/cms/components/TenantsArrayRowLabel';
 
 export const importMap = {
@@ -88,6 +90,8 @@ export const importMap = {
     BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#ItalicFeatureClient':
     ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  '@codeware/app-cms/ui/components/Callout#default':
+    default_4cdb396fdb94ce9776953fed2fe6bc6a,
   '@codeware/apps/cms/components/NavigationArrayRowLabel#default':
     default_d497a38447405736d600359900364450,
   '@payloadcms/plugin-seo/client#OverviewComponent':
@@ -114,6 +118,8 @@ export const importMap = {
     default_06af4458abd1296f9d6bccce90425927,
   '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client#default':
     default_75fddbc22d1b88f24f1cec1b82919953,
+  '@codeware/apps/cms/components/TenantsArrayField#default':
+    default_4a3552dc4f000a1797b4eb36166f8ff8,
   '@codeware/apps/cms/components/TenantsArrayRowLabel#default':
     default_dec1059b7bb8eb8da3a9f0fc400fffbd,
   '@codeware/apps/cms/components/Logo.client#default':

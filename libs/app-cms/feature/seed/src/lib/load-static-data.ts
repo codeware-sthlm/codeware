@@ -11,6 +11,7 @@ import type {
 import { generateCategories } from './utils/generate-categories';
 import { generatePages } from './utils/generate-pages';
 import { generatePosts } from './utils/generate-posts';
+import { generateTags } from './utils/generate-tags';
 import { generateTenants } from './utils/generate-tenants';
 import { generateUsers } from './utils/generate-users';
 
@@ -29,7 +30,8 @@ export const defaultSeedRules: Prettify<
     roleUser: { min: 1, max: 5 }
   },
   tenantPosts: { min: 5, max: 10 },
-  tenantPages: { min: 4, max: 6 }
+  tenantPages: { min: 4, max: 6 },
+  tenantTags: { min: 4, max: 6 }
 } as const;
 
 /**
@@ -48,17 +50,20 @@ export const loadStaticData = (args: {
   options?: StaticSeedOptions;
   payload: Payload;
 }): SeedData => {
-  const { environment, options = {}, payload } = args;
-  const { constantSeedKey, seedRules = {} } = options;
+  const { environment, options, payload } = args;
+  const { constantSeedKey, remoteDataUrl, seedRules = {} } = options ?? {};
 
   if (environment === 'production') {
     throw new Error('Static seeding is not allowed in production');
   }
 
   const jsonData = manageSeedData.load(environment, {
-    error: (msg, ...args) => payload.logger.error(msg, args),
-    log: (msg, ...args) => payload.logger.info(msg, args),
-    warn: (msg, ...args) => payload.logger.warn(msg, args)
+    logger: {
+      error: (msg, ...args) => payload.logger.error(msg, args),
+      log: (msg, ...args) => payload.logger.info(msg, args),
+      warn: (msg, ...args) => payload.logger.warn(msg, args)
+    },
+    remoteDataUrl
   });
 
   if (jsonData) {
@@ -113,6 +118,12 @@ export const loadStaticData = (args: {
     tenants
   );
 
+  // Generate tags
+  const tags = generateTags(
+    seedRules.tenantTags ?? defaultSeedRules.tenantTags,
+    tenants
+  );
+
   // Generate pages
   const pages = generatePages(
     seedRules.tenantPages ?? defaultSeedRules.tenantPages,
@@ -141,8 +152,10 @@ export const loadStaticData = (args: {
   // Combine all data to the final seed object
   const seedData: SeedData = {
     categories,
+    media: [], // media is generated from proper files
     pages,
     posts,
+    tags,
     tenants,
     users
   };

@@ -119,7 +119,7 @@ describe('Test plugin by starting with an empty workspace (limited test suite)',
       await runCommand(`nx dev ${appName}`, {
         doneFn: (log) => /Ready in \d/.test(log),
         errorDetector: /Error:/,
-        verbose: process.env.NX_VERBOSE_LOGGING === 'true'
+        verbose: process.env.CDWR_DEBUG_LOGGING === 'true'
       });
     });
 

@@ -1,9 +1,16 @@
-FROM node:20-alpine AS base
+FROM node:20-bullseye-slim AS base
 
 FROM base AS deps
-# Check the link to understand why libc6-compat might be needed
-# https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
-RUN apk add --no-cache libc6-compat
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    git \
+    python3 \
+    make \
+    g++ \
+    libc6-dev \
+    libvips-dev \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 COPY package.json ./

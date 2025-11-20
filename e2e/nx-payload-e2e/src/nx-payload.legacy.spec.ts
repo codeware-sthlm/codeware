@@ -108,7 +108,7 @@ describe('Test plugin by creating workspace with preset (legacy test suite)', ()
       await runCommand(`nx serve ${project.appName}`, {
         doneFn: (log) => /Ready in \d/.test(log),
         errorDetector: /Error:/,
-        verbose: process.env.NX_VERBOSE_LOGGING === 'true'
+        verbose: process.env.CDWR_DEBUG_LOGGING === 'true'
       });
     });
 

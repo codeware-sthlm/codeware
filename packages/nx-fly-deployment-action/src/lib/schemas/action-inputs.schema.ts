@@ -8,6 +8,7 @@ export const ActionInputsSchema = z.object({
   mainBranch: z.string(),
   optOutDepotBuilder: z.boolean(),
   secrets: z.array(z.string()),
+  tenants: z.array(z.string()),
   token: z.string().min(1, 'A GitHub token is required')
 });
 

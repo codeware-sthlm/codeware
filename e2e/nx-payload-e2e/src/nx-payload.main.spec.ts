@@ -62,8 +62,14 @@ describe('Test plugin by creating workspace with preset (extended test suite)', 
 
     it('should have added nx-payload and related plugins to nx.json', () => {
       const nxJson = readJson<NxJsonConfiguration>('nx.json');
+      const plugins = nxJson.plugins.sort(
+        (a, b) =>
+          typeof a === 'object' &&
+          typeof b === 'object' &&
+          a.plugin.localeCompare(b.plugin)
+      );
 
-      expect(nxJson.plugins).toEqual([
+      expect(plugins).toEqual([
         {
           plugin: '@cdwr/nx-payload/plugin',
           options: {
@@ -77,7 +83,7 @@ describe('Test plugin by creating workspace with preset (extended test suite)', 
           }
         },
         {
-          plugin: '@nx/next/plugin',
+          plugin: '@nx/eslint/plugin',
           options: expect.any(Object)
         },
         {
@@ -85,7 +91,7 @@ describe('Test plugin by creating workspace with preset (extended test suite)', 
           options: expect.any(Object)
         },
         {
-          plugin: '@nx/eslint/plugin',
+          plugin: '@nx/next/plugin',
           options: expect.any(Object)
         }
       ]);

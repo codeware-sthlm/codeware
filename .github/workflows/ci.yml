@@ -10,7 +10,7 @@ on:
   push:
     branches:
       - main
-      - 'renovate/**'
+      - renovate/**
   workflow_dispatch:
 
 permissions:
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -61,6 +61,10 @@ jobs:
 
       # nx-payload-e2e only runs in e2e-matrix workflow
       - run: pnpm nx affected -t e2e -c ci --exclude nx-payload-e2e
+
+      - name: Nx Self-healing CI
+        run: pnpm nx fix-ci
+        if: always()
 
       - uses: codecov/codecov-action@v5
         with:

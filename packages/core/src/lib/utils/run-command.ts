@@ -140,7 +140,7 @@ export function runCommand(
       if (code === 0) {
         terminate(output, 'success');
       } else {
-        terminate(`Exited with ${code}`, 'fail');
+        terminate(`Exited with ${code}:\n${output}`, 'fail');
       }
     });
   });

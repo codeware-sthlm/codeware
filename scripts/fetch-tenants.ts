@@ -2,10 +2,10 @@
 
 /**
  * Fetch tenant IDs from Infisical
- * 
+ *
  * This script connects to Infisical and retrieves all tenant IDs
  * from the /web/tenants path structure.
- * 
+ *
  * Outputs tenant IDs as newline-separated values to stdout.
  * Logs and errors are written to stderr.
  */
@@ -15,7 +15,7 @@ import { withInfisical } from '@codeware/shared/feature/infisical';
 
 async function main() {
   try {
-    console.error('[fetch-tenants] Connecting to Infisical...');
+    console.log('[fetch-tenants] Connecting to Infisical...');
 
     // Fetch all secrets from /web/tenants/* paths recursively
     const secrets = await withInfisical({
@@ -26,7 +26,7 @@ async function main() {
     });
 
     if (!secrets || secrets.length === 0) {
-      console.error('[fetch-tenants] No tenants found in Infisical');
+      console.log('[fetch-tenants] No tenants found in Infisical');
       process.exit(0);
     }
 
@@ -46,7 +46,9 @@ async function main() {
 
     const tenants = Array.from(tenantIds).sort();
 
-    console.error(`[fetch-tenants] Found ${tenants.length} tenant(s): ${tenants.join(', ')}`);
+    console.log(
+      `[fetch-tenants] Found ${tenants.length} tenant(s): ${tenants.join(', ')}`
+    );
 
     // Output tenant IDs to stdout (one per line)
     for (const tenantId of tenants) {

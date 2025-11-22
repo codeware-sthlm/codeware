@@ -122,7 +122,8 @@ export const runDeployApps = async (options: {
 
     // Determine which tenants to deploy for
     // If no tenants provided, deploy once without tenant suffix
-    const tenantsToDeployFor = config.tenants.length > 0 ? config.tenants : [''];
+    const tenantsToDeployFor =
+      config.tenants.length > 0 ? config.tenants : [''];
 
     // Deploy once for each tenant
     for (const tenantId of tenantsToDeployFor) {
@@ -139,7 +140,9 @@ export const runDeployApps = async (options: {
         }
       } else {
         // For production, add tenant suffix if tenant specified
-        appName = tenantId ? getTenantAppName(configAppName, tenantId) : configAppName;
+        appName = tenantId
+          ? getTenantAppName(configAppName, tenantId)
+          : configAppName;
       }
 
       // Add environment variables
@@ -175,7 +178,9 @@ export const runDeployApps = async (options: {
           secrets: config.secrets
         });
 
-        core.info(`[${projectName}] 🚀 Deployed to '${result.url}'${tenantLabel}`);
+        core.info(
+          `[${projectName}] 🚀 Deployed to '${result.url}'${tenantLabel}`
+        );
 
         projects.push({
           action: 'deploy',
@@ -186,7 +191,9 @@ export const runDeployApps = async (options: {
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
 
-        core.warning(`[${projectName}] ❌ Failed to deploy project${tenantLabel}: ${msg}`);
+        core.warning(
+          `[${projectName}] ❌ Failed to deploy project${tenantLabel}: ${msg}`
+        );
 
         projects.push({
           appOrProject: tenantId ? `${projectName} (${tenantId})` : projectName,

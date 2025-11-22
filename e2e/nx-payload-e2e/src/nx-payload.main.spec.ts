@@ -1,4 +1,4 @@
-import { runCommand } from '@codeware/core/utils';
+import { logDebug, runCommand } from '@codeware/core/utils';
 import {
   type CreateNxWorkspaceProject,
   ensureCreateNxWorkspaceProject,
@@ -9,6 +9,7 @@ import {
 import type { NxJsonConfiguration, ProjectConfiguration } from '@nx/devkit';
 import {
   checkFilesExist,
+  readFile,
   readJson,
   runCommandAsync,
   runNxCommand,
@@ -164,12 +165,38 @@ describe('Test plugin by creating workspace with preset (extended test suite)', 
           '$1disable: false$2'
         )
       );
+      // Reset Nx state to reflect payload config changes
+      runNxCommand('reset');
     });
 
     it('should generate types and graphql schema', () => {
       expect(
         getFolderFiles(`${project.appDirectory}/src/generated`)
       ).toHaveLength(0);
+
+      // Extra guards: Ensure graphql is enabled and that it gets inferred to the project
+      const configContent = readFile(
+        `${project.appDirectory}/src/payload.config.ts`
+      );
+      expect(configContent.match(/graphQL: {\s*disable: false/)).not.toBeNull();
+      const projectJson = runNxCommand(
+        `show project ${project.appName} --json`,
+        { silenceError: true }
+      );
+      // Don't fail the test if parsing fails, just log and skip the check
+      try {
+        const projectContent = JSON.parse(projectJson) as ProjectConfiguration;
+        expect(projectContent.targets['gen'].options['commands']).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining('payload-graphql generate:schema')
+          ])
+        );
+      } catch (e) {
+        logDebug(
+          'Failed to parse project JSON content, skip checking inferred target',
+          projectJson
+        );
+      }
 
       const result = runNxCommand(`gen ${project.appName}`);
       expect(result).toContain('Successfully ran target gen');

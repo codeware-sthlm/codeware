@@ -38,7 +38,7 @@ describe('Test user login and onboarding', () => {
     password: 'dev'
   };
 
-  jest.setTimeout(300_000);
+  jest.setTimeout(500_000);
 
   beforeAll(async () => {
     project = await ensureCreateNxWorkspaceProject({

@@ -102,7 +102,7 @@ jobs:
         id: fetch-tenants
         run: |
           echo "Fetching tenants from Infisical..."
-          TENANTS=$(tsx scripts/fetch-tenants.ts)
+          TENANTS=$(npx tsx scripts/fetch-tenants.ts)
           echo "tenants<<EOF" >> $GITHUB_OUTPUT
           echo "$TENANTS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT

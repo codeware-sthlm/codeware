@@ -95,6 +95,7 @@ See [action.yaml](action.yml) for descriptions of the inputs.
 `tenants`
 
 When deploying multi-tenant applications, you can provide a list of tenant IDs. Each affected project will be deployed once per tenant with:
+
 - A unique app name: `<base-app-name>-<tenant-id>` (e.g., `cdwr-web-demo`, `cdwr-web-customer1`)
 - The `TENANT_ID` environment variable set to the tenant ID
 

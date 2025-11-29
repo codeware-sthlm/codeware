@@ -28,19 +28,15 @@ export default [
         'error',
         {
           ignoredDependencies: [
-            // Plugin dependencies
-            'next',
-            'payload',
-            'react',
-            'react-dom',
-            // Installed by the plugin
+            // Dev dependencies
             '@nx/eslint',
             '@nx/js',
             '@nx/next',
-            // Workspace native
             'nx',
             'tslib',
-            'typescript'
+            'typescript',
+            // Required by inferred targets
+            'next'
           ]
         }
       ]

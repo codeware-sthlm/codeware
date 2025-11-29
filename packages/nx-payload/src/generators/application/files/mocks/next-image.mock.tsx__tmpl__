@@ -9,7 +9,6 @@ export const mockNextImage = () => ({
   __esModule: true,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default: (props: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
     return <img {...props} alt="Mocked Next Image" />;
   }
 });

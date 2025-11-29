@@ -21,6 +21,7 @@
 ## Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
+- [Next.js Version](#nextjs-version)
 - [Installation](#installation)
   - [Add Payload plugin to an existing workspace](#add-payload-plugin-to-an-existing-workspace)
   - [Inferred tasks](#inferred-tasks)
@@ -37,32 +38,56 @@
   - [Troubleshooting](#troubleshooting)
 - [You don't have an Nx workspace?](#you-dont-have-an-nx-workspace)
 - [Plugin Generators](#plugin-generators)
-- [Migrate from Payload v2 to v3](#migrate-from-payload-v2-to-v3)
-  - [Preparation](#preparation)
-  - [Packages](#packages)
 - [Versions Compatibility](#versions-compatibility)
 
 ## Prerequisites
 
 - You have already created an Nx workspace
 - Node 20+
-- Docker
+- Docker is needed for some of the DX targets
 
-### Optional Nx installed globally <!-- omit in toc -->
+> [!TIP]
+> The commands in this readme assume that Nx is installed globally.
+>
+> ```sh
+> nx [...]
+> ```
+>
+> If you prefer not to, you can use your preferred package manager to prefix the commands like this example for `npm`.
+>
+> ```sh
+> npx nx [...]
+> # or
+> npm run nx [...]
+> ```
 
-The commands in this readme assume that Nx is installed globally.
+## Next.js Version
 
-```sh
-nx [...]
-```
+> [!IMPORTANT]
+> This plugin installs **Next.js v15** when generating a new Payload application, unless your workspace already has a Next.js version installed.
 
-If you prefer not to, you can use your preferred package manager to prefix the commands like this example for `npm`.
+### Why Next.js v15? <!-- omit in toc -->
 
-```sh
-npx nx [...]
-# or
-npm run nx [...]
-```
+Although Nx v22 scaffolds new Next.js apps using the latest major (currently Next.js v16), the Payload team has not yet marked v16 as fully stable or officially supported.
+
+- Payload v3.42 (the version used during plugin testing) is validated against Next.js v15
+- Next.js v16 introduces bundler changes that may impact Payload’s adapters
+
+Next.js v15 provides a predictable experience and avoids subtle compatibility issues.
+
+### Can I use Next.js v16? <!-- omit in toc -->
+
+Yes — the plugin does **not** prevent you from using Next.js v16. If your workspace already has Next.js v16 installed, the generator **will not downgrade** it.
+
+However, note that:
+
+- Payload’s official Next.js support currently targets **Next.js v15**
+- Payload v3.54 is required for Next.js v16
+- Payload CLI show compatibility issues with pnpm workspaces in version v3.43 and later
+- Next.js v16 may require additional configuration depending on your Payload version
+- Future releases of Payload (and this plugin) will expand support once the ecosystem stabilizes
+
+If you intentionally want to use Next.js v16, ensure it's installed before adding this plugin, or manually update afterwards.
 
 ## Installation
 
@@ -352,49 +377,14 @@ Generate a Payload application powered by Next.js.
 
 > 💡 `name` can also be provided as the first argument (used in the examples in this readme)
 
-## Migrate from Payload v2 to v3
-
-Most of the setup is the same, but there are some breaking changes that you need to be aware of. Besides that, follow the type errors to update the code.
-
-### Preparation
-
-- Nx must have version `20.4.2` or higher.
-- React must have version `19.0.0` or higher.
-- Install `@nx/next` plugin.
-- Install `@nx/eslint` plugin.
-  - Convert to flat file configuration.
-  - Use `eslint.config.mjs` files.
-- Install `graphql` package.
-
-### Packages
-
-Payload now use a common version for its packages.
-
-Install new packages:
-
-- `@payloadcms/next`
-- `@payloadcms/graphql` (dev dependency)
-
-Update to latest:
-
-- `payload`
-- `@payloadcms/db-mongodb`
-- `@payloadcms/db-postgres`
-- `@payloadcms/richtext-lexical`
-
-Remove deprecated packages:
-
-- `@payloadcms/bundler-webpack`
-- `@payloadcms/richtext-slate`
-- `@nx/express` (used elsewhere?)
-
 ## Versions Compatibility
 
 Later versions of Nx or Payload might work as well, but the versions below have been used during tests.
 
 | Plugin    | Nx        | Payload   | React     | Next.js   |
 | --------- | --------- | --------- | --------- | --------- |
-| `^2.1.0`  | `21.x`    | `^3.0.0`  | `^19.0.0` | `^15.0.0` |
+| `^2.2.0`  | `22.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0` |
+| `^2.1.0`  | `21.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0` |
 | `^2.0.0`  | `^20.4.2` | `^3.0.0`  | `^19.0.0` | `^15.0.0` |
 | `^1.0.0`  | `20.x`    | `^2.30.3` | `^18.0.0` | -         |
 | `^0.11.0` | `20.x`    | `^2.30.3` | `^18.0.0` | -         |

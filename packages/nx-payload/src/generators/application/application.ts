@@ -2,6 +2,7 @@ import {
   type GeneratorCallback,
   type Tree,
   formatFiles,
+  detectPackageManager,
   runTasksInSerial
 } from '@nx/devkit';
 import { applicationGenerator as nextApplicationGenerator } from '@nx/next';
@@ -51,7 +52,11 @@ export async function applicationGeneratorInternal(
   // and the plugins itself depends on.
   const nextAppTask = await nextApplicationGenerator(host, {
     ...options,
-    skipFormat: true
+    skipFormat: true,
+    // Workaround to prevent next generator from overriding opinionated Next v15.
+    // For some reason this only happens when pnpm is used?
+    // This should be removed when Next v16 is fully supported.
+    ...{ keepExistingVersions: detectPackageManager() === 'pnpm' }
   });
   tasks.push(nextAppTask);
 

@@ -4,6 +4,7 @@ import type { PackageJson } from 'nx/src/utils/package-json';
 
 import {
   graphqlVersion,
+  next15Version,
   payloadVersion,
   testingLibraryDomVersion,
   testingLibraryJestDomVersion,
@@ -38,6 +39,7 @@ describe('init', () => {
         '@payloadcms/next': payloadVersion,
         '@payloadcms/richtext-lexical': payloadVersion,
         graphql: graphqlVersion,
+        next: next15Version,
         payload: payloadVersion
       },
       devDependencies: {
@@ -48,6 +50,16 @@ describe('init', () => {
       },
       name: expect.any(String)
     });
+  });
+
+  it('should not add Next.js dependency when already present', async () => {
+    const existingNextVersion = '16.0.0';
+    addDependenciesToPackageJson(tree, { next: existingNextVersion }, {});
+
+    await initGenerator(tree, options);
+    const packageJson = readJson<PackageJson>(tree, 'package.json');
+
+    expect(packageJson.dependencies['next']).toBe(existingNextVersion);
   });
 
   it('should keep existing dependencies', async () => {

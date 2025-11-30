@@ -1,8 +1,8 @@
 import {
   type GeneratorCallback,
   type Tree,
-  formatFiles,
   detectPackageManager,
+  formatFiles,
   runTasksInSerial
 } from '@nx/devkit';
 import { applicationGenerator as nextApplicationGenerator } from '@nx/next';

@@ -5,7 +5,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
-  "eslint.validate": ["json"],
+  "eslint.validate": ["json", "typescript", "typescriptreact"],
   "files.associations": {
     ".*.*__tmpl__": "plaintext",
     "*.css": "tailwindcss",

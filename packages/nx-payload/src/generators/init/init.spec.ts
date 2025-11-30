@@ -5,10 +5,7 @@ import type { PackageJson } from 'nx/src/utils/package-json';
 import {
   graphqlVersion,
   next15Version,
-  payloadVersion,
-  testingLibraryDomVersion,
-  testingLibraryJestDomVersion,
-  testingLibraryReactVersion
+  payloadVersion
 } from '../../utils/versions';
 
 import { initGenerator } from './init';
@@ -43,10 +40,7 @@ describe('init', () => {
         payload: payloadVersion
       },
       devDependencies: {
-        '@payloadcms/graphql': payloadVersion,
-        '@testing-library/dom': testingLibraryDomVersion,
-        '@testing-library/jest-dom': testingLibraryJestDomVersion,
-        '@testing-library/react': testingLibraryReactVersion
+        '@payloadcms/graphql': payloadVersion
       },
       name: expect.any(String)
     });

@@ -17,7 +17,3 @@ export const payloadVersion = '~3.42.0';
 export const next15Version = '~15.2.4';
 
 export const graphqlVersion = '^16.10.0';
-
-export const testingLibraryDomVersion = '^10.0.0';
-export const testingLibraryJestDomVersion = '^6.1.0';
-export const testingLibraryReactVersion = '^16.1.0';

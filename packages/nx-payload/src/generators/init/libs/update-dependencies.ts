@@ -4,10 +4,7 @@ import { getDependencyVersionFromPackageJson } from 'nx/src/utils/package-json';
 import {
   graphqlVersion,
   next15Version,
-  payloadVersion,
-  testingLibraryDomVersion,
-  testingLibraryJestDomVersion,
-  testingLibraryReactVersion
+  payloadVersion
 } from '../../../utils/versions';
 
 /**
@@ -36,10 +33,7 @@ export function updateDependencies(tree: Tree) {
       graphql: graphqlVersion
     },
     {
-      '@payloadcms/graphql': payloadVersion,
-      '@testing-library/dom': testingLibraryDomVersion,
-      '@testing-library/jest-dom': testingLibraryJestDomVersion,
-      '@testing-library/react': testingLibraryReactVersion
+      '@payloadcms/graphql': payloadVersion
     }
   );
 }

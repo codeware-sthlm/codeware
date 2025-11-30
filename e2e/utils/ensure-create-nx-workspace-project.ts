@@ -15,6 +15,7 @@ import { type PackageManager, readJsonFile } from '@nx/devkit';
 import {
   directoryExists,
   exists,
+  readJson,
   runNxCommand,
   tmpProjPath,
   uniq
@@ -234,6 +235,8 @@ export async function ensureCreateNxWorkspaceProject({
   }
 
   logDebug('Workspace created and ready for use', projectPath);
+
+  logDebug('package.json', JSON.stringify(readJson('package.json'), null, 2));
 
   return {
     appName,

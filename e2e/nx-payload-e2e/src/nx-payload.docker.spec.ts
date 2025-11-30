@@ -1,4 +1,4 @@
-import { dockerBuild, logError } from '@codeware/core/utils';
+import { dockerBuild, logDebug, logError } from '@codeware/core/utils';
 import {
   type CreateNxWorkspaceProject,
   ensureCleanupDockerContainers,
@@ -72,9 +72,13 @@ describe('Test docker targets', () => {
       timeoutSeconds: 10
     });
 
+    logDebug('Application started in docker container');
+
     // Detect start page status OK
     const startPage = await agent('http://localhost:3000').get('/');
     expect(startPage.status).toBe(200);
+
+    logDebug('Start page is reachable');
 
     // Detect admin page status OK after redirect to create admin user form
     const adminPage = await agent('http://localhost:3000')
@@ -82,9 +86,13 @@ describe('Test docker targets', () => {
       .redirects(1);
     expect(adminPage.status).toBe(200);
 
+    logDebug('Admin page is reachable');
+
     // Shut down
     const stopLog = runNxCommand(`dx:stop ${project.appName}`);
     expect(stopLog).toContain('Successfully ran target dx:stop');
+
+    logDebug('Application docker container stopped');
 
     let stopCode: string;
     try {

@@ -28,15 +28,17 @@ export default [
         'error',
         {
           ignoredDependencies: [
-            // Dev dependencies
             '@nx/eslint',
             '@nx/js',
             '@nx/next',
             'nx',
             'tslib',
             'typescript',
-            // Required by inferred targets
             'next'
+          ],
+          ignoredFiles: [
+            '{projectRoot}/eslint.config.{js,cjs,mjs}',
+            '{projectRoot}/vite.config.{js,ts,mjs,mts}'
           ]
         }
       ]

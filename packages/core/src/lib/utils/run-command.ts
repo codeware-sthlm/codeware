@@ -83,16 +83,12 @@ export function runCommand(
     };
 
     const checkLog = (chunk: string) => {
-      if (verbose) {
-        logDebug(chunk);
-      }
-
       output += chunk;
 
       if (errorDetector && chunk.match(errorDetector)) {
         logDebug(
           'Error detector found a match, terminate command with failure',
-          chunk
+          output
         );
         return terminate(output, 'fail');
       }

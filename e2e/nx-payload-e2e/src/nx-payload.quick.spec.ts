@@ -27,11 +27,6 @@ describe('Test plugin by starting with an empty workspace (limited test suite)',
     });
     ensureLockFileIsDetected(packageManager);
 
-    logDebug(
-      'Empty workspace - package.json',
-      JSON.stringify(readJson('package.json'), null, 2)
-    );
-
     await runNxCommandAsync('add @cdwr/nx-payload');
     logDebug(
       'Plugin added - package.json',

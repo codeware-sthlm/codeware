@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim AS base
+FROM node:24-bullseye-slim AS base
 
 FROM base AS deps
 RUN apt-get update \

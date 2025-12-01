@@ -1,3 +1,7 @@
+## 2.0.2 (2025-12-01)
+
+This was a version bump only for create-nx-payload to align it with other projects, there were no code changes.
+
 ## 2.0.1 (2025-10-03)
 
 ### ⚙️ Miscellaneous Chores

@@ -1,3 +1,10 @@
+## 0.3.3 (2025-12-01)
+
+### 🧱 Updated Dependencies
+
+- Updated fly-node to 0.2.3
+- Updated core to 1.4.3
+
 ## 0.3.2 (2025-10-03)
 
 ### ⚙️ Miscellaneous Chores

@@ -1,3 +1,17 @@
+## 1.4.0 (2025-12-01)
+
+### ✨ Features
+
+- **nx-migrate-action:** limit migrations based on update type ([50c9fb93](https://github.com/codeware-sthlm/codeware/commit/50c9fb93))
+
+### 🐞 Bug Fixes
+
+- **nx-migrate-action:** add support for caret and multi-version ranges ([c1cef072](https://github.com/codeware-sthlm/codeware/commit/c1cef072))
+
+### 🧱 Updated Dependencies
+
+- Updated core to 1.4.3
+
 ## 1.3.1 (2025-10-03)
 
 ### ⚙️ Miscellaneous Chores

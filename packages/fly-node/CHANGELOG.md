@@ -1,3 +1,9 @@
+## 0.2.3 (2025-12-01)
+
+### 🧱 Updated Dependencies
+
+- Updated core to 1.4.3
+
 ## 0.2.2 (2025-10-03)
 
 ### ⚙️ Miscellaneous Chores

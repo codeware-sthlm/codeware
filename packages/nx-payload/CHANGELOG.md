@@ -1,3 +1,21 @@
+## 2.2.0 (2025-12-01)
+
+### ✨ Features
+
+- **nx-payload:** defaults to next 15 without restrictions ([dcb9cf17](https://github.com/codeware-sthlm/codeware/commit/dcb9cf17))
+
+### 🐞 Bug Fixes
+
+- **nx-payload:** ensure sass for nextjs built-in sass support ([eb963cac](https://github.com/codeware-sthlm/codeware/commit/eb963cac))
+
+### 🧹 Code Refactoring
+
+- **nx-payload:** remove dependencies added by next plugin ([86a4372a](https://github.com/codeware-sthlm/codeware/commit/86a4372a))
+
+### 🎨 Code Style
+
+- **nx-payload:** fix linting ([fc22ee9f](https://github.com/codeware-sthlm/codeware/commit/fc22ee9f))
+
 ## 2.1.0 (2025-10-03)
 
 ### ✨ Features

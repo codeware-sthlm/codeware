@@ -1,3 +1,14 @@
+## 1.4.3 (2025-12-01)
+
+### 🐞 Bug Fixes
+
+- **core:** better debug log running commands ([315c52e0](https://github.com/codeware-sthlm/codeware/commit/315c52e0))
+- **core:** stabilize run nx command predicate ([3549f08b](https://github.com/codeware-sthlm/codeware/commit/3549f08b))
+
+### ⚙️ Miscellaneous Chores
+
+- **core:** reject with output log when nx command fails ([9b8a765c](https://github.com/codeware-sthlm/codeware/commit/9b8a765c))
+
 ## 1.4.2 (2025-10-03)
 
 ### ⚙️ Miscellaneous Chores

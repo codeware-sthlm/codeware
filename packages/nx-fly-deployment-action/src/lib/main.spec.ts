@@ -59,6 +59,7 @@ describe('main', () => {
       mainBranch: 'main-branch',
       optOutDepotBuilder: true,
       secrets: [],
+      tenants: [],
       token: 'token'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
@@ -83,6 +84,7 @@ describe('main', () => {
       mainBranch: '',
       optOutDepotBuilder: true,
       secrets: [],
+      tenants: [],
       token: 'token'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();

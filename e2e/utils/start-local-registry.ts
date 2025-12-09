@@ -4,20 +4,19 @@
  * For e2e it is meant to be called in jest's `globalSetup`.
  */
 
-import { startLocalRegistry } from '@nx/js/plugins/jest/local-registry';
+import { registerTsProject } from '@nx/js/src/internal';
 import { releasePublish, releaseVersion } from 'nx/release';
 
 import { isCI } from './is-ci';
+import { startCustomLocalRegistry } from './start-custom-local-registry';
 
-export default async () => {
+module.exports = async () => {
+  registerTsProject('./tsconfig.base.json');
   const verbose = process.env['NX_VERBOSE_LOGGING'] === 'true';
 
   // Listen address depending on run environment.
-  // Must be in sync with workspace project.json.
   const listenAddress = isCI() ? 'localhost' : '0.0.0.0';
-
-  // local registry target to run
-  const localRegistryTarget = `codeware:local-registry${isCI() ? ':ci' : ''}`;
+  const port = 4873;
 
   console.log(
     `\nStart local registry with listen address '${listenAddress}' (CI=${isCI()})`
@@ -27,10 +26,10 @@ export default async () => {
   const storage = './tmp/local-registry/storage';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (global as any).stopLocalRegistry = await startLocalRegistry({
-    listenAddress,
-    localRegistryTarget,
+  (global as any).stopLocalRegistry = await startCustomLocalRegistry({
     storage,
+    port,
+    listenAddress,
     verbose
   });
 

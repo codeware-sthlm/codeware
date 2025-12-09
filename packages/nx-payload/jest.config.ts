@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'nx-payload',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/test-setup.ts'],

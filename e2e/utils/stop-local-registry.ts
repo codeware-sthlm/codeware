@@ -6,7 +6,7 @@
  * For e2e it is meant to be called in jest's `globalTeardown`.
  */
 
-export default () => {
+module.exports = () => {
   if (!(global as any).stopLocalRegistry) {
     console.log('Local registry is not started');
     return;

@@ -5,6 +5,4 @@ export * from './ensure-lock-file-is-detected';
 export * from './get-folder-files';
 export * from './remove-folder-files';
 export * from './reset-docker';
-export * from './start-local-registry';
-export * from './stop-local-registry';
 export * from './wait-for-docker-log-match';

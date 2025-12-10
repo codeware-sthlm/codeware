@@ -23,8 +23,7 @@ export const fetchSystemUser = async (
   const secrets = await withInfisical({
     environment,
     filter: { path: '/cms' },
-    silent: true,
-    site: 'eu'
+    silent: true
   });
 
   if (!secrets) {

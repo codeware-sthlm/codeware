@@ -11,7 +11,7 @@
     "@heroicons/react": "2.2.0",
     "@hono/node-server": "^1.13.7",
     "@icons-pack/react-simple-icons": "^12.7.0",
-    "@infisical/sdk": "^3.0.4",
+    "@infisical/sdk": "^4.0.6",
     "@payloadcms/richtext-lexical": "^3.23.0",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
     "@radix-ui/react-checkbox": "^1.1.4",

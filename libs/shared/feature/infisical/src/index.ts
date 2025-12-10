@@ -1,2 +1,2 @@
 export { type Environment, EnvironmentSchema } from './lib/infisical.schemas';
-export { withInfisical } from './lib/with-infisical';
+export { type FolderSecrets, withInfisical } from './lib/with-infisical';

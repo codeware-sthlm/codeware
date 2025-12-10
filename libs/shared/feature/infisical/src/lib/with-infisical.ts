@@ -1,4 +1,4 @@
-import { InfisicalSDK, ListSecretsResult } from '@infisical/sdk';
+import { InfisicalSDK, type Secret } from '@infisical/sdk';
 
 import { ClientSchema, type Environment } from './infisical.schemas';
 
@@ -21,7 +21,7 @@ type Filter = {
   tags?: Array<string>;
 };
 
-type Options<TEnv> = {
+type Options<TEnv, TGroupByFolder, TSilent> = {
   /**
    * The environment to get the secrets from.
    *
@@ -29,62 +29,101 @@ type Options<TEnv> = {
    * or 'development' if not available.
    */
   environment?: TEnv;
+
   /**
    * The optional filters to apply to the secrets.
    */
   filter?: Filter;
+
+  /**
+   * Whether to group the secrets by their folder structure.
+   *
+   * Defaults to `false`.
+   */
+  groupByFolder?: TGroupByFolder;
+
   /**
    * Whether to inject the secrets into the `process.env` object.
    *
    * Defaults to `false`.
    */
   injectEnv?: boolean;
+
+  /**
+   * Hook that provides the authenticated Infisical client instance.
+   */
+
+  onConnect?: (client: InfisicalSDK) => void;
+
   /**
    * Whether to ignore exceptions and just output warnings.
    *
    * Defaults to `false`.
    */
-  silent?: boolean;
+  silent?: TSilent;
+
   /**
    * The site to use for the Infisical client.
+   *
+   * Environment variable `INFISICAL_SITE` takes precedence over this option.
    *
    * Defaults to `'us'`.
    */
   site?: 'eu' | 'us';
 };
 
-/**
- * Helper type to determine return type based on silent option
- */
-type Response<TSilent extends boolean | undefined> = TSilent extends true
-  ? ListSecretsResult['secrets'] | null
-  : ListSecretsResult['secrets'];
+export type FolderSecrets = {
+  path: string;
+  secrets: Secret[];
+};
+
+// Helper types to determine return type based on groupByFolder and silent options
+type SecretResponse<TGroupByFolder extends boolean | undefined> =
+  TGroupByFolder extends true ? FolderSecrets[] : Secret[];
+type Response<
+  TGroupByFolder extends boolean | undefined,
+  TSilent extends boolean | undefined
+> = TSilent extends true
+  ? SecretResponse<TGroupByFolder> | null
+  : SecretResponse<TGroupByFolder>;
 
 /**
- * Utility function to connect and authenticate to Infisical.
+ * Utility function to connect and authenticate to Infisical
+ * and return the secrets of choice.
  *
- * **Requirements:**
+ * Required environment variables:
+ * - `INFISICAL_PROJECT_ID`
  *
- * - `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET` and `INFISICAL_PROJECT_ID` must be available in the environment variables.
+ * Credentials, either (recommended):
+ * - `INFISICAL_CLIENT_ID`
+ * - `INFISICAL_CLIENT_SECRET`
+ *
+ * or:
+ * - `INFISICAL_SERVICE_TOKEN`
+ *
+ * Optional:
+ * - `INFISICAL_SITE` (Infisical defaults to 'us')
  *
  * @returns The secrets from the Infisical project
  * @throws An error if the environment variables are invalid or the client fails to authenticate
  */
 export const withInfisical = async <
   TEnv = Environment,
+  TGroupByFolder extends boolean | undefined = undefined,
   TSilent extends boolean | undefined = undefined
 >(
-  options?: Options<TEnv> & { silent?: TSilent }
-): Promise<Response<TSilent>> => {
+  options?: Options<TEnv, TGroupByFolder, TSilent>
+): Promise<Response<TGroupByFolder, TSilent>> => {
   const { success, data, error } = ClientSchema.safeParse(process.env);
+  const throwOnError = !options?.silent;
 
   if (!success) {
-    if (!options?.silent) {
+    if (throwOnError) {
       throw new Error('Could not resolve Infisical credentials', {
         cause: error.flatten().fieldErrors
       });
     }
-    return null as Response<TSilent>;
+    return null as Response<TGroupByFolder, TSilent>;
   }
 
   try {
@@ -93,7 +132,10 @@ export const withInfisical = async <
 
     // Default site is US
     const client = new InfisicalSDK({
-      siteUrl: options?.site === 'eu' ? 'https://eu.infisical.com' : undefined
+      siteUrl:
+        (data.INFISICAL_SITE || options?.site) === 'eu'
+          ? 'https://eu.infisical.com'
+          : undefined
     });
 
     // Connect to Infisical using service token or universal auth
@@ -106,28 +148,61 @@ export const withInfisical = async <
       });
     }
 
+    // Invoke hook if provided
+    options?.onConnect?.(client);
+
     console.log('[Infisical] connected successfully, load secrets');
 
-    const { secrets } = await client.secrets().listSecrets({
+    if (options?.groupByFolder) {
+      const secretsBucket: FolderSecrets[] = [];
+
+      const folders = await client.folders().listFolders({
+        environment,
+        projectId: data.INFISICAL_PROJECT_ID,
+        path: options?.filter?.path,
+        recursive: true
+      });
+
+      // Fetch secrets for each folder in parallel for efficiency
+      await Promise.all(
+        folders.map(async (folder) => {
+          // Use relativePath from the folder response
+          const secretPath = (
+            'relativePath' in folder ? folder.relativePath : `/${folder.name}`
+          ) as string;
+
+          const folderSecrets = await client.secrets().listSecretsWithImports({
+            environment,
+            projectId: data.INFISICAL_PROJECT_ID,
+            attachToProcessEnv: options?.injectEnv ?? false,
+            expandSecretReferences: true,
+            recursive: options?.filter?.recurse ?? false,
+            secretPath,
+            tagSlugs: options?.filter?.tags
+          });
+
+          secretsBucket.push({
+            path: secretPath,
+            secrets: folderSecrets
+          });
+        })
+      );
+      return secretsBucket as Response<TGroupByFolder, TSilent>;
+    }
+
+    const secrets = await client.secrets().listSecretsWithImports({
       environment,
       projectId: data.INFISICAL_PROJECT_ID,
+      attachToProcessEnv: options?.injectEnv ?? false,
       expandSecretReferences: true,
       recursive: options?.filter?.recurse ?? false,
       secretPath: options?.filter?.path,
       tagSlugs: options?.filter?.tags
     });
 
-    // Post-actions to perform after the secrets are retrieved
-    if (options?.injectEnv) {
-      for (const { secretKey, secretValue } of secrets) {
-        console.log(`[Infisical] inject '${secretKey}'`);
-        process.env[secretKey] = secretValue;
-      }
-    }
-
-    return secrets;
+    return secrets as Response<TGroupByFolder, TSilent>;
   } catch (error) {
-    if (!options?.silent) {
+    if (throwOnError) {
       throw error;
     }
 
@@ -138,6 +213,6 @@ export const withInfisical = async <
       }
     }
 
-    return null as Response<TSilent>;
+    return null as Response<TGroupByFolder, TSilent>;
   }
 };

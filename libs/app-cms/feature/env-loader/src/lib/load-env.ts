@@ -25,8 +25,7 @@ export const loadEnv = async (): Promise<Env | undefined> => {
     environment: process.env['DEPLOY_ENV'],
     filter: { path: '/cms' },
     injectEnv: true,
-    silent: true,
-    site: 'eu'
+    silent: true
   });
 
   // and other required secrets for the cms app
@@ -34,8 +33,7 @@ export const loadEnv = async (): Promise<Env | undefined> => {
     environment: process.env['DEPLOY_ENV'],
     filter: { tags: ['cms'], recurse: true },
     injectEnv: true,
-    silent: true,
-    site: 'eu'
+    silent: true
   });
 
   if (!statusPath || !statusTag) {

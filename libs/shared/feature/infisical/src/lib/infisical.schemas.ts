@@ -1,7 +1,12 @@
 import { z } from 'zod';
 
 const ProjectSchema = z.object({
-  INFISICAL_PROJECT_ID: z.string({ description: 'Infisical Project ID' }).min(1)
+  INFISICAL_PROJECT_ID: z
+    .string({ description: 'Infisical Project ID' })
+    .min(1),
+  INFISICAL_SITE: z
+    .enum(['eu', 'us'], { description: "Infisical Site defaults to 'us'" })
+    .optional()
 });
 
 /**

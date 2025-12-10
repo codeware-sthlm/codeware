@@ -62,6 +62,13 @@ jobs:
       # nx-payload-e2e only runs in e2e-matrix workflow
       - run: pnpm nx affected -t e2e -c ci --exclude nx-payload-e2e
 
+      # Infisical is currently the only project with integration tests
+      - run: pnpm nx affected -t integration-test -c ci
+        env:
+          INFISICAL_TEST_PROJECT_ID: ${{ secrets.INFISICAL_TEST_PROJECT_ID }}
+          INFISICAL_TEST_SERVICE_TOKEN: ${{ secrets.INFISICAL_TEST_SERVICE_TOKEN }}
+          INFISICAL_TEST_SITE: ${{ vars.INFISICAL_SITE }}
+
       - name: Nx Self-healing CI
         run: pnpm nx fix-ci
 

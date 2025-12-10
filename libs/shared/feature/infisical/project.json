@@ -4,6 +4,23 @@
   "sourceRoot": "libs/shared/feature/infisical/src",
   "projectType": "library",
   "tags": ["scope:shared", "type:feature", "domain:apps"],
-  "// targets": "to see all targets run: nx show project infisical --web",
-  "targets": {}
+  "targets": {
+    "integration-test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production"],
+      "outputs": [
+        "{workspaceRoot}/coverage/integration/libs/shared/feature/infisical"
+      ],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "vitest --config vitest.integration.config.mts"
+      },
+      "configurations": {
+        "ci": {
+          "coverage": true
+        }
+      }
+    }
+  }
 }

@@ -34,8 +34,7 @@ export const fetchTenants = async (
     const secrets = await withInfisical({
       environment,
       filter: { path: '/web/tenants', recurse: true },
-      silent: true,
-      site: 'eu'
+      silent: true
     });
 
     if (!secrets) {

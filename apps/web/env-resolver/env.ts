@@ -19,16 +19,14 @@ if (response.success) {
     environment: process.env.DEPLOY_ENV,
     filter: { path: `/web/tenants/${process.env.TENANT_ID}` },
     injectEnv: true,
-    silent: true,
-    site: 'eu'
+    silent: true
   });
   // and other required secrets for the web app
   await withInfisical({
     environment: process.env.DEPLOY_ENV,
     filter: { tags: ['web'], recurse: true },
     injectEnv: true,
-    silent: true,
-    site: 'eu'
+    silent: true
   });
 
   // Validate resolved environment variables

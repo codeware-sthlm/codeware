@@ -1,0 +1,269 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Infisical Integration Tests > Basic Secrets Fetching > should fetch secrets from development environment > development-secrets 1`] = `
+[
+  {
+    "secretKey": "COMMON_SECRET",
+    "secretPath": "/",
+    "secretValue": "token-development",
+  },
+  {
+    "secretKey": "EMPTY_SECRET",
+    "secretPath": "/",
+    "secretValue": "",
+  },
+  {
+    "secretKey": "SHARED_API_URL",
+    "secretPath": "/",
+    "secretValue": "https://api.domain-dev.io",
+  },
+]
+`;
+
+exports[`Infisical Integration Tests > Basic Secrets Fetching > should fetch secrets from root path > root-path-secrets 1`] = `
+[
+  {
+    "secretKey": "COMMON_SECRET",
+    "secretPath": "/",
+    "secretValue": "token-development",
+  },
+  {
+    "secretKey": "EMPTY_SECRET",
+    "secretPath": "/",
+    "secretValue": "",
+  },
+  {
+    "secretKey": "SHARED_API_URL",
+    "secretPath": "/",
+    "secretValue": "https://api.domain-dev.io",
+  },
+]
+`;
+
+exports[`Infisical Integration Tests > Folder-Based Organization > should fetch secrets shallow from specific folder path > apps-cms-folder-shallow-secrets 1`] = `
+[
+  {
+    "secretKey": "DATABASE_URL",
+    "secretPath": "/apps/cms",
+    "secretValue": "postgresql://postgres:postgres@localhost:5432/cms",
+  },
+  {
+    "secretKey": "LOG_LEVEL",
+    "secretPath": "/apps/cms",
+    "secretValue": "debug",
+  },
+  {
+    "secretKey": "PORT",
+    "secretPath": "/apps/cms",
+    "secretValue": "3000",
+  },
+]
+`;
+
+exports[`Infisical Integration Tests > Folder-Based Organization > should group secrets by folder > folder-grouped-secrets 1`] = `
+[
+  {
+    "path": "/apps",
+    "secretCount": 0,
+    "secrets": [],
+  },
+  {
+    "path": "/apps/client",
+    "secretCount": 4,
+    "secrets": [
+      {
+        "secretKey": "API_HOST",
+        "secretPath": "/apps/client",
+        "secretValue": "client.localhost",
+      },
+      {
+        "secretKey": "API_KEY",
+        "secretPath": "/apps/client",
+        "secretValue": "crypto-development",
+      },
+      {
+        "secretKey": "PAYLOAD_URL",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "http://localhost:3000",
+      },
+      {
+        "secretKey": "SIGNATURE_SECRET",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "supersecret-development",
+      },
+    ],
+  },
+  {
+    "path": "/apps/cms",
+    "secretCount": 3,
+    "secrets": [
+      {
+        "secretKey": "DATABASE_URL",
+        "secretPath": "/apps/cms",
+        "secretValue": "postgresql://postgres:postgres@localhost:5432/cms",
+      },
+      {
+        "secretKey": "LOG_LEVEL",
+        "secretPath": "/apps/cms",
+        "secretValue": "debug",
+      },
+      {
+        "secretKey": "PORT",
+        "secretPath": "/apps/cms",
+        "secretValue": "3000",
+      },
+    ],
+  },
+  {
+    "path": "/apps/cms/shared",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "PAYLOAD_URL",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "http://localhost:3000",
+      },
+      {
+        "secretKey": "SIGNATURE_SECRET",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "supersecret-development",
+      },
+    ],
+  },
+  {
+    "path": "/empty",
+    "secretCount": 0,
+    "secrets": [],
+  },
+  {
+    "path": "/tenants",
+    "secretCount": 0,
+    "secrets": [],
+  },
+  {
+    "path": "/tenants/company",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "DOMAIN_URL",
+        "secretPath": "/tenants/company",
+        "secretValue": "company.localhost",
+      },
+      {
+        "secretKey": "FEATURES",
+        "secretPath": "/tenants/company",
+        "secretValue": "premium,analytics,custom-domain",
+      },
+    ],
+  },
+  {
+    "path": "/tenants/customer",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "DOMAIN_URL",
+        "secretPath": "/tenants/customer",
+        "secretValue": "customer.localhost",
+      },
+      {
+        "secretKey": "FEATURES",
+        "secretPath": "/tenants/customer",
+        "secretValue": "standard,analytics",
+      },
+    ],
+  },
+  {
+    "path": "/tenants/demo",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "DOMAIN_URL",
+        "secretPath": "/tenants/demo",
+        "secretValue": "demo.localhost",
+      },
+      {
+        "secretKey": "FEATURES",
+        "secretPath": "/tenants/demo",
+        "secretValue": "basic,analytics",
+      },
+    ],
+  },
+]
+`;
+
+exports[`Infisical Integration Tests > Folder-Based Organization > should list all folders including nested ones > folder-paths 1`] = `
+[
+  "/apps",
+  "/apps/client",
+  "/apps/cms",
+  "/apps/cms/shared",
+  "/empty",
+  "/tenants",
+  "/tenants/company",
+  "/tenants/customer",
+  "/tenants/demo",
+]
+`;
+
+exports[`Infisical Integration Tests > Multi-Tenant Support > should fetch secrets from specific tenant > first-tenant-secrets 1`] = `
+[
+  {
+    "secretKey": "DOMAIN_URL",
+    "secretPath": "/tenants/company",
+    "secretValue": "company.localhost",
+  },
+  {
+    "secretKey": "FEATURES",
+    "secretPath": "/tenants/company",
+    "secretValue": "premium,analytics,custom-domain",
+  },
+]
+`;
+
+exports[`Infisical Integration Tests > Multi-Tenant Support > should fetch secrets from tenant folders > tenant-folder-paths 1`] = `
+[
+  "/tenants/company",
+  "/tenants/customer",
+  "/tenants/demo",
+]
+`;
+
+exports[`Infisical Integration Tests > Path and Recursive Options > should fetch secrets recursively from a path > apps-recursive-secrets 1`] = `
+[
+  {
+    "secretKey": "API_HOST",
+    "secretPath": "/apps/client",
+    "secretValue": "client.localhost",
+  },
+  {
+    "secretKey": "API_KEY",
+    "secretPath": "/apps/client",
+    "secretValue": "crypto-development",
+  },
+  {
+    "secretKey": "DATABASE_URL",
+    "secretPath": "/apps/cms",
+    "secretValue": "postgresql://postgres:postgres@localhost:5432/cms",
+  },
+  {
+    "secretKey": "LOG_LEVEL",
+    "secretPath": "/apps/cms",
+    "secretValue": "debug",
+  },
+  {
+    "secretKey": "PAYLOAD_URL",
+    "secretPath": "/apps/cms/shared",
+    "secretValue": "http://localhost:3000",
+  },
+  {
+    "secretKey": "PORT",
+    "secretPath": "/apps/cms",
+    "secretValue": "3000",
+  },
+  {
+    "secretKey": "SIGNATURE_SECRET",
+    "secretPath": "/apps/cms/shared",
+    "secretValue": "supersecret-development",
+  },
+]
+`;

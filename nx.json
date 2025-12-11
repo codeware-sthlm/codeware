@@ -268,6 +268,6 @@
         "serveStaticTargetName": "serve-static"
       }
     },
-    "@cdwr/nx-payload/plugin"
+    "./packages/nx-payload/plugin.ts"
   ]
 }

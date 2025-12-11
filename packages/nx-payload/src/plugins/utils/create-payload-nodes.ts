@@ -1,4 +1,3 @@
-import { readFile } from 'fs/promises';
 import { dirname, join, relative } from 'path/posix';
 
 import {
@@ -15,6 +14,7 @@ import { getLockFileName } from '@nx/js';
 
 import { createPayloadTargets } from '../../utils/create-payload-targets';
 import { findUpFs } from '../../utils/find-up-fs';
+import { isGraphQLDisabled } from '../../utils/is-graphql-disabled';
 
 import {
   type PayloadPluginOptions,
@@ -41,8 +41,9 @@ export const createPayloadNodes = async (
   // Convert to POSIX on Windows (workspacePath is os formatted)
   const workspaceRoot = normalizePath(context.workspaceRoot);
 
-  // configFilePath is POSIX formatted
+  // configFilePath is POSIX formatted, convert to absolute OS-specific paths for file reading
   const configRoot = dirname(configFilePath);
+  const fullConfigPath = join(workspaceRoot, configFilePath);
   const fullConfigRoot = join(workspaceRoot, configRoot);
 
   // Payload config file can be located anywhere, though it's generated initially in the 'src' folder.
@@ -65,10 +66,7 @@ export const createPayloadNodes = async (
     readJsonFile<ProjectConfiguration>(projectJsonPath);
 
   // Get current GraphQL config state
-  const configContent = await readFile(configFilePath, 'utf-8');
-  const isGraphQLDisabled = /graphQL:\s*\{[^}]*disable:\s*true[^}]*\}/.test(
-    configContent
-  );
+  const graphQLDisabled = await isGraphQLDisabled(fullConfigPath);
 
   const hash = await calculateHashForCreateNodes(
     projectRoot,
@@ -76,13 +74,13 @@ export const createPayloadNodes = async (
     context,
     [
       getLockFileName(detectPackageManager(workspaceRoot)),
-      String(isGraphQLDisabled)
+      String(graphQLDisabled)
     ]
   );
 
   // Get payload targets to be inferred for the project
   targetsCache[hash] ??= createPayloadTargets({
-    isGraphQLDisabled,
+    isGraphQLDisabled: graphQLDisabled,
     projectName: String(projectName), // Should have a value by design?
     projectRoot
   });

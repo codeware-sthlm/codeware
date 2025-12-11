@@ -228,9 +228,6 @@ importers:
       '@babel/preset-react':
         specifier: ^7.14.5
         version: 7.28.5(@babel/core@7.28.5)
-      '@cdwr/nx-payload':
-        specifier: 2.0.0
-        version: 2.0.0(@nx/devkit@22.2.0(nx@22.2.0(@swc-node/register@1.10.10(@swc/core@1.13.20(@swc/helpers@0.5.17))(@swc/types@0.1.25)(typescript@5.9.2))(@swc/core@1.13.20(@swc/helpers@0.5.17))))(next@15.2.5(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.0))(payload@3.36.1(graphql@16.12.0)(typescript@5.9.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@clack/prompts':
         specifier: ^0.11.0
         version: 0.11.0
@@ -1464,15 +1461,6 @@ packages:
 
   '@bufbuild/protobuf@2.10.1':
     resolution: {integrity: sha512-ckS3+vyJb5qGpEYv/s1OebUHDi/xSNtfgw1wqKZo7MR9F2z+qXr0q5XagafAG/9O0QPVIUfST0smluYSTpYFkg==}
-
-  '@cdwr/nx-payload@2.0.0':
-    resolution: {integrity: sha512-AqEsX8iSpmtj4V6rM1dVdlV796FfBSnYziiC4CLTt/puyMqcKEfRs4XG0kiShmMUd+uaQkRQupz+ht8swfylpA==}
-    peerDependencies:
-      '@nx/devkit': ^20.4.2
-      next: ^15.0.0
-      payload: ^3.0.0
-      react: ^19.0.0
-      react-dom: ^19.0.0
 
   '@clack/core@0.5.0':
     resolution: {integrity: sha512-p3y0FIOwaYRUPRcMO7+dlmLh8PSRcrjuTndsiA0WAFbWES0mLZlrjVoBRZ9DzkPFJZG6KGkJmoEAY0ZcVWTkow==}
@@ -16173,14 +16161,6 @@ snapshots:
   '@borewit/text-codec@0.1.1': {}
 
   '@bufbuild/protobuf@2.10.1': {}
-
-  '@cdwr/nx-payload@2.0.0(@nx/devkit@22.2.0(nx@22.2.0(@swc-node/register@1.10.10(@swc/core@1.13.20(@swc/helpers@0.5.17))(@swc/types@0.1.25)(typescript@5.9.2))(@swc/core@1.13.20(@swc/helpers@0.5.17))))(next@15.2.5(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.0))(payload@3.36.1(graphql@16.12.0)(typescript@5.9.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
-    dependencies:
-      '@nx/devkit': 22.2.0(nx@22.2.0(@swc-node/register@1.10.10(@swc/core@1.13.20(@swc/helpers@0.5.17))(@swc/types@0.1.25)(typescript@5.9.2))(@swc/core@1.13.20(@swc/helpers@0.5.17)))
-      next: 15.2.5(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.0)
-      payload: 3.36.1(graphql@16.12.0)(typescript@5.9.2)
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
 
   '@clack/core@0.5.0':
     dependencies:

@@ -1,3 +1,4 @@
+import { readFile } from 'fs/promises';
 import { dirname, join, relative } from 'path/posix';
 
 import {
@@ -13,7 +14,6 @@ import { calculateHashForCreateNodes } from '@nx/devkit/src/utils/calculate-hash
 import { getLockFileName } from '@nx/js';
 
 import { createPayloadTargets } from '../../utils/create-payload-targets';
-import { extractPayloadConfig } from '../../utils/extract-payload-config';
 import { findUpFs } from '../../utils/find-up-fs';
 
 import {
@@ -65,15 +65,10 @@ export const createPayloadNodes = async (
     readJsonFile<ProjectConfiguration>(projectJsonPath);
 
   // Get current GraphQL config state
-  const result = extractPayloadConfig(configRoot, 'graphQL.disable');
-  if (!result.config) {
-    // Don't throw to prevent messing up the targets
-    console.error(result.error);
-    console.warn(
-      `Could not extract Payload config from ${configFilePath}, GraphQL state is not known`
-    );
-  }
-  const isGraphQLDisabled = result?.config?.graphQL?.disable ?? true;
+  const configContent = await readFile(configFilePath, 'utf-8');
+  const isGraphQLDisabled = /graphQL:\s*\{[^}]*disable:\s*true[^}]*\}/.test(
+    configContent
+  );
 
   const hash = await calculateHashForCreateNodes(
     projectRoot,

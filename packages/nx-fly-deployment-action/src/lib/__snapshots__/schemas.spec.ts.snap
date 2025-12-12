@@ -15,6 +15,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
     "SECRET_KEY1=secret-value1",
     "SECRET_KEY2=secret-value2",
   ],
+  "tenants": [],
   "token": "github-token",
 }
 `;
@@ -60,6 +61,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
     "SECRET_KEY1": "secret-value1",
     "SECRET_KEY2": "secret-value2",
   },
+  "tenants": [],
   "token": "github-token",
 }
 `;

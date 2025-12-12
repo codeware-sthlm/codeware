@@ -7,5 +7,6 @@
   "postgresPreview": "db-app",
   "env": ["ENV_KEY1=env-value1", "ENV_KEY2=env-value2"],
   "secrets": ["SECRET_KEY1=secret-value1", "SECRET_KEY2=secret-value2"],
+  "tenants": [],
   "token": "github-token"
 }

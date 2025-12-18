@@ -34,7 +34,10 @@ describe('main', () => {
 
     // Default mock values
     getBooleanInputMock.mockImplementation(() => true);
-    getInputMock.mockImplementation((name: string) => name);
+    getInputMock.mockImplementation((name: string) => {
+      if (name === 'app-details') return '{}';
+      return name;
+    });
     getMultilineInputMock.mockImplementation(() => []);
   });
 
@@ -49,9 +52,15 @@ describe('main', () => {
   });
 
   it('should have valid inputs with all inputs provided truthly', async () => {
+    getInputMock.mockImplementation((name: string) => {
+      if (name === 'app-details')
+        return '{"web":[{"tenant":"t1","secrets":{"KEY":"val"}}]}';
+      return name;
+    });
     await main.run();
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
+      appDetails: { web: [{ tenant: 't1', secrets: { KEY: 'val' } }] },
       env: [],
       flyApiToken: 'fly-api-token',
       flyOrg: 'fly-org',
@@ -59,7 +68,6 @@ describe('main', () => {
       mainBranch: 'main-branch',
       optOutDepotBuilder: true,
       secrets: [],
-      tenants: [],
       token: 'token'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
@@ -77,6 +85,7 @@ describe('main', () => {
     await main.run();
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
+      appDetails: {},
       env: [],
       flyApiToken: '',
       flyOrg: '',
@@ -84,7 +93,6 @@ describe('main', () => {
       mainBranch: '',
       optOutDepotBuilder: true,
       secrets: [],
-      tenants: [],
       token: 'token'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
@@ -139,6 +147,10 @@ describe('main', () => {
   });
 
   it('should handle errors', async () => {
+    getInputMock.mockImplementation((name: string) => {
+      if (name === 'app-details') return '{}';
+      return name;
+    });
     const error = new Error('error message');
     flyDeploymentMock.mockRejectedValue(error);
 

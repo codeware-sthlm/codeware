@@ -3,9 +3,9 @@ import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 import { WebhookPayload } from '@actions/github/lib/interfaces';
 import * as coreAction from '@codeware/core/actions';
+import { analyzeAppsToDeploy } from '@codeware/core/actions-internal';
 import { type DeployAppOptions, Fly } from '@codeware/fly-node';
 import * as devkit from '@nx/devkit';
-import { ProjectConfiguration } from '@nx/devkit';
 import type { PullRequestEvent } from '@octokit/webhooks-types';
 import { vol } from 'memfs';
 
@@ -44,6 +44,9 @@ vi.mock('@codeware/core/actions', async () => ({
   getRepositoryDefaultBranch: vi.fn(),
   withGitHubContext: vi.fn()
 }));
+vi.mock('@codeware/core/actions-internal', () => ({
+  analyzeAppsToDeploy: vi.fn()
+}));
 vi.mock('@codeware/fly-node');
 vi.mock('@nx/devkit');
 
@@ -62,6 +65,7 @@ describe('flyDeployment', () => {
   vi.mocked(coreAction.getRepositoryDefaultBranch).mockResolvedValue('main');
 
   // Dynamic mock values or spies
+  const mockAnalyzeAppsToDeploy = vi.mocked(analyzeAppsToDeploy);
   const mockCoreEndGroup = vi.mocked(core.endGroup);
   const mockCoreInfo = vi.mocked(core.info);
   const mockCoreStartGroup = vi.mocked(core.startGroup);
@@ -124,9 +128,8 @@ describe('flyDeployment', () => {
   /**
    * Setup mock implementations
    *
-   * - Virtual file system
+   * - Virtual file system (for fly.toml and github.json)
    * - Fly class
-   * - Nx commands
    * - Debug logging
    */
   const setupMocks = (
@@ -137,30 +140,6 @@ describe('flyDeployment', () => {
        * [{ name: 'app-one' }, { name: 'app-two' }]
        */
       flyApps?: Awaited<ReturnType<typeof Fly.prototype.apps.list>>;
-      /**
-       * Affected projects can be deployed
-       * @default
-       * ['app-one', 'app-two']
-       */
-      affectedProjects?: Array<string>;
-      /**
-       * Project configuration required for deployment
-       * @default
-       * [{ name: 'app-one', root: '/apps/app-one' }, { name: 'app-two', root: '/apps/app-two' }]
-       */
-      projectConfigs?: Array<Pick<ProjectConfiguration, 'name' | 'root'>>;
-      /**
-       * GitHub configuration file exists for projects
-       * @default
-       * { 'app-one': true, 'app-two': true }
-       */
-      githubConfigExists?: Record<string, boolean>;
-      /**
-       * Fly configuration file exists for projects
-       * @default
-       * { 'app-one': true, 'app-two': true }
-       */
-      flyConfigExists?: Record<string, boolean>;
       /**
        * Environment variable values for postgres cluster name keys.
        * - preview: `${TEST_FLY_POSTGRES_PREVIEW}`
@@ -181,34 +160,8 @@ describe('flyDeployment', () => {
       };
     } = {}
   ) => {
-    const {
-      flyApps,
-      affectedProjects,
-      projectConfigs,
-      githubConfigExists,
-      flyConfigExists,
-      envFlyPostgres
-    } = {
+    const { flyApps, envFlyPostgres } = {
       flyApps: overrides.flyApps || [{ name: 'app-one' }, { name: 'app-two' }],
-      affectedProjects: overrides.affectedProjects || ['app-one', 'app-two'],
-      projectConfigs: overrides.projectConfigs || [
-        {
-          name: 'app-one',
-          root: '/apps/app-one'
-        },
-        {
-          name: 'app-two',
-          root: '/apps/app-two'
-        }
-      ],
-      githubConfigExists: overrides.githubConfigExists || {
-        'app-one': true,
-        'app-two': true
-      },
-      flyConfigExists: overrides.flyConfigExists || {
-        'app-one': true,
-        'app-two': true
-      },
       envFlyPostgres: overrides.envFlyPostgres || {
         TEST_FLY_POSTGRES_PREVIEW: 'pg-preview',
         TEST_FLY_POSTGRES_PRODUCTION: 'pg-production'
@@ -229,33 +182,27 @@ describe('flyDeployment', () => {
       delete process.env['TEST_FLY_POSTGRES_PRODUCTION'];
     }
 
-    // Create virtual file system.
+    // Create virtual file system for fly.toml and github.json files
     // app-one uses default paths and app-two uses custom paths.
     // app-one has postgres setup, app-two does not.
     vol.reset();
     vol.fromNestedJSON({
       '/apps/app-one': {
         'fly.toml': '',
-        [githubConfigExists['app-one'] ? 'github.json' : 'azure.json']:
-          JSON.stringify({
-            deploy: true,
-            flyConfig: flyConfigExists['app-one']
-              ? 'fly.toml'
-              : 'secret/fly.toml',
-            flyPostgresPreview: '${TEST_FLY_POSTGRES_PREVIEW}',
-            flyPostgresProduction: '${TEST_FLY_POSTGRES_PRODUCTION}'
-          })
+        'github.json': JSON.stringify({
+          deploy: true,
+          flyConfig: 'fly.toml',
+          flyPostgresPreview: '${TEST_FLY_POSTGRES_PREVIEW}',
+          flyPostgresProduction: '${TEST_FLY_POSTGRES_PRODUCTION}'
+        })
       },
       '/apps/app-two/src': {
         'fly.toml': '',
         config: {
-          [githubConfigExists['app-two'] ? 'github.json' : 'azure.json']:
-            JSON.stringify({
-              deploy: true,
-              flyConfig: flyConfigExists['app-two']
-                ? 'src/fly.toml'
-                : 'secret/fly.toml'
-            })
+          'github.json': JSON.stringify({
+            deploy: true,
+            flyConfig: 'src/fly.toml'
+          })
         }
       }
     });
@@ -295,29 +242,31 @@ describe('flyDeployment', () => {
       isReady: vi.fn()
     } as unknown as Fly);
 
-    mockExecGetExecOutput.mockImplementation((cmd, args = []) => {
-      const argsStr = args.join(' ');
-
-      if (argsStr.match(/nx show projects --type app --affected --json/)) {
-        return Promise.resolve({
-          stdout: JSON.stringify(affectedProjects),
-          stderr: '',
-          exitCode: 0
-        });
+    // Mock analyzeAppsToDeploy to return deployable apps by default
+    // Tests can override this per-test as needed
+    // NOTE: withEnvVars should have already resolved ${...} templates to actual values
+    mockAnalyzeAppsToDeploy.mockResolvedValue([
+      {
+        projectName: 'app-one',
+        status: 'deploy',
+        flyConfigFile: '/apps/app-one/fly.toml',
+        githubConfig: {
+          deploy: true,
+          flyConfig: 'fly.toml',
+          flyPostgresPreview: 'pg-preview', // Resolved from ${TEST_FLY_POSTGRES_PREVIEW}
+          flyPostgresProduction: 'pg-production' // Resolved from ${TEST_FLY_POSTGRES_PRODUCTION}
+        }
+      },
+      {
+        projectName: 'app-two',
+        status: 'deploy',
+        flyConfigFile: '/apps/app-two/src/fly.toml',
+        githubConfig: {
+          deploy: true,
+          flyConfig: 'src/fly.toml'
+        }
       }
-      // Get project configuration, [nx, show, project, <project-name>, --json]
-      else if (argsStr.match(/nx show project .* --json/)) {
-        return Promise.resolve({
-          stdout:
-            JSON.stringify(projectConfigs.find((p) => p.name === args[3])) ||
-            '{}',
-          stderr: '',
-          exitCode: 0
-        });
-      }
-
-      return Promise.resolve({ stdout: '', stderr: '', exitCode: 0 });
-    });
+    ]);
   };
 
   /**
@@ -329,6 +278,7 @@ describe('flyDeployment', () => {
   const setupTest = (configOverride?: Partial<ActionInputs>): ActionInputs => {
     return {
       ...{
+        appDetails: {},
         env: [],
         flyApiToken: 'fly-api-token',
         flyOrg: 'fly-org',
@@ -336,7 +286,6 @@ describe('flyDeployment', () => {
         mainBranch: '',
         optOutDepotBuilder: false,
         secrets: [],
-        tenants: [],
         token: 'token'
       },
       ...configOverride
@@ -378,6 +327,7 @@ describe('flyDeployment', () => {
       const config = setupTest();
 
       expect(config).toEqual({
+        appDetails: {},
         env: [],
         flyApiToken: 'fly-api-token',
         flyOrg: 'fly-org',
@@ -385,7 +335,6 @@ describe('flyDeployment', () => {
         mainBranch: '',
         optOutDepotBuilder: false,
         secrets: [],
-        tenants: [],
         token: 'token'
       } satisfies ActionInputs);
 
@@ -410,75 +359,16 @@ describe('flyDeployment', () => {
   });
 
   describe('deploy to preview', () => {
-    it('should analyze affected projects', async () => {
+    it('should call analyzeAppsToDeploy to get apps for deployment', async () => {
       setContext('pr-opened');
       setupMocks();
       const config = setupTest();
       await flyDeployment(config, true);
 
-      expect(mockExecGetExecOutput).toHaveBeenCalledWith(
-        'npx',
-        expect.arrayContaining([
-          'nx',
-          'show',
-          'projects',
-          '--type',
-          'app',
-          '--affected',
-          '--json'
-        ])
-      );
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledTimes(1);
     });
 
-    it('should return skipped projects when project configuration is missing', async () => {
-      setContext('pr-opened');
-      setupMocks({ projectConfigs: [] });
-      const config = setupTest();
-      const result = await flyDeployment(config, true);
-
-      expect(result).toEqual({
-        environment: 'preview',
-        projects: [
-          {
-            action: 'skip',
-            appOrProject: 'app-one',
-            reason: 'Project config not found'
-          },
-          {
-            action: 'skip',
-            appOrProject: 'app-two',
-            reason: 'Project config not found'
-          }
-        ]
-      } satisfies ActionOutputs);
-    });
-
-    it('should return skipped projects when github configuration is missing', async () => {
-      setContext('pr-opened');
-      setupMocks({
-        githubConfigExists: { 'app-one': false, 'app-two': false }
-      });
-      const config = setupTest();
-      const result = await flyDeployment(config, true);
-
-      expect(result).toEqual({
-        environment: 'preview',
-        projects: [
-          {
-            action: 'skip',
-            appOrProject: 'app-one',
-            reason: 'GitHub config file not found for the project'
-          },
-          {
-            action: 'skip',
-            appOrProject: 'app-two',
-            reason: 'GitHub config file not found for the project'
-          }
-        ]
-      } satisfies ActionOutputs);
-    });
-
-    it('should deploy to preview when all config files exists', async () => {
+    it('should deploy to preview when apps are ready', async () => {
       setContext('pr-opened');
       setupMocks();
       const config = setupTest();
@@ -493,7 +383,8 @@ describe('flyDeployment', () => {
         },
         environment: 'preview',
         optOutDepotBuilder: false,
-        postgres: expect.any(String)
+        postgres: expect.any(String),
+        secrets: {}
       } satisfies DeployAppOptions);
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -504,7 +395,8 @@ describe('flyDeployment', () => {
           PR_NUMBER: '1'
         },
         environment: 'preview',
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       } satisfies DeployAppOptions);
 
       expect(result).toEqual({
@@ -545,7 +437,8 @@ describe('flyDeployment', () => {
           PR_NUMBER: '1'
         },
         optOutDepotBuilder: false,
-        postgres: expect.any(String)
+        postgres: expect.any(String),
+        secrets: {}
       } satisfies DeployAppOptions);
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -558,7 +451,8 @@ describe('flyDeployment', () => {
           ENV_KEY2: 'env-value2',
           PR_NUMBER: '1'
         },
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       } satisfies DeployAppOptions);
     });
 
@@ -610,30 +504,8 @@ describe('flyDeployment', () => {
         environment: 'preview',
         env: expect.any(Object),
         optOutDepotBuilder: false,
-        postgres: 'pg-preview'
-      });
-
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-pr-1',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false
-      });
-    });
-
-    it('should deploy apps to preview and not attach to postgres when only production cluster is set', async () => {
-      setContext('pr-opened');
-      setupMocks({ envFlyPostgres: { TEST_FLY_POSTGRES_PREVIEW: undefined } });
-      const config = setupTest();
-      await flyDeployment(config, true);
-
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-pr-1',
-        config: '/apps/app-one/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false
+        postgres: 'pg-preview',
+        secrets: {}
       });
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -642,7 +514,57 @@ describe('flyDeployment', () => {
         environment: 'preview',
         env: expect.any(Object),
         optOutDepotBuilder: false,
-        postgres: undefined
+        secrets: {}
+      });
+    });
+
+    it('should deploy apps to preview and not attach to postgres when only production cluster is set', async () => {
+      setContext('pr-opened');
+      setupMocks({ envFlyPostgres: { TEST_FLY_POSTGRES_PREVIEW: undefined } });
+
+      // Override mock to not include postgres preview (it's undefined in env)
+      mockAnalyzeAppsToDeploy.mockResolvedValue([
+        {
+          projectName: 'app-one',
+          status: 'deploy',
+          flyConfigFile: '/apps/app-one/fly.toml',
+          githubConfig: {
+            deploy: true,
+            flyConfig: 'fly.toml',
+            flyPostgresProduction: 'pg-production'
+          }
+        },
+        {
+          projectName: 'app-two',
+          status: 'deploy',
+          flyConfigFile: '/apps/app-two/src/fly.toml',
+          githubConfig: {
+            deploy: true,
+            flyConfig: 'src/fly.toml'
+          }
+        }
+      ]);
+
+      const config = setupTest();
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-one-config-pr-1',
+        config: '/apps/app-one/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        optOutDepotBuilder: false,
+        secrets: {}
+      });
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith({
+        app: 'app-two-config-pr-1',
+        config: '/apps/app-two/src/fly.toml',
+        environment: 'preview',
+        env: expect.any(Object),
+        optOutDepotBuilder: false,
+        postgres: undefined,
+        secrets: {}
       });
     });
 
@@ -658,7 +580,8 @@ describe('flyDeployment', () => {
         environment: 'preview',
         env: expect.any(Object),
         optOutDepotBuilder: true,
-        postgres: expect.any(String)
+        postgres: expect.any(String),
+        secrets: {}
       });
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -666,7 +589,8 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'preview',
         env: expect.any(Object),
-        optOutDepotBuilder: true
+        optOutDepotBuilder: true,
+        secrets: {}
       });
     });
   });
@@ -695,7 +619,7 @@ describe('flyDeployment', () => {
       const config = setupTest();
       mockCoreActionGetPullRequest.mockResolvedValue({
         state: 'closed'
-      } as any);
+      } as Awaited<ReturnType<typeof coreAction.getPullRequest>>);
       const result = await flyDeployment(config, true);
 
       expect(getMockFly().apps.destroy).toHaveBeenCalledWith('app-one-pr-1');
@@ -726,7 +650,7 @@ describe('flyDeployment', () => {
       const config = setupTest();
       mockCoreActionGetPullRequest.mockResolvedValue({
         state: 'closed'
-      } as any);
+      } as Awaited<ReturnType<typeof coreAction.getPullRequest>>);
       const result = await flyDeployment(config, true);
 
       expect(getMockFly().apps.destroy).toHaveBeenCalledWith('app-two-pr-1');
@@ -753,7 +677,7 @@ describe('flyDeployment', () => {
       const config = setupTest();
       mockCoreActionGetPullRequest.mockResolvedValue({
         state: 'open'
-      } as any);
+      } as Awaited<ReturnType<typeof coreAction.getPullRequest>>);
       const result = await flyDeployment(config, true);
 
       expect(getMockFly().apps.destroy).not.toHaveBeenCalled();
@@ -766,84 +690,26 @@ describe('flyDeployment', () => {
   });
 
   describe('deploy to production', () => {
-    it('should analyze affected projects', async () => {
+    it('should call analyzeAppsToDeploy to get apps for deployment', async () => {
       setContext('push-main-branch');
       setupMocks();
       const config = setupTest();
       await flyDeployment(config, true);
 
-      expect(mockExecGetExecOutput).toHaveBeenCalledWith(
-        'npx',
-        expect.arrayContaining([
-          'nx',
-          'show',
-          'projects',
-          '--type',
-          'app',
-          '--affected',
-          '--json'
-        ])
-      );
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledTimes(1);
     });
 
     it('should return empty projects when nothing to deploy', async () => {
       setContext('push-main-branch');
-      setupMocks({ affectedProjects: [] });
+      setupMocks();
+      mockAnalyzeAppsToDeploy.mockResolvedValue([]);
       const config = setupTest();
       const result = await flyDeployment(config, true);
 
       expect(result).toEqual({ environment: expect.any(String), projects: [] });
     });
 
-    it('should return skipped projects when project configuration is missing', async () => {
-      setContext('push-main-branch');
-      setupMocks({ projectConfigs: [] });
-      const config = setupTest();
-      const result = await flyDeployment(config, true);
-
-      expect(result).toEqual({
-        environment: 'production',
-        projects: [
-          {
-            action: 'skip',
-            appOrProject: 'app-one',
-            reason: 'Project config not found'
-          },
-          {
-            action: 'skip',
-            appOrProject: 'app-two',
-            reason: 'Project config not found'
-          }
-        ]
-      } satisfies ActionOutputs);
-    });
-
-    it('should return skipped projects when github configuration is missing', async () => {
-      setContext('push-main-branch');
-      setupMocks({
-        githubConfigExists: { 'app-one': false, 'app-two': false }
-      });
-      const config = setupTest();
-      const result = await flyDeployment(config, true);
-
-      expect(result).toEqual({
-        environment: 'production',
-        projects: [
-          {
-            action: 'skip',
-            appOrProject: 'app-one',
-            reason: 'GitHub config file not found for the project'
-          },
-          {
-            action: 'skip',
-            appOrProject: 'app-two',
-            reason: 'GitHub config file not found for the project'
-          }
-        ]
-      } satisfies ActionOutputs);
-    });
-
-    it('should deploy to production when all config files exists', async () => {
+    it('should deploy to production when apps are ready', async () => {
       setContext('push-main-branch');
       setupMocks();
       const config = setupTest();
@@ -858,7 +724,8 @@ describe('flyDeployment', () => {
         },
         environment: 'production',
         optOutDepotBuilder: false,
-        postgres: expect.any(String)
+        postgres: expect.any(String),
+        secrets: {}
       } satisfies DeployAppOptions);
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -869,7 +736,8 @@ describe('flyDeployment', () => {
           PR_NUMBER: ''
         },
         environment: 'production',
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       } satisfies DeployAppOptions);
 
       expect(result).toEqual({
@@ -917,7 +785,8 @@ describe('flyDeployment', () => {
           ENV_KEY2: 'env space',
           ENV_KEY3: 'env\\backslash',
           PR_NUMBER: ''
-        }
+        },
+        secrets: {}
       } satisfies DeployAppOptions);
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -932,7 +801,8 @@ describe('flyDeployment', () => {
           ENV_KEY2: 'env space',
           ENV_KEY3: 'env\\backslash',
           PR_NUMBER: ''
-        }
+        },
+        secrets: {}
       } satisfies DeployAppOptions);
     });
 
@@ -990,7 +860,8 @@ describe('flyDeployment', () => {
         environment: 'production',
         env: expect.any(Object),
         optOutDepotBuilder: false,
-        postgres: 'pg-production'
+        postgres: 'pg-production',
+        secrets: {}
       });
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -998,7 +869,8 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
         env: expect.any(Object),
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       });
     });
 
@@ -1007,6 +879,30 @@ describe('flyDeployment', () => {
       setupMocks({
         envFlyPostgres: { TEST_FLY_POSTGRES_PRODUCTION: undefined }
       });
+
+      // Override mock to not include postgres production (it's undefined in env)
+      mockAnalyzeAppsToDeploy.mockResolvedValue([
+        {
+          projectName: 'app-one',
+          status: 'deploy',
+          flyConfigFile: '/apps/app-one/fly.toml',
+          githubConfig: {
+            deploy: true,
+            flyConfig: 'fly.toml',
+            flyPostgresPreview: 'pg-preview'
+          }
+        },
+        {
+          projectName: 'app-two',
+          status: 'deploy',
+          flyConfigFile: '/apps/app-two/src/fly.toml',
+          githubConfig: {
+            deploy: true,
+            flyConfig: 'src/fly.toml'
+          }
+        }
+      ]);
+
       const config = setupTest();
       await flyDeployment(config, true);
 
@@ -1016,7 +912,8 @@ describe('flyDeployment', () => {
         config: '/apps/app-one/fly.toml',
         environment: 'production',
         env: expect.any(Object),
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       });
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -1024,7 +921,8 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
         env: expect.any(Object),
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       });
     });
 
@@ -1040,7 +938,8 @@ describe('flyDeployment', () => {
         environment: 'production',
         env: expect.any(Object),
         optOutDepotBuilder: true,
-        postgres: expect.any(String)
+        postgres: expect.any(String),
+        secrets: {}
       });
 
       expect(getMockFly().deploy).toHaveBeenCalledWith({
@@ -1048,7 +947,8 @@ describe('flyDeployment', () => {
         config: '/apps/app-two/src/fly.toml',
         environment: 'production',
         env: expect.any(Object),
-        optOutDepotBuilder: true
+        optOutDepotBuilder: true,
+        secrets: {}
       });
     });
 
@@ -1056,7 +956,10 @@ describe('flyDeployment', () => {
       setContext('push-main-branch');
       setupMocks();
       const config = setupTest({
-        tenants: ['demo', 'customer1']
+        appDetails: {
+          'app-one': [{ tenant: 'demo' }, { tenant: 'customer1' }],
+          'app-two': [{ tenant: 'demo' }, { tenant: 'customer1' }]
+        }
       });
       const result = await flyDeployment(config, true);
 
@@ -1074,7 +977,8 @@ describe('flyDeployment', () => {
         },
         environment: 'production',
         optOutDepotBuilder: false,
-        postgres: expect.any(String)
+        postgres: expect.any(String),
+        secrets: {}
       });
 
       // app-one for customer1 tenant
@@ -1088,7 +992,8 @@ describe('flyDeployment', () => {
         },
         environment: 'production',
         optOutDepotBuilder: false,
-        postgres: expect.any(String)
+        postgres: expect.any(String),
+        secrets: {}
       });
 
       // app-two for demo tenant
@@ -1101,7 +1006,8 @@ describe('flyDeployment', () => {
           TENANT_ID: 'demo'
         },
         environment: 'production',
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       });
 
       // app-two for customer1 tenant
@@ -1114,7 +1020,8 @@ describe('flyDeployment', () => {
           TENANT_ID: 'customer1'
         },
         environment: 'production',
-        optOutDepotBuilder: false
+        optOutDepotBuilder: false,
+        secrets: {}
       });
 
       expect(result).toEqual({

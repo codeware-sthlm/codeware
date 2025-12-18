@@ -3,19 +3,36 @@
  *
  * - `APP_NAME`
  * - `PR_NUMBER`
+ * - `TENANT_ID` (if applicable)
  *
  * @param appName - The name of the app
  * @param prNumber - The pull request number
- * @param env - The current environment variables to append to
+ * @param tenantId - The tenant ID (if applicable)
+ * @param env - The current environment variables to append to (not mutated)
  * @returns The environment variables with the opinionated environment variables added
  */
 export const addOpinionatedEnv = (
-  { appName, prNumber }: { appName: string; prNumber?: number },
+  {
+    appName,
+    prNumber,
+    tenantId
+  }: {
+    appName: string;
+    prNumber: number | undefined;
+    tenantId: string | undefined;
+  },
   env?: Record<string, string>
 ): Record<string, string> => {
-  return {
+  let newEnv: Record<string, string> = {
     ...env,
     APP_NAME: appName,
-    PR_NUMBER: String(prNumber ?? '')
+    PR_NUMBER: prNumber ? String(prNumber) : ''
   };
+
+  // Add TENANT_ID environment variable only if tenant is specified
+  if (tenantId) {
+    newEnv = { ...newEnv, TENANT_ID: tenantId };
+  }
+
+  return newEnv;
 };

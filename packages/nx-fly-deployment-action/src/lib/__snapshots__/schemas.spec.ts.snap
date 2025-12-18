@@ -2,6 +2,7 @@
 
 exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > ActionInputsSchema transformed shape 1`] = `
 {
+  "appDetails": {},
   "env": [
     "ENV_KEY1=env-value1",
     "ENV_KEY2=env-value2",
@@ -15,7 +16,6 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
     "SECRET_KEY1=secret-value1",
     "SECRET_KEY2=secret-value2",
   ],
-  "tenants": [],
   "token": "github-token",
 }
 `;
@@ -50,6 +50,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
 
 exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > DeploymentConfigSchema transformed shape 1`] = `
 {
+  "appDetails": {},
   "fly": {
     "optOutDepotBuilder": false,
     "org": "company",
@@ -61,16 +62,6 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
     "SECRET_KEY1": "secret-value1",
     "SECRET_KEY2": "secret-value2",
   },
-  "tenants": [],
   "token": "github-token",
-}
-`;
-
-exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > GitHubConfigSchema transformed shape 1`] = `
-{
-  "deploy": true,
-  "flyConfig": "path/to/fly.toml",
-  "flyPostgresPreview": "pg-preview",
-  "flyPostgresProduction": "pg-production",
 }
 `;

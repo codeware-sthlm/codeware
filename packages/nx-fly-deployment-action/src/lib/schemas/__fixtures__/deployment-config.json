@@ -1,4 +1,5 @@
 {
+  "appDetails": {},
   "dryRun": false,
   "fly": {
     "token": "fly-token",
@@ -11,6 +12,5 @@
     "SECRET_KEY1": "secret-value1",
     "SECRET_KEY2": "secret-value2"
   },
-  "tenants": [],
   "token": "github-token"
 }

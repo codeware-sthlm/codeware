@@ -31,6 +31,7 @@
   - [Infisical Secrets Management](#infisical-secrets-management)
   - [Fly.io Deployment](#flyio-deployment)
   - [Release Management](#release-management)
+- [Deployment](#deployment)
 
 ## Packages
 
@@ -65,6 +66,10 @@ GitHub action that brings automatic [Fly.io](https://fly.io) deployments to your
 #### [`nx-migrate-action`](packages/nx-migrate-action) <!-- omit in toc -->
 
 GitHub action that brings automatic [Nx](https://nx.dev) migrations to your workspace.
+
+#### [`nx-pre-deploy-action`](packages/nx-pre-deploy-action) <!-- omit in toc -->
+
+GitHub action that brings pre-deployment analysis of environment, multi-tenancy and secrets to your workspace.
 
 ### Node Libraries
 
@@ -151,15 +156,15 @@ nx payload-proxy:up
 >
 > :pouting_face: `system@local.dev` @ `dev`
 
-#### Optional <!-- omit in toc -->
+**Optional**
 
-##### Stop the proxy <!-- omit in toc -->
+Stop the proxy
 
 ```sh
 nx payload-proxy:down
 ```
 
-##### Communicate with the proxy <!-- omit in toc -->
+Communicate with the proxy
 
 ```sh
 nx payload-proxy [docker compose options]
@@ -170,6 +175,9 @@ nx payload-proxy [docker compose options]
 ### Infisical Secrets Management
 
 The [Infisical](https://infisical.com) secret management tool is used to manage secrets for the Codeware ecosystem.
+
+> [!NOTE] Deployment and multi-tenant configuration
+> **See:** [DEPLOYMENT.md](DEPLOYMENT.md) and the [multi-tenant setup guide](packages/nx-pre-deploy-action/README.md#multi-tenant-setup)
 
 1. [Install Infisical CLI](https://infisical.com/docs/cli/overview#installation)
 
@@ -223,9 +231,12 @@ INFISICAL_SERVICE_TOKEN=
 
 The [Fly.io](https://fly.io) platform is used to host the deployed applications and the required services.
 
+> [!NOTE] Configuration, multi-tenant setup, and workflow details
+> **See:** [DEPLOYMENT.md](DEPLOYMENT.md)
+
 Deployments are automatic on push events, detected by the [nx-fly-deployment-action](packages/nx-fly-deployment-action).
 
-Still it's highly recommended to have the Fly CLI installed locally.
+For local development and troubleshooting, install the Fly CLI:
 
 1. [Install Fly CLI](https://github.com/superfly/flyctl?tab=readme-ov-file#installation)
 
@@ -243,61 +254,58 @@ Still it's highly recommended to have the Fly CLI installed locally.
 
 #### Database setup for preview deployments <!-- omit in toc -->
 
-Applications affected by a pull request are deployed to a temporary preview environment.
-To handle the dynamic nature of preview deployments, a Fly Postgres cluster `pg-preview` is used to store the temporary databases.
+Applications affected by a pull request are deployed to a temporary preview environment. A Fly Postgres cluster `pg-preview` is used to store the temporary databases, with automatic attachment/detachment managed by the deployment workflow.
 
-Applications deployed to preview will be automatically attached to the Postgres cluster, and detached when the pull request is closed.
+> [!NOTE] How to configure Postgres attachment in github.json
+> **See:** [DEPLOYMENT.md](DEPLOYMENT.md#per-app-configuration-githubjson)
 
-> [!NOTE]
-> Some commands for reference and knowledge:
->
-> ```sh
-> # Create a Postgres development cluster
-> fly pg create --name pg-preview --org codeware --region arn --vm-size shared-cpu-1x --volume-size 1 --initial-cluster-size 2
->
-> # Detach application from the Postgres cluster
-> fly pg detach pg-preview -a cdwr-cms-pr-{pr-number}
->
-> # Delete application
-> fly apps destroy cdwr-cms-pr-{pr-number}
->
-> # List all Postgres databases
-> fly pg db list -a pg-preview
->
-> ```
+<details>
+<summary><strong>Advanced: Postgres cluster commands</strong></summary>
 
-##### Pull request database maintenance <!-- omit in toc -->
+```sh
+# Create a Postgres cluster (use only one node to prevent HA issues for unmananged cluser)
+fly pg create --name pg-preview --org codeware --region arn --vm-size shared-cpu-2x --volume-size 1 --initial-cluster-size 1
 
-Cleanup dangling database and user when the PR has been closed.
+# Detach application from the Postgres cluster
+fly pg detach pg-preview -a cdwr-cms-pr-{pr-number}
+
+# Delete application
+fly apps destroy cdwr-cms-pr-{pr-number}
+
+# List all Postgres databases
+fly pg db list -a pg-preview
+```
+
+</details>
+
+<details>
+<summary><strong>Database Maintenance & Troubleshooting</strong></summary>
+
+**Cleanup dangling database** (after PR is closed):
 
 ```sh
 sh scripts/cleanup-db.sh {pr-number} {cluster-password}
 ```
 
-Drop the database when you want to start fresh on next app start/restart.
+**Drop database** (to start fresh):
 
 ```sh
 sh scripts/drop-db.sh {pr-number} {cluster-password}
-```
-
-Then stop and restart the application machine.
-
-```sh
 fly machine stop {machine-id}
 fly machine restart {machine-id}
 ```
 
-##### Connect to the database on local machine <!-- omit in toc -->
-
-Forward server port `5432` to local port `5433` to avoid conflicts with local Postgres running in Docker.
+**Connect to preview database locally**:
 
 ```sh
+# Forward port (5433 to avoid conflicts with local Docker Postgres)
 fly proxy 5433:5432 -a pg-preview
+
+# Connection string
+postgres://postgres:<password>@localhost:5433
 ```
 
-Connect with the following connection string:
-
-`postgres://postgres:<password>@localhost:5433`
+</details>
 
 ### Release Management
 
@@ -311,3 +319,14 @@ Simply run the following command to start the release process:
 ```sh
 nx release-cli
 ```
+
+## Deployment
+
+This workspace uses automated GitHub Actions to deploy applications to Fly.io with support for both single-tenant and multi-tenant architectures. The deployment system:
+
+- Automatically detects affected applications using Nx
+- Fetches tenant configuration from Infisical
+- Deploys to the appropriate environment (preview/production)
+- Supports per-app tenant lists for flexible multi-tenancy
+
+For comprehensive deployment documentation, including configuration, multi-tenant setup, and troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).

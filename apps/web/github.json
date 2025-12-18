@@ -1,5 +1,5 @@
 {
-  "$schema": "../../packages/nx-fly-deployment-action/src/lib/utils/github-config.schema.json",
+  "$schema": "../../libs/shared/util/schemas/src/lib/github-config.schema.json",
   "deploy": true,
   "flyConfig": "fly.toml"
 }

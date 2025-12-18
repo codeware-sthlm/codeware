@@ -22,6 +22,7 @@ type Response = {
  * @param payload - Payload instance
  * @param environment - Current environment
  * @returns Tenant keys and their validated secrets, total is 0 if Infisical is not available
+ * @deprecated Seed data from file instead of fetching at runtime
  */
 export const fetchTenants = async (
   payload: Payload,
@@ -33,7 +34,8 @@ export const fetchTenants = async (
     // Try to load secrets from Infisical
     const secrets = await withInfisical({
       environment,
-      filter: { path: '/web/tenants', recurse: true },
+      // ! Not good, last tenant overrides previous ones
+      filter: { path: '/tenants', recurse: true },
       silent: true
     });
 

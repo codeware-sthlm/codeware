@@ -22,21 +22,25 @@
 
 This action will manage deployments to [Fly.io](https://fly.io) of your [Nx](https://nx.dev) workspace applications.
 
+Fits perfectly with [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme) for multi-tenant setups.
+
+> [!NOTE] Architecture, multi-tenant setup, and configuration
+> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/DEPLOYMENT.md)
+
 ## Required Application Setup
 
-To have the choice of deciding which apps to deploy, you need to setup those apps with two opnionated files.
+Each deployable app requires two configuration files:
 
-1. The obvious file for Fly deployments is `fly.toml`, which is the blueprint for the deployment.  
-   This file location is defined in the `github.json` file.
+1. **`fly.toml`** - Fly.io deployment blueprint (path specified in github.json)
+2. **`github.json`** - Deployment configuration (recommended in app root)
 
-2. The other file is `github.json`, where the deployment can be customized for the application.
-   This file can be saved anywhere in the application, but it's recommended to be in the root path.  
-   The JSON schema file can be found [here](https://github.com/codeware-sthlm/codeware/tree/master/packages/nx-fly-deployment-action/src/lib/utils/github-config.schema.json).
-
-When any of these files are missing, or misplaced, the application will be skipped from deployment.
+Applications without proper configuration will be skipped during deployment.
 
 > [!TIP]
-> The `github.json` allows for disabling the deployment for the application. This is useful for skipping deployments for applications that are not ready for deployment for any reason.
+> Use `deploy: false` in `github.json` to temporarily disable deployments for an app.
+
+> [!NOTE] github.json schema, field descriptions, and examples
+> **See:** [Per-App Configuration in DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/DEPLOYMENT.md#per-app-configuration-githubjson)
 
 ## Usage
 
@@ -51,7 +55,7 @@ When any of these files are missing, or misplaced, the application will be skipp
     fetch-depth: 0
 
 # Install dependencies and tools...
-# Build 'fly-deployment-action' package...
+# Build packages...
 
 # Fly CLI must be installed
 - name: Install Fly CLI
@@ -72,19 +76,18 @@ When any of these files are missing, or misplaced, the application will be skipp
     token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Determine environment
+### Environment Determination
 
-The environment to deploy to is determined by the event type and branch name.
+Environment is determined by the GitHub event:
 
-**Pull requests** are deployed to a **preview** environment.
+- Pull requests → `preview`
+- Push to main → `production`
 
-**Push events** on the `main` branch are deployed to the **production** environment.
+Environment variables provided to deployed apps: `DEPLOY_ENV`, `APP_NAME`, `PR_NUMBER`, `TENANT_ID`
 
-> [!TIP]
-> The environment is provided in environment variable `DEPLOY_ENV` for the deployed applications, together with some opinionated values:
+> [!NOTE] Environment detection logic and affected apps analysis
 >
-> - `APP_NAME` - The name of the app
-> - `PR_NUMBER` - The pull request number (otherwise empty)
+> **See:** [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#features)
 
 ## Inputs
 
@@ -92,29 +95,61 @@ See [action.yaml](action.yml) for descriptions of the inputs.
 
 ### Additional input details
 
-`tenants`
+#### `app-details`
 
-When deploying multi-tenant applications, you can provide a list of tenant IDs. Each affected project will be deployed once per tenant with:
+Provide a JSON object that maps app names to their deployment configurations. This supports both multi-tenant deployments and multi-deployment scenarios (e.g., multiple environments). This is typically the output from the [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme).
 
-- A unique app name: `<base-app-name>-<tenant-id>` (e.g., `cdwr-web-demo`, `cdwr-web-customer1`)
-- The `TENANT_ID` environment variable set to the tenant ID
+> [!NOTE] Setting up multi-tenant configuration in Infisical
+> **See:** [Multi-tenant Setup Guide](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#multi-tenant-setup)
 
-Provide the tenant IDs as multiline values.
+**Structure:**
 
-```yaml
-- uses: ./packages/nx-fly-deployment-action
-  with:
-    tenants: |
-      demo
-      customer1
-      customer2
+```json
+{
+  "web": [
+    {
+      "tenant": "acme",
+      "env": { "PUBLIC_URL": "https://acme.example.com" },
+      "secrets": { "API_KEY": "sk_acme_..." }
+    },
+    {
+      "tenant": "globex",
+      "env": { "PUBLIC_URL": "https://globex.example.com" },
+      "secrets": { "API_KEY": "sk_globex_..." }
+    }
+  ],
+  "cms": [{ "tenant": "acme" }]
+}
 ```
 
-If no tenants are provided, the action behaves as before (single deployment per project).
+**Behavior:**
 
-`postgres-preview`
+- Each app is deployed once per deployment configuration
+- Apps get unique names: `<base-app-name>-<tenant-id>` (e.g., `cdwr-web-acme`, `cdwr-web-globex`)
+- The `TENANT_ID` environment variable is set for each deployment
+- **Config merging**: Global `env`/`secrets` are merged with deployment-specific config (deployment wins)
+- If no `app-tenants` provided, apps deploy once with only global config
 
-When a Fly Postgres cluser has been created, you can attach the application to a postgres database automatically on deployment to the `preview` environment.
+**Example usage:**
+
+```yaml
+- name: Deploy
+  uses: ./packages/nx-fly-deployment-action
+  with:
+    app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
+    env: |
+      GLOBAL_VAR=shared-value
+    secrets: |
+      SHARED_SECRET=xyz
+```
+
+In this example, `GLOBAL_VAR` and `SHARED_SECRET` are available to all deployments, but deployment-specific values take precedence if they have the same key.
+
+**Note:** The `tenant` field is optional. You can provide `env`/`secrets` without a tenant for multi-deployment scenarios (e.g., different configurations for staging/production).
+
+#### `postgres-preview`
+
+When a Fly Postgres cluster has been created, you can attach the application to a postgres database automatically on deployment to the `preview` environment.
 
 Provide the name of the postgres application. Fly will provide `DATABASE_URL` as a secret to the application to be able to connect to the database.
 
@@ -122,9 +157,9 @@ Before the application gets destroyed, the Postgres cluster will detach the appl
 
 Read more about [attach or detach a Fly app](https://fly.io/docs/postgres/managing/attach-detach/#attach-a-fly-app).
 
-`secrets`
+#### `secrets`
 
-The secrets are passed to the deployed applications as Fly secrets. All secrets are passed to all applications.
+Global secrets passed to all deployed applications as Fly secrets. These are merged with deployment-specific secrets from `app-details` (deployment-specific takes precedence).
 
 Provide the secrets as multiline key/value strings.
 

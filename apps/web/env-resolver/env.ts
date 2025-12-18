@@ -14,17 +14,17 @@ const response = EnvSchema.safeParse(process.env);
 if (response.success) {
   resolvedEnv = response.data;
 } else {
-  // Connect to Infisical and get the secrets for the tenant into process.env
+  // Load secrets for the tenant
   await withInfisical({
     environment: process.env.DEPLOY_ENV,
-    filter: { path: `/web/tenants/${process.env.TENANT_ID}` },
+    filter: { path: `/tenants/${process.env.TENANT_ID}` },
     injectEnv: true,
     silent: true
   });
-  // and other required secrets for the web app
+  // Load secrets for the web app
   await withInfisical({
     environment: process.env.DEPLOY_ENV,
-    filter: { tags: ['web'], recurse: true },
+    filter: { path: '/apps/web', recurse: true },
     injectEnv: true,
     silent: true
   });

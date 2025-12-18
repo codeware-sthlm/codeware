@@ -54,6 +54,9 @@
         "libs/app-cms/util/plugins/src/index.ts"
       ],
       "@codeware/apps/cms/components/*": ["apps/cms/src/components/*"],
+      "@codeware/core/actions-internal": [
+        "packages/core/src/_actions-internal.ts"
+      ],
       "@codeware/core/actions": ["packages/core/src/actions.ts"],
       "@codeware/core/release": ["packages/core/src/release.ts"],
       "@codeware/core/testing": ["packages/core/src/testing.ts"],
@@ -74,6 +77,9 @@
         "packages/nx-migrate-action/src/index.ts"
       ],
       "@codeware/nx-payload": ["packages/nx-payload/index.ts"],
+      "@codeware/nx-pre-deploy-action": [
+        "packages/nx-pre-deploy-action/src/index.ts"
+      ],
       "@codeware/shared/feature/infisical": [
         "libs/shared/feature/infisical/src/index.ts"
       ],
@@ -100,6 +106,9 @@
         "libs/shared/util/payload-utils/src/index.ts"
       ],
       "@codeware/shared/util/pure": ["libs/shared/util/pure/src/index.ts"],
+      "@codeware/shared/util/schemas": [
+        "libs/shared/util/schemas/src/index.ts"
+      ],
       "@codeware/shared/util/seed": ["libs/shared/util/seed/src/index.ts"],
       "@codeware/shared/util/signature": [
         "libs/shared/util/signature/src/index.ts"

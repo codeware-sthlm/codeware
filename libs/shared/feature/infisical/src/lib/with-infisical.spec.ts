@@ -23,8 +23,18 @@ type MockInfisicalClient = {
 
 describe('withInfisical', () => {
   const mockSecrets = [
-    { secretKey: 'API_KEY', secretValue: 'test-key', version: 1 },
-    { secretKey: 'DATABASE_URL', secretValue: 'postgres://test', version: 1 }
+    {
+      secretKey: 'API_KEY',
+      secretValue: 'test-key',
+      secretMetadata: [],
+      version: 1
+    },
+    {
+      secretKey: 'DATABASE_URL',
+      secretValue: 'postgres://test',
+      secretMetadata: [],
+      version: 1
+    }
   ];
 
   let mockClient: MockInfisicalClient;
@@ -45,7 +55,9 @@ describe('withInfisical', () => {
         listSecretsWithImports: vi.fn().mockResolvedValue(mockSecrets)
       }),
       folders: vi.fn().mockReturnValue({
-        listFolders: vi.fn().mockResolvedValue([])
+        listFolders: vi.fn().mockResolvedValue([
+          // Default empty folders with relativePath
+        ])
       })
     };
 
@@ -100,6 +112,72 @@ describe('withInfisical', () => {
       expect(InfisicalSDK).toHaveBeenCalledWith({
         siteUrl: undefined
       });
+    });
+
+    it('should use credentials from options when env vars are not set', async () => {
+      delete process.env['INFISICAL_CLIENT_ID'];
+      delete process.env['INFISICAL_CLIENT_SECRET'];
+      delete process.env['INFISICAL_PROJECT_ID'];
+
+      await withInfisical({
+        clientId: 'option-client-id',
+        clientSecret: 'option-client-secret',
+        projectId: 'option-project-id'
+      });
+
+      expect(mockClient.auth().universalAuth.login).toHaveBeenCalledWith({
+        clientId: 'option-client-id',
+        clientSecret: 'option-client-secret'
+      });
+    });
+
+    it('should prioritize options over env vars when both are provided', async () => {
+      // The beforeEach already sets test-client-id, test-client-secret, test-project-id
+      // This test verifies explicit options take precedence over env vars
+
+      await withInfisical({
+        clientId: 'option-client-id',
+        clientSecret: 'option-client-secret',
+        projectId: 'option-project-id'
+      });
+
+      // Should use options, not env vars from beforeEach
+      expect(mockClient.auth().universalAuth.login).toHaveBeenCalledWith({
+        clientId: 'option-client-id',
+        clientSecret: 'option-client-secret'
+      });
+    });
+
+    it('should merge options with env vars when some are missing', async () => {
+      process.env['INFISICAL_CLIENT_ID'] = 'env-client-id';
+      delete process.env['INFISICAL_CLIENT_SECRET'];
+      delete process.env['INFISICAL_PROJECT_ID'];
+
+      await withInfisical({
+        clientSecret: 'option-client-secret',
+        projectId: 'option-project-id'
+      });
+
+      expect(mockClient.auth().universalAuth.login).toHaveBeenCalledWith({
+        clientId: 'env-client-id',
+        clientSecret: 'option-client-secret'
+      });
+    });
+
+    it('should use projectId from options when fetching secrets', async () => {
+      delete process.env['INFISICAL_PROJECT_ID'];
+
+      await withInfisical({
+        clientId: 'option-client-id',
+        clientSecret: 'option-client-secret',
+        projectId: 'option-project-id'
+      });
+
+      expect(mockClient.secrets().listSecretsWithImports).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectId: 'option-project-id'
+        })
+      );
     });
   });
 
@@ -208,18 +286,36 @@ describe('withInfisical', () => {
 
   describe('Folder Grouping', () => {
     beforeEach(() => {
+      // Create fresh folder mocks with relativePath
       const mockFolders = [
-        { name: 'app', recursivePath: 'app' },
-        { name: 'config', recursivePath: 'app/config' }
+        { name: 'app', recursivePath: 'app', relativePath: '/app' },
+        {
+          name: 'config',
+          recursivePath: 'app/config',
+          relativePath: '/app/config'
+        }
       ];
 
-      mockClient.folders().listFolders.mockResolvedValue(mockFolders);
+      // Update the folders mock
+      mockClient.folders = vi.fn().mockReturnValue({
+        listFolders: vi.fn().mockResolvedValue(mockFolders)
+      });
 
       const mockAppSecrets = [
-        { secretKey: 'APP_NAME', secretValue: 'MyApp', version: 1 }
+        {
+          secretKey: 'APP_NAME',
+          secretValue: 'MyApp',
+          secretMetadata: [],
+          version: 1
+        }
       ];
       const mockConfigSecrets = [
-        { secretKey: 'PORT', secretValue: '3000', version: 1 }
+        {
+          secretKey: 'PORT',
+          secretValue: '3000',
+          secretMetadata: [],
+          version: 1
+        }
       ];
 
       mockClient
@@ -294,7 +390,7 @@ describe('withInfisical', () => {
       mockClient
         .folders()
         .listFolders.mockResolvedValue([
-          { name: 'test', recursivePath: 'test' }
+          { name: 'test', recursivePath: 'test', relativePath: '/test' }
         ]);
       mockClient.secrets().listSecretsWithImports.mockResolvedValue([]);
 

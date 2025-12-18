@@ -96,10 +96,41 @@ describe('Infisical Integration Tests', () => {
       expect(Array.isArray(secrets)).toBe(true);
       expect(secrets.length).toBe(0);
     });
+
+    it('should return secretMetadata when secrets have metadata', async () => {
+      const secrets = await withInfisical({
+        environment: 'development'
+      });
+
+      expect(secrets).toBeDefined();
+      expect(Array.isArray(secrets)).toBe(true);
+
+      // Check if any secrets have metadata
+      const secretsWithMetadata = secrets.filter(
+        (secret) => secret.secretMetadata.length
+      );
+
+      // Assert that test data contains secrets with metadata
+      expect(secretsWithMetadata.length).toBeGreaterThan(0);
+
+      secretsWithMetadata.forEach((secret) => {
+        expect(secret.secretMetadata.length).toBeGreaterThan(0);
+        for (const metadata of secret.secretMetadata) {
+          expect(metadata).toBeDefined();
+
+          // Verify metadata contains key-value pairs
+          const keys = Object.keys(metadata);
+          expect(keys.length).toBeGreaterThan(0);
+          keys.forEach((key) => {
+            expect(metadata[key]).toBeDefined();
+          });
+        }
+      });
+    });
   });
 
   describe('Folder-Based Organization', () => {
-    it('should group secrets by folder', async () => {
+    it('should group secrets by all folders', async () => {
       const folderSecrets = await withInfisical({
         environment: 'development',
         groupByFolder: true
@@ -117,7 +148,33 @@ describe('Infisical Integration Tests', () => {
 
       // Snapshot test
       const normalized = normalizeFolderSecrets(folderSecrets);
-      expect(normalized).toMatchSnapshot('folder-grouped-secrets');
+      expect(normalized).toMatchSnapshot('folder-grouped-all-secrets');
+    });
+
+    it('should group secrets from apps folder', async () => {
+      const folderSecrets = await withInfisical({
+        environment: 'development',
+        filter: { path: '/apps' },
+        groupByFolder: true
+      });
+
+      expect(folderSecrets.length).toBeGreaterThan(0);
+
+      const normalized = normalizeFolderSecrets(folderSecrets);
+      expect(normalized).toMatchSnapshot('folder-grouped-apps-secrets');
+    });
+
+    it('should group secrets from tenants folder', async () => {
+      const folderSecrets = await withInfisical({
+        environment: 'development',
+        filter: { path: '/tenants' },
+        groupByFolder: true
+      });
+
+      expect(folderSecrets.length).toBeGreaterThan(0);
+
+      const normalized = normalizeFolderSecrets(folderSecrets);
+      expect(normalized).toMatchSnapshot('folder-grouped-tenants-secrets');
     });
 
     it('should list all folders including nested ones', async () => {

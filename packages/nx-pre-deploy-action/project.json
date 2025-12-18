@@ -1,0 +1,25 @@
+{
+  "name": "nx-pre-deploy-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/nx-pre-deploy-action/src",
+  "projectType": "library",
+  "tags": ["scope:nx-pre-deploy-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/nx-pre-deploy-action/*.md",
+          "packages/nx-pre-deploy-action/action.yml"
+        ],
+        "additionalEntryPoints": [
+          "packages/nx-pre-deploy-action/src/action.ts"
+        ],
+        "format": ["cjs", "esm"]
+      }
+    },
+    "act": {
+      "command": "act schedule --env-file .env.act -j pre-deploy"
+    }
+  }
+}

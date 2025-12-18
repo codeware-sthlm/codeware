@@ -1,4 +1,4 @@
-name: 'Nx Workspace Migrate'
+name: "Nx Workspace Migrate"
 
 description: >
   Automatically updates Nx workspace dependencies and creates a PR with the changes.
@@ -73,5 +73,5 @@ outputs:
       Pull request number when there is one.
 
 runs:
-  using: 'node20'
-  main: '../../dist/packages/nx-migrate-action/action.cjs'
+  using: "node20"
+  main: "../../dist/packages/nx-migrate-action/action.cjs"

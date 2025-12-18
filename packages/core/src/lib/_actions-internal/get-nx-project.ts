@@ -1,0 +1,37 @@
+import * as exec from '@actions/exec';
+import {
+  type ProjectConfiguration,
+  getPackageManagerCommand
+} from '@nx/devkit';
+
+/**
+ * Get the Nx project configuration by name.
+ *
+ * A verified project configuration contains the following fields:
+ * - name
+ * - sourceRoot
+ *
+ * @param projectName - The name of the project
+ * @returns Project configuration or `null` if not found
+ */
+export const getNxProject = async (
+  projectName: string
+): Promise<ProjectConfiguration | null> => {
+  const pmc = getPackageManagerCommand();
+  const { stdout } = await exec.getExecOutput(
+    pmc.exec,
+    ['nx', 'show', 'project', projectName, '--json'],
+    {
+      silent: true
+    }
+  );
+
+  const config: ProjectConfiguration = JSON.parse(stdout);
+
+  // Rudimentary check of the project configuration
+  if (config.name !== projectName || !config.root) {
+    return null;
+  }
+
+  return config;
+};

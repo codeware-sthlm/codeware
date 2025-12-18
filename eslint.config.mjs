@@ -25,6 +25,7 @@ export default [
           enforceBuildableLibDependency: true,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?js$'],
           depConstraints: [
+            { sourceTag: 'scope:tools', onlyDependOnLibsWithTags: ['*'] },
             {
               sourceTag: 'type:util',
               onlyDependOnLibsWithTags: ['type:util']
@@ -124,6 +125,14 @@ export default [
                 'scope:nx-payload-e2e',
                 'scope:core',
                 'scope:e2e-utils',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:nx-pre-deploy-action',
+              onlyDependOnLibsWithTags: [
+                'scope:nx-pre-deploy-action',
+                'scope:core',
                 'scope:shared'
               ]
             },

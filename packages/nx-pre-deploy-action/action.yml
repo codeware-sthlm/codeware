@@ -1,0 +1,49 @@
+name: "Nx Pre-deploy"
+
+description: >
+  Analyze the applications to deploy and to which environment.
+  Optionally fetch multi-tenant information from Infisical.
+
+inputs:
+  main-branch:
+    description: >
+      The main branch name.
+      Defaults to the default branch of the repository.
+  token:
+    description: >
+      The token to use for repository authentication.
+      Defaults to `GITHUB_TOKEN`.
+  infisical-client-id:
+    description: >
+      Infisical client ID for tenant fetching.
+      Optional - if not provided, no tenants will be fetched.
+  infisical-client-secret:
+    description: >
+      Infisical client secret for tenant fetching.
+      Optional - if not provided, no tenants will be fetched.
+  infisical-project-id:
+    description: >
+      Infisical project ID for tenant fetching.
+      Optional - if not provided, no tenants will be fetched.
+  infisical-site:
+    description: >
+      Infisical site to use ('eu' or 'us').
+      Defaults to 'eu'.
+
+outputs:
+  apps:
+    description: >
+      A list of applications to deploy (Nx project names).
+  environment:
+    description: >
+      The environment to deploy applications to ('preview', 'production').
+      Empty string if the event couldn't match any environment.
+  app-tenants:
+    description: >
+      JSON object mapping apps to their tenant deployment details.
+      Each app maps to an array of objects with tenant, env, and secrets.
+      Example: { "web": [{ "tenant": "acme", "env": { "PUBLIC_URL": "https://acme.com" }, "secrets": { "API_KEY": "..." } }] }
+
+runs:
+  using: "node20"
+  main: "../../dist/packages/nx-pre-deploy-action/action.cjs"

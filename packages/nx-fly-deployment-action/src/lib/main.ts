@@ -11,6 +11,9 @@ import {
  */
 export async function run(): Promise<void> {
   try {
+    const appDetailsInput = core.getInput('app-details');
+    const appDetails = appDetailsInput ? JSON.parse(appDetailsInput) : {};
+
     const inputs = ActionInputsSchema.parse({
       env: core.getMultilineInput('env'),
       flyApiToken: core.getInput('fly-api-token'),
@@ -19,7 +22,7 @@ export async function run(): Promise<void> {
       mainBranch: core.getInput('main-branch'),
       optOutDepotBuilder: core.getBooleanInput('opt-out-depot-builder'),
       secrets: core.getMultilineInput('secrets'),
-      tenants: core.getMultilineInput('tenants'),
+      appDetails,
       token: core.getInput('token', { required: true })
     } satisfies ActionInputs);
 

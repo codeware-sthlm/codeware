@@ -1,5 +1,5 @@
 {
-  "$id": "https://github.com/codeware-sthlm/codeware/packages/nx-fly-deployment-action/src/lib/utils/github-config.schema.json",
+  "$id": "https://github.com/codeware-sthlm/codeware/libs/shared/util/schemas/src/lib/github-config.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "GitHub Fly Deployment Configuration.",
   "description": "Configuration for deploying Nx projects to Fly.io.",

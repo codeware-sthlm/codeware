@@ -22,7 +22,12 @@
 
 This action will analyze which environment to deploy your <a href='https://fly.io'>Fly.io</a> applications to.
 
-It is intended to be used in a previous job before the [Fly Deployment Action](https://github.com/codeware-sthlm/codeware/tree/master/packages/nx-fly-deployment-action/README.md).
+It is intended to be used in a previous job before the [Fly Deployment Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-fly-deployment-action#readme).
+
+> [!IMPORTANT]
+> **This action is now superseded by [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme)**, which provides environment detection plus affected apps analysis and multi-tenant support in a unified package.
+>
+> This action remains available if you only need environment detection without the full pre-deployment analysis.
 
 ## Usage
 

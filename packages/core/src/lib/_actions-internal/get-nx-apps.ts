@@ -1,29 +1,28 @@
-import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import { getPackageManagerCommand } from '@nx/devkit';
 
 /**
- * Get the deployable projects.
+ * Get a list of Nx projects.
  *
- * Deployable projects are the applications that are affected by the recent code changes.
- *
+ * @param select - Whether to select all apps or only affected apps (default: 'all')
  * @returns List of project names
+ * @throws If command fails or output is invalid
  */
-export const getDeployableProjects = async (): Promise<Array<string>> => {
+export const getNxApps = async (
+  select: 'all' | 'affected' = 'all'
+): Promise<Array<string>> => {
   const pmc = getPackageManagerCommand();
-
-  core.info('Getting deployable projects');
-
-  // TODO: Opt-out from only getting affected projects
-  const { stdout } = await exec.getExecOutput(pmc.exec, [
+  const args = [
     'nx',
     'show',
     'projects',
     '--type',
     'app',
-    '--affected',
+    select === 'affected' ? '--affected' : '',
     '--json'
-  ]);
+  ].filter(Boolean);
+
+  const { stdout } = await exec.getExecOutput(pmc.exec, args);
 
   const parsedOutput = JSON.parse(stdout);
 

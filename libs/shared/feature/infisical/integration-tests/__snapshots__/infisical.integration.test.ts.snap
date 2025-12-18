@@ -8,6 +8,11 @@ exports[`Infisical Integration Tests > Basic Secrets Fetching > should fetch sec
     "secretValue": "token-development",
   },
   {
+    "secretKey": "DEPLOY_RULES",
+    "secretPath": "/",
+    "secretValue": "{ "apps": "web", "tenants": "demo" }",
+  },
+  {
     "secretKey": "EMPTY_SECRET",
     "secretPath": "/",
     "secretValue": "",
@@ -16,6 +21,11 @@ exports[`Infisical Integration Tests > Basic Secrets Fetching > should fetch sec
     "secretKey": "SHARED_API_URL",
     "secretPath": "/",
     "secretValue": "https://api.domain-dev.io",
+  },
+  {
+    "secretKey": "WITH_METADATA",
+    "secretPath": "/",
+    "secretValue": "mdev",
   },
 ]
 `;
@@ -28,6 +38,11 @@ exports[`Infisical Integration Tests > Basic Secrets Fetching > should fetch sec
     "secretValue": "token-development",
   },
   {
+    "secretKey": "DEPLOY_RULES",
+    "secretPath": "/",
+    "secretValue": "{ "apps": "web", "tenants": "demo" }",
+  },
+  {
     "secretKey": "EMPTY_SECRET",
     "secretPath": "/",
     "secretValue": "",
@@ -36,6 +51,11 @@ exports[`Infisical Integration Tests > Basic Secrets Fetching > should fetch sec
     "secretKey": "SHARED_API_URL",
     "secretPath": "/",
     "secretValue": "https://api.domain-dev.io",
+  },
+  {
+    "secretKey": "WITH_METADATA",
+    "secretPath": "/",
+    "secretValue": "mdev",
   },
 ]
 `;
@@ -60,7 +80,7 @@ exports[`Infisical Integration Tests > Folder-Based Organization > should fetch 
 ]
 `;
 
-exports[`Infisical Integration Tests > Folder-Based Organization > should group secrets by folder > folder-grouped-secrets 1`] = `
+exports[`Infisical Integration Tests > Folder-Based Organization > should group secrets by all folders > folder-grouped-all-secrets 1`] = `
 [
   {
     "path": "/apps",
@@ -140,6 +160,127 @@ exports[`Infisical Integration Tests > Folder-Based Organization > should group 
     "secretCount": 0,
     "secrets": [],
   },
+  {
+    "path": "/tenants/company",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "DOMAIN_URL",
+        "secretPath": "/tenants/company",
+        "secretValue": "company.localhost",
+      },
+      {
+        "secretKey": "FEATURES",
+        "secretPath": "/tenants/company",
+        "secretValue": "premium,analytics,custom-domain",
+      },
+    ],
+  },
+  {
+    "path": "/tenants/customer",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "DOMAIN_URL",
+        "secretPath": "/tenants/customer",
+        "secretValue": "customer.localhost",
+      },
+      {
+        "secretKey": "FEATURES",
+        "secretPath": "/tenants/customer",
+        "secretValue": "standard,analytics",
+      },
+    ],
+  },
+  {
+    "path": "/tenants/demo",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "DOMAIN_URL",
+        "secretPath": "/tenants/demo",
+        "secretValue": "demo.localhost",
+      },
+      {
+        "secretKey": "FEATURES",
+        "secretPath": "/tenants/demo",
+        "secretValue": "basic,analytics",
+      },
+    ],
+  },
+]
+`;
+
+exports[`Infisical Integration Tests > Folder-Based Organization > should group secrets from apps folder > folder-grouped-apps-secrets 1`] = `
+[
+  {
+    "path": "/apps/client",
+    "secretCount": 4,
+    "secrets": [
+      {
+        "secretKey": "API_HOST",
+        "secretPath": "/apps/client",
+        "secretValue": "client.localhost",
+      },
+      {
+        "secretKey": "API_KEY",
+        "secretPath": "/apps/client",
+        "secretValue": "crypto-development",
+      },
+      {
+        "secretKey": "PAYLOAD_URL",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "http://localhost:3000",
+      },
+      {
+        "secretKey": "SIGNATURE_SECRET",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "supersecret-development",
+      },
+    ],
+  },
+  {
+    "path": "/apps/cms",
+    "secretCount": 3,
+    "secrets": [
+      {
+        "secretKey": "DATABASE_URL",
+        "secretPath": "/apps/cms",
+        "secretValue": "postgresql://postgres:postgres@localhost:5432/cms",
+      },
+      {
+        "secretKey": "LOG_LEVEL",
+        "secretPath": "/apps/cms",
+        "secretValue": "debug",
+      },
+      {
+        "secretKey": "PORT",
+        "secretPath": "/apps/cms",
+        "secretValue": "3000",
+      },
+    ],
+  },
+  {
+    "path": "/apps/cms/shared",
+    "secretCount": 2,
+    "secrets": [
+      {
+        "secretKey": "PAYLOAD_URL",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "http://localhost:3000",
+      },
+      {
+        "secretKey": "SIGNATURE_SECRET",
+        "secretPath": "/apps/cms/shared",
+        "secretValue": "supersecret-development",
+      },
+    ],
+  },
+]
+`;
+
+exports[`Infisical Integration Tests > Folder-Based Organization > should group secrets from tenants folder > folder-grouped-tenants-secrets 1`] = `
+[
   {
     "path": "/tenants/company",
     "secretCount": 2,

@@ -16,30 +16,38 @@ export type Environment = z.infer<typeof EnvironmentSchema>;
  */
 export const getDeployEnv = (
   context: Context,
-
   mainBranch: string
 ): { environment: Environment } | { environment: null; reason: string } => {
-  const { eventName, ref } = context;
+  try {
+    const { eventName, ref } = context;
 
-  const currentBranch = ref.split('/').at(-1);
+    const currentBranch = ref.split('/').at(-1);
 
-  if (eventName === 'pull_request') {
-    return { environment: 'preview' };
-  }
+    if (eventName === 'pull_request') {
+      return { environment: 'preview' };
+    }
 
-  if (eventName === 'push') {
-    if (currentBranch === mainBranch) {
-      return { environment: 'production' };
+    if (eventName === 'push') {
+      if (currentBranch === mainBranch) {
+        return { environment: 'production' };
+      }
+
+      return {
+        environment: null,
+        reason: `'${currentBranch}' is not supported for production deployment, only '${mainBranch}' is supported`
+      };
     }
 
     return {
       environment: null,
-      reason: `'${currentBranch}' is not supported for production deployment, only '${mainBranch}' is supported`
+      reason: `'${eventName}' is not a supported event for deployment, only 'pull_request' and 'push' are supported`
+    };
+  } catch (error) {
+    return {
+      environment: null,
+      reason: `Failed to determine deploy environment: ${
+        error instanceof Error ? error.message : String(error)
+      }`
     };
   }
-
-  return {
-    environment: null,
-    reason: `'${eventName}' is not a supported event for deployment, only 'pull_request' and 'push' are supported`
-  };
 };

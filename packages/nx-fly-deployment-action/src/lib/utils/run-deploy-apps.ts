@@ -1,18 +1,13 @@
-import { join } from 'path';
-
 import * as core from '@actions/core';
 import type { Environment } from '@codeware/core/actions';
+import { analyzeAppsToDeploy } from '@codeware/core/actions-internal';
 import { Fly } from '@codeware/fly-node';
 
 import type { ActionOutputs } from '../schemas/action-outputs.schema';
 import type { DeploymentConfig } from '../schemas/deployment-config.schema';
 
 import { addOpinionatedEnv } from './add-opinionated-env';
-import { getDeployableProjects } from './get-deployable-projects';
-import { getPreviewAppName } from './get-preview-app-name';
-import { getProjectConfiguration } from './get-project-configuration';
-import { getTenantAppName } from './get-tenant-app-name';
-import { lookupGitHubConfigFile } from './lookup-github-config-file';
+import { getAppName } from './get-app-name';
 
 /**
  * Deploy apps that are affected by code changes
@@ -31,130 +26,98 @@ export const runDeployApps = async (options: {
 
   const { config, environment, fly, pullRequest } = options;
 
-  // Create deployments based on affected projects
-  core.info('Analyze affected projects to deploy');
-  const projectNames = await getDeployableProjects();
+  core.info('Analyze apps to deploy');
 
-  core.info(`Found ${projectNames.length} projects`);
+  const apps = await analyzeAppsToDeploy();
 
-  // Analyze each project
-  for (const projectName of projectNames) {
-    core.info(`[${projectName}] Analyze project before deployment`);
+  core.info(`Found ${apps.length} possible apps`);
 
-    // Get project configuration
-    core.info(`[${projectName}] Get project config`);
-    const projectConfig = await getProjectConfiguration(projectName);
-
-    if (!projectConfig) {
-      const reason = 'Project config not found';
-      core.warning(`[${projectName}] ${reason}, not possible to deploy`);
+  for (const app of apps) {
+    if (app.status !== 'deploy') {
+      core.info(`[${app.projectName}] Skipped: ${app.reason}`);
       projects.push({
-        appOrProject: projectName,
+        appOrProject: app.projectName,
         action: 'skip',
-        reason
+        reason: app.reason
       });
       continue;
     }
 
-    // Find github.json
-    core.info(
-      `[${projectName}] Lookup GitHub config file in '${projectConfig.root}'`
-    );
+    const { flyConfigFile, githubConfig, projectName } = app;
 
-    const gcResponse = await lookupGitHubConfigFile(projectConfig.root);
-
-    if (!gcResponse) {
-      core.info(`[${projectName}] GitHub config file not found, skipping`);
-      projects.push({
-        appOrProject: projectName,
-        action: 'skip',
-        reason: 'GitHub config file not found for the project'
-      });
-      continue;
-    }
-
-    const { configFile, content: githubConfig } = gcResponse;
-
-    core.info(`[${projectName}] Found '${configFile}'`);
-
-    if (!githubConfig.deploy) {
-      core.info(`[${projectName}] Deployment is disabled, skipping`);
-      projects.push({
-        appOrProject: projectName,
-        action: 'skip',
-        reason: 'Deployment is disabled in GitHub config for the project'
-      });
-      continue;
-    }
-
-    // Verify and get app name from fly.toml
-    core.info(
-      `[${projectName}] Lookup Fly config file '${githubConfig.flyConfig}'`
-    );
-
-    const resolvedFlyConfig = join(projectConfig.root, githubConfig.flyConfig);
     let configAppName: string;
 
+    core.info(`[${projectName}] Verify Fly config file`);
     try {
       const flyConfig = await fly.config.show({
-        config: resolvedFlyConfig,
+        config: flyConfigFile,
         local: true
       });
       configAppName = flyConfig.app;
-      core.info(`[${projectName}] Found '${resolvedFlyConfig}'`);
-      core.info(
-        `[${projectName}] Got app name '${configAppName}' from Fly config`
-      );
     } catch {
       core.warning(
-        `[${projectName}] Fly config file not found, not possible to deploy`
+        `[${projectName}] Fly config file could not be resolved, not possible to deploy`
       );
       projects.push({
         appOrProject: projectName,
         action: 'skip',
-        reason: `Fly config file not found '${resolvedFlyConfig}'`
+        reason: `Fly config file could not be resolved`
       });
       continue;
     }
+
+    core.info(`[${projectName}] Resolved app name: ${configAppName}`);
 
     // Requirements are met, ready to deploy
     core.info(`[${projectName}] Ready to fly >>>`);
 
-    // Determine which tenants to deploy for
-    // If no tenants provided, deploy once without tenant suffix
-    const tenantsToDeployFor =
-      config.tenants.length > 0 ? config.tenants : [''];
+    // Get deployment details for this specific app
+    // If app not in appDetails map or has empty array, deploy once without deployment-specific config
+    const appDeploymentDetails = config.appDetails[projectName] || [];
+    const deploymentsToRun =
+      appDeploymentDetails.length > 0 ? appDeploymentDetails : [{}];
 
-    // Deploy once for each tenant
-    for (const tenantId of tenantsToDeployFor) {
+    if (appDeploymentDetails.length > 0) {
+      const tenantNames = appDeploymentDetails
+        .map((d) => d.tenant || 'default')
+        .join(', ');
+      core.info(
+        `[${projectName}] Multi-deployment app with ${appDeploymentDetails.length} deployment(s): ${tenantNames}`
+      );
+    } else {
+      core.info(`[${projectName}] Single deployment app`);
+    }
+
+    // Deploy once for each deployment configuration
+    for (const deploymentDetails of deploymentsToRun) {
+      const tenantId = deploymentDetails.tenant;
       const tenantLabel = tenantId ? ` for tenant '${tenantId}'` : '';
       core.info(`[${projectName}] Deploying${tenantLabel}...`);
 
-      // Get app name with tenant suffix
-      let appName: string;
-      if (environment === 'preview') {
-        appName = getPreviewAppName(configAppName, pullRequest ?? 0);
-        // Add tenant suffix for preview if tenant specified
-        if (tenantId) {
-          appName = getTenantAppName(appName, tenantId);
-        }
-      } else {
-        // For production, add tenant suffix if tenant specified
-        appName = tenantId
-          ? getTenantAppName(configAppName, tenantId)
-          : configAppName;
-      }
+      const appName = getAppName({
+        configAppName,
+        environment,
+        pullRequest,
+        tenantId
+      });
 
-      // Add environment variables
+      // Merge secrets: global -> deployment-specific (deployment wins)
+      const mergedSecrets = {
+        ...config.secrets,
+        ...deploymentDetails.secrets
+      };
+
+      // Merge environment variables: global -> deployment-specific (deployment wins)
+      const mergedEnv = {
+        ...config.env,
+        ...deploymentDetails.env
+      };
+
+      // Add opinionated environment variables
       const envVars = addOpinionatedEnv(
-        { appName, prNumber: pullRequest },
-        config.env
+        { appName, prNumber: pullRequest, tenantId },
+        mergedEnv
       );
-
-      // Add TENANT_ID environment variable if tenant is specified
-      if (tenantId) {
-        envVars['TENANT_ID'] = tenantId;
-      }
 
       // Get postgres connection string
       const postgres =
@@ -170,12 +133,12 @@ export const runDeployApps = async (options: {
       try {
         const result = await fly.deploy({
           app: appName,
-          config: resolvedFlyConfig,
+          config: flyConfigFile,
           env: envVars,
           environment,
           optOutDepotBuilder: config.fly.optOutDepotBuilder,
           postgres: postgres || undefined, // rather undefined than empty string
-          secrets: config.secrets
+          secrets: mergedSecrets
         });
 
         core.info(

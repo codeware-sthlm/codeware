@@ -12,7 +12,7 @@ export const DeploymentConfigSchema = z.object({
   }),
   mainBranch: z.string().min(1, 'main branch is required'),
   secrets: z.record(z.string(), z.string()).optional(),
-  tenants: z.array(z.string()),
+  appDetails: ActionInputsSchema.shape.appDetails,
   token: ActionInputsSchema.shape.token
 });
 

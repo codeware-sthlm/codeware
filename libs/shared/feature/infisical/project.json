@@ -5,6 +5,12 @@
   "projectType": "library",
   "tags": ["scope:shared", "type:feature", "domain:apps"],
   "targets": {
+    "build": {
+      "metadata": {
+        "description": "Build is required since this project is used by a package"
+      },
+      "executor": "@nx/esbuild:esbuild"
+    },
     "integration-test": {
       "executor": "nx:run-commands",
       "cache": true,

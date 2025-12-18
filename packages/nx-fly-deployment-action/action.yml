@@ -1,4 +1,4 @@
-name: 'Nx Fly Deployment'
+name: "Nx Fly Deployment"
 
 description: >
   Automatically manage deployment of your Nx applications to Fly.io.
@@ -22,7 +22,7 @@ inputs:
       Defaults to the default branch of the repository.
   env:
     description: >
-      A multiline string of environment variables to set for the application.
+      A multiline string of environment variables to set for the deployed applications.
       Each variable should be on a new line in the format of `KEY=VALUE`.
       Defaults to an empty string.
   secrets:
@@ -35,12 +35,15 @@ inputs:
       The token to use for repository authentication.
       For example `GITHUB_TOKEN`.
     required: true
-  tenants:
+  app-details:
     description: >
-      A multiline string of tenant IDs to deploy for multi-tenant applications.
-      Each tenant ID should be on a new line.
-      If provided, each affected project will be deployed once per tenant with TENANT_ID env var set.
-      Defaults to an empty string (no multi-tenant deployment).
+      Optional JSON object mapping apps to their deployment details, when needed.
+      Each app maps to an array of objects with optional tenant, env, and secrets.
+      Example: {"web":[{"tenant":"acme","env":{"URL":"..."},"secrets":{"KEY":"..."}}]}
+      The tenant field is optional - you can provide env/secrets without a tenant.
+      If an app has an empty array, it will be deployed once without deployment-specific config.
+      Deployment-specific env/secrets are merged with global env/secrets (deployment takes precedence).
+      Defaults to an empty object (single deployment per app with global config only).
   opt-out-depot-builder:
     description: >
       Whether to opt out of the default depot builder.
@@ -61,5 +64,5 @@ outputs:
       JSON object containing the deployed project names and their urls.
 
 runs:
-  using: 'node20'
-  main: '../../dist/packages/nx-fly-deployment-action/action.cjs'
+  using: "node20"
+  main: "../../dist/packages/nx-fly-deployment-action/action.cjs"

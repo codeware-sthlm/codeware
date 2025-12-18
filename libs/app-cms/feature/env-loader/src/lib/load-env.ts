@@ -20,23 +20,15 @@ export const loadEnv = async (): Promise<Env | undefined> => {
     return preResponse.data;
   }
 
-  // Connect to Infisical and get the secrets for the app into process.env
-  const statusPath = await withInfisical({
-    environment: process.env['DEPLOY_ENV'],
-    filter: { path: '/cms' },
-    injectEnv: true,
-    silent: true
-  });
-
-  // and other required secrets for the cms app
-  const statusTag = await withInfisical({
-    environment: process.env['DEPLOY_ENV'],
-    filter: { tags: ['cms'], recurse: true },
-    injectEnv: true,
-    silent: true
-  });
-
-  if (!statusPath || !statusTag) {
+  // Load secrets for the cms app
+  if (
+    !(await withInfisical({
+      environment: process.env['DEPLOY_ENV'],
+      filter: { path: '/apps/cms', recurse: true },
+      injectEnv: true,
+      silent: true
+    }))
+  ) {
     console.warn(
       '[ENV] Could not load secrets from Infisical',
       preResponse.error.flatten().fieldErrors

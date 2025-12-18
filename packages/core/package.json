@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0",
     "@clack/prompts": "^0.11.0",
     "@homebridge/node-pty-prebuilt-multiarch": "^0.13.0",

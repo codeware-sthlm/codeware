@@ -12,6 +12,7 @@ import {
  * @param payload - Payload instance
  * @param environment - Current environment
  * @returns System user details
+ * @deprecated Seed data from file instead of fetching at runtime
  */
 export const fetchSystemUser = async (
   payload: Payload,
@@ -22,7 +23,7 @@ export const fetchSystemUser = async (
   // Try to load secrets from Infisical
   const secrets = await withInfisical({
     environment,
-    filter: { path: '/cms' },
+    filter: { path: '/apps/cms', recurse: true },
     silent: true
   });
 

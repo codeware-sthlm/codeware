@@ -125,6 +125,7 @@ Infisical is the single source of truth for both secrets and tenant configuratio
 - App-level secrets: `/apps/<app-name>/*`
 - Tenant-app secrets: `/tenants/<tenant-id>/apps/<app-name>/*`
 - Tenant discovery: System scans `/tenants/` folder structure to determine which tenants use which apps
+- Dynamic CORS: CMS automatically fetches tenant app URLs tagged with `cors` at boot for CORS configuration
 
 > [!NOTE] Detailed multi-tenant setup
 >

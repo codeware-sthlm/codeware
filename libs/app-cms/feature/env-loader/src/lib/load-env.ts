@@ -30,10 +30,27 @@ export const loadEnv = async (): Promise<Env | undefined> => {
     }))
   ) {
     console.warn(
-      '[ENV] Could not load secrets from Infisical',
+      '[ENV] Could not load cms secrets from Infisical',
       preResponse.error.flatten().fieldErrors
     );
     return;
+  }
+
+  // Load CORS urls for the tenants
+  const corsSecrets = await withInfisical({
+    environment: process.env['DEPLOY_ENV'],
+    filter: { path: '/tenants', recurse: true, tags: ['cors'] },
+    silent: true
+  });
+  // Inject CORS urls into process.env manually
+  if (corsSecrets) {
+    const cors = corsSecrets
+      .map((secret) => secret.secretValue.trim())
+      .filter(Boolean)
+      .join(',');
+    process.env['CORS_URLS'] = cors;
+  } else {
+    console.warn('[ENV] Could not load tenant CORS secrets from Infisical');
   }
 
   // Validate loaded environment variables

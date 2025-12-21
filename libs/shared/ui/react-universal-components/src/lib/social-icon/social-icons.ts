@@ -7,18 +7,20 @@ import {
   SiX,
   SiYoutube
 } from '@icons-pack/react-simple-icons';
-import { Globe } from 'lucide-react';
+import { Globe, Mail, Phone } from 'lucide-react';
 
 import { LinkedIn } from './svg/LinkedIn';
 
 /** Social media platform */
 export type Platform =
   | 'discord'
+  | 'email'
   | 'facebook'
   | 'github'
   | 'instagram'
   | 'linkedin'
   | 'npm'
+  | 'phone'
   | 'web'
   | 'x'
   | 'youtube';
@@ -39,6 +41,11 @@ export const socialIconsMap: Record<Platform, Icon> = {
     platform: 'discord',
     name: 'Discord',
     Component: SiDiscord
+  },
+  email: {
+    platform: 'email',
+    name: 'Email',
+    Component: Mail
   },
   facebook: {
     platform: 'facebook',
@@ -64,6 +71,11 @@ export const socialIconsMap: Record<Platform, Icon> = {
     platform: 'npm',
     name: 'npm',
     Component: SiNpm
+  },
+  phone: {
+    platform: 'phone',
+    name: 'Phone',
+    Component: Phone
   },
   web: {
     platform: 'web',

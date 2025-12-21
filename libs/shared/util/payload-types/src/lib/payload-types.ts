@@ -983,15 +983,19 @@ export interface SocialMediaBlock {
     | {
         platform:
           | 'discord'
+          | 'email'
           | 'facebook'
           | 'github'
           | 'instagram'
           | 'linkedin'
           | 'npm'
+          | 'phone'
           | 'web'
           | 'x'
           | 'youtube';
-        url: string;
+        email?: string | null;
+        phone?: string | null;
+        url?: string | null;
         withLabel?: boolean | null;
         /**
          * Short text to display next to the icon

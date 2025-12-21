@@ -44,6 +44,21 @@
           "NODE_ENV": "development"
         }
       }
+    },
+    "verify": {
+      "metadata": {
+        "description": "Verify that the last migration works as expected."
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx tsx src/utils/verify-last-migration.ts",
+        "cwd": "apps/cms",
+        "env": {
+          "DISABLE_DB_PUSH": "true",
+          "NODE_ENV": "development",
+          "SEED_SOURCE": "off"
+        }
+      }
     }
   }
 }

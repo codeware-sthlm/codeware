@@ -9,7 +9,7 @@ import type { Block } from 'payload';
  * Define which blocks are available as rich text plugins.
  */
 // Using a record to make sure all blocks are included and not forgotten
-const blocks: Record<BlockSlug, boolean> = {
+const richTextBlocks: Record<BlockSlug, boolean> = {
   card: true,
   code: true,
   form: true,
@@ -21,6 +21,22 @@ const blocks: Record<BlockSlug, boolean> = {
   content: false,
   'file-area': false,
   'reusable-content': false,
+  video: false
+};
+
+/** Define which blocks are available within the content block itself. */
+const inlineBlocks: Record<BlockSlug, boolean> = {
+  card: true,
+  form: true,
+  image: true,
+  media: true,
+  code: true,
+  'reusable-content': true,
+  'social-media': true,
+  spacing: true,
+  // Unsupported blocks
+  content: false,
+  'file-area': false,
   video: false
 };
 
@@ -69,11 +85,20 @@ export const contentBlock: Block = {
             features: ({ rootFeatures }) => {
               return [
                 ...rootFeatures,
-                BlocksFeature({ blocks: getActiveKeys<BlockSlug>(blocks) }),
+                BlocksFeature({
+                  blocks: getActiveKeys<BlockSlug>(richTextBlocks)
+                }),
                 multiTenantLinkFeature()
               ];
             }
           }),
+          label: false
+        },
+        {
+          name: 'blocks',
+          type: 'blocks',
+          blockReferences: getActiveKeys<BlockSlug>(inlineBlocks),
+          blocks: [],
           label: false
         }
       ]

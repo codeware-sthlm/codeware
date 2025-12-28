@@ -619,31 +619,24 @@ export interface ContentBlock {
           };
           [k: string]: unknown;
         } | null;
+        blocks?:
+          | (
+              | CardBlock
+              | FormBlock
+              | ImageBlock
+              | MediaBlock
+              | CodeBlock
+              | ReusableContentBlock
+              | SocialMediaBlock
+              | SpacingBlock
+            )[]
+          | null;
         id?: string | null;
       }[]
     | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FileAreaBlock".
- */
-export interface FileAreaBlock {
-  /**
-   * Select tags that represent the files to show in the file area.
-   */
-  tags?: (number | Tag)[] | null;
-  files?:
-    | {
-        media?: (number | null) | Media;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'file-area';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -973,6 +966,25 @@ export interface ReusableContent {
   )[];
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FileAreaBlock".
+ */
+export interface FileAreaBlock {
+  /**
+   * Select tags that represent the files to show in the file area.
+   */
+  tags?: (number | Tag)[] | null;
+  files?:
+    | {
+        media?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'file-area';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

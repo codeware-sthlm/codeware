@@ -14,6 +14,7 @@ import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-l
 import { SecretsListTransformedResponseSchema } from './schemas/secrets-list.schema';
 import { StatusExtendedTransformedResponseSchema } from './schemas/status-extended.schema';
 import { StatusTransformedResponseSchema } from './schemas/status.schema';
+import { VersionTransformedResponseSchema } from './schemas/version.schema';
 
 // Register all schemas and fixture keys to enable schema testing
 SchemaRegistry.register(
@@ -90,6 +91,10 @@ SchemaRegistry.register(
 );
 SchemaRegistry.register('fly/status', StatusTransformedResponseSchema, {
   name: 'StatusTransformedResponseSchema',
+  tags: ['fly']
+});
+SchemaRegistry.register('fly/version', VersionTransformedResponseSchema, {
+  name: 'VersionTransformedResponseSchema',
   tags: ['fly']
 });
 

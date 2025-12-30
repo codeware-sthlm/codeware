@@ -11,11 +11,10 @@ import { PostgresUsersListTransformedResponseSchema } from './schemas/postgres-u
 import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-list-with-app.schema';
 import { SecretsListTransformedResponseSchema } from './schemas/secrets-list.schema';
 import { StatusTransformedResponseSchema } from './schemas/status.schema';
+import { VersionTransformedResponseSchema } from './schemas/version.schema';
 
 /** List applications */
-export type ListAppResponse = z.infer<
-  typeof AppsListTransformedResponseSchema.element
->;
+export type ListAppResponse = z.infer<typeof AppsListTransformedResponseSchema>;
 
 /** Create an application */
 export type CreateAppResponse = z.infer<
@@ -27,32 +26,38 @@ export type DeployResponse = z.infer<typeof DeployResponseSchema>;
 
 /** List certificates for an application */
 export type ListCertForAppResponse = z.infer<
-  typeof CertsListTransformedResponseSchema.element
+  typeof CertsListTransformedResponseSchema
 >;
 
 /** List certificates for all applications */
 export type ListCertForAllResponse = z.infer<
-  typeof CertsListWithAppTransformedResponseSchema.element
+  typeof CertsListWithAppTransformedResponseSchema
 >;
 
 /** List secrets for an application */
 export type ListSecretForAppResponse = z.infer<
-  typeof SecretsListTransformedResponseSchema.element
+  typeof SecretsListTransformedResponseSchema
 >;
 
 /** List secrets for all applications */
 export type ListSecretForAllResponse = z.infer<
-  typeof SecretsListWithAppTransformedResponseSchema.element
+  typeof SecretsListWithAppTransformedResponseSchema
 >;
 
 /** List postgres databases */
 export type ListPostgresResponse = z.infer<
-  typeof PostgresListTransformedResponseSchema.element
+  typeof PostgresListTransformedResponseSchema
+>;
+
+/** `ListPostgresResponse` without the string option */
+export type ListPostgresResponseWithoutString = Exclude<
+  ListPostgresResponse,
+  string
 >;
 
 /** List users for a postgres database application */
 export type ListPostgresUsersResponse = z.infer<
-  typeof PostgresUsersListTransformedResponseSchema.element
+  typeof PostgresUsersListTransformedResponseSchema
 >;
 
 /** Show application configuration */
@@ -61,14 +66,26 @@ export type ShowConfigResponse = z.infer<typeof ConfigShowResponseSchema>;
 /** Get the status of an application */
 export type StatusResponse = z.infer<typeof StatusTransformedResponseSchema>;
 
+/** Get the version information of the Fly CLI */
+export type VersionResponse = z.infer<typeof VersionTransformedResponseSchema>;
+
 /**
  * Configuration options for the Fly class.
  */
 export type Config = {
   /**
-   * Authenticate using a Fly API access token.
+   * Authentication strategy to use.
+   * - `'token-first'`: Try to authenticate using the provided token first, then fallback to user authentication.
+   * - `'user-first'`: Try to authenticate using the logged in user first, then fallback to token authentication.
    *
-   * This token is used unless a currently logged in user is detected.
+   * Defaults to `'user-first'`.
+   */
+  authStrategy?: 'token-first' | 'user-first';
+
+  /**
+   * Authenticate using a Fly API token.
+   *
+   * How this token is used depends on the `authStrategy` option.
    *
    * As alternative to token, the `FLY_API_TOKEN` environment variable is also supported.
    */
@@ -228,18 +245,20 @@ export type DeployAppOptions = {
    * Defaults to `false`.
    */
   optOutDepotBuilder?: boolean;
-};
 
-/**
- * Options for destroying an application
- */
-export type DestroyAppOptions = {
   /**
-   * Whether to force the destruction of the application.
+   * Whether to prefer remote configuration for existing apps.
+   *
+   * When enabled and the app already exists on Fly:
+   * - Saves the remote configuration locally to `{app-root}/fly.{app-name}.toml`
+   * - Uses the remote config for deployment
+   *
+   * When disabled or the app doesn't exist:
+   * - Uses the local config file specified in the `config` option
    *
    * Defaults to `false`.
    */
-  force?: boolean;
+  preferRemoteConfig?: boolean;
 };
 
 /**
@@ -271,6 +290,21 @@ export type ShowConfigOptions =
     };
 
 /**
+ * Options for saving an application's configuration as TOML file
+ */
+export type SaveConfigOptions = {
+  /**
+   * Name of the application to save the remote configuration for.
+   */
+  app: string;
+
+  /**
+   * Path to save the TOML configuration file to.
+   */
+  config: string;
+};
+
+/**
  * Options for setting application secrets
  */
 export type SetAppSecretsOptions = AppOrConfig & {
@@ -289,8 +323,8 @@ export type UnsetAppSecretsOptions = SetAppSecretsOptions;
  * Extended application status
  */
 export type StatusExtendedResponse = StatusResponse & {
-  domains: Array<Pick<ListCertForAppResponse, 'hostname'>>;
-  secrets: Array<Pick<ListSecretForAppResponse, 'name'>>;
+  domains: Array<Pick<ListCertForAppResponse[number], 'hostname'>>;
+  secrets: Array<Pick<ListSecretForAppResponse[number], 'name'>>;
 };
 
 /**

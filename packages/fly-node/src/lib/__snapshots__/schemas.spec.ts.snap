@@ -4,10 +4,6 @@ exports[`fly-node schema validation > validates all schemas against fixtures > A
 {
   "id": "test-app",
   "name": "test-app",
-  "organization": {
-    "id": "test-org",
-    "name": "Test Organization",
-  },
 }
 `;
 
@@ -225,12 +221,10 @@ exports[`fly-node schema validation > validates all schemas against fixtures > P
 exports[`fly-node schema validation > validates all schemas against fixtures > SecretsListTransformedResponseSchema transformed shape 1`] = `
 [
   {
-    "createdAt": "2024-11-08T13:03:21Z",
     "digest": "a331102148f18977",
     "name": "NODE_ENV",
   },
   {
-    "createdAt": "2024-11-08T12:58:18Z",
     "digest": "c169d18819bc968e",
     "name": "SESSION_SECRET",
   },
@@ -241,13 +235,11 @@ exports[`fly-node schema validation > validates all schemas against fixtures > S
 [
   {
     "app": "boost-admin",
-    "createdAt": "2024-11-08T13:03:21Z",
     "digest": "a331102148f18977",
     "name": "NODE_ENV",
   },
   {
     "app": "boost-admin",
-    "createdAt": "2024-11-08T12:58:18Z",
     "digest": "c169d18819bc968e",
     "name": "SESSION_SECRET",
   },
@@ -380,5 +372,18 @@ exports[`fly-node schema validation > validates all schemas against fixtures > S
   },
   "status": "deployed",
   "version": 14,
+}
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > VersionTransformedResponseSchema transformed shape 1`] = `
+{
+  "architecture": "arm64",
+  "branchName": "",
+  "buildDate": "2025-12-25T16:00:57Z",
+  "commit": "641eb1c8b884eb191d574de8e11b8423e86e3260",
+  "environment": "production",
+  "name": "fly",
+  "os": "darwin",
+  "version": "0.4.0",
 }
 `;

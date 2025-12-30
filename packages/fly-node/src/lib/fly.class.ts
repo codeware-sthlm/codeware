@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { cwd } from 'process';
 
 import {
@@ -23,6 +23,7 @@ import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-l
 import { SecretsListTransformedResponseSchema } from './schemas/secrets-list.schema';
 import { StatusExtendedTransformedResponseSchema } from './schemas/status-extended.schema';
 import { StatusTransformedResponseSchema } from './schemas/status.schema';
+import { VersionTransformedResponseSchema } from './schemas/version.schema';
 import type {
   AppOrConfig,
   Config,
@@ -30,21 +31,22 @@ import type {
   CreateAppResponse,
   DeployAppOptions,
   DeployResponse,
-  DestroyAppOptions,
   ListAppResponse,
   ListCertForAllResponse,
   ListCertForAppResponse,
-  ListPostgresResponse,
+  ListPostgresResponseWithoutString,
   ListPostgresUsersResponse,
   ListSecretForAllResponse,
   ListSecretForAppResponse,
   Logger,
+  SaveConfigOptions,
   SetAppSecretsOptions,
   ShowConfigOptions,
   ShowConfigResponse,
   StatusExtendedResponse,
   StatusResponse,
-  UnsetAppSecretsOptions
+  UnsetAppSecretsOptions,
+  VersionResponse
 } from './types';
 
 export type ExecFlyOptions = SpawnOptions & SpawnPtyOptions;
@@ -62,6 +64,13 @@ export class Fly {
   private authByLogin = false;
   private initialized = false;
   private logger: Logger;
+
+  /**
+   * Get the authentication strategy from the instance config
+   */
+  private get authStrategy() {
+    return this._config.authStrategy ?? 'user-first';
+  }
 
   /**
    * Get the app name from the instance config
@@ -129,7 +138,21 @@ export class Fly {
      *
      * @returns `true` if the Fly CLI tool is installed, `false` otherwise
      */
-    isInstalled: async (): Promise<boolean> => await this.isInstalled()
+    isInstalled: async (): Promise<boolean> => await this.isInstalled(),
+
+    /**
+     * Get version information about the installed Fly CLI
+     *
+     * @returns The installed Fly CLI version information
+     * @throws An error if the version cannot be retrieved
+     */
+    version: async (): Promise<VersionResponse> => {
+      try {
+        return await this.version();
+      } catch (error) {
+        throw new Error(`[version] something broke\n${error}`);
+      }
+    }
   };
 
   //
@@ -147,12 +170,12 @@ export class Fly {
      * @returns The name of the created application
      * @throws An error if the application cannot be created
      */
-    create: async (options?: CreateAppOptions): Promise<string> => {
+    create: async (options?: CreateAppOptions): Promise<CreateAppResponse> => {
       try {
         await this.ensureInitialized();
-        const { name } = await this.createApp(options);
-        this.logger.info(`Application '${name}' was created`);
-        return name;
+        const response = await this.createApp(options);
+        this.logger.info(`Application '${response.name}' was created`);
+        return response;
       } catch (error) {
         throw new Error(
           `[create app] something broke, check your apps\n${error}`
@@ -163,13 +186,9 @@ export class Fly {
      * Destroy an application and make sure it gets detached from any Postgres clusters
      *
      * @param app - The name of the app to destroy
-     * @param options - Options for destroying an application
      * @throws An error if the app cannot be destroyed
      */
-    destroy: async (
-      app: string,
-      options?: DestroyAppOptions
-    ): Promise<void> => {
+    destroy: async (app: string): Promise<void> => {
       try {
         await this.ensureInitialized();
         // First any Postgres clusters must be detached
@@ -182,7 +201,7 @@ export class Fly {
           this.logger.info(output);
         }
         // Now it's safe to destroy the app
-        await this.destroyApp(app, options?.force);
+        await this.destroyApp(app);
         this.logger.info(`Application '${app}' was destroyed`);
       } catch (error) {
         throw new Error(
@@ -196,7 +215,7 @@ export class Fly {
      * @returns A list of applications
      * @throws An error if listing applications fails
      */
-    list: async (): Promise<Array<ListAppResponse>> => {
+    list: async (): Promise<ListAppResponse> => {
       try {
         return await this.fetchAllApps('throwOnError');
       } catch (error) {
@@ -238,9 +257,7 @@ export class Fly {
     list: async <T extends AppOrConfig | 'all'>(
       options?: T
     ): Promise<
-      T extends 'all'
-        ? Array<ListCertForAllResponse>
-        : Array<ListCertForAppResponse>
+      T extends 'all' ? ListCertForAllResponse : ListCertForAppResponse
     > => {
       try {
         await this.ensureInitialized();
@@ -254,8 +271,8 @@ export class Fly {
             : await this.fetchAppCerts('throwOnError', options);
 
         return result as T extends 'all'
-          ? Array<ListCertForAllResponse>
-          : Array<ListCertForAppResponse>;
+          ? ListCertForAllResponse
+          : ListCertForAppResponse;
       } catch (error) {
         throw new Error(`[list certificates] something broke\n${error}`);
       }
@@ -285,6 +302,23 @@ export class Fly {
    * Manage an app's configuration
    */
   config = {
+    /**
+     * Save an application's remote configuration locally as TOML file.
+     *
+     * @param options - Options for saving an application's configuration
+     * @throws An error if the configuration cannot be saved
+     */
+    save: async (options: SaveConfigOptions): Promise<void> => {
+      try {
+        await this.ensureInitialized();
+        await this.saveConfig(options);
+        this.logger.info(
+          `Configuration for '${options.app}' was saved to '${options.config}'`
+        );
+      } catch (error) {
+        throw new Error(`[save config] something broke\n${error}`);
+      }
+    },
     /**
      * Show an application's configuration.
      *
@@ -373,7 +407,7 @@ export class Fly {
       }
     },
     /**
-     * List secrets for an application
+     * List secrets for an application or all secrets when options is 'all'
      *
      * @param options - List secrets for an application or all secrets
      * @returns A list of secrets
@@ -382,9 +416,7 @@ export class Fly {
     list: async <T extends AppOrConfig | 'all'>(
       options?: T
     ): Promise<
-      T extends 'all'
-        ? Array<ListSecretForAllResponse>
-        : Array<ListSecretForAppResponse>
+      T extends 'all' ? ListSecretForAllResponse : ListSecretForAppResponse
     > => {
       try {
         await this.ensureInitialized();
@@ -395,8 +427,8 @@ export class Fly {
             : await this.fetchAppSecrets('throwOnError', options);
 
         return result as T extends 'all'
-          ? Array<ListSecretForAllResponse>
-          : Array<ListSecretForAppResponse>;
+          ? ListSecretForAllResponse
+          : ListSecretForAppResponse;
       } catch (error) {
         throw new Error(`[list secrets] something broke\n${error}`);
       }
@@ -509,7 +541,8 @@ export class Fly {
    */
   private async deployApp(options?: DeployAppOptions): Promise<string> {
     let appName = '';
-    let appSecrets: Array<ListSecretForAppResponse> = [];
+    let appSecrets: ListSecretForAppResponse = [];
+    let deployConfig = options?.config || this.instanceConfig;
 
     // For deployment to work there must be an app involved,
     // but the app name doesn't have to be in sync with the config file.
@@ -517,7 +550,8 @@ export class Fly {
     // except for deployment where the app name can be any value.
 
     let lookupApp = options?.app || this.instanceApp;
-    const lookupConfig = options?.config || this.instanceConfig;
+    // Lookup config from initial deploy config
+    const lookupConfig = deployConfig;
 
     if (!lookupConfig) {
       throw new Error(
@@ -541,7 +575,7 @@ export class Fly {
       lookupApp = appConfig.app;
     }
 
-    // Lookup an existing app by name
+    // Lookup an existing app by name (appName indicates existence)
     if (lookupApp) {
       const status = await this.fetchAppStatus('nullOnError', {
         app: lookupApp
@@ -555,6 +589,30 @@ export class Fly {
         this.logger.info(
           `Application '${lookupApp}' not found, try to create a new one with this name`
         );
+      }
+    }
+
+    // If preferRemoteConfig is enabled and app exists, save and use remote config
+    if (options?.preferRemoteConfig && appName) {
+      const remoteConfigPath = join(
+        dirname(lookupConfig),
+        `fly.${appName}.toml`
+      );
+      try {
+        await this.saveConfig({
+          app: appName,
+          config: remoteConfigPath
+        });
+        // Override deploy config to use the remote config
+        deployConfig = remoteConfigPath;
+        this.logger.info(
+          `Using remote config for existing app '${appName}' (saved to ${remoteConfigPath})`
+        );
+      } catch (error) {
+        this.logger.info(
+          `Failed to save remote config, will use local config: ${error}`
+        );
+        // deployConfig remains as the original local config
       }
     }
 
@@ -636,7 +694,7 @@ export class Fly {
     }
 
     // Deploy command
-    const args = ['deploy', '--app', appName, '--config', lookupConfig];
+    const args = ['deploy', '--app', appName, '--config', deployConfig];
 
     if (options?.region) {
       args.push('--region', options.region);
@@ -673,10 +731,8 @@ export class Fly {
    * @private
    * @throws An error if the app cannot be destroyed
    */
-  private async destroyApp(app: string, force?: boolean): Promise<void> {
+  private async destroyApp(app: string): Promise<void> {
     const args = ['apps', 'destroy', app, '--yes'];
-
-    if (force) args.push('--force');
 
     await this.execFly(args);
   }
@@ -798,15 +854,13 @@ export class Fly {
    * @returns A list of all applications or `null` if listing applications fails and `nullOnError` is used
    * @throws An error if listing applications fails and `throwOnError` is used
    */
-  private async fetchAllApps(
-    onError: 'throwOnError'
-  ): Promise<Array<ListAppResponse>>;
+  private async fetchAllApps(onError: 'throwOnError'): Promise<ListAppResponse>;
   private async fetchAllApps(
     onError: 'nullOnError'
-  ): Promise<Array<ListAppResponse> | null>;
+  ): Promise<ListAppResponse | null>;
   private async fetchAllApps(
     onError: 'throwOnError' | 'nullOnError'
-  ): Promise<Array<ListAppResponse> | null> {
+  ): Promise<ListAppResponse | null> {
     const args = ['apps', 'list', '--json'];
 
     try {
@@ -828,15 +882,15 @@ export class Fly {
    */
   private async fetchAllCerts(
     onError: 'throwOnError'
-  ): Promise<Array<ListCertForAllResponse>>;
+  ): Promise<ListCertForAllResponse>;
   private async fetchAllCerts(
     onError: 'nullOnError'
-  ): Promise<Array<ListCertForAllResponse> | null>;
+  ): Promise<ListCertForAllResponse | null>;
   private async fetchAllCerts(
     onError: 'throwOnError' | 'nullOnError'
-  ): Promise<Array<ListCertForAllResponse> | null> {
+  ): Promise<ListCertForAllResponse | null> {
     try {
-      const certs: Array<ListCertForAllResponse> = [];
+      const certs: ListCertForAllResponse = [];
 
       // Merge the certs for all apps
       const apps = await this.fetchAllApps('throwOnError');
@@ -864,18 +918,23 @@ export class Fly {
    */
   private async fetchAllPostgres(
     onError: 'throwOnError'
-  ): Promise<Array<ListPostgresResponse>>;
+  ): Promise<ListPostgresResponseWithoutString>;
   private async fetchAllPostgres(
     onError: 'nullOnError'
-  ): Promise<Array<ListPostgresResponse> | null>;
+  ): Promise<ListPostgresResponseWithoutString | null>;
   private async fetchAllPostgres(
     onError: 'throwOnError' | 'nullOnError'
-  ): Promise<Array<ListPostgresResponse> | null> {
+  ): Promise<ListPostgresResponseWithoutString | null> {
     const args = ['postgres', 'list', '--json'];
 
     try {
       const response = await this.execFly(args);
-      return PostgresListTransformedResponseSchema.parse(response);
+      // Must handle string response as it means no clusters exist
+      const parsed = PostgresListTransformedResponseSchema.safeParse(response);
+      if (parsed.success) {
+        return Array.isArray(parsed.data) ? parsed.data : [];
+      }
+      throw parsed.error;
     } catch (error) {
       if (onError === 'throwOnError') {
         throw error;
@@ -891,15 +950,15 @@ export class Fly {
    */
   private async fetchAllSecrets(
     onError: 'throwOnError'
-  ): Promise<Array<ListSecretForAllResponse>>;
+  ): Promise<ListSecretForAllResponse>;
   private async fetchAllSecrets(
     onError: 'nullOnError'
-  ): Promise<Array<ListSecretForAllResponse> | null>;
+  ): Promise<ListSecretForAllResponse | null>;
   private async fetchAllSecrets(
     onError: 'throwOnError' | 'nullOnError'
-  ): Promise<Array<ListSecretForAllResponse> | null> {
+  ): Promise<ListSecretForAllResponse | null> {
     try {
-      const secrets: Array<ListSecretForAllResponse> = [];
+      const secrets: ListSecretForAllResponse = [];
 
       // Merge the secrets for all apps
       const apps = await this.fetchAllApps('throwOnError');
@@ -970,15 +1029,15 @@ ${JSON.stringify(response, null, 2)}`);
   private async fetchAppCerts(
     onError: 'throwOnError',
     options?: AppOrConfig
-  ): Promise<Array<ListCertForAppResponse>>;
+  ): Promise<ListCertForAppResponse>;
   private async fetchAppCerts(
     onError: 'nullOnError',
     options?: AppOrConfig
-  ): Promise<Array<ListCertForAppResponse> | null>;
+  ): Promise<ListCertForAppResponse | null>;
   private async fetchAppCerts(
     onError: 'throwOnError' | 'nullOnError',
     options?: AppOrConfig
-  ): Promise<Array<ListCertForAppResponse> | null> {
+  ): Promise<ListCertForAppResponse | null> {
     const args = ['certs', 'list'];
 
     args.push(...this.getAppOrConfigArgs(options));
@@ -1004,15 +1063,15 @@ ${JSON.stringify(response, null, 2)}`);
   private async fetchAppSecrets(
     onError: 'throwOnError',
     options?: AppOrConfig
-  ): Promise<Array<ListSecretForAppResponse>>;
+  ): Promise<ListSecretForAppResponse>;
   private async fetchAppSecrets(
     onError: 'nullOnError',
     options?: AppOrConfig
-  ): Promise<Array<ListSecretForAppResponse> | null>;
+  ): Promise<ListSecretForAppResponse | null>;
   private async fetchAppSecrets(
     onError: 'throwOnError' | 'nullOnError',
     options?: AppOrConfig
-  ): Promise<Array<ListSecretForAppResponse> | null> {
+  ): Promise<ListSecretForAppResponse | null> {
     const args = ['secrets', 'list'];
 
     args.push(...this.getAppOrConfigArgs(options));
@@ -1040,15 +1099,15 @@ ${JSON.stringify(response, null, 2)}`);
   private async fetchPostgresUsers(
     postgresApp: string,
     onError: 'throwOnError'
-  ): Promise<Array<ListPostgresUsersResponse>>;
+  ): Promise<ListPostgresUsersResponse>;
   private async fetchPostgresUsers(
     postgresApp: string,
     onError: 'nullOnError'
-  ): Promise<Array<ListPostgresUsersResponse> | null>;
+  ): Promise<ListPostgresUsersResponse | null>;
   private async fetchPostgresUsers(
     postgresApp: string,
     onError: 'throwOnError' | 'nullOnError'
-  ): Promise<Array<ListPostgresUsersResponse> | null> {
+  ): Promise<ListPostgresUsersResponse | null> {
     const args = ['postgres', 'users', 'list', '--app', postgresApp, '--json'];
 
     try {
@@ -1107,6 +1166,26 @@ ${JSON.stringify(response, null, 2)}`);
 
   /**
    * @private
+   * Save remote config to a local file
+   *
+   * @throws An error if the config cannot be saved
+   */
+  private async saveConfig(options: SaveConfigOptions): Promise<void> {
+    const args = [
+      'config',
+      'save',
+      '--app',
+      options.app,
+      '--config',
+      options.config,
+      '--yes'
+    ];
+
+    await this.execFly(args);
+  }
+
+  /**
+   * @private
    * Ensure Fly CLI is installed and authenticated
    *
    * @throws An error if Fly CLI is not installed or authentication fails
@@ -1119,23 +1198,56 @@ ${JSON.stringify(response, null, 2)}`);
         throw new Error('Fly CLI must be installed to use this library');
       }
 
+      // Check if a user is logged in locally
+      const checkLocalUser = async () => {
+        const user = await this.execFly<string>(
+          ['auth', 'whoami'],
+          undefined,
+          'nullOnError',
+          true // won't use token
+        );
+        if (user) {
+          this.logger.info(`Detected logged in user '${user}'`);
+          this.authByLogin = true;
+        }
+        return user;
+      };
+
+      // Check authenticate via token
+      const checkTokenUser = async () => {
+        const user = await this.execFly<string>(
+          ['auth', 'whoami'],
+          undefined,
+          'nullOnError'
+        );
+        if (user) {
+          this.logger.info(`Authenticated by token as '${user}'`);
+        }
+        return user;
+      };
+
       this.logger.info('Authenticating with Fly.io...');
 
-      // First check if a user is logged in locally
-      let user = await this.execFly<string>(
-        ['auth', 'whoami'],
-        undefined,
-        'nullOnError',
-        true // won't use token
-      );
+      let user: string | null = null;
+      switch (this.authStrategy) {
+        case 'token-first':
+          // Try token first, then logged in user
+          user = await checkTokenUser();
+          if (!user) {
+            user = await checkLocalUser();
+          }
+          break;
+        case 'user-first':
+          // Try logged in user first, then token
+          user = await checkLocalUser();
+          if (!user) {
+            user = await checkTokenUser();
+          }
+          break;
+      }
 
-      if (user) {
-        this.logger.info(`Detected logged in user '${user}'`);
-        this.authByLogin = true;
-      } else {
-        // Fall back to token authentication
-        user = await this.execFly<string>(['auth', 'whoami']);
-        this.logger.info(`Authenticated by token as '${user}'`);
+      if (!user) {
+        throw new Error('Please login or provide a valid access token');
       }
 
       this.initialized = true;
@@ -1307,6 +1419,19 @@ ${errorMsg}`);
    */
   private async isInstalled(): Promise<boolean> {
     return (await this.execFly('version', undefined, 'nullOnError')) !== null;
+  }
+
+  /**
+   * @private
+   * Get the installed Fly CLI version
+   *
+   * @returns The installed Fly CLI version information
+   * @throws An error if the version cannot be retrieved
+   */
+  private async version(): Promise<VersionResponse> {
+    return VersionTransformedResponseSchema.parse(
+      await this.execFly(['version', '--json'])
+    );
   }
 
   /**

@@ -5,16 +5,6 @@
   "description": "Configuration for deploying Nx projects to Fly.io.",
   "type": "object",
   "properties": {
-    "deploy": {
-      "description": "Enable deployments.",
-      "type": "boolean",
-      "default": true
-    },
-    "flyConfig": {
-      "description": "Relative path to Fly configuration file from project root.",
-      "type": "string",
-      "default": "fly.toml"
-    },
     "flyPostgresPreview": {
       "description": "The name of the Fly Postgres cluster to attach when deploying to preview.",
       "type": "string",
@@ -38,5 +28,5 @@
       ]
     }
   },
-  "required": ["deploy", "flyConfig"]
+  "required": []
 }

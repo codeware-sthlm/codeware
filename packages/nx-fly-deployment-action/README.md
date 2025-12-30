@@ -29,15 +29,27 @@ Fits perfectly with [Nx Pre-deploy Action](https://github.com/codeware-sthlm/cod
 
 ## Required Application Setup
 
-Each deployable app requires two configuration files:
+Each deployable app requires:
 
-1. **`fly.toml`** - Fly.io deployment blueprint (path specified in github.json)
-2. **`github.json`** - Deployment configuration (recommended in app root)
+1. **`github.json`** - Deployment configuration in app root (optional postgres settings)
+2. **Fly.io configuration** - One of the following:
+   - `fly.{environment}.toml` (e.g., `fly.production.toml`, `fly.preview.toml`)
+   - `fly.toml` (default)
+   - For existing apps: remote configuration will be automatically fetched and used
 
-Applications without proper configuration will be skipped during deployment.
+### Fly Configuration Selection Logic
+
+During deployment, the action uses this priority order:
+
+1. **Existing apps**: Saves and uses remote configuration from Fly.io
+2. **New apps**: Looks for environment-specific config (e.g., `fly.production.toml`)
+3. **New apps**: Falls back to `fly.toml`
+4. **No config found**: Deployment is skipped
 
 > [!TIP]
-> Use `deploy: false` in `github.json` to temporarily disable deployments for an app.
+> To disable deployment for an app, remove or rename its Fly configuration file (e.g., rename to `fly.local.toml` for manual deployments).
+
+Applications without a `github.json` file will be skipped during deployment.
 
 > [!NOTE] github.json schema, field descriptions, and examples
 > **See:** [Per-App Configuration in DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/DEPLOYMENT.md#per-app-configuration-githubjson)

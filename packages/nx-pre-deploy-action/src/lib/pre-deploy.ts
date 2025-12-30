@@ -49,7 +49,7 @@ export async function preDeploy(
     core.endGroup();
 
     core.startGroup('Determine applications to deploy');
-    const apps = (await analyzeAppsToDeploy())
+    const apps = (await analyzeAppsToDeploy(environment))
       .filter((apps) => {
         if (apps.status === 'deploy') {
           core.info(`Deploy: ${apps.projectName}`);

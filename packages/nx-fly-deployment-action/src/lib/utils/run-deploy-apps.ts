@@ -11,7 +11,7 @@ import { getAppName } from './get-app-name';
 
 /**
  * Deploy apps that are affected by code changes
- * and are configured to be deployed via GitHub config file.
+ * and have Fly configuration available.
  *
  * @param options - Deployment options
  * @returns List of deploy statuses of apps
@@ -28,7 +28,7 @@ export const runDeployApps = async (options: {
 
   core.info('Analyze apps to deploy');
 
-  const apps = await analyzeAppsToDeploy();
+  const apps = await analyzeAppsToDeploy(environment);
 
   core.info(`Found ${apps.length} possible apps`);
 
@@ -45,9 +45,10 @@ export const runDeployApps = async (options: {
 
     const { flyConfigFile, githubConfig, projectName } = app;
 
+    // Read the base app name from local config
     let configAppName: string;
 
-    core.info(`[${projectName}] Verify Fly config file`);
+    core.info(`[${projectName}] Verify Fly config file: ${flyConfigFile}`);
     try {
       const flyConfig = await fly.config.show({
         config: flyConfigFile,
@@ -138,6 +139,7 @@ export const runDeployApps = async (options: {
           environment,
           optOutDepotBuilder: config.fly.optOutDepotBuilder,
           postgres: postgres || undefined, // rather undefined than empty string
+          preferRemoteConfig: true,
           secrets: mergedSecrets
         });
 

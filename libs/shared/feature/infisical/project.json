@@ -16,7 +16,7 @@
       "cache": true,
       "inputs": ["default", "^production"],
       "outputs": [
-        "{workspaceRoot}/coverage/integration/libs/shared/feature/infisical"
+        "{workspaceRoot}/coverage/libs/shared/feature/infisical/integration-tests"
       ],
       "options": {
         "cwd": "{projectRoot}",

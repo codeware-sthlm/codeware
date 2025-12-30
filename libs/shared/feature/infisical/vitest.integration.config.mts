@@ -21,7 +21,13 @@ export default defineConfig({
     },
     testTimeout: 30000, // 30s timeout for API calls
     setupFiles: ['integration-tests/setup.ts'],
-    //pool: 'forks', // Run tests sequentially to avoid rate limits
-    passWithNoTests: false
+    passWithNoTests: false,
+    // Run tests serially to avoid rate limiting and resource conflicts
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true
+      }
+    }
   }
 });

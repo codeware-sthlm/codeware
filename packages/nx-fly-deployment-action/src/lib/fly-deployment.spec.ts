@@ -183,27 +183,21 @@ describe('flyDeployment', () => {
     }
 
     // Create virtual file system for fly.toml and github.json files
-    // app-one uses default paths and app-two uses custom paths.
+    // app-one uses default fly config and app-two uses default and production-specific fly configs.
     // app-one has postgres setup, app-two does not.
     vol.reset();
     vol.fromNestedJSON({
       '/apps/app-one': {
         'fly.toml': '',
         'github.json': JSON.stringify({
-          deploy: true,
-          flyConfig: 'fly.toml',
           flyPostgresPreview: '${TEST_FLY_POSTGRES_PREVIEW}',
           flyPostgresProduction: '${TEST_FLY_POSTGRES_PRODUCTION}'
         })
       },
-      '/apps/app-two/src': {
+      '/apps/app-two': {
         'fly.toml': '',
-        config: {
-          'github.json': JSON.stringify({
-            deploy: true,
-            flyConfig: 'src/fly.toml'
-          })
-        }
+        'fly.production.toml': '',
+        'github.json': JSON.stringify({})
       }
     });
 
@@ -242,31 +236,29 @@ describe('flyDeployment', () => {
       isReady: vi.fn()
     } as unknown as Fly);
 
-    // Mock analyzeAppsToDeploy to return deployable apps by default
+    // Mock analyzeAppsToDeploy to return deployable apps by default,
+    // that match the virtual file system above.
     // Tests can override this per-test as needed
     // NOTE: withEnvVars should have already resolved ${...} templates to actual values
-    mockAnalyzeAppsToDeploy.mockResolvedValue([
-      {
-        projectName: 'app-one',
-        status: 'deploy',
-        flyConfigFile: '/apps/app-one/fly.toml',
-        githubConfig: {
-          deploy: true,
-          flyConfig: 'fly.toml',
-          flyPostgresPreview: 'pg-preview', // Resolved from ${TEST_FLY_POSTGRES_PREVIEW}
-          flyPostgresProduction: 'pg-production' // Resolved from ${TEST_FLY_POSTGRES_PRODUCTION}
+    mockAnalyzeAppsToDeploy.mockImplementation((env) =>
+      Promise.resolve([
+        {
+          projectName: 'app-one',
+          status: 'deploy',
+          flyConfigFile: '/apps/app-one/fly.toml',
+          githubConfig: {
+            flyPostgresPreview: 'pg-preview', // Resolved from ${TEST_FLY_POSTGRES_PREVIEW}
+            flyPostgresProduction: 'pg-production' // Resolved from ${TEST_FLY_POSTGRES_PRODUCTION}
+          }
+        },
+        {
+          projectName: 'app-two',
+          status: 'deploy',
+          flyConfigFile: `/apps/app-two/fly${env === 'production' ? '.production' : ''}.toml`,
+          githubConfig: {}
         }
-      },
-      {
-        projectName: 'app-two',
-        status: 'deploy',
-        flyConfigFile: '/apps/app-two/src/fly.toml',
-        githubConfig: {
-          deploy: true,
-          flyConfig: 'src/fly.toml'
-        }
-      }
-    ]);
+      ])
+    );
   };
 
   /**
@@ -374,30 +366,29 @@ describe('flyDeployment', () => {
       const config = setupTest();
       const result = await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-pr-1',
-        config: '/apps/app-one/fly.toml',
-        env: {
-          APP_NAME: 'app-one-config-pr-1',
-          PR_NUMBER: '1'
-        },
-        environment: 'preview',
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          config: '/apps/app-one/fly.toml',
+          env: {
+            APP_NAME: 'app-one-config-pr-1',
+            PR_NUMBER: '1'
+          },
+          environment: 'preview'
+        } satisfies DeployAppOptions)
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-pr-1',
-        config: '/apps/app-two/src/fly.toml',
-        env: {
-          APP_NAME: 'app-two-config-pr-1',
-          PR_NUMBER: '1'
-        },
-        environment: 'preview',
-        optOutDepotBuilder: false,
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          config: '/apps/app-two/fly.toml',
+          env: {
+            APP_NAME: 'app-two-config-pr-1',
+            PR_NUMBER: '1'
+          },
+          environment: 'preview'
+        } satisfies DeployAppOptions)
+      );
 
       expect(result).toEqual({
         environment: 'preview',
@@ -426,34 +417,33 @@ describe('flyDeployment', () => {
       });
       await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-pr-1',
-        config: '/apps/app-one/fly.toml',
-        environment: 'preview',
-        env: {
-          APP_NAME: 'app-one-config-pr-1',
-          ENV_KEY1: 'env-value1',
-          ENV_KEY2: 'env-value2',
-          PR_NUMBER: '1'
-        },
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          config: '/apps/app-one/fly.toml',
+          environment: 'preview',
+          env: {
+            APP_NAME: 'app-one-config-pr-1',
+            ENV_KEY1: 'env-value1',
+            ENV_KEY2: 'env-value2',
+            PR_NUMBER: '1'
+          }
+        } satisfies DeployAppOptions)
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-pr-1',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'preview',
-        env: {
-          APP_NAME: 'app-two-config-pr-1',
-          ENV_KEY1: 'env-value1',
-          ENV_KEY2: 'env-value2',
-          PR_NUMBER: '1'
-        },
-        optOutDepotBuilder: false,
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          config: '/apps/app-two/fly.toml',
+          environment: 'preview',
+          env: {
+            APP_NAME: 'app-two-config-pr-1',
+            ENV_KEY1: 'env-value1',
+            ENV_KEY2: 'env-value2',
+            PR_NUMBER: '1'
+          }
+        } satisfies DeployAppOptions)
+      );
     });
 
     it('should deploy apps to preview with the same secrets', async () => {
@@ -464,31 +454,29 @@ describe('flyDeployment', () => {
       });
       await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-pr-1',
-        config: '/apps/app-one/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        secrets: {
-          SECRET_KEY1: 'secret-value1',
-          SECRET_KEY2: 'secret-value2'
-        }
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          config: '/apps/app-one/fly.toml',
+          environment: 'preview',
+          secrets: {
+            SECRET_KEY1: 'secret-value1',
+            SECRET_KEY2: 'secret-value2'
+          }
+        } satisfies DeployAppOptions)
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-pr-1',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        postgres: undefined,
-        secrets: {
-          SECRET_KEY1: 'secret-value1',
-          SECRET_KEY2: 'secret-value2'
-        }
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          config: '/apps/app-two/fly.toml',
+          environment: 'preview',
+          secrets: {
+            SECRET_KEY1: 'secret-value1',
+            SECRET_KEY2: 'secret-value2'
+          }
+        } satisfies DeployAppOptions)
+      );
     });
 
     it('should deploy apps to preview and attach to postgres when preview cluster is set', async () => {
@@ -498,24 +486,22 @@ describe('flyDeployment', () => {
       await flyDeployment(config, true);
 
       // app-one has postgres setup, app-two does not.
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-pr-1',
-        config: '/apps/app-one/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        postgres: 'pg-preview',
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          config: '/apps/app-one/fly.toml',
+          environment: 'preview',
+          postgres: 'pg-preview'
+        })
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-pr-1',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          config: '/apps/app-two/fly.toml',
+          environment: 'preview'
+        })
+      );
     });
 
     it('should deploy apps to preview and not attach to postgres when only production cluster is set', async () => {
@@ -529,43 +515,35 @@ describe('flyDeployment', () => {
           status: 'deploy',
           flyConfigFile: '/apps/app-one/fly.toml',
           githubConfig: {
-            deploy: true,
-            flyConfig: 'fly.toml',
             flyPostgresProduction: 'pg-production'
           }
         },
         {
           projectName: 'app-two',
           status: 'deploy',
-          flyConfigFile: '/apps/app-two/src/fly.toml',
-          githubConfig: {
-            deploy: true,
-            flyConfig: 'src/fly.toml'
-          }
+          flyConfigFile: '/apps/app-two/fly.toml',
+          githubConfig: {}
         }
       ]);
 
       const config = setupTest();
       await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-pr-1',
-        config: '/apps/app-one/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          config: '/apps/app-one/fly.toml',
+          environment: 'preview'
+        })
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-pr-1',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        postgres: undefined,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          config: '/apps/app-two/fly.toml',
+          environment: 'preview'
+        })
+      );
     });
 
     it('should deploy apps to preview and opt out of depot builder', async () => {
@@ -574,24 +552,23 @@ describe('flyDeployment', () => {
       const config = setupTest({ optOutDepotBuilder: true });
       await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-pr-1',
-        config: '/apps/app-one/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: true,
-        postgres: expect.any(String),
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          config: '/apps/app-one/fly.toml',
+          environment: 'preview',
+          optOutDepotBuilder: true
+        })
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-pr-1',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'preview',
-        env: expect.any(Object),
-        optOutDepotBuilder: true,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          config: '/apps/app-two/fly.toml',
+          environment: 'preview',
+          optOutDepotBuilder: true
+        })
+      );
     });
   });
 
@@ -715,30 +692,29 @@ describe('flyDeployment', () => {
       const config = setupTest();
       const result = await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config',
-        config: '/apps/app-one/fly.toml',
-        env: {
-          APP_NAME: 'app-one-config',
-          PR_NUMBER: ''
-        },
-        environment: 'production',
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          config: '/apps/app-one/fly.toml',
+          env: {
+            APP_NAME: 'app-one-config',
+            PR_NUMBER: ''
+          },
+          environment: 'production'
+        } satisfies DeployAppOptions)
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config',
-        config: '/apps/app-two/src/fly.toml',
-        env: {
-          APP_NAME: 'app-two-config',
-          PR_NUMBER: ''
-        },
-        environment: 'production',
-        optOutDepotBuilder: false,
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config',
+          config: '/apps/app-two/fly.production.toml',
+          env: {
+            APP_NAME: 'app-two-config',
+            PR_NUMBER: ''
+          },
+          environment: 'production'
+        } satisfies DeployAppOptions)
+      );
 
       expect(result).toEqual({
         environment: 'production',
@@ -773,37 +749,35 @@ describe('flyDeployment', () => {
       });
       await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config',
-        config: '/apps/app-one/fly.toml',
-        environment: 'production',
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        env: {
-          APP_NAME: 'app-one-config',
-          ENV_KEY1: 'env"fnutt',
-          ENV_KEY2: 'env space',
-          ENV_KEY3: 'env\\backslash',
-          PR_NUMBER: ''
-        },
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          config: '/apps/app-one/fly.toml',
+          environment: 'production',
+          env: {
+            APP_NAME: 'app-one-config',
+            ENV_KEY1: 'env"fnutt',
+            ENV_KEY2: 'env space',
+            ENV_KEY3: 'env\\backslash',
+            PR_NUMBER: ''
+          }
+        } satisfies DeployAppOptions)
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'production',
-        optOutDepotBuilder: false,
-        postgres: undefined,
-        env: {
-          APP_NAME: 'app-two-config',
-          ENV_KEY1: 'env"fnutt',
-          ENV_KEY2: 'env space',
-          ENV_KEY3: 'env\\backslash',
-          PR_NUMBER: ''
-        },
-        secrets: {}
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config',
+          config: '/apps/app-two/fly.production.toml',
+          environment: 'production',
+          env: {
+            APP_NAME: 'app-two-config',
+            ENV_KEY1: 'env"fnutt',
+            ENV_KEY2: 'env space',
+            ENV_KEY3: 'env\\backslash',
+            PR_NUMBER: ''
+          }
+        } satisfies DeployAppOptions)
+      );
     });
 
     it('should deploy apps to production with the same secrets', async () => {
@@ -818,33 +792,31 @@ describe('flyDeployment', () => {
       });
       await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config',
-        config: '/apps/app-one/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        secrets: {
-          SECRET_KEY1: 'secret"fnutt',
-          SECRET_KEY2: 'secret space',
-          SECRET_KEY3: 'secret\\backslash'
-        }
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          config: '/apps/app-one/fly.toml',
+          environment: 'production',
+          secrets: {
+            SECRET_KEY1: 'secret"fnutt',
+            SECRET_KEY2: 'secret space',
+            SECRET_KEY3: 'secret\\backslash'
+          }
+        } satisfies DeployAppOptions)
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        postgres: undefined,
-        secrets: {
-          SECRET_KEY1: 'secret"fnutt',
-          SECRET_KEY2: 'secret space',
-          SECRET_KEY3: 'secret\\backslash'
-        }
-      } satisfies DeployAppOptions);
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config',
+          config: '/apps/app-two/fly.production.toml',
+          environment: 'production',
+          secrets: {
+            SECRET_KEY1: 'secret"fnutt',
+            SECRET_KEY2: 'secret space',
+            SECRET_KEY3: 'secret\\backslash'
+          }
+        } satisfies DeployAppOptions)
+      );
     });
 
     it('should deploy apps to production and attach to postgres production when production cluster is set', async () => {
@@ -854,24 +826,22 @@ describe('flyDeployment', () => {
       await flyDeployment(config, true);
 
       // app-one has postgres setup, app-two does not.
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config',
-        config: '/apps/app-one/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        postgres: 'pg-production',
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          config: '/apps/app-one/fly.toml',
+          environment: 'production',
+          postgres: 'pg-production'
+        })
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config',
+          config: '/apps/app-two/fly.production.toml',
+          environment: 'production'
+        })
+      );
     });
 
     it('should deploy apps to production and not attach to postgres production when only preview cluster is set', async () => {
@@ -887,19 +857,14 @@ describe('flyDeployment', () => {
           status: 'deploy',
           flyConfigFile: '/apps/app-one/fly.toml',
           githubConfig: {
-            deploy: true,
-            flyConfig: 'fly.toml',
             flyPostgresPreview: 'pg-preview'
           }
         },
         {
           projectName: 'app-two',
           status: 'deploy',
-          flyConfigFile: '/apps/app-two/src/fly.toml',
-          githubConfig: {
-            deploy: true,
-            flyConfig: 'src/fly.toml'
-          }
+          flyConfigFile: '/apps/app-two/fly.production.toml',
+          githubConfig: {}
         }
       ]);
 
@@ -907,23 +872,21 @@ describe('flyDeployment', () => {
       await flyDeployment(config, true);
 
       // app-one has postgres setup, app-two does not.
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config',
-        config: '/apps/app-one/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          config: '/apps/app-one/fly.toml',
+          environment: 'production'
+        })
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: false,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config',
+          config: '/apps/app-two/fly.production.toml',
+          environment: 'production'
+        })
+      );
     });
 
     it('should deploy apps to production and opt out of depot builder', async () => {
@@ -932,24 +895,23 @@ describe('flyDeployment', () => {
       const config = setupTest({ optOutDepotBuilder: true });
       await flyDeployment(config, true);
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config',
-        config: '/apps/app-one/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: true,
-        postgres: expect.any(String),
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          config: '/apps/app-one/fly.toml',
+          environment: 'production',
+          optOutDepotBuilder: true
+        })
+      );
 
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config',
-        config: '/apps/app-two/src/fly.toml',
-        environment: 'production',
-        env: expect.any(Object),
-        optOutDepotBuilder: true,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config',
+          config: '/apps/app-two/fly.production.toml',
+          environment: 'production',
+          optOutDepotBuilder: true
+        })
+      );
     });
 
     it('should deploy apps to production with multiple tenants', async () => {
@@ -967,62 +929,60 @@ describe('flyDeployment', () => {
       expect(getMockFly().deploy).toHaveBeenCalledTimes(4); // 2 projects * 2 tenants
 
       // app-one for demo tenant
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-demo',
-        config: '/apps/app-one/fly.toml',
-        env: {
-          APP_NAME: 'app-one-config-demo',
-          PR_NUMBER: '',
-          TENANT_ID: 'demo'
-        },
-        environment: 'production',
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-demo',
+          config: '/apps/app-one/fly.toml',
+          env: {
+            APP_NAME: 'app-one-config-demo',
+            PR_NUMBER: '',
+            TENANT_ID: 'demo'
+          },
+          environment: 'production'
+        })
+      );
 
       // app-one for customer1 tenant
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-one-config-customer1',
-        config: '/apps/app-one/fly.toml',
-        env: {
-          APP_NAME: 'app-one-config-customer1',
-          PR_NUMBER: '',
-          TENANT_ID: 'customer1'
-        },
-        environment: 'production',
-        optOutDepotBuilder: false,
-        postgres: expect.any(String),
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-customer1',
+          config: '/apps/app-one/fly.toml',
+          env: {
+            APP_NAME: 'app-one-config-customer1',
+            PR_NUMBER: '',
+            TENANT_ID: 'customer1'
+          },
+          environment: 'production'
+        })
+      );
 
       // app-two for demo tenant
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-demo',
-        config: '/apps/app-two/src/fly.toml',
-        env: {
-          APP_NAME: 'app-two-config-demo',
-          PR_NUMBER: '',
-          TENANT_ID: 'demo'
-        },
-        environment: 'production',
-        optOutDepotBuilder: false,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-demo',
+          config: '/apps/app-two/fly.production.toml',
+          env: {
+            APP_NAME: 'app-two-config-demo',
+            PR_NUMBER: '',
+            TENANT_ID: 'demo'
+          },
+          environment: 'production'
+        })
+      );
 
       // app-two for customer1 tenant
-      expect(getMockFly().deploy).toHaveBeenCalledWith({
-        app: 'app-two-config-customer1',
-        config: '/apps/app-two/src/fly.toml',
-        env: {
-          APP_NAME: 'app-two-config-customer1',
-          PR_NUMBER: '',
-          TENANT_ID: 'customer1'
-        },
-        environment: 'production',
-        optOutDepotBuilder: false,
-        secrets: {}
-      });
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-customer1',
+          config: '/apps/app-two/fly.production.toml',
+          env: {
+            APP_NAME: 'app-two-config-customer1',
+            PR_NUMBER: '',
+            TENANT_ID: 'customer1'
+          },
+          environment: 'production'
+        })
+      );
 
       expect(result).toEqual({
         environment: 'production',

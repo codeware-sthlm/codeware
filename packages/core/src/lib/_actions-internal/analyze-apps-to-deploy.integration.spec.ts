@@ -48,10 +48,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
     for (const project of projects) {
       // Create github.json if specified
       if (project.hasGithubJson) {
-        const githubConfig = project.githubConfig || {
-          deploy: true,
-          flyConfig: 'fly.toml'
-        };
+        const githubConfig = project.githubConfig || {};
         files[`/${project.root}/github.json`] = JSON.stringify(githubConfig);
       }
 
@@ -142,14 +139,14 @@ describe('analyzeAppsToDeploy - Integration', () => {
           name: 'web',
           root: 'apps/web',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         },
         {
           name: 'cms',
           root: 'apps/cms',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         }
       ]);
@@ -160,7 +157,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -168,13 +165,13 @@ describe('analyzeAppsToDeploy - Integration', () => {
         projectName: 'web',
         status: 'deploy',
         flyConfigFile: 'apps/web/fly.toml',
-        githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+        githubConfig: {}
       });
       expect(result[1]).toMatchObject({
         projectName: 'cms',
         status: 'deploy',
         flyConfigFile: 'apps/cms/fly.toml',
-        githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+        githubConfig: {}
       });
     });
 
@@ -185,7 +182,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
           name: 'api',
           root: 'apps/api',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         }
       ]);
@@ -193,7 +190,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'api', root: 'apps/api' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -203,34 +200,34 @@ describe('analyzeAppsToDeploy - Integration', () => {
       });
     });
 
-    it('should handle custom fly config file name', async () => {
+    it('should handle environment-specific fly config', async () => {
       // Arrange
       createWorkspace([
         {
           name: 'web',
           root: 'apps/web',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'custom-fly.toml' },
+          githubConfig: {},
           hasFlyToml: false
         }
       ]);
 
-      // Create custom fly config
+      // Create environment-specific fly config
       vol.fromJSON({
-        '/apps/web/custom-fly.toml': 'app = "web-custom"'
+        '/apps/web/fly.production.toml': 'app = "web-prod"'
       });
 
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy('production');
 
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
         projectName: 'web',
         status: 'deploy',
-        flyConfigFile: 'apps/web/custom-fly.toml'
+        flyConfigFile: 'apps/web/fly.production.toml'
       });
     });
   });
@@ -250,14 +247,14 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
         projectName: 'web',
         status: 'skip',
-        reason: 'github.json not found for the project'
+        reason: 'github.json not found in app root'
       });
     });
 
@@ -268,7 +265,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
           name: 'web',
           root: 'apps/web',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: false
         }
       ]);
@@ -276,14 +273,14 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
         projectName: 'web',
         status: 'skip',
-        reason: 'Fly config file not found: apps/web/fly.toml'
+        reason: 'No Fly configuration found in app root'
       });
     });
 
@@ -320,7 +317,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       });
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -333,29 +330,29 @@ describe('analyzeAppsToDeploy - Integration', () => {
   });
 
   describe('skip scenarios - configuration validation', () => {
-    it('should skip app when deploy is disabled in github.json', async () => {
+    it('should skip app when fly config files are missing', async () => {
       // Arrange
       createWorkspace([
         {
           name: 'web',
           root: 'apps/web',
           hasGithubJson: true,
-          githubConfig: { deploy: false, flyConfig: 'fly.toml' },
-          hasFlyToml: true
+          githubConfig: {},
+          hasFlyToml: false
         }
       ]);
 
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
         projectName: 'web',
         status: 'skip',
-        reason: 'Deployment is disabled in github.json for the project'
+        reason: 'No Fly configuration found in app root'
       });
     });
 
@@ -366,7 +363,9 @@ describe('analyzeAppsToDeploy - Integration', () => {
           name: 'web',
           root: 'apps/web',
           hasGithubJson: true,
-          githubConfig: { invalid: 'config' }, // Missing required fields
+          githubConfig: {
+            flyPostgresProduction: 'invalid!@#$%' // Invalid pattern
+          },
           hasFlyToml: true
         }
       ]);
@@ -374,7 +373,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -393,7 +392,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act & Assert
-      await expect(analyzeAppsToDeploy()).rejects.toThrow();
+      await expect(analyzeAppsToDeploy(undefined)).rejects.toThrow();
     });
   });
 
@@ -405,15 +404,15 @@ describe('analyzeAppsToDeploy - Integration', () => {
           name: 'web',
           root: 'apps/web',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         },
         {
           name: 'cms',
           root: 'apps/cms',
           hasGithubJson: true,
-          githubConfig: { deploy: false, flyConfig: 'fly.toml' },
-          hasFlyToml: true
+          githubConfig: {},
+          hasFlyToml: false // Missing fly config
         },
         {
           name: 'api',
@@ -430,7 +429,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(3);
@@ -441,12 +440,12 @@ describe('analyzeAppsToDeploy - Integration', () => {
       expect(result[1]).toMatchObject({
         projectName: 'cms',
         status: 'skip',
-        reason: 'Deployment is disabled in github.json for the project'
+        reason: 'No Fly configuration found in app root'
       });
       expect(result[2]).toMatchObject({
         projectName: 'api',
         status: 'skip',
-        reason: 'github.json not found for the project'
+        reason: 'github.json not found in app root'
       });
     });
 
@@ -455,7 +454,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockAffectedApps([]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toEqual([]);
@@ -468,21 +467,21 @@ describe('analyzeAppsToDeploy - Integration', () => {
           name: 'app-a',
           root: 'apps/app-a',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         },
         {
           name: 'app-b',
           root: 'apps/app-b',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         },
         {
           name: 'app-c',
           root: 'apps/app-c',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         }
       ]);
@@ -494,7 +493,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result.map((r) => r.projectName)).toEqual([
@@ -513,7 +512,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
           name: 'nested-app',
           root: 'apps/nested/deep/app',
           hasGithubJson: true,
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' },
+          githubConfig: {},
           hasFlyToml: true
         }
       ]);
@@ -521,7 +520,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'nested-app', root: 'apps/nested/deep/app' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -540,8 +539,6 @@ describe('analyzeAppsToDeploy - Integration', () => {
           root: 'apps/web',
           hasGithubJson: true,
           githubConfig: {
-            deploy: true,
-            flyConfig: 'fly.toml',
             extraProperty: 'value',
             anotherExtra: { nested: 'object' }
           },
@@ -552,7 +549,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy();
+      const result = await analyzeAppsToDeploy(undefined);
 
       // Assert
       expect(result).toHaveLength(1);

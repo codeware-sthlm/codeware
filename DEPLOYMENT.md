@@ -8,6 +8,7 @@ This document explains the deployment architecture and configuration for the Cod
 - [Architecture](#architecture)
 - [Configuration](#configuration)
   - [Per-App Configuration (github.json)](#per-app-configuration-githubjson)
+  - [Fly Configuration Files](#fly-configuration-files)
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
   - [Deployment Rules (Required)](#deployment-rules-required)
@@ -74,13 +75,11 @@ The deployment system automatically:
 
 ### Per-App Configuration (github.json)
 
-Each deployable app needs a `github.json` file in its root directory:
+Each deployable app needs a `github.json` file in its root directory (same location as `fly.toml`):
 
 ```json
 {
   "$schema": "../../libs/shared/util/schemas/src/lib/github-config.schema.json",
-  "deploy": true,
-  "flyConfig": "fly.toml",
   "flyPostgresPreview": "${POSTGRES_PREVIEW}",
   "flyPostgresProduction": "my-production-db"
 }
@@ -88,21 +87,25 @@ Each deployable app needs a `github.json` file in its root directory:
 
 **Fields:**
 
-- `deploy` (boolean, required) - Enable/disable deployments for this app
-- `flyConfig` (string, required) - Path to fly.toml file (relative to app root)
 - `flyPostgresPreview` (string, optional) - Fly Postgres cluster name for preview env
 - `flyPostgresProduction` (string, optional) - Fly Postgres cluster name for production env
+
+**Deployment Detection:**
+
+Apps are automatically detected for deployment if they have:
+
+1. A `github.json` file in the app root
+2. A Fly configuration file (see [Fly Configuration Files](#fly-configuration-files))
 
 **Examples:**
 
 Multi-tenant app (web):
 
 ```json
-{
-  "deploy": true,
-  "flyConfig": "fly.toml"
-}
+{}
 ```
+
+Empty `github.json` is valid - the app will be deployed if it has a `fly.toml` file.
 
 Single-tenant app (cms):
 
@@ -110,10 +113,42 @@ Using a Fly Postgres cluster for preview (pull request) apps. Production databas
 
 ```json
 {
-  "deploy": true,
-  "flyConfig": "fly.toml",
   "flyPostgresPreview": "${POSTGRES_PREVIEW}"
 }
+```
+
+### Fly Configuration Files
+
+Apps need a Fly configuration file to be deployed. The system looks for config files in this priority order:
+
+1. **Environment-specific config**: `fly.{environment}.toml` (e.g., `fly.production.toml`, `fly.preview.toml`)
+2. **Default config**: `fly.toml`
+
+This allows you to have different Fly configurations per environment while falling back to a shared config when environment-specific files don't exist.
+
+> [!IMPORTANT]
+> Fly configuration files are only used for deployment of **new apps**. For existing apps the remote configurations are preserved.
+>
+> This is to prevent overriding any individual ad-hoc configurations applied to the apps.
+
+**Example: Different machine sizes per environment**
+
+```toml
+# fly.preview.toml - Smaller machines for preview
+app = "my-app"
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'
+```
+
+```toml
+# fly.production.toml - Larger machines for production
+app = "my-app"
+
+[[vm]]
+  size = 'shared-cpu-2x'
+  memory = '2gb'
 ```
 
 ### Tenant Configuration (Infisical)
@@ -335,16 +370,22 @@ sequenceDiagram
 
 ## How to Add a New App
 
-1. **Create github.json** within the app (root recommended):
+1. **Create github.json** in the app root:
+
+   ```json
+   {}
+   ```
+
+   Or with Postgres configuration:
 
    ```json
    {
-     "deploy": true,
-     "flyConfig": "fly.toml"
+     "flyPostgresPreview": "${POSTGRES_PREVIEW}",
+     "flyPostgresProduction": "my-production-db"
    }
    ```
 
-2. **Create fly.toml** within the app, according to `flyConfig`:
+2. **Create fly.toml** in the app root:
 
    ```toml
    app = "my-new-app"
@@ -365,6 +406,10 @@ sequenceDiagram
      size = 'shared-cpu-1x'
      memory = '1gb'
    ```
+
+   Optionally create environment-specific configs:
+   - `fly.preview.toml` - For preview deployments
+   - `fly.production.toml` - For production deployments
 
 3. **Configure Infisical**:
    - Create a folder and secrets at `/apps/my-new-app/*`

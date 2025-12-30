@@ -6,8 +6,6 @@ import {
   GitHubConfigSchema
 } from '@codeware/shared/util/schemas';
 
-import { findDown } from '../utils/find-down';
-
 import { getNxApps } from './get-nx-apps';
 import { getNxProject } from './get-nx-project';
 
@@ -31,14 +29,49 @@ type App = {
 );
 
 /**
+ * Find fly.toml config file for deployment in app root.
+ *
+ * Priority:
+ * 1. `fly.{environment}.toml` (if environment has a value)
+ * 2. `fly.toml`
+ *
+ * @param appRoot - App root directory
+ * @param environment - Environment or undefined
+ * @returns Full path to the fly config file, or null if not found
+ */
+const findFlyConfig = (
+  appRoot: string,
+  environment: string | undefined
+): string | null => {
+  // Try environment-specific config first
+  if (environment) {
+    const envConfig = join(appRoot, `fly.${environment}.toml`);
+    if (existsSync(envConfig)) {
+      return envConfig;
+    }
+  }
+
+  // Try default fly.toml
+  const defaultConfig = join(appRoot, 'fly.toml');
+  if (existsSync(defaultConfig)) {
+    return defaultConfig;
+  }
+
+  return null;
+};
+
+/**
  * Analyzes Nx workspace apps to determine which are ready for deployment.
  *
- * Checks for the presence and validity of `github.json` files,
- * and whether deployment is enabled for each app.
+ * Checks for the presence and validity of `github.json` files in app root,
+ * and looks for fly configuration files.
  *
+ * @param environment - Environment to look for environment-specific fly configs or undefined
  * @returns List of apps with their deployment status and details.
  */
-export const analyzeAppsToDeploy = async (): Promise<App[]> => {
+export const analyzeAppsToDeploy = async (
+  environment: string | undefined
+): Promise<App[]> => {
   const response: App[] = [];
 
   // Create deployments based on affected apps
@@ -58,16 +91,16 @@ export const analyzeAppsToDeploy = async (): Promise<App[]> => {
       continue;
     }
 
-    // Find github.json
-    const githubFile = await findDown(githubJsonFileName, {
-      startDir: projectConfig.root
-    });
+    const appRoot = projectConfig.root;
 
-    if (!githubFile) {
+    // Look for github.json in app root
+    const githubFile = join(appRoot, githubJsonFileName);
+
+    if (!existsSync(githubFile)) {
       response.push({
         projectName,
         status: 'skip',
-        reason: `${githubJsonFileName} not found for the project`
+        reason: `${githubJsonFileName} not found in app root`
       });
       continue;
     }
@@ -86,33 +119,24 @@ export const analyzeAppsToDeploy = async (): Promise<App[]> => {
       continue;
     }
 
-    // Check if deployment is enabled
-    const githubConfig = githubConfigParsed.data;
-    if (!githubConfig.deploy) {
-      response.push({
-        projectName,
-        status: 'skip',
-        reason: `Deployment is disabled in ${githubJsonFileName} for the project`
-      });
-      continue;
-    }
+    // Look for a Fly config file
+    const flyConfigFile = findFlyConfig(appRoot, environment);
 
-    // Verify that Fly config (normally fly.toml) actually exists
-    const resolvedFlyConfig = join(projectConfig.root, githubConfig.flyConfig);
-    if (!existsSync(resolvedFlyConfig)) {
+    if (!flyConfigFile) {
       response.push({
         projectName,
         status: 'skip',
-        reason: `Fly config file not found: ${resolvedFlyConfig}`
+        reason: `No Fly configuration found in app root`
       });
       continue;
     }
 
     // All checks passed, mark the app ready for deployment
+    const githubConfig = githubConfigParsed.data;
     response.push({
       projectName,
       status: 'deploy',
-      flyConfigFile: resolvedFlyConfig,
+      flyConfigFile,
       githubConfig
     });
   }

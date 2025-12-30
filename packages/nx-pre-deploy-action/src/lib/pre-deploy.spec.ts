@@ -195,7 +195,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         },
         {
           projectName: 'cms',
@@ -206,7 +206,7 @@ describe('preDeploy', () => {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -272,6 +272,14 @@ describe('preDeploy', () => {
 
       expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledTimes(1);
     });
+
+    it('should pass environment to analyzeAppsToDeploy', async () => {
+      setContext('push-main-branch');
+      const config = setupTest();
+      await preDeploy(config, true);
+
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production');
+    });
   });
 
   describe('fetch app tenants from Infisical', () => {
@@ -288,7 +296,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -314,7 +322,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -359,7 +367,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -399,13 +407,13 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         },
         {
           projectName: 'cms',
@@ -457,7 +465,7 @@ describe('preDeploy', () => {
           projectName: 'cms',
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -482,7 +490,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -514,7 +522,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -541,25 +549,19 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {
-            deploy: true,
-            flyConfig: 'fly.toml'
-          }
+          githubConfig: {}
         },
         {
           projectName: 'cms',
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: {
-            deploy: true,
-            flyConfig: 'fly.toml'
-          }
+          githubConfig: {}
         }
       ]);
 
@@ -604,7 +606,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -632,7 +634,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
 
@@ -662,13 +664,13 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
       // Filter should remove api based on apps rule
@@ -697,7 +699,7 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: { deploy: true, flyConfig: 'fly.toml' }
+          githubConfig: {}
         }
       ]);
       // Filter should keep only 'demo' tenant based on tenants rule

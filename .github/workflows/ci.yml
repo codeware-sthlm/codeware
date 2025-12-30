@@ -52,6 +52,11 @@ jobs:
       - name: Install playwright browsers
         run: pnpm exec playwright install --with-deps
 
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: ${{ vars.FLY_CLI_VERSION }}
+
       - name: Analyze affected projects
         uses: nrwl/nx-set-shas@v4
 
@@ -62,9 +67,10 @@ jobs:
       # nx-payload-e2e only runs in e2e-matrix workflow
       - run: pnpm nx affected -t e2e -c ci --exclude nx-payload-e2e
 
-      # Infisical is currently the only project with integration tests
       - run: pnpm nx affected -t integration-test -c ci
         env:
+          FLY_TEST_API_TOKEN: ${{ secrets.FLY_TEST_API_TOKEN }}
+          FLY_TEST_ORG: ${{ vars.FLY_TEST_ORG }}
           INFISICAL_TEST_PROJECT_ID: ${{ secrets.INFISICAL_TEST_PROJECT_ID }}
           INFISICAL_TEST_SERVICE_TOKEN: ${{ secrets.INFISICAL_TEST_SERVICE_TOKEN }}
           INFISICAL_TEST_SITE: ${{ vars.INFISICAL_SITE }}

@@ -45,7 +45,7 @@ export const mockDefs = {
 /**
  * Mock `fly apps list` response for testing.
  */
-export const mockAppsListResponse: Array<ListAppResponse> = [
+export const mockAppsListResponse: ListAppResponse = [
   {
     id: mockDefs.testApp,
     name: mockDefs.testApp,
@@ -84,14 +84,13 @@ export const mockCreateAppResponse = (
   app: string = mockDefs.testApp
 ): CreateAppResponse => ({
   id: 'test-id',
-  name: app,
-  organization: { id: 'org-id', name: 'test organization' }
+  name: app
 });
 
 /**
  * Mock `fly certs list` response for testing.
  */
-export const mockListCertForAppResponse: Array<ListCertForAppResponse> = [
+export const mockListCertForAppResponse: ListCertForAppResponse = [
   {
     clientStatus: 'Ready',
     createdAt: '2024-01-01T00:00:00Z',
@@ -109,7 +108,7 @@ export const mockListCertForAppResponse: Array<ListCertForAppResponse> = [
  *
  * All apps from `mockAppsListResponse` gets the same certificates from `mockListCertForAppResponse`
  */
-export const mockListCertForAllResponse: Array<ListCertForAllResponse> =
+export const mockListCertForAllResponse: ListCertForAllResponse =
   mockAppsListResponse
     .map((app) =>
       mockListCertForAppResponse.map((c) => ({ ...c, app: app.name }))
@@ -118,8 +117,10 @@ export const mockListCertForAllResponse: Array<ListCertForAllResponse> =
 
 /**
  * Mock `fly postgres list` response for testing.
+ *
+ * TODO: Mock the string response when there are no Postgres clusters.
  */
-export const mockListPostgresResponse: Array<ListPostgresResponse> = [
+export const mockListPostgresResponse: ListPostgresResponse = [
   {
     id: mockDefs.postgresAttached,
     name: mockDefs.postgresAttached,
@@ -149,7 +150,7 @@ export const mockListPostgresResponse: Array<ListPostgresResponse> = [
 /**
  * Mock `fly postgres users list` response for testing.
  */
-export const mockListPostgresUsersResponse: Array<ListPostgresUsersResponse> = [
+export const mockListPostgresUsersResponse: ListPostgresUsersResponse = [
   {
     username: 'test_app',
     superuser: true,
@@ -165,9 +166,8 @@ export const mockListPostgresUsersResponse: Array<ListPostgresUsersResponse> = [
 /**
  * Mock `fly secrets list` response for testing.
  */
-export const mockListSecretForAppResponse: Array<ListSecretForAppResponse> = [
+export const mockListSecretForAppResponse: ListSecretForAppResponse = [
   {
-    createdAt: '2024-01-01T00:00:00Z',
     digest: 'abc123',
     name: mockDefs.testSecret
   }
@@ -178,7 +178,7 @@ export const mockListSecretForAppResponse: Array<ListSecretForAppResponse> = [
  *
  * All apps from `mockAppsListResponse` gets the same secrets from `mockListSecretForAppResponse`
  */
-export const mockListSecretForAllResponse: Array<ListSecretForAllResponse> =
+export const mockListSecretForAllResponse: ListSecretForAllResponse =
   mockAppsListResponse
     .map((app) =>
       mockListSecretForAppResponse.map((s) => ({ ...s, app: app.name }))

@@ -13,7 +13,9 @@ export default [
           ignoredDependencies: ['@cdwr/core'],
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs}',
-            '{projectRoot}/vite.config.{js,ts,mjs,mts}'
+            '{projectRoot}/vite.config.{js,ts,mjs,mts}',
+            '{projectRoot}/vitest.integration.config.{js,ts,mjs,mts}',
+            '{projectRoot}/integration-tests/setup.ts'
           ]
         }
       ]

@@ -11,10 +11,6 @@ import { z } from 'zod';
 export const AppsCreateTransformedResponseSchema = withCamelCase(
   z.object({
     id: z.string(),
-    name: z.string(),
-    organization: z.object({
-      id: z.string(),
-      name: z.string()
-    })
+    name: z.string()
   })
 );

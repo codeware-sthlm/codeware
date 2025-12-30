@@ -1,0 +1,5 @@
+# Local environment files
+.env.test.local
+
+# Test app directories
+integration-tests/__test-apps__/

@@ -47,6 +47,7 @@ It's built with a configuration-first approach, meaning that you provide a `fly.
     - [Add a custom domain](#add-a-custom-domain)
     - [Remove a custom domain](#remove-a-custom-domain)
     - [List certificates](#list-certificates)
+    - [Save application configuration](#save-application-configuration)
     - [Show application configuration](#show-application-configuration)
     - [Add application secrets](#add-application-secrets)
     - [Remove application secrets](#remove-application-secrets)
@@ -58,14 +59,25 @@ It's built with a configuration-first approach, meaning that you provide a `fly.
 npm install @cdwr/fly-node
 ```
 
-### Fly CLI <!-- omit in toc -->
+### Fly CLI Requirements <!-- omit in toc -->
 
 > [!IMPORTANT]
-> It's required to have the Fly CLI installed to use this library.
+> This library requires the Fly CLI (`flyctl`) to be installed and accessible in your PATH.
 
-Instructions to [install manually](https://github.com/superfly/flyctl?tab=readme-ov-file#installation).
+**Version used in test**: v0.4.0
 
-For using in GitHub actions it's best to use the [action](https://github.com/superfly/flyctl-actions) provided by the Fly CLI project.
+**Installation Instructions**:
+
+- **macOS**: `brew install flyctl`
+- **Linux/WSL**: `curl -L https://fly.io/install.sh | sh`
+- **Windows**: `pwsh -Command "iwr https://fly.io/install.ps1 -useb | iex"`
+- **Manual Installation**: See [official docs](https://github.com/superfly/flyctl?tab=readme-ov-file#installation)
+
+**Verify Installation**:
+
+```sh
+flyctl version
+```
 
 ## Usage
 
@@ -119,13 +131,14 @@ const fly = new Fly({ token: 'fly-api-token' });
 
 **Options**
 
-| Name              | Description                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `token`           | Fly API access token.                                                                                                           |
-| `app` or `config` | Name of the application or the path to the fly configuration file to run all commands on.                                       |
-| `org`             | Target organisation for your created apps. Defaults to your personal organisation.                                              |
-| `region`          | Target region for your deployed apps. Defaults to auto-detect the fastest location.                                             |
-| `logger`          | Custom logger for the library. Defaults to using `console.log()` and `console.error()`. CLI tracing can be enabled when needed. |
+| Name              | Description                                                                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `token`           | Fly API access token.                                                                                                                    |
+| `authStrategy`    | Authentication strategy: `'user-first'` (default) checks local authenticated user first and `'token-first'` checks provided token first. |
+| `app` or `config` | Name of the application or the path to the fly configuration file to run all commands on.                                                |
+| `org`             | Target organisation for your created apps. Defaults to your personal organisation.                                                       |
+| `region`          | Target region for your deployed apps. Defaults to auto-detect the fastest location.                                                      |
+| `logger`          | Custom logger for the library. Defaults to using `console.log()` and `console.error()`. CLI tracing can be enabled when needed.          |
 
 #### Verify that the Fly client is ready
 
@@ -148,6 +161,12 @@ Use this command to check if the Fly CLI is installed.
 const isInstalled = await fly.cli.isInstalled(); // true or false
 ```
 
+This command gets the installed Fly CLI version.
+
+```ts
+const { version } = await fly.cli.version();
+```
+
 ### Deploying apps & machines
 
 #### Create an application
@@ -158,13 +177,13 @@ This will create an application which is not deployed yet. You can add secrets, 
 > Creating an application is not necessary before deploying, the library will do it for you.
 
 ```ts
-const name = await fly.apps.create(); // 'some-app-name-123'
+await fly.apps.create(); // name: 'some-app-name-123'
 
 // Create application 'foo-app' in the instance organisation
-const name = await fly.apps.create({ app: 'foo-app' });
+await fly.apps.create({ app: 'foo-app' });
 
 // Create application 'bar-app' in organisation 'baz'
-const name = await fly.apps.create({ app: 'bar-app', org: 'baz' });
+await fly.apps.create({ app: 'bar-app', org: 'baz' });
 ```
 
 #### Destroy an application
@@ -176,9 +195,6 @@ This will destroy the application completely.
 
 ```ts
 await fly.apps.destroy('foo-app');
-
-// Force destroy 'foo-app'
-await fly.apps.destroy('foo-app', { force: true });
 ```
 
 #### Deploy an application
@@ -213,6 +229,15 @@ const response = await fly.deploy({
   config: 'apps/foo-app/fly.toml',
   optOutDepotBuilder: true
 });
+
+// Use remote config for existing apps (useful to prevent overriding ad-hoc configurations)
+const response = await fly.deploy({
+  app: 'tenant-foo-app',
+  config: 'apps/foo-app/fly.toml',
+  preferRemoteConfig: true
+});
+// For existing apps: saves remote config to fly.{appName}.toml and uses it
+// For new apps: uses the local config file
 
 // With options that could be a pull request preview deployment
 const response = await fly.deploy({
@@ -354,6 +379,18 @@ const certs = await fly.certs.list('all');
 // ]
 ```
 
+#### Save application configuration
+
+Save an application's remote configuration from Fly.io to a local TOML file. This is useful for backing up configurations or using remote configs for existing apps in deployments.
+
+```ts
+// Save 'foo-app' remote config to local file
+await fly.config.save({
+  app: 'foo-app',
+  config: 'apps/foo-app/fly.remote.toml'
+});
+```
+
 #### Show application configuration
 
 The configuration is always fetched from Fly.io remote configuration, but you can also fetch the local configuration file.
@@ -420,29 +457,4 @@ const secrets = await fly.secrets.list();
 // List secrets for 'foo-app'
 const secrets = await fly.secrets.list({ app: 'foo-app' });
 const secrets = await fly.secrets.list({ config: 'apps/foo-app/fly.toml' });
-
-// [
-//   {
-//     createdAt: '2024-01-01T00:00:00.000Z',
-//     digest: '1234567890',
-//     name: 'FOO',
-//   },
-//   ...
-// ]
-
-// List secrets for all your applications
-const secrets = await fly.secrets.list('all');
-
-// [
-//   {
-//     app: 'foo-app',
-//     [secret details]
-//   },
-//   ...
-//   {
-//     app: 'bar-app',
-//     [secret details]
-//   },
-//   ...
-// ]
 ```

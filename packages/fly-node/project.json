@@ -11,6 +11,23 @@
         "assets": ["packages/fly-node/*.md"],
         "format": ["cjs", "esm"]
       }
+    },
+    "integration-test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production"],
+      "outputs": [
+        "{workspaceRoot}/coverage/packages/fly-node/integration-tests"
+      ],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "vitest --config vitest.integration.config.mts"
+      },
+      "configurations": {
+        "ci": {
+          "coverage": true
+        }
+      }
     }
   }
 }

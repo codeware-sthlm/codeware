@@ -10,8 +10,7 @@ import { z } from 'zod';
  */
 export const SecretsListFlyResponseElementSchema = z.object({
   name: z.string(),
-  digest: z.string(),
-  createdAt: z.string().datetime()
+  digest: z.string()
 });
 
 /**

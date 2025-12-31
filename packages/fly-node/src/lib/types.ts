@@ -380,4 +380,43 @@ export type Logger = {
    * ```
    */
   traceCLI: boolean;
+
+  /**
+   * Redact sensitive call values in CLI trace logs.
+   *
+   * When enabled, secrets and tokens are masked:
+   * - Values > 10 chars: first 3 + [REDACTED] + last 3 (e.g., "foo[REDACTED]bar")
+   * - Values ≤ 10 chars: [REDACTED]
+   *
+   * Redacts:
+   * - `--access-token` values
+   * - `secrets set KEY1=VALUE1 KEY2=VALUE2 ...`
+   *
+   * Only applies when `traceCLI` is `true`.
+   *
+   * @default true
+   *
+   * @example
+   *
+   * ```ts
+   * const fly = new Fly({
+   *   token: 'my-secret-token-12345',
+   *   logger: {
+   *     traceCLI: true,
+   *     redactSecrets: true
+   *   }
+   * });
+   * ```
+   *
+   * @example
+   *
+   * ```sh
+   * # Without redaction:
+   * [ CALL ] flyctl secrets set API_KEY=secret! --access-token my-secret-token-12345
+   *
+   * # With redaction:
+   * [ CALL ] flyctl secrets set API_KEY=[REDACTED] --access-token my-[REDACTED]345
+   * ```
+   */
+  redactSecrets?: boolean;
 };

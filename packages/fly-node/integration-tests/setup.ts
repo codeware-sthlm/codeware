@@ -7,9 +7,16 @@ import { z } from 'zod';
 
 import type { Fly } from '../src/lib/fly.class';
 
+const coerceBoolean = z.preprocess(
+  (val) =>
+    typeof val === 'string' ? val.trim().toLowerCase() === 'true' : false,
+  z.boolean()
+);
+
 const IntegrationTestEnvSchema = z.object({
   FLY_TEST_API_TOKEN: z.string().min(1),
   FLY_TEST_ORG: z.string().min(1),
+  FLY_TEST_TRACE_CLI: coerceBoolean.optional(),
   FLY_TEST_POSTGRES: z.string().optional(),
   FLY_CLI_VERSION: z.string().optional().default('latest')
 });
@@ -48,7 +55,8 @@ const env = envValidation.data;
 // Export for use in tests
 export const TEST_CONFIG = {
   flyApiToken: env.FLY_TEST_API_TOKEN,
-  flyOrg: env.FLY_TEST_ORG
+  flyOrg: env.FLY_TEST_ORG,
+  flyTraceCli: env.FLY_TEST_TRACE_CLI
 } as const;
 
 // Track created apps for cleanup

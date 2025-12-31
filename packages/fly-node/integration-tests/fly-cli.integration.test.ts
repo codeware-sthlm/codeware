@@ -40,7 +40,10 @@ describe('Fly CLI Compatibility & Schema Validation', () => {
     fly = new Fly({
       authStrategy: 'token-first',
       token: TEST_CONFIG.flyApiToken,
-      org: TEST_CONFIG.flyOrg
+      org: TEST_CONFIG.flyOrg,
+      logger: {
+        traceCLI: TEST_CONFIG.flyTraceCli
+      }
     });
 
     // Create a single test app shared across tests to minimize costs
@@ -53,7 +56,7 @@ describe('Fly CLI Compatibility & Schema Validation', () => {
     await cleanupTestApps(fly);
   });
 
-  describe('Core Commands', () => {
+  describe.only('Core Commands', () => {
     it('cli.isInstalled returns true when fly CLI is installed', async () => {
       const installed = await fly.cli.isInstalled();
       expect(installed).toBe(true);

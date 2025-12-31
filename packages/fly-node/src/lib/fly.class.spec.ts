@@ -378,6 +378,16 @@ describe('Fly', () => {
   });
 
   describe('initialization', () => {
+    it('should not trace logs by default', async () => {
+      const fly = new Fly();
+      expect(fly['logger'].traceCLI).toBe(false);
+    });
+
+    it('should set redact secrets to true by default', async () => {
+      const fly = new Fly();
+      expect(fly['logger'].redactSecrets).toBe(true);
+    });
+
     it('should throw error when running command and fly is not installed', async () => {
       setupFlyMocks([
         {

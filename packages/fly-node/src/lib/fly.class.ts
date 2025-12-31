@@ -96,7 +96,8 @@ export class Fly {
     this.logger = {
       info: config?.logger?.info || console.log,
       error: config?.logger?.error || console.error,
-      traceCLI: config?.logger?.traceCLI || false
+      traceCLI: config?.logger?.traceCLI ?? false,
+      redactSecrets: config?.logger?.redactSecrets ?? true
     };
 
     // Fall back to env token
@@ -1215,6 +1216,10 @@ ${JSON.stringify(response, null, 2)}`);
 
       // Check authenticate via token
       const checkTokenUser = async () => {
+        if (!this._config.token) {
+          this.logger.info('No api token provided, skip token authentication');
+          return null;
+        }
         const user = await this.execFly<string>(
           ['auth', 'whoami'],
           undefined,
@@ -1226,7 +1231,9 @@ ${JSON.stringify(response, null, 2)}`);
         return user;
       };
 
-      this.logger.info('Authenticating with Fly.io...');
+      this.logger.info(
+        `Authenticating with Fly.io using ${this.authStrategy} strategy...`
+      );
 
       let user: string | null = null;
       switch (this.authStrategy) {
@@ -1234,6 +1241,9 @@ ${JSON.stringify(response, null, 2)}`);
           // Try token first, then logged in user
           user = await checkTokenUser();
           if (!user) {
+            this.logger.info(
+              `Token authentication failed, trying logged in user...`
+            );
             user = await checkLocalUser();
           }
           break;
@@ -1241,6 +1251,9 @@ ${JSON.stringify(response, null, 2)}`);
           // Try logged in user first, then token
           user = await checkLocalUser();
           if (!user) {
+            this.logger.info(
+              `No logged in user, trying token authentication...`
+            );
             user = await checkTokenUser();
           }
           break;
@@ -1468,7 +1481,44 @@ ${errorMsg}`);
 
   /**
    * @private
+   * Redact sensitive values from text.
+   *
+   * Identifies and redacts:
+   * - Access tokens provided with `--access-token VALUE`
+   * - Secret values provided with `secrets set KEY1=VALUE1 KEY2=VALUE2 ...`
+   *
+   * @param text - The text to redact
+   * @returns The redacted text
+   */
+  private redactSensitiveData(text: string): string {
+    const maskValue = (value: string): string =>
+      value.length > 10
+        ? `${value.slice(0, 3)}[REDACTED]${value.slice(-3)}`
+        : '[REDACTED]';
+
+    // Pattern to match values including escaped spaces (e.g., "test\ value")
+    // Must check for escaped space BEFORE \S to avoid matching backslash alone
+    const valuePattern = '((?:\\\\ |\\S)+)';
+
+    return text
+      .replace(
+        new RegExp(`--access-token\\s+${valuePattern}`, 'g'),
+        (_, token) => `--access-token ${maskValue(token)}`
+      )
+      .replace(
+        new RegExp(
+          `(secrets\\s+set\\s+.*?)([A-Z_][A-Z0-9_]*)=${valuePattern}`,
+          'g'
+        ),
+        (_, prefix, key, value) => `${prefix}${key}=${maskValue(value)}`
+      );
+  }
+
+  /**
+   * @private
    * Trace the CLI calls, mocks and results
+   *
+   * Redacts sensitive data from CALL messages when enabled in logger config.
    *
    * @param type - The type of trace
    * @param msg - The message to trace
@@ -1477,7 +1527,13 @@ ${errorMsg}`);
     if (this.logger.traceCLI) {
       const typeLabel =
         type === 'CALL' ? ' CALL ' : type === 'MOCK' ? ' MOCK ' : 'RESULT';
-      this.logger.info(`[${typeLabel}] ${msg}`);
+
+      let message = msg;
+      if (type === 'CALL' && this.logger.redactSecrets && msg) {
+        message = this.redactSensitiveData(msg);
+      }
+
+      this.logger.info(`[${typeLabel}] ${message}`);
     }
   }
 }

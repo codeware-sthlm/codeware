@@ -3,6 +3,7 @@
   "flyApiToken": "fly-token",
   "flyOrg": "company",
   "flyRegion": "sea",
+  "flyTraceCli": false,
   "mainBranch": "main",
   "optOutDepotBuilder": false,
   "postgresPreview": "db-app",

@@ -55,7 +55,8 @@ export async function flyDeployment(
       region: config.fly.region,
       logger: {
         info: (msg) => core.info(msg),
-        error: (msg, params) => core.error(msg, params)
+        error: (msg, params) => core.error(msg, params),
+        traceCLI: config.fly.traceCLI
       }
     });
 

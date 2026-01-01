@@ -5,6 +5,7 @@
     "token": "fly-token",
     "org": "company",
     "region": "sea",
+    "traceCLI": false,
     "optOutDepotBuilder": false
   },
   "mainBranch": "main",

@@ -19,6 +19,7 @@ export async function run(): Promise<void> {
       flyApiToken: core.getInput('fly-api-token'),
       flyOrg: core.getInput('fly-org'),
       flyRegion: core.getInput('fly-region'),
+      flyTraceCli: core.getBooleanInput('fly-trace-cli'),
       mainBranch: core.getInput('main-branch'),
       optOutDepotBuilder: core.getBooleanInput('opt-out-depot-builder'),
       secrets: core.getMultilineInput('secrets'),

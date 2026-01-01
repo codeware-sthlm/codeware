@@ -8,11 +8,12 @@ export const DeploymentConfigSchema = z.object({
     token: z.string().min(1, 'Fly API token is required'),
     org: z.string(),
     region: z.string(),
-    optOutDepotBuilder: z.boolean()
+    optOutDepotBuilder: z.boolean(),
+    traceCLI: z.boolean()
   }),
   mainBranch: z.string().min(1, 'main branch is required'),
   secrets: z.record(z.string(), z.string()).optional(),
-  appDetails: ActionInputsSchema.shape.appDetails,
+  appDetails: ActionInputsSchema.shape.appDetails.unwrap(),
   token: ActionInputsSchema.shape.token
 });
 

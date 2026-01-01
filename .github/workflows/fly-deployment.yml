@@ -124,6 +124,7 @@ jobs:
           fly-api-token: ${{ secrets.FLY_API_TOKEN }}
           fly-org: ${{ vars.FLY_ORG }}
           fly-region: ${{ vars.FLY_REGION }}
+          fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
           token: ${{ steps.generate-token.outputs.token }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
           secrets: |

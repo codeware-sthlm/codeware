@@ -10,6 +10,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
   "flyApiToken": "fly-token",
   "flyOrg": "company",
   "flyRegion": "sea",
+  "flyTraceCli": false,
   "mainBranch": "main",
   "optOutDepotBuilder": false,
   "secrets": [
@@ -56,6 +57,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
     "org": "company",
     "region": "sea",
     "token": "fly-token",
+    "traceCLI": false,
   },
   "mainBranch": "main",
   "secrets": {

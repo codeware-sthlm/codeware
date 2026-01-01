@@ -7,14 +7,17 @@ const AppDeploymentDetailsSchema = z.object({
 });
 
 export const ActionInputsSchema = z.object({
-  env: z.array(z.string()),
-  flyApiToken: z.string(),
-  flyOrg: z.string(),
-  flyRegion: z.string(),
-  mainBranch: z.string(),
-  optOutDepotBuilder: z.boolean(),
-  secrets: z.array(z.string()),
-  appDetails: z.record(z.string(), z.array(AppDeploymentDetailsSchema)),
+  env: z.array(z.string()).optional(),
+  flyApiToken: z.string().optional(),
+  flyOrg: z.string().optional(),
+  flyRegion: z.string().optional(),
+  flyTraceCli: z.boolean().optional(),
+  mainBranch: z.string().optional(),
+  optOutDepotBuilder: z.boolean().optional(),
+  secrets: z.array(z.string()).optional(),
+  appDetails: z
+    .record(z.string(), z.array(AppDeploymentDetailsSchema))
+    .optional(),
   token: z.string().min(1, 'A GitHub token is required')
 });
 

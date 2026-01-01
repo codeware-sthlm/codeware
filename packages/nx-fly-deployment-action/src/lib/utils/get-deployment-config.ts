@@ -40,6 +40,7 @@ export const getDeploymentConfig = async (
     flyApiToken,
     flyOrg,
     flyRegion,
+    flyTraceCli,
     mainBranch: mainBranchInput,
     optOutDepotBuilder,
     secrets: secretsInput,
@@ -52,22 +53,23 @@ export const getDeploymentConfig = async (
     mainBranchInput || (await getRepositoryDefaultBranch(token));
 
   // Parse environment variables from input
-  const env = arrayToRecord(envInput);
+  const env = arrayToRecord(envInput ?? []);
 
   // Parse secrets from input
-  const secrets = arrayToRecord(secretsInput);
+  const secrets = arrayToRecord(secretsInput ?? []);
 
   const config: DeploymentConfig = {
     env,
     fly: {
       token: flyApiToken || process.env['FLY_API_TOKEN'] || '',
-      org: flyOrg,
-      region: flyRegion,
-      optOutDepotBuilder
+      org: flyOrg || '',
+      region: flyRegion || '',
+      traceCLI: flyTraceCli ?? false,
+      optOutDepotBuilder: optOutDepotBuilder ?? false
     },
     mainBranch,
     secrets,
-    appDetails,
+    appDetails: appDetails ?? {},
     token
   };
   core.info(JSON.stringify(config, null, 2));

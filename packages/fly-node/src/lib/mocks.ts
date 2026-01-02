@@ -258,3 +258,17 @@ export const mockStatusResponse = (
   status: app === mockDefs.testApp ? 'deployed' : 'pending',
   version: app === mockDefs.testApp ? 1 : 0
 });
+
+/**
+ * Mock `fly version` response for testing.
+ */
+export const mockVersionResponse = {
+  Name: 'fly',
+  Version: '0.4.0',
+  Commit: '641eb1c8b884eb191d574de8e11b8423e86e3260',
+  BranchName: '',
+  BuildDate: '2025-12-25T16:00:57Z',
+  OS: 'darwin',
+  Architecture: 'arm64',
+  Environment: 'production'
+};

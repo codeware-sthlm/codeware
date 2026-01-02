@@ -57,20 +57,8 @@ export type ExecFlyOptions = SpawnOptions & SpawnPtyOptions;
 export class Fly {
   /** Use underscore to avoid conflict with public `config` property */
   private _config: Config;
-  /**
-   * Whether a user is authenticated via local login.
-   * In this case a token is not needed, though it can still have been provided.
-   */
-  private authByLogin = false;
   private initialized = false;
   private logger: Logger;
-
-  /**
-   * Get the authentication strategy from the instance config
-   */
-  private get authStrategy() {
-    return this._config.authStrategy ?? 'user-first';
-  }
 
   /**
    * Get the app name from the instance config
@@ -100,9 +88,9 @@ export class Fly {
       redactSecrets: config?.logger?.redactSecrets ?? true
     };
 
-    // Fall back to env token
-    if (!this._config.token) {
-      this._config.token = process.env['FLY_API_TOKEN'] || '';
+    // Override FLY_ACCESS_TOKEN environment variable when token is provided
+    if (this._config.token) {
+      process.env['FLY_ACCESS_TOKEN'] = this._config.token;
     }
   }
 
@@ -1189,79 +1177,24 @@ ${JSON.stringify(response, null, 2)}`);
    * @private
    * Ensure Fly CLI is installed and authenticated
    *
-   * @throws An error if Fly CLI is not installed or authentication fails
+   * @throws An error if Fly CLI is not installed or not authenticated
    */
   private async ensureInitialized(): Promise<void> {
     if (this.initialized) return;
 
     try {
+      // Check if the cli is installed
       if (!(await this.isInstalled())) {
         throw new Error('Fly CLI must be installed to use this library');
       }
 
-      // Check if a user is logged in locally
-      const checkLocalUser = async () => {
-        const user = await this.execFly<string>(
-          ['auth', 'whoami'],
-          undefined,
-          'nullOnError',
-          true // won't use token
-        );
-        if (user) {
-          this.logger.info(`Detected logged in user '${user}'`);
-          this.authByLogin = true;
-        }
-        return user;
-      };
+      // Print installed cli version
+      const { version } = await this.version();
+      this.logger.info(`Fly CLI ${version} is installed`);
 
-      // Check authenticate via token
-      const checkTokenUser = async () => {
-        if (!this._config.token) {
-          this.logger.info('No api token provided, skip token authentication');
-          return null;
-        }
-        const user = await this.execFly<string>(
-          ['auth', 'whoami'],
-          undefined,
-          'nullOnError'
-        );
-        if (user) {
-          this.logger.info(`Authenticated by token as '${user}'`);
-        }
-        return user;
-      };
-
-      this.logger.info(
-        `Authenticating with Fly.io using ${this.authStrategy} strategy...`
-      );
-
-      let user: string | null = null;
-      switch (this.authStrategy) {
-        case 'token-first':
-          // Try token first, then logged in user
-          user = await checkTokenUser();
-          if (!user) {
-            this.logger.info(
-              `Token authentication failed, trying logged in user...`
-            );
-            user = await checkLocalUser();
-          }
-          break;
-        case 'user-first':
-          // Try logged in user first, then token
-          user = await checkLocalUser();
-          if (!user) {
-            this.logger.info(
-              `No logged in user, trying token authentication...`
-            );
-            user = await checkTokenUser();
-          }
-          break;
-      }
-
-      if (!user) {
-        throw new Error('Please login or provide a valid access token');
-      }
+      // Check authentication via logged in user or a token
+      const user = await this.execFly<string>(['auth', 'whoami']);
+      this.logger.info(`Authenticated as '${user}'`);
 
       this.initialized = true;
     } catch (error) {
@@ -1286,35 +1219,22 @@ ${JSON.stringify(response, null, 2)}`);
    * @private
    * Execute a fly command and optionally return the output as JSON
    *
-   * Tip! Set `skipToken` to `true` when you only want to authenticate via logged in user
-   *
    * @param command - The fly command to execute (empty array items are ignored)
    * @param onError - What to do if the command fails, throw or return `null` (defaults to `throwOnError`)
-   * @param skipToken - Skip authentication via token when provided
    * @returns The JSON output of the command, or the raw output if not JSON
    * @throws An error if the command fails and `onError` is `throwOnError`
    */
   private async execFly<T>(
     command: string | Array<string>,
     options?: ExecFlyOptions,
-    onError?: 'nullOnError',
-    skipToken?: boolean
+    onError?: 'nullOnError'
   ): Promise<T>;
   private async execFly<T>(
     command: string | Array<string>,
     options?: ExecFlyOptions,
-    onError: 'nullOnError' | 'throwOnError' = 'throwOnError',
-    skipToken?: boolean
+    onError: 'nullOnError' | 'throwOnError' = 'throwOnError'
   ): Promise<T> {
     const args = Array.isArray(command) ? command : command.split(' ');
-
-    // Authenticate via token when
-    // - not skipping token authentication
-    // - not authenticated by a logged in user
-    // - a token is provided
-    if (!skipToken && !this.authByLogin && this._config.token) {
-      args.push('--access-token', this._config.token);
-    }
 
     const flyCmd = 'flyctl';
     const toLogCmd = `${flyCmd} ${args.join(' ')}`;
@@ -1484,7 +1404,6 @@ ${errorMsg}`);
    * Redact sensitive values from text.
    *
    * Identifies and redacts:
-   * - Access tokens provided with `--access-token VALUE`
    * - Secret values provided with `secrets set KEY1=VALUE1 KEY2=VALUE2 ...`
    *
    * @param text - The text to redact
@@ -1500,18 +1419,13 @@ ${errorMsg}`);
     // Must check for escaped space BEFORE \S to avoid matching backslash alone
     const valuePattern = '((?:\\\\ |\\S)+)';
 
-    return text
-      .replace(
-        new RegExp(`--access-token\\s+${valuePattern}`, 'g'),
-        (_, token) => `--access-token ${maskValue(token)}`
-      )
-      .replace(
-        new RegExp(
-          `(secrets\\s+set\\s+.*?)([A-Z_][A-Z0-9_]*)=${valuePattern}`,
-          'g'
-        ),
-        (_, prefix, key, value) => `${prefix}${key}=${maskValue(value)}`
-      );
+    return text.replace(
+      new RegExp(
+        `(secrets\\s+set\\s+.*?)([A-Z_][A-Z0-9_]*)=${valuePattern}`,
+        'g'
+      ),
+      (_, prefix, key, value) => `${prefix}${key}=${maskValue(value)}`
+    );
   }
 
   /**

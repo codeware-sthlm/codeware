@@ -74,20 +74,9 @@ export type VersionResponse = z.infer<typeof VersionTransformedResponseSchema>;
  */
 export type Config = {
   /**
-   * Authentication strategy to use.
-   * - `'token-first'`: Try to authenticate using the provided token first, then fallback to user authentication.
-   * - `'user-first'`: Try to authenticate using the logged in user first, then fallback to token authentication.
+   * Authenticate using a Fly token.
    *
-   * Defaults to `'user-first'`.
-   */
-  authStrategy?: 'token-first' | 'user-first';
-
-  /**
-   * Authenticate using a Fly API token.
-   *
-   * How this token is used depends on the `authStrategy` option.
-   *
-   * As alternative to token, the `FLY_API_TOKEN` environment variable is also supported.
+   * Fall back to environment variables `FLY_ACCESS_TOKEN` or `FLY_API_TOKEN`.
    */
   token?: string;
 
@@ -389,7 +378,6 @@ export type Logger = {
    * - Values ≤ 10 chars: [REDACTED]
    *
    * Redacts:
-   * - `--access-token` values
    * - `secrets set KEY1=VALUE1 KEY2=VALUE2 ...`
    *
    * Only applies when `traceCLI` is `true`.
@@ -400,7 +388,6 @@ export type Logger = {
    *
    * ```ts
    * const fly = new Fly({
-   *   token: 'my-secret-token-12345',
    *   logger: {
    *     traceCLI: true,
    *     redactSecrets: true
@@ -412,10 +399,10 @@ export type Logger = {
    *
    * ```sh
    * # Without redaction:
-   * [ CALL ] flyctl secrets set API_KEY=secret! --access-token my-secret-token-12345
+   * [ CALL ] flyctl secrets set API_KEY=secret!
    *
    * # With redaction:
-   * [ CALL ] flyctl secrets set API_KEY=[REDACTED] --access-token my-[REDACTED]345
+   * [ CALL ] flyctl secrets set API_KEY=[REDACTED]
    * ```
    */
   redactSecrets?: boolean;

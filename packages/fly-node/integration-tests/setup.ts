@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import isCI from 'is-ci';
 import { z } from 'zod';
 
-import type { Fly } from '../src/lib/fly.class';
+import { Fly } from '../src/lib/fly.class';
 
 const coerceBoolean = z.preprocess(
   (val) =>
@@ -52,15 +52,41 @@ ${JSON.stringify(envValidation.error.flatten().fieldErrors, null, 2)}
 
 const env = envValidation.data;
 
-// Export for use in tests
-export const TEST_CONFIG = {
-  flyApiToken: env.FLY_TEST_API_TOKEN,
-  flyOrg: env.FLY_TEST_ORG,
-  flyTraceCli: env.FLY_TEST_TRACE_CLI
-} as const;
-
 // Track created apps for cleanup
 const createdApps: string[] = [];
+
+/**
+ * Create a Fly client instance for tests.
+ *
+ * Use one of the following authentication methods:
+ * - `'FLY_ACCESS_TOKEN'`: Sets `FLY_ACCESS_TOKEN` env var
+ * - `'FLY_API_TOKEN'`: Sets `FLY_API_TOKEN` env var
+ * - `'config-token'`: Passes token via config optional parameter
+ * - `'none'`: No authentication (expected to fail on authenticated calls)
+ *
+ * @param auth - Authentication method
+ * @return Fly client instance
+ */
+export const createFly = (
+  auth: 'FLY_ACCESS_TOKEN' | 'FLY_API_TOKEN' | 'config-token' | 'none'
+): Fly => {
+  delete process.env['FLY_ACCESS_TOKEN'];
+  delete process.env['FLY_API_TOKEN'];
+
+  if (auth === 'FLY_ACCESS_TOKEN') {
+    process.env['FLY_ACCESS_TOKEN'] = env.FLY_TEST_API_TOKEN;
+  } else if (auth === 'FLY_API_TOKEN') {
+    process.env['FLY_API_TOKEN'] = env.FLY_TEST_API_TOKEN;
+  }
+
+  return new Fly({
+    token: auth === 'config-token' ? env.FLY_TEST_API_TOKEN : undefined,
+    org: env.FLY_TEST_ORG,
+    logger: {
+      traceCLI: env.FLY_TEST_TRACE_CLI
+    }
+  });
+};
 
 /**
  * Create and deploy a minimal test app with Dockerfile and fly.toml

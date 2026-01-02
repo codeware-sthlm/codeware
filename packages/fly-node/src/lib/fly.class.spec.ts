@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
 import process from 'process';
 
-import { SpawnOptions, spawn, spawnPty } from '@codeware/core/utils';
+import { spawn, spawnPty } from '@codeware/core/utils';
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ExecFlyOptions, Fly } from './fly.class';
@@ -16,7 +16,8 @@ import {
   mockListSecretForAllResponse,
   mockListSecretForAppResponse,
   mockShowConfigResponse,
-  mockStatusResponse
+  mockStatusResponse,
+  mockVersionResponse
 } from './mocks';
 import type { Config } from './types';
 
@@ -50,11 +51,11 @@ describe('Fly', () => {
   }
 
   /**
-   * Default fly configuration for the tests
+   * Mocked fly configuration for the tests
    * - logger is mocked
    * - token is provided
    */
-  const defaultFlyConfig: Config = {
+  const mockFlyConfig: Config = {
     logger: {
       info: mockConsoleInfo as Mock,
       error: mockConsoleError as Mock,
@@ -76,11 +77,6 @@ describe('Fly', () => {
    *
    * Argument order is also validated.
    *
-   * By default access token flag is appended to provided arguments,
-   * since a call can only be succesasful when the user is authenticated.
-   *
-   * This can however be disabled by setting options `accessTokenStrategy` to `leave-as-is`.
-   *
    * @param matchArgs - The matching strategy to use for the arguments
    * @param args - The arguments to check
    * @param options - Spawn and test options
@@ -88,21 +84,8 @@ describe('Fly', () => {
   const assertSpawn = (
     matchArgs: 'exact' | 'not' | 'some',
     args: Array<string>,
-    options?: ExecFlyOptions & {
-      /** The strategy to use for the `--access-token` flag */
-      accessTokenStrategy?: 'append-to-args' | 'leave-as-is';
-    }
+    options?: ExecFlyOptions
   ) => {
-    let optionsToCheck: SpawnOptions | undefined = undefined;
-
-    if (options && options.accessTokenStrategy) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { accessTokenStrategy, ...rest } = options;
-      optionsToCheck = Object.keys(rest).length > 0 ? rest : undefined;
-    } else if (options) {
-      optionsToCheck = options;
-    }
-
     // Determine which mock to use
     const mockSpawnUsed = options?.prompt ? mockSpawnPty : mockSpawn;
 
@@ -117,21 +100,10 @@ describe('Fly', () => {
       return;
     }
 
-    // Append token to args since by design we must be authenticated to user fly commands,
-    // unless the user explicitly needs to control all arguments for a test.
-    const accessTokenStrategy =
-      options?.accessTokenStrategy ?? 'append-to-args';
-
-    const argsToCheck =
-      accessTokenStrategy === 'append-to-args'
-        ? [...args, '--access-token', defaultFlyConfig.token ?? '']
-        : args;
-
     // Find call that matches our arguments
     const matchingCall = mockSpawnUsed.mock.calls.find(
       (call) =>
-        call[0].match(/^fly/) &&
-        argsToCheck.every((arg) => call[1].includes(arg))
+        call[0].match(/^fly/) && args.every((arg) => call[1].includes(arg))
     );
 
     // Assert normally when a call could not be found.
@@ -139,8 +111,8 @@ describe('Fly', () => {
     if (!matchingCall) {
       expect(mockSpawnUsed).toHaveBeenCalledWith(
         expect.stringMatching(/^fly/),
-        expect.arrayContaining(argsToCheck),
-        optionsToCheck
+        expect.arrayContaining(args),
+        options
       );
       // Type guard
       return;
@@ -151,16 +123,14 @@ describe('Fly', () => {
     const actualOptions = matchingCall[2];
     switch (matchArgs) {
       case 'exact':
-        expect(actualArgs).toEqual(argsToCheck);
-        expect(actualOptions).toEqual(optionsToCheck);
+        expect(actualArgs).toEqual(args);
+        expect(actualOptions).toEqual(options);
         break;
       case 'some': {
         // Otherwise, check that the arguments are defined in the correct order
-        const actualArgsInUse = actualArgs.filter((arg) =>
-          argsToCheck.includes(arg)
-        );
-        expect(actualArgsInUse).toEqual(argsToCheck);
-        expect(actualOptions).toEqual(optionsToCheck);
+        const actualArgsInUse = actualArgs.filter((arg) => args.includes(arg));
+        expect(actualArgsInUse).toEqual(args);
+        expect(actualOptions).toEqual(options);
         break;
       }
     }
@@ -199,6 +169,11 @@ describe('Fly', () => {
   ) => {
     // Base rules that are always applied
     const baseRules: typeof rules = [
+      {
+        cmdMatch: /auth whoami/,
+        resolveOrReject: 'resolve', // Defaults to authenticated to fly.io
+        output: 'user@example.com'
+      },
       {
         cmdMatch: /status( --app new-app)? --json/,
         resolveOrReject: 'reject',
@@ -291,9 +266,9 @@ describe('Fly', () => {
         output: JSON.stringify(mockListSecretForAppResponse)
       },
       {
-        cmdMatch: /version$/,
+        cmdMatch: /version --json/,
         resolveOrReject: 'resolve',
-        output: 'flyctl version 1.0.0'
+        output: JSON.stringify(mockVersionResponse)
       }
     ];
 
@@ -307,7 +282,7 @@ describe('Fly', () => {
       for (const rule of allRules.filter(
         (r) => r.calls !== 0 && cmd.match(r.cmdMatch)
       )) {
-        if (defaultFlyConfig?.logger?.traceCLI) {
+        if (mockFlyConfig?.logger?.traceCLI) {
           console.debug('[ MOCK ]', rule);
         }
         // Decrement the number of calls for the rule
@@ -331,7 +306,7 @@ describe('Fly', () => {
             : '',
         stderr: ''
       };
-      if (defaultFlyConfig?.logger?.traceCLI) {
+      if (mockFlyConfig?.logger?.traceCLI) {
         console.debug('[ MOCK ]', response);
       }
       return Promise.resolve(response) as ReturnType<typeof spawn>;
@@ -351,28 +326,25 @@ describe('Fly', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    delete process.env['FLY_API_TOKEN'];
-
     mockExistsSync.mockReturnValue(true);
     setupFlyMocks();
   });
 
   describe('cli', () => {
     it('should check installed and return true when cli is installed', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
+      const fly = new Fly(mockFlyConfig);
       expect(await fly.cli.isInstalled()).toBe(true);
     });
 
     it('should check installed and return false when cli is not installed', async () => {
       setupFlyMocks([
         {
-          cmdMatch: /version$/,
+          cmdMatch: /version/,
           resolveOrReject: 'reject',
           output: 'not installed'
         }
       ]);
-      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
+      const fly = new Fly(mockFlyConfig);
       expect(await fly.cli.isInstalled()).toBe(false);
     });
   });
@@ -391,14 +363,14 @@ describe('Fly', () => {
     it('should throw error when running command and fly is not installed', async () => {
       setupFlyMocks([
         {
-          cmdMatch: /version$/,
+          cmdMatch: /version/,
           resolveOrReject: 'reject',
           output: 'not installed',
           calls: 1
         }
       ]);
 
-      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
+      const fly = new Fly(mockFlyConfig);
       await expect(async () => await fly.apps.create()).rejects.toThrow(
         /Fly CLI must be installed to use this library/
       );
@@ -410,15 +382,10 @@ describe('Fly', () => {
           cmdMatch: /auth whoami/,
           resolveOrReject: 'reject',
           output: 'Not logged in'
-        },
-        {
-          cmdMatch: /auth token/,
-          resolveOrReject: 'reject',
-          output: 'Token is not valid'
         }
       ]);
 
-      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
+      const fly = new Fly(mockFlyConfig);
 
       expect(async () => await fly.isReady()).not.toThrow();
 
@@ -442,11 +409,9 @@ describe('Fly', () => {
         }
       ]);
 
-      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
+      const fly = new Fly(mockFlyConfig);
 
-      await expect(fly.isReady('assert')).rejects.toThrow(
-        /Please login or provide a valid access token/
-      );
+      await expect(fly.isReady('assert')).rejects.toThrow(/Not logged in/);
       expect(mockConsoleInfo).not.toHaveBeenCalledWith(
         expect.stringContaining('Fly client is ready')
       );
@@ -455,91 +420,21 @@ describe('Fly', () => {
       );
     });
 
-    it('should try to authenticate with logged in user before using token', async () => {
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-
-      const fly = new Fly(defaultFlyConfig);
+    it('should check authentication before invoking a command', async () => {
+      const fly = new Fly(mockFlyConfig);
       const status = await fly.isReady();
 
-      assertSpawn('exact', ['auth', 'whoami'], {
-        accessTokenStrategy: 'leave-as-is'
-      });
-      assertSpawn('not', ['auth', 'token', '--access-token']);
+      assertSpawn('exact', ['auth', 'whoami']);
       expect(status).toBe(true);
     });
 
-    it('should authenticate with token from config when no user is logged in', async () => {
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami$/,
-          resolveOrReject: 'reject',
-          output: 'Not logged in'
-        },
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
+    it('should set FLY_ACCESS_TOKEN with token from config when provided', async () => {
+      delete process.env['FLY_ACCESS_TOKEN'];
 
-      const fly = new Fly(defaultFlyConfig);
-      const status = await fly.isReady();
+      const fly = new Fly({ ...mockFlyConfig, token: 'api-token' });
 
-      assertSpawn('exact', ['auth', 'whoami'], {
-        accessTokenStrategy: 'leave-as-is'
-      });
-      expect(status).toBe(true);
-    });
-
-    it('should authenticate with token from environment when config token is not provided and no user is logged in', async () => {
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami$/,
-          resolveOrReject: 'reject',
-          output: 'Not logged in'
-        },
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-
-      process.env['FLY_API_TOKEN'] = `${mockDefs.token}-env`;
-
-      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
-      const status = await fly.isReady();
-
-      assertSpawn(
-        'exact',
-        ['auth', 'whoami', '--access-token', process.env['FLY_API_TOKEN']],
-        { accessTokenStrategy: 'leave-as-is' }
-      );
-      expect(status).toBe(true);
-    });
-
-    it('should fail to authenticate when no token is provided and no user is logged in', async () => {
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami/,
-          resolveOrReject: 'reject',
-          output: 'Not logged in'
-        }
-      ]);
-
-      const fly = new Fly({ ...defaultFlyConfig, token: undefined });
-      const status = await fly.isReady();
-
-      assertSpawn('exact', ['auth', 'whoami'], {
-        accessTokenStrategy: 'leave-as-is'
-      });
-      expect(status).toBe(false);
+      expect(fly).toBeDefined();
+      expect(process.env['FLY_ACCESS_TOKEN']).toBe('api-token');
     });
   });
 
@@ -549,17 +444,6 @@ describe('Fly', () => {
   // When used in the constructor all functions should infer `app` or `config`
   // from the constructor unless overridden by the function itself.
   describe('provide app or config to constructor or function', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     const testMatrix: Array<{
       name: string;
       noOptionFn: (fly: typeof Fly.prototype) => Promise<unknown>;
@@ -777,20 +661,20 @@ describe('Fly', () => {
     for (const test of testMatrix) {
       describe(test.name, () => {
         it('should have --app flag when app is provided to constructor', async () => {
-          const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+          const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
           await test.noOptionFn(fly);
           assertSpawn('exact', test.expectAppCmdArgs);
         });
 
         it('should have --app flag when app is provided to function', async () => {
-          const fly = new Fly(defaultFlyConfig);
+          const fly = new Fly(mockFlyConfig);
           await test.appOptionFn(fly);
           assertSpawn('exact', test.expectAppCmdArgs);
         });
 
         it('should have --config flag when config is provided to constructor', async () => {
           const fly = new Fly({
-            ...defaultFlyConfig,
+            ...mockFlyConfig,
             config: mockDefs.testConfig
           });
           await test.noOptionFn(fly);
@@ -798,7 +682,7 @@ describe('Fly', () => {
         });
 
         it('should have --config flag when config is provided to function', async () => {
-          const fly = new Fly(defaultFlyConfig);
+          const fly = new Fly(mockFlyConfig);
           await test.configOptionFn(fly);
           assertSpawn('exact', test.expectConfigCmdArgs);
         });
@@ -807,19 +691,8 @@ describe('Fly', () => {
   });
 
   describe('apps', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     it('should create application on personal organization with a generated name by default', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.apps.create();
 
       assertSpawn('exact', [
@@ -833,7 +706,7 @@ describe('Fly', () => {
     });
 
     it('should create application with a provided name', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const { name } = await fly.apps.create({ app: mockDefs.newApp });
 
       expect(name).toBe(mockDefs.newApp);
@@ -848,7 +721,7 @@ describe('Fly', () => {
     });
 
     it('should create application for a custom organization', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.apps.create({ org: mockDefs.org });
 
       assertSpawn('exact', [
@@ -862,21 +735,21 @@ describe('Fly', () => {
     });
 
     it('should destroy application', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.apps.destroy(mockDefs.testApp);
 
       assertSpawn('exact', ['apps', 'destroy', mockDefs.testApp, '--yes']);
     });
 
     it('should auto-confirm destruction', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.apps.destroy(mockDefs.testApp);
 
       assertSpawn('exact', ['apps', 'destroy', mockDefs.testApp, '--yes']);
     });
 
     it('should detach from postgres cluster when app is attached', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.apps.destroy(mockDefs.testApp);
 
       assertSpawn(
@@ -893,14 +766,14 @@ describe('Fly', () => {
     });
 
     it('should not detach from postgres cluster when app is not attached', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.apps.destroy(mockDefs.newApp);
 
       assertSpawn('not', ['postgres', 'detach']);
     });
 
     it('should list applications', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.apps.list();
 
       assertSpawn('exact', ['apps', 'list', '--json']);
@@ -909,20 +782,9 @@ describe('Fly', () => {
   });
 
   describe('certs', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     // Note! `certs list` is already tested in the extensive test matrix
     it('should add certificate', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.certs.add('test.com');
 
       assertSpawn('exact', [
@@ -936,7 +798,7 @@ describe('Fly', () => {
     });
 
     it('should remove certificate', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.certs.remove('test.com');
 
       assertSpawn('exact', [
@@ -950,7 +812,7 @@ describe('Fly', () => {
     });
 
     it('should auto-confirm removal', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.certs.remove('test.com');
 
       assertSpawn('exact', [
@@ -964,7 +826,7 @@ describe('Fly', () => {
     });
 
     it('should list certificates for instance app', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       const response = await fly.certs.list();
 
       assertSpawn('exact', [
@@ -978,7 +840,7 @@ describe('Fly', () => {
     });
 
     it('should list certificates for an app', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.certs.list({ app: mockDefs.testApp });
 
       assertSpawn('exact', [
@@ -992,7 +854,7 @@ describe('Fly', () => {
     });
 
     it('should list certificates for all apps', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.certs.list('all');
 
       assertSpawn('exact', [
@@ -1014,19 +876,8 @@ describe('Fly', () => {
   });
 
   describe('config', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     it('should show config for instance config', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, config: mockDefs.testConfig });
+      const fly = new Fly({ ...mockFlyConfig, config: mockDefs.testConfig });
       const response = await fly.config.show();
 
       assertSpawn('exact', ['config', 'show', '--config', mockDefs.testConfig]);
@@ -1034,7 +885,7 @@ describe('Fly', () => {
     });
 
     it('should show config for an app', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.config.show({ config: mockDefs.testConfig });
 
       assertSpawn('exact', ['config', 'show', '--config', mockDefs.testConfig]);
@@ -1042,7 +893,7 @@ describe('Fly', () => {
     });
 
     it('should show config for local config file', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.config.show({
         config: mockDefs.testConfig,
         local: true
@@ -1059,7 +910,7 @@ describe('Fly', () => {
     });
 
     it('should throw error when command fails', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await expect(
         fly.config.show({ config: mockDefs.unknownConfig })
       ).rejects.toThrow();
@@ -1067,7 +918,7 @@ describe('Fly', () => {
 
     it('should throw error when local config file does not exist', async () => {
       mockExistsSync.mockReturnValue(false);
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await expect(
         fly.config.show({ config: mockDefs.unknownConfig, local: true })
       ).rejects.toThrow(
@@ -1076,7 +927,7 @@ describe('Fly', () => {
     });
 
     it('should save remote config to local file', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.config.save({
         app: mockDefs.testApp,
         config: 'fly.remote.toml'
@@ -1095,31 +946,20 @@ describe('Fly', () => {
   });
 
   describe('deploy', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     it('should require config', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await expect(fly.deploy({ app: mockDefs.newApp })).rejects.toThrow(
         'Fly config file must be provided to options or class instance, unable to deploy'
       );
     });
 
     it('should accept config from class instance', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, config: mockDefs.testConfig });
+      const fly = new Fly({ ...mockFlyConfig, config: mockDefs.testConfig });
       await expect(fly.deploy({ app: mockDefs.newApp })).resolves.not.toThrow();
     });
 
     it('should accept config from options', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await expect(
         fly.deploy({ app: mockDefs.newApp, config: mockDefs.testConfig })
       ).resolves.not.toThrow();
@@ -1127,14 +967,14 @@ describe('Fly', () => {
 
     it('should throw error when config does not exist', async () => {
       mockExistsSync.mockReturnValue(false);
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await expect(
         fly.deploy({ app: mockDefs.newApp, config: mockDefs.testConfig })
       ).rejects.toThrow(`Config file '${mockDefs.testConfig}' does not exist`);
     });
 
     it('should create new app when it does not exist', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.deploy({
         app: mockDefs.newApp,
         config: mockDefs.testConfig,
@@ -1157,7 +997,7 @@ describe('Fly', () => {
     });
 
     it('should not get secrets when app does not exist', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.newApp,
         config: mockDefs.testConfig,
@@ -1168,7 +1008,7 @@ describe('Fly', () => {
     });
 
     it('should get app secrets when app exists', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig
@@ -1184,7 +1024,7 @@ describe('Fly', () => {
     });
 
     it('should attach to postgres cluster when not attached to the app', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1202,7 +1042,7 @@ describe('Fly', () => {
     });
 
     it('should not attach to postgres cluster when already attached', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1213,7 +1053,7 @@ describe('Fly', () => {
     });
 
     it('should not automatically deploy when secrets are set for the app', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1231,7 +1071,7 @@ describe('Fly', () => {
     });
 
     it('should preserve existing secrets on second deployment', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1252,7 +1092,7 @@ describe('Fly', () => {
     });
 
     it('should create app with name from provided config file and deploy with the same config', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.deploy({
         config: mockDefs.newConfig
       });
@@ -1281,7 +1121,7 @@ describe('Fly', () => {
     });
 
     it('should create app with provided name and deploy with existing config', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.deploy({
         app: mockDefs.newApp,
         config: mockDefs.testConfig
@@ -1311,7 +1151,7 @@ describe('Fly', () => {
     });
 
     it('should deploy to custom region', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1331,7 +1171,7 @@ describe('Fly', () => {
     });
 
     it('should set DEPLOY_ENV to environment', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1351,7 +1191,7 @@ describe('Fly', () => {
     });
 
     it('should set environment variables', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1379,7 +1219,7 @@ describe('Fly', () => {
     });
 
     it('should opt out of depot builder', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1398,7 +1238,7 @@ describe('Fly', () => {
     });
 
     it('should auto-confirm deployment', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig
@@ -1415,7 +1255,7 @@ describe('Fly', () => {
     });
 
     it('should save remote config and use it when preferRemoteConfig is true and app exists', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1445,7 +1285,7 @@ describe('Fly', () => {
     });
 
     it('should use local config when preferRemoteConfig is true but app does not exist', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.newApp,
         config: mockDefs.testConfig,
@@ -1467,13 +1307,8 @@ describe('Fly', () => {
     });
 
     it('should fallback to local config if remote save fails when preferRemoteConfig is true', async () => {
-      // Mock config save to fail (and add auth mock again)
+      // Mock config save to fail
       setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        },
         {
           cmdMatch: /config save --app test-app/,
           resolveOrReject: 'reject',
@@ -1482,7 +1317,7 @@ describe('Fly', () => {
         }
       ]);
 
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
@@ -1505,20 +1340,9 @@ describe('Fly', () => {
   });
 
   describe('secrets', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     // Note! `secrets list` is already tested in the extensive test matrix
     it('should set secret and auto-deploy', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.secrets.set({ TEST_SECRET: 'value' });
 
       assertSpawn('exact', [
@@ -1531,7 +1355,7 @@ describe('Fly', () => {
     });
 
     it('should set secret and skip deployment', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.secrets.set({ TEST_SECRET: 'value' }, { stage: true });
 
       assertSpawn('exact', [
@@ -1545,7 +1369,7 @@ describe('Fly', () => {
     });
 
     it('should set secret with spaces in value', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.secrets.set({ TEST_SECRET: 'value with space' });
 
       assertSpawn('exact', [
@@ -1558,7 +1382,7 @@ describe('Fly', () => {
     });
 
     it('should unset secret and auto-deploy', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.secrets.unset('TEST_SECRET');
 
       assertSpawn('exact', [
@@ -1571,7 +1395,7 @@ describe('Fly', () => {
     });
 
     it('should unset secret and skip deployment', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       await fly.secrets.unset('TEST_SECRET', { stage: true });
 
       assertSpawn('exact', [
@@ -1585,7 +1409,7 @@ describe('Fly', () => {
     });
 
     it('should list secrets for instance app', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       const response = await fly.secrets.list();
 
       assertSpawn('exact', [
@@ -1599,7 +1423,7 @@ describe('Fly', () => {
     });
 
     it('should list secrets for an app', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.secrets.list({ app: mockDefs.testApp });
 
       assertSpawn('exact', [
@@ -1613,7 +1437,7 @@ describe('Fly', () => {
     });
 
     it('should list secrets for all apps', async () => {
-      const fly = new Fly(defaultFlyConfig);
+      const fly = new Fly(mockFlyConfig);
       const response = await fly.secrets.list('all');
 
       assertSpawn('exact', ['apps', 'list', '--json']);
@@ -1636,26 +1460,15 @@ describe('Fly', () => {
   });
 
   describe('status', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     it('should return status object', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       const status = await fly.status();
 
       expect(status).toEqual(mockStatusResponse(mockDefs.testApp));
     });
 
     it('should return status null when app does not exist', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.unknownApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.unknownApp });
       const status = await fly.status();
 
       expect(status).toBeNull();
@@ -1663,19 +1476,8 @@ describe('Fly', () => {
   });
 
   describe('statusExtended', () => {
-    beforeEach(() => {
-      // Ensure authenticated by token before each test
-      setupFlyMocks([
-        {
-          cmdMatch: /auth whoami --access-token/,
-          resolveOrReject: 'resolve',
-          output: 'user@example.com'
-        }
-      ]);
-    });
-
     it('should return status object with domains and secrets', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.testApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
       const status = await fly.statusExtended();
 
       expect(status).toEqual({
@@ -1686,7 +1488,7 @@ describe('Fly', () => {
     });
 
     it('should return null when app does not exist', async () => {
-      const fly = new Fly({ ...defaultFlyConfig, app: mockDefs.unknownApp });
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.unknownApp });
       const status = await fly.statusExtended();
 
       expect(status).toBeNull();

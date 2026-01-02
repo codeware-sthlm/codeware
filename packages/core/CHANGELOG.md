@@ -1,3 +1,10 @@
+## 1.4.4 (2026-01-02)
+
+### ✨ Features
+
+- **nx-fly-deployment-action:** support environment specific fly config ([f1c68b7](https://github.com/codeware-sthlm/codeware/commit/f1c68b7))
+- **repo:** refactor and improve multi-tenant deployment workflow ([6210e4d](https://github.com/codeware-sthlm/codeware/commit/6210e4d))
+
 ## 1.4.3 (2025-12-01)
 
 ### 🐞 Bug Fixes

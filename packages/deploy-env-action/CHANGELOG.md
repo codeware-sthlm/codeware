@@ -1,3 +1,13 @@
+## 0.1.4 (2026-01-02)
+
+### ✨ Features
+
+- **repo:** refactor and improve multi-tenant deployment workflow ([6210e4d](https://github.com/codeware-sthlm/codeware/commit/6210e4d))
+
+### 🧱 Updated Dependencies
+
+- Updated core to 1.4.4
+
 ## 0.1.3 (2025-12-01)
 
 ### 🧱 Updated Dependencies

@@ -1,3 +1,22 @@
+## 0.4.0 (2026-01-02)
+
+### ✨ Features
+
+- **nx-fly-deployment-action:** possible to trace fly cli logs ([ea8c950](https://github.com/codeware-sthlm/codeware/commit/ea8c950))
+- **nx-fly-deployment-action:** support environment specific fly config ([f1c68b7](https://github.com/codeware-sthlm/codeware/commit/f1c68b7))
+- **repo:** refactor and improve multi-tenant deployment workflow ([6210e4d](https://github.com/codeware-sthlm/codeware/commit/6210e4d))
+- add workflow integration for multi-tenant deployment from Infisical ([d9f2b3c](https://github.com/codeware-sthlm/codeware/commit/d9f2b3c))
+- add multi-tenant deployment support to nx-fly-deployment-action ([19e2417](https://github.com/codeware-sthlm/codeware/commit/19e2417))
+
+### 🤖 Continuous Integration
+
+- **nx-fly-deployment-action:** fixes ([535d35d](https://github.com/codeware-sthlm/codeware/commit/535d35d))
+
+### 🧱 Updated Dependencies
+
+- Updated fly-node to 0.3.0
+- Updated core to 1.4.4
+
 ## 0.3.3 (2025-12-01)
 
 ### 🧱 Updated Dependencies

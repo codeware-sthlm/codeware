@@ -1,3 +1,13 @@
+## 2.2.1 (2026-01-02)
+
+### ⚡️ Performance Improvements
+
+- **nx-payload:** use a more simple solution to analyze config content ([268bf7e](https://github.com/codeware-sthlm/codeware/commit/268bf7e))
+
+### ⚙️ Miscellaneous Chores
+
+- **repo:** change to file based nx-payload plugin ([06ed3e9](https://github.com/codeware-sthlm/codeware/commit/06ed3e9))
+
 ## 2.2.0 (2025-12-01)
 
 ### ✨ Features

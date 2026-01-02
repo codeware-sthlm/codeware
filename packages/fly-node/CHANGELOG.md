@@ -1,3 +1,18 @@
+## 0.3.0 (2026-01-02)
+
+### ✨ Features
+
+- **fly-node:** redact secrets for trace cli ([d980611](https://github.com/codeware-sthlm/codeware/commit/d980611))
+- **fly-node:** add integration tests and fix mismatched schemas ([a2eb288](https://github.com/codeware-sthlm/codeware/commit/a2eb288))
+
+### 🐞 Bug Fixes
+
+- **fly-node:** do not rely on access-token for authentication ([1a46ea0](https://github.com/codeware-sthlm/codeware/commit/1a46ea0))
+
+### 🧱 Updated Dependencies
+
+- Updated core to 1.4.4
+
 ## 0.2.3 (2025-12-01)
 
 ### 🧱 Updated Dependencies

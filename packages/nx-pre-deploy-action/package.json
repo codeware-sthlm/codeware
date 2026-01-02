@@ -1,6 +1,6 @@
 {
   "name": "@cdwr/nx-pre-deploy-action",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The Nx Pre-deploy Action will analyze the applications to deploy and to which environment.",
   "repository": {
     "type": "git",

@@ -35,6 +35,7 @@ It's built with a configuration-first approach, meaning that you provide a `fly.
 
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Authentication](#authentication)
   - [Create a Fly instance](#create-a-fly-instance)
     - [Verify that the Fly client is ready](#verify-that-the-fly-client-is-ready)
   - [Deploying apps \& machines](#deploying-apps--machines)
@@ -85,21 +86,40 @@ The library behaves just like the Fly CLI tool regarding all default values.
 
 For any command you run, your local `flyctl` installation will be verified. If it's not present, the command will abort with exception.
 
+> [!TIP]
+> Instead of `flyctl` you can also use `fly` if preferred.
+
+### Authentication
+
+Supported authentication methods to Fly.io in order:
+
+1. authenticate locally via `flyctl auth login`
+2. provide a token when creating the Fly instance
+3. set access token environment variable `FLY_ACCESS_TOKEN`
+4. set API token environment variable `FLY_API_TOKEN`
+
+> [!NOTE]
+> See [Fly Docs about security tokens](https://fly.io/docs/security/tokens/) for more details.
+
+**Flaky `--access-token` flag**
+
+From version **0.3.210** the access token flag has a regression, reported in <https://github.com/superfly/flyctl/issues/4648>.
+
+> [!IMPORTANT]
+> To avoid pinning a previous version, this library no longer relies on the `--access-token` flag.
+> When a token is provided to the Fly instance, the library will set `FLY_ACCESS_TOKEN` internally.
+>
+> This legitimate workaround might change depending on how the Fly team responds to the issue. The intention is to handle this internally without affecting the library api.
+
 ### Create a Fly instance
-
-Fly will try to connect to Fly.io in the following order:
-
-1. A user has already authenticated locally using `flyctl auth login`
-2. The library authenticates using the provided Fly API `token`
-3. The library authenticates using environment variable `FLY_API_TOKEN`
 
 ```ts
 import { Fly } from '@cdwr/fly-node';
 
 const fly = new Fly();
 
-// Provide a Fly API token
-const fly = new Fly({ token: 'fly-api-token' });
+// Provide a Fly token
+const fly = new Fly({ token: 'my-fly-token' });
 ```
 
 > [!TIP]
@@ -131,14 +151,13 @@ const fly = new Fly({ token: 'fly-api-token' });
 
 **Options**
 
-| Name              | Description                                                                                                                              |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `token`           | Fly API access token.                                                                                                                    |
-| `authStrategy`    | Authentication strategy: `'user-first'` (default) checks local authenticated user first and `'token-first'` checks provided token first. |
-| `app` or `config` | Name of the application or the path to the fly configuration file to run all commands on.                                                |
-| `org`             | Target organisation for your created apps. Defaults to your personal organisation.                                                       |
-| `region`          | Target region for your deployed apps. Defaults to auto-detect the fastest location.                                                      |
-| `logger`          | Custom logger for the library. Defaults to using `console.log()` and `console.error()`. CLI tracing can be enabled when needed.          |
+| Name              | Description                                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `token`           | Fly access token, when none of `FLY_ACCESS_TOKEN` or `FLY_API_TOKEN` is provided.                                               |
+| `app` or `config` | Name of the application or the path to the fly configuration file to run all commands on.                                       |
+| `org`             | Target organisation for your created apps. Defaults to your personal organisation.                                              |
+| `region`          | Target region for your deployed apps. Defaults to auto-detect the fastest location.                                             |
+| `logger`          | Custom logger for the library. Defaults to using `console.log()` and `console.error()`. CLI tracing can be enabled when needed. |
 
 #### Verify that the Fly client is ready
 

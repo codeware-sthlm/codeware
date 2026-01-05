@@ -1,6 +1,6 @@
 module.exports = {
   displayName: 'nx-payload',
-  preset: '../../jest.preset.js',
+  preset: '../../jest.preset.cjs',
   setupFilesAfterEnv: ['<rootDir>/test-setup.ts'],
   testEnvironment: 'node',
   globals: {},

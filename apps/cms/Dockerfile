@@ -52,6 +52,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/cms/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/cms/.next/static     ./apps/cms/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/cms/public           ./apps/cms/public
 
+# Change module type to commonjs to ensure compatibility with standalone build output.
+# Next.js copies the root package.json during build without the possibility to set the module type.
+RUN sed -i 's/"type": "module"/"type": "commonjs"/' package.json
+
 # Set the correct ownership
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

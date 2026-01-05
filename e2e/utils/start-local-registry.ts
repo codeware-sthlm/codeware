@@ -8,6 +8,7 @@ import { registerTsProject } from '@nx/js/src/internal';
 import { releasePublish, releaseVersion } from 'nx/release';
 
 import { isCI } from './is-ci';
+import { backupPackageJsonFiles } from './package-json-backup';
 import { startCustomLocalRegistry } from './start-custom-local-registry';
 
 module.exports = async () => {
@@ -32,6 +33,8 @@ module.exports = async () => {
     listenAddress,
     verbose
   });
+
+  backupPackageJsonFiles();
 
   await releaseVersion({
     specifier: `0.0.${Date.now()}-e2e`,

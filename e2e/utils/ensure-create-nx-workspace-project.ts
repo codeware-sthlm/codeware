@@ -22,6 +22,7 @@ import {
 } from '@nx/plugin/testing';
 
 import { cleanupE2E } from './cleanup-e2e';
+import { ensureLegacyPeerDeps } from './ensure-legacy-peer-deps';
 import { getE2EPackageManager } from './get-e2e-package-manager';
 
 export type CreateNxWorkspaceProject = {
@@ -228,6 +229,8 @@ export async function ensureCreateNxWorkspaceProject({
     logError('Command failed', String(error));
     throw new Error(`Failed to create test project in "${projectPath}"`);
   }
+  // ! Payload peers a later version of Next.js than Nx does
+  ensureLegacyPeerDeps(pm);
 
   if (preset === 'apps' && options?.ensureNxPayload) {
     logDebug('Install @cdwr/nx-payload plugin in the empty apps workspace');

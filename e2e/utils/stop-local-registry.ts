@@ -6,7 +6,11 @@
  * For e2e it is meant to be called in jest's `globalTeardown`.
  */
 
+import { restorePackageJsonFiles } from './package-json-backup';
+
 module.exports = () => {
+  restorePackageJsonFiles();
+
   if (!(global as any).stopLocalRegistry) {
     console.log('Local registry is not started');
     return;

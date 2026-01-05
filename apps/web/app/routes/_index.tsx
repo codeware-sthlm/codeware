@@ -5,6 +5,7 @@ import { type MetaFunction, useRouteError } from '@remix-run/react';
 import { Container } from '../components/container';
 import { ErrorContainer } from '../components/error-container';
 import { defaultAppName } from '../utils/default-app-name';
+import { ensurePayloadDoc } from '../utils/ensure-payload-doc';
 import { getSiteSettingsFromRoot } from '../utils/get-site-settings-from-root';
 import { useSiteSettings } from '../utils/use-site-settings';
 
@@ -24,7 +25,8 @@ export const meta: MetaFunction = ({ matches }) => {
 };
 
 export default function Index() {
-  const { landingPage } = useSiteSettings();
+  const settings = useSiteSettings();
+  const landingPage = ensurePayloadDoc(settings.landingPage);
 
   return (
     <Container className="mt-16 sm:mt-32">

@@ -8,6 +8,7 @@ import { ErrorContainer } from '../components/error-container';
 import { RenderPagesDoc } from '../components/render-pages-doc';
 import { RenderPostsDoc } from '../components/render-posts-doc';
 import { defaultAppName } from '../utils/default-app-name';
+import { ensurePayloadDoc } from '../utils/ensure-payload-doc';
 import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
 import { getSiteSettingsFromRoot } from '../utils/get-site-settings-from-root';
 
@@ -21,7 +22,8 @@ export const meta: MetaFunction<typeof loader> = ({ data, matches }) => {
   const siteSettings = getSiteSettingsFromRoot(matches);
   const appName = siteSettings?.general?.appName ?? defaultAppName;
 
-  const meta = resolveMeta(data?.doc);
+  const doc = ensurePayloadDoc(data?.doc);
+  const meta = resolveMeta(doc);
 
   return [{ title: `${appName} - ${meta?.title ?? 'Page'}` }];
 };
@@ -62,12 +64,13 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
 }
 
 export default function Document() {
-  const { doc } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
+  const doc = ensurePayloadDoc(data.doc);
 
   return (
     <Container className="mt-16 sm:mt-32">
-      {doc.collection === 'pages' && <RenderPagesDoc doc={doc} />}
-      {doc.collection === 'posts' && <RenderPostsDoc doc={doc} />}
+      {doc?.collection === 'pages' && <RenderPagesDoc doc={doc} />}
+      {doc?.collection === 'posts' && <RenderPostsDoc doc={doc} />}
     </Container>
   );
 }

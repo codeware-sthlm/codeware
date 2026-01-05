@@ -45,10 +45,11 @@ const categories: CollectionConfig = {
           fields: [
             {
               name: 'relatedPosts',
-              label: { en: 'Posts', sv: 'Inlägg' },
+              label: false,
               type: 'join',
               collection: 'posts',
-              on: 'categories'
+              on: 'categories',
+              admin: { disableListColumn: true }
             }
           ]
         }

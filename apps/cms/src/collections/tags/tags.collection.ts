@@ -83,10 +83,11 @@ const tags: CollectionConfig = {
           fields: [
             {
               name: 'relatedMedia',
-              label: 'Media',
+              label: false,
               type: 'join',
               collection: 'media',
-              on: 'tags'
+              on: 'tags',
+              admin: { disableListColumn: true }
             }
           ]
         }

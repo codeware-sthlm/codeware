@@ -59,9 +59,9 @@ export const loadStaticData = (args: {
 
   const jsonData = manageSeedData.load(environment, {
     logger: {
-      error: (msg, ...args) => payload.logger.error(msg, args),
-      log: (msg, ...args) => payload.logger.info(msg, args),
-      warn: (msg, ...args) => payload.logger.warn(msg, args)
+      error: (msg) => payload.logger.error(msg),
+      log: (msg) => payload.logger.info(msg),
+      warn: (msg) => payload.logger.warn(msg)
     },
     remoteDataUrl
   });
@@ -163,9 +163,9 @@ export const loadStaticData = (args: {
   // Write seed data to file to be re-used next time.
   // It will prevent us from generating random data every time.
   manageSeedData.save(environment, seedData, {
-    error: (msg, ...args) => payload.logger.error(msg, args),
-    log: (msg, ...args) => payload.logger.info(msg, args),
-    warn: (msg, ...args) => payload.logger.warn(msg, args)
+    error: (msg) => payload.logger.error(msg),
+    log: (msg) => payload.logger.info(msg),
+    warn: (msg) => payload.logger.warn(msg)
   });
 
   return seedData;

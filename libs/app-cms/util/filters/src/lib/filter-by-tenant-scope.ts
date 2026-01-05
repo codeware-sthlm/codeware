@@ -1,3 +1,4 @@
+import { hasRole } from '@codeware/app-cms/util/misc';
 import { getTenantListFilter } from '@payloadcms/plugin-multi-tenant/utilities';
 import type { CollectionSlug, PayloadRequest } from 'payload';
 
@@ -20,13 +21,14 @@ export const filterByTenantScope = (
   }
 
   // TODO: Type safe way to get the tenant field name
-  const tenantFieldName = collection === 'users' ? 'tenants.tenant' : 'tenant';
+  const filterFieldName = collection === 'users' ? 'tenants.tenant' : 'tenant';
 
   return (
     getTenantListFilter({
       req,
-      tenantFieldName,
-      tenantsCollectionSlug: collection
+      filterFieldName,
+      tenantsCollectionSlug: collection,
+      userHasAccessToAllTenants: (user) => hasRole(user, 'system-user')
     }) ?? {}
   );
 };

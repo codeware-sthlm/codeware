@@ -1,10 +1,7 @@
 /**
  * Payload version which is in sync with all plugins.
- *
- * Due to an issue for pnpm workspaces, we currently stay at 3.42.
- * https://github.com/payloadcms/payload/pull/12622
  */
-export const payloadVersion = '~3.42.0';
+export const payloadVersion = '~3.69.0';
 
 /**
  * Next 15 version to install when missing.

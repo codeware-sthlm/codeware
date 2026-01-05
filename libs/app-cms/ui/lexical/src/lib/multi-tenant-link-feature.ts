@@ -1,6 +1,6 @@
 import { filterByTenantScope } from '@codeware/app-cms/util/filters';
 import { LinkFeature } from '@payloadcms/richtext-lexical';
-import type { CollectionSlug } from 'payload';
+import type { CollectionSlug, FilterOptionsProps } from 'payload';
 
 /**
  * Rich text editor link feature for managing links across different collections.
@@ -27,7 +27,7 @@ export const multiTenantLinkFeature = (
           if (field.type === 'relationship') {
             field = {
               ...field,
-              filterOptions: ({ relationTo, req }) =>
+              filterOptions: ({ req, relationTo }: FilterOptionsProps) =>
                 filterByTenantScope(req, relationTo)
             };
           }

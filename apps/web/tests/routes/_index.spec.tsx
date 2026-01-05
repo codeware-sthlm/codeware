@@ -14,7 +14,8 @@ it('renders loader data', async () => {
             appName: 'Test App',
             landingPage: {
               header: 'Welcome home!',
-              name: 'home'
+              name: 'home',
+              layout: [{}]
             }
           }
         } as Partial<SiteSetting>

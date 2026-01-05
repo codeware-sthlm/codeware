@@ -108,10 +108,11 @@ const tenants: CollectionConfig = {
           fields: [
             {
               name: 'relatedUsers',
-              label: { en: 'Users', sv: 'Användare' },
+              label: false,
               type: 'join',
               collection: 'users',
-              on: 'tenants.tenant'
+              on: 'tenants.tenant',
+              admin: { disableListColumn: true }
             }
           ]
         },
@@ -120,10 +121,11 @@ const tenants: CollectionConfig = {
           fields: [
             {
               name: 'relatedPages',
-              label: { en: 'Pages', sv: 'Sidor' },
+              label: false,
               type: 'join',
               collection: 'pages',
-              on: 'tenant'
+              on: 'tenant',
+              admin: { disableListColumn: true }
             }
           ]
         },
@@ -132,10 +134,11 @@ const tenants: CollectionConfig = {
           fields: [
             {
               name: 'relatedPosts',
-              label: { en: 'Posts', sv: 'Inlägg' },
+              label: false,
               type: 'join',
               collection: 'posts',
-              on: 'tenant'
+              on: 'tenant',
+              admin: { disableListColumn: true }
             }
           ]
         },
@@ -144,10 +147,11 @@ const tenants: CollectionConfig = {
           fields: [
             {
               name: 'relatedCategories',
-              label: { en: 'Categories', sv: 'Kategorier' },
+              label: false,
               type: 'join',
               collection: 'categories',
-              on: 'tenant'
+              on: 'tenant',
+              admin: { disableListColumn: true }
             }
           ]
         },
@@ -156,10 +160,11 @@ const tenants: CollectionConfig = {
           fields: [
             {
               name: 'relatedMedia',
-              label: { en: 'Media', sv: 'Media' },
+              label: false,
               type: 'join',
               collection: 'media',
-              on: 'tenant'
+              on: 'tenant',
+              admin: { disableListColumn: true }
             }
           ]
         }

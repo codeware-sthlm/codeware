@@ -1,6 +1,8 @@
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
-import { TenantSelector as TenantSelector_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
+import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
+import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
 import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc';
+import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc';
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc';
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
@@ -31,6 +33,7 @@ import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8c
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc';
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc';
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client';
+import { CollectionCards as CollectionCards_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc';
 
 import { default as default_1b21cdd8d72b60f58886e03c7a7a4ebd } from '@codeware/app-cms/ui/blocks/card/CardBlockArrayRowLabel.client';
 import { default as default_75fddbc22d1b88f24f1cec1b82919953 } from '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client';
@@ -48,6 +51,8 @@ import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/a
 export const importMap = {
   '@payloadcms/plugin-multi-tenant/client#TenantField':
     TenantField_1d0591e3cf4f332c83a86da13a0de59a,
+  '@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger':
+    AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell':
     RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalField':
@@ -118,6 +123,8 @@ export const importMap = {
     default_06af4458abd1296f9d6bccce90425927,
   '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client#default':
     default_75fddbc22d1b88f24f1cec1b82919953,
+  '@payloadcms/plugin-multi-tenant/client#WatchTenantCollection':
+    WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   '@codeware/apps/cms/components/TenantsArrayField#default':
     default_4a3552dc4f000a1797b4eb36166f8ff8,
   '@codeware/apps/cms/components/TenantsArrayRowLabel#default':
@@ -130,10 +137,12 @@ export const importMap = {
     default_7925a79d2af6389df70d2dd269ffbfbb,
   '@codeware/app-cms/ui/components/RedirectNotifier#default':
     default_83b0dfab156f3636ed94b94854d15ad5,
-  '@payloadcms/plugin-multi-tenant/client#TenantSelector':
-    TenantSelector_1d0591e3cf4f332c83a86da13a0de59a,
+  '@payloadcms/plugin-multi-tenant/rsc#TenantSelector':
+    TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider':
     TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   '@payloadcms/storage-s3/client#S3ClientUploadHandler':
-    S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24
+    S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
+  '@payloadcms/ui/rsc#CollectionCards':
+    CollectionCards_ab83ff7e88da8d3530831f296ec4756a
 };

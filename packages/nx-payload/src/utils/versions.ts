@@ -1,7 +1,13 @@
 /**
- * Payload version which is in sync with all plugins.
+ * Payload version which is also applied to all plugins for ESM workspaces.
  */
-export const payloadVersion = '~3.69.0';
+export const payloadESMVersion = '~3.69.0';
+
+/**
+ * Undici bug require Payload to stay at version 3.42 for CommonJS workspaces.
+ * https://github.com/payloadcms/payload/issues/13290
+ */
+export const payloadCommonJSVersion = '~3.42.0';
 
 /**
  * Next 15 version to install when missing.

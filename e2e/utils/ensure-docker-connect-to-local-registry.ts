@@ -1,10 +1,15 @@
-import { writeFileSync } from 'fs';
+import { existsSync, writeFileSync } from 'fs';
 
 import { tmpProjPath, updateFile } from '@nx/plugin/testing';
 
 /**
  * Ensure the generated application can connect to the local registry
  * and fetch the project plugins from a Docker build process.
+ *
+ * Create or updates the `.npmrc` file in the temporary project
+ * to include the local registry settings.
+ *
+ * Also updates the application's `Dockerfile` to copy the `.npmrc` file.
  *
  * Support `npm`.
  *
@@ -22,9 +27,14 @@ export const ensureDockerConnectToLocalRegistry = (appName: string): void => {
     throw new Error('CDWR_E2E_VERDACCIO_HOST is not set');
   }
 
-  writeFileSync(
-    `${tmpProjPath()}/.npmrc`,
-    `
+  // Ensure `.npmrc` exists
+  const npmrcFile = `${tmpProjPath()}/.npmrc`;
+  if (!existsSync(npmrcFile)) {
+    writeFileSync(npmrcFile, '');
+  }
+  updateFile(
+    '.npmrc',
+    (content) => `${content}
 registry=http://${registry.host}:${registry.port}
 //${registry.host}:${registry.port}/:_authToken=${registry.token}
   `

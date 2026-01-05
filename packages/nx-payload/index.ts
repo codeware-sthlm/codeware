@@ -3,4 +3,7 @@ export { initGenerator } from './src/generators/init/init';
 export { presetGenerator } from './src/generators/preset/preset';
 
 export type { AppGeneratorSchema } from './src/generators/application/schema';
-export { payloadVersion } from './src/utils/versions';
+export {
+  payloadCommonJSVersion,
+  payloadESMVersion
+} from './src/utils/versions';

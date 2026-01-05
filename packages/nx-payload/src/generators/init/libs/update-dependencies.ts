@@ -1,10 +1,14 @@
-import { type Tree, addDependenciesToPackageJson } from '@nx/devkit';
-import { getDependencyVersionFromPackageJson } from 'nx/src/utils/package-json';
+import { type Tree, addDependenciesToPackageJson, readJson } from '@nx/devkit';
+import {
+  PackageJson,
+  getDependencyVersionFromPackageJson
+} from 'nx/src/utils/package-json';
 
 import {
   graphqlVersion,
   next15Version,
-  payloadVersion
+  payloadCommonJSVersion,
+  payloadESMVersion
 } from '../../../utils/versions';
 
 /**
@@ -21,19 +25,24 @@ export function updateDependencies(tree: Tree) {
     nextDep = { next: next15Version };
   }
 
+  const version =
+    readJson<PackageJson>(tree, 'package.json').type === 'module'
+      ? payloadESMVersion
+      : payloadCommonJSVersion;
+
   return addDependenciesToPackageJson(
     tree,
     {
-      '@payloadcms/db-mongodb': payloadVersion,
-      '@payloadcms/db-postgres': payloadVersion,
-      '@payloadcms/next': payloadVersion,
-      '@payloadcms/richtext-lexical': payloadVersion,
+      '@payloadcms/db-mongodb': version,
+      '@payloadcms/db-postgres': version,
+      '@payloadcms/next': version,
+      '@payloadcms/richtext-lexical': version,
       ...nextDep,
-      payload: payloadVersion,
+      payload: version,
       graphql: graphqlVersion
     },
     {
-      '@payloadcms/graphql': payloadVersion
+      '@payloadcms/graphql': version
     }
   );
 }

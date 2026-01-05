@@ -22,6 +22,7 @@
 
 - [Prerequisites](#prerequisites)
 - [Next.js Version](#nextjs-version)
+- [Known Payload issue](#known-payload-issue)
 - [Installation](#installation)
   - [Add Payload plugin to an existing workspace](#add-payload-plugin-to-an-existing-workspace)
   - [Inferred tasks](#inferred-tasks)
@@ -70,9 +71,6 @@
 
 Although Nx v22 scaffolds new Next.js apps using the latest major (currently Next.js v16), the Payload team has not yet marked v16 as fully stable or officially supported.
 
-- Payload v3.42 (the version used during plugin testing) is validated against Next.js v15
-- Next.js v16 introduces bundler changes that may impact Payload’s adapters
-
 Next.js v15 provides a predictable experience and avoids subtle compatibility issues.
 
 ### Can I use Next.js v16? <!-- omit in toc -->
@@ -83,11 +81,27 @@ However, note that:
 
 - Payload’s official Next.js support currently targets **Next.js v15**
 - Payload v3.54 is required for Next.js v16
-- Payload CLI show compatibility issues with pnpm workspaces in version v3.43 and later
 - Next.js v16 may require additional configuration depending on your Payload version
 - Future releases of Payload (and this plugin) will expand support once the ecosystem stabilizes
 
 If you intentionally want to use Next.js v16, ensure it's installed before adding this plugin, or manually update afterwards.
+
+> [!TIP]
+> See [this Payload PR](https://github.com/payloadcms/payload/pull/14456) related to their work on supporting Next.js v16
+
+## Known Payload issue
+
+There is a known Payload issue that affects generate commands. The ticket [found here](https://github.com/payloadcms/payload/issues/13290) is closed without fixing the core issue, originally inferred by the Undici dependency. Though this ticket targets pnpm workspace, it looks like it affects all package managers.
+
+**Workaround options**
+
+- Pin your Payload version to 3.42
+- Convert to a module workspace by setting `type` in `package.json` to `"module"` (recommended)
+
+> [!NOTE]
+> This library will pin Payload version to **3.42** for **new installations** when a CommonJS workspace is detected.
+>
+> Then it's up to the developer to decide how to move forward.
 
 ## Installation
 
@@ -380,6 +394,11 @@ Generate a Payload application powered by Next.js.
 ## Versions Compatibility
 
 Later versions of Nx or Payload might work as well, but the versions below have been used during tests.
+
+> [!NOTE]
+> Automated tests are currently pinned to version 3.42, see [Known Payload issue](#known-payload-issue).
+>
+> However, manual tests on ESM workspace have verified 3.69 as well.
 
 | Plugin    | Nx        | Payload   | React     | Next.js   |
 | --------- | --------- | --------- | --------- | --------- |

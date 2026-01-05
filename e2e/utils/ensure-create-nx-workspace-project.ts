@@ -18,8 +18,10 @@ import {
   readJson,
   runNxCommand,
   tmpProjPath,
-  uniq
+  uniq,
+  updateFile
 } from '@nx/plugin/testing';
+import type { PackageJson } from 'nx/src/utils/package-json';
 
 import { cleanupE2E } from './cleanup-e2e';
 import { ensureLegacyPeerDeps } from './ensure-legacy-peer-deps';
@@ -78,6 +80,13 @@ type Options = {
    * @default false
    */
   ensureNxPayload?: boolean;
+
+  /**
+   * Optionally set the workspace type in `package.json`.
+   *
+   * Use `'inferred'` to keep the type from repository root.
+   */
+  workspaceType?: PackageJson['type'] | 'inferred';
 };
 
 /**
@@ -229,6 +238,30 @@ export async function ensureCreateNxWorkspaceProject({
     logError('Command failed', String(error));
     throw new Error(`Failed to create test project in "${projectPath}"`);
   }
+
+  // Set the package type in `package.json` if specified
+  let packageType: PackageJson['type'];
+  if (options?.workspaceType === 'inferred') {
+    // Keep the type from the root workspace if any
+    const rootPackageJson = readJsonFile<PackageJson>(
+      join(cwd(), 'package.json')
+    );
+    packageType = rootPackageJson.type;
+  } else {
+    packageType = options?.workspaceType;
+  }
+  if (packageType) {
+    logDebug(
+      `Set workspace package.json type from option '${options?.workspaceType}'`,
+      packageType
+    );
+    updateFile('package.json', (content) => {
+      const packageJson = JSON.parse(content) as PackageJson;
+      packageJson.type = packageType;
+      return JSON.stringify(packageJson, null, 2);
+    });
+  }
+
   // ! Payload peers a later version of Next.js than Nx does
   ensureLegacyPeerDeps(pm);
 

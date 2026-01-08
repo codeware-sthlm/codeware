@@ -117,6 +117,19 @@ jobs:
           main-branch-name: main
           set-environment-variables-for-job: true
 
+      - name: Create Sentry release
+        if: needs.pre-deploy.outputs.apps != '[]'
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
+        with:
+          environment: ${{ needs.pre-deploy.outputs.environment }}
+          release: ${{ github.sha }}
+          set_commits: "auto"
+          finalize: false
+
       - name: Run Deployment to Fly
         id: deployment
         uses: ./packages/nx-fly-deployment-action
@@ -127,12 +140,37 @@ jobs:
           fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
           token: ${{ steps.generate-token.outputs.token }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
+          # Build arguments for Docker build (client-side vars + Sentry source map upload)
+          build-args: |
+            NEXT_PUBLIC_DEPLOY_ENV=${{ needs.pre-deploy.outputs.environment }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.INF_SENTRY_DSN }}
+            NEXT_PUBLIC_SENTRY_RELEASE=${{ github.sha }}
+            SENTRY_ORG=${{ secrets.INF_SENTRY_ORG }}
+            SENTRY_PROJECT=${{ secrets.INF_SENTRY_PROJECT }}
+            SENTRY_RELEASE=${{ github.sha }}
+            SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
+          # Runtime environment variables
+          env: |
+            INFISICAL_SITE=${{ vars.INFISICAL_SITE }}
+            SENTRY_DSN=${{ secrets.INF_SENTRY_DSN }}
+            SENTRY_ORG=${{ secrets.INF_SENTRY_ORG }}
+            SENTRY_PROJECT=${{ secrets.INF_SENTRY_PROJECT }}
+            SENTRY_RELEASE=${{ github.sha }}
+          # Sensitive secrets are also passed to app env on deployment
           secrets: |
             INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_READ_CLIENT_ID }}
             INFISICAL_CLIENT_SECRET=${{ secrets.INFISICAL_READ_CLIENT_SECRET }}
             INFISICAL_PROJECT_ID=${{ secrets.INFISICAL_PROJECT_ID }}
-            INFISICAL_SITE=${{ vars.INFISICAL_SITE }}
+            SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
         env:
           # Postgres preview cluster defined in `github.json`
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
+
+      - name: Finalize Sentry release
+        if: needs.pre-deploy.outputs.apps != '[]' && success()
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
+        run: pnpm sentry-cli releases finalize "${{ github.sha }}"

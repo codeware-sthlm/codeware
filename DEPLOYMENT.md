@@ -11,6 +11,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [Fly Configuration Files](#fly-configuration-files)
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
+  - [Sentry Releases](#sentry-releases)
   - [Deployment Rules (Required)](#deployment-rules-required)
   - [GitHub Secrets](#github-secrets)
 - [Deployment Flow](#deployment-flow)
@@ -220,6 +221,49 @@ Secrets in Infisical are handled as **secrets by default**.
 
 To make a secret visible as **environment variable**, add metadata key `env` set to `true`.
 
+### Sentry Releases
+
+Sentry releases enable you to associate errors with specific deployments, track which versions have bugs, and get better source map resolution.
+
+**How it works:**
+
+1. **Release creation** (GitHub workflow): A single release is created using the Git SHA before any deployments
+2. **Commit association**: The release is linked to commits for better error tracking
+3. **Source map upload** (Docker build): Each app uploads source maps to the shared release during build
+4. **Release finalization** (GitHub workflow): After all deployments succeed, the release is finalized and marked as deployed
+5. **Error tracking**: Errors are automatically associated with the release version
+
+**Workflow Steps:**
+
+The deployment workflow ([.github/workflows/fly-deployment.yml](.github/workflows/fly-deployment.yml)) orchestrates the release lifecycle:
+
+**Docker Build Requirements:**
+
+For source maps to upload during Docker builds, the Sentry environment variables must be:
+
+1. Passed as build arguments (`--build-arg`) to the `docker build` command
+2. Converted to environment variables (`ENV`) in the Dockerfile **before** the build command
+
+Example in Dockerfile:
+
+```dockerfile
+ARG SENTRY_AUTH_TOKEN
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG SENTRY_RELEASE
+
+# Convert to ENV so Sentry webpack plugin can access them during build
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
+    SENTRY_ORG=$SENTRY_ORG \
+    SENTRY_PROJECT=$SENTRY_PROJECT \
+    SENTRY_RELEASE=$SENTRY_RELEASE
+
+RUN npx nx build cms  # Source maps uploaded here
+```
+
+> [!IMPORTANT]
+> With multi-stage builds, these ENV variables exist only in the builder stage and are **not** included in the final deployed image.
+
 ### Deployment Rules (Required)
 
 Control which apps and tenants are deployed per environment using a `DEPLOY_RULES` secret in the Infisical root path (`/`). **This secret is required** - deployments will fail if it's missing or misconfigured.
@@ -355,10 +399,10 @@ sequenceDiagram
 
 #### Benefits <!-- omit in toc -->
 
-✅ **Complete Isolation**: Each tenant has its own app instance  
-✅ **Independent Scaling**: Scale tenants independently  
-✅ **Tenant-Specific Configuration**: Each tenant can have its own secrets/config  
-✅ **Easy Rollback**: Roll back one tenant without affecting others  
+✅ **Complete Isolation**: Each tenant has its own app instance
+✅ **Independent Scaling**: Scale tenants independently
+✅ **Tenant-Specific Configuration**: Each tenant can have its own secrets/config
+✅ **Easy Rollback**: Roll back one tenant without affecting others
 ✅ **Clear Monitoring**: Per-tenant metrics and logs
 
 ### Single-Tenant Apps

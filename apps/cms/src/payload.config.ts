@@ -2,6 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { postgresAdapter } from '@payloadcms/db-postgres';
+import * as Sentry from '@sentry/nextjs';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 
@@ -22,6 +23,7 @@ import {
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
+import { isUser } from '@codeware/app-cms/util/misc';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
 
 import categories from './collections/categories/categories.collection';
@@ -155,18 +157,47 @@ export default buildConfig({
   },
   // Misc
   debug: env.LOG_LEVEL === 'debug',
+  telemetry: false,
+  sharp,
+  // Capture Payload errors in Sentry (same as payload sentry plugin brings)
   hooks: {
     afterError: [
-      ({ error, req, collection }) => {
-        if (env.LOG_LEVEL === 'debug') {
-          const { headers, href } = req;
-          console.log(`[DEBUG|afterError] ${collection?.slug} | ${href}`);
-          console.log(`[DEBUG|afterError] ${error}`);
-          console.log(`[DEBUG|afterError]`, headers);
+      async ({ collection, error, req: { headers, payload, user } }) => {
+        const status =
+          'status' in error && typeof error.status === 'number'
+            ? error.status
+            : 500;
+
+        // Capture server errors (500+)
+        if (status >= 500) {
+          const email = isUser(user) ? user.email : 'n/a';
+          const context = {
+            extra: {
+              errorCollectionSlug: collection?.slug
+            },
+            ...(user && {
+              user: {
+                id: user.id,
+                collection: user.collection,
+                name: user.name,
+                email,
+                ip_address:
+                  // Extract only the first IP address in case the request passes through multiple proxies
+                  headers?.get('X-Forwarded-For')?.split(',')[0]?.trim() ??
+                  undefined
+              }
+            })
+          };
+
+          const eventId = Sentry.captureException(error, context);
+
+          if (env.LOG_LEVEL === 'debug') {
+            payload.logger.info(
+              `Captured Payload exception ${eventId} to Sentry: ${error.message}`
+            );
+          }
         }
       }
     ]
-  },
-  telemetry: false,
-  sharp
+  }
 });

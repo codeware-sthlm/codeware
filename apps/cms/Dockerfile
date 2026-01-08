@@ -31,10 +31,23 @@ COPY . .
 # Since package-lock.json is needed when building the app, we'll remove it from .gitignore.
 RUN sed -i '/package-lock.json/d' .gitignore
 
+# Sentry requirement:
+# Build arguments - available during build only, not persisted in final image
+# - NEXT_PUBLIC_* vars are embedded in client bundle during build
+# - SENTRY_* vars are used by webpack plugin for source map upload
+# Runtime values are provided separately via Fly.io --env and --secrets flags
+ARG NEXT_PUBLIC_DEPLOY_ENV
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG NEXT_PUBLIC_SENTRY_RELEASE
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG SENTRY_AUTH_TOKEN
+ARG SENTRY_RELEASE
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Comment the following line in case you want to enable telemetry during the build.
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npx nx build cms
 

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ActionInputsSchema } from './action-inputs.schema';
 
 export const DeploymentConfigSchema = z.object({
+  buildArgs: z.record(z.string(), z.string()).optional(),
   env: z.record(z.string(), z.string()).optional(),
   fly: z.object({
     token: z.string().min(1, 'Fly API token is required'),

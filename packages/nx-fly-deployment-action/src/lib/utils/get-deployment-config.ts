@@ -36,6 +36,7 @@ export const getDeploymentConfig = async (
   inputs: ActionInputs
 ): Promise<DeploymentConfig> => {
   const {
+    buildArgs: buildArgsInput,
     env: envInput,
     flyApiToken,
     flyOrg,
@@ -52,6 +53,9 @@ export const getDeploymentConfig = async (
   const mainBranch =
     mainBranchInput || (await getRepositoryDefaultBranch(token));
 
+  // Parse build arguments from input
+  const buildArgs = arrayToRecord(buildArgsInput ?? []);
+
   // Parse environment variables from input
   const env = arrayToRecord(envInput ?? []);
 
@@ -59,6 +63,7 @@ export const getDeploymentConfig = async (
   const secrets = arrayToRecord(secretsInput ?? []);
 
   const config: DeploymentConfig = {
+    buildArgs,
     env,
     fly: {
       token: flyApiToken || process.env['FLY_API_TOKEN'] || '',

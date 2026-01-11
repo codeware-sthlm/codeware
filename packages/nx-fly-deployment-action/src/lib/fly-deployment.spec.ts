@@ -271,6 +271,7 @@ describe('flyDeployment', () => {
     return {
       ...{
         appDetails: {},
+        buildArgs: [],
         env: [],
         flyApiToken: 'fly-api-token',
         flyOrg: 'fly-org',
@@ -491,6 +492,42 @@ describe('flyDeployment', () => {
           secrets: {
             SECRET_KEY1: 'secret-value1',
             SECRET_KEY2: 'secret-value2'
+          }
+        } satisfies DeployAppOptions)
+      );
+    });
+
+    it('should deploy apps to preview with build arguments', async () => {
+      setContext('pr-opened');
+      setupMocks();
+      const config = setupTest({
+        buildArgs: [
+          'NEXT_PUBLIC_DEPLOY_ENV=preview',
+          'NEXT_PUBLIC_SENTRY_DSN=https://key@sentry.io/project'
+        ]
+      });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          config: '/apps/app-one/fly.toml',
+          environment: 'preview',
+          buildArgs: {
+            NEXT_PUBLIC_DEPLOY_ENV: 'preview',
+            NEXT_PUBLIC_SENTRY_DSN: 'https://key@sentry.io/project'
+          }
+        } satisfies DeployAppOptions)
+      );
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          config: '/apps/app-two/fly.toml',
+          environment: 'preview',
+          buildArgs: {
+            NEXT_PUBLIC_DEPLOY_ENV: 'preview',
+            NEXT_PUBLIC_SENTRY_DSN: 'https://key@sentry.io/project'
           }
         } satisfies DeployAppOptions)
       );
@@ -831,6 +868,51 @@ describe('flyDeployment', () => {
             SECRET_KEY1: 'secret"fnutt',
             SECRET_KEY2: 'secret space',
             SECRET_KEY3: 'secret\\backslash'
+          }
+        } satisfies DeployAppOptions)
+      );
+    });
+
+    it('should deploy apps to production with build arguments', async () => {
+      setContext('push-main-branch');
+      setupMocks();
+      const config = setupTest({
+        buildArgs: [
+          'NEXT_PUBLIC_DEPLOY_ENV=production',
+          'NEXT_PUBLIC_SENTRY_DSN=https://key@sentry.io/project',
+          'SENTRY_ORG=my-org',
+          'SENTRY_PROJECT=my-project',
+          'SENTRY_AUTH_TOKEN=sntrys_token'
+        ]
+      });
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          config: '/apps/app-one/fly.toml',
+          environment: 'production',
+          buildArgs: {
+            NEXT_PUBLIC_DEPLOY_ENV: 'production',
+            NEXT_PUBLIC_SENTRY_DSN: 'https://key@sentry.io/project',
+            SENTRY_ORG: 'my-org',
+            SENTRY_PROJECT: 'my-project',
+            SENTRY_AUTH_TOKEN: 'sntrys_token'
+          }
+        } satisfies DeployAppOptions)
+      );
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config',
+          config: '/apps/app-two/fly.production.toml',
+          environment: 'production',
+          buildArgs: {
+            NEXT_PUBLIC_DEPLOY_ENV: 'production',
+            NEXT_PUBLIC_SENTRY_DSN: 'https://key@sentry.io/project',
+            SENTRY_ORG: 'my-org',
+            SENTRY_PROJECT: 'my-project',
+            SENTRY_AUTH_TOKEN: 'sntrys_token'
           }
         } satisfies DeployAppOptions)
       );

@@ -102,6 +102,9 @@ export const runDeployApps = async (options: {
         tenantId
       });
 
+      // Build args are global only (environment-level, not tenant-level)
+      const buildArgs = config.buildArgs || {};
+
       // Merge secrets: global -> deployment-specific (deployment wins)
       const mergedSecrets = {
         ...config.secrets,
@@ -134,6 +137,7 @@ export const runDeployApps = async (options: {
       try {
         const result = await fly.deploy({
           app: appName,
+          buildArgs,
           config: flyConfigFile,
           env: envVars,
           environment,

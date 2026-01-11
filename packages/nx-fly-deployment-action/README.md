@@ -184,7 +184,36 @@ Provide the secrets as multiline key/value strings.
 ```
 
 > [!NOTE]
-> The same pattern also applies to `env` input.
+> The same pattern also applies to `env` and `build-args` inputs.
+
+#### `build-args`
+
+Global build arguments passed to Docker during image build (via `--build-arg`). These are available during the build phase but not at runtime. Use this for client-side environment variables (e.g., `NEXT_PUBLIC_*`) that need to be embedded in the bundle.
+
+> [!IMPORTANT]
+> You must declare each build arg in your Dockerfile with `ARG` directives. Keep them as `ARG` only (don't convert to `ENV`) to avoid persisting secret values in the final Docker image.
+>
+> Runtime values are provided separately via `env` and `secrets`.
+
+```dockerfile
+# Dockerfile - ARG only for security
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_DEPLOY_ENV
+ARG SENTRY_AUTH_TOKEN
+
+RUN npm run build
+```
+
+**When to use:**
+
+- Client-side environment variables (`NEXT_PUBLIC_*` in Next.js)
+- Build-time configuration that needs to be embedded in the application bundle
+- Source map upload tokens (e.g. `SENTRY_AUTH_TOKEN`)
+
+**When NOT to use:**
+
+- Runtime secrets (use `secrets` input instead)
+- Server-side only environment variables (use `env` input instead)
 
 ### Outputs
 

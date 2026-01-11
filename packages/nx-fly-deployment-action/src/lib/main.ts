@@ -15,6 +15,7 @@ export async function run(): Promise<void> {
     const appDetails = appDetailsInput ? JSON.parse(appDetailsInput) : {};
 
     const inputs = ActionInputsSchema.parse({
+      buildArgs: core.getMultilineInput('build-args'),
       env: core.getMultilineInput('env'),
       flyApiToken: core.getInput('fly-api-token'),
       flyOrg: core.getInput('fly-org'),
@@ -25,7 +26,8 @@ export async function run(): Promise<void> {
       secrets: core.getMultilineInput('secrets'),
       appDetails,
       token: core.getInput('token', { required: true })
-    } satisfies ActionInputs);
+      // Ensure all required inputs are provided
+    } satisfies Required<ActionInputs>);
 
     core.debug(`Inputs:\n${JSON.stringify(inputs, null, 2)}`);
 

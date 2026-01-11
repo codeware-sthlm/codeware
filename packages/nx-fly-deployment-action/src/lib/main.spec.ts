@@ -61,6 +61,7 @@ describe('main', () => {
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
       appDetails: { web: [{ tenant: 't1', secrets: { KEY: 'val' } }] },
+      buildArgs: [],
       env: [],
       flyApiToken: 'fly-api-token',
       flyOrg: 'fly-org',
@@ -87,6 +88,7 @@ describe('main', () => {
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
       appDetails: {},
+      buildArgs: [],
       env: [],
       flyApiToken: '',
       flyOrg: '',

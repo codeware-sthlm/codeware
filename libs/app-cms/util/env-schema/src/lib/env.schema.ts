@@ -6,6 +6,7 @@ import { S3StorageSchema } from './s3-storage.schema';
 import { SeedSourceSchema } from './seed-source.schema';
 import { SeedStrategySchema } from './seed-strategy.schema';
 import { SendGridSchema } from './sendgrid.schema';
+import { SentrySchema } from './sentry.schema';
 
 /**
  * Environment base schema with environment variable lookup.
@@ -78,6 +79,8 @@ export const EnvSchema = withEnvVars(
     .merge(EtherealSchema.partial())
     // SendGrid is optional
     .merge(SendGridSchema.partial())
+    // Sentry is optional
+    .merge(SentrySchema.partial())
 ).transform(
   ({
     ETHEREAL_FROM_ADDRESS,
@@ -95,6 +98,9 @@ export const EnvSchema = withEnvVars(
     SENDGRID_API_KEY,
     SENDGRID_FROM_ADDRESS,
     SENDGRID_FROM_NAME,
+    SENTRY_DSN,
+    SENTRY_ORG,
+    SENTRY_RELEASE,
     ...env
   }) => ({
     ...env,
@@ -133,7 +139,15 @@ export const EnvSchema = withEnvVars(
                 pass: ETHEREAL_PASSWORD
               }
             }
-          : undefined
+          : undefined,
+    SENTRY:
+      SENTRY_DSN && SENTRY_ORG
+        ? {
+            dsn: SENTRY_DSN,
+            org: SENTRY_ORG,
+            release: SENTRY_RELEASE
+          }
+        : undefined
   })
 );
 

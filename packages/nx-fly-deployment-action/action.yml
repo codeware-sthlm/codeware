@@ -24,6 +24,13 @@ inputs:
     description: >
       The main branch name.
       Defaults to the default branch of the repository.
+  build-args:
+    description: >
+      A multiline string of build arguments to pass to Docker during image build.
+      Each argument should be on a new line in the format of `KEY=VALUE`.
+      Build args must be declared in your Dockerfile with `ARG` directives.
+      Use for client-side env vars (e.g. NEXT_PUBLIC_*) that need to be embedded in the bundle.
+      Defaults to an empty string.
   env:
     description: >
       A multiline string of environment variables to set for the deployed applications.

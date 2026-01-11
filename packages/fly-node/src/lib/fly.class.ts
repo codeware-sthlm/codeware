@@ -694,6 +694,9 @@ export class Fly {
     for (const [key, value] of Object.entries(options?.env || {})) {
       args.push('--env', `${key}=${this.safeArg(value)}`);
     }
+    for (const [key, value] of Object.entries(options?.buildArgs || {})) {
+      args.push('--build-arg', `${key}=${this.safeArg(value)}`);
+    }
     if (options?.optOutDepotBuilder) {
       args.push('--depot=false');
     }

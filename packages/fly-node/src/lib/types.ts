@@ -190,6 +190,14 @@ export type DeployAppOptions = {
   env?: Record<string, string>;
 
   /**
+   * Build arguments to pass to the Docker build.
+   *
+   * These are available during the build phase (e.g. NEXT_PUBLIC_ vars, etc.).
+   * Use `env` for runtime environment variables instead.
+   */
+  buildArgs?: Record<string, string>;
+
+  /**
    * Target environment for the application.
    *
    * Environment variable `DEPLOY_ENV` will be set to the provided value.

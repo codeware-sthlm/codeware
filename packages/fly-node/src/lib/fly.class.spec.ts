@@ -1218,6 +1218,34 @@ describe('Fly', () => {
       ]);
     });
 
+    it('should set build arguments', async () => {
+      const fly = new Fly(mockFlyConfig);
+      await fly.deploy({
+        app: mockDefs.testApp,
+        config: mockDefs.testConfig,
+        buildArgs: {
+          NEXT_PUBLIC_API_URL: 'https://api.example.com',
+          SENTRY_DSN: 'https://key@sentry.io/project',
+          BUILD_ID: 'abc123'
+        }
+      });
+
+      assertSpawn('exact', [
+        'deploy',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        mockDefs.testConfig,
+        '--build-arg',
+        'NEXT_PUBLIC_API_URL=https://api.example.com',
+        '--build-arg',
+        'SENTRY_DSN=https://key@sentry.io/project',
+        '--build-arg',
+        'BUILD_ID=abc123',
+        '--yes'
+      ]);
+    });
+
     it('should opt out of depot builder', async () => {
       const fly = new Fly(mockFlyConfig);
       await fly.deploy({

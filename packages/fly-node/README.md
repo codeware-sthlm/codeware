@@ -266,6 +266,9 @@ const response = await fly.deploy({
   org: 'baz',
   postgres: 'db-preview',
   region: 'arn',
+  buildArgs: {
+    NEXT_PUBLIC_DEPLOY_ENV: 'preview'
+  },
   env: {
     DEPLOY_ID: 'qwerty'
   },

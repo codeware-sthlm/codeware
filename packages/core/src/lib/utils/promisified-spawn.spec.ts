@@ -1,7 +1,7 @@
 import { spawn as cpSpawn } from 'child_process';
 import { EventEmitter } from 'events';
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MockInstance, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { type SpawnOptions, spawn } from './promisified-spawn';
 
@@ -111,7 +111,7 @@ describe('spawn', () => {
   it('should pass through additional spawn options', async () => {
     const spawnPromise = invokeSpawn('test-command', ['arg1'], {
       cwd: '/test/dir',
-      env: { TEST_ENV: 'value' }
+      env: { TEST_ENV: 'value', NODE_ENV: 'test' }
     });
 
     mockProcess.emit('close', 0);
@@ -120,8 +120,143 @@ describe('spawn', () => {
 
     expect(cpSpawn).toHaveBeenCalledWith('test-command', ['arg1'], {
       cwd: '/test/dir',
-      env: { TEST_ENV: 'value' },
+      env: { TEST_ENV: 'value', NODE_ENV: 'test' },
       stdio: 'pipe'
+    });
+  });
+
+  describe('streamToConsole option', () => {
+    let stdoutWriteSpy: MockInstance;
+    let stderrWriteSpy: MockInstance;
+
+    beforeEach(() => {
+      // Spy on write methods of global process streams
+      stdoutWriteSpy = vi
+        .spyOn(global.process.stdout, 'write')
+        .mockImplementation(() => true);
+      stderrWriteSpy = vi
+        .spyOn(global.process.stderr, 'write')
+        .mockImplementation(() => true);
+    });
+
+    afterEach(() => {
+      // Restore original write methods
+      stdoutWriteSpy.mockRestore();
+      stderrWriteSpy.mockRestore();
+    });
+
+    it('should write stdout to console when streamToConsole is true', async () => {
+      const spawnPromise = invokeSpawn('test-command', ['arg1'], {
+        streamToConsole: true
+      });
+
+      const stdoutData = Buffer.from('test stdout');
+      mockProcess.stdout.emit('data', stdoutData);
+      mockProcess.emit('close', 0);
+
+      await spawnPromise;
+
+      expect(stdoutWriteSpy).toHaveBeenCalledWith(stdoutData);
+      expect(stderrWriteSpy).not.toHaveBeenCalled();
+    });
+
+    it('should write stderr to console when streamToConsole is true', async () => {
+      const spawnPromise = invokeSpawn('test-command', ['arg1'], {
+        streamToConsole: true
+      });
+
+      const stderrData = Buffer.from('test stderr');
+      mockProcess.stderr.emit('data', stderrData);
+      mockProcess.emit('close', 0);
+
+      await spawnPromise;
+
+      expect(stderrWriteSpy).toHaveBeenCalledWith(stderrData);
+      expect(stdoutWriteSpy).not.toHaveBeenCalled();
+    });
+
+    it('should write both stdout and stderr to console when streamToConsole is true', async () => {
+      const spawnPromise = invokeSpawn('test-command', ['arg1'], {
+        streamToConsole: true
+      });
+
+      const stdoutData = Buffer.from('test stdout');
+      const stderrData = Buffer.from('test stderr');
+      mockProcess.stdout.emit('data', stdoutData);
+      mockProcess.stderr.emit('data', stderrData);
+      mockProcess.emit('close', 0);
+
+      await spawnPromise;
+
+      expect(stdoutWriteSpy).toHaveBeenCalledWith(stdoutData);
+      expect(stderrWriteSpy).toHaveBeenCalledWith(stderrData);
+    });
+
+    it('should not write to console when streamToConsole is false', async () => {
+      const spawnPromise = invokeSpawn('test-command', ['arg1'], {
+        streamToConsole: false
+      });
+
+      mockProcess.stdout.emit('data', Buffer.from('test stdout'));
+      mockProcess.stderr.emit('data', Buffer.from('test stderr'));
+      mockProcess.emit('close', 0);
+
+      await spawnPromise;
+
+      expect(stdoutWriteSpy).not.toHaveBeenCalled();
+      expect(stderrWriteSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not write to console when streamToConsole is not specified', async () => {
+      const spawnPromise = invokeSpawn('test-command', ['arg1']);
+
+      mockProcess.stdout.emit('data', Buffer.from('test stdout'));
+      mockProcess.stderr.emit('data', Buffer.from('test stderr'));
+      mockProcess.emit('close', 0);
+
+      await spawnPromise;
+
+      expect(stdoutWriteSpy).not.toHaveBeenCalled();
+      expect(stderrWriteSpy).not.toHaveBeenCalled();
+    });
+
+    it('should still capture output when streamToConsole is true', async () => {
+      const spawnPromise = invokeSpawn('test-command', ['arg1'], {
+        streamToConsole: true
+      });
+
+      mockProcess.stdout.emit('data', Buffer.from('stdout data'));
+      mockProcess.stderr.emit('data', Buffer.from('stderr data'));
+      mockProcess.emit('close', 0);
+
+      const result = await spawnPromise;
+
+      // Verify output is still captured
+      expect(result).toEqual({
+        stdout: 'stdout data',
+        stderr: 'stderr data'
+      });
+
+      // Verify logs were written
+      expect(stdoutWriteSpy).toHaveBeenCalled();
+      expect(stderrWriteSpy).toHaveBeenCalled();
+    });
+
+    it('should not pass streamToConsole to child_process spawn', async () => {
+      const spawnPromise = invokeSpawn('test-command', ['arg1'], {
+        streamToConsole: true,
+        cwd: '/test/dir'
+      });
+
+      mockProcess.emit('close', 0);
+
+      await spawnPromise;
+
+      // streamToConsole should be filtered out, only cwd should be passed
+      expect(cpSpawn).toHaveBeenCalledWith('test-command', ['arg1'], {
+        cwd: '/test/dir',
+        stdio: 'pipe'
+      });
     });
   });
 });

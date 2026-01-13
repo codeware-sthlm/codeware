@@ -84,7 +84,7 @@ describe('Fly', () => {
   const assertSpawn = (
     matchArgs: 'exact' | 'not' | 'some',
     args: Array<string>,
-    options?: ExecFlyOptions
+    options: ExecFlyOptions = { streamToConsole: false }
   ) => {
     // Determine which mock to use
     const mockSpawnUsed = options?.prompt ? mockSpawnPty : mockSpawn;
@@ -353,6 +353,38 @@ describe('Fly', () => {
     it('should not trace logs by default', async () => {
       const fly = new Fly();
       expect(fly['logger'].traceCLI).toBe(false);
+    });
+
+    it('should not debug logs by default', async () => {
+      const fly = new Fly();
+      expect(fly['logger'].debug).toBe(false);
+      await fly.apps.list();
+      assertSpawn('exact', ['apps', 'list', '--json']);
+    });
+
+    it('should not verbose logs by default', async () => {
+      const fly = new Fly();
+      expect(fly['logger'].verbose).toBe(false);
+      await fly.apps.list();
+      assertSpawn('exact', ['apps', 'list', '--json']);
+    });
+
+    it('should append debug flag to commands when enabled', async () => {
+      const fly = new Fly({
+        ...mockFlyConfig,
+        logger: { ...mockFlyConfig.logger, debug: true }
+      });
+      await fly.apps.list();
+      assertSpawn('some', ['--debug']);
+    });
+
+    it('should append verbose flag to commands when enabled', async () => {
+      const fly = new Fly({
+        ...mockFlyConfig,
+        logger: { ...mockFlyConfig.logger, verbose: true }
+      });
+      await fly.apps.list();
+      assertSpawn('some', ['--verbose']);
     });
 
     it('should set redact secrets to true by default', async () => {

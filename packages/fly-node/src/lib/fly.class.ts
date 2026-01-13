@@ -85,7 +85,10 @@ export class Fly {
       info: config?.logger?.info || console.log,
       error: config?.logger?.error || console.error,
       traceCLI: config?.logger?.traceCLI ?? false,
-      redactSecrets: config?.logger?.redactSecrets ?? true
+      redactSecrets: config?.logger?.redactSecrets ?? true,
+      verbose: config?.logger?.verbose ?? false,
+      debug: config?.logger?.debug ?? false,
+      streamToConsole: config?.logger?.streamToConsole ?? false
     };
 
     // Override FLY_ACCESS_TOKEN environment variable when token is provided
@@ -1239,6 +1242,13 @@ ${JSON.stringify(response, null, 2)}`);
   ): Promise<T> {
     const args = Array.isArray(command) ? command : command.split(' ');
 
+    if (this.logger.verbose) {
+      args.push('--verbose');
+    }
+    if (this.logger.debug) {
+      args.push('--debug');
+    }
+
     const flyCmd = 'flyctl';
     const toLogCmd = `${flyCmd} ${args.join(' ')}`;
     let output = '';
@@ -1251,7 +1261,10 @@ ${JSON.stringify(response, null, 2)}`);
         this.traceCLI('RESULT', output);
       } else {
         // Otherwise use spawn
-        const result = await spawn(flyCmd, args, options);
+        const result = await spawn(flyCmd, args, {
+          ...options,
+          streamToConsole: this.logger.streamToConsole
+        });
         output = result.stdout.trim();
         const stderr = result.stderr.trim();
         this.traceCLI('RESULT', `${output}${stderr ? `\n${stderr}` : ''}`);

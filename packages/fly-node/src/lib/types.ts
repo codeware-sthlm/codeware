@@ -379,6 +379,37 @@ export type Logger = {
   traceCLI: boolean;
 
   /**
+   * Enable verbose output for Fly CLI commands (e.g., Docker build logs)
+   *
+   * When enabled, adds `--verbose` flag to commands.
+   *
+   * @default false
+   */
+  verbose: boolean;
+
+  /**
+   * Enable debug output for Fly CLI commands
+   *
+   * When enabled, adds `--debug` flag to commands for detailed debugging information.
+   *
+   * @default false
+   */
+  debug: boolean;
+
+  /**
+   * Stream command output to console in real-time
+   *
+   * When enabled, stdout and stderr are piped to the console in real-time
+   * while still being captured for JSON parsing and result processing.
+   * Useful for long-running commands like deployments where you want to see progress.
+   *
+   * Works independently from `traceCLI`, `verbose`, and `debug`.
+   *
+   * @default false
+   */
+  streamToConsole: boolean;
+
+  /**
    * Redact sensitive call values in CLI trace logs.
    *
    * When enabled, secrets and tokens are masked:

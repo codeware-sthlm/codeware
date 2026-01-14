@@ -57,8 +57,7 @@ export async function flyDeployment(
         info: (msg) => core.info(msg),
         error: (msg, params) => core.error(msg, params),
         traceCLI: config.fly.traceCLI,
-        // TEMPORARY: Enable verbose logging to help debug action issues
-        streamToConsole: true
+        streamToConsole: config.fly.consoleLogs
       }
     });
 

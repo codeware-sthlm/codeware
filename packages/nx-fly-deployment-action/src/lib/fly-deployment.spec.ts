@@ -277,6 +277,7 @@ describe('flyDeployment', () => {
         flyOrg: 'fly-org',
         flyRegion: '',
         flyTraceCli: false,
+        flyConsoleLogs: false,
         mainBranch: '',
         optOutDepotBuilder: false,
         secrets: [],

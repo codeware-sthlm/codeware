@@ -21,6 +21,7 @@ export async function run(): Promise<void> {
       flyOrg: core.getInput('fly-org'),
       flyRegion: core.getInput('fly-region'),
       flyTraceCli: core.getBooleanInput('fly-trace-cli'),
+      flyConsoleLogs: core.getBooleanInput('fly-console-logs'),
       mainBranch: core.getInput('main-branch'),
       optOutDepotBuilder: core.getBooleanInput('opt-out-depot-builder'),
       secrets: core.getMultilineInput('secrets'),

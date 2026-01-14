@@ -42,6 +42,7 @@ export const getDeploymentConfig = async (
     flyOrg,
     flyRegion,
     flyTraceCli,
+    flyConsoleLogs,
     mainBranch: mainBranchInput,
     optOutDepotBuilder,
     secrets: secretsInput,
@@ -70,6 +71,7 @@ export const getDeploymentConfig = async (
       org: flyOrg || '',
       region: flyRegion || '',
       traceCLI: flyTraceCli ?? false,
+      consoleLogs: flyConsoleLogs ?? false,
       optOutDepotBuilder: optOutDepotBuilder ?? false
     },
     mainBranch,

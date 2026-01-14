@@ -20,6 +20,10 @@ inputs:
     description: >
       Whether to enable tracing of the Fly CLI commands. Secrets are redacted in the logs.
       Defaults to `false`.
+  fly-console-logs:
+    description: >
+      Whether to enable console logs for Fly CLI commands (e.g., Docker build logs).
+      Defaults to `false`.
   main-branch:
     description: >
       The main branch name.

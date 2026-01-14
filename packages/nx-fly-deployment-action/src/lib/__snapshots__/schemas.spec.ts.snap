@@ -8,6 +8,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
     "ENV_KEY2=env-value2",
   ],
   "flyApiToken": "fly-token",
+  "flyConsoleLogs": false,
   "flyOrg": "company",
   "flyRegion": "sea",
   "flyTraceCli": false,
@@ -53,6 +54,7 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
 {
   "appDetails": {},
   "fly": {
+    "consoleLogs": false,
     "optOutDepotBuilder": false,
     "org": "company",
     "region": "sea",

@@ -138,6 +138,7 @@ jobs:
           fly-org: ${{ vars.FLY_ORG }}
           fly-region: ${{ vars.FLY_REGION }}
           fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
+          fly-console-logs: ${{ vars.FLY_CONSOLE_LOGS }}
           token: ${{ steps.generate-token.outputs.token }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
           # Build arguments for Docker build (client-side vars + Sentry source map upload)

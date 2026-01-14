@@ -4,6 +4,7 @@
   "flyOrg": "company",
   "flyRegion": "sea",
   "flyTraceCli": false,
+  "flyConsoleLogs": false,
   "mainBranch": "main",
   "optOutDepotBuilder": false,
   "postgresPreview": "db-app",

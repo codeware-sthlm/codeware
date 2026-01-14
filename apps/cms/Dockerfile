@@ -22,6 +22,12 @@ RUN npm i --legacy-peer-deps
 # Copy the dependencies to builder stage.
 # Lock file is important for Nx to calculate a correct project graph.
 FROM base AS builder
+
+# Install ca-certificates for SSL verification during build (required for Sentry source map upload)
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY --from=deps /app/node_modules      ./node_modules
 COPY --from=deps /app/package-lock.json ./package-lock.json
@@ -60,6 +66,12 @@ RUN npx nx build cms
 
 # Production image, copy all the files and run next
 FROM base AS runner
+
+# Install ca-certificates for SSL verification (required for Sentry, external APIs, etc.)
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 ENV NODE_ENV production

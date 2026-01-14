@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { composePlugins, withNx } from '@nx/next';
 import { withPayload } from '@payloadcms/next/withPayload';
 import { withSentryConfig } from '@sentry/nextjs';
+import isCI from 'is-ci';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -67,7 +68,8 @@ const sentryConfig = {
   authToken: process.env.SENTRY_AUTH_TOKEN,
 
   // Only print logs in CI builds
-  silent: !process.env.CI,
+  silent: !isCI,
+  debug: false,
 
   // Disable telemetry data collection
   telemetry: false,

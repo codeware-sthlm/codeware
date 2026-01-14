@@ -13,6 +13,7 @@ export const ActionInputsSchema = z.object({
   flyOrg: z.string().optional(),
   flyRegion: z.string().optional(),
   flyTraceCli: z.boolean().optional(),
+  flyConsoleLogs: z.boolean().optional(),
   mainBranch: z.string().optional(),
   optOutDepotBuilder: z.boolean().optional(),
   secrets: z.array(z.string()).optional(),

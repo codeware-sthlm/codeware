@@ -6,6 +6,7 @@
     "org": "company",
     "region": "sea",
     "traceCLI": false,
+    "consoleLogs": false,
     "optOutDepotBuilder": false
   },
   "mainBranch": "main",

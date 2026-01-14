@@ -10,7 +10,8 @@ export const DeploymentConfigSchema = z.object({
     org: z.string(),
     region: z.string(),
     optOutDepotBuilder: z.boolean(),
-    traceCLI: z.boolean()
+    traceCLI: z.boolean(),
+    consoleLogs: z.boolean()
   }),
   mainBranch: z.string().min(1, 'main branch is required'),
   secrets: z.record(z.string(), z.string()).optional(),

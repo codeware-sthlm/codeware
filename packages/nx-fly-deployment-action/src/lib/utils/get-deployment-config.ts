@@ -7,20 +7,7 @@ import {
   DeploymentConfigSchema
 } from '../schemas/deployment-config.schema';
 
-const arrayToRecord = (
-  arr: Array<string>
-): Record<string, string> | undefined =>
-  arr.length
-    ? arr
-        .map((secret) => secret.split('='))
-        .reduce(
-          (acc, [key, value]) => {
-            acc[key] = value;
-            return acc;
-          },
-          {} as Record<string, string>
-        )
-    : undefined;
+import { arrayToRecord } from './array-to-record';
 
 /**
  * Get deployment configuration from action inputs.

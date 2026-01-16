@@ -128,7 +128,7 @@
     "@svgr/webpack": "^8.0.1",
     "@swc-node/register": "~1.11.0",
     "@swc/cli": "0.6.0",
-    "@swc/core": "1.13.20",
+    "@swc/core": "^1.13.20",
     "@swc/helpers": "~0.5.11",
     "@swc/jest": "0.2.39",
     "@tailwindcss/postcss": "~4.1.0",
@@ -220,7 +220,6 @@
     "node": ">=20 <22"
   },
   "overrides": {
-    "@swc/core": "1.13.20",
     "react": "$react",
     "react-dom": "$react-dom"
   }

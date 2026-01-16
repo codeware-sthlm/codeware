@@ -1,9 +1,13 @@
 FROM node:20-bullseye-slim AS base
 
-FROM base AS deps
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+FROM base AS deps
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
     git \
     python3 \
     make \
@@ -17,16 +21,12 @@ COPY package.json ./
 
 # Check the link regarding legacy-peer-deps
 # https://payloadcms.com/docs/getting-started/installation#1-install-the-relevant-packages
-RUN npm i --legacy-peer-deps
+# Keep optional deps so platform-specific native bindings (e.g. @swc/core) download prebuilts
+RUN npm i --legacy-peer-deps --no-audit --no-fund
 
 # Copy the dependencies to builder stage.
 # Lock file is important for Nx to calculate a correct project graph.
 FROM base AS builder
-
-# Install ca-certificates for SSL verification during build (required for Sentry source map upload)
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --from=deps /app/node_modules      ./node_modules
@@ -66,11 +66,6 @@ RUN npx nx build cms
 
 # Production image, copy all the files and run next
 FROM base AS runner
-
-# Install ca-certificates for SSL verification (required for Sentry, external APIs, etc.)
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

@@ -7,7 +7,7 @@ on:
     - cron: 0 6 * * *
 
 env:
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_NO_CLOUD: true
 
 permissions:
   contents: write

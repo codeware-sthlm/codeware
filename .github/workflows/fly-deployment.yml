@@ -2,7 +2,7 @@ name: Fly Deployment
 
 # This workflow is triggered by a pull request or push to the main branch.
 # Renovate and Nx migrations are ignored.
-# It will deploy affected applications to Fly.io.
+# Deployments run when the preview label is present (auto-added on PR open) or when closing PRs for cleanup.
 
 on:
   pull_request:
@@ -17,22 +17,43 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-  NX_NO_CLOUD: ${{ vars.NX_NO_CLOUD }}
+  NX_NO_CLOUD: true
+  # Label used to indicate that a preview deployment is enabled for the PR
+  FLY_PREVIEW_LABEL: preview-deploy
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  pre-deploy:
-    if: |
-      !startsWith(github.head_ref || github.ref_name, 'renovate') &&
-      !startsWith(github.head_ref || github.ref_name, 'update-nx-workspace')
+  analyze-conditions:
+    runs-on: ubuntu-latest
 
+    outputs:
+      skip: ${{ steps.preview.outputs.skip }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/github-script@v7
+        id: preview
+        env:
+          PREVIEW_LABEL: ${{ env.FLY_PREVIEW_LABEL  }}
+        with:
+          script: |
+            const { default: analyze } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/github/analyze-fly-deployment-conditions.js`);
+            await analyze({ github, context, core, label: process.env.PREVIEW_LABEL });
+
+  pre-deploy:
+    needs: analyze-conditions
+    if: ${{ needs.analyze-conditions.outputs.skip != 'true' }}
     runs-on: ubuntu-latest
 
     outputs:
@@ -175,3 +196,27 @@ jobs:
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
         run: pnpm sentry-cli releases finalize "${{ github.sha }}"
+
+  summary:
+    needs: [analyze-conditions, pre-deploy, fly-deployment]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Summary
+        env:
+          SKIPPED: ${{ needs.analyze-conditions.outputs.skip }}
+          ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
+          DEPLOY_RESULT: ${{ needs.fly-deployment.result }}
+        run: |
+          if [ "$SKIPPED" = "true" ]; then
+            echo "⏭️ Deployment skipped - conditions not met" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          elif [ "$ENVIRONMENT" = "" ]; then
+            echo "⏭️ No affected apps to deploy" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          elif [ "$DEPLOY_RESULT" = "success" ]; then
+            echo "✅ Deployment completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Deployment failed or was cancelled" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

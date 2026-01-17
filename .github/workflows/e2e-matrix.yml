@@ -1,24 +1,28 @@
-name: E2E matrix
+name: E2E Matrix
 
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-  merge_group:
+  schedule:
+    # Weekdays at 05:00 UTC
+    - cron: 0 5 * * 1-5
   push:
     branches:
       - main
   workflow_dispatch:
+  pull_request:
+    types:
+      - labeled
+      - opened
+      - reopened
+      - synchronize
 
 # Environment details:
-# - renovate branches should never use Nx Cloud
+# - Nx Cloud disabled unless NX_E2E_USE_CLOUD repo variable is 'true' and branch is not renovate
+# - Full matrix runs nightly, on main pushes, manual triggers, or PRs labeled "full-e2e"
 env:
   CDWR_DEBUG_LOGGING: true
   IS_RENOVATE: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') || vars.NX_NO_CLOUD }}
+  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') || vars.NX_E2E_USE_CLOUD != 'true' }}
   NX_DAEMON: ${{ vars.NX_DAEMON }}
   NX_PARALLEL: ${{ vars.NX_PARALLEL }}
   NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}
@@ -31,21 +35,98 @@ jobs:
   init:
     runs-on: ubuntu-latest
     outputs:
-      e2e-enabled: ${{ steps.e2e-enabled.outputs.status }}
+      e2e-enabled: ${{ steps.gate.outputs.run_status == 'true' && (steps.gate.outputs.reason == 'manual' || steps.affected.outputs.affected == 'true') }}
+      projects: ${{ steps.affected.outputs.projects }}
+      reason: ${{ steps.gate.outputs.reason }}
     steps:
-      # Disable e2e for
-      # - merge groups unless it's renovate
-      # - renovate pull requests
-      - name: Whether e2e is enabled
-        id: e2e-enabled
+      - name: Determine matrix request
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GITHUB_REF: ${{ github.ref }}
+          IS_RENOVATE: ${{ env.IS_RENOVATE }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
         run: |
-          if [[ "${{ github.event_name }}" == "merge_group" && "${{ env.IS_RENOVATE }}" == "false" ]]; then
-            echo "status=false" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ env.IS_RENOVATE }}" == "true" ]]; then
-            echo "status=false" >> $GITHUB_OUTPUT
-          else
-            echo "status=true" >> $GITHUB_OUTPUT
+          set -euo pipefail
+
+          run_status=false
+          reason=not-requested
+
+          if [ "$IS_RENOVATE" = "true" ]; then
+            run_status=false
+            reason=renovate
+          elif [ "$EVENT_NAME" = "schedule" ]; then
+            run_status=true
+            reason=schedule
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            run_status=true
+            reason=manual
+          elif [ "$EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            run_status=true
+            reason=push-main
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            labels=${PR_LABELS:-[]}
+            if printf '%s\n' "$labels" | grep -Fq '"full-e2e"'; then
+              run_status=true
+              reason=pr-label
+            else
+              run_status=false
+              reason=pr-no-label
+            fi
           fi
+          echo "run_status = $run_status"
+          echo "reason     = $reason"
+          echo "run_status=$run_status" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run_status == 'true'
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm package manager
+        if: steps.gate.outputs.run_status == 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        if: steps.gate.outputs.run_status == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run_status == 'true'
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Resolve Nx base and head
+        if: steps.gate.outputs.run_status == 'true'
+        uses: nrwl/nx-set-shas@v4
+        with:
+          # For schedule: compare against last successful nightly run
+          # For PR/push: normal base/head comparison
+          last-successful-event: ${{ github.event_name == 'schedule' && 'schedule' || '' }}
+          set-environment-variables-for-job: true
+
+      - name: Determine affected e2e targets
+        if: steps.gate.outputs.run_status == 'true'
+        id: affected
+        run: |
+          set -euo pipefail
+
+          cmd=(pnpm nx show projects --affected --with-target=e2e)
+          projects="$("${cmd[@]}")"
+          projects_list="$(printf '%s' "$projects" | tr -d '\r')"
+
+          if [ -n "$projects" ]; then
+            affected=true
+          else
+            affected=false
+          fi
+          echo Affected projects: "$projects_list"
+
+          echo "affected=$affected" >> "$GITHUB_OUTPUT"
+          echo "projects=$projects_list" >> "$GITHUB_OUTPUT"
 
   preinstall:
     needs: init
@@ -74,15 +155,34 @@ jobs:
         id: cache-modules
         with:
           lookup-only: true
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
 
       - if: steps.cache-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: cache-playwright
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install
+
+      - name: Install Playwright system dependencies
+        if: matrix.os == 'ubuntu-latest' && steps.cache-playwright.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install-deps
+
   e2e:
     needs: [init, preinstall]
-    if: always()
+    if: needs.init.outputs.e2e-enabled == 'true'
+    env:
+      projects: ${{ needs.init.outputs.projects }}
     permissions:
       contents: read
     runs-on: ${{ matrix.os }}
@@ -92,7 +192,6 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         node: [20]
         pm: [npm, pnpm, yarn]
-        project: [nx-payload-e2e]
         include:
           - os: ubuntu-latest
             name: Linux
@@ -118,46 +217,43 @@ jobs:
             pm: yarn
       fail-fast: false
 
-    name: E2E ${{ matrix.os }}/${{ matrix.pm }}/${{ matrix.node }} ${{ join(matrix.project) }}
+    name: E2E ${{ matrix.os }}/${{ matrix.pm }}/${{ matrix.node }}
     steps:
       - uses: actions/checkout@v4
-        if: needs.init.outputs.e2e-enabled == 'true'
         with:
           fetch-depth: 0
 
       - name: Install pnpm package manager
-        if: needs.init.outputs.e2e-enabled == 'true'
         uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
-        if: needs.init.outputs.e2e-enabled == 'true'
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
 
       - uses: actions/cache@v4
-        if: needs.init.outputs.e2e-enabled == 'true'
         id: cache-modules
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
 
       - name: Install dependencies
-        if: needs.init.outputs.e2e-enabled == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browser dependencies
-        if: needs.init.outputs.e2e-enabled == 'true' && matrix.name == 'Linux'
-        run: npx playwright install-deps
+        if: matrix.name == 'Linux'
+        run: pnpm exec playwright install-deps
 
       - name: Analyze affected projects
-        if: needs.init.outputs.e2e-enabled == 'true'
         uses: nrwl/nx-set-shas@v4
 
-      - name: Run e2e tests
-        if: needs.init.outputs.e2e-enabled == 'true'
+      - name: Record start time
+        id: start
+        run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Run affected e2e tests
         id: e2e-run
-        run: pnpm nx e2e ${{ matrix.project }} -c ${{ matrix.configuration }}
+        run: pnpm nx run-many -t e2e --projects ${{ env.projects }} -c ${{ matrix.configuration }}
         timeout-minutes: ${{ matrix.timeout }}
         env:
           CDWR_E2E_PACKAGE_MANAGER: ${{ matrix.pm }}
@@ -175,61 +271,99 @@ jobs:
           else
             status="skipped"
           fi
-          echo '{"project": "${{ matrix.project }}", "os": "${{ matrix.os }}", "pm": "${{ matrix.pm }}", "node": "${{ matrix.node }}", "configuration": "${{ matrix.configuration }}", "status": "'"$status"'"}' > results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
+
+          start_time="${{ steps.start.outputs.time }}"
+          end_time=$(date +%s)
+          if [ -n "$start_time" ]; then
+            duration=$((end_time - start_time))
+          else
+            duration=0
+          fi
+
+          echo '{"os": "${{ matrix.os }}", "pm": "${{ matrix.pm }}", "node": "${{ matrix.node }}", "configuration": "${{ matrix.configuration }}", "status": "'"$status"'", "duration": '"$duration"'}' > results-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
         shell: bash
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}
-          path: results-${{ matrix.project }}-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
+          name: results-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}
+          path: results-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
 
   summary:
     name: E2E Test Summary
-    needs: e2e
+    needs: [init, e2e]
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && needs.init.result != 'cancelled'
     steps:
       - name: Download all workflow run artifacts
+        if: needs.e2e.result != 'skipped'
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           pattern: results-*
           merge-multiple: true
       - name: Create summary
+        env:
+          REASON: ${{ needs.init.outputs.reason }}
+          PROJECTS: ${{ needs.init.outputs.projects }}
+          E2E_ENABLED: ${{ needs.init.outputs.e2e-enabled }}
+          E2E_RESULT: ${{ needs.e2e.result }}
         run: |
           echo "# E2E Test Results Summary" > summary.md
           echo "" >> summary.md
-          echo "| Project | OS | Package Manager | Node Version | Configuration | Status |" >> summary.md
-          echo "| ------- | -- | --------------- | ------------ | ------------- | ------ |" >> summary.md
-          for artifact in artifacts/*.json; do
-            if [ -f "$artifact" ]; then
-              project=$(jq -r '.project' "$artifact")
-              os=$(jq -r '.os' "$artifact")
-              pm=$(jq -r '.pm' "$artifact")
-              configuration=$(jq -r '.configuration' "$artifact")
-              node=$(jq -r '.node' "$artifact")
-              status=$(jq -r '.status' "$artifact")
-              echo "| $project | $os | $pm | $node | $configuration | $status |" >> summary.md
-            fi
-          done
+          echo "**Trigger:** \`$REASON\`" >> summary.md
 
-          echo "" >> summary.md
-          echo "## Detailed Results" >> summary.md
-          echo "" >> summary.md
-          echo "<details><summary>Click to expand</summary>" >> summary.md
-          for artifact in artifacts/*.json; do
-            echo "$(basename $artifact)" >> summary.md
+          if [ "$E2E_ENABLED" != "true" ]; then
             echo "" >> summary.md
-            echo '```json' >> summary.md
+            echo "⏭️ **E2E tests skipped** - no affected projects with e2e targets" >> summary.md
+          elif [ "$E2E_RESULT" = "skipped" ]; then
             echo "" >> summary.md
-            jq -s '.' $artifact >> summary.md
+            echo "⏭️ **E2E tests skipped**" >> summary.md
+          else
+            if [ -n "$PROJECTS" ]; then
+              echo "**Affected projects:** \`$PROJECTS\`" >> summary.md
+            fi
             echo "" >> summary.md
-            echo '```' >> summary.md
+            echo "| OS | Package Manager | Node Version | Configuration | Status | Duration |" >> summary.md
+            echo "| -- | --------------- | ------------ | ------------- | ------ | -------- |" >> summary.md
+            for artifact in artifacts/*.json; do
+              if [ -f "$artifact" ]; then
+                os=$(jq -r '.os' "$artifact")
+                pm=$(jq -r '.pm' "$artifact")
+                configuration=$(jq -r '.configuration' "$artifact")
+                node=$(jq -r '.node' "$artifact")
+                status=$(jq -r '.status' "$artifact")
+                duration_sec=$(jq -r '.duration // 0' "$artifact")
+
+                # Format duration as mm:ss
+                if [ "$duration_sec" -gt 0 ]; then
+                  minutes=$((duration_sec / 60))
+                  seconds=$((duration_sec % 60))
+                  duration="${minutes}m ${seconds}s"
+                else
+                  duration="-"
+                fi
+
+                echo "| $os | $pm | $node | $configuration | $status | $duration |" >> summary.md
+              fi
+            done
             echo "" >> summary.md
-          done
-          echo "</details>" >> summary.md
+            echo "## Detailed Results" >> summary.md
+            echo "" >> summary.md
+            echo "<details><summary>Click to expand</summary>" >> summary.md
+            for artifact in artifacts/*.json; do
+              echo "$(basename $artifact)" >> summary.md
+              echo "" >> summary.md
+              echo '```json' >> summary.md
+              echo "" >> summary.md
+              jq -s '.' $artifact >> summary.md
+              echo "" >> summary.md
+              echo '```' >> summary.md
+              echo "" >> summary.md
+            done
+            echo "</details>" >> summary.md
+          fi
 
       - name: Upload summary artifact
         uses: actions/upload-artifact@v4

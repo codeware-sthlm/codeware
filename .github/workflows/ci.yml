@@ -22,7 +22,7 @@ permissions:
 env:
   CDWR_DEBUG_LOGGING: true
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') || vars.NX_NO_CLOUD }}
+  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') || github.event_name == 'push' || github.event_name == 'workflow_dispatch' || vars.NX_NO_CLOUD }}
   NX_PARALLEL: ${{ vars.NX_PARALLEL }}
   NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}
 
@@ -60,7 +60,13 @@ jobs:
       - name: Analyze affected projects
         uses: nrwl/nx-set-shas@v4
 
-      - run: pnpm nx-cloud record -- nx format:check
+      - name: Format check (Nx Cloud)
+        if: env.NX_NO_CLOUD != 'true'
+        run: pnpm nx-cloud record -- nx format:check
+
+      - name: Format check
+        if: env.NX_NO_CLOUD == 'true'
+        run: pnpm nx format:check
 
       - run: pnpm nx affected -t lint,test,build -c ci
 
@@ -75,6 +81,15 @@ jobs:
           INFISICAL_TEST_PROJECT_ID: ${{ secrets.INFISICAL_TEST_PROJECT_ID }}
           INFISICAL_TEST_SERVICE_TOKEN: ${{ secrets.INFISICAL_TEST_SERVICE_TOKEN }}
           INFISICAL_TEST_SITE: ${{ vars.INFISICAL_SITE }}
+
+      - name: Linux e2e smoke (pnpm)
+        run: pnpm nx e2e nx-payload-e2e -c skip-docker
+        env:
+          CDWR_E2E_PACKAGE_MANAGER: pnpm
+          CDWR_E2E_VERDACCIO_HOST: localhost
+          NX_CACHE_DIRECTORY: tmp
+          NX_PERF_LOGGING: false
+          NODE_OPTIONS: --max_old_space_size=4096
 
       - name: Nx Self-healing CI
         run: pnpm nx fix-ci

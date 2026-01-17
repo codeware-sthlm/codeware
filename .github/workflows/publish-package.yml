@@ -12,8 +12,8 @@ on:
   push:
     # Should match the patterns in our GitHub tag rulesets to be consistent
     tags:
-      - '*-[0-9]*.[0-9]*.[0-9]*' # Matches any package name followed by semver, e.g. core-2.0.0
-      - '*-[0-9]*.[0-9]*.[0-9]*-*.[0-9]*' # Also matches prerelease versions, e.g. core-2.0.0-beta.1
+      - "*-[0-9]*.[0-9]*.[0-9]*" # Matches any package name followed by semver, e.g. core-2.0.0
+      - "*-[0-9]*.[0-9]*.[0-9]*-*.[0-9]*" # Also matches prerelease versions, e.g. core-2.0.0-beta.1
 
   # Fall back if tag push doesn't fire, since tags and releases are created together by `nx release-cli`
   release:
@@ -33,7 +33,7 @@ on:
         type: boolean
 
 env:
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_NO_CLOUD: true
 
 jobs:
   publish:

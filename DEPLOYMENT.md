@@ -43,14 +43,24 @@ The deployment system automatically:
 │ .github/workflows/fly-deployment.yml │
 └──────────────────────────────────────┘
     │
-    ├─► Job 1: pre-deploy
+    ├─► Job 1: analyze-conditions
+    │    ├─ Analyze required deploy conditions
+    │    │   ├─ Skip Renovate workflows
+    │    │   ├─ Skip Nx Migrate workflows
+    │    │   └─ Skip Pull Request updates unless the preview label exists
+    │    ├─ Detect a Pull Request is opened or reopened
+    │    │   └─ Add label 'preview-deploy'
+    │    └─ Output: skip
+    │
+    ├─► Job 2: pre-deploy
+    │    ├─ Abort deployment process when skip output from job 1 is 'true'
     │    ├─ Determine environment (preview/production)
     │    ├─ Analyze affected Nx apps
     │    ├─ Fetch secrets and app-tenant relationships
     │    │   from Infisical
     │    └─ Output: apps, environment, app-tenants
     │
-    └─► Job 2: fly-deployment
+    └─► Job 3: fly-deployment
          ├─ For each app to deploy:
          │   ├─ If multi-tenant: deploy once per tenant
          │   └─ If single-tenant: deploy once

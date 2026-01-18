@@ -77,15 +77,6 @@ async function analyzeFlyDeploymentConditions({
   - Provided preview label: ${label || 'N/A'}
   - Blocked branch name prefixes: ${blockedPrefixes.join(', ')}`);
 
-  // Ensure we are in the context of an issue or pull request
-  const issueOrPrNumber = issueNumber || prNumber;
-  if (!issueOrPrNumber) {
-    const error =
-      'analyzeFlyDeploymentConditions must be run in the context of an issue or pull request';
-    core.setFailed(error);
-    return;
-  }
-
   // Skip blocked branche prefixes
   if (
     branchName &&
@@ -99,6 +90,15 @@ async function analyzeFlyDeploymentConditions({
   if (eventName !== 'pull_request') {
     core.info('Non pull request event detected -> continue');
     return setSkip(false);
+  }
+
+  // Ensure we are in the context of an issue or pull request for PR events
+  const issueOrPrNumber = issueNumber || prNumber;
+  if (!issueOrPrNumber) {
+    const error =
+      'analyzeFlyDeploymentConditions must be run in the context of an issue or pull request';
+    core.setFailed(error);
+    return;
   }
 
   // Handle PR events that should continue workflow

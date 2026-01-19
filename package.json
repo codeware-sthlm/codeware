@@ -140,7 +140,7 @@
     "@types/jest": "30.0.0",
     "@types/kill-port": "^2.0.3",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "22.19.3",
+    "@types/node": "22.19.7",
     "@types/nodemailer": "^6.4.17",
     "@types/nodemailer-sendgrid": "^1.0.3",
     "@types/npm-whoami": "^1.1.2",

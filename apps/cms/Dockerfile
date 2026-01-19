@@ -6,6 +6,9 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
+
+RUN npm install -g pnpm
+
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     git \
@@ -15,27 +18,24 @@ RUN apt-get update \
     libc6-dev \
     libvips-dev \
   && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package.json ./
 
-# Check the link regarding legacy-peer-deps
-# https://payloadcms.com/docs/getting-started/installation#1-install-the-relevant-packages
-# Keep optional deps so platform-specific native bindings (e.g. @swc/core) download prebuilts
-RUN npm i --legacy-peer-deps --no-audit --no-fund
+RUN pnpm install \
+  && pnpm store prune \
+  && STORE_PATH="$(pnpm store path --silent)" \
+  && rm -rf "$STORE_PATH"
 
 # Copy the dependencies to builder stage.
 # Lock file is important for Nx to calculate a correct project graph.
 FROM base AS builder
 
 WORKDIR /app
-COPY --from=deps /app/node_modules      ./node_modules
-COPY --from=deps /app/package-lock.json ./package-lock.json
+COPY --from=deps /app/node_modules   ./node_modules
+COPY --from=deps /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY . .
-
-# The lock file is hidden from the build process when included in the .gitignore file.
-# Since package-lock.json is needed when building the app, we'll remove it from .gitignore.
-RUN sed -i '/package-lock.json/d' .gitignore
 
 # Build arguments for Next.js client-side environment variables
 # These are embedded in the JavaScript bundle during build
@@ -69,9 +69,9 @@ FROM base AS runner
 
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Disable telemetry during runtime.
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
@@ -92,7 +92,7 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
+ENV PORT=3000
 
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "apps/cms/server.js"]

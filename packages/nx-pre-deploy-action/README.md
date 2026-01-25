@@ -31,7 +31,7 @@ This action is intended to be used before the [Fly Deployment Action](https://gi
 > [!NOTE] Deployment architecture and configuration overview
 > How this action fits in the workflow.
 >
-> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/DEPLOYMENT.md)
+> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md)
 
 ## Features
 
@@ -65,7 +65,7 @@ Optionally fetches tenant secrets from Infisical to enable multi-tenant deployme
 Returned in `app-tenant` output.
 
 > [!NOTE] Deployment flow diagrams and architecture
-> **See:** [DEPLOYMENT.md](../../DEPLOYMENT.md#deployment-flow)
+> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md#deployment-flow)
 
 ## Usage
 
@@ -236,7 +236,7 @@ Use Infisical's **secret metadata** to control whether values are treated as env
 
 > [!NOTE] Understanding deployment-time vs runtime secret loading
 >
-> **See:** [Secret Loading: Deployment vs Runtime](https://github.com/codeware-sthlm/codeware/blob/main/DEPLOYMENT.md#secret-loading-deployment-vs-runtime)
+> **See:** [Secret Loading: Deployment vs Runtime](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md#secret-loading-deployment-vs-runtime)
 
 ### 3. Deploy rules
 

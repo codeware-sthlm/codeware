@@ -69,12 +69,12 @@ The deployment system automatically:
 
 ### Key Packages <!-- omit in toc -->
 
-1. **[@cdwr/nx-pre-deploy-action](packages/nx-pre-deploy-action/README.md)** - Analyzes deployment requirements
+1. **[@cdwr/nx-pre-deploy-action](../packages/nx-pre-deploy-action/README.md)** - Analyzes deployment requirements
    - Determines target environment based on GitHub event
    - Identifies affected Nx applications
    - Validates `github.json` for each application
    - Fetches app-specific tenant configuration and secrets from Infisical
-2. **[@cdwr/nx-fly-deployment-action](packages/nx-fly-deployment-action/README.md)** - Executes deployments
+2. **[@cdwr/nx-fly-deployment-action](../packages/nx-fly-deployment-action/README.md)** - Executes deployments
    - Manages Fly.io application lifecycle
    - Handles multi-tenant deployments
    - Manages preview/production environments
@@ -180,7 +180,7 @@ Infisical is the single source of truth for both secrets and tenant configuratio
 > - Step-by-step configuration examples
 > - Deploy rules configuration
 >
-> **See:** [Multi-tenant Setup Guide](packages/nx-pre-deploy-action/README.md#multi-tenant-setup)
+> **See:** [Multi-tenant Setup Guide](../packages/nx-pre-deploy-action/README.md#multi-tenant-setup)
 
 **Quick Example:**
 
@@ -245,7 +245,7 @@ Sentry releases enable you to associate errors with specific deployments, track 
 
 **Workflow Steps:**
 
-The deployment workflow ([.github/workflows/fly-deployment.yml](.github/workflows/fly-deployment.yml)) orchestrates the release lifecycle:
+The deployment workflow ([.github/workflows/fly-deployment.yml](../.github/workflows/fly-deployment.yml)) orchestrates the release lifecycle:
 
 **Docker Build Requirements:**
 
@@ -303,7 +303,7 @@ Metadata per environment:
 > - Validation requirements
 > - Advanced use cases
 >
-> **See:** [Deploy Rules Documentation](packages/nx-pre-deploy-action/README.md#3-deploy-rules)
+> **See:** [Deploy Rules Documentation](../packages/nx-pre-deploy-action/README.md#3-deploy-rules)
 
 ### GitHub Secrets
 
@@ -405,7 +405,7 @@ sequenceDiagram
 > - Naming conventions
 > - app-details structure
 >
-> **See:** [Nx Fly Deployment Action - app-details input](packages/nx-fly-deployment-action/README.md#app-details)
+> **See:** [Nx Fly Deployment Action - app-details input](../packages/nx-fly-deployment-action/README.md#app-details)
 
 #### Benefits <!-- omit in toc -->
 

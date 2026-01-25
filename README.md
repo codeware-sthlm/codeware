@@ -177,7 +177,7 @@ nx payload-proxy [docker compose options]
 The [Infisical](https://infisical.com) secret management tool is used to manage secrets for the Codeware ecosystem.
 
 > [!NOTE] Deployment and multi-tenant configuration
-> **See:** [DEPLOYMENT.md](DEPLOYMENT.md) and the [multi-tenant setup guide](packages/nx-pre-deploy-action/README.md#multi-tenant-setup)
+> **See:** [DEPLOYMENT.md](docs/DEPLOYMENT.md) and the [multi-tenant setup guide](packages/nx-pre-deploy-action/README.md#multi-tenant-setup)
 
 1. [Install Infisical CLI](https://infisical.com/docs/cli/overview#installation)
 
@@ -232,7 +232,7 @@ INFISICAL_SERVICE_TOKEN=
 The [Fly.io](https://fly.io) platform is used to host the deployed applications and the required services.
 
 > [!NOTE] Configuration, multi-tenant setup, and workflow details
-> **See:** [DEPLOYMENT.md](DEPLOYMENT.md)
+> **See:** [DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 Deployments are automatic on push events, detected by the [nx-fly-deployment-action](packages/nx-fly-deployment-action).
 
@@ -257,7 +257,7 @@ For local development and troubleshooting, install the Fly CLI:
 Applications affected by a pull request are deployed to a temporary preview environment. A Fly Postgres cluster `pg-preview` is used to store the temporary databases, with automatic attachment/detachment managed by the deployment workflow.
 
 > [!NOTE] How to configure Postgres attachment in github.json
-> **See:** [DEPLOYMENT.md](DEPLOYMENT.md#per-app-configuration-githubjson)
+> **See:** [DEPLOYMENT.md](docs/DEPLOYMENT.md#per-app-configuration-githubjson)
 
 <details>
 <summary><strong>Advanced: Postgres cluster commands</strong></summary>
@@ -329,4 +329,4 @@ This workspace uses automated GitHub Actions to deploy applications to Fly.io wi
 - Deploys to the appropriate environment (preview/production)
 - Supports per-app tenant lists for flexible multi-tenancy
 
-For comprehensive deployment documentation, including configuration, multi-tenant setup, and troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
+For comprehensive deployment documentation, including configuration, multi-tenant setup, and troubleshooting, see [DEPLOYMENT.md](docs/DEPLOYMENT.md).

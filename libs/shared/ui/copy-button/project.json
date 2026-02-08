@@ -1,0 +1,8 @@
+{
+  "name": "shared-ui-copy-button",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui/copy-button/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "targets": {}
+}

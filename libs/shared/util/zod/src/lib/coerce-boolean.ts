@@ -1,25 +1,25 @@
 import { z } from 'zod';
 
 /**
- * Zod schema to coerce string values to boolean.
+ * Coerce to boolean with a default value for empty/missing values.
  *
- * - Strings equal to 'true' (case-insensitive) are converted to true.
- * - Strings equal to 'false' (case-insensitive) are converted to false.
- * - Actual boolean values are preserved.
- * - Null, undefined, and all other non-string, non-boolean values are coerced to false.
+ * Useful for environment variables where empty strings should use the default.
+ *
+ * @param defaultValue - The default boolean value (true or false)
+ * @returns Zod schema that coerces to boolean with the specified default
+ *
+ * @example
+ * ```ts
+ * const schema = z.object({
+ *   FEATURE_FLAG: coerceBoolean(true)
+ * });
+ * // Missing or empty → true
+ * // 'false' → false
+ * ```
  */
-export const coerceBoolean = z.preprocess((val) => {
-  if (typeof val === 'boolean') {
-    return val;
-  }
-  if (typeof val === 'string') {
-    return val.trim().toLowerCase() === 'true';
-  }
-
-  // Coerce null/undefined and all other non-string, non-boolean values to false.
-  if (val == null) {
-    return false;
-  }
-
-  return false;
-}, z.boolean());
+export const coerceBoolean = (defaultValue: boolean) =>
+  z
+    .string()
+    .transform((val) => (val === '' ? String(defaultValue) : val))
+    .pipe(z.enum(['true', 'false']))
+    .transform((val) => val === 'true');

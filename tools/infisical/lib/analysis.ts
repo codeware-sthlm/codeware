@@ -1,3 +1,6 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import {
   type InfisicalConfig,
   fetchAppTenants,
@@ -10,7 +13,10 @@ import {
 } from '@codeware/shared/feature/infisical';
 import * as dotenv from 'dotenv';
 
-dotenv.config({ path: `${__dirname}/../.env.infisical` });
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+dotenv.config({ path: `${dirname}/../.env.infisical` });
 
 const runForApps = ['cms', 'web'];
 

@@ -1,7 +1,13 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import { fetchAppTenants } from '@codeware/nx-pre-deploy-action';
 import * as dotenv from 'dotenv';
 
-dotenv.config({ path: `${__dirname}/../.env.infisical` });
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+dotenv.config({ path: `${dirname}/../.env.infisical` });
 
 (async () => {
   try {

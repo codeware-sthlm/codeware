@@ -1,15 +1,11 @@
 import type { CollectionConfig, Condition } from 'payload';
 
-import { getEnv } from '@codeware/app-cms/feature/env-loader';
-import {
-  systemUserOrTenantAdminAccess,
-  verifyApiKeyAccess
-} from '@codeware/app-cms/util/access';
+import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import type { Navigation } from '@codeware/shared/util/payload-types';
 
-const env = getEnv();
+import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
  * Whether a custom label source is selected.
@@ -28,7 +24,7 @@ const navigation: CollectionConfig = {
     group: adminGroups.settings
   },
   access: {
-    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET }),
+    read: userOrApiKeyAccess(),
     update: systemUserOrTenantAdminAccess
   },
   labels: {

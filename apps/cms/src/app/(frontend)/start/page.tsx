@@ -2,9 +2,9 @@ import { headers } from 'next/headers';
 import { getPayload } from 'payload';
 import React, { Suspense } from 'react';
 
-import config from '../../payload.config';
+import config from '../../../payload.config';
+import Logo from '../components/Logo';
 
-import Logo from './components/Logo';
 import styles from './page.module.css';
 
 export default async function HomePage() {

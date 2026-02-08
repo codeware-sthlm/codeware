@@ -1,5 +1,5 @@
 'use client';
-import { CdwrCloud } from '@codeware/shared/ui/react-components';
+import { CdwrCloud } from '@codeware/shared/ui/primitives';
 
 const Logo: React.FC = () => {
   return (

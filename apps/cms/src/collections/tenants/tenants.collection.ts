@@ -75,11 +75,26 @@ const tenants: CollectionConfig = {
       type: 'array',
       index: true,
       label: { en: 'Domains', sv: 'Domäner' },
+      admin: {
+        description: {
+          en: 'Configure domains for this workspace. When CMS domains are defined, users can only login from those domains (domain-based access control). Leave empty to allow access from any domain.',
+          sv: 'Konfigurera domäner för denna arbetsyta. När CMS-domäner är definierade kan användare endast logga in från dessa domäner (domänbaserad åtkomstkontroll). Lämna tom för att tillåta åtkomst från vilken domän som helst.'
+        },
+        position: 'sidebar',
+        initCollapsed: false
+      },
       fields: [
         {
           name: 'domain',
           type: 'text',
           label: { en: 'Domain', sv: 'Domän' },
+          admin: {
+            placeholder: 'example.com',
+            description: {
+              en: 'Domain without protocol. Examples: cms.client.com, cms-demo.fly.dev',
+              sv: 'Domän utan protokoll. Exempel: cms.client.com, cms-demo.fly.dev'
+            }
+          },
           required: true
         },
         {
@@ -93,12 +108,15 @@ const tenants: CollectionConfig = {
             { label: { en: 'Disabled', sv: 'Inaktiverad' }, value: 'disabled' }
           ],
           hasMany: true,
-          required: true
+          required: true,
+          admin: {
+            description: {
+              en: 'Select "CMS" to enforce domain-based login restriction for this domain.',
+              sv: 'Välj "CMS" för att aktivera domänbaserad inloggningsbegränsning för denna domän.'
+            }
+          }
         }
-      ],
-      admin: {
-        position: 'sidebar'
-      }
+      ]
     },
     {
       type: 'tabs',

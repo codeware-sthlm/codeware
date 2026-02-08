@@ -10,7 +10,6 @@ import type {
   TypeWithID
 } from 'payload';
 
-import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { tagsSelectField } from '@codeware/app-cms/ui/fields';
 import { adminGroups, getMimeTypes } from '@codeware/app-cms/util/definitions';
 import { Media } from '@codeware/shared/util/payload-types';
@@ -19,7 +18,6 @@ import { externalOrApiKeyAccess } from './access/external-or-api-key-access';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-const env = getEnv();
 
 /** Custom image name */
 const imageName: GenerateImageName = ({ extension, originalName, sizeName }) =>
@@ -79,7 +77,7 @@ const media: CollectionConfig = {
     }
   },
   access: {
-    read: externalOrApiKeyAccess(env.SIGNATURE_SECRET)
+    read: externalOrApiKeyAccess()
   },
   hooks: {
     beforeValidate: [ensureMimeType]

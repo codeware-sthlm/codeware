@@ -3,7 +3,7 @@
 import {
   IconPicker,
   type IconPickerIcon
-} from '@codeware/shared/ui/react-components';
+} from '@codeware/shared/ui/icon-picker';
 import { FieldDescription, FieldLabel, useField } from '@payloadcms/ui';
 import type { TextFieldClientProps } from 'payload';
 

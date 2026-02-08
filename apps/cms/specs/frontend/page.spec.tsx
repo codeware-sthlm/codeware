@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import * as payload from 'payload';
 
-import HomePage from '../../src/app/(frontend)/page';
+import HomePage from '../../src/app/(frontend)/start/page';
 
 jest.mock('next/headers', () =>
   jest.requireMock('../../mocks/next-headers.mock')

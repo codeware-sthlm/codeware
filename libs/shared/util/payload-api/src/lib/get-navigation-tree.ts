@@ -1,19 +1,9 @@
 import { invokeRequest } from './utils/invoke-request';
+import { resolveNavigationTree } from './utils/resolve-navigation-tree';
 import type { NavigationItem, RequestBaseOptions } from './utils/types';
 
 /**
  * Get the site navigation tree.
- *
- * The router setup must be able to detect `/collection/slug` URLs,
- * where `collection` should be optional.
- *
- * Example:
- * ```ts
- * '/about-us'
- * '/articles'
- * '/posts/my-first-post'
- * '/media/ref-doc-123.pdf'
- * ```
  *
  * When the document data for the current route is requested,
  * use `findNavigationDoc` function which will match the signature.
@@ -34,38 +24,5 @@ export const getNavigationTree = async (
     throw new Error(`Error fetching navigation: ${response.error}`);
   }
 
-  const items = response.data?.[0]?.items ?? [];
-
-  return items.reduce((acc, { customLabel, id, labelSource, reference }) => {
-    if (typeof reference.value === 'number') {
-      return acc;
-    }
-
-    const { relationTo, value } = reference;
-
-    const key = id ?? String(value.id);
-
-    const label =
-      labelSource === 'custom' && customLabel
-        ? customLabel
-        : relationTo === 'pages'
-          ? value.name
-          : value.title;
-
-    // Create URL where 'pages' is the default collection and not provided
-    const url =
-      relationTo === 'pages'
-        ? String(value.slug)
-        : `${relationTo}/${value.slug}`;
-
-    return [
-      ...acc,
-      {
-        collection: relationTo,
-        key,
-        label,
-        url
-      }
-    ];
-  }, [] as Array<NavigationItem>);
+  return resolveNavigationTree(response.data || []);
 };

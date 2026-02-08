@@ -1,6 +1,4 @@
-import { HeroIconName } from '@codeware/shared/ui/react-universal-components';
 import { deepMerge } from '@codeware/shared/util/pure';
-import { ExtractTypes } from '@codeware/shared/util/typesafe';
 import type { UIField } from 'payload';
 
 export type CalloutFieldProps = {

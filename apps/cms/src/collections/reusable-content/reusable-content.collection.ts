@@ -1,12 +1,10 @@
 import type { CollectionConfig } from 'payload';
 
-import { getEnv } from '@codeware/app-cms/feature/env-loader';
-import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
 
-const env = getEnv();
+import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
  * Define which blocks are available for the layout builder.
@@ -32,7 +30,7 @@ const blocks: Record<BlockSlug, boolean> = {
 const reusableContent: CollectionConfig = {
   slug: 'reusable-content',
   access: {
-    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
+    read: userOrApiKeyAccess()
   },
   admin: {
     group: adminGroups.content,

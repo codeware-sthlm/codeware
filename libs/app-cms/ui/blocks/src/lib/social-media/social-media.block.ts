@@ -2,7 +2,7 @@ import { enumName } from '@codeware/app-cms/util/db';
 import {
   type Platform,
   socialIconsMap
-} from '@codeware/shared/ui/react-universal-components';
+} from '@codeware/shared/ui/primitives';
 import type {
   SocialMediaBlock,
   SocialMediaBlockSocial

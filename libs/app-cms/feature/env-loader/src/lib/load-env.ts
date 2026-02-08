@@ -36,6 +36,23 @@ export const loadEnv = async (): Promise<Env | undefined> => {
     return;
   }
 
+  // If TENANT_ID is set (tenant deployment), load tenant-specific secrets
+  if (process.env['TENANT_ID']) {
+    const tenantId = process.env['TENANT_ID'];
+    console.log(`[ENV] Loading tenant secrets for tenant: ${tenantId}`);
+
+    const tenantSecretsLoaded = await withInfisical({
+      environment: process.env['DEPLOY_ENV'],
+      filter: { path: `/tenants/${tenantId}`, recurse: true },
+      injectEnv: true,
+      silent: true
+    });
+
+    if (!tenantSecretsLoaded) {
+      console.warn(`[ENV] Could not load tenant secrets for: ${tenantId}`);
+    }
+  }
+
   // Load CORS urls for the tenants
   const corsSecrets = await withInfisical({
     environment: process.env['DEPLOY_ENV'],

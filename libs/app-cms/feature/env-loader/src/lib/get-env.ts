@@ -17,9 +17,9 @@ export function getEnv(assert?: boolean): Env | undefined {
   }
 
   if (assert === undefined || assert) {
-    throw new Error('Invalid environment variables', {
-      cause: parsed.error.flatten().fieldErrors
-    });
+    throw new Error(
+      `Invalid environment variables: ${JSON.stringify(parsed.error.flatten().fieldErrors)}`
+    );
   }
 
   return parsed.data;

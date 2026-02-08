@@ -1,7 +1,7 @@
 import {
   Callout as CalloutComponent,
   type CalloutProps
-} from '@codeware/shared/ui/react-universal-components';
+} from '@codeware/shared/ui/primitives';
 import type { ServerProps } from 'payload';
 
 /**

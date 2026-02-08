@@ -1,11 +1,9 @@
 import type { CollectionConfig } from 'payload';
 
-import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { slugField } from '@codeware/app-cms/ui/fields';
-import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 
-const env = getEnv();
+import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
  * Categories collection
@@ -18,7 +16,7 @@ const categories: CollectionConfig = {
     useAsTitle: 'name'
   },
   access: {
-    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
+    read: userOrApiKeyAccess()
   },
   labels: {
     singular: { en: 'Category', sv: 'Kategori' },

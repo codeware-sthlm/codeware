@@ -10,6 +10,7 @@ import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
 import { tenantsArrayField } from './fields/tenants-array.field';
 import { ensureTenantHook } from './hooks/ensure-tenant.hook';
+import { verifyDomainAccessHook } from './hooks/verify-domain-access.hook';
 
 /**
  * Users collection
@@ -31,7 +32,8 @@ const users: CollectionConfig<'users'> = {
     delete: adminAccessToAllDocTenants('denySelf')
   },
   hooks: {
-    beforeValidate: [ensureTenantHook]
+    beforeValidate: [ensureTenantHook],
+    afterLogin: [verifyDomainAccessHook]
   },
   fields: [
     {

@@ -79,6 +79,10 @@ describe('coerceBoolean', () => {
         flag: false
       });
     });
+
+    it('should handle non-existing key', () => {
+      expect(schema.parse({ otherFlag: 'true' })).toEqual({ flag: false });
+    });
   });
 
   describe('throw for invalid values', () => {

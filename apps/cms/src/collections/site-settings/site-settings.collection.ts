@@ -1,13 +1,9 @@
 import type { CollectionConfig } from 'payload';
 
-import { getEnv } from '@codeware/app-cms/feature/env-loader';
-import {
-  systemUserOrTenantAdminAccess,
-  verifyApiKeyAccess
-} from '@codeware/app-cms/util/access';
+import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 
-const env = getEnv();
+import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
  * Site settings collection.
@@ -18,9 +14,7 @@ const siteSettings: CollectionConfig = {
     group: adminGroups.settings
   },
   access: {
-    read: verifyApiKeyAccess({
-      secret: env.SIGNATURE_SECRET
-    }),
+    read: userOrApiKeyAccess(),
     update: systemUserOrTenantAdminAccess
   },
   labels: {

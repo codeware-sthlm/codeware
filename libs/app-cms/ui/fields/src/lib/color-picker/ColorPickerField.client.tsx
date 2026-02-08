@@ -3,7 +3,7 @@
 import {
   ColorPicker,
   type ColorPickerColor
-} from '@codeware/shared/ui/react-components';
+} from '@codeware/shared/ui/color-picker';
 import {
   Tooltip,
   TooltipContent,

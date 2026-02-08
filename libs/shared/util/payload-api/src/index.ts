@@ -1,4 +1,5 @@
 export { apiKeyPrefix, authorizationHeader } from './lib/utils/definitions';
+export { resolveNavigationTree } from './lib/utils/resolve-navigation-tree';
 export type {
   MethodOptions,
   NavigationItem,

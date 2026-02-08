@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from '../page.module.css';
+import styles from '../start/page.module.css';
 
 const CdwrCloud = ({ className = '', size = 40, ...props }) => {
   const viewBoxWidth = 10.583617;

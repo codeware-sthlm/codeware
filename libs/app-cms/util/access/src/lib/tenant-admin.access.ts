@@ -1,4 +1,4 @@
-import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
+import { getUserTenantIDs } from '@codeware/app-cms/util/misc';
 import type {
   FieldAccessArgs,
   FieldAccessResponse

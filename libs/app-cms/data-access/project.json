@@ -1,0 +1,8 @@
+{
+  "name": "app-cms-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:app-cms", "type:data-access"],
+  "targets": {}
+}

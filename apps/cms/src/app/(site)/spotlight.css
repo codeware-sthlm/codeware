@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@import '../../../../../libs/shared/theme/src/lib/spotlight/tailwind-base.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Let Tailwind know about the extracted web components */
+@source '../../../../../libs/app-cms/ui/web';
+
+@plugin '@tailwindcss/typography';
+@config '../../../../../libs/shared/theme/src/lib/spotlight/tailwind-typography.cjs';

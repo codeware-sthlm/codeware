@@ -40,7 +40,7 @@ type Options = {
  * There are unsolved issues with setting cross-site cookies
  * and maybe the idea brings to much complexity and overhead.
  *
- * **The core concept is instead provided by `verifyApiKeyAccess`.**
+ * **The core concept is instead provided by `tenantApiKeyAccess`.**
  *
  * Delete when it's getting too old and we still see no gain using it.
  * ******************************************************

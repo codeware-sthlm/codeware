@@ -1,4 +1,4 @@
-import { withEnvVars } from '@codeware/shared/util/zod';
+import { coerceBoolean, withEnvVars } from '@codeware/shared/util/zod';
 import { z } from 'zod';
 
 import { EtherealSchema } from './ethereal.schema';
@@ -18,6 +18,24 @@ export const EnvSchema = withEnvVars(
       APP_NAME: z.string({ description: 'Name of the application' }),
       DEPLOY_ENV: z.enum(['development', 'preview', 'production']),
       PR_NUMBER: z.string({ description: 'Number of the pull request' }),
+
+      // Tenant deployment (optional - only present when deployed for a specific tenant)
+      TENANT_ID: z
+        .string({ description: 'Tenant identifier for site deployments' })
+        .optional(),
+      PAYLOAD_API_KEY: z
+        .string({ description: 'Tenant API key for site deployments' })
+        .optional(),
+
+      // URL configuration (opinionated and custom)
+      FLY_URL: z
+        .string({ description: 'Auto-generated Fly.io app URL' })
+        .url()
+        .optional(),
+      CUSTOM_URL: z
+        .string({ description: 'Custom domain URL for the application' })
+        .url()
+        .optional(),
 
       // Applied by Next.js
       NODE_ENV: z
@@ -46,13 +64,22 @@ export const EnvSchema = withEnvVars(
       PAYLOAD_SECRET_KEY: z
         .string({ description: 'Payload secret key' })
         .min(1, { message: 'PAYLOAD_SECRET_KEY is required' }),
+      PAYLOAD_URL: z
+        .string({ description: 'URL to the Payload CMS instance' })
+        .min(1, { message: 'PAYLOAD_URL is required' }),
+
+      // App deployment type (platform for multi-tenant admin, tenant for single-tenant client)
+      APP_TYPE: z
+        .enum(['platform', 'tenant'])
+        .default('tenant')
+        .describe(
+          'Run app as cms host admin (platform) or single-tenant client (tenant)'
+        ),
 
       // Api key request verification
       SIGNATURE_SECRET: z
         .string({ description: 'Secret key for API request signatures' })
-        .min(1, {
-          message: 'SIGNATURE_SECRET is required'
-        }),
+        .optional(),
 
       // Seed configuration
       SEED_DATA_URL: z
@@ -62,10 +89,9 @@ export const EnvSchema = withEnvVars(
       SEED_STRATEGY: SeedStrategySchema.default('delta'),
 
       // Internal
-      DISABLE_DB_PUSH: z
-        .string({ description: 'Disable database schema push in development' })
-        .transform((s) => s.toLowerCase() === 'true')
-        .default('false'),
+      DISABLE_DB_PUSH: coerceBoolean(false).describe(
+        'Disable database schema push in development'
+      ),
       NX_TASK_TARGET_TARGET: z
         .string({
           description:
@@ -81,6 +107,20 @@ export const EnvSchema = withEnvVars(
     .merge(SendGridSchema.partial())
     // Sentry is optional
     .merge(SentrySchema.partial())
+    // Refine to validate SIGNATURE_SECRET when APP_TYPE is platform
+    .refine(
+      (data) => {
+        // When app type is platform (headless CMS host), SIGNATURE_SECRET is required
+        if (data.APP_TYPE === 'platform' && !data.SIGNATURE_SECRET) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message: 'SIGNATURE_SECRET is required when APP_TYPE is platform',
+        path: ['SIGNATURE_SECRET']
+      }
+    )
 ).transform(
   ({
     ETHEREAL_FROM_ADDRESS,

@@ -3,7 +3,7 @@
 import {
   SocialIcon,
   getSocialIconName
-} from '@codeware/shared/ui/react-universal-components';
+} from '@codeware/shared/ui/primitives';
 import type { SocialMediaBlockSocial } from '@codeware/shared/util/payload-types';
 import { type RowLabelProps, useRowLabel } from '@payloadcms/ui';
 

@@ -23,7 +23,7 @@ import {
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
-import { isUser } from '@codeware/app-cms/util/misc';
+import { isTenant, isUser } from '@codeware/app-cms/util/misc';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
 
 import categories from './collections/categories/categories.collection';
@@ -44,12 +44,13 @@ const dirname = path.dirname(filename);
 const env = getEnv();
 
 export default buildConfig({
+  // Use custom domain if set, fallback to Fly URL, then PAYLOAD_URL
+  // In multi-tenant context: CUSTOM_URL = client's domain, FLY_URL = tenant-specific subdomain
+  serverURL: env.CUSTOM_URL || env.FLY_URL || env.PAYLOAD_URL,
   admin: {
     user: users.slug,
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     components: {
-      beforeDashboard: ['@codeware/app-cms/ui/components/VerifyTenantDomain'],
-      beforeLogin: ['@codeware/app-cms/ui/components/RedirectNotifier'],
       graphics: {
         Logo: '@codeware/apps/cms/components/Logo.client'
       }
@@ -82,14 +83,21 @@ export default buildConfig({
     tenants,
     users
   ],
-  cors: env.CORS_URLS === '*' ? '*' : env.CORS_URLS.split(',').filter(Boolean),
+  cors:
+    env.CORS_URLS === '*'
+      ? '*'
+      : [
+          env.FLY_URL ?? '', // Always allow the app's own Fly URL
+          ...env.CORS_URLS.split(',')
+        ].filter(Boolean),
   csrf: env.CSRF_URLS ? env.CSRF_URLS.split(',').filter(Boolean) : undefined,
   db: postgresAdapter({
     pool: {
       connectionString: env.DATABASE_URL
     },
     push: env.DISABLE_DB_PUSH === false,
-    prodMigrations: migrations
+    // Never run migrations in a tenant context
+    prodMigrations: env.TENANT_ID ? undefined : migrations
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
@@ -135,13 +143,16 @@ export default buildConfig({
     }
 
     payload.logger.info('Payload is ready');
-    await seed({
-      environment: env.DEPLOY_ENV,
-      payload,
-      remoteDataUrl: env.SEED_DATA_URL,
-      source: env.SEED_SOURCE,
-      strategy: env.SEED_STRATEGY
-    });
+    if (!env.TENANT_ID) {
+      // Only run seeding when TENANT_ID is not set (i.e. not in a tenant context)
+      await seed({
+        environment: env.DEPLOY_ENV,
+        payload,
+        remoteDataUrl: env.SEED_DATA_URL,
+        source: env.SEED_SOURCE,
+        strategy: env.SEED_STRATEGY
+      });
+    }
   },
   // Generate types and schemas
   typescript: {
@@ -171,7 +182,8 @@ export default buildConfig({
         // Capture server errors (500+)
         if (status >= 500) {
           const email = isUser(user) ? user.email : 'n/a';
-          const context = {
+          const tenant_slug = isTenant(user) ? user.slug : '';
+          const context: Sentry.ExclusiveEventHintOrCaptureContext = {
             extra: {
               errorCollectionSlug: collection?.slug
             },
@@ -181,6 +193,7 @@ export default buildConfig({
                 collection: user.collection,
                 name: user.name,
                 email,
+                tenant_slug,
                 ip_address:
                   // Extract only the first IP address in case the request passes through multiple proxies
                   headers?.get('X-Forwarded-For')?.split(',')[0]?.trim() ??

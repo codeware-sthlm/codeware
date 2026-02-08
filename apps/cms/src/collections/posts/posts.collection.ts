@@ -2,19 +2,17 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { BlocksFeature } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
 
-import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { mediaUploadField, slugField } from '@codeware/app-cms/ui/fields';
 import { multiTenantLinkFeature } from '@codeware/app-cms/ui/lexical';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
-import { verifyApiKeyAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { filterByTenantScope } from '@codeware/app-cms/util/filters';
 import type { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
 
-import { updatePublishedAtHook } from './hooks/update-published-at.hook';
+import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
-const env = getEnv();
+import { updatePublishedAtHook } from './hooks/update-published-at.hook';
 
 /**
  * Define which blocks are available for the rich text editor.
@@ -50,7 +48,7 @@ const posts: CollectionConfig<'posts'> = {
     }
   },
   access: {
-    read: verifyApiKeyAccess({ secret: env.SIGNATURE_SECRET })
+    read: userOrApiKeyAccess()
   },
   labels: {
     singular: { en: 'Post', sv: 'Inlägg' },

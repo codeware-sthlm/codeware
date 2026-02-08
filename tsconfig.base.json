@@ -16,6 +16,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@codeware/app-cms/data-access": [
+        "libs/app-cms/data-access/src/index.ts"
+      ],
       "@codeware/app-cms/feature/env-loader": [
         "libs/app-cms/feature/env-loader/src/index.ts"
       ],
@@ -34,6 +37,7 @@
       "@codeware/app-cms/ui/fields/*": ["libs/app-cms/ui/fields/src/lib/*"],
       "@codeware/app-cms/ui/lexical": ["libs/app-cms/ui/lexical/src/index.ts"],
       "@codeware/app-cms/ui/tabs": ["libs/app-cms/ui/tabs/src/index.ts"],
+      "@codeware/app-cms/ui/web": ["libs/app-cms/ui/web/src/index.ts"],
       "@codeware/app-cms/util/access": [
         "libs/app-cms/util/access/src/index.ts"
       ],
@@ -84,17 +88,29 @@
         "libs/shared/feature/infisical/src/index.ts"
       ],
       "@codeware/shared/theme": ["libs/shared/theme/src/index.ts"],
-      "@codeware/shared/ui/payload-components": [
-        "libs/shared/ui/payload-components/src/index.ts"
+      "@codeware/shared/ui/cms-renderer": [
+        "libs/shared/ui/cms-renderer/src/index.ts"
       ],
-      "@codeware/shared/ui/react-components": [
-        "libs/shared/ui/react-components/src/index.ts"
+      "@codeware/shared/ui/code": ["libs/shared/ui/code/src/index.ts"],
+      "@codeware/shared/ui/color-picker": [
+        "libs/shared/ui/color-picker/src/index.ts"
       ],
-      "@codeware/shared/ui/react-universal-components": [
-        "libs/shared/ui/react-universal-components/src/index.ts"
+      "@codeware/shared/ui/copy-button": [
+        "libs/shared/ui/copy-button/src/index.ts"
+      ],
+      "@codeware/shared/ui/file-area": [
+        "libs/shared/ui/file-area/src/index.ts"
+      ],
+      "@codeware/shared/ui/icon-picker": [
+        "libs/shared/ui/icon-picker/src/index.ts"
+      ],
+      "@codeware/shared/ui/image": ["libs/shared/ui/image/src/index.ts"],
+      "@codeware/shared/ui/primitives": [
+        "libs/shared/ui/primitives/src/index.ts"
       ],
       "@codeware/shared/ui/shadcn": ["libs/shared/ui/shadcn/src/index.ts"],
       "@codeware/shared/ui/shadcn/*": ["libs/shared/ui/shadcn/src/lib/*"],
+      "@codeware/shared/ui/video": ["libs/shared/ui/video/src/index.ts"],
       "@codeware/shared/util/node": ["libs/shared/util/node/src/index.ts"],
       "@codeware/shared/util/payload-api": [
         "libs/shared/util/payload-api/src/index.ts"

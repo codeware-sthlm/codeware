@@ -391,6 +391,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-one/fly.toml',
           env: {
             APP_NAME: 'app-one-config-pr-1',
+            FLY_URL: 'https://app-one-config-pr-1.fly.dev',
             PR_NUMBER: '1'
           },
           environment: 'preview'
@@ -403,6 +404,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-two/fly.toml',
           env: {
             APP_NAME: 'app-two-config-pr-1',
+            FLY_URL: 'https://app-two-config-pr-1.fly.dev',
             PR_NUMBER: '1'
           },
           environment: 'preview'
@@ -445,6 +447,7 @@ describe('flyDeployment', () => {
             APP_NAME: 'app-one-config-pr-1',
             ENV_KEY1: 'env-value1',
             ENV_KEY2: 'env-value2',
+            FLY_URL: 'https://app-one-config-pr-1.fly.dev',
             PR_NUMBER: '1'
           }
         } satisfies DeployAppOptions)
@@ -459,6 +462,7 @@ describe('flyDeployment', () => {
             APP_NAME: 'app-two-config-pr-1',
             ENV_KEY1: 'env-value1',
             ENV_KEY2: 'env-value2',
+            FLY_URL: 'https://app-two-config-pr-1.fly.dev',
             PR_NUMBER: '1'
           }
         } satisfies DeployAppOptions)
@@ -753,6 +757,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-one/fly.toml',
           env: {
             APP_NAME: 'app-one-config',
+            FLY_URL: 'https://app-one-config.fly.dev',
             PR_NUMBER: ''
           },
           environment: 'production'
@@ -765,6 +770,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-two/fly.production.toml',
           env: {
             APP_NAME: 'app-two-config',
+            FLY_URL: 'https://app-two-config.fly.dev',
             PR_NUMBER: ''
           },
           environment: 'production'
@@ -814,6 +820,7 @@ describe('flyDeployment', () => {
             ENV_KEY1: 'env"fnutt',
             ENV_KEY2: 'env space',
             ENV_KEY3: 'env\\backslash',
+            FLY_URL: 'https://app-one-config.fly.dev',
             PR_NUMBER: ''
           }
         } satisfies DeployAppOptions)
@@ -829,6 +836,7 @@ describe('flyDeployment', () => {
             ENV_KEY1: 'env"fnutt',
             ENV_KEY2: 'env space',
             ENV_KEY3: 'env\\backslash',
+            FLY_URL: 'https://app-two-config.fly.dev',
             PR_NUMBER: ''
           }
         } satisfies DeployAppOptions)
@@ -1035,6 +1043,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-one/fly.toml',
           env: {
             APP_NAME: 'app-one-config-demo',
+            FLY_URL: 'https://app-one-config-demo.fly.dev',
             PR_NUMBER: '',
             TENANT_ID: 'demo'
           },
@@ -1049,6 +1058,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-one/fly.toml',
           env: {
             APP_NAME: 'app-one-config-customer1',
+            FLY_URL: 'https://app-one-config-customer1.fly.dev',
             PR_NUMBER: '',
             TENANT_ID: 'customer1'
           },
@@ -1063,6 +1073,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-two/fly.production.toml',
           env: {
             APP_NAME: 'app-two-config-demo',
+            FLY_URL: 'https://app-two-config-demo.fly.dev',
             PR_NUMBER: '',
             TENANT_ID: 'demo'
           },
@@ -1077,6 +1088,7 @@ describe('flyDeployment', () => {
           config: '/apps/app-two/fly.production.toml',
           env: {
             APP_NAME: 'app-two-config-customer1',
+            FLY_URL: 'https://app-two-config-customer1.fly.dev',
             PR_NUMBER: '',
             TENANT_ID: 'customer1'
           },
@@ -1110,6 +1122,81 @@ describe('flyDeployment', () => {
             app: 'app-two-config-customer1',
             name: 'app-two (customer1)',
             url: 'https://app-two-config-customer1.fly.dev'
+          }
+        ]
+      } satisfies ActionOutputs);
+    });
+
+    it('should deploy apps with _default tenant (headless mode) without TENANT_ID', async () => {
+      setContext('push-main-branch');
+      setupMocks();
+
+      // Override the default mock to return only one app that uses app-one's config
+      mockAnalyzeAppsToDeploy.mockResolvedValue([
+        {
+          projectName: 'cms',
+          status: 'deploy',
+          flyConfigFile: '/apps/app-one/fly.toml', // Reuse app-one config for testing
+          githubConfig: {}
+        }
+      ]);
+
+      const config = setupTest({
+        appDetails: {
+          cms: [
+            { tenant: '_default' }, // Headless CMS deployment
+            { tenant: 'demo' } // Tenant-scoped CMS
+          ]
+        }
+      });
+      const result = await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledTimes(2);
+
+      // _default tenant deployment should NOT have TENANT_ID and should use base app name (no suffix)
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config', // No -_default suffix
+          config: '/apps/app-one/fly.toml',
+          env: {
+            APP_NAME: 'app-one-config',
+            FLY_URL: 'https://app-one-config.fly.dev',
+            PR_NUMBER: ''
+            // Note: TENANT_ID should NOT be present
+          },
+          environment: 'production'
+        })
+      );
+
+      // Regular tenant deployment should have TENANT_ID
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-demo',
+          config: '/apps/app-one/fly.toml',
+          env: {
+            APP_NAME: 'app-one-config-demo',
+            FLY_URL: 'https://app-one-config-demo.fly.dev',
+            PR_NUMBER: '',
+            TENANT_ID: 'demo'
+          },
+          environment: 'production'
+        })
+      );
+
+      expect(result).toEqual({
+        environment: 'production',
+        projects: [
+          {
+            action: 'deploy',
+            app: 'app-one-config', // No -_default suffix
+            name: 'cms (_default)',
+            url: 'https://app-one-config.fly.dev'
+          },
+          {
+            action: 'deploy',
+            app: 'app-one-config-demo',
+            name: 'cms (demo)',
+            url: 'https://app-one-config-demo.fly.dev'
           }
         ]
       } satisfies ActionOutputs);

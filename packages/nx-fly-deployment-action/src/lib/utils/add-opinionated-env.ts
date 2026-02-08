@@ -2,8 +2,12 @@
  * Add opinionated environment variables to the environment
  *
  * - `APP_NAME`
+ * - `FLY_URL`
  * - `PR_NUMBER`
  * - `TENANT_ID` (if applicable)
+ *
+ * Reserved tenant names:
+ * - `_default`: Indicates headless/default deployment without TENANT_ID
  *
  * @param appName - The name of the app
  * @param prNumber - The pull request number
@@ -30,9 +34,14 @@ export const addOpinionatedEnv = (
   };
 
   // Add TENANT_ID environment variable only if tenant is specified
-  if (tenantId) {
+  // Skip for reserved tenant name '_default' which indicates headless/default deployment
+  if (tenantId && tenantId !== '_default') {
     newEnv = { ...newEnv, TENANT_ID: tenantId };
   }
+
+  // Add FLY_URL - computed from app name (follows Fly.io subdomain pattern)
+  // Format: https://{app-name}.fly.dev
+  newEnv = { ...newEnv, FLY_URL: `https://${appName}.fly.dev` };
 
   return newEnv;
 };

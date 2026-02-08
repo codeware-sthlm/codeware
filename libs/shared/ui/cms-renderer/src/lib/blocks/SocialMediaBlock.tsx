@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  SocialIcon,
-  getSocialIconName
-} from '@codeware/shared/ui/primitives';
+import { SocialIcon, getSocialIconName } from '@codeware/shared/ui/primitives';
 import {
   Tooltip,
   TooltipContent,

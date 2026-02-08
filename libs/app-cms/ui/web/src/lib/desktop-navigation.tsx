@@ -14,13 +14,13 @@ function NavItem({
 }) {
   const pathname = usePathname();
   // Normalize paths for comparison (remove trailing slashes)
-  const normalizedPathname = pathname.endsWith('/') && pathname !== '/' 
-    ? pathname.slice(0, -1) 
-    : pathname;
-  const normalizedHref = href.endsWith('/') && href !== '/' 
-    ? href.slice(0, -1) 
-    : href;
-  
+  const normalizedPathname =
+    pathname.endsWith('/') && pathname !== '/'
+      ? pathname.slice(0, -1)
+      : pathname;
+  const normalizedHref =
+    href.endsWith('/') && href !== '/' ? href.slice(0, -1) : href;
+
   const isActive = normalizedPathname === normalizedHref;
 
   return (

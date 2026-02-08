@@ -1,4 +1,4 @@
-import { RenderBlocks } from '@codeware/shared/ui/payload-components';
+import { RenderBlocks } from '@codeware/shared/ui/cms-renderer';
 import type { NavigationDoc } from '@codeware/shared/util/payload-types';
 
 /**

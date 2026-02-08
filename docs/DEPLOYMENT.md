@@ -191,7 +191,14 @@ Infisical is the single source of truth for both secrets and tenant configuratio
 # Per-tenant configuration
 /tenants/demo/apps/web/PUBLIC_URL = "https://demo.example.com"
 /tenants/acme/apps/web/PUBLIC_URL = "https://acme.example.com"
+
+# Hybrid deployment (both headless + tenant-scoped)
+/tenants/_default/apps/cms/  # Headless CMS (no TENANT_ID)
+/tenants/demo/apps/cms/      # Tenant-scoped CMS (TENANT_ID=demo)
 ```
+
+> [!TIP]  
+> Use the reserved tenant name `_default` to be able to deploy an app both as a headless instance (without `TENANT_ID`) and as tenant-scoped instances. The `_default` tenant follows DEPLOY_RULES like any other tenant.
 
 ### Secret Loading: Deployment vs Runtime
 

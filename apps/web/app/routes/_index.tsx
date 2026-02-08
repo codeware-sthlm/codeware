@@ -1,4 +1,4 @@
-import { RenderBlocks } from '@codeware/shared/ui/payload-components';
+import { RenderBlocks } from '@codeware/shared/ui/cms-renderer';
 import { resolveMeta } from '@codeware/shared/util/payload-utils';
 import { type MetaFunction, useRouteError } from '@remix-run/react';
 

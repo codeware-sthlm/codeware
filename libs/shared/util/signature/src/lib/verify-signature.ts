@@ -15,7 +15,7 @@ type Args = {
   /**
    * The time in milliseconds before the signature is expired.
    *
-   * @default 300_000 (5 minutes)
+   * @default 300_000
    */
   ttl?: number;
 };
@@ -50,9 +50,14 @@ export const verifySignature = ({
   const parsed = SignatureLowercaseSchema.safeParse(headersRecord);
 
   if (!parsed.success) {
+    // Map to a compact single-line error message
+    const error = Object.entries(parsed.error.flatten().fieldErrors)
+      .map(([key, value]) => `${key}: ${value?.join(', ')}`)
+      .join('; ');
+
     return {
       success: false,
-      error: parsed.error.toString()
+      error
     };
   }
 

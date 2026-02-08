@@ -1,4 +1,4 @@
-import { resolveTenantFromHost } from '@codeware/shared/util/seed';
+import { resolveTenantSeedFromHost } from '@codeware/shared/util/seed';
 import { createMiddleware } from 'hono/factory';
 
 import env from '../env-resolver/env';
@@ -6,12 +6,11 @@ import env from '../env-resolver/env';
 /**
  * **ACTIVE IN DEVELOPMENT ONLY**
  *
- * Resolve the tenant API key from the `X-Dev-Host` header,
+ * Resolve the tenant API key via the `X-Tenant-Host` header,
  * which is set by the multi-tenant Nginx proxy.
  *
- * Host and API key are resolved from development seed data.
- *
- * The tenant API key is then set in the context for use in handlers.
+ * Payload API key is resolved from development seed data,
+ * and passed to the context for use in handlers.
  */
 export const resolveDevApiKey = createMiddleware<{
   Variables: {
@@ -25,21 +24,20 @@ export const resolveDevApiKey = createMiddleware<{
   }
 
   // Get the multi-tenant host from the nginx proxy
-  const host = c.req.header('X-Dev-Host');
+  const host = c.req.header('X-Tenant-Host');
 
   if (!host) {
     return c.text(
-      `Header 'X-Dev-Host' is required in development to simulate multi-tenancy`,
+      `Header 'X-Tenant-Host' is required in development to simulate multi-tenancy`,
       400
     );
   }
 
-  try {
-    const { apiKey } = await resolveTenantFromHost(host);
-    // Set tenant API key in context for use in handlers
-    c.set('tenantApiKey', apiKey);
-  } catch (error) {
-    console.error('Error resolving tenant from host\n', error);
+  // Set tenant API key in context for use in handlers
+  const tenant = await resolveTenantSeedFromHost(host);
+  if (tenant) {
+    c.set('tenantApiKey', tenant.apiKey);
+  } else {
     console.log(
       `Error: No tenant found for host '${host}', unable to set tenant API key`
     );

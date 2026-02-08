@@ -1,4 +1,4 @@
-import { RichText } from '@codeware/shared/ui/payload-components';
+import { RichText } from '@codeware/shared/ui/cms-renderer';
 import type { NavigationDoc } from '@codeware/shared/util/payload-types';
 
 /**

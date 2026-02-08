@@ -1,8 +1,8 @@
 import {
   PayloadProvider,
   type PayloadValue
-} from '@codeware/shared/ui/payload-components';
-import { CdwrCloud } from '@codeware/shared/ui/react-universal-components';
+} from '@codeware/shared/ui/cms-renderer';
+import { CdwrCloud } from '@codeware/shared/ui/primitives';
 import {
   type NavigationItem,
   getNavigationTree,

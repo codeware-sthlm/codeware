@@ -31,6 +31,10 @@ export default [
               onlyDependOnLibsWithTags: ['type:util']
             },
             {
+              sourceTag: 'type:ui',
+              onlyDependOnLibsWithTags: ['type:ui', 'type:util']
+            },
+            {
               sourceTag: 'scope:packages',
               onlyDependOnLibsWithTags: ['scope:packages']
             },
@@ -42,13 +46,16 @@ export default [
                 'scope:core',
                 'scope:shared',
                 'domain:signature'
-              ],
-              notDependOnLibsWithTags: ['domain:client']
+              ]
             },
             {
               sourceTag: 'scope:app-cms',
-              onlyDependOnLibsWithTags: ['scope:app-cms', 'scope:shared'],
-              notDependOnLibsWithTags: ['domain:client']
+              onlyDependOnLibsWithTags: [
+                'scope:app-cms',
+                'scope:shared',
+                'type:ui',
+                'type:util'
+              ]
             },
             {
               sourceTag: 'scope:web',

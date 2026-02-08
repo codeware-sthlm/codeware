@@ -92,7 +92,11 @@ export const runDeployApps = async (options: {
     // Deploy once for each deployment configuration
     for (const deploymentDetails of deploymentsToRun) {
       const tenantId = deploymentDetails.tenant;
-      const tenantLabel = tenantId ? ` for tenant '${tenantId}'` : '';
+      const tenantLabel = tenantId
+        ? tenantId === '_default'
+          ? ' (headless mode)'
+          : ` for tenant '${tenantId}'`
+        : '';
       core.info(`[${projectName}] Deploying${tenantLabel}...`);
 
       const appName = getAppName({

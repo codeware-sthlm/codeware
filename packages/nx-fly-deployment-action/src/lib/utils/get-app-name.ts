@@ -30,6 +30,8 @@ type Options = {
  * - `<config-app-name>-pr-<pull-request-number>-<tenant-id>`
  * - `<config-app-name>-<tenant-id>`
  *
+ * Reserved tenant `_default` does not add a suffix (same as no tenant).
+ *
  * @param options - Options
  * @returns The name of the app
  * @throws Error if pull request number is missing for preview environment
@@ -46,5 +48,8 @@ export const getAppName = (options: Options) => {
     ? `${configAppName}-pr-${pullRequest}`
     : configAppName;
 
-  return tenantId ? `${baseAppName}-${tenantId}` : baseAppName;
+  // Skip tenant suffix for reserved tenant '_default' (non-tenant deployment)
+  return tenantId && tenantId !== '_default'
+    ? `${baseAppName}-${tenantId}`
+    : baseAppName;
 };

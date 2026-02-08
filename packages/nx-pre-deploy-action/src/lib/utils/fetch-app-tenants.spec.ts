@@ -742,5 +742,83 @@ describe('fetchAppTenants', () => {
         admin: [{ tenant: 'internal', secrets: { ADMIN_SECRET: 'secret' } }]
       });
     });
+
+    it('should handle _default tenant for hybrid single/multi-tenant deployment', async () => {
+      mockWithInfisical.mockResolvedValue([
+        {
+          path: '/tenants/_default/apps/cms',
+          secrets: [
+            {
+              secretKey: 'DATABASE_URL',
+              secretValue: 'postgres://...',
+              secretMetadata: []
+            }
+          ]
+        },
+        {
+          path: '/tenants/demo/apps/cms',
+          secrets: [
+            {
+              secretKey: 'PAYLOAD_API_KEY',
+              secretValue: 'api-key-demo',
+              secretMetadata: []
+            },
+            {
+              secretKey: 'PAYLOAD_API_HOST',
+              secretValue: 'demo.example.com',
+              secretMetadata: []
+            }
+          ]
+        },
+        {
+          path: '/tenants/acme/apps/cms',
+          secrets: [
+            {
+              secretKey: 'PAYLOAD_API_KEY',
+              secretValue: 'api-key-acme',
+              secretMetadata: []
+            },
+            {
+              secretKey: 'PAYLOAD_API_HOST',
+              secretValue: 'acme.example.com',
+              secretMetadata: []
+            }
+          ]
+        }
+      ]);
+
+      const result = await fetchAppTenants(defaultConfig, ['cms']);
+
+      expect(result).toEqual({
+        cms: [
+          {
+            tenant: '_default',
+            secrets: { DATABASE_URL: 'postgres://...' }
+          },
+          {
+            tenant: 'acme',
+            secrets: {
+              PAYLOAD_API_KEY: 'api-key-acme',
+              PAYLOAD_API_HOST: 'acme.example.com'
+            }
+          },
+          {
+            tenant: 'demo',
+            secrets: {
+              PAYLOAD_API_KEY: 'api-key-demo',
+              PAYLOAD_API_HOST: 'demo.example.com'
+            }
+          }
+        ]
+      });
+
+      // Verify the _default tenant is treated like any other tenant
+      expect(core.info).toHaveBeenCalledWith(
+        expect.stringContaining("Discovered: tenant '_default' uses app 'cms'")
+      );
+      expect(core.info).toHaveBeenCalledWith(
+        '  - cms: 3 tenant(s) [_default, acme, demo]'
+      );
+    });
   });
 });

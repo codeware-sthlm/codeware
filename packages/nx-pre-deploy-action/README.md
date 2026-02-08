@@ -225,6 +225,29 @@ Store secrets in Infisical using this structure:
 /tenants/globex/apps/web/API_KEY = "sk_globex*"
 ```
 
+**Hybrid Deployment (Single + Multi-tenant):**
+
+Some apps may need to be deployed both as a tenant-scoped instance AND as a headless/default instance. Use the reserved tenant name `_default` for this:
+
+```json
+/apps/cms/DATABASE_URL = "postgres://..."
+/apps/cms/PAYLOAD_SECRET_KEY = "..."
+
+// Headless CMS deployment (no TENANT_ID set)
+/tenants/_default/apps/cms/
+// Optional: deployment-specific secrets for headless mode
+
+// Multi-tenant deployments (TENANT_ID will be set)
+/tenants/demo/apps/cms/
+  PAYLOAD_API_KEY = "..."
+  PAYLOAD_API_HOST = "demo.example.com"
+/tenants/acme/apps/cms/
+  PAYLOAD_API_KEY = "..."
+  PAYLOAD_API_HOST = "acme.example.com"
+```
+
+The `_default` tenant is treated like any other tenant (respects DEPLOY_RULES), but the deployed app will NOT receive a `TENANT_ID` environment variable, allowing it to run in headless/default mode.
+
 ### 2. Classify Secrets vs Environment Variables
 
 Use Infisical's **secret metadata** to control whether values are treated as environment variables (visible) or secrets (encrypted):
@@ -271,12 +294,16 @@ Use this when you rather want to see the rules in the secrets list.
 Rules format examples:
 
 ```yml
-apps: '*'             # all apps
-apps: 'web,cms'       # only web and cms apps
-tenants: '*'          # all discovered tenants
-tenants: 'demo'       # only demo tenant
-tenants: 'demo,acme'  # only demo and acme tenants
+apps: '*'                  # all apps
+apps: 'web,cms'            # only web and cms apps
+tenants: '*'               # all discovered tenants
+tenants: 'demo'            # only demo tenant
+tenants: 'demo,acme'       # only demo and acme tenants
+tenants: '_default,demo'   # headless deployment + demo tenant
 ```
+
+> [!TIP]
+> The reserved tenant `_default` must be explicitly included in `tenants` rules if you want it deployed. It's useful for preview environments where you might only want the headless CMS + one test tenant:
 
 ### 4. Provide Infisical Credentials
 

@@ -13,7 +13,7 @@ export const getS3StoragePlugin = (env: Env) => {
     Boolean(s3.bucket) ||
     // TODO: Running `dev` target without S3 will trigger db sync to remove prefix column from media collection.
     // Until this is fixed (by Payload?) it's better to use S3 for develpment as well.
-    ['build', 'gen', 'payload'].includes(env.NX_TASK_TARGET_TARGET);
+    ['build', 'gen', 'payload'].includes(env.NX_RUN_TARGET);
 
   return s3Storage({
     collections: {

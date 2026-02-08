@@ -13,6 +13,7 @@ if (process.env.NX_TASK_TARGET_TARGET === 'build') {
   console.log(`
     [BUILD] Environment variables available to Sentry in next.config.mjs:
     [BUILD] - DEPLOY_ENV: ${process.env.DEPLOY_ENV || '✗ not set'}
+    [BUILD] - FLY_URL: ${process.env.FLY_URL || '✗ not set'}
     [BUILD] - NEXT_PUBLIC_DEPLOY_ENV: ${process.env.NEXT_PUBLIC_DEPLOY_ENV || '✗ not set'}
     [BUILD] - NEXT_PUBLIC_SENTRY_DSN: ${process.env.NEXT_PUBLIC_SENTRY_DSN ? '✓ set' : '✗ not set'}
     [BUILD] - NEXT_PUBLIC_SENTRY_RELEASE: ${process.env.NEXT_PUBLIC_SENTRY_RELEASE || '✗ not set'}

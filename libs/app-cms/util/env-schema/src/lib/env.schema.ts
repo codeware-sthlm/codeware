@@ -17,7 +17,7 @@ export const EnvSchema = withEnvVars(
       // Environment (injected by deployment action)
       APP_NAME: z.string({ description: 'Name of the application' }),
       DEPLOY_ENV: z.enum(['development', 'preview', 'production']),
-      FLY_URL: z.string({ description: 'Auto-generated Fly.io app URL' }).url(),
+      FLY_URL: z.string({ description: 'Auto-generated Fly.io app URL' }),
       PR_NUMBER: z.string({ description: 'Number of the pull request' }),
 
       // Tenant deployment (optional - only present when deployed for a specific tenant)
@@ -91,10 +91,11 @@ export const EnvSchema = withEnvVars(
         'Disable database schema push in development'
       ),
       NX_TASK_TARGET_TARGET: z
-        .string({
+        .enum(['build', 'dev', 'gen', 'lint', 'payload', 'serve', 'test'], {
           description:
             'NX environment variable set to the project target that run'
         })
+        .or(z.literal(''))
         .default('')
     })
     // S3 storage is optional
@@ -127,6 +128,7 @@ export const EnvSchema = withEnvVars(
     ETHEREAL_PASSWORD,
     ETHEREAL_PORT,
     ETHEREAL_USERNAME,
+    NX_TASK_TARGET_TARGET,
     S3_ACCESS_KEY_ID,
     S3_BUCKET,
     S3_ENDPOINT,
@@ -142,6 +144,8 @@ export const EnvSchema = withEnvVars(
     ...env
   }) => ({
     ...env,
+    // Rename to declarative variable for easier use in codebase
+    NX_RUN_TARGET: NX_TASK_TARGET_TARGET ?? '',
     // Transform to storage object if S3 access key id is provided
     S3_STORAGE: S3_ACCESS_KEY_ID
       ? {

@@ -77,8 +77,8 @@ const tenants: CollectionConfig = {
       label: { en: 'Domains', sv: 'Domäner' },
       admin: {
         description: {
-          en: 'Configure domains for this workspace. When CMS domains are defined, users can only login from those domains (domain-based access control). Leave empty to allow access from any domain.',
-          sv: 'Konfigurera domäner för denna arbetsyta. När CMS-domäner är definierade kan användare endast logga in från dessa domäner (domänbaserad åtkomstkontroll). Lämna tom för att tillåta åtkomst från vilken domän som helst.'
+          en: 'Configure domains for this workspace. CMS domains must be defined to allow users to login (domain-based access control). Leave empty for general access restriction.',
+          sv: 'Konfigurera domäner för denna arbetsyta. CMS-domäner måste vara definierade för att tillåta inloggning (domänbaserad åtkomstkontroll). Lämna tomt för att begränsa åtkomst generellt.'
         },
         position: 'sidebar',
         initCollapsed: false
@@ -111,8 +111,8 @@ const tenants: CollectionConfig = {
           required: true,
           admin: {
             description: {
-              en: 'Select "CMS" to enforce domain-based login restriction for this domain.',
-              sv: 'Välj "CMS" för att aktivera domänbaserad inloggningsbegränsning för denna domän.'
+              en: 'Select "CMS" to allow login for this domain.',
+              sv: 'Välj "CMS" för att tillåta inloggning för denna domän.'
             }
           }
         }

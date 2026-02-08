@@ -1,0 +1,9 @@
+{
+  "name": "shared-ui-image",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui/image/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "// targets": "to see all targets run: nx show project shared-ui-image --web",
+  "targets": {}
+}

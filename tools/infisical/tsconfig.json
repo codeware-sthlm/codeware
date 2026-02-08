@@ -1,7 +1,4 @@
 {
   "extends": "../tsconfig.tools.json",
-  "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node"
-  }
+  "compilerOptions": {}
 }

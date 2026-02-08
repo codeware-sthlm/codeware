@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  HeroIcon,
-  HeroIconName
-} from '@codeware/shared/ui/primitives';
+import { HeroIcon, HeroIconName } from '@codeware/shared/ui/primitives';
 import {
   Alert,
   AlertDescription,

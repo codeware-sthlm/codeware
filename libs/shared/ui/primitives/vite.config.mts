@@ -4,8 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir:
-    '../../../../node_modules/.vite/libs/shared/ui/primitives',
+  cacheDir: '../../../../node_modules/.vite/libs/shared/ui/primitives',
   plugins: [react(), nxViteTsPaths()],
   test: {
     name: 'shared-ui-primitives',
@@ -15,8 +14,7 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory:
-        '../../../../coverage/libs/shared/ui/primitives',
+      reportsDirectory: '../../../../coverage/libs/shared/ui/primitives',
       provider: 'v8'
     },
     passWithNoTests: true

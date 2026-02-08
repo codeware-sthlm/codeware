@@ -50,6 +50,7 @@ export const verifyDomainAccessHook: CollectionAfterLoginHook<User> = async ({
   const userTenants = await payload.findByID({
     collection: 'users',
     id: user.id,
+    depth: 2,
     select: { tenants: true }
   });
 

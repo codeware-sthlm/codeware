@@ -24,9 +24,8 @@ export const getDomains = (
       ?.filter((d) => d != null) ?? [];
 
   const filteredDomains = pageTypes
-    ? domains.filter(
-        ({ pageTypes }) =>
-          pageTypes && pageTypes.some((pt) => pageTypes.includes(pt))
+    ? domains.filter((domain) =>
+        domain.pageTypes.some((pt) => pageTypes.includes(pt))
       )
     : domains;
 

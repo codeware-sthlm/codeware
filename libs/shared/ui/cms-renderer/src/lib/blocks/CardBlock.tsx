@@ -1,7 +1,4 @@
-import {
-  HeroIcon,
-  type HeroIconName
-} from '@codeware/shared/ui/primitives';
+import { HeroIcon, type HeroIconName } from '@codeware/shared/ui/primitives';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import {
   Card,

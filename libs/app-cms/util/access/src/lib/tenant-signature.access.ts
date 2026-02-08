@@ -12,7 +12,7 @@ type Options = {
 };
 
 /**
- * @depracated Remove before commiting!
+ * @deprecated Remove before commiting!
  *
  * Collection access control to a tenant via API key with signature verification.
  *

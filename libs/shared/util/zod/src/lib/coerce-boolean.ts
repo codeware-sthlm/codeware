@@ -12,13 +12,15 @@ import { z } from 'zod';
  * @example
  * ```ts
  * const schema = z.object({
- *   FEATURE_FLAG: coerceBoolean(true)
+ *   FEATURE_FLAG: coerceBoolean(false)
  * });
- * // undefined, null, '', or '  ' → true (default)
+ * // undefined, null, '', or '  ' → false (default)
  * // true → true
  * // false → false
  * // 'true' → true
  * // 'false' → false
+ * // 'TruE' → true
+ * // 'fALSe' → false
  * ```
  */
 export const coerceBoolean = (defaultValue: boolean) =>

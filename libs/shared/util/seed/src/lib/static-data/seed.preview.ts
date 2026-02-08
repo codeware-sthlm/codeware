@@ -232,7 +232,10 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         name: 'Star Wars',
         description: 'Star Wars inspired tenant.',
         domains: [
-          { domain: 'cdwr-web-pr-{PR_NUMBER}.fly.dev', pageTypes: ['client'] },
+          {
+            domain: 'cdwr-web-pr-{PR_NUMBER}.fly.dev',
+            pageTypes: ['client', 'cms']
+          },
           { domain: '{APP_NAME}.fly.dev', pageTypes: ['cms'] }
         ],
         apiKey: '8a5af03d-7382-40af-bb75-ee12c62ace23'
@@ -241,7 +244,10 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         name: 'Marvel',
         description: 'Marvel inspired tenant.',
         domains: [
-          { domain: 'cdwr-web-pr-{PR_NUMBER}.fly.dev', pageTypes: ['client'] },
+          {
+            domain: 'cdwr-web-pr-{PR_NUMBER}.fly.dev',
+            pageTypes: ['client', 'cms']
+          },
           { domain: '{APP_NAME}.fly.dev', pageTypes: ['cms'] }
         ],
         apiKey: 'd6480d2c-a74c-4ecb-81c4-278dfd11cc1c'

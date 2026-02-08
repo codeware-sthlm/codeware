@@ -333,7 +333,7 @@ export interface Tenant {
   name: string;
   description?: string | null;
   /**
-   * Configure domains for this workspace. When CMS domains are defined, users can only login from those domains (domain-based access control). Leave empty to allow access from any domain.
+   * Configure domains for this workspace. CMS domains must be defined to allow users to login (domain-based access control). Leave empty for general access restriction.
    */
   domains?:
     | {
@@ -342,7 +342,7 @@ export interface Tenant {
          */
         domain: string;
         /**
-         * Select "CMS" to enforce domain-based login restriction for this domain.
+         * Select "CMS" to allow login for this domain.
          */
         pageTypes: ('cms' | 'client' | 'disabled')[];
         id?: string | null;

@@ -95,9 +95,11 @@ export default buildConfig({
     pool: {
       connectionString: env.DATABASE_URL
     },
-    push: env.DISABLE_DB_PUSH === false,
-    // Never run migrations in a tenant context
-    prodMigrations: env.TENANT_ID ? undefined : migrations
+    // Ensure db push is disabled during build-time
+    push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build',
+    // Never run migrations in a tenant context or during build-time
+    prodMigrations:
+      env.TENANT_ID || env.NX_RUN_TARGET === 'build' ? undefined : migrations
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
@@ -126,8 +128,15 @@ export default buildConfig({
     defaultLocale: 'sv',
     fallback: true
   },
-  // Invoke seed process on payload init
+  // Act when Payload is initialized (after db connection, migrations, etc. are done)
   onInit: async (payload) => {
+    if (env.NX_RUN_TARGET === 'build') {
+      payload.logger.info(
+        'Payload onInit skipped during build to prevent side effects'
+      );
+      return;
+    }
+
     payload.logger.info(`Using ${payload.db.name} database adapter`);
     if (env.EMAIL?.ethereal) {
       payload.logger.info('Using Ethereal email adapter');

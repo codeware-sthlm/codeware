@@ -7,11 +7,10 @@ import type { User } from '@codeware/shared/util/payload-types';
  * Verify that the user is accessing from an allowed domain.
  *
  * This hook runs after login authentication but before the session is created.
- * It checks if the tenant has defined CMS domains, and if so, restricts access
- * to only those domains.
  *
- * **Opt-in Feature:**
- * - Only enforced when tenant has domains configured with page type 'cms'
+ * It checks the tenant defined CMS domains and restricts access to only those domains.
+ * When no domains are configured for the user's tenants, access is denied.
+ *
  * - System users bypass this check
  * - Users without tenants bypass this check
  *

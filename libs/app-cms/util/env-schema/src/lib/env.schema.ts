@@ -17,6 +17,7 @@ export const EnvSchema = withEnvVars(
       // Environment (injected by deployment action)
       APP_NAME: z.string({ description: 'Name of the application' }),
       DEPLOY_ENV: z.enum(['development', 'preview', 'production']),
+      FLY_URL: z.string({ description: 'Auto-generated Fly.io app URL' }).url(),
       PR_NUMBER: z.string({ description: 'Number of the pull request' }),
 
       // Tenant deployment (optional - only present when deployed for a specific tenant)
@@ -27,14 +28,11 @@ export const EnvSchema = withEnvVars(
         .string({ description: 'Tenant API key for site deployments' })
         .optional(),
 
-      // URL configuration (opinionated and custom)
-      FLY_URL: z
-        .string({ description: 'Auto-generated Fly.io app URL' })
-        .url()
-        .optional(),
+      // Custom URL
       CUSTOM_URL: z
         .string({ description: 'Custom domain URL for the application' })
         .url()
+        .or(z.literal(''))
         .optional(),
 
       // Applied by Next.js

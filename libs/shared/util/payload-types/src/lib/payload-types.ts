@@ -332,9 +332,18 @@ export interface Tenant {
   id: number;
   name: string;
   description?: string | null;
+  /**
+   * Configure domains for this workspace. When CMS domains are defined, users can only login from those domains (domain-based access control). Leave empty to allow access from any domain.
+   */
   domains?:
     | {
+        /**
+         * Domain without protocol. Examples: cms.client.com, cms-demo.fly.dev
+         */
         domain: string;
+        /**
+         * Select "CMS" to enforce domain-based login restriction for this domain.
+         */
         pageTypes: ('cms' | 'client' | 'disabled')[];
         id?: string | null;
       }[]

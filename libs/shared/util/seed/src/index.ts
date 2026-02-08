@@ -1,5 +1,5 @@
 export { manageSeedData, type SeedOptions } from './lib/manage-seed-data';
-export { resolveTenantFromHost } from './lib/resolve-tenant-from-host';
+export { resolveTenantSeedFromHost } from './lib/resolve-tenant-from-host';
 export type {
   CategoryLookup,
   TagLookup,

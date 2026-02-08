@@ -315,7 +315,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         description:
           'A moon is a natural satellite that orbits a planet or other celestial body larger than itself.',
         domains: [
-          { domain: 'moon.localhost', pageTypes: ['client'] },
+          { domain: 'moon.localhost', pageTypes: ['client', 'cms'] },
           { domain: 'cms.moon.localhost', pageTypes: ['cms'] }
         ],
         apiKey: 'b9c2fb25-df77-4304-a60a-028779a2cb37'
@@ -325,7 +325,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         description:
           'A star is a luminous spherical celestial body composed primarily of hydrogen and helium gas that generates energy through nuclear fusion in its core.',
         domains: [
-          { domain: 'star.localhost', pageTypes: ['client'] },
+          { domain: 'star.localhost', pageTypes: ['client', 'cms'] },
           { domain: 'cms.star.localhost', pageTypes: ['cms'] }
         ],
         apiKey: 'a76d0168-f9b2-48d2-bc57-96e45aaf8542'
@@ -335,7 +335,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         description:
           'A sun is the central star of a planetary system, around which planets, moons, asteroids, and other celestial bodies orbit.',
         domains: [
-          { domain: 'sun.localhost', pageTypes: ['client'] },
+          { domain: 'sun.localhost', pageTypes: ['client', 'cms'] },
           { domain: 'cms.sun.localhost', pageTypes: ['cms'] }
         ],
         apiKey: 'f3799063-d55e-43ab-a96f-b6a386ced985'

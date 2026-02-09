@@ -167,6 +167,17 @@ Provide the name of the postgres application. Fly will provide `DATABASE_URL` as
 
 Before the application gets destroyed, the Postgres cluster will detach the application from the database.
 
+**Database Name Sharing:** By default, Fly creates a unique database for each attached app (e.g., `myapp-pr-123`, `myapp-pr-123-tenant`). To ensure multiple apps share the same database, specify `flyPostgresDatabaseName` in your `github.json`:
+
+```json
+{
+  "flyPostgresPreview": "${POSTGRES_PREVIEW}",
+  "flyPostgresDatabaseName": "shared_db_name"
+}
+```
+
+This is essential for multi-tenant architectures where a platform host manages the database schema and tenant apps need access to the same data.
+
 Read more about [attach or detach a Fly app](https://fly.io/docs/postgres/managing/attach-detach/#attach-a-fly-app).
 
 #### `secrets`

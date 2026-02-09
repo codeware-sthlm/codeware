@@ -17,6 +17,11 @@ export const GitHubConfigSchema = withEnvVars(
     flyPostgresProduction: z
       .string()
       .regex(/^[a-zA-Z0-9_-]*$/, 'flyPostgresProduction pattern is invalid')
+      .optional(),
+
+    flyPostgresDatabaseName: z
+      .string()
+      .regex(/^[a-zA-Z0-9_-]*$/, 'flyPostgresDatabaseName pattern is invalid')
       .optional()
   }),
   { throwOnMissing: true, undefinedIsEmpty: true }

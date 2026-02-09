@@ -1073,12 +1073,45 @@ describe('Fly', () => {
       ]);
     });
 
+    it('should attach to postgres cluster with database name when provided', async () => {
+      const fly = new Fly(mockFlyConfig);
+      await fly.deploy({
+        app: mockDefs.testApp,
+        config: mockDefs.testConfig,
+        postgres: mockDefs.postgresNotAttached,
+        databaseName: 'shared_db_name'
+      });
+
+      assertSpawn('exact', [
+        'postgres',
+        'attach',
+        mockDefs.postgresNotAttached,
+        '--app',
+        mockDefs.testApp,
+        '--database-name',
+        'shared_db_name',
+        '--yes'
+      ]);
+    });
+
     it('should not attach to postgres cluster when already attached', async () => {
       const fly = new Fly(mockFlyConfig);
       await fly.deploy({
         app: mockDefs.testApp,
         config: mockDefs.testConfig,
         postgres: mockDefs.postgresAttached
+      });
+
+      assertSpawn('not', ['postgres', 'attach']);
+    });
+
+    it('should not attach to postgres cluster when already attached even with database name', async () => {
+      const fly = new Fly(mockFlyConfig);
+      await fly.deploy({
+        app: mockDefs.testApp,
+        config: mockDefs.testConfig,
+        postgres: mockDefs.postgresAttached,
+        databaseName: 'shared_db_name'
       });
 
       assertSpawn('not', ['postgres', 'attach']);

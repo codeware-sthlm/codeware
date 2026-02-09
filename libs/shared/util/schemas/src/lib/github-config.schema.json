@@ -26,6 +26,13 @@
         "pg-${CLUSTER_NAME}-production",
         "db-${DEPLOY_ENV}"
       ]
+    },
+    "flyPostgresDatabaseName": {
+      "description": "The database name to use when attaching to Postgres. Use this to ensure multiple apps share the same database instead of creating separate databases.",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]*(\\$\\{[A-Z][A-Z0-9_]*\\}[a-zA-Z0-9_-]*)*$",
+      "default": "",
+      "examples": ["cdwr_cms_shared", "app_shared_db", "${APP_NAME}_shared"]
     }
   },
   "required": []

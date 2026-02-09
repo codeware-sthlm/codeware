@@ -679,9 +679,17 @@ export class Fly {
         );
       } else {
         this.logger.info(
-          `Attach Postgres cluster '${options.postgres}' to '${appName}'`
+          `Attach Postgres cluster '${options.postgres}' to '${appName}'${
+            options.databaseName
+              ? ` with database '${options.databaseName}'`
+              : ''
+          }`
         );
-        await this.attachPostgres(options.postgres, appName);
+        await this.attachPostgres(
+          options.postgres,
+          appName,
+          options.databaseName
+        );
       }
     }
 
@@ -716,8 +724,18 @@ export class Fly {
    * @private
    * @throws An error if the Postgres database cannot be attached
    */
-  private async attachPostgres(postgres: string, app: string): Promise<void> {
-    const args = ['postgres', 'attach', postgres, '--app', app, '--yes'];
+  private async attachPostgres(
+    postgres: string,
+    app: string,
+    databaseName?: string
+  ): Promise<void> {
+    const args = ['postgres', 'attach', postgres, '--app', app];
+
+    if (databaseName) {
+      args.push('--database-name', databaseName);
+    }
+
+    args.push('--yes');
 
     await this.execFly(args);
   }

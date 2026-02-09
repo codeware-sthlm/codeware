@@ -1,4 +1,5 @@
 {
   "$schema": "../../libs/shared/util/schemas/src/lib/github-config.schema.json",
-  "flyPostgresPreview": "${POSTGRES_PREVIEW}"
+  "flyPostgresPreview": "${POSTGRES_PREVIEW}",
+  "flyPostgresDatabaseName": "cdwr_cms_shared"
 }

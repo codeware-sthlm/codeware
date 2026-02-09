@@ -92,7 +92,8 @@ Each deployable app needs a `github.json` file in its root directory (same locat
 {
   "$schema": "../../libs/shared/util/schemas/src/lib/github-config.schema.json",
   "flyPostgresPreview": "${POSTGRES_PREVIEW}",
-  "flyPostgresProduction": "my-production-db"
+  "flyPostgresProduction": "my-production-db",
+  "flyPostgresDatabaseName": "shared_database"
 }
 ```
 
@@ -100,6 +101,7 @@ Each deployable app needs a `github.json` file in its root directory (same locat
 
 - `flyPostgresPreview` (string, optional) - Fly Postgres cluster name for preview env
 - `flyPostgresProduction` (string, optional) - Fly Postgres cluster name for production env
+- `flyPostgresDatabaseName` (string, optional) - Shared database name for all apps (ensures multiple apps use the same database instead of creating separate ones)
 
 **Deployment Detection:**
 
@@ -124,9 +126,12 @@ Using a Fly Postgres cluster for preview (pull request) apps. Production databas
 
 ```json
 {
-  "flyPostgresPreview": "${POSTGRES_PREVIEW}"
+  "flyPostgresPreview": "${POSTGRES_PREVIEW}",
+  "flyPostgresDatabaseName": "cdwr_cms_shared"
 }
 ```
+
+**Note:** `flyPostgresDatabaseName` ensures that both the platform CMS host and all tenant deployments share the same database. Without this, each app would get its own empty database, causing "relation does not exist" errors in tenant apps.
 
 ### Fly Configuration Files
 

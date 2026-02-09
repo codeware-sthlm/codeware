@@ -191,7 +191,8 @@ describe('flyDeployment', () => {
         'fly.toml': '',
         'github.json': JSON.stringify({
           flyPostgresPreview: '${TEST_FLY_POSTGRES_PREVIEW}',
-          flyPostgresProduction: '${TEST_FLY_POSTGRES_PRODUCTION}'
+          flyPostgresProduction: '${TEST_FLY_POSTGRES_PRODUCTION}',
+          flyPostgresDatabaseName: 'shared_db'
         })
       },
       '/apps/app-two': {
@@ -248,7 +249,8 @@ describe('flyDeployment', () => {
           flyConfigFile: '/apps/app-one/fly.toml',
           githubConfig: {
             flyPostgresPreview: 'pg-preview', // Resolved from ${TEST_FLY_POSTGRES_PREVIEW}
-            flyPostgresProduction: 'pg-production' // Resolved from ${TEST_FLY_POSTGRES_PRODUCTION}
+            flyPostgresProduction: 'pg-production', // Resolved from ${TEST_FLY_POSTGRES_PRODUCTION}
+            flyPostgresDatabaseName: 'shared_db'
           }
         },
         {

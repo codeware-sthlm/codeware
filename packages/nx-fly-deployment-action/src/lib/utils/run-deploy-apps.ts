@@ -133,6 +133,9 @@ export const runDeployApps = async (options: {
           ? githubConfig.flyPostgresPreview
           : githubConfig.flyPostgresProduction;
 
+      // Get database name (shared across all apps)
+      const databaseName = githubConfig.flyPostgresDatabaseName;
+
       core.info(
         `[${projectName}] Deploy app '${appName}' to '${environment}'${tenantLabel}...`
       );
@@ -143,6 +146,7 @@ export const runDeployApps = async (options: {
           app: appName,
           buildArgs,
           config: flyConfigFile,
+          databaseName: databaseName || undefined, // rather undefined than empty string
           env: envVars,
           environment,
           optOutDepotBuilder: config.fly.optOutDepotBuilder,

@@ -223,6 +223,14 @@ export type DeployAppOptions = {
   postgres?: string;
 
   /**
+   * Database name to use when attaching to Postgres.
+   *
+   * If not specified, Fly will create a database with a default name.
+   * Use this to ensure multiple apps share the same database.
+   */
+  databaseName?: string;
+
+  /**
    * Target region for the application.
    *
    * Defaults to the region in the class configuration.

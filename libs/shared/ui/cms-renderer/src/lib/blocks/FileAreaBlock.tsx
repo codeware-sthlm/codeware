@@ -17,7 +17,7 @@ export const FileAreaBlock: React.FC<Props> = ({ files: filesFromProps }) => {
       name: String(filename),
       size: Number(filesize),
       mimeType: String(mimeType),
-      previewUrl: `${payloadUrl}/${url}`
+      previewUrl: url?.startsWith('http') ? url : `${payloadUrl}/${url}`
     }));
 
   return <FileArea files={files} />;

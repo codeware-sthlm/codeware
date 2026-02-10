@@ -1,5 +1,5 @@
 import { getSiteSettings } from '@codeware/app-cms/data-access';
-import { Container } from '@codeware/app-cms/ui/web';
+import { Container, ErrorContainer } from '@codeware/app-cms/ui/web';
 import { RenderBlocks } from '@codeware/shared/ui/cms-renderer';
 
 import { authenticatedPayload } from '../../security/authenticated-payload';
@@ -25,15 +25,13 @@ export default async function SiteIndexPage() {
         {landingPage?.layout ? (
           <RenderBlocks blocks={landingPage.layout} />
         ) : (
-          <div className="rounded-lg border border-yellow-500 bg-yellow-50 p-4 dark:bg-yellow-950">
-            <h3 className="text-lg font-semibold">
-              Landing page not configured
-            </h3>
-            <p className="mt-2 text-sm">
-              Please create a page in the CMS and assign it as the landing page
-              in Site Settings.
-            </p>
-          </div>
+          <ErrorContainer
+            title="Landing page was not found"
+            severity="info"
+            withoutContainer={true}
+          >
+            Please create a page in the CMS and assign it to be a landing page.
+          </ErrorContainer>
         )}
       </article>
     </Container>

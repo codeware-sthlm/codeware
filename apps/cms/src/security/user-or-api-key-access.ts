@@ -67,9 +67,6 @@ export const userOrApiKeyAccess = (): Access => (args) => {
     }
   }
 
-  payload.logger.info(
-    `[userOrApiKeyAccess] Tenant access check for ${user.slug} id ${user.id}`
-  );
   // Restrict access to the tenant scope
   return {
     tenant: { equals: user.id }

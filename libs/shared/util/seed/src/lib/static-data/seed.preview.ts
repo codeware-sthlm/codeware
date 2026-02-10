@@ -234,6 +234,10 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         domains: [
           {
             domain: 'cdwr-web-pr-{PR_NUMBER}.fly.dev',
+            pageTypes: ['client']
+          },
+          {
+            domain: '{APP_NAME}-demo.fly.dev',
             pageTypes: ['client', 'cms']
           },
           { domain: '{APP_NAME}.fly.dev', pageTypes: ['cms'] }
@@ -246,6 +250,10 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         domains: [
           {
             domain: 'cdwr-web-pr-{PR_NUMBER}.fly.dev',
+            pageTypes: ['client', 'cms']
+          },
+          {
+            domain: '{APP_NAME}-demo.fly.dev',
             pageTypes: ['client', 'cms']
           },
           { domain: '{APP_NAME}.fly.dev', pageTypes: ['cms'] }

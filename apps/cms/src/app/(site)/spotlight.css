@@ -3,8 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Let Tailwind know about the extracted web components */
+/* Let Tailwind know about extracted components */
 @source '../../../../../libs/app-cms/ui/web';
+@source '../../../../../libs/shared/ui';
 
 @plugin '@tailwindcss/typography';
 @config '../../../../../libs/shared/theme/src/lib/spotlight/tailwind-typography.cjs';

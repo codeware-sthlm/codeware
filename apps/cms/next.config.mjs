@@ -40,6 +40,31 @@ const nextConfig = {
   // These are uploaded to Sentry and deleted from the build output
   productionBrowserSourceMaps: true,
 
+  sassOptions: {
+    quietDeps: true,
+    silenceDeprecations: ['import'],
+
+    // ✅ Hard filter: suppress the @import deprecation spam from deps
+    logger: {
+      warn(message, options) {
+        // message is a string (sometimes includes “Deprecation Warning”)
+        if (
+          typeof message === 'string' &&
+          (message.includes('Sass @import rules are deprecated') ||
+            message.includes('will be removed in Dart Sass 2.0.0'))
+        ) {
+          return;
+        }
+
+        // Keep other warnings (optional)
+        console.warn(message);
+      },
+      debug() {
+        // ignore
+      }
+    }
+  },
+
   experimental: {
     reactCompiler: false,
     // Enable server-side source maps for better error tracking

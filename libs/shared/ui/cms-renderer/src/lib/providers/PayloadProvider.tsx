@@ -26,6 +26,19 @@ export type FormSubmitResponse =
 
 export type PayloadValue = {
   /**
+   * Provide a function that returns the current URL path.
+   * This is used for active route detection in navigation components.
+   *
+   * Example implementations:
+   * - Next.js: `usePathname()` from 'next/navigation'
+   * - Remix: `useLocation().pathname` from '@remix-run/react'
+   * - React Router: `useLocation().pathname` from 'react-router-dom'
+   *
+   * @returns The current URL path (e.g., '/blog/my-post')
+   */
+  getCurrentPath: () => string;
+
+  /**
    * Provide a navigate function based on your framework.
    * It's used to navigate to a path or URL.
    *
@@ -46,6 +59,18 @@ export type PayloadValue = {
    * Example: `'https://cms.domain.io'`
    */
   payloadUrl: string;
+
+  /**
+   * Provide a function to update the theme.
+   * This is used by the theme switcher component.
+   *
+   * Example implementations:
+   * - Next.js with next-themes: `setTheme` from `useTheme()` hook
+   * - Custom: Update your theme state/context
+   *
+   * @param theme - The theme to set ('light' or 'dark')
+   */
+  setTheme: (theme: 'light' | 'dark') => void;
 
   /**
    * Provide a function to handle form submissions server-side.

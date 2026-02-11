@@ -1,7 +1,9 @@
-import type { NavigationItem } from '@codeware/shared/util/payload-api';
-import Link from 'next/link';
+'use client';
 
-import { ContainerInner, ContainerOuter } from './container';
+import type { NavigationItem } from '@codeware/shared/util/payload-api';
+
+import { ContainerInner, ContainerOuter } from '../layout/Container';
+import { usePayload } from '../providers/PayloadProvider';
 
 function NavLink({
   href,
@@ -10,10 +12,21 @@ function NavLink({
   href: string;
   children: React.ReactNode;
 }) {
+  const { navigate } = usePayload();
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    navigate(href);
+  };
+
   return (
-    <Link href={href} className="hover:text-core-nav-link-hover transition">
+    <a
+      href={href}
+      onClick={handleClick}
+      className="hover:text-core-nav-link-hover transition"
+    >
       {children}
-    </Link>
+    </a>
   );
 }
 

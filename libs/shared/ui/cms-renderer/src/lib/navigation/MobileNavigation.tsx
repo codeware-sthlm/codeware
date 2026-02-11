@@ -8,8 +8,8 @@ import {
   PopoverPanel
 } from '@headlessui/react';
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+
+import { usePayload } from '../providers/PayloadProvider';
 
 export function MobileNavigation({
   navigationTree,
@@ -17,7 +17,9 @@ export function MobileNavigation({
 }: React.ComponentPropsWithoutRef<typeof Popover> & {
   navigationTree: NavigationItem[];
 }) {
-  const pathname = usePathname();
+  const { getCurrentPath, navigate } = usePayload();
+  const pathname = getCurrentPath();
+
   // Normalize pathname for comparison (remove trailing slashes)
   const normalizedPathname =
     pathname.endsWith('/') && pathname !== '/'
@@ -56,11 +58,16 @@ export function MobileNavigation({
                 url.endsWith('/') && url !== '/' ? url.slice(0, -1) : url;
               const isActive = normalizedPathname === normalizedUrl;
 
+              const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault();
+                navigate(url);
+              };
+
               return (
                 <li key={key}>
-                  <PopoverButton
-                    as={Link}
+                  <a
                     href={url}
+                    onClick={handleClick}
                     className={
                       isActive
                         ? 'text-core-nav-link-active hover:text-core-nav-link-hover block py-2'
@@ -68,7 +75,7 @@ export function MobileNavigation({
                     }
                   >
                     {label}
-                  </PopoverButton>
+                  </a>
                 </li>
               );
             })}

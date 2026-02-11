@@ -37,7 +37,6 @@
       "@codeware/app-cms/ui/fields/*": ["libs/app-cms/ui/fields/src/lib/*"],
       "@codeware/app-cms/ui/lexical": ["libs/app-cms/ui/lexical/src/index.ts"],
       "@codeware/app-cms/ui/tabs": ["libs/app-cms/ui/tabs/src/index.ts"],
-      "@codeware/app-cms/ui/web": ["libs/app-cms/ui/web/src/index.ts"],
       "@codeware/app-cms/util/access": [
         "libs/app-cms/util/access/src/index.ts"
       ],

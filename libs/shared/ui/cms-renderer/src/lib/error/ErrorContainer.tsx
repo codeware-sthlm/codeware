@@ -5,7 +5,7 @@ import {
 } from '@codeware/shared/ui/shadcn/components/alert';
 import { InfoIcon, LucideAlertTriangle } from 'lucide-react';
 
-import { Container } from './container';
+import { Container } from '../layout/Container';
 
 type Props = {
   children?: React.ReactNode;

@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import {
@@ -7,14 +6,7 @@ import {
   getTenantContext
 } from '@codeware/app-cms/data-access';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
-import {
-  Container,
-  DesktopNavigation,
-  Footer,
-  MobileNavigation,
-  ThemeSwitch
-} from '@codeware/app-cms/ui/web';
-import { CdwrCloud } from '@codeware/shared/ui/primitives';
+import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
 
 import './spotlight.css';
 import { authenticatedPayload } from '../../security/authenticated-payload';
@@ -52,51 +44,9 @@ export default async function RootLayout({
       </head>
       <body>
         <Providers payloadUrl={env.PAYLOAD_URL}>
-          <div className="flex w-full">
-            {/* Create a center aligned section with background space on each side */}
-            <div className="fixed inset-0 flex justify-center sm:px-8">
-              <div className="flex w-full max-w-7xl lg:px-8">
-                {/* Content section */}
-                <div className="bg-core-background-content ring-core-content-border w-full ring-1" />
-              </div>
-            </div>
-            {/* Display header, main and footer inside the content section */}
-            <div className="relative flex w-full flex-col">
-              <header className="pointer-events-none relative z-50 flex flex-none flex-col">
-                <div className="top-0 z-10 h-16 pt-6">
-                  <Container className="w-full">
-                    <div className="relative flex gap-4">
-                      <div className="flex flex-1">
-                        <div className="flex h-10 w-10 items-center backdrop-blur">
-                          <Link href="/" className="pointer-events-auto">
-                            <CdwrCloud size={40} />
-                          </Link>
-                        </div>
-                      </div>
-                      <div className="flex flex-1 justify-end md:justify-center">
-                        <MobileNavigation
-                          navigationTree={navigationTree}
-                          className="pointer-events-auto md:hidden"
-                        />
-                        <DesktopNavigation
-                          navigationTree={navigationTree}
-                          className="pointer-events-auto hidden md:block"
-                        />
-                      </div>
-                      <div className="flex items-end justify-end md:flex-1">
-                        <div className="pointer-events-auto">
-                          <ThemeSwitch />
-                        </div>
-                      </div>
-                    </div>
-                  </Container>
-                </div>
-              </header>
-
-              <main className="flex-auto">{children}</main>
-              <Footer navigationTree={navigationTree} />
-            </div>
-          </div>
+          <RenderLayout navigationTree={navigationTree}>
+            {children}
+          </RenderLayout>
         </Providers>
       </body>
     </html>

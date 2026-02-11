@@ -2,8 +2,8 @@
 
 import type { NavigationItem } from '@codeware/shared/util/payload-api';
 import { cn } from '@codeware/shared/util/ui';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+
+import { usePayload } from '../providers/PayloadProvider';
 
 function NavItem({
   href,
@@ -12,7 +12,9 @@ function NavItem({
   href: string;
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
+  const { getCurrentPath, navigate } = usePayload();
+  const pathname = getCurrentPath();
+
   // Normalize paths for comparison (remove trailing slashes)
   const normalizedPathname =
     pathname.endsWith('/') && pathname !== '/'
@@ -23,10 +25,16 @@ function NavItem({
 
   const isActive = normalizedPathname === normalizedHref;
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    navigate(href);
+  };
+
   return (
     <li className="content-center">
-      <Link
+      <a
         href={href}
+        onClick={handleClick}
         className={cn(
           'relative block min-w-max px-3 py-2 transition',
           isActive
@@ -37,9 +45,9 @@ function NavItem({
         {children}
         {/* Add a gradient brand line to the active link for a visual effect */}
         {isActive && (
-          <span className="from-core-nav-link-active/0 via-core-nav-link-active/40 to-core-nav-link-active/0 absolute inset-x-1 -bottom-0.5 h-px bg-gradient-to-r" />
+          <span className="from-core-nav-link-active/0 via-core-nav-link-active/40 to-core-nav-link-active/0 absolute inset-x-1 -bottom-0.5 h-px bg-linear-to-r" />
         )}
-      </Link>
+      </a>
     </li>
   );
 }

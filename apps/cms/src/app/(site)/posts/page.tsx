@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getPosts } from '@codeware/app-cms/data-access';
-import { Container } from '@codeware/app-cms/ui/web';
+import { Container } from '@codeware/shared/ui/cms-renderer';
 import type { Post } from '@codeware/shared/util/payload-types';
 
 import { authenticatedPayload } from '../../../security/authenticated-payload';

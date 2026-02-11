@@ -134,6 +134,7 @@ export default function App() {
 
   // Provide app opinionated context to Payload components
   const context: PayloadValue = {
+    getCurrentPath: () => loaderData.requestInfo.path,
     navigate: (path, newTab) => {
       const isExternal = path.startsWith('http');
       // Open new tab
@@ -150,6 +151,8 @@ export default function App() {
       navigate(path);
     },
     payloadUrl: loaderData.env.PAYLOAD_URL,
+    setTheme: (theme) =>
+      console.warn('Theme switcher not implemented yet', theme),
     submitForm: async (formData) => {
       try {
         // Send to server-side action to use secure API key authentication

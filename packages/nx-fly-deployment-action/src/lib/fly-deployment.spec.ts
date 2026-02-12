@@ -1215,14 +1215,18 @@ describe('flyDeployment', () => {
 
     it('should set failed error message', async () => {
       const config = setupTest();
-      await flyDeployment(config);
+      try {
+        await flyDeployment(config);
+      } catch {
+        // Expected to throw by default
+      }
 
       expect(core.setFailed).toHaveBeenCalledWith('error message');
     });
 
-    it('should return empty properties', async () => {
+    it('should return empty properties when throwOnError is false', async () => {
       const config = setupTest();
-      const result = await flyDeployment(config);
+      const result = await flyDeployment(config, false);
 
       expect(result).toEqual({
         environment: null,
@@ -1230,26 +1234,26 @@ describe('flyDeployment', () => {
       });
     });
 
-    it('should not passthough exceptions by default', async () => {
-      const config = setupTest();
-
-      expect(async () => await flyDeployment(config)).not.toThrow();
-    });
-
-    it('should passthough exceptions', async () => {
+    it('should passthrough exceptions by default', async () => {
       const config = setupTest();
 
       let error;
       let result;
 
       try {
-        result = await flyDeployment(config, true);
+        result = await flyDeployment(config);
       } catch (e) {
         error = e;
       }
 
-      expect(error).toBe('error message');
+      expect(error).toBeInstanceOf(Error);
       expect(result).toBeUndefined();
+    });
+
+    it('should not passthrough exceptions when explicitly disabled', async () => {
+      const config = setupTest();
+
+      expect(async () => await flyDeployment(config, false)).not.toThrow();
     });
   });
 });

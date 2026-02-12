@@ -4,6 +4,8 @@ export {
   type AuthenticatedPayload
 } from './lib/get-authenticated-payload';
 
+export { createFormSubmission } from './lib/collections/create-form-submission';
+
 export { getCategory } from './lib/collections/get-category';
 export { getCategories } from './lib/collections/get-categories';
 

@@ -51,13 +51,18 @@ export const verifySignature = ({
 
   if (!parsed.success) {
     // Map to a compact single-line error message
-    const error = Object.entries(parsed.error.flatten().fieldErrors)
+    const zodErrors = Object.entries(parsed.error.flatten().fieldErrors)
       .map(([key, value]) => `${key}: ${value?.join(', ')}`)
       .join('; ');
 
+    // Provide the headers for easier debugging
+    const headersList = Object.entries(headersRecord).map(
+      ([key, value]) => `${key}: ${value}`
+    );
+
     return {
       success: false,
-      error
+      error: `[headers] ${headersList}\n[zod] ${zodErrors}`
     };
   }
 

@@ -23,11 +23,11 @@ import { runDestroyApps } from './utils/run-destroy-apps';
  * Run fly deployment process
  *
  * @param inputs Deployment options
- * @param throwOnError Whether to throw on error
+ * @param throwOnError Whether to throw on error (default: true)
  */
 export async function flyDeployment(
   inputs: ActionInputs,
-  throwOnError = false
+  throwOnError = true
 ): Promise<ActionOutputs> {
   try {
     core.info('Starting fly deployment process');
@@ -127,23 +127,51 @@ export async function flyDeployment(
     }
 
     // Preview deployments should add a comment to the pull request
-    const deployed = results.projects.filter((p) => p.action === 'deploy');
-    if (deployed.length && results.environment === 'preview') {
+    if (results.environment === 'preview' && context.pullRequest) {
       core.startGroup('Add pull request preview comment');
 
-      // Create a table with deployed projects
-      const comment = [
-        `:sparkles: Your pull request project${
-          deployed.length > 1 ? 's are' : ' is'
-        } ready for preview`,
-        '| Project | App name | Preview |',
-        '| --- | --- | --- |'
-      ];
+      const deployed = results.projects.filter((p) => p.action === 'deploy');
+      const skipped = results.projects.filter((p) => p.action === 'skip');
 
-      for (const project of deployed) {
+      const comment: string[] = [];
+
+      // Add deployment status header
+      if (deployed.length > 0) {
         comment.push(
-          `| ${project.name} | ${project.app} | [${project.url}](${project.url}) |`
+          `:sparkles: Your pull request project${
+            deployed.length > 1 ? 's are' : ' is'
+          } ready for preview`
         );
+      } else {
+        comment.push(':information_source: Deployment status');
+      }
+
+      // Add deployed projects table
+      if (deployed.length > 0) {
+        comment.push(
+          '',
+          '| Project | App name | Preview |',
+          '| --- | --- | --- |'
+        );
+
+        for (const project of deployed) {
+          comment.push(
+            `| ${project.name} | ${project.app} | [${project.url}](${project.url}) |`
+          );
+        }
+      }
+
+      // Add skipped projects information
+      if (skipped.length > 0) {
+        comment.push(
+          '',
+          `⏭️ Skipped ${skipped.length} project${skipped.length > 1 ? 's' : ''}: ${skipped.map((p) => `\`${p.appOrProject}\``).join(', ')}`
+        );
+      }
+
+      // If nothing was deployed or skipped
+      if (deployed.length === 0 && skipped.length === 0) {
+        comment.push('', 'No affected projects to deploy.');
       }
 
       core.info(`Add comment to pull request ${context.pullRequest}`);
@@ -161,8 +189,38 @@ export async function flyDeployment(
     if (error instanceof Error) {
       core.setFailed(error.message);
 
+      // Try to post failure comment to PR if possible
+      const prNumber = github.context.payload.pull_request?.number as
+        | number
+        | undefined;
+      const isPreview =
+        github.context.eventName === 'pull_request' &&
+        github.context.payload.pull_request?.['state'] === 'open';
+
+      if (isPreview && prNumber) {
+        try {
+          const config = await getDeploymentConfig(inputs);
+          const comment = [
+            ':x: Deployment failed',
+            '',
+            '```',
+            error.message,
+            '```',
+            '',
+            'Please check the workflow logs for more details.'
+          ].join('\n');
+
+          await addPullRequestComment(config.token, prNumber, comment);
+          core.info(`Posted failure comment to PR #${prNumber}`);
+        } catch (commentError) {
+          core.warning(
+            `Failed to add error comment to PR: ${commentError instanceof Error ? commentError.message : 'Unknown error'}`
+          );
+        }
+      }
+
       if (throwOnError) {
-        throw error.message;
+        throw error;
       }
     }
 

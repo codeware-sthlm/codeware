@@ -40,7 +40,14 @@ export async function preDeploy(
 
     core.startGroup('Analyze environment');
     const response = getDeployEnv(github.context, config.mainBranch);
-    if (response.environment) {
+
+    // Use manual environment override if provided
+    if (inputs.manualEnvironment) {
+      core.info(
+        `Manual environment override: ${inputs.manualEnvironment} (auto-detected: ${response.environment || 'none'})`
+      );
+      environment = inputs.manualEnvironment;
+    } else if (response.environment) {
       environment = response.environment;
     } else {
       core.warning(response.reason);
@@ -49,17 +56,25 @@ export async function preDeploy(
     core.endGroup();
 
     core.startGroup('Determine applications to deploy');
-    const apps = (await analyzeAppsToDeploy(environment))
-      .filter((apps) => {
-        if (apps.status === 'deploy') {
-          core.info(`Deploy: ${apps.projectName}`);
-          return true;
-        } else {
-          core.info(`Skip: ${apps.projectName} - ${apps.reason}`);
-          return false;
-        }
-      })
-      .map((app) => app.projectName);
+    let apps: string[];
+
+    // Use manual app override if provided
+    if (inputs.manualApp) {
+      core.info(`Manual app override: ${inputs.manualApp}`);
+      apps = [inputs.manualApp];
+    } else {
+      apps = (await analyzeAppsToDeploy(environment))
+        .filter((apps) => {
+          if (apps.status === 'deploy') {
+            core.info(`Deploy: ${apps.projectName}`);
+            return true;
+          } else {
+            core.info(`Skip: ${apps.projectName} - ${apps.reason}`);
+            return false;
+          }
+        })
+        .map((app) => app.projectName);
+    }
     core.endGroup();
 
     core.info(`Applications to deploy: ${apps.join(', ') || '<none>'}`);
@@ -101,7 +116,18 @@ export async function preDeploy(
     const allAppTenants = await fetchAppTenants(infisicalConfig, apps);
 
     // Apply deployment rules to filter tenants
-    const appTenants = filterByDeployRules(allAppTenants, deployRules);
+    let appTenants = filterByDeployRules(allAppTenants, deployRules);
+
+    // Apply manual tenant override if provided
+    if (inputs.manualTenant) {
+      core.info(`Manual tenant override: ${inputs.manualTenant}`);
+      appTenants = Object.fromEntries(
+        Object.entries(appTenants).map(([app, tenants]) => [
+          app,
+          tenants.filter((t) => t.tenant === inputs.manualTenant)
+        ])
+      );
+    }
 
     // Number of tenants per app for logging
     const appsCount = Object.entries(appTenants).reduce(

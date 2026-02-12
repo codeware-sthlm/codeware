@@ -52,6 +52,12 @@ async function analyzeFlyDeploymentConditions({
   // Set the label output regardless of deployment decision to be used later when needed
   core.setOutput('label', label || '');
 
+  // Skip all checks for manual workflow dispatches
+  if (context.eventName === 'workflow_dispatch') {
+    core.info('Manual workflow dispatch detected -> continue');
+    return setSkip(false);
+  }
+
   // Define branch name prefixes that should block/skip deployment
   const blockedPrefixes = ['renovate', 'update-nx-workspace'];
 

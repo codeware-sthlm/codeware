@@ -7,7 +7,11 @@ export const ActionInputsSchema = z.object({
   infisicalClientId: z.string().optional(),
   infisicalClientSecret: z.string().optional(),
   infisicalProjectId: z.string().optional(),
-  infisicalSite: z.enum(['eu', 'us']).optional()
+  infisicalSite: z.enum(['eu', 'us']).optional(),
+  // Manual deployment overrides
+  manualApp: z.string().optional(),
+  manualTenant: z.string().optional(),
+  manualEnvironment: z.enum(['preview', 'production']).optional()
 });
 
 export type ActionInputs = z.infer<typeof ActionInputsSchema>;

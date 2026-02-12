@@ -30,7 +30,7 @@ export function Providers({ children, payloadUrl }: ProvidersProps) {
 function PayloadProviderInner({ children, payloadUrl }: ProvidersProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   return (
     <PayloadProvider
@@ -81,7 +81,8 @@ function PayloadProviderInner({ children, payloadUrl }: ProvidersProps) {
             };
           }
         },
-        theme: resolvedTheme as 'light' | 'dark'
+        theme: (theme as 'light' | 'dark' | 'system') ?? 'system',
+        resolvedTheme: resolvedTheme as 'light' | 'dark'
       }}
     >
       {children}

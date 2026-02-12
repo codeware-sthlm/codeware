@@ -1,21 +1,61 @@
-const { execSync } = require('child_process');
+const { readFileSync, readdirSync, statSync } = require('fs');
+const { join } = require('path');
 
 const { defaultConfig, RuleConfigSeverity } = require('cz-git');
 
-// Resolve scopes from Nx projects, except e2e
-const projects = JSON.parse(
-  execSync('nx show projects --exclude="*-e2e" | jq -R | jq -cs', {
-    encoding: 'utf-8'
-  })
-);
+function findProjectJsonFiles(dir, files = []) {
+  try {
+    const items = readdirSync(dir);
+    for (const item of items) {
+      const fullPath = join(dir, item);
+      if (
+        statSync(fullPath).isDirectory() &&
+        !item.startsWith('.') &&
+        item !== 'node_modules'
+      ) {
+        if (item === 'project.json') continue;
+        findProjectJsonFiles(fullPath, files);
+      } else if (item === 'project.json') {
+        files.push(fullPath);
+      }
+    }
+  } catch (e) {
+    // Skip directories we can't read
+  }
+  return files;
+}
+
+// Resolve scopes from Nx project tags
+const scopeSet = new Set();
+const projectFiles = findProjectJsonFiles(__dirname);
+
+for (const file of projectFiles) {
+  // Skip e2e projects
+  if (file.includes('-e2e/')) continue;
+
+  try {
+    const content = JSON.parse(readFileSync(file, 'utf-8'));
+    if (content.tags) {
+      for (const tag of content.tags) {
+        if (tag.startsWith('scope:')) {
+          scopeSet.add(tag.replace('scope:', ''));
+        }
+      }
+    }
+  } catch (e) {
+    // Skip invalid JSON files
+  }
+}
+
+const scopes = Array.from(scopeSet).sort();
 // Allow some custom scopes
-projects.push('deps', 'release', 'repo', 'workflow');
+scopes.push('deps', 'release', 'repo', 'workflow');
 
 /** @type {import('cz-git').UserConfig} */
 module.exports = {
   extends: ['@commitlint/config-angular'],
   rules: {
-    'scope-enum': [RuleConfigSeverity.Error, 'always', projects],
+    'scope-enum': [RuleConfigSeverity.Error, 'always', scopes],
     'type-enum': [
       RuleConfigSeverity.Error,
       'always',

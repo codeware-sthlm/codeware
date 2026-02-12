@@ -19,7 +19,11 @@ export async function run(): Promise<void> {
         core.getInput('infisical-client-secret') || undefined,
       infisicalProjectId: core.getInput('infisical-project-id') || undefined,
       infisicalSite: (core.getInput('infisical-site') ||
-        undefined) as ActionInputs['infisicalSite']
+        undefined) as ActionInputs['infisicalSite'],
+      manualApp: core.getInput('manual-app') || undefined,
+      manualTenant: core.getInput('manual-tenant') || undefined,
+      manualEnvironment: (core.getInput('manual-environment') ||
+        undefined) as ActionInputs['manualEnvironment']
     } satisfies ActionInputs);
 
     core.debug(`Inputs:\n${JSON.stringify(inputs, null, 2)}`);

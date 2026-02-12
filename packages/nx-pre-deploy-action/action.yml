@@ -29,6 +29,22 @@ inputs:
     description: >
       Infisical site to use ('eu' or 'us').
       Defaults to 'eu'.
+  manual-app:
+    description: >
+      Manual override: specific app to deploy.
+      Used for manual workflow dispatch to force deployment of a specific app.
+      Optional - if not provided, affected apps will be deployed.
+  manual-tenant:
+    description: >
+      Manual override: specific tenant ID to deploy.
+      Used for manual workflow dispatch to force deployment to a specific tenant.
+      Only applies to multi-tenant apps.
+      Optional - if not provided, all tenants will be deployed.
+  manual-environment:
+    description: >
+      Manual override: target environment (preview/production).
+      Used for manual workflow dispatch to force deployment to a specific environment.
+      Optional - if not provided, environment will be auto-detected.
 
 outputs:
   apps:

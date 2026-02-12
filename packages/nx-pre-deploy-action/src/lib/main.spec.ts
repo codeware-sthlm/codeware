@@ -45,6 +45,7 @@ describe('main', () => {
   it('should have valid inputs with all inputs provided truthly', async () => {
     getInputMock.mockImplementation((name: string) => {
       if (name === 'infisical-site') return 'eu';
+      if (name === 'manual-environment') return 'production';
       return name;
     });
     await main.run();
@@ -55,7 +56,10 @@ describe('main', () => {
       infisicalClientId: 'infisical-client-id',
       infisicalClientSecret: 'infisical-client-secret',
       infisicalProjectId: 'infisical-project-id',
-      infisicalSite: 'eu'
+      infisicalSite: 'eu',
+      manualApp: 'manual-app',
+      manualTenant: 'manual-tenant',
+      manualEnvironment: 'production'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
   });
@@ -69,7 +73,33 @@ describe('main', () => {
       infisicalClientId: undefined,
       infisicalClientSecret: undefined,
       infisicalProjectId: undefined,
-      infisicalSite: undefined
+      infisicalSite: undefined,
+      manualApp: undefined,
+      manualTenant: undefined,
+      manualEnvironment: undefined
+    } satisfies ActionInputs);
+    expect(runMock).toHaveReturned();
+  });
+
+  it('should have valid inputs with manual override inputs provided', async () => {
+    getInputMock.mockImplementation((name: string) => {
+      if (name === 'manual-app') return 'web';
+      if (name === 'manual-tenant') return 'acme';
+      if (name === 'manual-environment') return 'production';
+      return '';
+    });
+    await main.run();
+
+    expect(preDeployMock).toHaveBeenCalledWith({
+      mainBranch: '',
+      token: '',
+      infisicalClientId: undefined,
+      infisicalClientSecret: undefined,
+      infisicalProjectId: undefined,
+      infisicalSite: undefined,
+      manualApp: 'web',
+      manualTenant: 'acme',
+      manualEnvironment: 'production'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
   });

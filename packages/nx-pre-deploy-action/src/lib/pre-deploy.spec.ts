@@ -96,6 +96,9 @@ describe('preDeploy', () => {
         | 'infisicalClientSecret'
         | 'infisicalProjectId'
         | 'infisicalSite'
+        | 'manualApp'
+        | 'manualTenant'
+        | 'manualEnvironment'
       >
     >
   ): ActionInputs => {
@@ -722,6 +725,179 @@ describe('preDeploy', () => {
         appTenants: { web: [{ tenant: 'demo' }] },
         environment: 'preview'
       });
+    });
+  });
+
+  describe('manual deployment overrides', () => {
+    const infisicalConfig: Partial<ActionInputs> = {
+      infisicalClientId: 'test-client-id',
+      infisicalClientSecret: 'test-client-secret',
+      infisicalProjectId: 'test-project-id',
+      infisicalSite: 'eu'
+    };
+
+    beforeEach(() => {
+      mockAnalyzeAppsToDeploy.mockResolvedValue([
+        {
+          projectName: 'web',
+          status: 'deploy',
+          flyConfigFile: 'apps/web/fly.toml',
+          githubConfig: {}
+        },
+        {
+          projectName: 'cms',
+          status: 'deploy',
+          flyConfigFile: 'apps/cms/fly.toml',
+          githubConfig: {}
+        }
+      ]);
+    });
+
+    it('should override environment when manualEnvironment is provided', async () => {
+      setContext('push-feature-branch'); // Normally no environment
+      const config = setupTest({
+        ...infisicalConfig,
+        manualEnvironment: 'production'
+      });
+      const result = await preDeploy(config, true);
+
+      expect(result.environment).toBe('production');
+      expect(mockCoreInfo).toHaveBeenCalledWith(
+        expect.stringContaining('Manual environment override: production')
+      );
+    });
+
+    it('should override app when manualApp is provided', async () => {
+      setContext('push-main-branch');
+      const config = setupTest({
+        ...infisicalConfig,
+        manualApp: 'cms'
+      });
+      mockFetchAppTenants.mockResolvedValue({ cms: [] });
+      const result = await preDeploy(config, true);
+
+      expect(result.apps).toEqual(['cms']);
+      expect(mockCoreInfo).toHaveBeenCalledWith('Manual app override: cms');
+      expect(mockAnalyzeAppsToDeploy).not.toHaveBeenCalled();
+    });
+
+    it('should override tenant when manualTenant is provided', async () => {
+      setContext('push-main-branch');
+      const config = setupTest({
+        ...infisicalConfig,
+        manualTenant: 'acme'
+      });
+      mockFetchAppTenants.mockResolvedValue({
+        web: [{ tenant: 'demo' }, { tenant: 'acme' }, { tenant: 'globex' }],
+        cms: []
+      });
+
+      const result = await preDeploy(config, true);
+
+      expect(result.appTenants).toEqual({
+        web: [{ tenant: 'acme' }],
+        cms: []
+      });
+      expect(mockCoreInfo).toHaveBeenCalledWith('Manual tenant override: acme');
+    });
+
+    it('should combine manual app and environment overrides', async () => {
+      setContext('push-feature-branch'); // Normally no environment
+      const config = setupTest({
+        ...infisicalConfig,
+        manualApp: 'web',
+        manualEnvironment: 'preview'
+      });
+      mockFetchAppTenants.mockResolvedValue({
+        web: [{ tenant: 'demo' }]
+      });
+
+      const result = await preDeploy(config, true);
+
+      expect(result.apps).toEqual(['web']);
+      expect(result.environment).toBe('preview');
+      expect(mockAnalyzeAppsToDeploy).not.toHaveBeenCalled();
+    });
+
+    it('should combine manual app, tenant, and environment overrides', async () => {
+      setContext('push-feature-branch'); // Normally no environment
+      const config = setupTest({
+        ...infisicalConfig,
+        manualApp: 'web',
+        manualTenant: 'demo',
+        manualEnvironment: 'production'
+      });
+      mockFetchAppTenants.mockResolvedValue({
+        web: [{ tenant: 'demo' }, { tenant: 'acme' }]
+      });
+
+      const result = await preDeploy(config, true);
+
+      expect(result.apps).toEqual(['web']);
+      expect(result.environment).toBe('production');
+      expect(result.appTenants).toEqual({
+        web: [{ tenant: 'demo' }]
+      });
+      expect(mockAnalyzeAppsToDeploy).not.toHaveBeenCalled();
+    });
+
+    it('should not affect affected app analysis when manual overrides are not provided', async () => {
+      setContext('push-main-branch');
+      const config = setupTest(infisicalConfig);
+      mockFetchAppTenants.mockResolvedValue({
+        web: [{ tenant: 'demo' }],
+        cms: []
+      });
+
+      await preDeploy(config, true);
+
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledTimes(1);
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production');
+    });
+
+    it('should filter out tenants that do not match manualTenant', async () => {
+      setContext('push-main-branch');
+      const config = setupTest({
+        ...infisicalConfig,
+        manualTenant: 'nonexistent'
+      });
+      mockFetchAppTenants.mockResolvedValue({
+        web: [{ tenant: 'demo' }, { tenant: 'acme' }],
+        cms: []
+      });
+
+      const result = await preDeploy(config, true);
+
+      expect(result.appTenants).toEqual({
+        web: [],
+        cms: []
+      });
+    });
+
+    it('should still fetch from Infisical with manual environment override', async () => {
+      setContext('push-feature-branch'); // Normally no environment
+      const config = setupTest({
+        ...infisicalConfig,
+        manualEnvironment: 'preview'
+      });
+      mockFetchAppTenants.mockResolvedValue({
+        web: [{ tenant: 'demo' }],
+        cms: []
+      });
+
+      await preDeploy(config, true);
+
+      expect(mockFetchAppTenants).toHaveBeenCalledWith(
+        expect.objectContaining({
+          environment: 'preview'
+        }),
+        ['web', 'cms']
+      );
+      expect(mockFetchDeployRules).toHaveBeenCalledWith(
+        expect.objectContaining({
+          environment: 'preview'
+        })
+      );
     });
   });
 

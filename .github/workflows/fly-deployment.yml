@@ -3,8 +3,31 @@ name: Fly Deployment
 # This workflow is triggered by a pull request or push to the main branch.
 # Renovate and Nx migrations are ignored.
 # Deployments run when the preview label is present (auto-added on PR open) or when closing PRs for cleanup.
+# Can also be triggered manually for re-deployments.
 
 on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "App to deploy (leave empty for all affected apps)"
+        required: false
+        type: choice
+        options:
+          - ""
+          - cms
+          - web
+      tenant:
+        description: "Tenant ID (leave empty for all tenants, only applies to multi-tenant apps)"
+        required: false
+        type: string
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+        default: production
   pull_request:
     types:
       - opened
@@ -91,6 +114,9 @@ jobs:
           infisical-client-id: ${{ secrets.INFISICAL_READ_CLIENT_ID }}
           infisical-client-secret: ${{ secrets.INFISICAL_READ_CLIENT_SECRET }}
           infisical-project-id: ${{ secrets.INFISICAL_PROJECT_ID }}
+          manual-app: ${{ github.event.inputs.app }}
+          manual-tenant: ${{ github.event.inputs.tenant }}
+          manual-environment: ${{ github.event.inputs.environment }}
         env:
           # Must be defined since `github.json` is validated and cms app uses it
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
@@ -207,7 +233,18 @@ jobs:
           SKIPPED: ${{ needs.analyze-conditions.outputs.skip }}
           ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
           DEPLOY_RESULT: ${{ needs.fly-deployment.result }}
+          IS_MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+          MANUAL_APP: ${{ github.event.inputs.app }}
+          MANUAL_TENANT: ${{ github.event.inputs.tenant }}
         run: |
+          if [ "$IS_MANUAL" = "true" ]; then
+            echo "🔧 Manual deployment triggered" >> $GITHUB_STEP_SUMMARY
+            [ -n "$MANUAL_APP" ] && echo "  - App: $MANUAL_APP" >> $GITHUB_STEP_SUMMARY
+            [ -n "$MANUAL_TENANT" ] && echo "  - Tenant: $MANUAL_TENANT" >> $GITHUB_STEP_SUMMARY
+            echo "  - Environment: $ENVIRONMENT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
           if [ "$SKIPPED" = "true" ]; then
             echo "⏭️ Deployment skipped - conditions not met" >> $GITHUB_STEP_SUMMARY
             exit 0

@@ -5,6 +5,7 @@ This document explains the deployment architecture and configuration for the Cod
 ## Table of Contents <!-- omit in toc -->
 
 - [Overview](#overview)
+- [Manual Redeployment](#manual-redeployment)
 - [Architecture](#architecture)
 - [Configuration](#configuration)
   - [Per-App Configuration (github.json)](#per-app-configuration-githubjson)
@@ -31,6 +32,49 @@ The deployment system automatically:
 - Fetches tenant configuration from Infisical for multi-tenant apps
 - Deploys each app to Fly.io (once per tenant for multi-tenant apps)
 - Posts preview URLs as PR comments
+
+## Manual Redeployment
+
+Sometimes deployments fail or you need to redeploy without pushing new code. The workflow supports manual triggers via GitHub Actions UI.
+
+### How to Trigger Manual Deployment <!-- omit in toc -->
+
+1. Navigate to **Actions** → **Fly Deployment** in GitHub
+2. Click **Run workflow** button
+3. Configure deployment options:
+   - **App**: Select specific app (`cms`, `web`) or leave empty for all affected apps
+   - **Tenant**: Enter tenant ID (e.g., `demo`) or leave empty for all tenants
+   - **Environment**: Choose `preview` or `production` (required)
+4. Click **Run workflow**
+
+### Use Cases <!-- omit in toc -->
+
+**Redeploy everything to production:**
+
+- App: `<empty>`
+- Tenant: `<empty>`
+- Environment: `production`
+
+**Redeploy specific app for all tenants:**
+
+- App: `web`
+- Tenant: `<empty>`
+- Environment: `production`
+
+**Redeploy specific tenant:**
+
+- App: `web`
+- Tenant: `acme`
+- Environment: `production`
+
+**Redeploy CMS only:**
+
+- App: `cms`
+- Tenant: `<empty>`
+- Environment: `production`
+
+> [!NOTE]
+> Manual deployments bypass the affected app analysis and deploy the specified app(s) regardless of code changes. The tenant input only applies to multi-tenant apps like `web`.
 
 ## Architecture
 

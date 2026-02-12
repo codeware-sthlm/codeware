@@ -12,9 +12,13 @@ import { forwardRef } from 'react';
  *
  * **Structure:**
  *
- * Two-layer nesting for optimal balance of simplicity and control:
- * 1. Outer layer - Responsive padding (sm:px-8, lg:px-8) + max-width constraint (max-w-7xl)
- * 2. Inner layer - Progressive padding (px-4→px-8→px-12) + content max-width (max-w-2xl→max-w-5xl)
+ * Four-layer nesting creates proper spacing through cascading containers:
+ * 1. Outer padding (sm:px-8) - Initial responsive padding on larger screens
+ * 2. Max-width constraint (max-w-7xl + lg:px-8) - Prevents overly wide layouts
+ * 3. Inner padding (px-4→px-8→px-12) - Progressive spacing at breakpoints
+ * 4. Content max-width (max-w-2xl→max-w-5xl) - Optimal reading width
+ *
+ * The nesting is intentional - each layer adds spacing that compounds for better visual rhythm.
  *
  * **Usage:**
  *
@@ -67,12 +71,8 @@ export const ContainerOuter = forwardRef<
   React.ComponentPropsWithoutRef<'div'>
 >(function OuterContainer({ className, children, ...props }, ref) {
   return (
-    <div
-      ref={ref}
-      className={cn('mx-auto w-full max-w-7xl sm:px-8 lg:px-8', className)}
-      {...props}
-    >
-      {children}
+    <div ref={ref} className={cn('sm:px-8', className)} {...props}>
+      <div className="mx-auto w-full max-w-7xl lg:px-8">{children}</div>
     </div>
   );
 });
@@ -84,13 +84,10 @@ export const ContainerInner = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn(
-        'relative mx-auto max-w-2xl px-4 sm:px-8 lg:max-w-5xl lg:px-12',
-        className
-      )}
+      className={cn('relative px-4 sm:px-8 lg:px-12', className)}
       {...props}
     >
-      {children}
+      <div className="mx-auto max-w-2xl lg:max-w-5xl">{children}</div>
     </div>
   );
 });

@@ -68,9 +68,9 @@ export type PayloadValue = {
    * - Next.js with next-themes: `setTheme` from `useTheme()` hook
    * - Custom: Update your theme state/context
    *
-   * @param theme - The theme to set ('light' or 'dark')
+   * @param theme - The theme to set ('light', 'dark', or 'system')
    */
-  setTheme: (theme: 'light' | 'dark') => void;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
 
   /**
    * Provide a function to handle form submissions server-side.
@@ -97,8 +97,15 @@ export type PayloadValue = {
    * Provide the current theme state.
    *
    * Use your theme state value to make this value reflect theme changes automatically.
+   * This can be 'light', 'dark', or 'system' for auto-detection.
    */
-  theme: 'light' | 'dark' | undefined;
+  theme: 'light' | 'dark' | 'system' | undefined;
+
+  /**
+   * The resolved theme (what is actually displayed).
+   * When theme is 'system', this will be 'light' or 'dark' based on system preference.
+   */
+  resolvedTheme?: 'light' | 'dark';
 };
 
 type PayloadProviderProps = {

@@ -165,7 +165,7 @@ jobs:
           set-environment-variables-for-job: true
 
       - name: Create Sentry release
-        if: needs.pre-deploy.outputs.apps != '[]'
+        if: needs.pre-deploy.outputs.apps != '[]' && (needs.pre-deploy.outputs.environment == 'production' || github.event.action != 'closed')
         uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
@@ -216,7 +216,7 @@ jobs:
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
 
       - name: Finalize Sentry release
-        if: needs.pre-deploy.outputs.apps != '[]' && success()
+        if: needs.pre-deploy.outputs.apps != '[]' && (needs.pre-deploy.outputs.environment == 'production' || github.event.action != 'closed') && success()
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}

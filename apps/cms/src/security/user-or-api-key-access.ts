@@ -62,7 +62,7 @@ export const userOrApiKeyAccess = (): Access => (args) => {
     });
 
     if (!success) {
-      payload.logger.info(`Tenant denied, invalid signature: ${error}`);
+      payload.logger.info(`Tenant denied, invalid signature:\n${error}`);
       return false;
     }
   }

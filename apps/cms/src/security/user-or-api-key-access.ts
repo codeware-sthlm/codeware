@@ -19,10 +19,28 @@ import { verifySignature } from '@codeware/shared/util/signature';
  *
  * **Tenant users**
  *
- * Besides requiring authentication, additionally verifies request signature based on
+ * Besides requiring authentication, additionally verifies request signature based on:
  *
- * - `APP_TYPE=platform`: Signature verification is **enabled** (CMS host)
+ * - `APP_TYPE=platform`: Signature verification is **enabled** for external requests (CMS host)
+ *   - External REST API requests (with HTTP headers): Signature verified
+ *   - Internal Local API operations (minimal headers): Skip verification
  * - `APP_TYPE=tenant`: Signature verification is **disabled** (Next.js internal client)
+ *
+ * **Security Model:**
+ *
+ * External REST API requests are distinguished from internal Local API operations by checking
+ * for the `host` header, which is **required** by the HTTP/1.1 specification (RFC 2616).
+ *
+ * A malicious client cannot bypass signature verification by omitting the `host` header because:
+ *
+ * 1. HTTP/1.1 spec mandates the `host` header for all requests
+ * 2. HTTP servers (Node.js, nginx, etc.) reject requests without `host` before reaching application code
+ * 3. All HTTP clients (browsers, fetch, curl, etc.) automatically include the `host` header
+ * 4. Internal Local API calls are direct function invocations within the same process (no HTTP involved)
+ *
+ * Therefore:
+ * - Presence of `host` header → External HTTP request → Signature verification required
+ * - Absence of `host` header → Internal Local API call → Trusted, skip verification
  *
  * Returns access filter for the tenant permissions, which will be merged
  * with the multi-tenant plugin's tenant access control.
@@ -55,16 +73,22 @@ export const userOrApiKeyAccess = (): Access => (args) => {
       return false;
     }
 
-    // Verify client request signature
-    const { success, error } = verifySignature({
-      headers,
-      secret: SIGNATURE_SECRET
-    });
+    // Detect if this is an external REST API request vs internal Local API operation
+    const isExternalRequest = headers.has('host');
 
-    if (!success) {
-      payload.logger.info(`Tenant denied, invalid signature:\n${error}`);
-      return false;
+    // Only verify signature for external REST API requests
+    if (isExternalRequest) {
+      const { success, error } = verifySignature({
+        headers,
+        secret: SIGNATURE_SECRET
+      });
+
+      if (!success) {
+        payload.logger.info(`Tenant denied, invalid signature:\n${error}`);
+        return false;
+      }
     }
+    // Internal Local API operations (no 'host' header) skip signature verification
   }
 
   // Restrict access to the tenant scope

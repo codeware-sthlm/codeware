@@ -41,7 +41,8 @@ export const getDeployEnv = (
     if (eventName === 'workflow_dispatch') {
       return {
         environment: null,
-        reason: 'Manual deployment triggered - environment will be determined by workflow inputs'
+        reason:
+          'Manual deployment triggered - environment will be determined by workflow inputs'
       };
     }
 

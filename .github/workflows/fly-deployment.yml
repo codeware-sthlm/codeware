@@ -127,7 +127,7 @@ jobs:
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
 
   fly-deployment:
-    if: ${{ needs.pre-deploy.outputs.environment != '' }}
+    if: ${{ needs.pre-deploy.outputs.environment != '' && needs.pre-deploy.outputs.apps != '[]' }}
 
     needs: pre-deploy
     runs-on: ubuntu-latest
@@ -170,7 +170,7 @@ jobs:
           set-environment-variables-for-job: true
 
       - name: Create Sentry release
-        if: needs.pre-deploy.outputs.apps != '[]' && (needs.pre-deploy.outputs.environment == 'production' || github.event.action != 'closed')
+        if: github.event.action != 'closed'
         uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
@@ -192,6 +192,7 @@ jobs:
           fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
           fly-console-logs: ${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}
           token: ${{ steps.generate-token.outputs.token }}
+          environment: ${{ needs.pre-deploy.outputs.environment }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
           # Build arguments for Docker build (client-side vars + Sentry source map upload)
           build-args: |
@@ -221,7 +222,7 @@ jobs:
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
 
       - name: Finalize Sentry release
-        if: needs.pre-deploy.outputs.apps != '[]' && (needs.pre-deploy.outputs.environment == 'production' || github.event.action != 'closed') && success()
+        if: github.event.action != 'closed' && success()
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
@@ -238,6 +239,7 @@ jobs:
           SKIPPED: ${{ needs.analyze-conditions.outputs.skip }}
           ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
           DEPLOY_RESULT: ${{ needs.fly-deployment.result }}
+          IS_CLOSED_PR: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
           IS_MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
           MANUAL_APP: ${{ github.event.inputs.app }}
           MANUAL_TENANT: ${{ github.event.inputs.tenant }}
@@ -252,11 +254,16 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
+          if [ "$IS_CLOSED_PR" = "true" ]; then
+            echo "🚪 PR closed - running cleanup deployment" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
           if [ "$SKIPPED" = "true" ]; then
             echo "⏭️ Deployment skipped - conditions not met" >> $GITHUB_STEP_SUMMARY
             exit 0
           elif [ "$ENVIRONMENT" = "" ]; then
-            echo "⏭️ No affected apps to deploy" >> $GITHUB_STEP_SUMMARY
+            echo "⏭️ No affected apps" >> $GITHUB_STEP_SUMMARY
             exit 0
           elif [ "$DEPLOY_RESULT" = "success" ]; then
             echo "✅ Deployment completed successfully" >> $GITHUB_STEP_SUMMARY

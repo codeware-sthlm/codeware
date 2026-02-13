@@ -9,6 +9,7 @@ const AppDeploymentDetailsSchema = z.object({
 export const ActionInputsSchema = z.object({
   buildArgs: z.array(z.string()).optional(),
   env: z.array(z.string()).optional(),
+  environment: z.enum(['preview', 'production']).optional(),
   flyApiToken: z.string().optional(),
   flyOrg: z.string().optional(),
   flyRegion: z.string().optional(),

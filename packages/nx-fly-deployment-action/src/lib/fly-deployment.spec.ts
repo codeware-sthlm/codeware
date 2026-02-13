@@ -1209,21 +1209,17 @@ describe('flyDeployment', () => {
   });
 
   describe('workflow_dispatch event', () => {
-    it('should deploy using DEPLOY_ENV from pre-deploy action for production', async () => {
+    it('should deploy using environment input for production', async () => {
       setContext('push-main-branch', {
         eventName: 'workflow_dispatch',
         payload: { ref: 'refs/heads/main' }
       });
       setupMocks();
-      process.env['DEPLOY_ENV'] = 'production';
-      const config = setupTest();
+      const config = setupTest({ environment: 'production' });
       const result = await flyDeployment(config, true);
 
       expect(mockCoreInfo).toHaveBeenCalledWith(
-        expect.stringContaining('Manual deployment triggered')
-      );
-      expect(mockCoreInfo).toHaveBeenCalledWith(
-        `Using environment 'production' from pre-deploy action`
+        `Using environment 'production' from action input (manual override)`
       );
       expect(result.environment).toBe('production');
       expect(getMockFly().deploy).toHaveBeenCalledWith(
@@ -1231,18 +1227,15 @@ describe('flyDeployment', () => {
           environment: 'production'
         })
       );
-
-      delete process.env['DEPLOY_ENV'];
     });
 
-    it('should deploy using DEPLOY_ENV from pre-deploy action for preview', async () => {
+    it('should deploy using environment input for preview', async () => {
       setContext('pr-opened', {
         eventName: 'workflow_dispatch',
         payload: { number: 1, state: 'open' }
       });
       setupMocks();
-      process.env['DEPLOY_ENV'] = 'preview';
-      const config = setupTest();
+      const config = setupTest({ environment: 'preview' });
       const result = await flyDeployment(config, true);
 
       expect(result.environment).toBe('preview');
@@ -1251,40 +1244,21 @@ describe('flyDeployment', () => {
           environment: 'preview'
         })
       );
-
-      delete process.env['DEPLOY_ENV'];
     });
 
-    it('should throw error when DEPLOY_ENV is missing for workflow_dispatch', async () => {
+    it('should throw error when environment input is missing for workflow_dispatch', async () => {
       setContext('push-main-branch', {
         eventName: 'workflow_dispatch',
         payload: { ref: 'refs/heads/main' }
       });
       setupMocks();
-      delete process.env['DEPLOY_ENV'];
-      const config = setupTest();
-
-      await expect(
-        async () => await flyDeployment(config, true)
-      ).rejects.toThrow('Invalid or missing DEPLOY_ENV from pre-deploy action');
-    });
-
-    it('should throw error when DEPLOY_ENV is invalid for workflow_dispatch', async () => {
-      setContext('push-main-branch', {
-        eventName: 'workflow_dispatch',
-        payload: { ref: 'refs/heads/main' }
-      });
-      setupMocks();
-      process.env['DEPLOY_ENV'] = 'invalid';
       const config = setupTest();
 
       await expect(
         async () => await flyDeployment(config, true)
       ).rejects.toThrow(
-        'Invalid or missing DEPLOY_ENV from pre-deploy action: invalid'
+        'Manual deployment triggered - environment will be determined by workflow inputs'
       );
-
-      delete process.env['DEPLOY_ENV'];
     });
   });
 

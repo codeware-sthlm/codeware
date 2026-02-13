@@ -116,6 +116,18 @@ describe('main', () => {
     expect(exportVariableMock).toHaveBeenCalledWith('DEPLOY_ENV', 'preview');
   });
 
+  it('should set the environment variable', async () => {
+    const result: ActionOutputs = {
+      apps: [],
+      appTenants: {},
+      environment: 'preview'
+    };
+    preDeployMock.mockResolvedValue(result);
+    await main.run();
+
+    expect(exportVariableMock).toHaveBeenCalledWith('DEPLOY_ENV', 'preview');
+  });
+
   it('should set outputs', async () => {
     const result: ActionOutputs = {
       apps: ['app1', 'app2'],

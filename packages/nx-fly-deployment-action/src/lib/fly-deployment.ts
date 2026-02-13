@@ -70,29 +70,19 @@ export async function flyDeployment(
       `Get deployment environment for '${eventName}' on '${currentBranch}'`
     );
 
-    const deployEnv = getDeployEnv(github.context, config.mainBranch);
-
-    if (deployEnv.environment) {
-      // Add target environment to context
-      context.environment = deployEnv.environment;
+    // Use environment input if provided (e.g., from manual workflow_dispatch)
+    if (inputs.environment) {
+      core.info(
+        `Using environment '${inputs.environment}' from action input (manual override)`
+      );
+      context.environment = inputs.environment;
     } else {
-      // For workflow_dispatch, get environment from DEPLOY_ENV variable set by pre-deploy action
-      if (eventName === 'workflow_dispatch') {
-        core.info(deployEnv.reason);
-        const envFromPreDeploy = process.env['DEPLOY_ENV'];
-        if (
-          envFromPreDeploy === 'preview' ||
-          envFromPreDeploy === 'production'
-        ) {
-          context.environment = envFromPreDeploy;
-          core.info(
-            `Using environment '${context.environment}' from pre-deploy action`
-          );
-        } else {
-          throw new Error(
-            `Invalid or missing DEPLOY_ENV from pre-deploy action: ${envFromPreDeploy}`
-          );
-        }
+      // Auto-detect environment based on event and branch
+      const deployEnv = getDeployEnv(github.context, config.mainBranch);
+
+      if (deployEnv.environment) {
+        // Add target environment to context
+        context.environment = deployEnv.environment;
       } else {
         throw new Error(deployEnv.reason);
       }
@@ -107,9 +97,9 @@ export async function flyDeployment(
       context.action = 'deploy';
 
       // Extract PR number from payload if present (for manual preview deployments)
-      const payloadNumber = (payload as { number?: number })?.number;
-      if (payloadNumber) {
-        context.pullRequest = payloadNumber;
+      const prNumber = (payload as Partial<PullRequestEvent>)?.number;
+      if (prNumber) {
+        context.pullRequest = prNumber;
       }
     } else {
       switch (eventName as WebhookEventName) {

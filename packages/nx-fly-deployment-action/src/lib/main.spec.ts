@@ -36,6 +36,7 @@ describe('main', () => {
     getBooleanInputMock.mockImplementation(() => true);
     getInputMock.mockImplementation((name: string) => {
       if (name === 'app-details') return '{}';
+      if (name === 'environment') return '';
       return name;
     });
     getMultilineInputMock.mockImplementation(() => []);
@@ -55,6 +56,7 @@ describe('main', () => {
     getInputMock.mockImplementation((name: string) => {
       if (name === 'app-details')
         return '{"web":[{"tenant":"t1","secrets":{"KEY":"val"}}]}';
+      if (name === 'environment') return '';
       return name;
     });
     await main.run();
@@ -63,6 +65,7 @@ describe('main', () => {
       appDetails: { web: [{ tenant: 't1', secrets: { KEY: 'val' } }] },
       buildArgs: [],
       env: [],
+      environment: undefined,
       flyApiToken: 'fly-api-token',
       flyOrg: 'fly-org',
       flyRegion: 'fly-region',
@@ -91,6 +94,7 @@ describe('main', () => {
       appDetails: {},
       buildArgs: [],
       env: [],
+      environment: undefined,
       flyApiToken: '',
       flyOrg: '',
       flyRegion: '',
@@ -155,6 +159,7 @@ describe('main', () => {
   it('should handle errors', async () => {
     getInputMock.mockImplementation((name: string) => {
       if (name === 'app-details') return '{}';
+      if (name === 'environment') return '';
       return name;
     });
     const error = new Error('error message');

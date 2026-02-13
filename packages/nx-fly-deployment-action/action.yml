@@ -28,6 +28,11 @@ inputs:
     description: >
       The main branch name.
       Defaults to the default branch of the repository.
+  environment:
+    description: >
+      Override the deployment environment (preview or production).
+      If not provided, the environment will be auto-detected from the GitHub event.
+      Useful for manual deployments via workflow_dispatch.
   build-args:
     description: >
       A multiline string of build arguments to pass to Docker during image build.

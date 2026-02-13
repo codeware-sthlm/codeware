@@ -38,9 +38,16 @@ export const getDeployEnv = (
       };
     }
 
+    if (eventName === 'workflow_dispatch') {
+      return {
+        environment: null,
+        reason: 'Manual deployment triggered - environment will be determined by workflow inputs'
+      };
+    }
+
     return {
       environment: null,
-      reason: `'${eventName}' is not a supported event for deployment, only 'pull_request' and 'push' are supported`
+      reason: `'${eventName}' is not a supported event for deployment, only 'pull_request', 'push', and 'workflow_dispatch' are supported`
     };
   } catch (error) {
     return {

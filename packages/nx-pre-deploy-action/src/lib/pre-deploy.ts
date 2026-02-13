@@ -50,7 +50,12 @@ export async function preDeploy(
     } else if (response.environment) {
       environment = response.environment;
     } else {
-      core.warning(response.reason);
+      // For workflow_dispatch, log as info instead of warning since it's expected
+      if (github.context.eventName === 'workflow_dispatch') {
+        core.info(response.reason);
+      } else {
+        core.warning(response.reason);
+      }
     }
     core.info(`Deploy to environment: ${environment || '<none>'}`);
     core.endGroup();

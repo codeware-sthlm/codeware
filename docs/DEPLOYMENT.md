@@ -45,6 +45,7 @@ Sometimes deployments fail or you need to redeploy without pushing new code. The
    - **App**: Select specific app (`cms`, `web`) or leave empty for all affected apps
    - **Tenant**: Enter tenant ID (e.g., `demo`) or leave empty for all tenants
    - **Environment**: Choose `preview` or `production` (required)
+   - **Console logs**: Enable to see aggregated application logs during deployment (useful for debugging Fly commands)
 4. Click **Run workflow**
 
 ### Use Cases <!-- omit in toc -->
@@ -72,6 +73,13 @@ Sometimes deployments fail or you need to redeploy without pushing new code. The
 - App: `cms`
 - Tenant: `<empty>`
 - Environment: `production`
+
+**Debug deployment CLI issues:**
+
+- App: `web`
+- Tenant: `demo`
+- Environment: `preview`
+- Console logs: `enabled`
 
 > [!NOTE]
 > Manual deployments bypass the affected app analysis and deploy the specified app(s) regardless of code changes. The tenant input only applies to multi-tenant apps like `web`.

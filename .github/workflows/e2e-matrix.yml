@@ -15,6 +15,9 @@ on:
       - reopened
       - synchronize
 
+permissions:
+  contents: read
+
 # Environment details:
 # - Nx Cloud disabled unless NX_E2E_USE_CLOUD repo variable is 'true' and branch is not renovate
 # - Full matrix runs nightly, on main pushes, manual triggers, or PRs labeled "full-e2e"

@@ -267,6 +267,9 @@ jobs:
             exit 0
           elif [ "$DEPLOY_RESULT" = "success" ]; then
             echo "✅ Deployment completed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "$DEPLOY_RESULT" = "skipped" ]; then
+            echo "⏭️ No apps to deploy" >> $GITHUB_STEP_SUMMARY
+            exit 0
           else
             echo "❌ Deployment failed or was cancelled" >> $GITHUB_STEP_SUMMARY
             exit 1

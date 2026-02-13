@@ -109,8 +109,11 @@ describe('flyDeployment', () => {
             } as PullRequestEvent)
           : undefined;
 
-    mockGithubContext.eventName =
-      override?.eventName || isPR ? 'pull_request' : 'push';
+    mockGithubContext.eventName = override?.eventName
+      ? override.eventName
+      : isPR
+        ? 'pull_request'
+        : 'push';
 
     mockGithubContext.payload = {
       ...payload,
@@ -1202,6 +1205,86 @@ describe('flyDeployment', () => {
           }
         ]
       } satisfies ActionOutputs);
+    });
+  });
+
+  describe('workflow_dispatch event', () => {
+    it('should deploy using DEPLOY_ENV from pre-deploy action for production', async () => {
+      setContext('push-main-branch', {
+        eventName: 'workflow_dispatch',
+        payload: { ref: 'refs/heads/main' }
+      });
+      setupMocks();
+      process.env['DEPLOY_ENV'] = 'production';
+      const config = setupTest();
+      const result = await flyDeployment(config, true);
+
+      expect(mockCoreInfo).toHaveBeenCalledWith(
+        expect.stringContaining('Manual deployment triggered')
+      );
+      expect(mockCoreInfo).toHaveBeenCalledWith(
+        `Using environment 'production' from pre-deploy action`
+      );
+      expect(result.environment).toBe('production');
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          environment: 'production'
+        })
+      );
+
+      delete process.env['DEPLOY_ENV'];
+    });
+
+    it('should deploy using DEPLOY_ENV from pre-deploy action for preview', async () => {
+      setContext('pr-opened', {
+        eventName: 'workflow_dispatch',
+        payload: { number: 1, state: 'open' }
+      });
+      setupMocks();
+      process.env['DEPLOY_ENV'] = 'preview';
+      const config = setupTest();
+      const result = await flyDeployment(config, true);
+
+      expect(result.environment).toBe('preview');
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          environment: 'preview'
+        })
+      );
+
+      delete process.env['DEPLOY_ENV'];
+    });
+
+    it('should throw error when DEPLOY_ENV is missing for workflow_dispatch', async () => {
+      setContext('push-main-branch', {
+        eventName: 'workflow_dispatch',
+        payload: { ref: 'refs/heads/main' }
+      });
+      setupMocks();
+      delete process.env['DEPLOY_ENV'];
+      const config = setupTest();
+
+      await expect(
+        async () => await flyDeployment(config, true)
+      ).rejects.toThrow('Invalid or missing DEPLOY_ENV from pre-deploy action');
+    });
+
+    it('should throw error when DEPLOY_ENV is invalid for workflow_dispatch', async () => {
+      setContext('push-main-branch', {
+        eventName: 'workflow_dispatch',
+        payload: { ref: 'refs/heads/main' }
+      });
+      setupMocks();
+      process.env['DEPLOY_ENV'] = 'invalid';
+      const config = setupTest();
+
+      await expect(
+        async () => await flyDeployment(config, true)
+      ).rejects.toThrow(
+        'Invalid or missing DEPLOY_ENV from pre-deploy action: invalid'
+      );
+
+      delete process.env['DEPLOY_ENV'];
     });
   });
 

@@ -76,24 +76,57 @@ export async function flyDeployment(
       // Add target environment to context
       context.environment = deployEnv.environment;
     } else {
-      throw new Error(deployEnv.reason);
+      // For workflow_dispatch, get environment from DEPLOY_ENV variable set by pre-deploy action
+      if (eventName === 'workflow_dispatch') {
+        core.info(deployEnv.reason);
+        const envFromPreDeploy = process.env['DEPLOY_ENV'];
+        if (
+          envFromPreDeploy === 'preview' ||
+          envFromPreDeploy === 'production'
+        ) {
+          context.environment = envFromPreDeploy;
+          core.info(
+            `Using environment '${context.environment}' from pre-deploy action`
+          );
+        } else {
+          throw new Error(
+            `Invalid or missing DEPLOY_ENV from pre-deploy action: ${envFromPreDeploy}`
+          );
+        }
+      } else {
+        throw new Error(deployEnv.reason);
+      }
     }
 
-    core.info(`Using environment '${context.environment}'`);
+    if (context.environment) {
+      core.info(`Using environment '${context.environment}'`);
+    }
 
-    switch (eventName as WebhookEventName) {
-      case 'pull_request':
-        {
-          const { number, pull_request } = payload as PullRequestEvent;
+    // Handle workflow_dispatch separately as it's not a WebhookEventName
+    if (eventName === 'workflow_dispatch') {
+      context.action = 'deploy';
 
-          context.action = pull_request.state === 'open' ? 'deploy' : 'destroy';
-          context.pullRequest = number;
-        }
-        break;
+      // Extract PR number from payload if present (for manual preview deployments)
+      const payloadNumber = (payload as { number?: number })?.number;
+      if (payloadNumber) {
+        context.pullRequest = payloadNumber;
+      }
+    } else {
+      switch (eventName as WebhookEventName) {
+        case 'pull_request':
+          {
+            const { number, pull_request } = payload as PullRequestEvent;
 
-      case 'push':
-        context.action = 'deploy';
-        break;
+            context.action =
+              pull_request.state === 'open' ? 'deploy' : 'destroy';
+            context.pullRequest = number;
+          }
+          break;
+
+        case 'push':
+          context.action = 'deploy';
+          break;
+      }
     }
     core.endGroup();
 

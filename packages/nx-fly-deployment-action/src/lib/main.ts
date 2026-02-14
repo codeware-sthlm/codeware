@@ -54,6 +54,11 @@ export async function run(): Promise<void> {
       'skipped',
       projects.filter((p) => p.action === 'skip').map((p) => p.appOrProject)
     );
+    // Output: List of failed project names
+    core.setOutput(
+      'failed',
+      projects.filter((p) => p.action === 'failed').map((p) => p.appOrProject)
+    );
     // Output: Record of deployed project names and urls
     core.setOutput(
       'deployed',
@@ -61,6 +66,20 @@ export async function run(): Promise<void> {
         .filter((p) => p.action === 'deploy')
         .reduce((acc, p) => ({ ...acc, [`${p.name}`]: p.url }), {})
     );
+
+    // Fail the action if any deployments failed
+    const failedProjects = projects.filter((p) => p.action === 'failed');
+    if (failedProjects.length > 0) {
+      const failedList = failedProjects
+        .map(
+          (p) =>
+            `${p.appOrProject}: ${'error' in p ? p.error : 'Unknown error'}`
+        )
+        .join('\n');
+      core.setFailed(
+        `Deployment failed for ${failedProjects.length} project(s):\n${failedList}`
+      );
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);

@@ -138,8 +138,12 @@ describe('main', () => {
         },
         { action: 'destroy', app: 'api-one-app' },
         { action: 'destroy', app: 'api-two-app' },
-        { action: 'skip', appOrProject: 'web-one', reason: 'failed' },
-        { action: 'skip', appOrProject: 'web-two', reason: 'outdated' }
+        {
+          action: 'failed',
+          appOrProject: 'web-two',
+          error: 'deployment error'
+        },
+        { action: 'skip', appOrProject: 'web-one', reason: 'outdated' }
       ]
     };
     flyDeploymentMock.mockResolvedValue(result);
@@ -154,10 +158,12 @@ describe('main', () => {
       'api-one-app',
       'api-two-app'
     ]);
-    expect(setOutputMock).toHaveBeenCalledWith('skipped', [
-      'web-one',
-      'web-two'
-    ]);
+    expect(setOutputMock).toHaveBeenCalledWith('skipped', ['web-one']);
+    expect(setOutputMock).toHaveBeenCalledWith('failed', ['web-two']);
+
+    expect(setFailedMock).toHaveBeenCalledWith(
+      'Deployment failed for 1 project(s):\nweb-two: deployment error'
+    );
   });
 
   it('should handle errors', async () => {

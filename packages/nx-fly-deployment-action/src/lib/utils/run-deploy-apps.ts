@@ -167,14 +167,14 @@ export const runDeployApps = async (options: {
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
 
-        core.warning(
+        core.error(
           `[${projectName}] ❌ Failed to deploy project${tenantLabel}: ${msg}`
         );
 
         projects.push({
           appOrProject: tenantId ? `${projectName} (${tenantId})` : projectName,
-          action: 'skip',
-          reason: `Failed to deploy project${tenantLabel}`
+          action: 'failed',
+          error: msg
         });
       }
     }

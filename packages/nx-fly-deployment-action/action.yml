@@ -84,6 +84,9 @@ outputs:
   skipped:
     description: >
       A list of project names that were skipped for some reason.
+  failed:
+    description: >
+      A list of project names that failed to deploy.
   deployed:
     description: >
       JSON object containing the deployed project names and their urls.

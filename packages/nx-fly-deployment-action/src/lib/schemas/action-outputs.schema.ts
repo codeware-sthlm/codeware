@@ -1,7 +1,7 @@
 import { EnvironmentSchema } from '@codeware/core/actions';
 import { z } from 'zod';
 
-export const ActionSchema = z.enum(['deploy', 'destroy', 'skip']);
+export const ActionSchema = z.enum(['deploy', 'destroy', 'failed', 'skip']);
 
 const FlyAppNameSchema = z.object({
   app: z.string({ description: 'App name' }).min(1, 'An app name is required')
@@ -27,6 +27,17 @@ const ActionDestroySchema = FlyAppNameSchema.merge(
   })
 );
 
+// 'failed' action requires an app or project name and an error message
+const ActionFailedSchema = z.object({
+  action: z.literal(ActionSchema.enum.failed),
+  appOrProject: z
+    .string({ description: 'App or project name' })
+    .min(1, 'An app or project name is required'),
+  error: z
+    .string({ description: 'Error message' })
+    .min(1, 'An error message is required')
+});
+
 // 'skip' action requires an app or project name and a reason
 const ActionSkipSchema = z.object({
   action: z.literal(ActionSchema.enum.skip),
@@ -42,6 +53,7 @@ const ActionSkipSchema = z.object({
 const ProjectSchema = z.discriminatedUnion('action', [
   ActionDeploySchema,
   ActionDestroySchema,
+  ActionFailedSchema,
   ActionSkipSchema
 ]);
 

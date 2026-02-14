@@ -14,7 +14,9 @@ export async function run(): Promise<void> {
     const appDetailsInput = core.getInput('app-details');
     const appDetails = appDetailsInput ? JSON.parse(appDetailsInput) : {};
 
+    const appsInput = core.getInput('apps');
     const inputs = ActionInputsSchema.parse({
+      apps: appsInput ? JSON.parse(appsInput) : undefined,
       buildArgs: core.getMultilineInput('build-args'),
       env: core.getMultilineInput('env'),
       environment: (core.getInput('environment') ||

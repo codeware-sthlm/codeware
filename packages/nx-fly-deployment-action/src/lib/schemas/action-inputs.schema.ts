@@ -7,6 +7,7 @@ const AppDeploymentDetailsSchema = z.object({
 });
 
 export const ActionInputsSchema = z.object({
+  apps: z.array(z.string()).optional(),
   buildArgs: z.array(z.string()).optional(),
   env: z.array(z.string()).optional(),
   environment: z.enum(['preview', 'production']).optional(),

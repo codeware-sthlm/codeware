@@ -10,7 +10,7 @@ import { addOpinionatedEnv } from './add-opinionated-env';
 import { getAppName } from './get-app-name';
 
 /**
- * Deploy apps that are affected by code changes
+ * Deploy provided apps or apps that are affected by code changes
  * and have Fly configuration available.
  *
  * @param options - Deployment options
@@ -28,8 +28,7 @@ export const runDeployApps = async (options: {
 
   core.info('Analyze apps to deploy');
 
-  const apps = await analyzeAppsToDeploy(environment);
-
+  const apps = await analyzeAppsToDeploy(environment, config.apps);
   core.info(`Found ${apps.length} possible apps`);
 
   for (const app of apps) {

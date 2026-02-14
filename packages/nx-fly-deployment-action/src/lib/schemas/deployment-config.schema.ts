@@ -15,6 +15,7 @@ export const DeploymentConfigSchema = z.object({
   }),
   mainBranch: z.string().min(1, 'main branch is required'),
   secrets: z.record(z.string(), z.string()).optional(),
+  apps: ActionInputsSchema.shape.apps.optional(),
   appDetails: ActionInputsSchema.shape.appDetails.unwrap(),
   token: ActionInputsSchema.shape.token
 });

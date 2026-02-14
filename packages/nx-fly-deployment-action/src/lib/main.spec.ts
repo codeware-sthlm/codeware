@@ -35,6 +35,7 @@ describe('main', () => {
     // Default mock values
     getBooleanInputMock.mockImplementation(() => true);
     getInputMock.mockImplementation((name: string) => {
+      if (name === 'apps') return '';
       if (name === 'app-details') return '{}';
       if (name === 'environment') return '';
       return name;
@@ -54,6 +55,7 @@ describe('main', () => {
 
   it('should have valid inputs with all inputs provided truthly', async () => {
     getInputMock.mockImplementation((name: string) => {
+      if (name === 'apps') return '["app1","app2"]';
       if (name === 'app-details')
         return '{"web":[{"tenant":"t1","secrets":{"KEY":"val"}}]}';
       if (name === 'environment') return '';
@@ -63,6 +65,7 @@ describe('main', () => {
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
       appDetails: { web: [{ tenant: 't1', secrets: { KEY: 'val' } }] },
+      apps: ['app1', 'app2'],
       buildArgs: [],
       env: [],
       environment: undefined,
@@ -91,6 +94,7 @@ describe('main', () => {
     await main.run();
 
     expect(flyDeploymentMock).toHaveBeenCalledWith({
+      apps: undefined,
       appDetails: {},
       buildArgs: [],
       env: [],
@@ -158,6 +162,7 @@ describe('main', () => {
 
   it('should handle errors', async () => {
     getInputMock.mockImplementation((name: string) => {
+      if (name === 'apps') return '';
       if (name === 'app-details') return '{}';
       if (name === 'environment') return '';
       return name;

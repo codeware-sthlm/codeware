@@ -21,7 +21,7 @@ export const ImageBlock: React.FC<Props> = ({ media }) => {
 
   const { alt, caption, sizes = {}, url = '' } = media;
 
-  const src = `${payloadUrl}${url}`;
+  const src = url?.startsWith('http') ? url : `${payloadUrl}/${url}`;
   const mediaSizes = Object.values(sizes);
 
   // Convert media sizes to responsive image sizes
@@ -32,7 +32,7 @@ export const ImageBlock: React.FC<Props> = ({ media }) => {
       return acc;
     }
     const size = {
-      src: `${payloadUrl}${url}`,
+      src,
       width: width ?? undefined,
       mimeType: mimeType ?? undefined,
       ignoreMedia: false

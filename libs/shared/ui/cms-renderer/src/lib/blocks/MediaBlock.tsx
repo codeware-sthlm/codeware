@@ -25,8 +25,6 @@ export const MediaBlock: React.FC<Props> = ({ media }) => {
     return null;
   }
 
-  const alt = media.alt ?? '';
-  const src = `${payloadUrl}${media.url ?? ''}`;
   const mediaSizes = Object.values(media.sizes ?? {});
 
   // Convert media sizes to responsive image sizes
@@ -37,7 +35,7 @@ export const MediaBlock: React.FC<Props> = ({ media }) => {
       return acc;
     }
     const size = {
-      src: `${payloadUrl}${url}`,
+      src: url?.startsWith('http') ? url : `${payloadUrl}/${url}`,
       width: width ?? undefined,
       mimeType: mimeType ?? undefined,
       ignoreMedia: false
@@ -51,6 +49,11 @@ export const MediaBlock: React.FC<Props> = ({ media }) => {
     }
     return acc;
   }, [] as Array<Size>);
+
+  const alt = media.alt ?? '';
+  const src = media.url?.startsWith('http')
+    ? media.url
+    : `${payloadUrl}/${media.url ?? ''}`;
 
   return (
     <div>

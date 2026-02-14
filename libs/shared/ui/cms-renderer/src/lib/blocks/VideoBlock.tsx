@@ -22,7 +22,7 @@ export const VideoBlock: React.FC<Props> = ({ media }) => {
 
   const { alt, caption, url = '' } = media;
 
-  const src = `${payloadUrl}${url}`;
+  const src = url?.startsWith('http') ? url : `${payloadUrl}/${url}`;
 
   return (
     <>

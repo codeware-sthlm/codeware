@@ -88,7 +88,7 @@ jobs:
       # Unified checkout for all cases:
       # - tag push or release -> checks out that tag
       # - manual w/o tag -> checks out the branch chosen in the UI (or default branch)
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ steps.ctx.outputs.tag || github.ref }}
           fetch-depth: 0
@@ -96,9 +96,9 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org/
 

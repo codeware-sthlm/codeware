@@ -66,11 +66,11 @@ jobs:
       skip: ${{ steps.preview.outputs.skip }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         id: preview
         env:
           PREVIEW_LABEL: ${{ env.FLY_PREVIEW_LABEL  }}
@@ -90,13 +90,13 @@ jobs:
       app-tenants: ${{ steps.pre-deploy.outputs.app-tenants }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           cache: "pnpm"
 
@@ -136,19 +136,19 @@ jobs:
     environment: ${{ needs.pre-deploy.outputs.environment }}
 
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v2
         id: generate-token
         with:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           cache: "pnpm"
 

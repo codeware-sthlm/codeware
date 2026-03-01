@@ -4,7 +4,13 @@ import {
   type Secret as SdkSecret
 } from '@infisical/sdk';
 
-import { Client, ClientSchema, type Environment } from './infisical.schemas';
+import {
+  type Client,
+  ClientSchema,
+  type Environment,
+  type SecretMetadata,
+  SecretMetadataSchema
+} from './infisical.schemas';
 
 /**
  * Custom Folder type with `relativePath` property.
@@ -24,13 +30,13 @@ export type Folder = SdkFolder & {
 };
 
 /**
- * Custom Secret type with `secretMetadata` as an array.
+ * Custom Secret type with `secretMetadata` having the proper type.
  *
  * It's different from the SDK type which defines it as a record,
- * but the API returns it as an array.
+ * but the API returns it as an object array.
  */
 export type Secret = Omit<SdkSecret, 'secretMetadata'> & {
-  secretMetadata: Record<string, unknown>[];
+  secretMetadata: SecretMetadata;
 };
 
 /**
@@ -47,23 +53,22 @@ const mapFolder = (folder: SdkFolder): Folder => {
 
 /**
  * Maps SDK Secret to our Secret type, handling the secretMetadata type difference.
- * SDK defines it as `Record<string, any>` but the API returns `Record<string, any>[]`.
- *
- * Ensures `secretMetadata` is always an array.
+ * SDK defines it as plain record but the API returns an object array of known type.
+ * @throws Error if `secretMetadata` is not in expected format
  */
 const mapSecret = (secret: SdkSecret): Secret => {
   const { secretMetadata, ...rest } = secret;
-  // Ensure secretMetadata is always an array
-  const metadataArray =
-    secretMetadata && Array.isArray(secretMetadata)
-      ? secretMetadata
-      : secretMetadata !== undefined
-        ? [secretMetadata]
-        : [];
+
+  // Parse and validate metadata using Zod - throws if the format is unexpected
+  const metadataArray = SecretMetadataSchema.safeParse(secretMetadata);
+
+  if (!metadataArray.success) {
+    throw new Error('Invalid secret metadata format');
+  }
 
   return {
     ...rest,
-    secretMetadata: metadataArray
+    secretMetadata: metadataArray.data
   };
 };
 

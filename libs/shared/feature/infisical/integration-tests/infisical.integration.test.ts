@@ -97,7 +97,7 @@ describe('Infisical Integration Tests', () => {
       expect(secrets.length).toBe(0);
     });
 
-    it('should return secretMetadata when secrets have metadata', async () => {
+    it('should have secretMetadata parsed with zod', async () => {
       const secrets = await withInfisical({
         environment: 'development'
       });
@@ -113,19 +113,18 @@ describe('Infisical Integration Tests', () => {
       // Assert that test data contains secrets with metadata
       expect(secretsWithMetadata.length).toBeGreaterThan(0);
 
-      secretsWithMetadata.forEach((secret) => {
+      // Verify metadata contains key/value object array
+      for (const secret of secretsWithMetadata) {
         expect(secret.secretMetadata.length).toBeGreaterThan(0);
         for (const metadata of secret.secretMetadata) {
-          expect(metadata).toBeDefined();
-
-          // Verify metadata contains key-value pairs
-          const keys = Object.keys(metadata);
-          expect(keys.length).toBeGreaterThan(0);
-          keys.forEach((key) => {
-            expect(metadata[key]).toBeDefined();
-          });
+          expect(metadata).toEqual(
+            expect.objectContaining({
+              key: expect.any(String),
+              value: expect.any(String)
+            })
+          );
         }
-      });
+      }
     });
   });
 
@@ -372,9 +371,8 @@ describe('Infisical Integration Tests', () => {
             const shouldBeTrue =
               secretPath === folder.path ||
               secretPath.startsWith(folder.path) ||
-              // Imported/shared secrets should have metadata workaround
-              // since they may not match folder
-              secret.secretMetadata?.[0]?.['key'] === 'shared';
+              // Imported/shared secrets should use metadata workaround since they may not match folder
+              secret.secretMetadata.at(0)?.key === 'shared';
 
             // Log a debug message for path mismatches
             if (!shouldBeTrue) {

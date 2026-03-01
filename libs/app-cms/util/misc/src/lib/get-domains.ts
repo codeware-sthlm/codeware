@@ -6,28 +6,27 @@ import type {
 type PageTypes = NonNullable<Tenant['domains']>[number]['pageTypes'];
 
 /**
- * Get domains for a user's tenants, optionally filtered by page types.
+ * Get domains from tenants or the tenants array field,
+ * optionally filtered by page types.
  *
  * @param tenants - The tenants to get domains for.
  * @param pageTypes - Optional array of page types to filter domains.
- * @returns Array of domain strings.
+ * @returns Array of domain objects.
  */
 export const getDomains = (
-  tenants: TenantsArrayField,
+  tenants: TenantsArrayField | Tenant[],
   pageTypes?: PageTypes
 ) => {
-  const domains =
+  const resolvedTenants =
     tenants
-      ?.flatMap(({ tenant }) =>
-        typeof tenant === 'number' ? [] : tenant.domains
-      )
-      ?.filter((d) => d != null) ?? [];
+      ?.flatMap((item) => ('tenant' in item ? item.tenant : item))
+      ?.filter((tenant): tenant is Tenant => typeof tenant !== 'number') ?? [];
 
-  const filteredDomains = pageTypes
+  const domains = resolvedTenants.flatMap(({ domains }) => domains ?? []);
+
+  return pageTypes
     ? domains.filter((domain) =>
         domain.pageTypes.some((pt) => pageTypes.includes(pt))
       )
     : domains;
-
-  return filteredDomains.map(({ domain }) => domain);
 };

@@ -61,6 +61,34 @@ export const ConfigSchema = z.object({
     .optional()
 });
 
+/**
+ * Infisical secret metadata schema.
+ *
+ * The API returns `secretMetadata` as an array of objects with `key` and `value` properties,
+ * while the SDK defines it as a plain record.
+ *
+ * Ensures both cases are handled and an array is always returned,
+ * also when the value is null or undefined.
+ */
+export const SecretMetadataSchema = z.preprocess(
+  (value) => {
+    if (!value) {
+      return [];
+    }
+    if (!Array.isArray(value)) {
+      return [value];
+    }
+    return value;
+  },
+  z.array(
+    z.object({
+      key: z.string({ description: 'The key of the secret metadata' }),
+      value: z.string({ description: 'The value of the secret metadata' })
+    })
+  )
+);
+
 export type Client = z.infer<typeof ClientSchema>;
 export type Config = z.infer<typeof ConfigSchema>;
 export type Environment = z.infer<typeof EnvironmentSchema>;
+export type SecretMetadata = z.infer<typeof SecretMetadataSchema>;

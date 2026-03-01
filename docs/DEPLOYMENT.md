@@ -249,13 +249,13 @@ Infisical is the single source of truth for both secrets and tenant configuratio
 /tenants/demo/apps/web/PUBLIC_URL = "https://demo.example.com"
 /tenants/acme/apps/web/PUBLIC_URL = "https://acme.example.com"
 
-# Hybrid deployment (both headless + tenant-scoped)
-/tenants/_default/apps/cms/  # Headless CMS (no TENANT_ID)
+# Hybrid deployment (both cms host + tenant-scoped)
+/tenants/_default/apps/cms/  # CMS host (no TENANT_ID)
 /tenants/demo/apps/cms/      # Tenant-scoped CMS (TENANT_ID=demo)
 ```
 
 > [!TIP]  
-> Use the reserved tenant name `_default` to be able to deploy an app both as a headless instance (without `TENANT_ID`) and as tenant-scoped instances. The `_default` tenant follows DEPLOY_RULES like any other tenant.
+> Use the reserved tenant name `_default` to be able to deploy an app both as a cms host instance (without `TENANT_ID`) and as tenant-scoped instances. The `_default` tenant follows DEPLOY_RULES like any other tenant.
 
 ### Secret Loading: Deployment vs Runtime
 
@@ -263,19 +263,21 @@ Secrets are loaded at two distinct stages, each serving different purposes:
 
 **Deployment-Time Secrets** (loaded during GitHub Actions)
 
-- **Location**: `/tenants/<tenant-id>/apps/<app-name>/`
+- **Location**: `/tenants/<tenant-id>/apps/<app-name>/` (recursive)
 - **Purpose**: Configuration that determines how apps are deployed
 - **Fetched by**: Pre-deploy action during CI/CD workflow
-- **Examples**: `PUBLIC_URL`, `CMS_URL`, tenant-specific build configuration
+- **Examples**: `CUSTOM_URL`, `PAYLOAD_API_KEY`, tenant-specific build configuration
 - **Characteristics**:
   - Baked into Fly.io app configuration as env vars or secrets
   - Static after deployment (requires redeployment to change)
   - Uses metadata `env: true` to distinguish env vars from secrets (default)
-- **Use when**: Configuration defines the deployment itself
+- **Use when**: Configuration defines tenant-specific deployment details
 
 **Runtime Secrets** (loaded when app starts)
 
-- **Location**: `/apps/<app-name>/` and `/tenants/<tenant-id>/`
+- **Location**:
+  - `/apps/<app-name>/` (recursive)
+  - `/tenants/<tenant-id>/` (shallow - to avoid loading tenants apps secrets)
 - **Purpose**: Sensitive data and operational secrets
 - **Fetched by**: Application itself at startup using `withInfisical()` SDK
 - **Examples**: Database credentials, API keys, encryption keys, feature flags
@@ -283,7 +285,7 @@ Secrets are loaded at two distinct stages, each serving different purposes:
   - Loaded fresh on each app startup
   - Can be rotated without redeployment (app restart required)
   - Requires Infisical credentials set as Fly.io secrets
-- **Use when**: Secrets need frequent rotation or shouldn't be in env vars
+- **Use when**: Secrets need frequent rotation or shouldn't be bundled in the deployment
 
 **Key Limitation**: Deployment-time secrets are static until next deployment. Runtime secrets add startup latency but enable rotation without redeployment.
 

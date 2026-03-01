@@ -183,7 +183,7 @@ describe('fetchAppTenants', () => {
       });
     });
 
-    it('should classify secrets by secretMetadata.env flag', async () => {
+    it('should classify secrets by secretMetadata env key supporting both boolean and string values', async () => {
       mockWithInfisical.mockResolvedValue([
         {
           path: '/tenants/tenant1/apps/web',
@@ -191,12 +191,20 @@ describe('fetchAppTenants', () => {
             {
               secretKey: 'PUBLIC_URL',
               secretValue: 'https://tenant1.example.com',
-              secretMetadata: [{ foo: 'bar' }, { env: true }]
+              secretMetadata: [
+                { key: 'foo', value: 'bar' },
+                { key: 'env', value: 'true' }
+              ]
             },
             {
               secretKey: 'API_KEY',
               secretValue: 'secret-key-123',
-              secretMetadata: [{ env: false }]
+              secretMetadata: [{ key: 'env', value: 'false' }]
+            },
+            {
+              secretKey: 'TOKEN',
+              secretValue: 'token-123',
+              secretMetadata: [{ key: 'env', value: 'false' }]
             },
             {
               secretKey: 'DATABASE_URL',
@@ -206,7 +214,7 @@ describe('fetchAppTenants', () => {
             {
               secretKey: 'NEXT_PUBLIC_APP_NAME',
               secretValue: 'My App',
-              secretMetadata: [{ env: true }]
+              secretMetadata: [{ key: 'env', value: 'true' }]
             }
           ] satisfies FolderSecret[]
         }
@@ -224,13 +232,14 @@ describe('fetchAppTenants', () => {
             },
             secrets: {
               API_KEY: 'secret-key-123',
-              DATABASE_URL: 'postgres://...'
+              DATABASE_URL: 'postgres://...',
+              TOKEN: 'token-123'
             }
           }
         ]
       });
       expect(core.info).toHaveBeenCalledWith(
-        "[fetch-app-tenants] Discovered: tenant 'tenant1' uses app 'web' (2 env, 2 secrets)"
+        "[fetch-app-tenants] Discovered: tenant 'tenant1' uses app 'web' (2 env, 3 secrets)"
       );
     });
 

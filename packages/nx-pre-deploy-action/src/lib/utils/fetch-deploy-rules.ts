@@ -73,16 +73,15 @@ export async function fetchDeployRules({
       );
     }
 
-    // Parse metadata first
-    const metadata = deployRulesSecret.secretMetadata.reduce(
-      (acc, meta) => ({ ...acc, ...meta }),
-      {} as Record<string, unknown>
-    );
+    // Check metadata first
+    const metadata = deployRulesSecret.secretMetadata;
+    const appsRules = metadata.find((m) => m.key === 'apps');
+    const tenantsRules = metadata.find((m) => m.key === 'tenants');
 
-    if (metadata && metadata['apps'] && metadata['tenants']) {
+    if (appsRules && tenantsRules) {
       const rules = DeployRulesSchema.parse({
-        apps: metadata['apps'],
-        tenants: metadata['tenants']
+        apps: appsRules.value,
+        tenants: tenantsRules.value
       });
 
       core.info(

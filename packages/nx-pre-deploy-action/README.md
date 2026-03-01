@@ -253,7 +253,7 @@ The `_default` tenant is treated like any other tenant (respects DEPLOY_RULES), 
 Use Infisical's **secret metadata** to control whether values are treated as environment variables (visible) or secrets (encrypted):
 
 - **Environment Variable** (public, visible): Set metadata key `env` to `true`
-- **Secret** (encrypted, hidden): Don't set the metadata, or set `env` to `false`
+- **Secret** (encrypted, hidden): Don't set the metadata, or set `env` to something else
 
 **Secure by default:** Everything is treated as a secret unless explicitly marked as an environment variable.
 

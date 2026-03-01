@@ -104,7 +104,7 @@ export async function fetchAppTenants(
           // Distribute secrets based on 'env' metadata
           for (const secret of folder.secrets) {
             const isEnvVar = secret.secretMetadata.some(
-              (meta) => meta['env'] === true
+              ({ key, value }) => key === 'env' && value === 'true'
             );
             const target = isEnvVar ? env : secrets;
             target[secret.secretKey] = secret.secretValue;

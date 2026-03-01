@@ -50,7 +50,10 @@ describe('fetchDeployRules', () => {
       setMockResponse({
         secretKey: 'DEPLOY_RULES',
         secretValue: 'ignored',
-        secretMetadata: [{ apps: 'web,cms' }, { tenants: 'demo' }]
+        secretMetadata: [
+          { key: 'apps', value: 'web,cms' },
+          { key: 'tenants', value: 'demo' }
+        ]
       });
 
       const result = await fetchDeployRules(mockConfig);
@@ -65,7 +68,10 @@ describe('fetchDeployRules', () => {
       setMockResponse({
         secretKey: 'DEPLOY_RULES',
         secretValue: 'ignored',
-        secretMetadata: [{ apps: '*', tenants: 'demo' }]
+        secretMetadata: [
+          { key: 'apps', value: '*' },
+          { key: 'tenants', value: 'demo' }
+        ]
       });
 
       const result = await fetchDeployRules(mockConfig);
@@ -157,7 +163,7 @@ describe('fetchDeployRules', () => {
       setMockResponse({
         secretKey: 'DEPLOY_RULES',
         secretValue: 'ignored',
-        secretMetadata: [{ apps: 'web' }]
+        secretMetadata: [{ key: 'apps', value: 'web' }]
       });
 
       await expect(fetchDeployRules(mockConfig)).rejects.toThrow(
@@ -169,7 +175,7 @@ describe('fetchDeployRules', () => {
       setMockResponse({
         secretKey: 'DEPLOY_RULES',
         secretValue: 'ignored',
-        secretMetadata: [{ tenants: 'demo' }]
+        secretMetadata: [{ key: 'tenants', value: 'demo' }]
       });
 
       await expect(fetchDeployRules(mockConfig)).rejects.toThrow(

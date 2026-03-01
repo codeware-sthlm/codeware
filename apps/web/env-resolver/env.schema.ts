@@ -18,10 +18,10 @@ export const EnvSchema = z.object({
   PAYLOAD_API_KEY: z
     .string({ description: 'Payload tenant API key' })
     .min(1, { message: 'PAYLOAD_API_KEY is required' }),
-  // Replace `{PR_NUMBER}` with the current PR number when possible
   PAYLOAD_URL: withEnvVars(
-    z.string({ description: 'Fully qualified URL to the Payload app host' })
-    //.url({ message: 'PAYLOAD_URL must be a valid URL' })
+    z.string({
+      description: 'Fully qualified URL to the Payload app host'
+    })
   ),
   PORT: z.coerce.number({ description: 'Port to run the server on' }),
   SIGNATURE_SECRET: z

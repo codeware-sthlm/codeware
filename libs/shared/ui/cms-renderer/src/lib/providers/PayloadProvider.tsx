@@ -53,7 +53,11 @@ export type PayloadValue = {
   navigate: (path: string, newTab?: boolean) => void;
 
   /**
-   * Provide the fully qualified URL to the Payload app host.
+   * Provide the fully qualified URL to Payload.
+   *
+   * For an external client, e.g. using web app, this should be the Payload CMS host.
+   * For a tenant-scoped client, this is the app URL itself, since it serves both the frontend and the Payload API.
+   *
    * This is used e.g. to render media images properly.
    *
    * Example: `'https://cms.domain.io'`

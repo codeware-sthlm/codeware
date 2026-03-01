@@ -9,10 +9,13 @@ const dirname = path.dirname(filename);
 
 dotenv.config({ path: `${dirname}/../.env.infisical` });
 
+const environment = process.argv[2] || 'development';
+console.log(`Fetch data from ${environment}...`);
+
 (async () => {
   try {
     const apps = await withInfisical({
-      environment: 'development',
+      environment,
       filter: { path: '/tenants', recurse: true },
       groupByFolder: true,
       debug: true

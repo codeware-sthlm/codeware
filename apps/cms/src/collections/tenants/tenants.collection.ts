@@ -1,13 +1,11 @@
 import type { CollectionConfig } from 'payload';
 
 import { slugField } from '@codeware/app-cms/ui/fields';
-import {
-  authenticatedAccess,
-  systemUserAccess
-} from '@codeware/app-cms/util/access';
+import { systemUserAccess } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 
+import { restrictToTenantInTenantMode } from './access/restrict-to-tenant-in-tenant-mode';
 import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';
 
 /**
@@ -22,7 +20,7 @@ const tenants: CollectionConfig = {
   access: {
     create: systemUserAccess,
     delete: systemUserAccess,
-    read: authenticatedAccess,
+    read: restrictToTenantInTenantMode,
     update: systemUserAccess
   },
   hooks: {

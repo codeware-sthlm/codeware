@@ -13,6 +13,7 @@ import type { User } from '@codeware/shared/util/payload-types';
  *
  * - System users bypass this check
  * - Users without tenants bypass this check
+ * - Serve on localhost:3000 bypasses this check
  *
  * **Use Cases:**
  * - Prevent cross-tenant access via URL manipulation
@@ -45,6 +46,11 @@ export const verifyDomainAccessHook: CollectionAfterLoginHook<User> = async ({
     return user;
   }
 
+  // Skip check for localhost access
+  if (host.includes('localhost:3000')) {
+    return user;
+  }
+
   // Fetch tenant details to get domains
   const userTenants = await payload.findByID({
     collection: 'users',
@@ -54,14 +60,12 @@ export const verifyDomainAccessHook: CollectionAfterLoginHook<User> = async ({
   });
 
   // Collect all CMS domains from user's tenants
-  const allowedCmsDomains = getDomains(userTenants.tenants ?? [], ['cms']);
+  const allowedCmsDomains = getDomains(userTenants.tenants ?? [], ['cms']).map(
+    ({ domain }) => domain
+  );
 
-  // If no domains are configured, allow access (feature is opt-in)
+  // Domains are required for access - if no CMS domains are configured, deny access
   if (!allowedCmsDomains.length) {
-    // payload.logger.info(
-    //   `[verifyDomainAccess] No CMS domains configured for user '${user.email}', skipping domain check`
-    // );
-    // return user;
     payload.logger.warn(
       `[verifyDomainAccess] No CMS domains configured for user '${user.email}'. Please configure at least one CMS domain for proper access control.`
     );

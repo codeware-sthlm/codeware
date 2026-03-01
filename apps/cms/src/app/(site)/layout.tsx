@@ -43,7 +43,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
       </head>
       <body>
-        <Providers payloadUrl={env.PAYLOAD_URL}>
+        <Providers payloadUrl={env.APP_MODE.serverURL}>
           <RenderLayout navigationTree={navigationTree}>
             {children}
           </RenderLayout>

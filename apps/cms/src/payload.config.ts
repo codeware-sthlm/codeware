@@ -44,9 +44,7 @@ const dirname = path.dirname(filename);
 const env = getEnv();
 
 export default buildConfig({
-  // Use custom domain if set, fallback to Fly URL, then PAYLOAD_URL
-  // In multi-tenant context: CUSTOM_URL = client's domain, FLY_URL = tenant-specific subdomain
-  serverURL: env.CUSTOM_URL || env.FLY_URL || env.PAYLOAD_URL,
+  serverURL: env.APP_MODE.serverURL,
   admin: {
     user: users.slug,
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
@@ -99,7 +97,9 @@ export default buildConfig({
     push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build',
     // Never run migrations in a tenant context or during build-time
     prodMigrations:
-      env.TENANT_ID || env.NX_RUN_TARGET === 'build' ? undefined : migrations
+      env.APP_MODE.type === 'host' && env.NX_RUN_TARGET !== 'build'
+        ? migrations
+        : undefined
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
@@ -152,8 +152,8 @@ export default buildConfig({
     }
 
     payload.logger.info('Payload is ready');
-    if (!env.TENANT_ID) {
-      // Only run seeding when TENANT_ID is not set (i.e. not in a tenant context)
+    if (env.APP_MODE.type === 'host') {
+      // Only run seeding for app cms host
       await seed({
         environment: env.DEPLOY_ENV,
         payload,

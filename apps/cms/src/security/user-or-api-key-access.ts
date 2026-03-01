@@ -21,10 +21,10 @@ import { verifySignature } from '@codeware/shared/util/signature';
  *
  * Besides requiring authentication, additionally verifies request signature based on:
  *
- * - `APP_TYPE=platform`: Signature verification is **enabled** for external requests (CMS host)
+ * - CMS host mode: Signature verification is **enabled** for external requests
  *   - External REST API requests (with HTTP headers): Signature verified
  *   - Internal Local API operations (minimal headers): Skip verification
- * - `APP_TYPE=tenant`: Signature verification is **disabled** (Next.js internal client)
+ * - Tenant mode: Signature verification is **disabled** (Next.js internal client)
  *
  * **Security Model:**
  *
@@ -62,17 +62,10 @@ export const userOrApiKeyAccess = (): Access => (args) => {
     return true;
   }
 
-  // For tenant users, verify signature if app type is platform (headless CMS host)
-  const { APP_TYPE, SIGNATURE_SECRET } = getEnv();
+  const { APP_MODE } = getEnv();
 
-  if (APP_TYPE === 'platform') {
-    if (!SIGNATURE_SECRET) {
-      payload.logger.error(
-        `Denied, missing signature secret for ${user.slug} tenant`
-      );
-      return false;
-    }
-
+  // cms host mode
+  if (APP_MODE.type === 'host') {
     // Detect if this is an external REST API request vs internal Local API operation
     const isExternalRequest = headers.has('host');
 
@@ -80,7 +73,7 @@ export const userOrApiKeyAccess = (): Access => (args) => {
     if (isExternalRequest) {
       const { success, error } = verifySignature({
         headers,
-        secret: SIGNATURE_SECRET
+        secret: APP_MODE.signatureSecret
       });
 
       if (!success) {

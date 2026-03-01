@@ -4,14 +4,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { useTheme } from 'next-themes';
 
-import { PayloadProvider } from '@codeware/shared/ui/cms-renderer';
+import {
+  PayloadProvider,
+  type PayloadValue
+} from '@codeware/shared/ui/cms-renderer';
 import type { FormSubmitResponse } from '@codeware/shared/ui/cms-renderer';
 import type { FormSubmission } from '@codeware/shared/util/payload-types';
 
 type ProvidersProps = {
   children: React.ReactNode;
-  payloadUrl: string;
-};
+} & Pick<PayloadValue, 'payloadUrl'>;
 
 /**
  * Combines all client-side providers needed for the CMS site.

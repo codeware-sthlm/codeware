@@ -41,9 +41,10 @@ export const loadEnv = async (): Promise<Env | undefined> => {
     const tenantId = process.env['TENANT_ID'];
     console.log(`[ENV] Loading tenant secrets for tenant: ${tenantId}`);
 
+    // Shallow load to prevent loading secrets from apps folder
     const tenantSecretsLoaded = await withInfisical({
       environment: process.env['DEPLOY_ENV'],
-      filter: { path: `/tenants/${tenantId}`, recurse: true },
+      filter: { path: `/tenants/${tenantId}`, recurse: false },
       injectEnv: true,
       silent: true
     });

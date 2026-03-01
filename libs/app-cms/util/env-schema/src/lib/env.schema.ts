@@ -8,6 +8,17 @@ import { SeedStrategySchema } from './seed-strategy.schema';
 import { SendGridSchema } from './sendgrid.schema';
 import { SentrySchema } from './sentry.schema';
 
+type AppModeCommon = {
+  /** Fully qualified URL to the cms app */
+  serverURL: string;
+};
+type AppModeHost = AppModeCommon & { type: 'host'; signatureSecret: string };
+type AppModeTenant = AppModeCommon & {
+  type: 'tenant';
+  apiKey: string;
+  tenantId: string;
+};
+
 /**
  * Environment base schema with environment variable lookup.
  */
@@ -63,16 +74,11 @@ export const EnvSchema = withEnvVars(
         .string({ description: 'Payload secret key' })
         .min(1, { message: 'PAYLOAD_SECRET_KEY is required' }),
       PAYLOAD_URL: z
-        .string({ description: 'URL to the Payload CMS instance' })
-        .min(1, { message: 'PAYLOAD_URL is required' }),
-
-      // App deployment type (platform for multi-tenant admin, tenant for single-tenant client)
-      APP_TYPE: z
-        .enum(['platform', 'tenant'])
-        .default('tenant')
-        .describe(
-          'Run app as cms host admin (platform) or single-tenant client (tenant)'
-        ),
+        .string({
+          description: 'Fallback URL to the Payload CMS instance'
+        })
+        .optional()
+        .default('http://localhost:3000'),
 
       // Api key request verification
       SIGNATURE_SECRET: z
@@ -106,29 +112,52 @@ export const EnvSchema = withEnvVars(
     .merge(SendGridSchema.partial())
     // Sentry is optional
     .merge(SentrySchema.partial())
-    // Refine to validate SIGNATURE_SECRET when APP_TYPE is platform
+    // SIGNATURE_SECRET is required for non-tenant deployments (CMS host)
     .refine(
       (data) => {
-        // When app type is platform (headless CMS host), SIGNATURE_SECRET is required
-        if (data.APP_TYPE === 'platform' && !data.SIGNATURE_SECRET) {
+        if (!data.TENANT_ID && !data.SIGNATURE_SECRET) {
           return false;
         }
         return true;
       },
       {
-        message: 'SIGNATURE_SECRET is required when APP_TYPE is platform',
+        message:
+          'SIGNATURE_SECRET is required for CMS host (TENANT_ID is not specified)',
         path: ['SIGNATURE_SECRET']
       }
     )
+    // PAYLOAD_API_KEY is required for tenant deployments
+    .refine(
+      (data) => {
+        if (data.DEPLOY_ENV === 'development') {
+          // In development, PAYLOAD_API_KEY is optional since it can be resolved from seed data
+          return true;
+        }
+        if (data.TENANT_ID && !data.PAYLOAD_API_KEY) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message:
+          'PAYLOAD_API_KEY is required for tenant mode (TENANT_ID is specified)',
+        path: ['PAYLOAD_API_KEY']
+      }
+    )
 ).transform(
+  // Transform environment variables to internal and structured format
   ({
+    CUSTOM_URL,
     ETHEREAL_FROM_ADDRESS,
     ETHEREAL_FROM_NAME,
     ETHEREAL_HOST,
     ETHEREAL_PASSWORD,
     ETHEREAL_PORT,
     ETHEREAL_USERNAME,
+    FLY_URL,
     NX_TASK_TARGET_TARGET,
+    PAYLOAD_API_KEY,
+    PAYLOAD_URL,
     S3_ACCESS_KEY_ID,
     S3_BUCKET,
     S3_ENDPOINT,
@@ -141,9 +170,29 @@ export const EnvSchema = withEnvVars(
     SENTRY_DSN,
     SENTRY_ORG,
     SENTRY_RELEASE,
+    SIGNATURE_SECRET,
+    TENANT_ID,
     ...env
   }) => ({
     ...env,
+    /**
+     * How the cms app is configured and running.
+     * Either as cms host (`host`) or tenant-scoped client (`tenant`).
+     */
+    APP_MODE: TENANT_ID
+      ? ({
+          type: 'tenant',
+          serverURL: CUSTOM_URL || FLY_URL || PAYLOAD_URL,
+          apiKey: PAYLOAD_API_KEY ?? '', // guarded by related refine above
+          tenantId: TENANT_ID
+        } satisfies AppModeTenant)
+      : ({
+          type: 'host',
+          serverURL: CUSTOM_URL || FLY_URL || PAYLOAD_URL,
+          signatureSecret: SIGNATURE_SECRET ?? '' // guarded by related refine above
+        } satisfies AppModeHost),
+    // Expose Fly url for e.g. dynamic cors configuration
+    FLY_URL,
     // Rename to declarative variable for easier use in codebase
     NX_RUN_TARGET: NX_TASK_TARGET_TARGET ?? '',
     // Transform to storage object if S3 access key id is provided

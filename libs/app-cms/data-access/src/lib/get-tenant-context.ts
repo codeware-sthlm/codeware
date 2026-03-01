@@ -5,55 +5,51 @@ import { cache } from 'react';
 
 type TenantContext = {
   tenantApiKey: string;
-  tenantId: string | undefined;
 };
 
 /**
- * Get tenant context for the current request.
- *
- * - Looks for `TENANT_ID` and `PAYLOAD_API_KEY` from environment
- * - In development with `X-Tenant-Host` header, tenant API key is resolved from seed data.
+ * Get tenant context when running in tenant mode.
  *
  * Uses React cache() for per-request memoization to avoid redundant lookups.
  *
- * @returns Tenant context or null if not available (admin-only deployment)
+ * ---
+ *
+ * **In development**, tenant API key is resolved from seed data via host:
+ * - First tries `X-Tenant-Host` header
+ * - Falling back to `${TENANT_ID}.localhost`
+ *
+ * @returns Tenant context or null if not available (cms host deployment)
  */
 export const getTenantContext = cache(
   async (): Promise<TenantContext | null> => {
-    const { DEPLOY_ENV, TENANT_ID, PAYLOAD_API_KEY } = getEnv();
+    const { APP_MODE, DEPLOY_ENV } = getEnv();
 
-    // Check for tenant details from environment (expected for a deployed tenant app)
-    if (TENANT_ID && PAYLOAD_API_KEY) {
-      // Running tenant app with api key authentication
+    if (APP_MODE.type === 'host') {
+      // Running as headless CMS host, no tenant context available
+      return null;
+    }
+
+    // Tenant details from environment is expected for a deployed tenant app
+    if (DEPLOY_ENV !== 'development') {
       return {
-        tenantApiKey: PAYLOAD_API_KEY,
-        tenantId: TENANT_ID
+        tenantApiKey: APP_MODE.apiKey
       };
     }
 
-    // In development, check for X-Tenant-Host header
-    if (DEPLOY_ENV === 'development') {
-      const headersList = await headers();
-      const tenantHost = headersList.get('x-tenant-host');
+    // In development, get host from X-Tenant-Host header or the tenant
+    const headersList = await headers();
+    const tenantHost =
+      headersList.get('x-tenant-host') || `${APP_MODE.tenantId}.localhost`;
 
-      if (tenantHost) {
-        const tenant = await resolveTenantSeedFromHost(tenantHost);
-        if (tenant) {
-          // Found tenant from host, return its seeded API key
-          return {
-            tenantApiKey: tenant.apiKey,
-            tenantId: undefined
-          };
-        } else {
-          console.error(
-            `Failed to resolve tenant from X-Tenant-Host header: ${tenantHost}`
-          );
-          return null;
-        }
-      }
+    const tenant = await resolveTenantSeedFromHost(tenantHost);
+    if (tenant) {
+      // Found tenant from host, return its seeded API key
+      return {
+        tenantApiKey: tenant.apiKey
+      };
     }
 
-    // Running as headless CMS host
+    console.error(`Failed to resolve tenant: ${tenantHost}`);
     return null;
   }
 );

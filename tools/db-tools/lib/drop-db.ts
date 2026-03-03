@@ -28,10 +28,12 @@ interface Database {
  */
 async function flyExec(appName: string, command: string): Promise<string> {
   try {
-    // Escape the command properly for shell execution
-    const escapedCommand = command.replace(/"/g, '\\"');
+    // Escape the command properly for shell execution using single-quote pattern
+    // This avoids issues with backslash escaping and ensures all shell meta-characters
+    // (including backslashes, double quotes, etc.) are treated as literal characters
+    const safeCommand = "'" + command.replace(/'/g, "'\\''") + "'";
     const { stdout, stderr } = await execAsync(
-      `fly -a ${appName} ssh console --command "${escapedCommand}"`
+      `fly -a ${appName} ssh console --command ${safeCommand}`
     );
     if (stderr && !stderr.includes('Connecting to')) {
       throw new Error(stderr);

@@ -44,6 +44,7 @@ It's built with a configuration-first approach, meaning that you provide a `fly.
     - [Deploy an application](#deploy-an-application)
     - [Application status](#application-status)
     - [List applications](#list-applications)
+    - [Manage machines](#manage-machines)
   - [Configuration \& scaling](#configuration--scaling)
     - [Add a custom domain](#add-a-custom-domain)
     - [Remove a custom domain](#remove-a-custom-domain)
@@ -258,6 +259,19 @@ const response = await fly.deploy({
 // For existing apps: saves remote config to fly.{appName}.toml and uses it
 // For new apps: uses the local config file
 
+// Deploy with existing image (skips build, useful for config-only updates)
+const response = await fly.deploy({
+  app: 'foo-app',
+  config: 'apps/foo-app/fly.toml',
+  image: 'registry.fly.io/foo-app:deployment-01234567'
+});
+// Or use just the tag (will be expanded to full registry path)
+const response = await fly.deploy({
+  app: 'foo-app',
+  config: 'apps/foo-app/fly.toml',
+  image: 'deployment-01234567'
+});
+
 // With options that could be a pull request preview deployment
 const response = await fly.deploy({
   app: 'pr-19-foo-app',
@@ -334,6 +348,21 @@ const status = await fly.statusExtended();
 ```ts
 // Get all applications
 const apps = await fly.apps.list();
+```
+
+#### Manage machines
+
+Control individual machines within your applications.
+
+```ts
+// Start a machine
+await fly.machines.start('foo-app', 'machine-id-123');
+
+// Stop a machine
+await fly.machines.stop('foo-app', 'machine-id-123');
+
+// Restart a machine (stop then start with delay)
+await fly.machines.restart('foo-app', 'machine-id-123');
 ```
 
 ### Configuration & scaling

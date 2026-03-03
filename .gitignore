@@ -64,3 +64,7 @@ apps/**/pnpm-lock.yaml
 # Next.js
 .next
 out
+
+# Fly.io temp config files
+.fly-config-*.toml
+.fly-deploy-*.toml

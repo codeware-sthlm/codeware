@@ -28,6 +28,7 @@
   - [Terminal 2: Start web client](#terminal-2-start-web-client)
   - [Terminal 3: Start reverse proxy to simulate multi-tenancy](#terminal-3-start-reverse-proxy-to-simulate-multi-tenancy)
 - [Development Tools \& Services](#development-tools--services)
+  - [CLI Tools](#cli-tools)
   - [Infisical Secrets Management](#infisical-secrets-management)
   - [Fly.io Deployment](#flyio-deployment)
   - [Release Management](#release-management)
@@ -172,6 +173,29 @@ nx payload-proxy [docker compose options]
 
 ## Development Tools & Services
 
+### CLI Tools
+
+Interactive CLI tools for managing Fly.io apps, databases, and configurations.
+
+**Quick Start:**
+
+```sh
+pnpm cdwr
+```
+
+Select from available tools:
+
+- **drop-db** - Drop databases from Fly Postgres cluster
+- **restart-app** - Restart Fly app machines
+- **app-info** - View Fly app information and machine states
+- **patch-config** - Apply TOML patches to Fly apps
+- **infisical-tenants** - Fetch application tenants from Infisical
+- **infisical-data** - Fetch tenant data from Infisical
+- **infisical-analysis** - Analyze Infisical configuration and secrets
+
+> [!TIP]
+> See [tools/README.md](tools/README.md) for more details and alternative usage options.
+
 ### Infisical Secrets Management
 
 The [Infisical](https://infisical.com) secret management tool is used to manage secrets for the Codeware ecosystem.
@@ -287,10 +311,19 @@ fly pg db list -a pg-preview
 sh scripts/cleanup-db.sh {pr-number} {cluster-password}
 ```
 
-**Drop database** (to start fresh):
+**Drop database** (to start fresh) or **Restart app machine**:
+
+Use the interactive CLI tool:
 
 ```sh
-sh scripts/drop-db.sh {pr-number} {cluster-password}
+pnpm cdwr
+```
+
+Then select `drop-db` or `restart-app` from the menu.
+
+Alternatively, restart manually:
+
+```sh
 fly machine stop {machine-id}
 fly machine restart {machine-id}
 ```

@@ -20,7 +20,7 @@ dotenv.config({ path: `${dirname}/../.env.infisical` });
 
 const runForApps = ['cms', 'web'];
 
-(async () => {
+async function main() {
   const preDeploy = new Map<
     Environment,
     ReturnType<typeof filterByDeployRules>
@@ -92,4 +92,14 @@ const runForApps = ['cms', 'web'];
     );
     console.log(JSON.stringify(details, null, 2));
   }
-})();
+}
+
+// Export for use as a library
+export { main as analysisMain };
+
+// Run if executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e) => {
+    process.exit(1);
+  });
+}

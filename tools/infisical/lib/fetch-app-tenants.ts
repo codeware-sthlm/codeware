@@ -10,10 +10,10 @@ const dirname = path.dirname(filename);
 
 dotenv.config({ path: `${dirname}/../.env.infisical` });
 
-const environment = (process.argv[2] || 'development') as Environment;
-console.log(`Fetch data from ${environment}...`);
+async function main() {
+  const environment = (process.argv[2] || 'development') as Environment;
+  console.log(`Fetch data from ${environment}...`);
 
-(async () => {
   try {
     const apps = await fetchAppTenants(
       {
@@ -28,6 +28,19 @@ console.log(`Fetch data from ${environment}...`);
 
     console.log('Fetched app tenants:\n', JSON.stringify(apps, null, 2));
   } catch (error) {
-    console.error('Error fetching app tenants');
+    console.error(
+      'Error fetching app tenants\n',
+      error instanceof Error ? error.message : error
+    );
   }
-})();
+}
+
+// Export for use as a library
+export { main as fetchAppTenantsMain };
+
+// Run if executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(() => {
+    process.exit(1);
+  });
+}

@@ -5,6 +5,12 @@
   "projectType": "library",
   "tags": ["scope:tools"],
   "targets": {
+    "cli": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig tools/infisical/tsconfig.json tools/infisical/infisical-cli.ts"
+      }
+    },
     "app-tenants": {
       "executor": "nx:run-commands",
       "options": {

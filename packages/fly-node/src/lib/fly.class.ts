@@ -365,6 +365,61 @@ export class Fly {
       );
     }
   };
+  /**
+   * Manage machines
+   */
+  machines = {
+    /**
+     * Start a machine
+     *
+     * @param app - The name of the application
+     * @param machineId - The machine ID to start
+     * @throws An error if the machine cannot be started
+     */
+    start: async (app: string, machineId: string): Promise<void> => {
+      try {
+        await this.ensureInitialized();
+        await this.startMachine(app, machineId);
+        this.logger.info(`Machine '${machineId}' in app '${app}' was started`);
+      } catch (error) {
+        throw new Error(`[start machine] something broke\n${error}`);
+      }
+    },
+    /**
+     * Stop a machine
+     *
+     * @param app - The name of the application
+     * @param machineId - The machine ID to stop
+     * @throws An error if the machine cannot be stopped
+     */
+    stop: async (app: string, machineId: string): Promise<void> => {
+      try {
+        await this.ensureInitialized();
+        await this.stopMachine(app, machineId);
+        this.logger.info(`Machine '${machineId}' in app '${app}' was stopped`);
+      } catch (error) {
+        throw new Error(`[stop machine] something broke\n${error}`);
+      }
+    },
+    /**
+     * Restart a machine by stopping then starting it
+     *
+     * @param app - The name of the application
+     * @param machineId - The machine ID to restart
+     * @throws An error if the machine cannot be restarted
+     */
+    restart: async (app: string, machineId: string): Promise<void> => {
+      try {
+        await this.ensureInitialized();
+        await this.restartMachine(app, machineId);
+        this.logger.info(
+          `Machine '${machineId}' in app '${app}' was restarted`
+        );
+      } catch (error) {
+        throw new Error(`[restart machine] something broke\n${error}`);
+      }
+    }
+  };
   postgres = {
     detach: async (cluster: string, app: string) => {
       await this.detachPostgres(cluster, app);
@@ -708,6 +763,9 @@ export class Fly {
     for (const [key, value] of Object.entries(options?.buildArgs || {})) {
       args.push('--build-arg', `${key}=${this.safeArg(value)}`);
     }
+    if (options?.image) {
+      args.push('--image', options.image);
+    }
     if (options?.optOutDepotBuilder) {
       args.push('--depot=false');
     }
@@ -860,6 +918,38 @@ export class Fly {
     await this.execFly(args);
 
     return NameSchema.parse(status.name);
+  }
+
+  /**
+   * @private
+   * Start a machine
+   * @throws An error if the machine cannot be started
+   */
+  private async startMachine(app: string, machineId: string): Promise<void> {
+    const args = ['machine', 'start', machineId, '--app', app];
+    await this.execFly(args);
+  }
+
+  /**
+   * @private
+   * Stop a machine
+   * @throws An error if the machine cannot be stopped
+   */
+  private async stopMachine(app: string, machineId: string): Promise<void> {
+    const args = ['machine', 'stop', machineId, '--app', app];
+    await this.execFly(args);
+  }
+
+  /**
+   * @private
+   * Restart a machine by stopping then starting it
+   * @throws An error if the machine cannot be restarted
+   */
+  private async restartMachine(app: string, machineId: string): Promise<void> {
+    await this.stopMachine(app, machineId);
+    // Wait a bit for the machine to fully stop
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await this.startMachine(app, machineId);
   }
 
   /**

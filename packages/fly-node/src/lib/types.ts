@@ -245,6 +245,19 @@ export type DeployAppOptions = {
   secrets?: Record<string, string>;
 
   /**
+   * Docker image to use for deployment.
+   *
+   * This allows deploying with an existing image instead of rebuilding.
+   * Useful for config-only updates where you want to reuse the current image.
+   *
+   * Format: Can be either a full image reference (e.g., `registry.fly.io/app:tag`)
+   * or just the image tag from the registry (the shorthand will be expanded to the full reference).
+   *
+   * When provided, the build phase is skipped and the deployment uses the specified image.
+   */
+  image?: string;
+
+  /**
    * Whether to opt out of the Depot Builder.
    *
    * Defaults to `false`.
@@ -323,6 +336,21 @@ export type SetAppSecretsOptions = AppOrConfig & {
  * Options for unsetting application secrets
  */
 export type UnsetAppSecretsOptions = SetAppSecretsOptions;
+
+/**
+ * Options for machine operations (start, stop, restart)
+ */
+export type MachineOperationOptions = {
+  /**
+   * Name of the application
+   */
+  app: string;
+
+  /**
+   * Machine ID to perform the operation on
+   */
+  machineId: string;
+};
 
 /**
  * Extended application status

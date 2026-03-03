@@ -225,6 +225,13 @@ export const mockStatusResponse = (
             name: 'machine-name',
             state: 'running',
             region: 'iam',
+            imageRef: {
+              registry: 'registry.fly.io',
+              repository: app,
+              tag: 'deployment-01TEST000000000000000000',
+              digest:
+                'sha256:0000000000000000000000000000000000000000000000000000000000000000'
+            },
             createdAt: '2024-01-01T00:00:00Z',
             updatedAt: '2024-02-01T00:00:00Z',
             config: {

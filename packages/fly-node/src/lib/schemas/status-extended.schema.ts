@@ -12,6 +12,10 @@ export const StatusExtendedTransformedResponseSchema = withCamelCase(
     secrets: z.array(z.object({ name: z.string() }))
   }),
   {
-    preserve: ['machines.config.env', 'machines.config.metadata']
+    preserve: [
+      'machines.config.env',
+      'machines.config.metadata',
+      'machines.config.guest'
+    ]
   }
 );

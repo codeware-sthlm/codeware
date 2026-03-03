@@ -271,6 +271,11 @@ exports[`fly-node schema validation > validates all schemas against fixtures > S
           "FLY_PROCESS_GROUP": "app",
           "NODE_ENV": "production",
         },
+        "guest": {
+          "cpu_kind": "shared",
+          "cpus": 1,
+          "memory_mb": 256,
+        },
         "metadata": {
           "fly_flyctl_version": "0.1.134",
           "fly_platform_version": "v2",
@@ -295,6 +300,12 @@ exports[`fly-node schema validation > validates all schemas against fixtures > S
       ],
       "hostStatus": "ok",
       "id": "e784e290f506e8",
+      "imageRef": {
+        "digest": "sha256:e995317361c3055f81d6d642cb4a1f661aa639aa309b7a1d893988b81baa22bb",
+        "registry": "registry.fly.io",
+        "repository": "codeware-se",
+        "tag": "deployment-01HJ3NSD4X56N0QPHFYRKN6WS4",
+      },
       "name": "wandering-shadow-6818",
       "region": "ams",
       "state": "started",
@@ -336,6 +347,11 @@ exports[`fly-node schema validation > validates all schemas against fixtures > S
           "FLY_PROCESS_GROUP": "app",
           "NODE_ENV": "production",
         },
+        "guest": {
+          "cpu_kind": "shared",
+          "cpus": 1,
+          "memory_mb": 256,
+        },
         "metadata": {
           "fly_flyctl_version": "0.1.134",
           "fly_platform_version": "v2",
@@ -359,6 +375,12 @@ exports[`fly-node schema validation > validates all schemas against fixtures > S
       ],
       "hostStatus": "ok",
       "id": "e784e142f506e8",
+      "imageRef": {
+        "digest": "sha256:e995317361c3055f81d6d642cb4a1f661aa639aa309b7a1d893988b81baa22bb",
+        "registry": "registry.fly.io",
+        "repository": "test-app-se",
+        "tag": "deployment-01HJ2NSD4X32N0QPHFYRKN6AY4",
+      },
       "name": "wandering-shadow-9999",
       "region": "ams",
       "state": "started",

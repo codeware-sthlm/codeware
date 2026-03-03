@@ -3,5 +3,7 @@ export type {
   Config,
   DeployAppOptions,
   DeployResponse,
-  SaveConfigOptions
+  MachineOperationOptions,
+  SaveConfigOptions,
+  StatusResponse
 } from './lib/types';

@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
+import { isbot } from 'isbot';
 
 import { getSentrySampleRate } from './utils/get-sentry-sample-rate';
 
@@ -32,6 +33,27 @@ Sentry.init({
   // Session Replay sample rates
   replaysSessionSampleRate: getSentrySampleRate(env.DEPLOY_ENV),
   replaysOnErrorSampleRate: 1.0, // Capture 100% of sessions with errors
+
+  // Filter out all errors from bot crawlers
+  // Bots often trigger false positives due to:
+  // - Stale HTML referencing old chunks after deployments
+  // - Machine suspend/resume causing temporary unavailability
+  // - Aggressive crawling patterns that don't match real user behavior
+  beforeSend(event) {
+    // Extract user agent from various possible locations in the event
+    const userAgent =
+      event.request?.headers?.['User-Agent'] ||
+      event.request?.headers?.['user-agent'] ||
+      (event.contexts?.browser as { name?: string })?.name ||
+      '';
+
+    // Use the official isbot registry to detect crawlers
+    if (typeof userAgent === 'string' && isbot(userAgent)) {
+      return null;
+    }
+
+    return event;
+  },
 
   integrations: [
     Sentry.browserTracingIntegration(),

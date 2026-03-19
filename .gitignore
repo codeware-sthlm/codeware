@@ -68,3 +68,6 @@ out
 # Fly.io temp config files
 .fly-config-*.toml
 .fly-deploy-*.toml
+
+.claude/worktrees
+.claude/settings.local.json

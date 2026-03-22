@@ -68,3 +68,7 @@ out
 # Fly.io temp config files
 .fly-config-*.toml
 .fly-deploy-*.toml
+
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json

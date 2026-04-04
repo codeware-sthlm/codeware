@@ -49,19 +49,19 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   DROP INDEX IF EXISTS "reusable_content_rels_cards_id_idx";
   DROP INDEX IF EXISTS "payload_locked_documents_rels_cards_id_idx";
   DO $$ BEGIN
-   ALTER TABLE "pages_blocks_card_cards" ADD CONSTRAINT "pages_blocks_card_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_blocks_card_cards" ADD CONSTRAINT "pages_blocks_card_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."pages_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_card_cards" ADD CONSTRAINT "reusable_content_blocks_card_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_card_cards" ADD CONSTRAINT "reusable_content_blocks_card_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_card_cards_locales" ADD CONSTRAINT "reusable_content_blocks_card_cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content_blocks_card_cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_card_cards_locales" ADD CONSTRAINT "reusable_content_blocks_card_cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content_blocks_card_cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -158,31 +158,31 @@ export async function down({
   ALTER TABLE "reusable_content_rels" ADD COLUMN "cards_id" integer;
   ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "cards_id" integer;
   DO $$ BEGIN
-   ALTER TABLE "cards" ADD CONSTRAINT "cards_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE set null ON UPDATE no action;
+   ALTER TABLE "cards" ADD CONSTRAINT "cards_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "payload"."tenants"("id") ON DELETE set null ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_locales" ADD CONSTRAINT "cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_locales" ADD CONSTRAINT "cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_pages_fk" FOREIGN KEY ("pages_id") REFERENCES "public"."pages"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_pages_fk" FOREIGN KEY ("pages_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_posts_fk" FOREIGN KEY ("posts_id") REFERENCES "public"."posts"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_posts_fk" FOREIGN KEY ("posts_id") REFERENCES "payload"."posts"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -198,37 +198,37 @@ export async function down({
   CREATE INDEX IF NOT EXISTS "cards_rels_pages_id_idx" ON "cards_rels" USING btree ("pages_id");
   CREATE INDEX IF NOT EXISTS "cards_rels_posts_id_idx" ON "cards_rels" USING btree ("posts_id");
   DO $$ BEGIN
-   ALTER TABLE "pages_blocks_card_custom_cards" ADD CONSTRAINT "pages_blocks_card_custom_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_blocks_card_custom_cards" ADD CONSTRAINT "pages_blocks_card_custom_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."pages_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_card_custom_cards" ADD CONSTRAINT "reusable_content_blocks_card_custom_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_card_custom_cards" ADD CONSTRAINT "reusable_content_blocks_card_custom_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_card_custom_cards_locales" ADD CONSTRAINT "reusable_content_blocks_card_custom_cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content_blocks_card_custom_cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_card_custom_cards_locales" ADD CONSTRAINT "reusable_content_blocks_card_custom_cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content_blocks_card_custom_cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_rels" ADD CONSTRAINT "reusable_content_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_rels" ADD CONSTRAINT "reusable_content_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;

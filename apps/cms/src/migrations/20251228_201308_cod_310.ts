@@ -13,13 +13,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_reusable_content" ADD CONSTRAINT "reusable_content_blocks_reusable_content_reusable_content_id_reusable_content_id_fk" FOREIGN KEY ("reusable_content_id") REFERENCES "public"."reusable_content"("id") ON DELETE set null ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_reusable_content" ADD CONSTRAINT "reusable_content_blocks_reusable_content_reusable_content_id_reusable_content_id_fk" FOREIGN KEY ("reusable_content_id") REFERENCES "payload"."reusable_content"("id") ON DELETE set null ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_reusable_content" ADD CONSTRAINT "reusable_content_blocks_reusable_content_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_reusable_content" ADD CONSTRAINT "reusable_content_blocks_reusable_content_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;

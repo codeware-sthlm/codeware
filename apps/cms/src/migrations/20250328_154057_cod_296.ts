@@ -39,13 +39,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "forms_blocks_textarea" RENAME COLUMN "width_numeric" TO "width";
 
   -- Drop the now-unused enum types
-  DROP TYPE "public"."enum_forms_blocks_checkbox_width";
-  DROP TYPE "public"."enum_forms_blocks_country_width";
-  DROP TYPE "public"."enum_forms_blocks_email_width";
-  DROP TYPE "public"."enum_forms_blocks_number_width";
-  DROP TYPE "public"."enum_forms_blocks_select_width";
-  DROP TYPE "public"."enum_forms_blocks_text_width";
-  DROP TYPE "public"."enum_forms_blocks_textarea_width";`);
+  DROP TYPE "payload"."enum_forms_blocks_checkbox_width";
+  DROP TYPE "payload"."enum_forms_blocks_country_width";
+  DROP TYPE "payload"."enum_forms_blocks_email_width";
+  DROP TYPE "payload"."enum_forms_blocks_number_width";
+  DROP TYPE "payload"."enum_forms_blocks_select_width";
+  DROP TYPE "payload"."enum_forms_blocks_text_width";
+  DROP TYPE "payload"."enum_forms_blocks_textarea_width";`);
 }
 
 export async function down({
@@ -55,13 +55,13 @@ export async function down({
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
   -- First recreate the enum types
-  CREATE TYPE "public"."enum_forms_blocks_checkbox_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
-  CREATE TYPE "public"."enum_forms_blocks_country_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
-  CREATE TYPE "public"."enum_forms_blocks_email_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
-  CREATE TYPE "public"."enum_forms_blocks_number_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
-  CREATE TYPE "public"."enum_forms_blocks_select_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
-  CREATE TYPE "public"."enum_forms_blocks_text_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
-  CREATE TYPE "public"."enum_forms_blocks_textarea_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "payload"."enum_forms_blocks_checkbox_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "payload"."enum_forms_blocks_country_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "payload"."enum_forms_blocks_email_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "payload"."enum_forms_blocks_number_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "payload"."enum_forms_blocks_select_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "payload"."enum_forms_blocks_text_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  CREATE TYPE "payload"."enum_forms_blocks_textarea_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
 
   -- Add temporary enum columns
   ALTER TABLE "forms_blocks_checkbox" ADD COLUMN "width_enum" enum_forms_blocks_checkbox_width;

@@ -93,6 +93,7 @@ export default buildConfig({
     pool: {
       connectionString: env.DATABASE_URL
     },
+    schemaName: env.DATABASE_SCHEMA,
     // Ensure db push is disabled during build-time
     push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build',
     // Never run migrations in a tenant context or during build-time

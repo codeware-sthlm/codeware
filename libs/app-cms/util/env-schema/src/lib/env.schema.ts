@@ -67,6 +67,9 @@ export const EnvSchema = withEnvVars(
           description: 'Database connection string including database name'
         })
         .min(1, { message: 'DATABASE_URL is required' }),
+      DATABASE_SCHEMA: z
+        .string({ description: 'Database schema name for Payload tables' })
+        .min(1),
       LOG_LEVEL: z
         .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
         .default('info'),

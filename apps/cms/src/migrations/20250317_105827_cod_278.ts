@@ -2,7 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   CREATE TYPE "public"."enum_tenants_domains_page_types" AS ENUM('cms', 'client', 'disabled');
+   CREATE TYPE "payload"."enum_tenants_domains_page_types" AS ENUM('cms', 'client', 'disabled');
   CREATE TABLE IF NOT EXISTS "tenants_domains_page_types" (
   	"order" integer NOT NULL,
   	"parent_id" varchar NOT NULL,
@@ -11,7 +11,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
 
   DO $$ BEGIN
-   ALTER TABLE "tenants_domains_page_types" ADD CONSTRAINT "tenants_domains_page_types_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."tenants_domains"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "tenants_domains_page_types" ADD CONSTRAINT "tenants_domains_page_types_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "payload"."tenants_domains"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -27,5 +27,5 @@ export async function down({
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    DROP TABLE "tenants_domains_page_types" CASCADE;
-  DROP TYPE "public"."enum_tenants_domains_page_types";`);
+  DROP TYPE "payload"."enum_tenants_domains_page_types";`);
 }

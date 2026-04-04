@@ -2,7 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   CREATE TYPE "public"."enum_spacing_size" AS ENUM('tight', 'regular', 'loose');
+   CREATE TYPE "payload"."enum_spacing_size" AS ENUM('tight', 'regular', 'loose');
   CREATE TABLE IF NOT EXISTS "pages_blocks_spacing" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
@@ -27,13 +27,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
 
   DO $$ BEGIN
-   ALTER TABLE "pages_blocks_spacing" ADD CONSTRAINT "pages_blocks_spacing_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_blocks_spacing" ADD CONSTRAINT "pages_blocks_spacing_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_spacing" ADD CONSTRAINT "reusable_content_blocks_spacing_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_spacing" ADD CONSTRAINT "reusable_content_blocks_spacing_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -55,5 +55,5 @@ export async function down({
   await db.execute(sql`
    DROP TABLE "pages_blocks_spacing" CASCADE;
   DROP TABLE "reusable_content_blocks_spacing" CASCADE;
-  DROP TYPE "public"."enum_spacing_size";`);
+  DROP TYPE "payload"."enum_spacing_size";`);
 }

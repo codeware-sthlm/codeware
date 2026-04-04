@@ -2,8 +2,8 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   ALTER TYPE "public"."enum_social_media_platform" ADD VALUE 'email' BEFORE 'facebook';
-  ALTER TYPE "public"."enum_social_media_platform" ADD VALUE 'phone' BEFORE 'web';
+   ALTER TYPE "payload"."enum_social_media_platform" ADD VALUE 'email' BEFORE 'facebook';
+  ALTER TYPE "payload"."enum_social_media_platform" ADD VALUE 'phone' BEFORE 'web';
   ALTER TABLE "pages_blocks_social_media_social" ALTER COLUMN "url" DROP NOT NULL;
   ALTER TABLE "reusable_content_blocks_social_media_social" ALTER COLUMN "url" DROP NOT NULL;
   ALTER TABLE "pages_blocks_social_media_social" ADD COLUMN "email" varchar;
@@ -29,10 +29,10 @@ export async function down({
   ALTER TABLE "pages_blocks_social_media_social" DROP COLUMN IF EXISTS "phone";
   ALTER TABLE "reusable_content_blocks_social_media_social" DROP COLUMN IF EXISTS "email";
   ALTER TABLE "reusable_content_blocks_social_media_social" DROP COLUMN IF EXISTS "phone";
-  ALTER TABLE "public"."pages_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE text;
-  ALTER TABLE "public"."reusable_content_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE text;
-  DROP TYPE "public"."enum_social_media_platform";
-  CREATE TYPE "public"."enum_social_media_platform" AS ENUM('discord', 'facebook', 'github', 'instagram', 'linkedin', 'npm', 'web', 'x', 'youtube');
-  ALTER TABLE "public"."pages_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE "public"."enum_social_media_platform" USING "platform"::"public"."enum_social_media_platform";
-  ALTER TABLE "public"."reusable_content_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE "public"."enum_social_media_platform" USING "platform"::"public"."enum_social_media_platform";`);
+  ALTER TABLE "payload"."pages_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE text;
+  ALTER TABLE "payload"."reusable_content_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE text;
+  DROP TYPE "payload"."enum_social_media_platform";
+  CREATE TYPE "payload"."enum_social_media_platform" AS ENUM('discord', 'facebook', 'github', 'instagram', 'linkedin', 'npm', 'web', 'x', 'youtube');
+  ALTER TABLE "payload"."pages_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE "payload"."enum_social_media_platform" USING "platform"::"payload"."enum_social_media_platform";
+  ALTER TABLE "payload"."reusable_content_blocks_social_media_social" ALTER COLUMN "platform" SET DATA TYPE "payload"."enum_social_media_platform" USING "platform"::"payload"."enum_social_media_platform";`);
 }

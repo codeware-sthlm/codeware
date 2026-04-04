@@ -2,10 +2,10 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   CREATE TYPE "public"."enum_cards_link_type" AS ENUM('reference', 'custom');
-  CREATE TYPE "public"."enum_cards_link_nav_trigger" AS ENUM('card', 'link');
-  CREATE TYPE "public"."enum_pages_blocks_card_custom_cards_card_link_type" AS ENUM('reference', 'custom');
-  CREATE TYPE "public"."enum_pages_blocks_card_custom_cards_card_link_nav_trigger" AS ENUM('card', 'link');
+   CREATE TYPE "payload"."enum_cards_link_type" AS ENUM('reference', 'custom');
+  CREATE TYPE "payload"."enum_cards_link_nav_trigger" AS ENUM('card', 'link');
+  CREATE TYPE "payload"."enum_pages_blocks_card_custom_cards_card_link_type" AS ENUM('reference', 'custom');
+  CREATE TYPE "payload"."enum_pages_blocks_card_custom_cards_card_link_nav_trigger" AS ENUM('card', 'link');
   CREATE TABLE IF NOT EXISTS "cards" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"tenant_id" integer,
@@ -78,67 +78,67 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 
   ALTER TABLE "payload_locked_documents_rels" ADD COLUMN "cards_id" integer;
   DO $$ BEGIN
-   ALTER TABLE "cards" ADD CONSTRAINT "cards_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE set null ON UPDATE no action;
+   ALTER TABLE "cards" ADD CONSTRAINT "cards_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "payload"."tenants"("id") ON DELETE set null ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_locales" ADD CONSTRAINT "cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_locales" ADD CONSTRAINT "cards_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_pages_fk" FOREIGN KEY ("pages_id") REFERENCES "public"."pages"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_pages_fk" FOREIGN KEY ("pages_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_posts_fk" FOREIGN KEY ("posts_id") REFERENCES "public"."posts"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "cards_rels" ADD CONSTRAINT "cards_rels_posts_fk" FOREIGN KEY ("posts_id") REFERENCES "payload"."posts"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_blocks_card_custom_cards" ADD CONSTRAINT "pages_blocks_card_custom_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_blocks_card_custom_cards" ADD CONSTRAINT "pages_blocks_card_custom_cards_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."pages_blocks_card"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_blocks_card" ADD CONSTRAINT "pages_blocks_card_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_blocks_card" ADD CONSTRAINT "pages_blocks_card_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."pages"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_pages_fk" FOREIGN KEY ("pages_id") REFERENCES "public"."pages"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_pages_fk" FOREIGN KEY ("pages_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_posts_fk" FOREIGN KEY ("posts_id") REFERENCES "public"."posts"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_rels" ADD CONSTRAINT "pages_rels_posts_fk" FOREIGN KEY ("posts_id") REFERENCES "payload"."posts"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -168,7 +168,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX IF NOT EXISTS "pages_rels_pages_id_idx" ON "pages_rels" USING btree ("pages_id","locale");
   CREATE INDEX IF NOT EXISTS "pages_rels_posts_id_idx" ON "pages_rels" USING btree ("posts_id","locale");
   DO $$ BEGIN
-   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "public"."cards"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_cards_fk" FOREIGN KEY ("cards_id") REFERENCES "payload"."cards"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -198,8 +198,8 @@ export async function down({
 
   DROP INDEX IF EXISTS "payload_locked_documents_rels_cards_id_idx";
   ALTER TABLE "payload_locked_documents_rels" DROP COLUMN IF EXISTS "cards_id";
-  DROP TYPE "public"."enum_cards_link_type";
-  DROP TYPE "public"."enum_cards_link_nav_trigger";
-  DROP TYPE "public"."enum_pages_blocks_card_custom_cards_card_link_type";
-  DROP TYPE "public"."enum_pages_blocks_card_custom_cards_card_link_nav_trigger";`);
+  DROP TYPE "payload"."enum_cards_link_type";
+  DROP TYPE "payload"."enum_cards_link_nav_trigger";
+  DROP TYPE "payload"."enum_pages_blocks_card_custom_cards_card_link_type";
+  DROP TYPE "payload"."enum_pages_blocks_card_custom_cards_card_link_nav_trigger";`);
 }

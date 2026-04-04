@@ -2,7 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   CREATE TYPE "public"."enum_social_media_platform" AS ENUM('discord', 'facebook', 'github', 'instagram', 'linkedin', 'npm', 'web', 'x', 'youtube');
+   CREATE TYPE "payload"."enum_social_media_platform" AS ENUM('discord', 'facebook', 'github', 'instagram', 'linkedin', 'npm', 'web', 'x', 'youtube');
   CREATE TABLE IF NOT EXISTS "pages_blocks_social_media_social" (
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
@@ -38,25 +38,25 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
 
   DO $$ BEGIN
-   ALTER TABLE "pages_blocks_social_media_social" ADD CONSTRAINT "pages_blocks_social_media_social_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_blocks_social_media"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_blocks_social_media_social" ADD CONSTRAINT "pages_blocks_social_media_social_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."pages_blocks_social_media"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "pages_blocks_social_media" ADD CONSTRAINT "pages_blocks_social_media_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "pages_blocks_social_media" ADD CONSTRAINT "pages_blocks_social_media_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_social_media_social" ADD CONSTRAINT "reusable_content_blocks_social_media_social_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content_blocks_social_media"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_social_media_social" ADD CONSTRAINT "reusable_content_blocks_social_media_social_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content_blocks_social_media"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
 
   DO $$ BEGIN
-   ALTER TABLE "reusable_content_blocks_social_media" ADD CONSTRAINT "reusable_content_blocks_social_media_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."reusable_content"("id") ON DELETE cascade ON UPDATE no action;
+   ALTER TABLE "reusable_content_blocks_social_media" ADD CONSTRAINT "reusable_content_blocks_social_media_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."reusable_content"("id") ON DELETE cascade ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -85,5 +85,5 @@ export async function down({
   DROP TABLE "pages_blocks_social_media" CASCADE;
   DROP TABLE "reusable_content_blocks_social_media_social" CASCADE;
   DROP TABLE "reusable_content_blocks_social_media" CASCADE;
-  DROP TYPE "public"."enum_social_media_platform";`);
+  DROP TYPE "payload"."enum_social_media_platform";`);
 }

@@ -48,6 +48,7 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 .nx/cache
+.nx/polygraph
 .nx/workspace-data
 migrations.json
 !packages/**/migrations.json
@@ -69,6 +70,12 @@ out
 .fly-config-*.toml
 .fly-deploy-*.toml
 
-.nx/polygraph
+# AI
 .claude/worktrees
 .claude/settings.local.json
+
+# Database backups
+/backups/
+
+# Infisical credentials (tools)
+.env.infisical

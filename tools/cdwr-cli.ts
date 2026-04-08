@@ -2,7 +2,10 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { cancel, intro, isCancel, select } from '@clack/prompts';
 
+import { backupCmsDatabase } from './db-tools/lib/backup-db.js';
 import { dropDatabase } from './db-tools/lib/drop-db.js';
+import { restoreCmsDatabase } from './db-tools/lib/restore-db.js';
+import { syncCmsStorage } from './db-tools/lib/sync-storage.js';
 import { showAppInfo } from './fly-tools/lib/app-info.js';
 import { patchFlyConfig } from './fly-tools/lib/patch-config.js';
 import { restartApp } from './fly-tools/lib/restart-app.js';
@@ -17,6 +20,21 @@ interface Tool {
 }
 
 const tools: Tool[] = [
+  {
+    name: 'backup-db',
+    description: 'Backup CMS database from Supabase',
+    action: backupCmsDatabase
+  },
+  {
+    name: 'restore-db',
+    description: 'Restore CMS database to Supabase',
+    action: restoreCmsDatabase
+  },
+  {
+    name: 'sync-storage',
+    description: 'Sync CMS media storage from Supabase S3',
+    action: syncCmsStorage
+  },
   {
     name: 'drop-db',
     description: 'Drop databases from Fly Postgres cluster',

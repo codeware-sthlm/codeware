@@ -1,0 +1,52 @@
+{
+  "name": "cms-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/cms-e2e/src",
+  "tags": ["scope:cms-e2e", "type:e2e"],
+  "targets": {
+    "e2e": {
+      "dependsOn": ["re-seed"]
+    },
+    "dx:postgres": {
+      "metadata": {
+        "description": "Start an isolated Postgres container for E2E tests (port 5433, database cms-e2e)"
+      },
+      "command": "(docker ps -q -f name=postgres-cms-e2e | grep -q . || docker run --name postgres-cms-e2e --rm -d --env-file apps/cms-e2e/.env.e2e -p 5433:5432 postgres) && until docker exec postgres-cms-e2e pg_isready -q; do sleep 1; done"
+    },
+    "re-seed": {
+      "metadata": {
+        "description": "Reset and re-seed the E2E database from a clean state"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx re-seed cms",
+        "env": {
+          "DATABASE_URL": "postgresql://postgres:postgres@localhost:5433/cms-e2e"
+        }
+      },
+      "dependsOn": ["dx:postgres"]
+    },
+    "open-report": {
+      "metadata": {
+        "description": "Open the Playwright HTML test report"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test -d dist/.playwright/apps/cms-e2e/playwright-report && pnpm exec playwright show-report dist/.playwright/apps/cms-e2e/playwright-report || echo 'Test report not found. Run: nx e2e cms-e2e'",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "open-coverage": {
+      "metadata": {
+        "description": "Open the V8 coverage report"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test -f .coverage/index.html && open .coverage/index.html || echo 'Coverage report not found. Run: nx e2e cms-e2e'",
+        "cwd": "apps/cms-e2e"
+      }
+    }
+  },
+  "implicitDependencies": ["cms"]
+}

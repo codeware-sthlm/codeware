@@ -262,6 +262,14 @@
         "serveStaticTargetName": "serve-static"
       }
     },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "exclude": ["apps/web-e2e"],
+      "options": {
+        "targetName": "e2e",
+        "ciTargetName": "e2e-ci"
+      }
+    },
     "./packages/nx-payload/plugin.ts"
   ]
 }

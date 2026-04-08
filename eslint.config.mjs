@@ -49,6 +49,14 @@ export default [
               ]
             },
             {
+              sourceTag: 'scope:cms-e2e',
+              onlyDependOnLibsWithTags: [
+                'scope:cms-e2e',
+                'scope:app-cms',
+                'scope:shared'
+              ]
+            },
+            {
               sourceTag: 'scope:app-cms',
               onlyDependOnLibsWithTags: [
                 'scope:app-cms',
@@ -158,6 +166,8 @@ export default [
       '**/*.tsx',
       '**/*.js',
       '**/*.jsx',
+      '**/*.cjs',
+      '**/*.cts',
       '**/*.mjs',
       '**/*.mts'
     ],

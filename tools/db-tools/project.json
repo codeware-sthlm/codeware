@@ -10,6 +10,24 @@
       "options": {
         "command": "tsx --tsconfig tools/db-tools/tsconfig.json tools/db-tools/lib/drop-db.ts"
       }
+    },
+    "backup-db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig tools/db-tools/tsconfig.json tools/db-tools/lib/backup-db.ts"
+      }
+    },
+    "restore-db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig tools/db-tools/tsconfig.json tools/db-tools/lib/restore-db.ts"
+      }
+    },
+    "sync-storage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig tools/db-tools/tsconfig.json tools/db-tools/lib/sync-storage.ts"
+      }
     }
   }
 }

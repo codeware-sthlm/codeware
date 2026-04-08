@@ -1,3 +1,5 @@
+import { TranslationKey } from '@codeware/shared/util/i18n';
+
 /**
  * File area item properties
  */
@@ -30,6 +32,7 @@ export type FileType =
  */
 export type FileItemContext = FileItem & {
   type: FileType;
+  translationKey: TranslationKey;
 };
 
 /**

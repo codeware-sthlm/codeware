@@ -14,9 +14,7 @@ The components must be designed for server-side rendering, to be fully compatibl
 
 ## Language support
 
-**This is not yet in place!**
-
-Is the solution to add the current language to `PayloadProvider`?
+Ensure the current language is provided to `PayloadProvider` and get the current value from `usePayload()` in your components.
 
 ## Types
 

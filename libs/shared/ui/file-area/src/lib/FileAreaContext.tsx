@@ -11,6 +11,7 @@ import { extractFileType } from './utils/extract-file-type';
 
 type FileAreaContextType = {
   files: Array<FileItemContext>;
+  locale: string;
   viewMode: ViewMode;
   sortOption: SortOption;
   searchQuery: string;
@@ -27,10 +28,12 @@ const FileAreaContext = createContext<FileAreaContextType | undefined>(
 
 export const FileAreaProvider = ({
   children,
-  files
+  files,
+  locale = 'en'
 }: {
   children: ReactNode;
   files: Array<FileItem>;
+  locale?: string;
 }) => {
   //  const [files, setFiles] = useState<Array<FileItemContext>>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -46,11 +49,12 @@ export const FileAreaProvider = ({
 
   const filesExtended = files.map((file) => ({
     ...file,
-    type: extractFileType(file.mimeType)
+    ...extractFileType(file.mimeType)
   }));
 
   const value = {
     files: filesExtended,
+    locale,
     viewMode,
     sortOption,
     searchQuery,

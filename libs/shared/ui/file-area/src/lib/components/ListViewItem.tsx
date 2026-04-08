@@ -1,3 +1,4 @@
+import { t } from '@codeware/shared/util/i18n';
 import { cn } from '@codeware/shared/util/ui';
 
 import { useFileArea } from '../FileAreaContext';
@@ -13,7 +14,7 @@ export const ListViewItem = ({
   className,
   file
 }: BaseProps & { className?: string }) => {
-  const { selectFile } = useFileArea();
+  const { locale, selectFile } = useFileArea();
 
   const FileIcon = getFileIcon(file.type);
 
@@ -35,14 +36,15 @@ export const ListViewItem = ({
             {file.name}
           </div>
           <div className="text-xs">
-            {formatFileSize(file.size)} • {file.type}
+            {formatFileSize(file.size)} •{' '}
+            {t(locale, file.translationKey).toLowerCase()}
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-4">
         <span className="hidden text-sm md:inline">
-          {formatDate(file.dateAdded)}
+          {formatDate(file.dateAdded, locale)}
         </span>
       </div>
     </div>

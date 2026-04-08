@@ -1,17 +1,12 @@
 import type {
   MethodOptions,
-  RequestBaseOptions,
-  RequestMethod
+  RequestBaseOptions
 } from '@codeware/shared/util/payload-api';
-import type { AppLoadContext as RemixAppLoadContext } from '@remix-run/node';
+import type { RestApiMethod } from '@codeware/shared/util/payload-types';
 
 import env from '../../env-resolver/env';
 
-export type AppLoadContext = {
-  deviceId: string;
-  tenantApiKey: string;
-  tenantId: string;
-};
+import type { AppLoadContext } from './types';
 
 /**
  * Get the options for a request to the Payload REST API.
@@ -19,35 +14,37 @@ export type AppLoadContext = {
  * Api key authorization and signature verification are enabled.
  *
  * @param context - The context of the request.
- * @param request - The request.
+ * @param headers - Request headers.
  * @returns The options for the request.
  */
 export function getPayloadRequestOptions(
   method: 'GET',
-  context: AppLoadContext | RemixAppLoadContext,
+  context: AppLoadContext,
   headers?: Headers
 ): RequestBaseOptions;
 export function getPayloadRequestOptions<TBody = Record<string, unknown>>(
   method: 'POST',
-  context: AppLoadContext | RemixAppLoadContext,
+  context: AppLoadContext,
   headers?: Headers,
   body?: TBody
 ): RequestBaseOptions & MethodOptions<'POST'>;
 export function getPayloadRequestOptions<
-  T extends RequestMethod,
+  T extends RestApiMethod,
   TBody = Record<string, unknown>
 >(
   method: T,
-  context: AppLoadContext | RemixAppLoadContext,
+  context: AppLoadContext,
   headers?: Headers,
   body?: TBody
 ): RequestBaseOptions | (RequestBaseOptions & MethodOptions<'POST'>) {
-  const { deviceId, tenantApiKey, tenantId } = context as AppLoadContext;
+  const { deviceId, fallbackLocale, tenantApiKey, tenantConfig, tenantId } =
+    context;
 
   const baseOptions: RequestBaseOptions = {
     apiUrl: env.PAYLOAD_URL,
     debug: env.DEBUG,
     headers,
+    locale: tenantConfig?.locale ?? 'en',
     signatureVertification: {
       deployEnv: env.DEPLOY_ENV,
       deviceId,

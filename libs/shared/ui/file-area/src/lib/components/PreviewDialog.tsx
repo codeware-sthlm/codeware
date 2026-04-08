@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@codeware/shared/ui/shadcn/components/dialog';
+import { t } from '@codeware/shared/util/i18n';
 import { Calendar, Download, Scale } from 'lucide-react';
 
 import { useFileArea } from '../FileAreaContext';
@@ -19,7 +20,7 @@ import { getFileIcon } from '../utils/get-file-icon';
  * when a file is selected.
  */
 export const PreviewDialog = () => {
-  const { selectedFile, selectFile } = useFileArea();
+  const { locale, selectedFile, selectFile } = useFileArea();
 
   if (!selectedFile) return null;
 
@@ -47,7 +48,7 @@ export const PreviewDialog = () => {
           <div className="bg-border flex flex-col items-center justify-center rounded-lg p-16">
             <FileIcon className="mb-4 size-16" />
             <p className="text-center">
-              Preview not available for this file type
+              {t(locale, 'fileArea.previewNotAvailable')}
             </p>
           </div>
         )}
@@ -56,7 +57,7 @@ export const PreviewDialog = () => {
           <div className="flex justify-between text-sm">
             <div className="flex items-center">
               <Calendar className="mr-2 size-4" />
-              <span>{formatDate(selectedFile.dateAdded)}</span>
+              <span>{formatDate(selectedFile.dateAdded, locale)}</span>
             </div>
             <div className="flex items-center">
               <Scale className="mr-2 size-4" />
@@ -71,7 +72,7 @@ export const PreviewDialog = () => {
             onClick={(e) => downloadFile(e, selectedFile)}
           >
             <Download className="size-4" />
-            Download
+            {t(locale, 'fileArea.download')}
           </Button>
         </DialogFooter>
       </DialogContent>

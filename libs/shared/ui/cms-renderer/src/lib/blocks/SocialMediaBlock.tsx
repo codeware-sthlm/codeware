@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@codeware/shared/ui/shadcn/components/tooltip';
+import { t } from '@codeware/shared/util/i18n';
 import type {
   SocialMediaBlock as SocialMediaBlockProps,
   SocialMediaBlockSocial
@@ -16,26 +17,6 @@ import { Check } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { usePayload } from '../providers/PayloadProvider';
-
-// PoC:
-// Simple text factory for i18n used by React clients
-// without Payload i18n support
-type LangCode = 'en' | 'sv';
-type TextKey = 'clickToCopy' | 'copyFailed' | 'copied';
-/** Component translations */
-const langKey: Record<TextKey, Record<LangCode, string>> = {
-  clickToCopy: { en: 'Click to copy', sv: 'Klicka för att kopiera' },
-  copyFailed: {
-    en: 'Failed to copy to clipboard',
-    sv: 'Kopiering misslyckades'
-  },
-  copied: { en: 'Copied', sv: 'Kopierad' }
-} as const;
-/** Helper factory for i18n text */
-const textFactory =
-  (code: LangCode) =>
-  (key: TextKey): string =>
-    langKey[key][code];
 
 /**
  * Render social media links in a flex layout.
@@ -49,10 +30,8 @@ export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
   direction,
   social
 }) => {
-  // TODO: Language support
-  const t = textFactory('en');
+  const { navigate, locale } = usePayload();
 
-  const { navigate } = usePayload();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -84,7 +63,7 @@ export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
     // Guard against missing Clipboard API and handle potential errors
     if (!navigator?.clipboard?.writeText) {
       if (typeof window !== 'undefined' && typeof window.alert === 'function') {
-        window.alert(t('copyFailed'));
+        window.alert(t(locale, 'social.copyFailed'));
       }
       return;
     }
@@ -107,11 +86,11 @@ export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
   const getTooltipContent = (item: SocialMediaBlockSocial) => {
     const { platform, email, phone, id } = item;
     if (copiedId === id) {
-      return t('copied');
+      return t(locale, 'social.copied');
     }
     const toCopy = email || phone;
     if (toCopy) {
-      return `${toCopy} (${t('clickToCopy')})`;
+      return `${toCopy} (${t(locale, 'social.clickToCopy')})`;
     }
     return getSocialIconName(platform);
   };
@@ -163,7 +142,7 @@ export const SocialMediaBlock: React.FC<SocialMediaBlockProps> = ({
                 )}
                 onClick={() => handleClick(item)}
               >
-                {isCopied ? t('copied') : item.label}
+                {isCopied ? t(locale, 'social.copied') : item.label}
               </button>
             )}
           </div>

@@ -1,4 +1,5 @@
 import { AspectRatio } from '@codeware/shared/ui/shadcn/components/aspect-ratio';
+import { t } from '@codeware/shared/util/i18n';
 
 import { useFileArea } from '../FileAreaContext';
 import type { BaseProps } from '../types';
@@ -9,7 +10,7 @@ import { getFileIcon } from '../utils/get-file-icon';
  * File item component for grid view mode.
  */
 export const GridViewItem = ({ file }: BaseProps) => {
-  const { selectFile } = useFileArea();
+  const { locale, selectFile } = useFileArea();
 
   const FileIcon = getFileIcon(file.type);
 
@@ -39,7 +40,7 @@ export const GridViewItem = ({ file }: BaseProps) => {
         </div>
         <div className="flex justify-between text-xs">
           <span>{formatFileSize(file.size)}</span>
-          <span>{file.type}</span>
+          <span>{t(locale, file.translationKey).toLowerCase()}</span>
         </div>
       </div>
     </div>

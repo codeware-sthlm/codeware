@@ -1,9 +1,13 @@
-import type { NavigationReferenceCollection } from '@codeware/shared/util/payload-types';
+import type {
+  NavigationReferenceCollection,
+  RestApiMethod
+} from '@codeware/shared/util/payload-types';
+import type { TypedLocale } from 'payload';
 
 /**
  * Available request options depending on the request method.
  */
-export type MethodOptions<T extends RequestMethod> = T extends 'GET'
+export type MethodOptions<T extends RestApiMethod> = T extends 'GET'
   ? {
       /**
        * The depth of the request.
@@ -69,6 +73,12 @@ export type RequestBaseOptions = RequestInitOptions & {
   apiUrl: string;
 
   /**
+   * The locale for the request.
+   * @example 'en'
+   */
+  locale: TypedLocale;
+
+  /**
    * Whether to enable debug logging on requests.
    * @default false
    */
@@ -131,11 +141,6 @@ export type RequestInitOptions = {
    */
   tenantApiKey?: string;
 };
-
-/**
- * The method for the request.
- */
-export type RequestMethod = 'GET' | 'POST';
 
 /**
  * @internal

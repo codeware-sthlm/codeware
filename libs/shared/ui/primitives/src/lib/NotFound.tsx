@@ -1,4 +1,5 @@
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
+import { t } from '@codeware/shared/util/i18n';
 
 type NotFoundProps = {
   /**
@@ -6,6 +7,14 @@ type NotFoundProps = {
    * Implement this based on your framework's navigation.
    */
   onGoHome?: () => void;
+
+  /**
+   * The current locale used for translating UI strings.
+   * Defaults to 'en' if not provided.
+   *
+   * @example 'en', 'sv'
+   */
+  locale?: string;
 };
 
 /**
@@ -31,7 +40,7 @@ type NotFoundProps = {
  * }
  * ```
  */
-export function NotFound({ onGoHome }: NotFoundProps) {
+export function NotFound({ onGoHome, locale = 'en' }: NotFoundProps) {
   return (
     <div className="flex min-h-[calc(100vh-200px)] items-center justify-center px-4">
       <div className="text-center">
@@ -41,17 +50,17 @@ export function NotFound({ onGoHome }: NotFoundProps) {
           </h1>
           <div className="relative -mt-20">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Page not found
+              {t(locale, 'notFound.title')}
             </h2>
             <p className="text-muted-foreground mt-4 text-lg">
-              Sorry, we could not find the page you were looking for.
+              {t(locale, 'notFound.description')}
             </p>
           </div>
         </div>
         {onGoHome && (
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button onClick={onGoHome} size="lg">
-              Go back home
+              {t(locale, 'notFound.goHome')}
             </Button>
           </div>
         )}

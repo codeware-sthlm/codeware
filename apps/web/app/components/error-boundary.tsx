@@ -1,14 +1,17 @@
 import { Separator } from '@codeware/shared/ui/shadcn/components/separator';
+import { t } from '@codeware/shared/util/i18n';
 import {
   type ErrorResponse,
   isRouteErrorResponse,
   useParams,
-  useRouteError
+  useRouteError,
+  useRouteLoaderData
 } from '@remix-run/react';
 import * as React from 'react';
 
 // TODO Use Sentry for error tracking - COD-202
 // import { captureRemixErrorBoundaryError } from '@sentry/remix'
+import type { loader as rootLoader } from '../root';
 import { getErrorMessage } from '../utils/misc';
 
 import { ErrorContainer } from './error-container';
@@ -34,14 +37,16 @@ export function GeneralErrorBoundary({
   const error = useRouteError();
   // captureRemixErrorBoundaryError(error)
   const params = useParams();
+  const rootData = useRouteLoaderData<typeof rootLoader>('root');
+  const locale = rootData?.requestInfo.userPrefs.locale ?? 'en';
 
   if (typeof document !== 'undefined') {
     console.error(error);
   }
 
   return (
-    <ErrorContainer severity="error">
-      <p>Please contact the administrator if the problem persists.</p>
+    <ErrorContainer locale={locale} severity="error">
+      <p>{t(locale, 'error.contactAdmin')}</p>
       <Separator className="my-4" />
       {isRouteErrorResponse(error)
         ? (statusHandlers?.[error.status] ?? defaultStatusHandler)({

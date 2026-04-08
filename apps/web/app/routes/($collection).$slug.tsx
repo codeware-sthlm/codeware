@@ -1,16 +1,20 @@
+import { t } from '@codeware/shared/util/i18n';
 import { findNavigationDoc } from '@codeware/shared/util/payload-api';
+import { NavigationDoc } from '@codeware/shared/util/payload-types';
 import { resolveMeta } from '@codeware/shared/util/payload-utils';
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { json, useLoaderData, useRouteError } from '@remix-run/react';
+import type { MetaFunction } from '@remix-run/node';
+import { json, useLoaderData, useRouteError, useRouteLoaderData } from '@remix-run/react';
 
 import { Container } from '../components/container';
 import { ErrorContainer } from '../components/error-container';
 import { RenderPagesDoc } from '../components/render-pages-doc';
 import { RenderPostsDoc } from '../components/render-posts-doc';
+import type { loader as rootLoader } from '../root';
 import { defaultAppName } from '../utils/default-app-name';
 import { ensurePayloadDoc } from '../utils/ensure-payload-doc';
 import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
-import { getSiteSettingsFromRoot } from '../utils/get-site-settings-from-root';
+import { getTenantConfigFromRoot } from '../utils/get-tenant-config-from-root';
+import { TypedLoaderFunctionArgs } from '../utils/types';
 
 type LoaderError = {
   message: string;
@@ -18,11 +22,10 @@ type LoaderError = {
 };
 
 export const meta: MetaFunction<typeof loader> = ({ data, matches }) => {
-  // Get site settings from root loader data
-  const siteSettings = getSiteSettingsFromRoot(matches);
-  const appName = siteSettings?.general?.appName ?? defaultAppName;
+  const tenantConfig = getTenantConfigFromRoot(matches);
+  const appName = tenantConfig?.appName ?? defaultAppName;
 
-  const doc = ensurePayloadDoc(data?.doc);
+  const doc = ensurePayloadDoc((data as { doc: NavigationDoc })?.doc);
   const meta = resolveMeta(doc);
 
   return [{ title: `${appName} - ${meta?.title ?? 'Page'}` }];
@@ -31,7 +34,11 @@ export const meta: MetaFunction<typeof loader> = ({ data, matches }) => {
 /**
  * Fetch document data for the current route.
  */
-export async function loader({ context, params, request }: LoaderFunctionArgs) {
+export async function loader({
+  context,
+  params,
+  request
+}: TypedLoaderFunctionArgs) {
   const { collection, slug } = params;
 
   // Only slug is required
@@ -77,10 +84,12 @@ export default function Document() {
 
 export function ErrorBoundary() {
   const error = useRouteError() as LoaderError;
+  const rootData = useRouteLoaderData<typeof rootLoader>('root');
+  const locale = rootData?.requestInfo.userPrefs.locale ?? 'en';
 
   return (
-    <ErrorContainer severity="error" stackTrace={error.message}>
-      The page you're looking for could not be rendered.
+    <ErrorContainer locale={locale} severity="error" stackTrace={error.message}>
+      {t(locale, 'error.pageRenderFailed')}
     </ErrorContainer>
   );
 }

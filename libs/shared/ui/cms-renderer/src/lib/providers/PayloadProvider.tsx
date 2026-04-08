@@ -110,6 +110,19 @@ export type PayloadValue = {
    * When theme is 'system', this will be 'light' or 'dark' based on system preference.
    */
   resolvedTheme?: 'light' | 'dark';
+
+  /**
+   * Provide the current locale/language code.
+   *
+   * This is used by components that need to display localized text.
+   * Common values: 'en', 'sv', etc.
+   *
+   * Example implementations:
+   * - From URL params, user preferences, or tenant configuration
+   *
+   * @example 'en', 'sv'
+   */
+  locale: string;
 };
 
 type PayloadProviderProps = {

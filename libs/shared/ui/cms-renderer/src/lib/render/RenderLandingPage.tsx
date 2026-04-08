@@ -1,3 +1,4 @@
+import { t } from '@codeware/shared/util/i18n';
 import type { Page } from '@codeware/shared/util/payload-types';
 
 import { ErrorContainer } from '../error/ErrorContainer';
@@ -10,6 +11,12 @@ type RenderLandingPageProps = {
    * The app is responsible for fetching this data.
    */
   landingPage?: Page | null;
+
+  /**
+   * The current locale used for translating UI strings.
+   * Defaults to 'en' if not provided.
+   */
+  locale?: string;
 };
 
 /**
@@ -32,7 +39,10 @@ type RenderLandingPageProps = {
  * return <RenderLandingPage landingPage={settings?.landingPage} />;
  * ```
  */
-export function RenderLandingPage({ landingPage }: RenderLandingPageProps) {
+export function RenderLandingPage({
+  landingPage,
+  locale
+}: RenderLandingPageProps) {
   return (
     <Container className="mt-16 sm:mt-32">
       {landingPage?.header && (
@@ -47,11 +57,12 @@ export function RenderLandingPage({ landingPage }: RenderLandingPageProps) {
           <RenderBlocks blocks={landingPage.layout} />
         ) : (
           <ErrorContainer
-            title="Landing page was not found"
+            title={t(locale ?? 'en', 'error.landingPageNotFound')}
+            locale={locale}
             severity="info"
             withoutContainer={true}
           >
-            Please create a page in the CMS and assign it to be a landing page.
+            {t(locale ?? 'en', 'error.landingPageNotFoundDescription')}
           </ErrorContainer>
         )}
       </article>

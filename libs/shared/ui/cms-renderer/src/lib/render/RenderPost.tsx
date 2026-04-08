@@ -88,13 +88,11 @@ export function RenderPost({ post }: RenderPostProps) {
                 {post.title}
               </h1>
               <time
-                dateTime={post.publishedAt || post.createdAt}
+                dateTime={post.createdAt}
                 className="text-core-muted order-first flex items-center text-base"
               >
                 <span className="h-4 w-0.5 rounded-full bg-zinc-200 dark:bg-zinc-500" />
-                <span className="ml-3">
-                  {formatDate(post.publishedAt || post.createdAt)}
-                </span>
+                <span className="ml-3">{formatDate(post.createdAt)}</span>
               </time>
             </header>
             {post.heroImage &&

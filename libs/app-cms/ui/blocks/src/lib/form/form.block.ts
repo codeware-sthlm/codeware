@@ -7,8 +7,8 @@ export const formBlock: Block = {
   slug: 'form',
   interfaceName: 'FormBlock',
   labels: {
-    plural: 'Form Blocks',
-    singular: 'Form Block'
+    plural: { en: 'Form', sv: 'Formulär' },
+    singular: { en: 'Forms', sv: 'Formulär' }
   },
   fields: [
     {

@@ -26,6 +26,10 @@ const doSeed = async (): Promise<void> => {
     process.exit(0);
   }
 
+  console.log(
+    `[DB] Using ${env.DATABASE_URL} (schema: ${env.DATABASE_SCHEMA})`
+  );
+
   // Seed will trigger on payload init
   await getPayload({ config });
 

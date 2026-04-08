@@ -1,19 +1,8 @@
 import { headers } from 'next/headers';
-import { type Payload, SanitizedConfig, getPayload } from 'payload';
+import { type SanitizedConfig, getPayload } from 'payload';
 
 import { getTenantContext } from './get-tenant-context';
-
-/**
- * Authenticated Payload wrapper that includes the user context.
- * This type extends Payload with a convenience property to access the authenticated user.
- */
-export type AuthenticatedPayload = Payload & {
-  /**
-   * The authenticated user for this request.
-   * Use this user in all Local API calls to ensure proper access control.
-   */
-  authenticatedUser: Awaited<ReturnType<Payload['auth']>>['user'];
-};
+import { AuthenticatedPayload } from './payload-runtime.types';
 
 /**
  * Get an authenticated Payload instance for the current request.
@@ -53,7 +42,7 @@ export async function getAuthenticatedPayload(
     }
   }
 
-  // Fallback to admin session (platform mode or unauthenticated)
+  // Fallback to admin session (host mode or unauthenticated)
   const authResult = await payload.auth({ headers: headersList });
   return Object.assign(payload, { authenticatedUser: authResult.user });
 }

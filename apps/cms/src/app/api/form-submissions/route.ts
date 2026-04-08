@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createFormSubmission } from '@codeware/app-cms/data-access';
 import type { FormSubmission } from '@codeware/shared/util/payload-types';
 
-import { authenticatedPayload } from '../../../security/authenticated-payload';
+import { payloadRuntime } from '../../../security/payload-runtime';
 
 /**
  * Server-side API route for handling form submissions.
@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get authenticated Payload instance (uses server-side API key)
-    const payload = await authenticatedPayload();
+    const runtime = await payloadRuntime();
 
     // Submit the form to Payload's form-submissions collection
-    const { id } = await createFormSubmission(payload, body);
+    const { id } = await createFormSubmission(runtime, body);
 
     // Return minimal success response (don't expose full form submission data)
     return NextResponse.json({

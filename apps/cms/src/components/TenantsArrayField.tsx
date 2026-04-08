@@ -1,7 +1,8 @@
 import { ArrayField } from '@payloadcms/ui';
-import type { ArrayFieldServerComponent } from 'payload';
 
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
+
+import type { FieldComponentServer } from './component-types';
 
 /**
  * Custom server component for the tenants array field.
@@ -12,7 +13,7 @@ import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
  * The desired effect is that the "add workspace" button is hidden
  * when the tenant admin has added all tenants they administer.
  */
-export const TenantsArrayField: ArrayFieldServerComponent = ({
+export const TenantsArrayField: FieldComponentServer<'ArrayField'> = ({
   clientField,
   path,
   schemaPath,

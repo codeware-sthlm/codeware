@@ -1,6 +1,6 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Navigation } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
+import type { Payload, TypedLocale } from 'payload';
 
 // Refine the model to type safe the data
 type NavigationReference = Pick<
@@ -23,18 +23,19 @@ export type NavigationData = NonNullable<Pick<Navigation, 'tenant'>> & {
  * Existing items will be kept unchanged and nothing will be removed.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - Navigation data
+ * @param options - Seed options
  * @returns The navigation ID if exists or the object when created, otherwise undefined, with the items that was added.
  */
 export async function ensureNavigation(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: NavigationData
+  data: NavigationData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<{
   navigation: Navigation | number;
   items: Array<NavigationReference>;
 }> {
+  const { locale, transactionID } = options;
   const { items: dataItems, tenant } = data;
 
   if (!tenant) {
@@ -84,6 +85,7 @@ export async function ensureNavigation(
           data: {
             items: itemsToAdd
           },
+          locale,
           req: { transactionID }
         });
       }
@@ -107,6 +109,7 @@ export async function ensureNavigation(
       items: itemsToAdd,
       tenant
     },
+    locale,
     req: { transactionID }
   });
 

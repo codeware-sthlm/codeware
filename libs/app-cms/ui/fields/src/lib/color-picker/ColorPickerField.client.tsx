@@ -1,5 +1,9 @@
 'use client';
 
+import type {
+  TranslationsKeys,
+  TranslationsObject
+} from '@codeware/app-cms/util/i18n';
 import {
   ColorPicker,
   type ColorPickerColor
@@ -10,7 +14,12 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@codeware/shared/ui/shadcn/components/tooltip';
-import { FieldDescription, FieldLabel, useField } from '@payloadcms/ui';
+import {
+  FieldDescription,
+  FieldLabel,
+  useField,
+  useTranslation
+} from '@payloadcms/ui';
 import { XIcon } from 'lucide-react';
 import type { TextFieldClientProps } from 'payload';
 
@@ -26,6 +35,7 @@ export const ColorPickerField: React.FC<
   TextFieldClientProps & ColorPickerFieldProps
 > = ({ path, field, hideLabel }) => {
   const { value, setValue } = useField<ColorPickerColor | null>({ path });
+  const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
 
   return (
     <div className="twp field-type text">
@@ -42,8 +52,7 @@ export const ColorPickerField: React.FC<
                 />
               </TooltipTrigger>
               <TooltipContent>
-                {/* TODO: Language support */}
-                <p>Clear selected color</p>
+                <p>{t('general:clearSelectedColor')}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

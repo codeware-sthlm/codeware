@@ -1,8 +1,5 @@
+export { getPayloadRuntime } from './lib/get-payload-runtime';
 export { getTenantContext } from './lib/get-tenant-context';
-export {
-  getAuthenticatedPayload,
-  type AuthenticatedPayload
-} from './lib/get-authenticated-payload';
 
 export { createFormSubmission } from './lib/collections/create-form-submission';
 
@@ -22,5 +19,5 @@ export { getPost } from './lib/collections/get-post';
 export { getPosts } from './lib/collections/get-posts';
 
 export { getSiteSettings } from './lib/collections/get-site-settings';
-
+export { getTenant } from './lib/collections/get-tenant';
 export { getUser } from './lib/collections/get-user';

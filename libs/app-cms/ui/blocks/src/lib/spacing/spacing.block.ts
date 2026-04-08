@@ -14,6 +14,10 @@ const isDivider: Condition<TypeWithID, SpacingBlock> = (_, siblingData) =>
 export const spacingBlock: Block = {
   slug: 'spacing',
   interfaceName: 'SpacingBlock',
+  labels: {
+    plural: { en: 'Empty Spacing', sv: 'Tomrum' },
+    singular: { en: 'Empty Spacing', sv: 'Tomrum' }
+  },
   fields: [
     {
       type: 'select',
@@ -30,9 +34,9 @@ export const spacingBlock: Block = {
         }
       },
       options: [
-        { label: 'Tight', value: 'tight' },
-        { label: 'Regular', value: 'regular' },
-        { label: 'Loose', value: 'loose' }
+        { label: { en: 'Tight', sv: 'Kompakt' }, value: 'tight' },
+        { label: { en: 'Regular', sv: 'Normal' }, value: 'regular' },
+        { label: { en: 'Loose', sv: 'Luftig' }, value: 'loose' }
       ],
       required: true,
       defaultValue: 'regular'

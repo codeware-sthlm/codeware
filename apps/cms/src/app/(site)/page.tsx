@@ -1,15 +1,23 @@
-import { getSiteSettings } from '@codeware/app-cms/data-access';
+import { notFound } from 'next/navigation';
+
+import { getPage } from '@codeware/app-cms/data-access';
 import { RenderLandingPage } from '@codeware/shared/ui/cms-renderer';
 
-import { authenticatedPayload } from '../../security/authenticated-payload';
+import { payloadRuntime } from '../../security/payload-runtime';
 
 // TODO: metadata
 
 export default async function SiteIndexPage() {
-  const payload = await authenticatedPayload();
+  const runtime = await payloadRuntime();
 
-  const settings = await getSiteSettings(payload);
-  const landingPage = settings?.landingPage;
+  const page = await getPage(
+    runtime,
+    runtime.tenantConfig?.landingPage.id ?? 0
+  );
 
-  return <RenderLandingPage landingPage={landingPage} />;
+  if (!page) {
+    notFound();
+  }
+
+  return <RenderLandingPage landingPage={page} />;
 }

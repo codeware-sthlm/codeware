@@ -1,4 +1,4 @@
-import { hasRole } from '@codeware/app-cms/util/misc';
+import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
 import type { Config } from '@codeware/shared/util/payload-types';
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
 
@@ -9,7 +9,25 @@ export const getMultiTenantPlugin = () =>
     debug: false,
     tenantsSlug: 'tenants',
     tenantField: {
-      name: 'tenant'
+      name: 'tenant',
+      // Prevent users from assigning content to a tenant they don't belong to.
+      // System users are unrestricted.
+      // `siblingData.tenant` holds the incoming tenant ID (number) for top-level
+      // fields; `value` does not exist in Payload's FieldAccessArgs.
+      access: {
+        create: ({ req: { user }, siblingData }) => {
+          if (!user) return false;
+          if (hasRole(user, 'system-user')) return true;
+          const userTenantIds = getUserTenantIDs(user);
+          return userTenantIds.includes(siblingData?.['tenant'] as number);
+        },
+        update: ({ req: { user }, siblingData }) => {
+          if (!user) return false;
+          if (hasRole(user, 'system-user')) return true;
+          const userTenantIds = getUserTenantIDs(user);
+          return userTenantIds.includes(siblingData?.['tenant'] as number);
+        }
+      }
     },
     collections: {
       categories: {},

@@ -1,45 +1,43 @@
 import type { Post } from '@codeware/shared/util/payload-types';
 import type { PaginatedDocs } from 'payload';
 
-import type { AuthenticatedPayload } from '../get-authenticated-payload';
+import type { PayloadRuntime } from '../payload-runtime.types';
 
 import type { QueryMultipleOptions } from './types';
 
 /**
- * Fetch multiple posts with proper access control.
- *
- * Returns `null` if access is denied.
+ * Fetch multiple posts.
  *
  * Default options:
  * - depth: 2
  * - limit: 20
  * - sort: '-createdAt'
  *
- * @param payload - Authenticated Payload instance
+ * This function respects access control when `authenticatedUser` is present.
+ *
+ * @param runtime - Authenticated Payload runtime instance
  * @param options - Query options for filtering, sorting, and pagination
  * @returns Object containing posts array and pagination metadata
  */
 export async function getPosts(
-  payload: AuthenticatedPayload,
+  runtime: PayloadRuntime,
   options: QueryMultipleOptions<'posts'> = {}
 ): Promise<PaginatedDocs<Post> | null> {
-  const { depth = 2, locale, limit = 20, where, sort = '-createdAt' } = options;
+  const { payload, tenantConfig } = runtime;
+  const { depth = 2, limit = 20, locale, where, sort = '-createdAt' } = options;
+  const overrideAccess = payload.authenticatedUser === null;
 
-  try {
-    const result = await payload.find({
-      collection: 'posts',
-      where,
-      depth,
-      locale,
-      limit,
-      sort,
-      overrideAccess: false,
-      user: payload.authenticatedUser
-    });
+  const result = await payload.find({
+    collection: 'posts',
+    where,
+    depth,
+    locale: locale ?? tenantConfig?.locale,
+    limit,
+    sort,
+    overrideAccess,
+    user: payload.authenticatedUser,
+    disableErrors: true
+  });
 
-    return result;
-  } catch {
-    // Access denied
-    return null;
-  }
+  return result;
 }

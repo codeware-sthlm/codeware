@@ -3,39 +3,36 @@ import {
   resolveNavigationTree
 } from '@codeware/shared/util/payload-api';
 
-import type { AuthenticatedPayload } from '../get-authenticated-payload';
+import type { PayloadRuntime } from '../payload-runtime.types';
 
-import type { QueryMultipleOptions } from './types';
+import type { QuerySingleOptions } from './types';
 
 /**
- * Fetch navigation tree with proper access control.
+ * Fetch navigation tree.
  *
- * Returns an empty array when access is denied.
+ * This function respects access control when `authenticatedUser` is present.
  *
- * @param payload - Authenticated Payload instance
- * @param options - Optional query parameters
+ * @param runtime - Payload runtime instance
  * @returns Transformed navigation tree ready for rendering
  */
 export async function getNavigationTree(
-  payload: AuthenticatedPayload,
-  options: Pick<QueryMultipleOptions<'navigation'>, 'locale'> = {}
+  runtime: PayloadRuntime,
+  options: Pick<QuerySingleOptions, 'locale'> = {}
 ): Promise<NavigationItem[]> {
+  const { payload, tenantConfig } = runtime;
   const { locale } = options;
+  const overrideAccess = payload.authenticatedUser === null;
 
-  try {
-    const result = await payload.find({
-      collection: 'navigation',
-      depth: 2,
-      locale,
-      limit: 1,
-      overrideAccess: false,
-      user: payload.authenticatedUser
-    });
+  const result = await payload.find({
+    collection: 'navigation',
+    depth: 2,
+    locale: locale ?? tenantConfig?.locale,
+    limit: 1,
+    overrideAccess,
+    user: payload.authenticatedUser,
+    disableErrors: true
+  });
 
-    // Transform to UI-ready format
-    return resolveNavigationTree(result.docs);
-  } catch {
-    // Access is denied
-    return [];
-  }
+  // Transform to UI-ready format
+  return resolveNavigationTree(result.docs);
 }

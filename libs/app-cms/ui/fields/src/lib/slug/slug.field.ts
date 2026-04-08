@@ -32,7 +32,7 @@ export const slugField: Slug = ({
   index: true,
   required,
   maxLength,
-  label: 'Slug',
+  label: { en: 'Slug', sv: 'Kortnamn' },
   admin: {
     description: {
       en: `Used for url paths. Will be automatically generated from ${sourceField} if left empty.`,

@@ -1,5 +1,6 @@
 import { type CollectionBeforeValidateHook, ValidationError } from 'payload';
 
+import { customT } from '@codeware/app-cms/util/i18n';
 import { hasRole } from '@codeware/app-cms/util/misc';
 import type { User } from '@codeware/shared/util/payload-types';
 
@@ -11,7 +12,7 @@ export const ensureTenantHook: CollectionBeforeValidateHook<User> = ({
   collection,
   context,
   data,
-  req: { user }
+  req: { t, user }
 }) => {
   // Providing a tenant is not required for system users or when seeding
   if (hasRole(user, 'system-user') || context?.seedAction) {
@@ -27,7 +28,7 @@ export const ensureTenantHook: CollectionBeforeValidateHook<User> = ({
     id: data?.id,
     errors: [
       {
-        message: 'User must belong to a workspace.',
+        message: customT(t)('validation:mustBelongToWorkspace'),
         path: 'tenants'
       }
     ]

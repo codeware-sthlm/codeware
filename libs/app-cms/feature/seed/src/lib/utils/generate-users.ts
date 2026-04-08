@@ -31,6 +31,7 @@ export const generateUsers = (args: {
         email,
         password: '',
         role: 'system-user',
+        locale: 'en',
         tenants: []
       }) satisfies SeedData['users'][number]
   );
@@ -58,6 +59,7 @@ export const generateUsers = (args: {
             email,
             password: '',
             role: 'user',
+            locale: 'en',
             tenants: [{ lookupApiKey: tenant.apiKey, role: 'admin' }]
           }) satisfies SeedData['users'][number]
       );
@@ -74,6 +76,7 @@ export const generateUsers = (args: {
             email,
             password: '',
             role: 'user',
+            locale: 'en',
             tenants: [{ lookupApiKey: tenant.apiKey, role: 'user' }]
           }) satisfies SeedData['users'][number]
       );

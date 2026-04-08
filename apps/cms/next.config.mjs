@@ -42,7 +42,7 @@ const nextConfig = {
 
   sassOptions: {
     quietDeps: true,
-    silenceDeprecations: ['import'],
+    silenceDeprecations: ['import', 'legacy-js-api'],
 
     // ✅ Hard filter: suppress the @import deprecation spam from deps
     logger: {

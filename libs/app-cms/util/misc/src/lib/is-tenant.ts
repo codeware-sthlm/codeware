@@ -14,5 +14,5 @@ export const isTenant = <T extends TypeWithID = UserAny>(
   if (!user) {
     return false;
   }
-  return 'domains' in user;
+  return 'apiKey' in user;
 };

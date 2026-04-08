@@ -6,6 +6,10 @@ import type { Block } from 'payload';
 export const reusableContentBlock: Block = {
   slug: 'reusable-content',
   interfaceName: 'ReusableContentBlock',
+  labels: {
+    plural: { en: 'Reusable Content', sv: 'Delat Innehåll' },
+    singular: { en: 'Reusable Content', sv: 'Delat Innehåll' }
+  },
   fields: [
     {
       name: 'reusableContent',

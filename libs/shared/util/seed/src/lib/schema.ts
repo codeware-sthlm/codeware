@@ -65,7 +65,9 @@ export const SeedDataSchema = z.object({
       email: z.string(),
       password: z.string(),
       role: z.enum(['system-user', 'user']),
-      tenants: z.array(TenantLookupSchema)
+      tenants: z.array(TenantLookupSchema),
+      /** User preferred language */
+      locale: z.enum(['en', 'sv'])
     })
   ),
   tags: z.array(
@@ -82,13 +84,11 @@ export const SeedDataSchema = z.object({
   tenants: z.array(
     z.object({
       name: z.string(),
+      slug: z.string(),
       description: z.string(),
-      domains: z.array(
-        z.object({
-          domain: z.string(),
-          pageTypes: z.array(z.enum(['cms', 'client', 'disabled']))
-        })
-      ),
+      /** Seed data locale */
+      locale: z.enum(['en', 'sv']),
+      supportedLocales: z.array(z.enum(['en', 'sv'])),
       apiKey: z.string()
     })
   )

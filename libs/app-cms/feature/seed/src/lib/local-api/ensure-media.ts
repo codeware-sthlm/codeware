@@ -3,7 +3,7 @@ import { existsSync } from 'fs';
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Media } from '@codeware/shared/util/payload-types';
 import { fetchFileByURL } from '@codeware/shared/util/ui';
-import type { File, Payload } from 'payload';
+import type { File, Payload, TypedLocale } from 'payload';
 
 export type MediaData = Pick<Media, 'alt' | 'external' | 'tags' | 'tenant'> & {
   filename: string;
@@ -17,18 +17,19 @@ export type MediaData = Pick<Media, 'alt' | 'external' | 'tags' | 'tenant'> & {
  * Otherwise images could be seeded multiple times and thus create duplicates.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - Media data
+ * @param options - Seed options
  * @returns The created media file or the id if the media file exists
  */
 export async function ensureMedia(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: MediaData
+  data: MediaData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<Media | number> {
   let remoteFile: File | undefined = undefined;
   let localFile: string | undefined = undefined;
 
+  const { locale, transactionID } = options;
   const { alt, external, filename, filePath, tags, tenant } = data;
 
   // Remote files are uploaded as buffers and local files are absolute filesystem paths
@@ -87,6 +88,7 @@ export async function ensureMedia(
     },
     file: remoteFile,
     filePath: localFile,
+    locale,
     req: { transactionID }
   });
 

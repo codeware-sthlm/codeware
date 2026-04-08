@@ -1,5 +1,5 @@
 import type { Post } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
+import type { Payload, TypedLocale } from 'payload';
 
 export type PostData = Pick<
   Post,
@@ -12,15 +12,16 @@ export type PostData = Pick<
  * Ensure that a post exist with the given slug.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - Post data
+ * @param options - Seed options
  * @returns The created post or the id if the post exists
  */
 export async function ensurePost(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: PostData
+  data: PostData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<Post | number> {
+  const { locale, transactionID } = options;
   const { authors, categories, content, slug, tenant, title } = data;
 
   // Check if the post exists with the given slug
@@ -51,6 +52,7 @@ export async function ensurePost(
       title
     },
     context: { seedAction: true },
+    locale,
     req: { transactionID }
   });
 

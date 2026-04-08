@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getPost } from '@codeware/app-cms/data-access';
 import { RenderPost } from '@codeware/shared/ui/cms-renderer';
 
-import { authenticatedPayload } from '../../../../security/authenticated-payload';
+import { payloadRuntime } from '../../../../security/payload-runtime';
 
 interface Props {
   params: Promise<{
@@ -15,9 +15,9 @@ export default async function Post({ params }: Props) {
   const { slug } = await params;
   const slugString = slug.join('/');
 
-  const payload = await authenticatedPayload();
+  const runtime = await payloadRuntime();
 
-  const post = await getPost(payload, slugString);
+  const post = await getPost(runtime, slugString);
 
   if (!post) {
     notFound();

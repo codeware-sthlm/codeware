@@ -15,12 +15,14 @@ import { ensurePage } from './ensure-page';
  * Everything else should be prepared before running this seed.
  *
  * @param payload - Payload instance
- * @param seedData - Seed data
+ * @param options - Seed options
  */
 export const customSeed = async (
   payload: Payload,
-  transactionID: string | number | undefined
+  options: { transactionID: string | number | undefined }
 ): Promise<void> => {
+  const { transactionID } = options;
+
   // Common file area slug for both tag and page
   const fileAreaSlug = 'file-area';
 
@@ -37,6 +39,17 @@ export const customSeed = async (
   });
   for (const { id: tagId, tenant } of docs) {
     const tenantId = getId(tenant);
+
+    // Get tenant default locale from site settings
+    const { docs: siteSettingsDocs } = await payload.find({
+      collection: 'site-settings',
+      where: { tenant: { in: [tenantId] } },
+      depth: 0,
+      limit: 1,
+      req: { transactionID }
+    });
+    const tenantLocale = siteSettingsDocs[0]?.general.defaultLocale;
+
     // Check if the page already exists
     const { docs } = await payload.find({
       collection: 'pages',
@@ -49,18 +62,22 @@ export const customSeed = async (
 
     // Create a file area page for the tenant when missing
     if (!pageId) {
-      const pageOrId = await ensurePage(payload, transactionID, {
-        name: 'File area',
-        slug: fileAreaSlug,
-        layout: [
-          {
-            blockType: 'file-area',
-            tags: [tagId],
-            files: null
-          } as FileAreaBlock
-        ],
-        tenant
-      });
+      const pageOrId = await ensurePage(
+        payload,
+        {
+          name: 'File area',
+          slug: fileAreaSlug,
+          layout: [
+            {
+              blockType: 'file-area',
+              tags: [tagId],
+              files: null
+            } as FileAreaBlock
+          ],
+          tenant
+        },
+        { locale: tenantLocale, transactionID }
+      );
       if (typeof pageOrId === 'object') {
         payload.logger.info(
           `[SEED] Page '${pageOrId.slug}' on tenant #${tenantId} (custom seed)`
@@ -70,10 +87,14 @@ export const customSeed = async (
     }
 
     // Add the page to navigation when missing
-    const { items } = await ensureNavigation(payload, transactionID, {
-      items: [{ reference: { relationTo: 'pages', value: pageId } }],
-      tenant
-    });
+    const { items } = await ensureNavigation(
+      payload,
+      {
+        items: [{ reference: { relationTo: 'pages', value: pageId } }],
+        tenant
+      },
+      { locale: tenantLocale, transactionID }
+    );
     for (const { reference } of items) {
       const refId = getId(reference.value);
       payload.logger.info(

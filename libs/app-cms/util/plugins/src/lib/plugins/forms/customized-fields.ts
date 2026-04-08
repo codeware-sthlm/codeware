@@ -17,12 +17,14 @@ import { type Block, Field } from 'payload';
 const widthSelect: Field = {
   name: 'width',
   type: 'number',
-  label: 'Field width',
+  label: { en: 'Field width', sv: 'Fältbredd' },
   min: 1,
   max: 6,
   admin: {
-    description:
-      'Set number of columns the field should span (defaults to 6 = full width).'
+    description: {
+      en: 'Set number of columns the field should span (defaults to 6 = full width).',
+      sv: 'Ange antal kolumner som fältet ska spänna över (standard 6 = full bredd).'
+    }
   }
 };
 
@@ -72,7 +74,7 @@ export const customizedFields = Object.keys(defaultFields).reduce(
         rowWithLabel.fields.push({
           name: 'placeholder',
           type: 'text',
-          label: 'Placeholder',
+          label: { en: 'Placeholder', sv: 'Platshållare' },
           localized: true,
           admin: {
             width: '' // Updated below...

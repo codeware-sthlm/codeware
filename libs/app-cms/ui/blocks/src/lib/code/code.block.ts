@@ -12,10 +12,15 @@ import type { Block } from 'payload';
 export const codeBlock: Block = {
   slug: 'code',
   interfaceName: 'CodeBlock',
+  labels: {
+    plural: { en: 'Code', sv: 'Kod' },
+    singular: { en: 'Code', sv: 'Kod' }
+  },
   fields: [
     {
       type: 'select',
       name: 'language',
+      label: { en: 'Language', sv: 'Språk' },
       enumName: enumName('code_language'),
       options: Object.entries(codeLanguages).map(([key, value]) => ({
         label: value,

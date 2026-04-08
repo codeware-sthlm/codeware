@@ -5,7 +5,7 @@ import { getPosts } from '@codeware/app-cms/data-access';
 import { Container } from '@codeware/shared/ui/cms-renderer';
 import type { Post } from '@codeware/shared/util/payload-types';
 
-import { authenticatedPayload } from '../../../security/authenticated-payload';
+import { payloadRuntime } from '../../../security/payload-runtime';
 
 /**
  * @deprecated Create an Archives block that renders a list of e.g. posts (look at Payload webpage template)
@@ -59,11 +59,11 @@ function getExcerpt(post: Post, maxLength = 200): string {
 }
 
 export default async function Posts() {
-  const payload = await authenticatedPayload();
+  const runtime = await payloadRuntime();
 
-  const result = await getPosts(payload, {
+  const result = await getPosts(runtime, {
     limit: 100,
-    sort: '-publishedAt' as 'publishedAt'
+    sort: '-createdAt' as 'createdAt'
   });
 
   if (!result || !result.docs.length) {
@@ -89,8 +89,8 @@ export default async function Posts() {
           {posts.map((post) => (
             <article key={post.id} className="md:grid md:grid-cols-4 md:gap-8">
               <div className="text-core-muted relative z-10 mb-3 flex items-center text-sm md:col-span-1">
-                <time dateTime={post.publishedAt || post.createdAt}>
-                  {formatDate(post.publishedAt || post.createdAt)}
+                <time dateTime={post.createdAt}>
+                  {formatDate(post.createdAt)}
                 </time>
               </div>
               <div className="md:col-span-3">

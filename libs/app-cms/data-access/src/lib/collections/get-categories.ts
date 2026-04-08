@@ -1,45 +1,43 @@
-import { Category } from '@codeware/shared/util/payload-types';
-import { PaginatedDocs } from 'payload';
+import type { Category } from '@codeware/shared/util/payload-types';
+import type { PaginatedDocs } from 'payload';
 
-import type { AuthenticatedPayload } from '../get-authenticated-payload';
+import type { PayloadRuntime } from '../payload-runtime.types';
 
 import type { QueryMultipleOptions } from './types';
 
 /**
- * Fetch multiple categories with proper access control.
- *
- * Returns `null` when access is denied.
+ * Fetch multiple categories.
  *
  * Default options:
  * - depth: 2
  * - limit: 100
  * - sort: 'name'
  *
- * @param payload - Authenticated Payload instance
+ * This function respects access control when `authenticatedUser` is present.
+ *
+ * @param runtime - Authenticated Payload runtime instance
  * @param options - Optional query options
  * @returns Object containing categories and metadata
  */
 export async function getCategories(
-  payload: AuthenticatedPayload,
+  runtime: PayloadRuntime,
   options: QueryMultipleOptions<'categories'> = {}
 ): Promise<PaginatedDocs<Category> | null> {
-  const { depth = 2, locale, limit = 100, where, sort = 'name' } = options;
+  const { payload, tenantConfig } = runtime;
+  const { depth = 2, limit = 100, locale, where, sort = 'name' } = options;
+  const overrideAccess = payload.authenticatedUser === null;
 
-  try {
-    const result = await payload.find({
-      collection: 'categories',
-      where,
-      depth,
-      locale,
-      limit,
-      sort,
-      overrideAccess: false,
-      user: payload.authenticatedUser
-    });
+  const result = await payload.find({
+    collection: 'categories',
+    where,
+    depth,
+    locale: locale ?? tenantConfig?.locale,
+    limit,
+    sort,
+    overrideAccess,
+    user: payload.authenticatedUser,
+    disableErrors: true
+  });
 
-    return result;
-  } catch {
-    // Access denied
-    return null;
-  }
+  return result;
 }

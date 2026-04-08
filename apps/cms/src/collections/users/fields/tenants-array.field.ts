@@ -1,7 +1,6 @@
 import { tenantsArrayField as tenantsArrayFieldPlugin } from '@payloadcms/plugin-multi-tenant/fields';
 import type { Field } from 'payload';
 
-import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 
 /**
@@ -54,10 +53,6 @@ export const tenantsArrayField = (): Field => {
     labels: {
       singular: { en: 'Workspace', sv: 'Arbetsyta' },
       plural: { en: 'Workspaces', sv: 'Arbetsytor' }
-    },
-    access: {
-      create: systemUserOrTenantAdminAccess,
-      update: systemUserOrTenantAdminAccess
     },
     admin: {
       ...(tenantsArrayField.admin ?? {}),

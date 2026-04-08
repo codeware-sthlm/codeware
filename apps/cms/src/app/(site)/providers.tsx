@@ -13,23 +13,27 @@ import type { FormSubmission } from '@codeware/shared/util/payload-types';
 
 type ProvidersProps = {
   children: React.ReactNode;
-} & Pick<PayloadValue, 'payloadUrl'>;
+} & Pick<PayloadValue, 'locale' | 'payloadUrl'>;
 
 /**
  * Combines all client-side providers needed for the CMS site.
  * Wraps children with ThemeProvider and PayloadProvider.
  */
-export function Providers({ children, payloadUrl }: ProvidersProps) {
+export function Providers({ children, locale, payloadUrl }: ProvidersProps) {
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-      <PayloadProviderInner payloadUrl={payloadUrl}>
+      <PayloadProviderInner locale={locale} payloadUrl={payloadUrl}>
         {children}
       </PayloadProviderInner>
     </NextThemesProvider>
   );
 }
 
-function PayloadProviderInner({ children, payloadUrl }: ProvidersProps) {
+function PayloadProviderInner({
+  children,
+  locale,
+  payloadUrl
+}: ProvidersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, resolvedTheme, setTheme } = useTheme();
@@ -38,6 +42,7 @@ function PayloadProviderInner({ children, payloadUrl }: ProvidersProps) {
     <PayloadProvider
       value={{
         getCurrentPath: () => pathname,
+        locale,
         navigate: (path, newTab) => {
           if (newTab || path.startsWith('http')) {
             window.open(path, '_blank');

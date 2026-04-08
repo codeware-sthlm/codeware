@@ -1,8 +1,16 @@
 'use client';
 
+import {
+  TranslationsKeys,
+  TranslationsObject
+} from '@codeware/app-cms/util/i18n';
 import { SocialIcon, getSocialIconName } from '@codeware/shared/ui/primitives';
 import type { SocialMediaBlockSocial } from '@codeware/shared/util/payload-types';
-import { type RowLabelProps, useRowLabel } from '@payloadcms/ui';
+import {
+  type RowLabelProps,
+  useRowLabel,
+  useTranslation
+} from '@payloadcms/ui';
 
 /**
  * Custom array row label for social media block platforms array field.
@@ -11,6 +19,7 @@ import { type RowLabelProps, useRowLabel } from '@payloadcms/ui';
  */
 export const SocialMediaBlockArrayRowLabel: React.FC<RowLabelProps> = () => {
   const { data, rowNumber } = useRowLabel<SocialMediaBlockSocial>();
+  const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
   const { platform } = data ?? {};
 
   if (platform) {
@@ -24,8 +33,9 @@ export const SocialMediaBlockArrayRowLabel: React.FC<RowLabelProps> = () => {
     );
   }
 
-  // TODO: Language support
-  return `Social Media ${String(rowNumber).padStart(2, '0')}`;
+  return t('collection:socialMediaWithSuffix', {
+    suffix: String(rowNumber).padStart(2, '0')
+  });
 };
 
 export default SocialMediaBlockArrayRowLabel;

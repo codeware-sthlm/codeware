@@ -51,7 +51,7 @@
       "@codeware/app-cms/util/filters": [
         "libs/app-cms/util/filters/src/index.ts"
       ],
-      "@codeware/app-cms/util/hooks": ["libs/app-cms/util/hooks/src/index.ts"],
+      "@codeware/app-cms/util/i18n": ["libs/app-cms/util/i18n/src/index.ts"],
       "@codeware/app-cms/util/misc": ["libs/app-cms/util/misc/src/index.ts"],
       "@codeware/app-cms/util/plugins": [
         "libs/app-cms/util/plugins/src/index.ts"
@@ -117,6 +117,7 @@
       "@codeware/shared/util/payload-types": [
         "libs/shared/util/payload-types/src/index.ts"
       ],
+      "@codeware/shared/util/i18n": ["libs/shared/util/i18n/src/index.ts"],
       "@codeware/shared/util/payload-utils": [
         "libs/shared/util/payload-utils/src/index.ts"
       ],

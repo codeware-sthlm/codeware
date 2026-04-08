@@ -1,7 +1,7 @@
 {
-  "name": "app-cms-util-hooks",
+  "name": "app-cms-util-i18n",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/app-cms/util/hooks/src",
+  "sourceRoot": "libs/app-cms/util/i18n/src",
   "projectType": "library",
   "tags": ["scope:app-cms", "type:util"],
   "targets": {}

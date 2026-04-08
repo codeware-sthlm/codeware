@@ -3,17 +3,17 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../../../node_modules/.vite/libs/app-cms/util/hooks',
+  cacheDir: '../../../../node_modules/.vite/libs/shared/util/i18n',
   plugins: [nxViteTsPaths()],
   test: {
-    name: 'app-cms-util-hooks',
+    name: 'shared-util-i18n',
     watch: false,
     globals: true,
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../../../coverage/libs/app-cms/util/hooks',
+      reportsDirectory: '../../../../coverage/libs/shared/util/i18n',
       provider: 'v8'
     },
     passWithNoTests: true

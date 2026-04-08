@@ -26,6 +26,10 @@ const isNavTrigger =
 export const cardBlock: Block = {
   slug: 'card',
   interfaceName: 'CardBlock',
+  labels: {
+    plural: { en: 'Cards', sv: 'Kort' },
+    singular: { en: 'Card', sv: 'Kort' }
+  },
   fields: [
     {
       name: 'cards',
@@ -51,6 +55,7 @@ export const cardBlock: Block = {
         {
           name: 'brand',
           type: 'group',
+          label: { en: 'Branding', sv: 'Märkning' },
           admin: {
             description: {
               en: 'Select an icon and color that represent the card',

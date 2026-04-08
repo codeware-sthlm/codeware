@@ -1,6 +1,6 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Category } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
+import type { Payload, TypedLocale } from 'payload';
 
 export type CategoryData = Pick<Category, 'name' | 'slug' | 'tenant'>;
 
@@ -8,15 +8,16 @@ export type CategoryData = Pick<Category, 'name' | 'slug' | 'tenant'>;
  * Ensure that a category exist with the given slug.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - Category data
+ * @param options - Seed options
  * @returns The category ID if exists or created, otherwise undefined
  */
 export async function ensureCategory(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: CategoryData
+  data: CategoryData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<Category | number> {
+  const { locale, transactionID } = options;
   const { name, slug, tenant } = data;
 
   // Check if the category exists with the given slug and tenant
@@ -46,6 +47,7 @@ export async function ensureCategory(
       slug,
       tenant
     },
+    locale,
     req: { transactionID }
   });
 

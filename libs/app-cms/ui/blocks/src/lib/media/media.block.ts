@@ -10,6 +10,10 @@ import type { Block } from 'payload';
 export const mediaBlock: Block = {
   slug: 'media',
   interfaceName: 'MediaBlock',
+  labels: {
+    plural: { en: 'Media', sv: 'Media' },
+    singular: { en: 'Media', sv: 'Media' }
+  },
   fields: [
     {
       name: 'media',

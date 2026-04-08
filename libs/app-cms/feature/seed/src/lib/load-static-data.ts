@@ -109,7 +109,8 @@ export const loadStaticData = (args: {
     email: 'system@local.dev',
     password: '',
     role: 'system-user',
-    tenants: []
+    tenants: [],
+    locale: 'en'
   });
 
   // Generate categories

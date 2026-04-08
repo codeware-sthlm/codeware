@@ -3,7 +3,6 @@ import type { CollectionConfig } from 'payload';
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
-import { populatePublishedAtHook } from '@codeware/app-cms/util/hooks';
 import { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
 
@@ -49,9 +48,6 @@ const pages: CollectionConfig<'pages'> = {
     singular: { en: 'Page', sv: 'Sida' },
     plural: { en: 'Pages', sv: 'Sidor' }
   },
-  hooks: {
-    beforeChange: [populatePublishedAtHook]
-  },
   fields: [
     {
       name: 'name',
@@ -80,8 +76,8 @@ const pages: CollectionConfig<'pages'> = {
               localized: true,
               admin: {
                 description: {
-                  en: 'A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in "Layout builder".',
-                  sv: 'En fördefinierad rubrik längst upp på sidan. Använd för att skapa ett konsekvent utseende, alternativt anpassa allt i "Layout builder".'
+                  en: 'A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in layout builder.',
+                  sv: 'En fördefinierad rubrik längst upp på sidan. Använd för att skapa ett konsekvent utseende, alternativt anpassa allt i innehållsbyggaren.'
                 }
               },
               defaultValue: ''
@@ -89,15 +85,18 @@ const pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              label: 'Layout builder',
+              label: { en: 'Layout builder', sv: 'Innehållsbyggaren' },
+              labels: {
+                singular: { en: 'block', sv: 'block' },
+                plural: { en: 'blocks', sv: 'block' }
+              },
               blockReferences: getActiveKeys<BlockSlug>(blocks),
               blocks: [],
               required: true,
-              localized: true,
               admin: {
                 description: {
-                  en: 'Build the page content by adding the layout blocks you need.',
-                  sv: 'Bygg sidan genom att lägga till de layout-block du behöver.'
+                  en: 'Build your page by adding the content you need. E.g. choose "Content" to create one or more columns. Then use the text editor and add more blocks if needed in each column.',
+                  sv: 'Bygg din sida genom att lägga till det innehåll du behöver. Välj t.ex. "Innehåll" för att skapa en eller flera kolumner. Skriv sedan i texteditorn och lägg till fler block om det behövs i varje kolumn.'
                 },
                 disableListColumn: true,
                 initCollapsed: true
@@ -107,19 +106,6 @@ const pages: CollectionConfig<'pages'> = {
         },
         seoTab
       ]
-    },
-    {
-      name: 'publishedAt',
-      label: { en: 'Published At', sv: 'Publicerad' },
-      type: 'date',
-      admin: {
-        date: { displayFormat: 'yyyy-MM-dd' },
-        description: {
-          en: 'The date the page is published.',
-          sv: 'Datumet då sidan publiceras.'
-        },
-        position: 'sidebar'
-      }
     },
     slugField({ sourceField: 'name' })
   ]

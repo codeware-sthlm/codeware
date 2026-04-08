@@ -35,14 +35,19 @@ const navigation: CollectionConfig = {
     {
       name: 'items',
       type: 'array',
+      interfaceName: 'NavigationArrayItems',
       label: { en: 'Navigation Tree', sv: 'Navigationsträd' },
+      labels: {
+        singular: { en: 'Navigation item', sv: 'Navigationsobjekt' },
+        plural: { en: 'Navigation items', sv: 'Navigationsobjekt' }
+      },
       fields: [
         {
           name: 'reference',
           type: 'relationship',
           label: {
-            en: 'Navigate to document',
-            sv: 'Navigera till dokument'
+            en: 'Navigate to',
+            sv: 'Navigera till'
           },
           relationTo: ['pages', 'posts'],
           required: true

@@ -9,7 +9,7 @@ import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
 
 import './spotlight.css';
-import { authenticatedPayload } from '../../security/authenticated-payload';
+import { payloadRuntime } from '../../security/payload-runtime';
 
 import { Providers } from './providers';
 
@@ -26,10 +26,10 @@ export default async function RootLayout({
   }
 
   // Get authenticated payload instance
-  const payload = await authenticatedPayload();
+  const runtime = await payloadRuntime();
 
   // Fetch navigation with proper access control and tenant scoping
-  const navigationTree = await getNavigationTree(payload);
+  const navigationTree = await getNavigationTree(runtime);
 
   // Get Payload URL from environment
   const env = getEnv();
@@ -43,7 +43,10 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
       </head>
       <body>
-        <Providers payloadUrl={env.APP_MODE.serverURL}>
+        <Providers
+          locale={runtime.tenantConfig?.locale ?? 'en'}
+          payloadUrl={env.APP_MODE.serverURL}
+        >
           <RenderLayout navigationTree={navigationTree}>
             {children}
           </RenderLayout>

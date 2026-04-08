@@ -1,13 +1,13 @@
 import type { Navigation } from '@codeware/shared/util/payload-types';
 
-import type { AuthenticatedPayload } from '../get-authenticated-payload';
+import type { PayloadRuntime } from '../payload-runtime.types';
 
-import type { QueryMultipleOptions } from './types';
+import type { QuerySingleOptions } from './types';
 
 /**
  * Use case?
  *
- * Fetch navigation documents with proper access control.
+ * Fetch navigation documents.
  *
  * Use this when you need the full Payload document structure
  * instead of the transformed navigation tree.
@@ -20,29 +20,29 @@ import type { QueryMultipleOptions } from './types';
  * Default options:
  * - depth: 2
  *
- * @param payload - Authenticated Payload instance
+ * This function respects access control when `authenticatedUser` is present.
+ *
+ * @param runtime - Payload runtime instance
  * @param options - Optional query parameters
  * @returns Navigation document or null
  */
 export async function getNavigationDocs(
-  payload: AuthenticatedPayload,
-  options: Pick<QueryMultipleOptions<'navigation'>, 'depth' | 'locale'> = {}
+  runtime: PayloadRuntime,
+  options: QuerySingleOptions = {}
 ): Promise<Navigation | null> {
+  const { payload, tenantConfig } = runtime;
   const { depth = 2, locale } = options;
+  const overrideAccess = payload.authenticatedUser === null;
 
-  try {
-    const result = await payload.find({
-      collection: 'navigation',
-      depth,
-      locale,
-      limit: 1,
-      overrideAccess: false,
-      user: payload.authenticatedUser
-    });
+  const result = await payload.find({
+    collection: 'navigation',
+    depth,
+    locale: locale ?? tenantConfig?.locale,
+    limit: 1,
+    overrideAccess,
+    user: payload.authenticatedUser,
+    disableErrors: true
+  });
 
-    return result.totalDocs ? result.docs[0] : null;
-  } catch {
-    // Access denied
-    return null;
-  }
+  return result.totalDocs ? result.docs[0] : null;
 }

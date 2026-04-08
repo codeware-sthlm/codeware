@@ -32,16 +32,12 @@ const tags: CollectionConfig = {
       type: 'text',
       required: true,
       maxLength: 20,
-      admin: {
-        description: {
-          en: 'The name of the tag.',
-          sv: 'Namnet på etiketten.'
-        }
-      }
+      label: { en: 'Name', sv: 'Namn' }
     },
     {
       name: 'brand',
       type: 'group',
+      label: { en: 'Branding', sv: 'Märkning' },
       admin: {
         description: {
           en: 'Select an icon and color that represent the tag.',
@@ -74,20 +70,18 @@ const tags: CollectionConfig = {
       ]
     },
     {
-      type: 'tabs',
-      tabs: [
+      type: 'group',
+      name: 'relations',
+      virtual: true,
+      label: { en: 'The tag is used here', sv: 'Här används etiketten' },
+      fields: [
         {
-          label: 'Media',
-          fields: [
-            {
-              name: 'relatedMedia',
-              label: false,
-              type: 'join',
-              collection: 'media',
-              on: 'tags',
-              admin: { disableListColumn: true }
-            }
-          ]
+          name: 'relatedMedia',
+          label: { en: 'Related Media', sv: 'Relaterad Media' },
+          type: 'join',
+          collection: 'media',
+          on: 'tags',
+          admin: { allowCreate: false, disableListColumn: true }
         }
       ]
     },

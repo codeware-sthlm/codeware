@@ -28,6 +28,7 @@ const categories: CollectionConfig = {
       type: 'text',
       localized: true,
       required: true,
+      label: { en: 'Name', sv: 'Namn' },
       admin: {
         description: {
           en: 'The name of the category.',
@@ -36,20 +37,18 @@ const categories: CollectionConfig = {
       }
     },
     {
-      type: 'tabs',
-      tabs: [
+      type: 'group',
+      name: 'relations',
+      virtual: true,
+      label: { en: 'The category is used here', sv: 'Här används kategorin' },
+      fields: [
         {
-          label: { en: 'Posts', sv: 'Inlägg' },
-          fields: [
-            {
-              name: 'relatedPosts',
-              label: false,
-              type: 'join',
-              collection: 'posts',
-              on: 'categories',
-              admin: { disableListColumn: true }
-            }
-          ]
+          name: 'relatedPosts',
+          label: { en: 'Related Posts', sv: 'Relaterade Inlägg' },
+          type: 'join',
+          collection: 'posts',
+          on: 'categories',
+          admin: { allowCreate: false, disableListColumn: true }
         }
       ]
     },

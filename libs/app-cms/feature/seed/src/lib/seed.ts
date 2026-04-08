@@ -23,7 +23,14 @@ import type {
   StaticSeedOptions
 } from './seed-types';
 import { convertMarkdownToLexical } from './utils/convert-markdown-to-lexical';
-import { tempStore } from './utils/temp-store';
+import {
+  lookupCategory,
+  lookupPage,
+  lookupTag,
+  lookupTenant,
+  lookupUser,
+  tempStore
+} from './utils/temp-store';
 
 /**
  * Seed Payload collections.
@@ -159,24 +166,29 @@ export const seed = async (
     await ensureTransaction();
     for (const tenant of seedData.tenants) {
       try {
-        const response = await ensureTenant(payload, transactionID, {
-          apiKey: tenant.apiKey,
-          description: tenant.description,
-          domains: tenant.domains,
-          name: tenant.name
-        });
+        const response = await ensureTenant(
+          payload,
+          {
+            apiKey: tenant.apiKey,
+            description: tenant.description,
+            name: tenant.name,
+            slug: tenant.slug,
+            supportedLocales: tenant.supportedLocales
+          },
+          { locale: tenant.locale, transactionID }
+        );
 
         let tenantId: number;
         if (typeof response === 'object') {
           payload.logger.info(
-            `[SEED] Tenant '${tenant.name}' created (#${response.id})`
+            `[SEED] Tenant '${tenant.name}' created (${tenant.locale} #${response.id})`
           );
           tenantId = response.id;
         } else {
           tenantId = Number(response);
         }
-        // Save tenant id to map to lookup tenants later
-        tempStore.storeTenant(tenant.apiKey, tenantId);
+        // Save tenant id with seed data to map to lookup tenants later
+        tempStore.tenant(tenant.apiKey, { ...tenant, id: tenantId });
       } catch (error) {
         // Abort when we have a problem with a tenant
         payload.logger.error(
@@ -203,7 +215,7 @@ export const seed = async (
       let userFailed = 0;
 
       for (const user of seedData.users) {
-        const tenants = tempStore.lookupTenantWithRole(payload, user.tenants);
+        const tenants = lookupTenant(payload, user.tenants);
 
         try {
           const password =
@@ -215,22 +227,25 @@ export const seed = async (
                 : // Production will not happen, but just in case
                   randPassword().toString());
 
-          const response = await ensureUser(payload, transactionID, {
-            description: user.description,
-            email: user.email,
-            name: user.name,
-            password,
-            role: user.role,
-            tenants
-          });
+          const response = await ensureUser(
+            payload,
+            {
+              description: user.description,
+              email: user.email,
+              name: user.name,
+              password,
+              role: user.role,
+              tenants: tenants.map(({ id, role }) => ({ tenant: id, role }))
+            },
+            { locale: user.locale, transactionID }
+          );
 
           let userId: number;
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] User '${user.name}' on tenants ${
-                tenants
-                  .map(({ role, tenant: id }) => `#${id} (${role})`)
-                  .join(', ') || '<none>'
+              `[SEED] User '${user.name}' (${user.locale}) on tenants ${
+                tenants.map(({ id, role }) => `#${id} (${role})`).join(', ') ||
+                '<none>'
               }`
             );
             userId = response.id;
@@ -238,7 +253,7 @@ export const seed = async (
             userId = Number(response);
           }
           // Save user id to map to lookup users later
-          tempStore.storeUser(user.email, userId);
+          tempStore.user(user.email, userId);
         } catch (e) {
           const error = e as Error;
           payload.logger.error(error.message);
@@ -268,26 +283,30 @@ export const seed = async (
       let categoryFailed = 0;
 
       for (const category of seedData.categories) {
-        const [entity] = tempStore.lookupTenant(payload, [category.tenant]);
+        const [entity] = lookupTenant(payload, [category.tenant]);
 
         try {
-          const response = await ensureCategory(payload, transactionID, {
-            name: category.name,
-            slug: category.slug,
-            tenant: entity.tenant
-          });
+          const response = await ensureCategory(
+            payload,
+            {
+              name: category.name,
+              slug: category.slug,
+              tenant: entity.id
+            },
+            { locale: entity.locale, transactionID }
+          );
 
           let categoryId: number;
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] Category '${category.slug}' on tenant #${entity.tenant}`
+              `[SEED] Category '${category.slug}' on tenant #${entity.id} (${entity.locale})`
             );
             categoryId = response.id;
           } else {
             categoryId = Number(response);
           }
           // Save category to map to lookup id's later
-          tempStore.storeCategory(
+          tempStore.category(
             { apiKey: category.tenant.lookupApiKey, slug: category.slug },
             categoryId
           );
@@ -320,27 +339,31 @@ export const seed = async (
       let tagFailed = 0;
 
       for (const tag of seedData.tags) {
-        const [entity] = tempStore.lookupTenant(payload, [tag.tenant]);
+        const [entity] = lookupTenant(payload, [tag.tenant]);
 
         try {
-          const response = await ensureTag(payload, transactionID, {
-            brand: tag.brand,
-            name: tag.name,
-            slug: tag.slug,
-            tenant: entity.tenant
-          });
+          const response = await ensureTag(
+            payload,
+            {
+              brand: tag.brand,
+              name: tag.name,
+              slug: tag.slug,
+              tenant: entity.id
+            },
+            { locale: entity.locale, transactionID }
+          );
 
           let tagId: number;
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] Tag '${tag.slug}' on tenant #${entity.tenant}`
+              `[SEED] Tag '${tag.slug}' on tenant #${entity.id} (${entity.locale})`
             );
             tagId = response.id;
           } else {
             tagId = Number(response);
           }
           // Save tag to map to lookup id's later
-          tempStore.storeTag(
+          tempStore.tag(
             { apiKey: tag.tenant.lookupApiKey, slug: tag.slug },
             tagId
           );
@@ -373,41 +396,45 @@ export const seed = async (
       let pageFailed = 0;
 
       for (const page of seedData.pages) {
-        const [entity] = tempStore.lookupTenant(payload, [page.tenant]);
+        const [entity] = lookupTenant(payload, [page.tenant]);
 
         try {
-          const response = await ensurePage(payload, transactionID, {
-            header: page.header,
-            layout: [
-              {
-                blockType: 'content',
-                columns: [
-                  {
-                    size: 'full',
-                    richText: await convertMarkdownToLexical(
-                      payload.config,
-                      page.layoutContent
-                    )
-                  }
-                ]
-              }
-            ],
-            name: page.name,
-            slug: page.slug,
-            tenant: entity.tenant
-          });
+          const response = await ensurePage(
+            payload,
+            {
+              header: page.header,
+              layout: [
+                {
+                  blockType: 'content',
+                  columns: [
+                    {
+                      size: 'full',
+                      richText: await convertMarkdownToLexical(
+                        payload.config,
+                        page.layoutContent
+                      )
+                    }
+                  ]
+                }
+              ],
+              name: page.name,
+              slug: page.slug,
+              tenant: entity.id
+            },
+            { locale: entity.locale, transactionID }
+          );
 
           let pageId: number;
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] Page '${page.slug}' on tenant #${entity.tenant}`
+              `[SEED] Page '${page.slug}' on tenant #${entity.id} (${entity.locale})`
             );
             pageId = response.id;
           } else {
             pageId = Number(response);
           }
           // Save page to map to lookup id's later
-          tempStore.storePage(
+          tempStore.page(
             { apiKey: page.tenant.lookupApiKey, slug: page.slug },
             pageId
           );
@@ -447,36 +474,40 @@ export const seed = async (
       let mediaFailed = 0;
 
       for (const media of seedData.media) {
-        const tags = tempStore.lookupTag(
+        const tags = lookupTag(
           payload,
           media.tags.map(({ lookupSlug }) => ({
             apiKey: media.tenant.lookupApiKey,
             slug: lookupSlug
           }))
         );
-        const [entity] = tempStore.lookupTenant(payload, [media.tenant]);
+        const [entity] = lookupTenant(payload, [media.tenant]);
 
         try {
-          const response = await ensureMedia(payload, transactionID, {
-            alt: media.alt,
-            external: media.external,
-            filename: media.filename,
-            filePath: media.filePath,
-            tags,
-            tenant: entity.tenant
-          });
+          const response = await ensureMedia(
+            payload,
+            {
+              alt: media.alt,
+              external: media.external,
+              filename: media.filename,
+              filePath: media.filePath,
+              tags,
+              tenant: entity.id
+            },
+            { locale: entity.locale, transactionID }
+          );
 
           let mediaId: number;
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] Media '${media.filename}' on tenant #${entity.tenant}`
+              `[SEED] Media '${media.filename}' on tenant #${entity.id} (${entity.locale})`
             );
             mediaId = response.id;
           } else {
             mediaId = Number(response);
           }
           // Save media to map to lookup id's later
-          tempStore.storeMedia(
+          tempStore.media(
             { apiKey: media.tenant.lookupApiKey, slug: media.filename },
             mediaId
           );
@@ -512,32 +543,36 @@ export const seed = async (
       let postFailed = 0;
 
       for (const post of seedData.posts) {
-        const categories = tempStore.lookupCategory(
+        const categories = lookupCategory(
           payload,
           post.categories.map(({ lookupSlug }) => ({
             apiKey: post.tenant.lookupApiKey,
             slug: lookupSlug
           }))
         );
-        const [entity] = tempStore.lookupTenant(payload, [post.tenant]);
-        const authors = tempStore.lookupUser(payload, post.authors);
+        const [entity] = lookupTenant(payload, [post.tenant]);
+        const authors = lookupUser(payload, post.authors);
 
         try {
-          const response = await ensurePost(payload, transactionID, {
-            authors,
-            categories,
-            content: await convertMarkdownToLexical(
-              payload.config,
-              post.content
-            ),
-            slug: post.slug,
-            title: post.title,
-            tenant: entity.tenant
-          });
+          const response = await ensurePost(
+            payload,
+            {
+              authors,
+              categories,
+              content: await convertMarkdownToLexical(
+                payload.config,
+                post.content
+              ),
+              slug: post.slug,
+              title: post.title,
+              tenant: entity.id
+            },
+            { locale: entity.locale, transactionID }
+          );
 
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] Post '${post.slug}' on tenant #${entity.tenant}`
+              `[SEED] Post '${post.slug}' on tenant #${entity.id} (${entity.locale})`
             );
           }
         } catch (e) {
@@ -572,11 +607,11 @@ export const seed = async (
       let navigationFailed = 0;
 
       for (const tenant of seedData.tenants) {
-        const [tenantEntity] = tempStore.lookupTenant(payload, [
+        const [tenantEntity] = lookupTenant(payload, [
           { lookupApiKey: tenant.apiKey }
         ]);
         // Lookup the first 5 tenant pages excluding the home page
-        const pageIds = tempStore.lookupPage(
+        const pageIds = lookupPage(
           payload,
           seedData.pages
             .filter(
@@ -593,18 +628,18 @@ export const seed = async (
         try {
           const { navigation, items } = await ensureNavigation(
             payload,
-            transactionID,
             {
               items: pageIds.map((id) => ({
                 reference: { relationTo: 'pages', value: id }
               })),
-              tenant: tenantEntity.tenant
-            }
+              tenant: tenantEntity.id
+            },
+            { locale: tenantEntity.locale, transactionID }
           );
 
           if (typeof navigation === 'object') {
             payload.logger.info(
-              `[SEED] Navigation with ${items.length} items for tenant '${tenant.apiKey}' created`
+              `[SEED] Navigation with ${items.length} items for tenant '${tenant.apiKey}' created (${tenantEntity.locale})`
             );
           }
         } catch (e) {
@@ -638,14 +673,10 @@ export const seed = async (
 
       let siteSettingFailed = 0;
 
-      for (const tenant of seedData.tenants) {
-        const [tenantEntity] = tempStore.lookupTenant(payload, [
-          { lookupApiKey: tenant.apiKey }
-        ]);
+      for (const { apiKey } of seedData.tenants) {
+        const [tenant] = lookupTenant(payload, [{ lookupApiKey: apiKey }]);
         // Landing page is "home" page
-        const [page] = tempStore.lookupPage(payload, [
-          { apiKey: tenant.apiKey, slug: 'home' }
-        ]);
+        const [page] = lookupPage(payload, [{ apiKey, slug: 'home' }]);
 
         if (!page) {
           siteSettingFailed++;
@@ -653,14 +684,22 @@ export const seed = async (
         }
 
         try {
-          const response = await ensureSiteSetting(payload, transactionID, {
-            general: { appName: `${tenant.name} App`, landingPage: page },
-            tenant: tenantEntity.tenant
-          });
+          const response = await ensureSiteSetting(
+            payload,
+            {
+              general: {
+                appName: `${tenant.name} App`,
+                landingPage: page,
+                defaultLocale: tenant.locale
+              },
+              tenant: tenant.id
+            },
+            { locale: tenant.locale, transactionID }
+          );
 
           if (typeof response === 'object') {
             payload.logger.info(
-              `[SEED] Site setting for tenant '${tenant.apiKey}' created`
+              `[SEED] Site setting for tenant '${tenant.apiKey}' created (${tenant.locale})`
             );
           }
         } catch (e) {
@@ -696,7 +735,7 @@ export const seed = async (
     if (!seedError) {
       await ensureTransaction();
       try {
-        await customSeed(payload, transactionID);
+        await customSeed(payload, { transactionID });
       } catch (e) {
         const error = e as Error;
         payload.logger.error(error.message);

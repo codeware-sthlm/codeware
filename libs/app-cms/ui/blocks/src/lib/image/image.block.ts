@@ -8,6 +8,10 @@ import type { Block } from 'payload';
 export const imageBlock: Block = {
   slug: 'image',
   interfaceName: 'ImageBlock',
+  labels: {
+    plural: { en: 'Images', sv: 'Bilder' },
+    singular: { en: 'Image', sv: 'Bild' }
+  },
   fields: [
     {
       name: 'media',
@@ -16,6 +20,7 @@ export const imageBlock: Block = {
       filterOptions: {
         mimeType: { contains: 'image' }
       },
+      label: { en: 'Image', sv: 'Bild' },
       admin: {
         description: {
           en: 'Select an image.',

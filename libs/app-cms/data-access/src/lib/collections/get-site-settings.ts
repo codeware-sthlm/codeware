@@ -1,56 +1,60 @@
-import type { Page } from '@codeware/shared/util/payload-types';
+import type { TypedLocale } from 'payload';
 
-import type { AuthenticatedPayload } from '../get-authenticated-payload';
+import type { PayloadRuntime } from '../payload-runtime.types';
 
 import type { QuerySingleOptions } from './types';
 
-type Response = { appName: string; landingPage: Page | null };
+type Response = {
+  appName: string;
+  defaultLocale: TypedLocale;
+  landingPage: number;
+};
 
 /**
- * Fetch site settings with proper access control.
+ * Fetch site settings (shallow).
+ *
+ * This is a lightweight request with depth 0 to fetch configuration details
+ * without pulling in the resolved relational data. Subsequent requests can then
+ * fetch the related collection data using the proper locale.
  *
  * Site settings are typically a singleton collection, so this returns
  * the first (and usually only) document.
  *
  * Returns null if settings are not found or the user doesn't have access.
  *
- * Default options:
- * - depth: 3 (higher depth needed for landing page cards)
+ * This function respects access control when `authenticatedUser` is present.
  *
- * @param payload - Authenticated Payload instance
- * @param options - Query options
+ * @param runtime - Authenticated Payload runtime instance
  * @returns Site settings or null
  */
 export async function getSiteSettings(
-  payload: AuthenticatedPayload,
-  options: QuerySingleOptions = {}
+  runtime: PayloadRuntime,
+  options: Pick<QuerySingleOptions, 'locale'> = {}
 ): Promise<Response | null> {
-  const { depth = 3, locale } = options;
+  const { payload, tenantConfig } = runtime;
+  const { locale } = options;
+  const overrideAccess = payload.authenticatedUser === null;
 
-  try {
-    const result = await payload.find({
-      collection: 'site-settings',
-      depth,
-      locale,
-      limit: 1,
-      overrideAccess: false,
-      user: payload.authenticatedUser
-    });
+  const result = await payload.find({
+    collection: 'site-settings',
+    depth: 0,
+    limit: 1,
+    locale: locale ?? tenantConfig?.locale,
+    overrideAccess,
+    user: payload.authenticatedUser,
+    disableErrors: true
+  });
 
-    if (!result.totalDocs) {
-      return null;
-    }
-    const {
-      general: { appName, landingPage }
-    } = result.docs[0];
-
-    // Ensure proper typing for landingPage
-    return {
-      appName,
-      landingPage: typeof landingPage === 'object' ? landingPage : null
-    };
-  } catch {
-    // Settings not found or access denied
+  if (!result.totalDocs) {
     return null;
   }
+  const {
+    general: { appName, defaultLocale, landingPage }
+  } = result.docs[0];
+
+  return {
+    appName,
+    defaultLocale,
+    landingPage: typeof landingPage === 'number' ? landingPage : landingPage.id
+  };
 }

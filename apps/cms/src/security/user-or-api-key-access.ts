@@ -4,6 +4,8 @@ import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { isUser } from '@codeware/app-cms/util/misc';
 import { verifySignature } from '@codeware/shared/util/signature';
 
+import { resolveScopedTenant } from './resolve-scoped-tenant';
+
 /**
  * Collection access control supporting both user access and
  * tenant API key access with conditional signature verification.
@@ -13,9 +15,23 @@ import { verifySignature } from '@codeware/shared/util/signature';
  *
  * Use this read access control for all tenant enabled collections.
  *
- * **Normal users**
+ * **Normal users in tenant mode**
  *
- * Allows access when authenticated.
+ * Returns a WHERE constraint scoped to the active tenant so that users with
+ * multi-tenant memberships cannot read content from other tenants while the
+ * server is running as a single-tenant deployment. Combined with the
+ * multi-tenant plugin's own `{ tenant: { in: userTenantIds } }` constraint
+ * the AND intersection naturally limits results to the active tenant only.
+ *
+ * The active tenant is resolved without React context to stay correct in both
+ * RSC (admin UI) and route handler (REST API) invocations:
+ * - Non-development: use `APP_MODE.apiKey` directly from env.
+ * - Development: resolve the API key from static seed data via `TENANT_ID`.
+ *
+ * **Normal users in host mode**
+ *
+ * Allows access when authenticated. The multi-tenant plugin applies its
+ * own tenant scoping based on the `payload-tenant` cookie.
  *
  * **Tenant users**
  *
@@ -47,7 +63,7 @@ import { verifySignature } from '@codeware/shared/util/signature';
  *
  * @returns Access control function with user and tenant scope support.
  */
-export const userOrApiKeyAccess = (): Access => (args) => {
+export const userOrApiKeyAccess = (): Access => async (args) => {
   const {
     req: { headers, payload, user }
   } = args;
@@ -57,12 +73,27 @@ export const userOrApiKeyAccess = (): Access => (args) => {
     return false;
   }
 
-  // Allow access for normal users
+  const { APP_MODE } = getEnv();
+
+  // Allow access for normal users, scoped to active tenant in tenant mode.
   if (isUser(user)) {
+    if (APP_MODE.type === 'tenant') {
+      const tenant = await resolveScopedTenant(payload);
+
+      // Ensure the authenticated user docs are also scoped to the resolved tenant
+      if (tenant) {
+        return { tenant: { equals: tenant.id } };
+      }
+
+      // If we can't resolve a tenant, deny access to be safe (shouldn't happen in tenant mode)
+      payload.logger.warn(
+        '[userOrApiKeyAccess] Could not resolve tenant for tenant-mode user, denying access'
+      );
+      return false;
+    }
+
     return true;
   }
-
-  const { APP_MODE } = getEnv();
 
   // cms host mode
   if (APP_MODE.type === 'host') {

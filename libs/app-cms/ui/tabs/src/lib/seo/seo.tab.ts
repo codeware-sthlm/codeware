@@ -12,7 +12,7 @@ import type { Tab } from 'payload';
  */
 export const seoTab: Tab = {
   name: 'meta',
-  label: 'SEO',
+  label: { en: 'SEO', sv: 'SEO' },
   fields: [
     OverviewField({}),
     MetaTitleField({

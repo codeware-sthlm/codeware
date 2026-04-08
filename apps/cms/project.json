@@ -45,6 +45,16 @@
         }
       }
     },
+    "re-seed": {
+      "metadata": {
+        "description": "Ad-hoc seed process that first resets the database and then seeds it, using the local-api."
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["nx reset-db cms", "nx seed cms"],
+        "parallel": false
+      }
+    },
     "verify": {
       "metadata": {
         "description": "Verify that the last migration works as expected."

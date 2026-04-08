@@ -2,7 +2,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { postgresAdapter } from '@payloadcms/db-postgres';
+import { en } from '@payloadcms/translations/languages/en';
+import { sv } from '@payloadcms/translations/languages/sv';
 import * as Sentry from '@sentry/nextjs';
+import { getTenantFromCookie } from 'node_modules/@payloadcms/plugin-multi-tenant/dist/utilities/getTenantFromCookie';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 
@@ -23,6 +26,7 @@ import {
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
+import { customTranslations } from '@codeware/app-cms/util/i18n';
 import { isTenant, isUser } from '@codeware/app-cms/util/misc';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
 
@@ -36,6 +40,7 @@ import siteSettings from './collections/site-settings/site-settings.collection';
 import tags from './collections/tags/tags.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
+import { tenantConfigEndpoint } from './endpoints/tenant-config';
 import { migrations } from './migrations';
 
 const filename = fileURLToPath(import.meta.url);
@@ -104,11 +109,16 @@ export default buildConfig({
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
+  endpoints: [tenantConfigEndpoint],
   plugins: getPlugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
   upload: { safeFileNames: true },
   // i18n support
-  i18n: { fallbackLanguage: 'sv' },
+  i18n: {
+    fallbackLanguage: 'en',
+    supportedLanguages: { en, sv },
+    translations: customTranslations
+  },
   localization: {
     locales: [
       {
@@ -126,8 +136,25 @@ export default buildConfig({
         code: 'sv'
       }
     ],
-    defaultLocale: 'sv',
-    fallback: true
+    defaultLocale: 'en',
+    fallback: true,
+    // Filter available locales based on current tenant
+    filterAvailableLocales: async ({ req, locales }) => {
+      const tenantId = getTenantFromCookie(req.headers, 'text');
+      if (tenantId) {
+        const tenant = await req.payload.findByID({
+          id: tenantId,
+          collection: 'tenants',
+          req
+        });
+        if (tenant && tenant.supportedLocales.length) {
+          return locales.filter((locale) => {
+            return tenant.supportedLocales.map(String).includes(locale.code);
+          });
+        }
+      }
+      return locales;
+    }
   },
   // Act when Payload is initialized (after db connection, migrations, etc. are done)
   onInit: async (payload) => {
@@ -153,8 +180,12 @@ export default buildConfig({
     }
 
     payload.logger.info('Payload is ready');
-    if (env.APP_MODE.type === 'host') {
-      // Only run seeding for app cms host
+    if (
+      env.APP_MODE.type === 'host' ||
+      env.NX_RUN_TARGET === 'seed' ||
+      (env.APP_MODE.type === 'tenant' && env.DEPLOY_ENV === 'development')
+    ) {
+      // Run seeding for app cms host, on demand via cli or for tenants in development
       await seed({
         environment: env.DEPLOY_ENV,
         payload,
@@ -162,6 +193,10 @@ export default buildConfig({
         source: env.SEED_SOURCE,
         strategy: env.SEED_STRATEGY
       });
+    } else if (env.APP_MODE.type === 'tenant') {
+      payload.logger.info(
+        'Skipping seeding for tenant mode in non-development environment'
+      );
     }
   },
   // Generate types and schemas

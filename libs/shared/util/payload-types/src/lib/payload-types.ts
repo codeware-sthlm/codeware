@@ -23,6 +23,26 @@ export type TenantsArrayField =
     }[]
   | null;
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NavigationArrayItems".
+ */
+export type NavigationArrayItems =
+  | {
+      reference:
+        | {
+            relationTo: 'pages';
+            value: number | Page;
+          }
+        | {
+            relationTo: 'posts';
+            value: number | Post;
+          };
+      labelSource?: ('document' | 'custom') | null;
+      customLabel?: string | null;
+      id?: string | null;
+    }[]
+  | null;
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -115,17 +135,17 @@ export interface Config {
   };
   collectionsJoins: {
     categories: {
-      relatedPosts: 'posts';
+      'relations.relatedPosts': 'posts';
     };
     tags: {
-      relatedMedia: 'media';
+      'relations.relatedMedia': 'media';
     };
     tenants: {
-      relatedUsers: 'users';
-      relatedPages: 'pages';
-      relatedPosts: 'posts';
-      relatedCategories: 'categories';
-      relatedMedia: 'media';
+      'relations.relatedUsers': 'users';
+      'relations.relatedPages': 'pages';
+      'relations.relatedPosts': 'posts';
+      'relations.relatedCategories': 'categories';
+      'relations.relatedMedia': 'media';
     };
   };
   collectionsSelect: {
@@ -134,37 +154,22 @@ export interface Config {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    'reusable-content':
-      | ReusableContentSelect<false>
-      | ReusableContentSelect<true>;
+    'reusable-content': ReusableContentSelect<false> | ReusableContentSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
-    'form-submissions':
-      | FormSubmissionsSelect<false>
-      | FormSubmissionsSelect<true>;
+    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    'payload-locked-documents':
-      | PayloadLockedDocumentsSelect<false>
-      | PayloadLockedDocumentsSelect<true>;
-    'payload-preferences':
-      | PayloadPreferencesSelect<false>
-      | PayloadPreferencesSelect<true>;
-    'payload-migrations':
-      | PayloadMigrationsSelect<false>
-      | PayloadMigrationsSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
     defaultIDType: number;
   };
-  fallbackLocale:
-    | ('false' | 'none' | 'null')
-    | false
-    | null
-    | ('en' | 'sv')
-    | ('en' | 'sv')[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'sv') | ('en' | 'sv')[];
   globals: {};
   globalsSelect: {};
   locale: 'en' | 'sv';
@@ -285,11 +290,11 @@ export interface Page {
    */
   name: string;
   /**
-   * A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in "Layout builder".
+   * A pre-designed header on top of the page. Provide for a consistent look and feel or customize everything in layout builder.
    */
   header?: string | null;
   /**
-   * Build the page content by adding the layout blocks you need.
+   * Build your page by adding the content you need. E.g. choose "Content" to create one or more columns. Then use the text editor and add more blocks if needed in each column.
    */
   layout: (
     | ContentBlock
@@ -312,10 +317,6 @@ export interface Page {
     description?: string | null;
   };
   /**
-   * The date the page is published.
-   */
-  publishedAt?: string | null;
-  /**
    * Used for url paths. Will be automatically generated from name if left empty.
    */
   slug?: string | null;
@@ -333,45 +334,35 @@ export interface Tenant {
   name: string;
   description?: string | null;
   /**
-   * Configure domains for this workspace. CMS domains must be defined to allow users to login (domain-based access control). Leave empty for general access restriction.
+   * Select the locales your web client should support. Multiple locales will enable the language selector in the admin UI.
    */
-  domains?:
-    | {
-        /**
-         * Domain without protocol. Examples: cms.client.com, cms-demo.fly.dev
-         */
-        domain: string;
-        /**
-         * Select "CMS" to allow login for this domain.
-         */
-        pageTypes: ('cms' | 'client' | 'disabled')[];
-        id?: string | null;
-      }[]
-    | null;
-  relatedUsers?: {
-    docs?: (number | User)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedPages?: {
-    docs?: (number | Page)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedPosts?: {
-    docs?: (number | Post)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedCategories?: {
-    docs?: (number | Category)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  relatedMedia?: {
-    docs?: (number | Media)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
+  supportedLocales: ('en' | 'sv')[];
+  relations?: {
+    relatedUsers?: {
+      docs?: (number | User)[];
+      hasNextPage?: boolean;
+      totalDocs?: number;
+    };
+    relatedPages?: {
+      docs?: (number | Page)[];
+      hasNextPage?: boolean;
+      totalDocs?: number;
+    };
+    relatedPosts?: {
+      docs?: (number | Post)[];
+      hasNextPage?: boolean;
+      totalDocs?: number;
+    };
+    relatedCategories?: {
+      docs?: (number | Category)[];
+      hasNextPage?: boolean;
+      totalDocs?: number;
+    };
+    relatedMedia?: {
+      docs?: (number | Media)[];
+      hasNextPage?: boolean;
+      totalDocs?: number;
+    };
   };
   /**
    * Used for url paths. Will be automatically generated from name if left empty.
@@ -431,9 +422,6 @@ export interface Post {
    */
   title: string;
   heroImage?: (number | null) | Media;
-  /**
-   * The main content of the article.
-   */
   content: {
     root: {
       type: string;
@@ -459,7 +447,6 @@ export interface Post {
     image?: (number | null) | Media;
     description?: string | null;
   };
-  publishedAt?: string | null;
   /**
    * The authors of the post.
    */
@@ -567,9 +554,6 @@ export interface Media {
 export interface Tag {
   id: number;
   tenant?: (number | null) | Tenant;
-  /**
-   * The name of the tag.
-   */
   name: string;
   /**
    * Select an icon and color that represent the tag.
@@ -578,10 +562,12 @@ export interface Tag {
     icon?: string | null;
     color?: string | null;
   };
-  relatedMedia?: {
-    docs?: (number | Media)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
+  relations?: {
+    relatedMedia?: {
+      docs?: (number | Media)[];
+      hasNextPage?: boolean;
+      totalDocs?: number;
+    };
   };
   /**
    * Used for url paths. Will be automatically generated from name if left empty.
@@ -601,10 +587,12 @@ export interface Category {
    * The name of the category.
    */
   name: string;
-  relatedPosts?: {
-    docs?: (number | Post)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
+  relations?: {
+    relatedPosts?: {
+      docs?: (number | Post)[];
+      hasNextPage?: boolean;
+      totalDocs?: number;
+    };
   };
   /**
    * Used for url paths. Will be automatically generated from name if left empty.
@@ -630,14 +618,7 @@ export interface ContentBlock {
               [k: string]: unknown;
             }[];
             direction: ('ltr' | 'rtl') | null;
-            format:
-              | 'left'
-              | 'start'
-              | 'center'
-              | 'right'
-              | 'end'
-              | 'justify'
-              | '';
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
             indent: number;
             version: number;
           };
@@ -747,14 +728,7 @@ export interface Form {
                   [k: string]: unknown;
                 }[];
                 direction: ('ltr' | 'rtl') | null;
-                format:
-                  | 'left'
-                  | 'start'
-                  | 'center'
-                  | 'right'
-                  | 'end'
-                  | 'justify'
-                  | '';
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
                 indent: number;
                 version: number;
               };
@@ -911,14 +885,7 @@ export interface Form {
               [k: string]: unknown;
             }[];
             direction: ('ltr' | 'rtl') | null;
-            format:
-              | 'left'
-              | 'start'
-              | 'center'
-              | 'right'
-              | 'end'
-              | 'justify'
-              | '';
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
             indent: number;
             version: number;
           };
@@ -988,7 +955,7 @@ export interface ReusableContent {
   id: number;
   tenant?: (number | null) | Tenant;
   /**
-   * What is the reusable content about?
+   * What is the reusable content about? This is just an internal help text to keep the content organized.
    */
   title: string;
   layout: (
@@ -1100,22 +1067,7 @@ export interface VideoBlock {
 export interface Navigation {
   id: number;
   tenant?: (number | null) | Tenant;
-  items?:
-    | {
-        reference:
-          | {
-              relationTo: 'pages';
-              value: number | Page;
-            }
-          | {
-              relationTo: 'posts';
-              value: number | Post;
-            };
-        labelSource?: ('document' | 'custom') | null;
-        customLabel?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  items?: NavigationArrayItems;
   updatedAt: string;
   createdAt: string;
 }
@@ -1132,6 +1084,10 @@ export interface SiteSetting {
      * The page that will be used as the landing page for the application.
      */
     landingPage: number | Page;
+    /**
+     * The default locale for the client. Must be one of the supported locales for the workspace.
+     */
+    defaultLocale: 'en' | 'sv';
   };
   updatedAt: string;
   createdAt: string;
@@ -1285,7 +1241,11 @@ export interface PayloadMigration {
 export interface CategoriesSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
-  relatedPosts?: T;
+  relations?:
+    | T
+    | {
+        relatedPosts?: T;
+      };
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1373,16 +1333,19 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface NavigationSelect<T extends boolean = true> {
   tenant?: T;
-  items?:
-    | T
-    | {
-        reference?: T;
-        labelSource?: T;
-        customLabel?: T;
-        id?: T;
-      };
+  items?: T | NavigationArrayItemsSelect<T>;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NavigationArrayItems_select".
+ */
+export interface NavigationArrayItemsSelect<T extends boolean = true> {
+  reference?: T;
+  labelSource?: T;
+  customLabel?: T;
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1400,7 +1363,6 @@ export interface PagesSelect<T extends boolean = true> {
         image?: T;
         description?: T;
       };
-  publishedAt?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1423,7 +1385,6 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
         description?: T;
       };
-  publishedAt?: T;
   authors?: T;
   slug?: T;
   updatedAt?: T;
@@ -1451,6 +1412,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         appName?: T;
         landingPage?: T;
+        defaultLocale?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1468,7 +1430,11 @@ export interface TagsSelect<T extends boolean = true> {
         icon?: T;
         color?: T;
       };
-  relatedMedia?: T;
+  relations?:
+    | T
+    | {
+        relatedMedia?: T;
+      };
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1480,18 +1446,16 @@ export interface TagsSelect<T extends boolean = true> {
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
-  domains?:
+  supportedLocales?: T;
+  relations?:
     | T
     | {
-        domain?: T;
-        pageTypes?: T;
-        id?: T;
+        relatedUsers?: T;
+        relatedPages?: T;
+        relatedPosts?: T;
+        relatedCategories?: T;
+        relatedMedia?: T;
       };
-  relatedUsers?: T;
-  relatedPages?: T;
-  relatedPosts?: T;
-  relatedCategories?: T;
-  relatedMedia?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1759,6 +1723,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Auth {
   [k: string]: unknown;
 }
+
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

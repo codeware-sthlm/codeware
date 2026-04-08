@@ -1,6 +1,6 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Tag } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
+import type { Payload, TypedLocale } from 'payload';
 
 export type TagData = Pick<Tag, 'brand' | 'name' | 'slug' | 'tenant'> & {
   slug: string;
@@ -10,17 +10,17 @@ export type TagData = Pick<Tag, 'brand' | 'name' | 'slug' | 'tenant'> & {
  * Ensure that a tag exists with the given slug.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - Tag data
+ * @param options - Seed options
  * @returns The created tag or the id if the tag exists
  */
 export async function ensureTag(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: TagData
+  data: TagData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<Tag | number> {
+  const { locale, transactionID } = options;
   const { brand, name, slug, tenant } = data;
-
   // Check if the tag exists with the given slug and tenant
   const tags = await payload.find({
     collection: 'tags',
@@ -49,6 +49,7 @@ export async function ensureTag(
       slug,
       tenant
     },
+    locale,
     req: { transactionID }
   });
 

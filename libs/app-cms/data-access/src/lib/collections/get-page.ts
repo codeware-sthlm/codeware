@@ -1,45 +1,50 @@
 import type { Page } from '@codeware/shared/util/payload-types';
+import type { BasePayload, Where } from 'payload';
 
-import type { AuthenticatedPayload } from '../get-authenticated-payload';
+import { mapToRuntime } from '../map-to-runtime';
+import type { PayloadRuntime } from '../payload-runtime.types';
 
 import type { QuerySingleOptions } from './types';
 
 /**
- * Fetch a single page by slug with proper access control.
+ * Fetch a single page by slug or id.
  *
  * Returns null if the page is not found or the user doesn't have access.
  *
  * Default options:
  * - depth: 2
  *
- * @param payload - Authenticated Payload instance
- * @param slug - Slug of the page to fetch
+ * This function respects access control when `authenticatedUser` is present.
+ *
+ * @param runtime - Authenticated Payload runtime or default Payload instance
+ * @param slugOrId - Slug or ID of the page to fetch
  * @param options - Optional query options
  * @returns Page document or null
  */
 export async function getPage(
-  payload: AuthenticatedPayload,
-  slug: string,
+  runtime: PayloadRuntime | BasePayload,
+  slugOrId: number | string,
   options: QuerySingleOptions = {}
 ): Promise<Page | null> {
+  const { payload, tenantConfig } = mapToRuntime(runtime);
   const { depth = 2, locale } = options;
+  const overrideAccess = payload.authenticatedUser === null;
 
-  try {
-    const result = await payload.find({
-      collection: 'pages',
-      where: {
-        slug: { equals: slug }
-      },
-      depth,
-      locale,
-      limit: 1,
-      overrideAccess: false,
-      user: payload.authenticatedUser
-    });
+  const where: Where =
+    typeof slugOrId === 'number'
+      ? { id: { equals: slugOrId } }
+      : { slug: { equals: slugOrId } };
 
-    return result.totalDocs ? result.docs[0] : null;
-  } catch {
-    // Page not found or access denied
-    return null;
-  }
+  const result = await payload.find({
+    collection: 'pages',
+    where,
+    depth,
+    locale: locale ?? tenantConfig?.locale,
+    limit: 1,
+    overrideAccess,
+    user: payload.authenticatedUser,
+    disableErrors: true
+  });
+
+  return result.totalDocs ? result.docs[0] : null;
 }

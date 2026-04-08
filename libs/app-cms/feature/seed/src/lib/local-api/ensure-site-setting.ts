@@ -1,6 +1,6 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { SiteSetting } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
+import type { Payload, TypedLocale } from 'payload';
 
 export type SiteSettingData = Pick<SiteSetting, 'general' | 'tenant'>;
 
@@ -10,15 +10,16 @@ export type SiteSettingData = Pick<SiteSetting, 'general' | 'tenant'>;
  * Update general setting values when missing.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - Site setting data
+ * @param options - Seed options
  * @returns The site setting ID if exists or the object when created, otherwise undefined
  */
 export async function ensureSiteSetting(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: SiteSettingData
+  data: SiteSettingData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<SiteSetting | number> {
+  const { locale, transactionID } = options;
   const { general: generalFromProps, tenant } = data;
 
   if (!tenant) {
@@ -53,7 +54,8 @@ export async function ensureSiteSetting(
           appName: general.appName ?? generalFromProps.appName,
           landingPage: general.landingPage ?? generalFromProps.landingPage
         }
-      }
+      },
+      locale
     });
 
     return id;
@@ -67,6 +69,7 @@ export async function ensureSiteSetting(
       general: generalFromProps,
       tenant
     },
+    locale,
     req: { transactionID }
   });
 

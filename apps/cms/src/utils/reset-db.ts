@@ -26,6 +26,10 @@ async function reset() {
 
   const start = Date.now();
 
+  console.log(
+    `[DB] Using ${env.DATABASE_URL} (schema: ${env.DATABASE_SCHEMA})`
+  );
+
   const payload = await getPayload({ config });
 
   // Query a collection to check if the database is empty
@@ -35,7 +39,9 @@ async function reset() {
     });
   } catch (e) {
     const err = e as Error;
-    if (err.message.match(/relation "pages" does not exist/)) {
+    const cause = err.cause as Error | undefined;
+    const message = cause?.message ?? err.message;
+    if (message.match(/relation "(.+)" does not exist/)) {
       console.log('✅ Database is empty, skipping reset');
       process.exit(0);
     }

@@ -53,8 +53,10 @@ export const loadInfisicalData = async (args: {
       seedData.tenants.push({
         apiKey: tenant.PAYLOAD_API_KEY,
         description: tenant.PAYLOAD_API_DESCRIPTION,
-        domains: [{ domain: tenant.PAYLOAD_API_HOST, pageTypes: ['cms'] }],
-        name: tenant.PAYLOAD_API_NAME
+        name: tenant.PAYLOAD_API_NAME,
+        locale: 'en',
+        slug: tenant.PAYLOAD_ADMIN_NAME.toLowerCase().replace(/\s+/g, '-'),
+        supportedLocales: ['en']
       });
 
       // Tenant admin user
@@ -63,6 +65,7 @@ export const loadInfisicalData = async (args: {
         name: tenant.PAYLOAD_ADMIN_NAME,
         password: tenant.PAYLOAD_ADMIN_PASSWORD,
         role: 'user',
+        locale: 'en',
         tenants: [{ lookupApiKey: tenant.PAYLOAD_API_KEY, role: 'admin' }]
       });
     }
@@ -73,6 +76,7 @@ export const loadInfisicalData = async (args: {
       name: systemUser.SYSTEM_ADMIN_NAME,
       password: systemUser.SYSTEM_ADMIN_PASSWORD,
       role: 'system-user',
+      locale: 'en',
       tenants: []
     });
 

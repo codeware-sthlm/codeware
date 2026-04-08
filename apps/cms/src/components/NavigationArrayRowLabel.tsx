@@ -1,63 +1,60 @@
+import type { TypedLocale } from 'payload';
+
+import { getPage, getPost } from '@codeware/app-cms/data-access';
 import type { Navigation } from '@codeware/shared/util/payload-types';
 
-import type { ArrayRowLabel } from './array-row-label.type';
+import type { FieldComponentServer } from './component-types';
 
 /**
- * Custom array row label for the navigation array field.
+ * Custom array row label server component for the Navigation collection.
  *
- * Displays the navigation item label instead of the default row number.
+ * Prints the name of the referenced page or post, or a custom label if provided, instead of the default row label.
  */
-export const NavigationArrayRowLabel: React.FC<ArrayRowLabel> = async (
-  props
-) => {
-  const { payload, data, rowLabel, rowNumber } = props;
-  const { items } = data as Navigation;
+export const NavigationArrayRowLabel: FieldComponentServer<
+  'RowLabel'
+> = async ({ data, i18n: { language }, payload, rowLabel, rowNumber }) => {
+  const fieldData = data as Navigation;
+  const locale = language as TypedLocale;
 
-  // Get current nav item
-  const navItem = (items ?? []).at((rowNumber ?? 0) - 1);
+  const currentIndex = (rowNumber ?? 0) - 1;
+  const currentItem = fieldData.items?.[currentIndex];
 
-  if (!navItem?.reference) {
+  if (!currentItem) {
     return rowLabel;
   }
 
   const {
     customLabel,
     labelSource,
-    reference: { relationTo, value }
-  } = navItem;
+    reference: { relationTo, value: itemValue }
+  } = currentItem;
 
-  // Check custom label
-  if (labelSource === 'custom') {
+  // Use custom label when available
+  if (labelSource === 'custom' && customLabel) {
     return customLabel;
   }
 
+  let label: string | undefined;
+
   // Check reference to pages
   if (relationTo === 'pages') {
-    if (typeof value === 'object') {
-      return value.name;
+    if (typeof itemValue === 'object') {
+      label = itemValue.name;
+    } else {
+      label = (await getPage(payload, itemValue, { locale }))?.name;
     }
-    const page = await payload.findByID({
-      collection: 'pages',
-      id: value,
-      disableErrors: true
-    });
-    return page?.name ?? `Page #${value}`;
   }
-
   // Check reference to posts
-  if (relationTo === 'posts') {
-    if (typeof value === 'object') {
-      return value.title;
+  else if (relationTo === 'posts') {
+    if (typeof itemValue === 'object') {
+      label = itemValue.title;
+    } else {
+      label = (await getPost(payload, itemValue, { locale }))?.title;
     }
-    const post = await payload.findByID({
-      collection: 'posts',
-      id: value,
-      disableErrors: true
-    });
-    return post?.title ?? `Post #${value}`;
   }
 
-  throw new Error('Invalid reference relation type');
+  // Fallback to default row label
+  return label || rowLabel;
 };
 
 export default NavigationArrayRowLabel;

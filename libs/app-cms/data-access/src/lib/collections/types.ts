@@ -12,7 +12,7 @@ export type QuerySingleOptions = {
   depth?: number;
 
   /**
-   * Locale for localized content
+   * Locale to query (overrides tenant configuration when available)
    */
   locale?: TypedLocale;
 };

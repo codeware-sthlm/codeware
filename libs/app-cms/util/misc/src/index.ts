@@ -1,4 +1,4 @@
-export { getDomains } from './lib/get-domains';
+export { findTenantFromCookie } from './lib/find-tenant-from-cookie';
 export { getId } from './lib/get-id';
 export { getUserTenantIDs } from './lib/get-user-tenant-ids';
 export { hasRole } from './lib/has-role';

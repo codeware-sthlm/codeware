@@ -18,14 +18,9 @@ import type { User } from '@codeware/shared/util/payload-types';
  */
 export const adminAccessToAllDocTenants =
   (selfRule?: 'allowSelf' | 'denySelf'): Access<User> =>
-  ({ data, req: { user } }) => {
+  ({ data, id, req: { user } }) => {
     if (!isUser(user)) {
       return false;
-    }
-
-    // Allow list access
-    if (!data?.tenants) {
-      return true;
     }
 
     // System users always have access
@@ -33,14 +28,36 @@ export const adminAccessToAllDocTenants =
       return true;
     }
 
-    // Apply self rule if specified
-    if (selfRule && data.id === user.id) {
+    // Self-rule check: use the document `id` from access args (populated for all
+    // by-ID operations including DELETE where `data` is undefined), falling back
+    // to `data.id` for cases where the client includes it in the request body.
+    const docId = id ?? data?.id;
+    if (selfRule && docId !== undefined && docId === user.id) {
       return selfRule === 'allowSelf';
     }
 
-    // Users have access to other users if they have admin access to all of the users tenants
+    // Allow list access (no data at all — e.g. a bulk operation without body)
+    if (!data) {
+      return true;
+    }
+
+    // Allow basic field updates when tenants key is absent from the request body —
+    // the requester is not changing memberships so no admin check is needed.
+    if (!('tenants' in data)) {
+      return true;
+    }
+
     const userAdminTenantIds = getUserTenantIDs(user, 'admin');
-    return data.tenants.every((t) =>
-      userAdminTenantIds.includes(getId(t.tenant))
+
+    // Clearing all memberships requires admin access to at least one tenant
+    if (data.tenants?.length === 0) {
+      return userAdminTenantIds.length > 0;
+    }
+
+    // Users have access to other users if they have admin access to all of the users tenants
+    return (
+      data.tenants?.every((t) =>
+        userAdminTenantIds.includes(getId(t.tenant))
+      ) ?? false
     );
   };

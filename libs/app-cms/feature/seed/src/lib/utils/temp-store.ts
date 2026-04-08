@@ -2,10 +2,11 @@ import type { TenantRole } from '@codeware/shared/util/payload-types';
 import type { TenantLookup, UserLookup } from '@codeware/shared/util/seed';
 import type { Payload } from 'payload';
 
+import type { TenantDataLookup } from '../seed-types';
+
 type MapKey = { apiKey: string; slug: string };
-type TenantId = { tenant: number };
-type TenantIdRole = { tenant: number; role: TenantRole };
-type TenantLookupApiKey = Pick<TenantLookup, 'lookupApiKey'>;
+type TenantDataWithID = TenantDataLookup & { id: number };
+type TenantDataWithIDRole = TenantDataWithID & { role: TenantRole };
 
 const mapper = {
   // Map to category id (unique per tenant)
@@ -20,8 +21,8 @@ const mapper = {
   // Map to tag id (unique per tenant)
   tag: new Map<string, number>(),
 
-  // Map api key to tenant id (unique across tenants)
-  tenant: new Map<string, number>(),
+  // Map api key to tenant id and seed data (unique across tenants)
+  tenant: new Map<string, TenantDataWithID>(),
 
   // Map email to user id (unique across tenants)
   user: new Map<string, number>()
@@ -39,17 +40,8 @@ export const tempStore = {
    * @param category - The category to store.
    * @param categoryId - The id of the category.
    */
-  storeCategory: (category: MapKey, categoryId: number) => {
+  category: (category: MapKey, categoryId: number) => {
     mapper.category.set(JSON.stringify(category), categoryId);
-  },
-  /**
-   * Lookup category id's.
-   *
-   * @param payload - The payload instance.
-   * @param categories - The categories to lookup.
-   */
-  lookupCategory: (payload: Payload, categories: Array<MapKey>) => {
-    return lookupCategory(payload, categories);
   },
 
   /**
@@ -58,17 +50,8 @@ export const tempStore = {
    * @param media - The media to store.
    * @param mediaId - The id of the media.
    */
-  storeMedia: (media: MapKey, mediaId: number) => {
+  media: (media: MapKey, mediaId: number) => {
     mapper.media.set(JSON.stringify(media), mediaId);
-  },
-  /**
-   * Lookup media id's.
-   *
-   * @param payload - The payload instance.
-   * @param media - The media to lookup.
-   */
-  lookupMedia: (payload: Payload, media: Array<MapKey>) => {
-    return lookupMedia(payload, media);
   },
 
   /**
@@ -77,17 +60,8 @@ export const tempStore = {
    * @param page - The page to store.
    * @param pageId - The id of the page.
    */
-  storePage: (page: MapKey, pageId: number) => {
+  page: (page: MapKey, pageId: number) => {
     mapper.page.set(JSON.stringify(page), pageId);
-  },
-  /**
-   * Lookup page id's.
-   *
-   * @param payload - The payload instance.
-   * @param pages - The pages to lookup.
-   */
-  lookupPage: (payload: Payload, pages: Array<MapKey>) => {
-    return lookupPage(payload, pages);
   },
 
   /**
@@ -96,47 +70,18 @@ export const tempStore = {
    * @param tag - The tag to store.
    * @param tagId - The id of the tag.
    */
-  storeTag: (tag: MapKey, tagId: number) => {
+  tag: (tag: MapKey, tagId: number) => {
     mapper.tag.set(JSON.stringify(tag), tagId);
-  },
-  /**
-   * Lookup tag id's.
-   *
-   * @param payload - The payload instance.
-   * @param tags - The tags to lookup.
-   */
-  lookupTag: (payload: Payload, tags: Array<MapKey>) => {
-    return lookupTag(payload, tags);
   },
 
   /**
-   * Store tenant api key and tenant id in map.
+   * Store tenant api key and tenant data in map.
    *
    * @param apiKey - The api key of the tenant.
-   * @param tenantId - The id of the tenant.
+   * @param tenant - The tenant data including id.
    */
-  storeTenant: (apiKey: string, tenantId: number) => {
-    mapper.tenant.set(apiKey, tenantId);
-  },
-  /**
-   * Lookup tenant id by api key.
-   *
-   * @param payload - The payload instance.
-   * @param tenants - The tenant api keys to lookup.
-   * @returns Tenant entities with tenant id.
-   */
-  lookupTenant: (payload: Payload, tenants: Array<TenantLookupApiKey>) => {
-    return lookupTenant(payload, tenants);
-  },
-  /**
-   * Lookup tenant id and role by api key.
-   *
-   * @param payload - The payload instance.
-   * @param tenants - The tenant api keys to lookup.
-   * @returns Tenant entities with tenant id and role.
-   */
-  lookupTenantWithRole: (payload: Payload, tenants: Array<TenantLookup>) => {
-    return lookupTenantWithRole(payload, tenants);
+  tenant: (apiKey: string, tenant: TenantDataWithID) => {
+    mapper.tenant.set(apiKey, tenant);
   },
 
   /**
@@ -145,21 +90,18 @@ export const tempStore = {
    * @param email - The email of the user.
    * @param userId - The id of the user.
    */
-  storeUser: (email: string, userId: number) => {
+  user: (email: string, userId: number) => {
     mapper.user.set(email, userId);
-  },
-  /**
-   * Lookup user id by email.
-   *
-   * @param payload - The payload instance.
-   * @param users - The users to lookup.
-   */
-  lookupUser: (payload: Payload, users: Array<UserLookup>) => {
-    return lookupUser(payload, users);
   }
 };
 
-function lookupCategory(
+/**
+ * Lookup category id's.
+ *
+ * @param payload - The payload instance.
+ * @param categories - The categories to lookup.
+ */
+export function lookupCategory(
   payload: Payload,
   categories: Array<MapKey>
 ): Array<number> {
@@ -176,7 +118,16 @@ function lookupCategory(
   }, [] as Array<number>);
 }
 
-function lookupMedia(payload: Payload, media: Array<MapKey>): Array<number> {
+/**
+ * Lookup media id's.
+ *
+ * @param payload - The payload instance.
+ * @param media - The media to lookup.
+ */
+export function lookupMedia(
+  payload: Payload,
+  media: Array<MapKey>
+): Array<number> {
   return media.reduce((acc, media) => {
     const mediaId = mapper.category.get(JSON.stringify(media));
     if (!mediaId) {
@@ -190,7 +141,16 @@ function lookupMedia(payload: Payload, media: Array<MapKey>): Array<number> {
   }, [] as Array<number>);
 }
 
-function lookupPage(payload: Payload, pages: Array<MapKey>): Array<number> {
+/**
+ * Lookup page id's.
+ *
+ * @param payload - The payload instance.
+ * @param pages - The pages to lookup.
+ */
+export function lookupPage(
+  payload: Payload,
+  pages: Array<MapKey>
+): Array<number> {
   return pages.reduce((acc, page) => {
     const pageId = mapper.page.get(JSON.stringify(page));
     if (!pageId) {
@@ -204,7 +164,16 @@ function lookupPage(payload: Payload, pages: Array<MapKey>): Array<number> {
   }, [] as Array<number>);
 }
 
-function lookupTag(payload: Payload, tags: Array<MapKey>): Array<number> {
+/**
+ * Lookup tag id's.
+ *
+ * @param payload - The payload instance.
+ * @param tags - The tags to lookup.
+ */
+export function lookupTag(
+  payload: Payload,
+  tags: Array<MapKey>
+): Array<number> {
   return tags.reduce((acc, tag) => {
     const tagId = mapper.tag.get(JSON.stringify(tag));
     if (!tagId) {
@@ -218,7 +187,16 @@ function lookupTag(payload: Payload, tags: Array<MapKey>): Array<number> {
   }, [] as Array<number>);
 }
 
-function lookupUser(payload: Payload, users: Array<UserLookup>): Array<number> {
+/**
+ * Lookup user id by email.
+ *
+ * @param payload - The payload instance.
+ * @param users - The users to lookup.
+ */
+export function lookupUser(
+  payload: Payload,
+  users: Array<UserLookup>
+): Array<number> {
   return users.reduce((acc, user) => {
     const userId = mapper.user.get(user.lookupEmail);
     if (!userId) {
@@ -230,32 +208,42 @@ function lookupUser(payload: Payload, users: Array<UserLookup>): Array<number> {
   }, [] as Array<number>);
 }
 
-function lookupTenant(
-  payload: Payload,
-  tenants: Array<TenantLookupApiKey>
-): Array<TenantId> {
-  return tenants.reduce((acc, tenant) => {
-    const tenantId = mapper.tenant.get(tenant.lookupApiKey);
-    if (!tenantId) {
-      payload.logger.error(`Skip: Tenant '${tenant.lookupApiKey}' not found`);
-      return acc;
-    }
-    acc.push({ tenant: tenantId });
-    return acc;
-  }, [] as Array<TenantId>);
-}
-
-function lookupTenantWithRole(
+/**
+ * Lookup tenant and role by api key.
+ *
+ * @param payload - The payload instance.
+ * @param tenants - The tenant api keys to lookup.
+ * @returns Tenant entities with tenant id and role.
+ */
+export function lookupTenant(
   payload: Payload,
   tenants: Array<TenantLookup>
-): Array<TenantIdRole> {
-  return tenants.reduce((acc, tenant) => {
-    const tenantId = mapper.tenant.get(tenant.lookupApiKey);
-    if (!tenantId) {
-      payload.logger.error(`Skip: Tenant '${tenant.lookupApiKey}' not found`);
+): Array<TenantDataWithIDRole>;
+export function lookupTenant(
+  payload: Payload,
+  tenants: Array<Pick<TenantLookup, 'lookupApiKey'>>
+): Array<TenantDataWithID>;
+export function lookupTenant(
+  payload: Payload,
+  tenants: Array<TenantLookup | Pick<TenantLookup, 'lookupApiKey'>>
+) {
+  return tenants.reduce(
+    (acc, tenantLookup) => {
+      const tenant = mapper.tenant.get(tenantLookup.lookupApiKey);
+      if (!tenant) {
+        payload.logger.error(
+          `Skip: Tenant '${tenantLookup.lookupApiKey}' not found`
+        );
+        return acc;
+      }
+      // If the tenant lookup includes a role, use it
+      if ('role' in tenantLookup && tenantLookup.role) {
+        acc.push({ ...tenant, role: tenantLookup.role });
+      } else {
+        acc.push(tenant);
+      }
       return acc;
-    }
-    acc.push({ tenant: tenantId, role: tenant.role });
-    return acc;
-  }, [] as Array<TenantIdRole>);
+    },
+    [] as Array<TenantDataWithID | TenantDataWithIDRole>
+  );
 }

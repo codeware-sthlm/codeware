@@ -65,12 +65,8 @@ const media: CollectionConfig = {
           path: '@codeware/app-cms/ui/components/Callout',
           serverProps: {
             kind: 'tip',
-            title: 'Using tags to organize media files',
-            description: [
-              'Use tags to organize your media files and easily select them in file areas.',
-              'Tags can be created in the "Tags" collection.',
-              'You can assign multiple tags to a media file.'
-            ]
+            titleKey: 'media:calloutTitle',
+            descriptionKey: 'media:calloutDescriptions'
           }
         }
       ]

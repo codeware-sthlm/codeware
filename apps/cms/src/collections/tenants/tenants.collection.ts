@@ -69,120 +69,68 @@ const tenants: CollectionConfig = {
       label: { en: 'Description', sv: 'Beskrivning' }
     },
     {
-      name: 'domains',
-      type: 'array',
-      index: true,
-      label: { en: 'Domains', sv: 'Domäner' },
+      name: 'supportedLocales',
+      type: 'select',
+      label: { en: 'Supported locales', sv: 'Språk som stöds' },
       admin: {
         description: {
-          en: 'Configure domains for this workspace. CMS domains must be defined to allow users to login (domain-based access control). Leave empty for general access restriction.',
-          sv: 'Konfigurera domäner för denna arbetsyta. CMS-domäner måste vara definierade för att tillåta inloggning (domänbaserad åtkomstkontroll). Lämna tomt för att begränsa åtkomst generellt.'
-        },
-        position: 'sidebar',
-        initCollapsed: false
-      },
-      fields: [
-        {
-          name: 'domain',
-          type: 'text',
-          label: { en: 'Domain', sv: 'Domän' },
-          admin: {
-            placeholder: 'example.com',
-            description: {
-              en: 'Domain without protocol. Examples: cms.client.com, cms-demo.fly.dev',
-              sv: 'Domän utan protokoll. Exempel: cms.client.com, cms-demo.fly.dev'
-            }
-          },
-          required: true
-        },
-        {
-          name: 'pageTypes',
-          type: 'select',
-          label: { en: 'Page types', sv: 'Typ av sidor' },
-          enumName: enumName('tenant_domain_page_type'),
-          options: [
-            { label: { en: 'CMS', sv: 'CMS' }, value: 'cms' },
-            { label: { en: 'Web client', sv: 'Webbklient' }, value: 'client' },
-            { label: { en: 'Disabled', sv: 'Inaktiverad' }, value: 'disabled' }
-          ],
-          hasMany: true,
-          required: true,
-          admin: {
-            description: {
-              en: 'Select "CMS" to allow login for this domain.',
-              sv: 'Välj "CMS" för att tillåta inloggning för denna domän.'
-            }
-          }
+          en: 'Select the locales your web client should support. Multiple locales will enable the language selector in the admin UI.',
+          sv: 'Välj de språk som din webbklient ska stödja. Vid flera språk aktiveras språkvalet i administrationsgränssnittet.'
         }
-      ]
+      },
+      enumName: enumName('tenant_supported_locales'),
+      options: [
+        { label: { en: 'English', sv: 'Engelska' }, value: 'en' },
+        { label: { en: 'Swedish', sv: 'Svenska' }, value: 'sv' }
+      ],
+      hasMany: true,
+      required: true
     },
     {
-      type: 'tabs',
-      tabs: [
+      type: 'group',
+      name: 'relations',
+      virtual: true,
+      label: { en: 'Related Documents', sv: 'Relaterade dokument' },
+      fields: [
         {
-          label: { en: 'Members', sv: 'Medlemmar' },
-          fields: [
-            {
-              name: 'relatedUsers',
-              label: false,
-              type: 'join',
-              collection: 'users',
-              on: 'tenants.tenant',
-              admin: { disableListColumn: true }
-            }
-          ]
+          name: 'relatedUsers',
+          label: { en: 'Users', sv: 'Användare' },
+          type: 'join',
+          collection: 'users',
+          on: 'tenants.tenant',
+          admin: { allowCreate: false, disableListColumn: true }
         },
         {
+          name: 'relatedPages',
           label: { en: 'Pages', sv: 'Sidor' },
-          fields: [
-            {
-              name: 'relatedPages',
-              label: false,
-              type: 'join',
-              collection: 'pages',
-              on: 'tenant',
-              admin: { disableListColumn: true }
-            }
-          ]
+          type: 'join',
+          collection: 'pages',
+          on: 'tenant',
+          admin: { allowCreate: false, disableListColumn: true }
         },
         {
+          name: 'relatedPosts',
           label: { en: 'Posts', sv: 'Inlägg' },
-          fields: [
-            {
-              name: 'relatedPosts',
-              label: false,
-              type: 'join',
-              collection: 'posts',
-              on: 'tenant',
-              admin: { disableListColumn: true }
-            }
-          ]
+          type: 'join',
+          collection: 'posts',
+          on: 'tenant',
+          admin: { allowCreate: false, disableListColumn: true }
         },
         {
+          name: 'relatedCategories',
           label: { en: 'Categories', sv: 'Kategorier' },
-          fields: [
-            {
-              name: 'relatedCategories',
-              label: false,
-              type: 'join',
-              collection: 'categories',
-              on: 'tenant',
-              admin: { disableListColumn: true }
-            }
-          ]
+          type: 'join',
+          collection: 'categories',
+          on: 'tenant',
+          admin: { allowCreate: false, disableListColumn: true }
         },
         {
+          name: 'relatedMedia',
           label: { en: 'Media', sv: 'Media' },
-          fields: [
-            {
-              name: 'relatedMedia',
-              label: false,
-              type: 'join',
-              collection: 'media',
-              on: 'tenant',
-              admin: { disableListColumn: true }
-            }
-          ]
+          type: 'join',
+          collection: 'media',
+          on: 'tenant',
+          admin: { allowCreate: false, disableListColumn: true }
         }
       ]
     },

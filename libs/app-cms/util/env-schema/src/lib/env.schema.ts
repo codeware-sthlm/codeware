@@ -100,10 +100,23 @@ export const EnvSchema = withEnvVars(
         'Disable database schema push in development'
       ),
       NX_TASK_TARGET_TARGET: z
-        .enum(['build', 'dev', 'gen', 'lint', 'payload', 'serve', 'test'], {
-          description:
-            'NX environment variable set to the project target that run'
-        })
+        .enum(
+          [
+            'build',
+            'dev',
+            'gen',
+            'lint',
+            'payload',
+            'reset-db',
+            'seed',
+            'serve',
+            'test'
+          ],
+          {
+            description:
+              'NX environment variable set to the project target that run'
+          }
+        )
         .or(z.literal(''))
         .default('')
     })

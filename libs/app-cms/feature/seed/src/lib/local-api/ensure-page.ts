@@ -1,6 +1,6 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Page } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
+import type { Payload, TypedLocale } from 'payload';
 
 export type PageData = Pick<
   Page,
@@ -13,15 +13,16 @@ export type PageData = Pick<
  * Ensure that a page exist with the given slug.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - Page data
+ * @param options - Seed options
  * @returns The created page or the id if the page exists
  */
 export async function ensurePage(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: PageData
+  data: PageData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<Page | number> {
+  const { locale, transactionID } = options;
   const { header, layout, name, slug, tenant } = data;
 
   // Check if the page exists with the given slug and tenant
@@ -53,6 +54,7 @@ export async function ensurePage(
       slug,
       tenant
     },
+    locale,
     req: { transactionID }
   });
 

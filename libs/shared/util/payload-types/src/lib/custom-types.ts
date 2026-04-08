@@ -1,5 +1,12 @@
 import type { StripTypes } from '@codeware/shared/util/typesafe';
-import type { ClientUser, Field, FieldAccess, User } from 'payload';
+import type {
+  ClientUser,
+  FieldAccess,
+  TypeWithID,
+  TypedFallbackLocale,
+  TypedLocale,
+  User
+} from 'payload';
 
 import type {
   CardBlock,
@@ -16,6 +23,9 @@ import type {
   Tenant,
   TenantsArrayField
 } from './payload-types';
+
+/** Custom Payload API endpoints */
+export type CustomApiEndpoint = 'tenant-config';
 
 export type CollectionWithoutPayload = {
   [key in keyof Config['collections'] as key extends `payload${string}`
@@ -44,6 +54,10 @@ export type CollectionTenantScopedSlug = keyof CollectionWithTenantField;
 export type CollectionTenantScopedType =
   CollectionWithTenantField[CollectionTenantScopedSlug];
 
+/** Tenants array field item type */
+export type TenantsArrayFieldItem = NonNullable<TenantsArrayField>[number];
+
+/** Tenant role type */
 export type TenantRole = NonNullable<TenantsArrayField>[number]['role'];
 
 /** User type that can be any of the user types defined by Payload */
@@ -123,3 +137,45 @@ export type NavigationReferenceCollection = NonNullable<
 export type SocialMediaBlockSocial = NonNullable<
   NonNullable<SocialMediaBlock['social']>[number]
 >;
+
+/**
+ * Tenant runtime configuration type.
+ *
+ * Containes tenant-specific details that must be determined at runtime during bootstrap,
+ * before fetching any tenant-scoped collection data using the proper locale.
+ */
+export type TenantRuntimeConfig = {
+  tenant: Tenant;
+  appName: string;
+  locale: TypedLocale;
+  fallbackLocale: TypedFallbackLocale;
+  landingPage: TypeWithID & {
+    collection: Extract<CollectionSlug, 'pages'>;
+  };
+};
+
+//
+// Rest API utility types until we implement the official Payload SDK
+//
+
+/** REST API supported request methods */
+export type RestApiMethod = 'GET' | 'POST';
+
+/** REST API target endpoints */
+export type RestApiTarget = CollectionSlug | CustomApiEndpoint;
+
+/** REST API targets with corresponding Payload types */
+export type RestApiTypes = CollectionWithoutPayload &
+  Record<'tenant-config', TenantRuntimeConfig>;
+
+/** REST API expected responses for the given method and target */
+export type RestApiResponse<
+  Method extends RestApiMethod,
+  Target extends RestApiTarget
+> = Target extends 'tenant-config'
+  ? RestApiTypes[Target]
+  : Method extends 'GET'
+    ? {
+        docs: Array<RestApiTypes[Target]>;
+      }
+    : RestApiTypes[Target];

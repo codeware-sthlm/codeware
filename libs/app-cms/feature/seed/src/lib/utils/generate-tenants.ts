@@ -18,16 +18,15 @@ export const generateTenants = (
   }).reduce(
     (tenants, apiKey) => {
       const name = randCompanyName();
-      const slug = name.split(/[\s,]/).at(0)?.toLowerCase();
+      const slug = name.toLowerCase().replace(/\s+/g, '-');
 
       tenants.push({
         name,
+        slug,
         description: randSentence(),
-        domains: [
-          { domain: `${slug}.localhost`, pageTypes: ['client'] },
-          { domain: `cms.${slug}.localhost`, pageTypes: ['cms'] }
-        ],
-        apiKey: apiKey
+        apiKey: apiKey,
+        locale: 'en',
+        supportedLocales: ['en', 'sv']
       });
 
       return tenants;

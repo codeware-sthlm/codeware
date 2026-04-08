@@ -12,8 +12,6 @@ import { getActiveKeys } from '@codeware/shared/util/pure';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
-import { updatePublishedAtHook } from './hooks/update-published-at.hook';
-
 /**
  * Define which blocks are available for the rich text editor.
  */
@@ -94,10 +92,6 @@ const posts: CollectionConfig<'posts'> = {
               localized: true,
               required: true,
               admin: {
-                description: {
-                  en: 'The main content of the article.',
-                  sv: 'Artikelns huvudinnehåll.'
-                },
                 disableListColumn: true,
                 disableListFilter: true
               }
@@ -105,7 +99,7 @@ const posts: CollectionConfig<'posts'> = {
           ]
         },
         {
-          label: 'Meta',
+          label: { en: 'Meta', sv: 'Metadata' },
           fields: [
             {
               name: 'relatedPosts',
@@ -133,18 +127,6 @@ const posts: CollectionConfig<'posts'> = {
         },
         seoTab
       ]
-    },
-    {
-      name: 'publishedAt',
-      label: { en: 'Published At', sv: 'Publiceras' },
-      type: 'date',
-      admin: {
-        date: { pickerAppearance: 'dayAndTime' },
-        position: 'sidebar'
-      },
-      hooks: {
-        beforeChange: [updatePublishedAtHook]
-      }
     },
     {
       name: 'authors',

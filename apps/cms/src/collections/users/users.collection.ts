@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload';
+import { CollectionConfig, Condition } from 'payload';
 
 import {
   systemUserAccess,
@@ -6,11 +6,37 @@ import {
 } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
+import { getId, getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
+import { User } from '@codeware/shared/util/payload-types';
 
 import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
 import { tenantsArrayField } from './fields/tenants-array.field';
 import { ensureTenantHook } from './hooks/ensure-tenant.hook';
-import { verifyDomainAccessHook } from './hooks/verify-domain-access.hook';
+import { validateTenantsArrayAccessHook } from './hooks/validate-tenants-array-access.hook';
+import { verifyTenantModeAccessHook } from './hooks/verify-tenant-mode-access.hook';
+
+/**
+ * Condition function to determine whether the Workspaces tab should be shown in the admin UI for a user document.
+ */
+const showWorkspacesTab: Condition<User> = (data, _, { user }) => {
+  // System users editing: always show (for system user documents, hide is handled by role check)
+  if (hasRole(user, 'system-user')) {
+    // But hide for system-user documents as they don't have tenants
+    return data?.role !== 'system-user';
+  }
+
+  // If no tenants data yet (new user), show the tab
+  if (!data?.tenants?.length) {
+    return true;
+  }
+
+  // For tenant admins: only show if they are admin of ALL tenants in this user
+  const userAdminTenantIds = getUserTenantIDs(user, 'admin');
+  const docTenantIds = data.tenants.map((t) => getId(t.tenant)).filter(Boolean);
+
+  // Show tab only if user is admin of all tenants
+  return docTenantIds.every((id) => userAdminTenantIds.includes(id));
+};
 
 /**
  * Users collection
@@ -33,14 +59,15 @@ const users: CollectionConfig<'users'> = {
   },
   hooks: {
     beforeValidate: [ensureTenantHook],
-    afterLogin: [verifyDomainAccessHook]
+    beforeChange: [validateTenantsArrayAccessHook],
+    afterLogin: [verifyTenantModeAccessHook]
   },
   fields: [
     {
       type: 'tabs',
       tabs: [
         {
-          label: { en: 'User', sv: 'Användare' },
+          label: { en: 'Generic', sv: 'Allmänt' },
           fields: [
             {
               name: 'name',
@@ -78,7 +105,10 @@ const users: CollectionConfig<'users'> = {
         },
         {
           label: { en: 'Workspaces', sv: 'Arbetsytor' },
-          fields: [tenantsArrayField()]
+          fields: [tenantsArrayField()],
+          admin: {
+            condition: showWorkspacesTab
+          }
         }
       ]
     },

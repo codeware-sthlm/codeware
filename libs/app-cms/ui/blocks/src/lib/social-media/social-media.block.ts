@@ -1,4 +1,5 @@
 import { enumName } from '@codeware/app-cms/util/db';
+import { customT } from '@codeware/app-cms/util/i18n';
 import { type Platform, socialIconsMap } from '@codeware/shared/ui/primitives';
 import type {
   SocialMediaBlock,
@@ -54,6 +55,10 @@ const phonePattern = /^\+?[\d\s\-()]+$/;
 export const socialMediaBlock: Block = {
   slug: 'social-media',
   interfaceName: 'SocialMediaBlock',
+  labels: {
+    plural: { en: 'Social Media', sv: 'Sociala Medier' },
+    singular: { en: 'Social Media', sv: 'Sociala Media' }
+  },
   fields: [
     {
       name: 'social',
@@ -88,7 +93,7 @@ export const socialMediaBlock: Block = {
             {
               name: 'email',
               type: 'email',
-              label: 'Email',
+              label: { en: 'Email', sv: 'E-post' },
               admin: {
                 width: '50%',
                 condition: matchPlatform('email')
@@ -103,7 +108,7 @@ export const socialMediaBlock: Block = {
                 width: '50%',
                 condition: matchPlatform('phone')
               },
-              validate: (value) => {
+              validate: (value, { req: { t } }) => {
                 const stringValue =
                   typeof value === 'string'
                     ? value
@@ -116,8 +121,8 @@ export const socialMediaBlock: Block = {
                   !!stringValue &&
                   hasMinLength &&
                   !!stringValue.match(phonePattern);
-                // TODO: Language support
-                return isValid ? true : 'Please enter a valid phone number';
+
+                return isValid ? true : customT(t)('validation:phoneNumber');
               },
               hasMany: false, // infer correct validate type
               required: true
@@ -125,7 +130,7 @@ export const socialMediaBlock: Block = {
             {
               name: 'url',
               type: 'text',
-              label: 'URL',
+              label: { en: 'URL', sv: 'URL' },
               admin: {
                 width: '50%',
                 condition: matchPlatform('url')

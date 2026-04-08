@@ -46,10 +46,19 @@ const inlineBlocks: Record<BlockSlug, boolean> = {
 export const contentBlock: Block = {
   slug: 'content',
   interfaceName: 'ContentBlock',
+  labels: {
+    singular: { en: 'Content', sv: 'Innehåll' },
+    plural: { en: 'Content', sv: 'Innehåll' }
+  },
   fields: [
     {
       name: 'columns',
       type: 'array',
+      label: false,
+      labels: {
+        singular: { en: 'Column', sv: 'Kolumn' },
+        plural: { en: 'Columns', sv: 'Kolumner' }
+      },
       admin: {
         initCollapsed: true
       },
@@ -57,6 +66,7 @@ export const contentBlock: Block = {
         {
           name: 'size',
           type: 'select',
+          label: { en: 'Width', sv: 'Bredd' },
           defaultValue: 'full',
           enumName: enumName('content_column_size'),
           options: [
@@ -73,7 +83,7 @@ export const contentBlock: Block = {
               value: 'two-thirds'
             },
             {
-              label: { en: 'Full', sv: 'Hela' },
+              label: { en: 'Full', sv: 'Fullbredd' },
               value: 'full'
             }
           ]
@@ -92,11 +102,16 @@ export const contentBlock: Block = {
               ];
             }
           }),
-          label: false
+          label: false,
+          localized: true
         },
         {
           name: 'blocks',
           type: 'blocks',
+          labels: {
+            singular: { en: 'Block', sv: 'Block' },
+            plural: { en: 'Blocks', sv: 'Block' }
+          },
           blockReferences: getActiveKeys<BlockSlug>(inlineBlocks),
           blocks: [],
           label: false

@@ -67,18 +67,14 @@ export function createPayloadTargets(args: {
         description: `${dxPrefix} - Start a Mongo database in Docker container`,
         technologies: ['docker']
       },
-      command: `docker ps -q -f name=mongodb-${projectName} | grep . && echo '[Running] mongodb is already started' || docker run --name mongodb-${projectName} --rm -d -p 27017:27017 mongo`
+      command: `(docker ps -q -f name=^mongodb-${projectName}$ | grep -q . || docker run --name mongodb-${projectName} --rm -d -p 27017:27017 mongo) && until docker exec mongodb-${projectName} mongosh --quiet --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do sleep 1; done`
     },
     'dx:postgres': {
       metadata: {
         description: `${dxPrefix} - Start a Postgres database in Docker container`,
         technologies: ['docker']
       },
-      executor: 'nx:run-commands',
-      options: {
-        command: `docker ps -q -f name=postgres-${projectName} | grep . && echo '[Running] PostgreSQL init process complete' || docker run --name postgres-${projectName} --rm --env-file ${projectRoot}/.env.local -p 5432:5432 postgres`,
-        readyWhen: 'PostgreSQL init process complete'
-      } satisfies Partial<RunCommandsOptions>
+      command: `(docker ps -q -f name=^postgres-${projectName}$ | grep -q . || docker run --name postgres-${projectName} --rm -d --env-file ${projectRoot}/.env.local -p 5432:5432 postgres) && until docker exec postgres-${projectName} pg_isready -q; do sleep 1; done`
     },
     'dx:start': {
       metadata: {

@@ -8,6 +8,10 @@ import type { Block } from 'payload';
 export const videoBlock: Block = {
   slug: 'video',
   interfaceName: 'VideoBlock',
+  labels: {
+    plural: { en: 'Videos', sv: 'Videor' },
+    singular: { en: 'Video', sv: 'Video' }
+  },
   fields: [
     {
       name: 'media',

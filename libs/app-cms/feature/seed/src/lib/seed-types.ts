@@ -6,6 +6,7 @@ import type {
   UserLookup
 } from '@codeware/shared/util/seed';
 import type { Prettify } from '@codeware/shared/util/typesafe';
+import type { TypedLocale } from 'payload';
 
 import type { CategoryData } from './local-api/ensure-category';
 import type { MediaData } from './local-api/ensure-media';
@@ -53,10 +54,14 @@ type UserDataLookup = Prettify<
   Omit<UserData, 'tenants' | 'password'> & {
     tenants: Array<TenantLookup>;
     password: string;
+    locale: TypedLocale;
   }
 >;
-type TenantDataLookup = Prettify<
-  Omit<TenantData, 'apiKey'> & { apiKey: string }
+export type TenantDataLookup = Prettify<
+  Omit<TenantData, 'apiKey'> & {
+    apiKey: string;
+    locale: TypedLocale;
+  }
 >;
 
 // TODO: infer from seedDataSchema when it's refactored

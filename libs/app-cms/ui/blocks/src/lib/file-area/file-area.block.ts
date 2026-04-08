@@ -9,6 +9,10 @@ import { composeFilesHook } from './compose-files-field.hook';
 export const fileAreaBlock: Block = {
   slug: 'file-area',
   interfaceName: 'FileAreaBlock',
+  labels: {
+    plural: { en: 'File Areas', sv: 'Filytor' },
+    singular: { en: 'File Area', sv: 'Filyta' }
+  },
   fields: [
     {
       name: 'tags',

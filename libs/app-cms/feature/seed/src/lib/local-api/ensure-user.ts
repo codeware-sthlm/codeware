@@ -1,5 +1,5 @@
 import type { User } from '@codeware/shared/util/payload-types';
-import type { Payload } from 'payload';
+import type { Payload, TypedLocale } from 'payload';
 
 export type UserData = Pick<
   User,
@@ -10,15 +10,16 @@ export type UserData = Pick<
  * Ensure that a user exist with the given email.
  *
  * @param payload - Payload instance
- * @param transactionID - Transaction ID when supported by the database
  * @param data - User data
+ * @param options - Seed options
  * @returns The user ID if exists or created, otherwise undefined
  */
 export async function ensureUser(
   payload: Payload,
-  transactionID: string | number | undefined,
-  data: UserData
+  data: UserData,
+  options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<User | number> {
+  const { locale, transactionID } = options;
   const { description, email, name, password, role, tenants } = data;
 
   // Check if the user exists with the given email
@@ -48,6 +49,7 @@ export async function ensureUser(
       role,
       tenants
     },
+    locale,
     // Provide context to ensureTenantHook to allow empty tenants array
     context: { seedAction: true },
     req: { transactionID }

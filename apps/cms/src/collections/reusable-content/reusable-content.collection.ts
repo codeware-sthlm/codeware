@@ -50,17 +50,21 @@ const reusableContent: CollectionConfig = {
       label: { en: 'Title', sv: 'Titel' },
       type: 'text',
       required: true,
-      localized: true,
       admin: {
         description: {
-          en: 'What is the reusable content about?',
-          sv: 'Vad handlar det återanvändbara elementet om?'
+          en: 'What is the reusable content about? This is just an internal help text to keep the content organized.',
+          sv: 'Vad handlar det återanvändbara elementet om? Detta är bara en intern hjälptext för att hålla ordning på innehållet.'
         }
       }
     },
     {
       name: 'layout',
       type: 'blocks',
+      label: { en: 'Layout builder', sv: 'Innehållsbyggaren' },
+      labels: {
+        singular: { en: 'block', sv: 'block' },
+        plural: { en: 'blocks', sv: 'block' }
+      },
       blockReferences: getActiveKeys<BlockSlug>(blocks),
       blocks: [],
       required: true

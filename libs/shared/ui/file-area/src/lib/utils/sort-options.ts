@@ -1,40 +1,41 @@
-import { Calendar, FileUp, SortAsc, SortDesc } from 'lucide-react';
+import type { TranslationKey } from '@codeware/shared/util/i18n';
+import { Calendar, FileDown, FileUp, SortAsc, SortDesc } from 'lucide-react';
 
 import type { SortOption } from '../types';
 
 export const sortOptions: Array<{
   value: SortOption;
-  label: string;
+  translationKey: TranslationKey;
   Icon: React.ElementType;
 }> = [
   {
     value: 'nameAsc',
-    label: 'Name (A-Z)',
+    translationKey: 'fileArea.sortNameAsc',
     Icon: SortAsc
   },
   {
     value: 'nameDesc',
-    label: 'Name (Z-A)',
+    translationKey: 'fileArea.sortNameDesc',
     Icon: SortDesc
   },
   {
     value: 'dateNewest',
-    label: 'Newest first',
+    translationKey: 'fileArea.sortDateNewest',
     Icon: Calendar
   },
   {
     value: 'dateOldest',
-    label: 'Oldest first',
+    translationKey: 'fileArea.sortDateOldest',
     Icon: Calendar
   },
   {
     value: 'sizeSmallest',
-    label: 'Size (smallest)',
+    translationKey: 'fileArea.sortSizeSmallest',
     Icon: FileUp
   },
   {
     value: 'sizeLargest',
-    label: 'Size (largest)',
-    Icon: FileUp
+    translationKey: 'fileArea.sortSizeLargest',
+    Icon: FileDown
   }
 ];

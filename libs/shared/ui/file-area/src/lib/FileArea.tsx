@@ -8,11 +8,12 @@ import type { FileItem } from './types';
 
 type FileAreaProps = {
   files: Array<FileItem>;
+  locale?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const FileArea = ({ className, files }: FileAreaProps) => {
+export const FileArea = ({ className, files, locale }: FileAreaProps) => {
   return (
-    <FileAreaProvider files={files}>
+    <FileAreaProvider files={files} locale={locale}>
       <div className={cn('flex w-full flex-col', className)}>
         <Toolbar />
         <RenderFiles />

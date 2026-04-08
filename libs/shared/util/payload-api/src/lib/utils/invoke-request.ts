@@ -1,38 +1,62 @@
 import type {
-  CollectionSlug,
-  CollectionWithoutPayload
+  RestApiResponse,
+  RestApiTarget,
+  RestApiTypes
 } from '@codeware/shared/util/payload-types';
 
 import { createRequestInit } from './create-request-init';
 import { getDepth } from './get-depth';
-import type { RequestMethod, RequestOptions } from './types';
+import type { RequestOptions } from './types';
 
-type FetchResponse<
-  T extends RequestMethod,
-  C extends CollectionSlug
-> = T extends 'GET'
-  ? {
-      docs: Array<CollectionWithoutPayload[C]>;
-    }
-  : CollectionWithoutPayload[C];
-
-const collectionApiUrl = (apiUrl: string, collection: CollectionSlug) =>
-  `${apiUrl}/api/${collection}`;
+const getEndpointUrl = (apiUrl: string, target: RestApiTarget) =>
+  `${apiUrl}/api/${target}`;
 
 /**
  * Invoke a Payload REST API request with optional
  * API key authorization and signature verification.
  *
- * @param collection - The collection to invoke the request on.
+ * @param target - The collection or endpoint to invoke the request on.
  * @param options - The options to invoke the request with.
  * @returns The response from the request (`null` is returned when the request is not found) or an error message.
  */
-export async function invokeRequest<TCollection extends CollectionSlug>(
-  collection: TCollection,
+export async function invokeRequest<Target extends 'tenant-config'>(
+  target: Target,
   options: RequestOptions
 ): Promise<
   | {
-      data: Array<CollectionWithoutPayload[TCollection]> | null;
+      data: RestApiTypes[Target] | null;
+      count: number;
+      status: number;
+    }
+  | {
+      error: string;
+      status: number;
+    }
+>;
+
+export async function invokeRequest<
+  Target extends Exclude<RestApiTarget, 'tenant-config'>
+>(
+  target: Target,
+  options: RequestOptions
+): Promise<
+  | {
+      data: Array<RestApiTypes[Target]> | null;
+      count: number;
+      status: number;
+    }
+  | {
+      error: string;
+      status: number;
+    }
+>;
+export async function invokeRequest<Target extends RestApiTarget>(
+  target: Target,
+  options: RequestOptions
+): Promise<
+  | {
+      data: RestApiTypes[Target] | Array<RestApiTypes[Target]> | null;
+      count: number;
       status: number;
     }
   | {
@@ -44,6 +68,7 @@ export async function invokeRequest<TCollection extends CollectionSlug>(
     apiUrl,
     debug,
     headers,
+    locale,
     method,
     requestCredentials,
     signatureVertification,
@@ -62,14 +87,15 @@ export async function invokeRequest<TCollection extends CollectionSlug>(
     method === 'GET'
       ? [
           options.query,
-          `depth=${getDepth(collection, options)}`,
+          `depth=${getDepth(target, options)}`,
+          `locale=${locale}`,
           options.limit ? `limit=${options.limit ?? 0}` : ''
         ]
           .filter(Boolean)
           .join('&')
       : '';
 
-  const requestUrl = `${collectionApiUrl(apiUrl, collection)}${queryParams ? `?${queryParams}` : ''}`;
+  const requestUrl = `${getEndpointUrl(apiUrl, target)}${queryParams ? `?${queryParams}` : ''}`;
 
   // Apply POST body to request init
   requestInit.body =
@@ -101,18 +127,40 @@ export async function invokeRequest<TCollection extends CollectionSlug>(
 
   const res = await response.json();
 
+  type SuccessReturn = {
+    data: RestApiTypes[Target] | Array<RestApiTypes[Target]> | null;
+    count: number;
+    status: number;
+  };
+
   // GET response
-  if (method === 'GET') {
-    const { docs } = res as FetchResponse<'GET', TCollection>;
+  if (method === 'GET' && target === 'tenant-config') {
+    const typedRes = res as RestApiResponse<'GET', 'tenant-config'>;
     return {
-      data: docs ?? null,
+      data: typedRes ?? null,
+      count: typedRes ? 1 : 0,
       status: response.status
+    } as SuccessReturn;
+  }
+  if (method === 'GET') {
+    const typedRes = res as RestApiResponse<'GET', Target>;
+    if ('docs' in typedRes) {
+      return {
+        data: typedRes.docs ?? null,
+        count: typedRes.docs?.length ?? 0,
+        status: response.status
+      } as SuccessReturn;
+    }
+    return {
+      error: `Invalid response format, expecting docs for GET ${target}`,
+      status: 500
     };
   }
 
   // POST response
   return {
-    data: res ? [res as FetchResponse<'POST', TCollection>] : null,
+    data: res ? [res as RestApiResponse<'POST', Target>] : null,
+    count: res ? 1 : 0,
     status: response.status
-  };
+  } as SuccessReturn;
 }

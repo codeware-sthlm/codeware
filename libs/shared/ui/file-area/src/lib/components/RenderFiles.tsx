@@ -1,3 +1,4 @@
+import { t } from '@codeware/shared/util/i18n';
 import { FileText } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -12,7 +13,7 @@ import { ListViewItem } from './ListViewItem';
  * Renders the files in the file area.
  */
 export const RenderFiles = () => {
-  const { files, viewMode, sortOption, searchQuery } = useFileArea();
+  const { files, locale, viewMode, sortOption, searchQuery } = useFileArea();
 
   const processedFiles = useMemo(
     () => sortFiles(filterFiles(files, searchQuery), sortOption),
@@ -23,7 +24,7 @@ export const RenderFiles = () => {
     return (
       <div className="flex flex-col items-center justify-center gap-3 p-16 text-center">
         <FileText className="size-8" />
-        <h3 className="text-lg">No files</h3>
+        <h3 className="text-lg">{t(locale, 'fileArea.noFiles')}</h3>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 'use client';
 
+import { t } from '@codeware/shared/util/i18n';
 import { cn } from '@codeware/shared/util/ui';
 import { MonitorIcon, MoonStarIcon, SunIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -35,7 +36,7 @@ function getThemeIcon(
  * Uses PayloadProvider for theme state and updates.
  */
 export function ThemeSwitch() {
-  const { theme, setTheme } = usePayload();
+  const { theme, setTheme, locale } = usePayload();
   const [mounted, setMounted] = useState(false);
 
   // useEffect only runs on the client, so now we can safely show the UI
@@ -60,9 +61,10 @@ export function ThemeSwitch() {
   const nextTheme = getNextTheme(currentTheme);
   const icon = getThemeIcon(currentTheme);
 
-  const getThemeLabel = (t: 'light' | 'dark' | 'system'): string => {
-    if (t === 'system') return 'system preference';
-    return t;
+  const getThemeLabel = (theme: 'light' | 'dark' | 'system'): string => {
+    if (theme === 'system') return t(locale, 'theme.system');
+    if (theme === 'dark') return t(locale, 'theme.dark');
+    return t(locale, 'theme.light');
   };
 
   return (
@@ -70,11 +72,16 @@ export function ThemeSwitch() {
       type="button"
       onClick={() => setTheme(nextTheme)}
       className="group bg-core-action-btn-background shadow-core-action-btn-shadow ring-core-action-btn-border hover:ring-core-action-btn-border-hover rounded-full px-3 py-2 shadow-lg ring-1 backdrop-blur transition"
-      aria-label={`Switch to ${getThemeLabel(nextTheme)} theme`}
-      title={`Current: ${getThemeLabel(currentTheme)}, click for ${getThemeLabel(nextTheme)}`}
+      aria-label={t(locale, 'theme.switchTo', {
+        theme: getThemeLabel(nextTheme)
+      })}
+      title={t(locale, 'theme.currentClickFor', {
+        current: getThemeLabel(currentTheme),
+        next: getThemeLabel(nextTheme)
+      })}
     >
       {icon}
-      <span className="sr-only capitalize">{currentTheme}</span>
+      <span className="sr-only capitalize">{getThemeLabel(currentTheme)}</span>
     </button>
   );
 }

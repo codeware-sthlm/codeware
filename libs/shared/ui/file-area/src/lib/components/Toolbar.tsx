@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger
 } from '@codeware/shared/ui/shadcn/components/dropdown-menu';
 import { Input } from '@codeware/shared/ui/shadcn/components/input';
+import { t } from '@codeware/shared/util/i18n';
 import { Grid, List, Search, SortAsc } from 'lucide-react';
 
 import { useFileArea } from '../FileAreaContext';
@@ -16,6 +17,7 @@ import { sortOptions } from '../utils/sort-options';
  */
 export const Toolbar = () => {
   const {
+    locale,
     viewMode,
     setViewMode,
     sortOption,
@@ -24,8 +26,15 @@ export const Toolbar = () => {
     setSearchQuery
   } = useFileArea();
 
+  const SortIcon =
+    sortOptions.find(({ value }) => value === sortOption)?.Icon || SortAsc;
+
   const getSortLabel = () =>
-    sortOptions.find((option) => option.value === sortOption)?.label || 'Sort';
+    t(
+      locale,
+      sortOptions.find((option) => option.value === sortOption)
+        ?.translationKey ?? 'fileArea.sort'
+    );
 
   return (
     <div className="border-b pb-4">
@@ -35,7 +44,7 @@ export const Toolbar = () => {
           <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2 transform" />
           <Input
             type="text"
-            placeholder="Search..."
+            placeholder={t(locale, 'fileArea.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9"
@@ -51,19 +60,19 @@ export const Toolbar = () => {
                 size="sm"
                 className="flex items-center gap-1"
               >
-                <SortAsc className="mr-1 size-4" />
+                <SortIcon className="mr-1 size-4" />
                 <span className="hidden sm:inline">{getSortLabel()}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {sortOptions.map(({ Icon, label, value }) => (
+              {sortOptions.map(({ Icon, translationKey, value }) => (
                 <DropdownMenuItem
                   key={value}
                   onClick={() => setSortOption(value)}
                   className="flex items-center"
                 >
                   <Icon className="size-4" />
-                  {label}
+                  {t(locale, translationKey)}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

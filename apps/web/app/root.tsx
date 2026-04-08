@@ -5,11 +5,11 @@ import {
 import { CdwrCloud } from '@codeware/shared/ui/primitives';
 import {
   type NavigationItem,
-  getNavigationTree,
-  getSiteSettings
+  findById,
+  getNavigationTree
 } from '@codeware/shared/util/payload-api';
-import type { SiteSetting } from '@codeware/shared/util/payload-types';
-import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node';
+import { Page } from '@codeware/shared/util/payload-types';
+import type { LinksFunction } from '@remix-run/node';
 import {
   Link,
   Links,
@@ -35,6 +35,7 @@ import stylesheet from './tailwind.css?url';
 import { ClientHintCheck, getHints } from './utils/client-hints';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
 import { type Theme, getTheme } from './utils/theme.server';
+import { TypedLoaderFunctionArgs } from './utils/types';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -50,26 +51,41 @@ export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet }
 ];
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: TypedLoaderFunctionArgs) {
   /** Error message to display to the user when we have e.g. API issues */
   let loaderErrorMessage = '';
 
   try {
     // Get the theme before fetching pages in case it fails
     const theme = await getTheme(request);
+    const tenantConfig = context.tenantConfig;
 
+    let landingPage: Page | null = null;
     let navigationTree: Array<NavigationItem> = [];
-    let siteSettings: SiteSetting | null = null;
 
     // Fetch layout data but don't propagate the exception to the error boundary
     try {
+      if (!tenantConfig) {
+        throw new Error('No tenant configuration available in loader context');
+      }
+
+      // Fetch landing page and navigation tree with proper locale
       const requestOptions = getPayloadRequestOptions(
         'GET',
         context,
         request.headers
       );
-      navigationTree = await getNavigationTree(requestOptions);
-      siteSettings = await getSiteSettings(requestOptions);
+      const response = await Promise.all([
+        findById(
+          tenantConfig.landingPage.collection,
+          tenantConfig.landingPage.id,
+          requestOptions
+        ),
+        getNavigationTree(requestOptions)
+      ]);
+
+      landingPage = response[0];
+      navigationTree = response[1];
     } catch (e) {
       const error = e as Error;
       console.error(`Failed to load data: ${error.message}`);
@@ -80,15 +96,17 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     return json({
       env,
       loaderErrorMessage,
+      landingPage,
       navigationTree,
       requestInfo: {
         hints: getHints(request),
         path: new URL(request.url).pathname,
         userPrefs: {
+          locale: context.tenantConfig?.locale ?? 'en',
           theme: theme
         }
       },
-      siteSettings
+      tenantConfig
     });
   } catch (error) {
     console.error('Failed to load root data:\n', error);
@@ -99,13 +117,15 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
 function Document({
   children,
+  lang,
   theme = 'light'
 }: {
   children: React.ReactNode;
+  lang: string;
   theme?: Theme;
 }) {
   return (
-    <html lang="en" className={theme}>
+    <html lang={lang} className={theme}>
       <head>
         <ClientHintCheck />
         <meta charSet="utf-8" />
@@ -124,7 +144,14 @@ function Document({
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
-  return <Document theme={theme}>{children}</Document>;
+  const loaderData = useLoaderData<typeof loader>();
+  const lang = loaderData.requestInfo.userPrefs.locale;
+
+  return (
+    <Document theme={theme} lang={lang}>
+      {children}
+    </Document>
+  );
 }
 
 export default function App() {
@@ -178,7 +205,8 @@ export default function App() {
         };
       }
     },
-    theme
+    theme,
+    locale: loaderData.requestInfo.userPrefs.locale
   };
 
   return (

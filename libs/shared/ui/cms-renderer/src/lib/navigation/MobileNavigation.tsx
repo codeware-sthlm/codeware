@@ -1,5 +1,6 @@
 'use client';
 
+import { t } from '@codeware/shared/util/i18n';
 import type { NavigationItem } from '@codeware/shared/util/payload-api';
 import {
   Popover,
@@ -17,7 +18,7 @@ export function MobileNavigation({
 }: React.ComponentPropsWithoutRef<typeof Popover> & {
   navigationTree: NavigationItem[];
 }) {
-  const { getCurrentPath, navigate } = usePayload();
+  const { getCurrentPath, navigate, locale } = usePayload();
   const pathname = getCurrentPath();
 
   // Normalize pathname for comparison (remove trailing slashes)
@@ -33,7 +34,7 @@ export function MobileNavigation({
   return (
     <Popover {...props}>
       <PopoverButton className="group bg-core-navbar text-core-nav-link shadow-core-action-btn-shadow ring-core-action-btn-border hover:ring-core-action-btn-border-hover flex h-full items-center rounded-full object-contain px-4 py-2 text-sm font-medium shadow-lg ring-1 backdrop-blur">
-        Menu
+        {t(locale, 'navigation.menu')}
         <ChevronDownIcon className="stroke-core-nav-link/80 group-hover:stroke-core-nav-link ml-2 size-3" />
       </PopoverButton>
       <PopoverBackdrop
@@ -49,7 +50,9 @@ export function MobileNavigation({
           <PopoverButton aria-label="Close menu" className="-m-1 p-1">
             <XMarkIcon className="size-6 hover:cursor-pointer" />
           </PopoverButton>
-          <h2 className="text-sm font-medium">Navigation</h2>
+          <h2 className="text-sm font-medium">
+            {t(locale, 'navigation.title')}
+          </h2>
         </div>
         <nav className="mt-6">
           <ul className="text-core-nav-link -my-2">

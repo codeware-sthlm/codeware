@@ -1,7 +1,8 @@
+import type { RestApiMethod } from '@codeware/shared/util/payload-types';
 import { generateSignature } from '@codeware/shared/util/signature';
 
 import { apiKeyPrefix, authorizationHeader } from './definitions';
-import type { RequestInitOptions, RequestMethod } from './types';
+import type { RequestInitOptions } from './types';
 
 /**
  * Create request configuration for `fetch` requests.
@@ -9,7 +10,7 @@ import type { RequestInitOptions, RequestMethod } from './types';
  * Defaults to `'application/json'` content type when not provided in the `headers` option.
  */
 export const createRequestInit = (
-  method: RequestMethod,
+  method: RestApiMethod,
   options: RequestInitOptions
 ): RequestInit => {
   const { headers, requestCredentials, signatureVertification, tenantApiKey } =

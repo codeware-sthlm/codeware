@@ -83,6 +83,7 @@ export function RenderLayout({ children, navigationTree }: RenderLayoutProps) {
                   />
                   <DesktopNavigation
                     navigationTree={navigationTree}
+                    aria-label="Main"
                     className="pointer-events-auto hidden md:block"
                   />
                 </div>

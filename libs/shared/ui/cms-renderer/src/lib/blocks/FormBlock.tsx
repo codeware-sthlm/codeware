@@ -13,6 +13,7 @@ import {
   FormItem,
   FormMessage
 } from '@codeware/shared/ui/shadcn/components/form';
+import { t } from '@codeware/shared/util/i18n';
 import type {
   FormBlock as FormBlockProps,
   FormSubmissionData,
@@ -68,7 +69,7 @@ export const FormBlock: React.FC<Props> = ({
   });
 
   // Payload context
-  const { navigate, submitForm } = usePayload();
+  const { navigate, submitForm, locale } = usePayload();
 
   // Control loading state and open confirmation dialog
   const [isLoading, setIsLoading] = useState(false);
@@ -106,7 +107,7 @@ export const FormBlock: React.FC<Props> = ({
 
           // Show error toast if response is not ok
           if (!success) {
-            toast.error('Form submission failed');
+            toast.error(t(locale, 'form.submitFailed'));
             return;
           }
 
@@ -154,15 +155,15 @@ export const FormBlock: React.FC<Props> = ({
 
           // Show success toast when user isn't confirmed at all
           if (!confirmed) {
-            toast.success('Form submitted successfully');
+            toast.success(t(locale, 'form.submitSuccess'));
           }
         } catch (err) {
           console.warn('Unknown error on form submission', err);
           setIsLoading(false);
 
           // Show error toast
-          toast.error('Form submission failed', {
-            description: 'Please try again.'
+          toast.error(t(locale, 'form.submitFailed'), {
+            description: t(locale, 'form.submitFailedDescription')
           });
         }
       };
@@ -304,7 +305,7 @@ export const FormBlock: React.FC<Props> = ({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Form submitted successfully</DialogTitle>
+            <DialogTitle>{t(locale, 'form.submitSuccess')}</DialogTitle>
             <DialogDescription />
           </DialogHeader>
           {confirmationMessage && <RichText data={confirmationMessage} />}

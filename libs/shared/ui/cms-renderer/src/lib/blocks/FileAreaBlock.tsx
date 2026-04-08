@@ -6,7 +6,7 @@ import { usePayload } from '../providers/PayloadProvider';
 type Props = FileAreaBlockProps;
 
 export const FileAreaBlock: React.FC<Props> = ({ files: filesFromProps }) => {
-  const { payloadUrl } = usePayload();
+  const { locale, payloadUrl } = usePayload();
 
   const files = (filesFromProps ?? [])
     .map(({ media }) => (media && typeof media === 'object' ? media : null))
@@ -20,5 +20,5 @@ export const FileAreaBlock: React.FC<Props> = ({ files: filesFromProps }) => {
       previewUrl: url?.startsWith('http') ? url : `${payloadUrl}/${url}`
     }));
 
-  return <FileArea files={files} />;
+  return <FileArea files={files} locale={locale} />;
 };

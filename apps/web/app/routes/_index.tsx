@@ -1,13 +1,19 @@
-import { RenderBlocks } from '@codeware/shared/ui/cms-renderer';
+import { RenderBlocks, usePayload } from '@codeware/shared/ui/cms-renderer';
+import { t } from '@codeware/shared/util/i18n';
 import { resolveMeta } from '@codeware/shared/util/payload-utils';
-import { type MetaFunction, useRouteError } from '@remix-run/react';
+import {
+  type MetaFunction,
+  useRouteError,
+  useRouteLoaderData
+} from '@remix-run/react';
 
 import { Container } from '../components/container';
 import { ErrorContainer } from '../components/error-container';
+import type { loader as rootLoader } from '../root';
 import { defaultAppName } from '../utils/default-app-name';
-import { ensurePayloadDoc } from '../utils/ensure-payload-doc';
-import { getSiteSettingsFromRoot } from '../utils/get-site-settings-from-root';
-import { useSiteSettings } from '../utils/use-site-settings';
+import { getLandingPageFromRoot } from '../utils/get-landing-page-from-root';
+import { getTenantConfigFromRoot } from '../utils/get-tenant-config-from-root';
+import { useLandingPage } from '../utils/use-landing-page';
 
 type LoaderError = {
   message: string;
@@ -15,18 +21,18 @@ type LoaderError = {
 };
 
 export const meta: MetaFunction = ({ matches }) => {
-  // Get site settings from root loader data
-  const siteSettings = getSiteSettingsFromRoot(matches);
-  const appName = siteSettings?.general?.appName ?? defaultAppName;
+  const landingPage = getLandingPageFromRoot(matches);
+  const tenantConfig = getTenantConfigFromRoot(matches);
 
-  const meta = resolveMeta(siteSettings);
+  const appName = tenantConfig?.appName ?? defaultAppName;
+  const meta = resolveMeta(landingPage);
 
   return [{ title: `${appName} - ${meta?.title ?? 'Home'}` }];
 };
 
 export default function Index() {
-  const settings = useSiteSettings();
-  const landingPage = ensurePayloadDoc(settings.landingPage);
+  const landingPage = useLandingPage();
+  const { locale } = usePayload();
 
   return (
     <Container className="mt-16 sm:mt-32">
@@ -42,11 +48,11 @@ export default function Index() {
           <RenderBlocks blocks={landingPage.layout} />
         ) : (
           <ErrorContainer
-            title="Landing page was not found"
+            title={t(locale, 'error.landingPageNotFound')}
             severity="info"
             withoutContainer={true}
           >
-            Please create a page in the CMS and assign it to be a landing page.
+            {t(locale, 'error.landingPageNotFoundDescription')}
           </ErrorContainer>
         )}
       </article>
@@ -56,10 +62,12 @@ export default function Index() {
 
 export function ErrorBoundary() {
   const error = useRouteError() as LoaderError;
+  const rootData = useRouteLoaderData<typeof rootLoader>('root');
+  const locale = rootData?.requestInfo.userPrefs.locale ?? 'en';
 
   return (
-    <ErrorContainer severity="error" stackTrace={error.message}>
-      The landing page could not be rendered.
+    <ErrorContainer locale={locale} severity="error" stackTrace={error.message}>
+      {t(locale, 'error.landingPageRenderFailed')}
     </ErrorContainer>
   );
 }

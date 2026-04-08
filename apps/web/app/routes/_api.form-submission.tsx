@@ -1,13 +1,14 @@
 import { post } from '@codeware/shared/util/payload-api';
 import type { FormSubmission } from '@codeware/shared/util/payload-types';
-import { type ActionFunctionArgs, json } from '@remix-run/node';
+import { json } from '@remix-run/node';
 
 import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
+import type { TypedActionFunctionArgs } from '../utils/types';
 
 /**
  * Handle form submission requests to the Payload REST API.
  */
-export async function action({ context, request }: ActionFunctionArgs) {
+export async function action({ context, request }: TypedActionFunctionArgs) {
   if (request.method !== 'POST') {
     return json({ message: 'Method not allowed' }, { status: 405 });
   }

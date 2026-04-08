@@ -2,20 +2,18 @@
  * This is the entry point for the Node/Hono server aimed for production.
  */
 
-import { randomUUID } from 'crypto';
-
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
-import type { ServerBuild } from '@remix-run/node';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 
 // TODO: Zod types does not get inferred correctly since the schema depends on `@codeware/core/zod`
 // Something is different here since it works in the cms project
+import type { AppLoadContext } from './app/utils/types';
 import env from './env-resolver/env';
 import { debugHeadersMiddleware } from './middlewares/debug-headers';
-import { resolveDevApiKey } from './middlewares/resolve-dev-api-key';
+import { resolveAppLoadContextMiddleware } from './middlewares/resolve-app-load-context.js';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -23,7 +21,7 @@ const noop = () => {};
 // Load the Remix server build
 const build = (await import(
   './build/server/index.js'
-)) as unknown as ServerBuild;
+)) as unknown as RemixMiddlewareOptions['build'];
 
 const app = new Hono()
   // Serve static files from Remix client build
@@ -33,18 +31,21 @@ const app = new Hono()
     '*',
     logger(env.DEBUG ? undefined : noop),
     debugHeadersMiddleware,
-    resolveDevApiKey,
+    resolveAppLoadContextMiddleware,
     remix({
       build,
       mode: env.NODE_ENV as RemixMiddlewareOptions['mode'],
       getLoadContext: (c) => {
-        return {
-          ...c.env,
-          deviceId: randomUUID(),
-          // Special handling in development, otherwise use environment variables
-          tenantApiKey: c.get('tenantApiKey') ?? env.PAYLOAD_API_KEY,
-          tenantId: c.get('tenantId') ?? env.TENANT_ID
-        };
+        const ctx = {
+          deviceId: c.get('deviceId'),
+          fallbackLocale: c.get('fallbackLocale'),
+          tenantApiKey: c.get('tenantApiKey'),
+          tenantId: c.get('tenantId'),
+          tenantConfig: c.get('tenantConfig')
+        } satisfies AppLoadContext;
+
+        console.log('[DEBUG] Context resolved:', ctx);
+        return ctx;
       }
     })
   );

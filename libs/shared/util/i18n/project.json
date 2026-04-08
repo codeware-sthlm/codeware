@@ -1,0 +1,8 @@
+{
+  "name": "shared-util-i18n",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/util/i18n/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:util"],
+  "targets": {}
+}

@@ -2,8 +2,6 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   CREATE SCHEMA IF NOT EXISTS "payload";
-
   CREATE TYPE "payload"."enum_site_settings_general_default_locale" AS ENUM('en', 'sv');
   CREATE TYPE "payload"."enum_tenant_supported_locales" AS ENUM('en', 'sv');
   CREATE TABLE "payload"."pages_blocks_card_cards_locales" (

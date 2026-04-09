@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
+  CREATE SCHEMA IF NOT EXISTS "payload";
   SET search_path TO "payload";
 
 DO $$ BEGIN

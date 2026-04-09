@@ -2,13 +2,14 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TYPE "payload"."enum_social_media_platform" AS ENUM('discord', 'facebook', 'github', 'instagram', 'linkedin', 'npm', 'web', 'x', 'youtube');
   CREATE TABLE IF NOT EXISTS "pages_blocks_social_media_social" (
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"platform" "enum_social_media_platform" NOT NULL,
+  	"platform" "payload"."enum_social_media_platform" NOT NULL,
   	"url" varchar NOT NULL
   );
 
@@ -16,7 +17,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"block_name" varchar
   );
@@ -25,7 +26,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"platform" "enum_social_media_platform" NOT NULL,
+  	"platform" "payload"."enum_social_media_platform" NOT NULL,
   	"url" varchar NOT NULL
   );
 
@@ -81,6 +82,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    DROP TABLE "pages_blocks_social_media_social" CASCADE;
   DROP TABLE "pages_blocks_social_media" CASCADE;
   DROP TABLE "reusable_content_blocks_social_media_social" CASCADE;

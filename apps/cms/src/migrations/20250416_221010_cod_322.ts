@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    ALTER TABLE "cards" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "cards_locales" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "cards_rels" DISABLE ROW LEVEL SECURITY;
@@ -83,16 +84,17 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TABLE IF NOT EXISTS "cards" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"tenant_id" integer,
   	"brand_icon" varchar,
   	"brand_color" varchar,
   	"enable_link" boolean,
-  	"link_type" "enum_link_type" DEFAULT 'reference',
+  	"link_type" "payload"."enum_link_type" DEFAULT 'reference',
   	"link_new_tab" boolean,
   	"link_url" varchar,
-  	"link_nav_trigger" "enum_nav_trigger" DEFAULT 'card',
+  	"link_nav_trigger" "payload"."enum_nav_trigger" DEFAULT 'card',
   	"slug" varchar,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
@@ -104,7 +106,7 @@ export async function down({
   	"content" varchar NOT NULL,
   	"link_label" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
   );
 

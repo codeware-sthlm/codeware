@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TYPE "payload"."enum_forms_blocks_checkbox_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
   CREATE TYPE "payload"."enum_forms_blocks_country_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
   CREATE TYPE "payload"."enum_forms_blocks_email_width" AS ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
@@ -15,7 +16,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"form_id" integer NOT NULL,
   	"enable_intro" boolean,
@@ -29,7 +30,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"name" varchar NOT NULL,
-  	"width" "enum_forms_blocks_checkbox_width" DEFAULT '12',
+  	"width" "payload"."enum_forms_blocks_checkbox_width" DEFAULT '12',
   	"required" boolean,
   	"default_value" boolean,
   	"block_name" varchar
@@ -38,7 +39,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE IF NOT EXISTS "forms_blocks_checkbox_locales" (
   	"label" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -48,7 +49,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"name" varchar NOT NULL,
-  	"width" "enum_forms_blocks_country_width" DEFAULT '12',
+  	"width" "payload"."enum_forms_blocks_country_width" DEFAULT '12',
   	"required" boolean,
   	"block_name" varchar
   );
@@ -57,7 +58,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"label" varchar,
   	"placeholder" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -67,7 +68,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"name" varchar NOT NULL,
-  	"width" "enum_forms_blocks_email_width" DEFAULT '12',
+  	"width" "payload"."enum_forms_blocks_email_width" DEFAULT '12',
   	"required" boolean,
   	"block_name" varchar
   );
@@ -76,7 +77,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"label" varchar,
   	"placeholder" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -91,7 +92,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE IF NOT EXISTS "forms_blocks_message_locales" (
   	"message" jsonb,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -101,7 +102,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"name" varchar NOT NULL,
-  	"width" "enum_forms_blocks_number_width" DEFAULT '12',
+  	"width" "payload"."enum_forms_blocks_number_width" DEFAULT '12',
   	"default_value" numeric,
   	"required" boolean,
   	"block_name" varchar
@@ -111,7 +112,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"label" varchar,
   	"placeholder" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -125,7 +126,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE IF NOT EXISTS "forms_blocks_select_options_locales" (
   	"label" varchar NOT NULL,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -135,7 +136,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"name" varchar NOT NULL,
-  	"width" "enum_forms_blocks_select_width" DEFAULT '12',
+  	"width" "payload"."enum_forms_blocks_select_width" DEFAULT '12',
   	"required" boolean,
   	"block_name" varchar
   );
@@ -145,7 +146,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"placeholder" varchar,
   	"default_value" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -155,7 +156,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"name" varchar NOT NULL,
-  	"width" "enum_forms_blocks_text_width" DEFAULT '12',
+  	"width" "payload"."enum_forms_blocks_text_width" DEFAULT '12',
   	"required" boolean,
   	"block_name" varchar
   );
@@ -165,7 +166,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"placeholder" varchar,
   	"default_value" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -175,7 +176,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"name" varchar NOT NULL,
-  	"width" "enum_forms_blocks_textarea_width" DEFAULT '12',
+  	"width" "payload"."enum_forms_blocks_textarea_width" DEFAULT '12',
   	"required" boolean,
   	"block_name" varchar
   );
@@ -185,7 +186,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"placeholder" varchar,
   	"default_value" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -204,7 +205,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"subject" varchar DEFAULT 'You''''ve received a new message.' NOT NULL,
   	"message" jsonb,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -212,8 +213,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"id" serial PRIMARY KEY NOT NULL,
   	"tenant_id" integer,
   	"title" varchar NOT NULL,
-  	"confirmation_type" "enum_forms_confirmation_type" DEFAULT 'message',
-  	"redirect_type" "enum_forms_redirect_type" DEFAULT 'reference',
+  	"confirmation_type" "payload"."enum_forms_confirmation_type" DEFAULT 'message',
+  	"redirect_type" "payload"."enum_forms_redirect_type" DEFAULT 'reference',
   	"redirect_url" varchar,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
@@ -223,7 +224,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"submit_button_label" varchar,
   	"confirmation_message" jsonb,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
   );
 
@@ -498,6 +499,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    ALTER TABLE "pages_blocks_form" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "forms_blocks_checkbox" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "forms_blocks_checkbox_locales" DISABLE ROW LEVEL SECURITY;

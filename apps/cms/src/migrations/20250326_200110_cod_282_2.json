@@ -4,9 +4,9 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.categories": {
+    "payload.categories": {
       "name": "categories",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -120,9 +120,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.categories_locales": {
+    "payload.categories_locales": {
       "name": "categories_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "name": {
           "name": "name",
@@ -139,7 +139,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -190,9 +190,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.media": {
+    "payload.media": {
       "name": "media",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -724,9 +724,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.media_locales": {
+    "payload.media_locales": {
       "name": "media_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "caption": {
           "name": "caption",
@@ -743,7 +743,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -794,9 +794,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages_blocks_content_columns": {
+    "payload.pages_blocks_content_columns": {
       "name": "pages_blocks_content_columns",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -813,7 +813,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -826,7 +826,7 @@
         "size": {
           "name": "size",
           "type": "enum_pages_blocks_content_columns_size",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'full'"
@@ -902,9 +902,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages_blocks_content": {
+    "payload.pages_blocks_content": {
       "name": "pages_blocks_content",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -927,7 +927,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -1023,9 +1023,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages_blocks_form": {
+    "payload.pages_blocks_form": {
       "name": "pages_blocks_form",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -1048,7 +1048,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -1186,9 +1186,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages_blocks_media": {
+    "payload.pages_blocks_media": {
       "name": "pages_blocks_media",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -1211,7 +1211,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -1337,9 +1337,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages_blocks_code": {
+    "payload.pages_blocks_code": {
       "name": "pages_blocks_code",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -1362,7 +1362,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -1375,7 +1375,7 @@
         "language": {
           "name": "language",
           "type": "enum_pages_blocks_code_language",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true,
           "default": "'ts'"
@@ -1472,9 +1472,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages": {
+    "payload.pages": {
       "name": "pages",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -1594,9 +1594,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages_locales": {
+    "payload.pages_locales": {
       "name": "pages_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "name": {
           "name": "name",
@@ -1638,7 +1638,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -1719,9 +1719,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.posts": {
+    "payload.posts": {
       "name": "posts",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -1871,9 +1871,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.posts_locales": {
+    "payload.posts_locales": {
       "name": "posts_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "title": {
           "name": "title",
@@ -1914,7 +1914,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -1995,9 +1995,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.posts_rels": {
+    "payload.posts_rels": {
       "name": "posts_rels",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -2178,9 +2178,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tenants_domains_page_types": {
+    "payload.tenants_domains_page_types": {
       "name": "tenants_domains_page_types",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "order": {
           "name": "order",
@@ -2197,7 +2197,7 @@
         "value": {
           "name": "value",
           "type": "enum_tenants_domains_page_types",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false
         },
@@ -2257,9 +2257,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tenants_domains": {
+    "payload.tenants_domains": {
       "name": "tenants_domains",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -2335,9 +2335,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tenants": {
+    "payload.tenants": {
       "name": "tenants",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -2450,9 +2450,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users_tenants": {
+    "payload.users_tenants": {
       "name": "users_tenants",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -2481,7 +2481,7 @@
         "role": {
           "name": "role",
           "type": "enum_users_tenants_role",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true,
           "default": "'user'"
@@ -2560,9 +2560,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
+    "payload.users": {
       "name": "users",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -2579,7 +2579,7 @@
         "role": {
           "name": "role",
           "type": "enum_users_role",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true,
           "default": "'user'"
@@ -2702,9 +2702,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_checkbox": {
+    "payload.forms_blocks_checkbox": {
       "name": "forms_blocks_checkbox",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -2739,7 +2739,7 @@
         "width": {
           "name": "width",
           "type": "enum_forms_blocks_checkbox_width",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'12'"
@@ -2827,9 +2827,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_checkbox_locales": {
+    "payload.forms_blocks_checkbox_locales": {
       "name": "forms_blocks_checkbox_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -2846,7 +2846,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -2897,9 +2897,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_country": {
+    "payload.forms_blocks_country": {
       "name": "forms_blocks_country",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -2934,7 +2934,7 @@
         "width": {
           "name": "width",
           "type": "enum_forms_blocks_country_width",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'12'"
@@ -3016,9 +3016,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_country_locales": {
+    "payload.forms_blocks_country_locales": {
       "name": "forms_blocks_country_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -3041,7 +3041,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -3092,9 +3092,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_email": {
+    "payload.forms_blocks_email": {
       "name": "forms_blocks_email",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -3129,7 +3129,7 @@
         "width": {
           "name": "width",
           "type": "enum_forms_blocks_email_width",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'12'"
@@ -3211,9 +3211,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_email_locales": {
+    "payload.forms_blocks_email_locales": {
       "name": "forms_blocks_email_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -3236,7 +3236,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -3287,9 +3287,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_message": {
+    "payload.forms_blocks_message": {
       "name": "forms_blocks_message",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -3386,9 +3386,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_message_locales": {
+    "payload.forms_blocks_message_locales": {
       "name": "forms_blocks_message_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "message": {
           "name": "message",
@@ -3405,7 +3405,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -3456,9 +3456,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_number": {
+    "payload.forms_blocks_number": {
       "name": "forms_blocks_number",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -3493,7 +3493,7 @@
         "width": {
           "name": "width",
           "type": "enum_forms_blocks_number_width",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'12'"
@@ -3581,9 +3581,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_number_locales": {
+    "payload.forms_blocks_number_locales": {
       "name": "forms_blocks_number_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -3606,7 +3606,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -3657,9 +3657,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_select_options": {
+    "payload.forms_blocks_select_options": {
       "name": "forms_blocks_select_options",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -3735,9 +3735,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_select_options_locales": {
+    "payload.forms_blocks_select_options_locales": {
       "name": "forms_blocks_select_options_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -3754,7 +3754,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -3805,9 +3805,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_select": {
+    "payload.forms_blocks_select": {
       "name": "forms_blocks_select",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -3842,7 +3842,7 @@
         "width": {
           "name": "width",
           "type": "enum_forms_blocks_select_width",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'12'"
@@ -3924,9 +3924,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_select_locales": {
+    "payload.forms_blocks_select_locales": {
       "name": "forms_blocks_select_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -3955,7 +3955,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -4006,9 +4006,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_text": {
+    "payload.forms_blocks_text": {
       "name": "forms_blocks_text",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -4043,7 +4043,7 @@
         "width": {
           "name": "width",
           "type": "enum_forms_blocks_text_width",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'12'"
@@ -4125,9 +4125,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_text_locales": {
+    "payload.forms_blocks_text_locales": {
       "name": "forms_blocks_text_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -4156,7 +4156,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -4207,9 +4207,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_textarea": {
+    "payload.forms_blocks_textarea": {
       "name": "forms_blocks_textarea",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -4244,7 +4244,7 @@
         "width": {
           "name": "width",
           "type": "enum_forms_blocks_textarea_width",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'12'"
@@ -4326,9 +4326,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_blocks_textarea_locales": {
+    "payload.forms_blocks_textarea_locales": {
       "name": "forms_blocks_textarea_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "label": {
           "name": "label",
@@ -4357,7 +4357,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -4408,9 +4408,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_emails": {
+    "payload.forms_emails": {
       "name": "forms_emails",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -4510,9 +4510,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_emails_locales": {
+    "payload.forms_emails_locales": {
       "name": "forms_emails_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "subject": {
           "name": "subject",
@@ -4536,7 +4536,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -4587,9 +4587,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms": {
+    "payload.forms": {
       "name": "forms",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -4612,7 +4612,7 @@
         "confirmation_type": {
           "name": "confirmation_type",
           "type": "enum_forms_confirmation_type",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'message'"
@@ -4620,7 +4620,7 @@
         "redirect_type": {
           "name": "redirect_type",
           "type": "enum_forms_redirect_type",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'reference'"
@@ -4710,9 +4710,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_locales": {
+    "payload.forms_locales": {
       "name": "forms_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "submit_button_label": {
           "name": "submit_button_label",
@@ -4735,7 +4735,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -4786,9 +4786,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms_rels": {
+    "payload.forms_rels": {
       "name": "forms_rels",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -4909,9 +4909,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.form_submissions_submission_data": {
+    "payload.form_submissions_submission_data": {
       "name": "form_submissions_submission_data",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -4993,9 +4993,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.form_submissions": {
+    "payload.form_submissions": {
       "name": "form_submissions",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -5118,9 +5118,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_locked_documents": {
+    "payload.payload_locked_documents": {
       "name": "payload_locked_documents",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -5203,9 +5203,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_locked_documents_rels": {
+    "payload.payload_locked_documents_rels": {
       "name": "payload_locked_documents_rels",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -5536,9 +5536,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_preferences": {
+    "payload.payload_preferences": {
       "name": "payload_preferences",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -5627,9 +5627,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_preferences_rels": {
+    "payload.payload_preferences_rels": {
       "name": "payload_preferences_rels",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -5780,9 +5780,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_migrations": {
+    "payload.payload_migrations": {
       "name": "payload_migrations",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -5858,79 +5858,79 @@
     }
   },
   "enums": {
-    "public._locales": {
+    "payload._locales": {
       "name": "_locales",
-      "schema": "public",
+      "schema": "payload",
       "values": ["en", "sv"]
     },
-    "public.enum_pages_blocks_content_columns_size": {
+    "payload.enum_pages_blocks_content_columns_size": {
       "name": "enum_pages_blocks_content_columns_size",
-      "schema": "public",
+      "schema": "payload",
       "values": ["one-third", "half", "two-thirds", "full"]
     },
-    "public.enum_pages_blocks_code_language": {
+    "payload.enum_pages_blocks_code_language": {
       "name": "enum_pages_blocks_code_language",
-      "schema": "public",
+      "schema": "payload",
       "values": ["ts", "plaintext", "tsx", "js", "jsx"]
     },
-    "public.enum_tenants_domains_page_types": {
+    "payload.enum_tenants_domains_page_types": {
       "name": "enum_tenants_domains_page_types",
-      "schema": "public",
+      "schema": "payload",
       "values": ["cms", "client", "disabled"]
     },
-    "public.enum_users_tenants_role": {
+    "payload.enum_users_tenants_role": {
       "name": "enum_users_tenants_role",
-      "schema": "public",
+      "schema": "payload",
       "values": ["user", "admin"]
     },
-    "public.enum_users_role": {
+    "payload.enum_users_role": {
       "name": "enum_users_role",
-      "schema": "public",
+      "schema": "payload",
       "values": ["user", "system-user"]
     },
-    "public.enum_forms_blocks_checkbox_width": {
+    "payload.enum_forms_blocks_checkbox_width": {
       "name": "enum_forms_blocks_checkbox_width",
-      "schema": "public",
+      "schema": "payload",
       "values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     },
-    "public.enum_forms_blocks_country_width": {
+    "payload.enum_forms_blocks_country_width": {
       "name": "enum_forms_blocks_country_width",
-      "schema": "public",
+      "schema": "payload",
       "values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     },
-    "public.enum_forms_blocks_email_width": {
+    "payload.enum_forms_blocks_email_width": {
       "name": "enum_forms_blocks_email_width",
-      "schema": "public",
+      "schema": "payload",
       "values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     },
-    "public.enum_forms_blocks_number_width": {
+    "payload.enum_forms_blocks_number_width": {
       "name": "enum_forms_blocks_number_width",
-      "schema": "public",
+      "schema": "payload",
       "values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     },
-    "public.enum_forms_blocks_select_width": {
+    "payload.enum_forms_blocks_select_width": {
       "name": "enum_forms_blocks_select_width",
-      "schema": "public",
+      "schema": "payload",
       "values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     },
-    "public.enum_forms_blocks_text_width": {
+    "payload.enum_forms_blocks_text_width": {
       "name": "enum_forms_blocks_text_width",
-      "schema": "public",
+      "schema": "payload",
       "values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     },
-    "public.enum_forms_blocks_textarea_width": {
+    "payload.enum_forms_blocks_textarea_width": {
       "name": "enum_forms_blocks_textarea_width",
-      "schema": "public",
+      "schema": "payload",
       "values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     },
-    "public.enum_forms_confirmation_type": {
+    "payload.enum_forms_confirmation_type": {
       "name": "enum_forms_confirmation_type",
-      "schema": "public",
+      "schema": "payload",
       "values": ["message", "redirect"]
     },
-    "public.enum_forms_redirect_type": {
+    "payload.enum_forms_redirect_type": {
       "name": "enum_forms_redirect_type",
-      "schema": "public",
+      "schema": "payload",
       "values": ["reference", "custom"]
     }
   },

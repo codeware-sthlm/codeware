@@ -4,9 +4,9 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.articles": {
+    "payload.articles": {
       "name": "articles",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -132,9 +132,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.articles_locales": {
+    "payload.articles_locales": {
       "name": "articles_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "title": {
           "name": "title",
@@ -157,7 +157,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -208,9 +208,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.media": {
+    "payload.media": {
       "name": "media",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -347,9 +347,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages": {
+    "payload.pages": {
       "name": "pages",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -469,9 +469,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pages_locales": {
+    "payload.pages_locales": {
       "name": "pages_locales",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "header": {
           "name": "header",
@@ -500,7 +500,7 @@
         "_locale": {
           "name": "_locale",
           "type": "_locales",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": true
         },
@@ -551,9 +551,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tenants_domains": {
+    "payload.tenants_domains": {
       "name": "tenants_domains",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -629,9 +629,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tenants": {
+    "payload.tenants": {
       "name": "tenants",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -744,9 +744,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users_tenants": {
+    "payload.users_tenants": {
       "name": "users_tenants",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "_order": {
           "name": "_order",
@@ -775,7 +775,7 @@
         "role": {
           "name": "role",
           "type": "enum_users_tenants_role",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'user'"
@@ -854,9 +854,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
+    "payload.users": {
       "name": "users",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -873,7 +873,7 @@
         "role": {
           "name": "role",
           "type": "enum_users_role",
-          "typeSchema": "public",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false,
           "default": "'user'"
@@ -996,9 +996,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_locked_documents": {
+    "payload.payload_locked_documents": {
       "name": "payload_locked_documents",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -1081,9 +1081,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_locked_documents_rels": {
+    "payload.payload_locked_documents_rels": {
       "name": "payload_locked_documents_rels",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -1324,9 +1324,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_preferences": {
+    "payload.payload_preferences": {
       "name": "payload_preferences",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -1415,9 +1415,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_preferences_rels": {
+    "payload.payload_preferences_rels": {
       "name": "payload_preferences_rels",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -1568,9 +1568,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.payload_migrations": {
+    "payload.payload_migrations": {
       "name": "payload_migrations",
-      "schema": "",
+      "schema": "payload",
       "columns": {
         "id": {
           "name": "id",
@@ -1646,19 +1646,19 @@
     }
   },
   "enums": {
-    "public._locales": {
+    "payload._locales": {
       "name": "_locales",
-      "schema": "public",
+      "schema": "payload",
       "values": ["en", "sv"]
     },
-    "public.enum_users_tenants_role": {
+    "payload.enum_users_tenants_role": {
       "name": "enum_users_tenants_role",
-      "schema": "public",
+      "schema": "payload",
       "values": ["user", "admin"]
     },
-    "public.enum_users_role": {
+    "payload.enum_users_role": {
       "name": "enum_users_role",
-      "schema": "public",
+      "schema": "payload",
       "values": ["user", "system-user"]
     }
   },

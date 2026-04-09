@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
   CREATE TYPE "payload"."enum_pages_blocks_content_columns_size" AS ENUM('one-third', 'half', 'two-thirds', 'full');
   CREATE TYPE "payload"."enum_pages_blocks_code_language" AS ENUM('ts', 'plaintext', 'tsx', 'js', 'jsx');
   CREATE TABLE IF NOT EXISTS "categories" (
@@ -15,23 +16,23 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE IF NOT EXISTS "categories_locales" (
   	"name" varchar NOT NULL,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS "media_locales" (
   	"caption" jsonb,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS "pages_blocks_content_columns" (
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"size" "enum_pages_blocks_content_columns_size" DEFAULT 'full',
+  	"size" "payload"."enum_pages_blocks_content_columns_size" DEFAULT 'full',
   	"rich_text" jsonb
   );
 
@@ -39,7 +40,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"block_name" varchar
   );
@@ -48,7 +49,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"media_id" integer NOT NULL,
   	"block_name" varchar
@@ -58,9 +59,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"language" "enum_pages_blocks_code_language" DEFAULT 'ts' NOT NULL,
+  	"language" "payload"."enum_pages_blocks_code_language" DEFAULT 'ts' NOT NULL,
   	"code" varchar NOT NULL,
   	"block_name" varchar
   );
@@ -365,6 +366,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TABLE IF NOT EXISTS "articles" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"author" varchar NOT NULL,
@@ -379,7 +381,7 @@ export async function down({
   	"title" varchar NOT NULL,
   	"content" jsonb,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
   );
 

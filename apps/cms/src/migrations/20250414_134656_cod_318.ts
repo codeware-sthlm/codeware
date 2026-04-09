@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TABLE IF NOT EXISTS "forms_blocks_radio_options" (
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
@@ -12,7 +13,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE IF NOT EXISTS "forms_blocks_radio_options_locales" (
   	"label" varchar NOT NULL,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -31,7 +32,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"label" varchar,
   	"default_value" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -76,6 +77,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    DROP TABLE "forms_blocks_radio_options" CASCADE;
   DROP TABLE "forms_blocks_radio_options_locales" CASCADE;
   DROP TABLE "forms_blocks_radio" CASCADE;

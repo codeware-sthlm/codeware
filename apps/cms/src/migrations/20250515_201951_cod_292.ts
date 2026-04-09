@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TABLE IF NOT EXISTS "media_rels" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"order" integer,
@@ -14,7 +15,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"block_name" varchar
   );
@@ -23,7 +24,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"media_id" integer NOT NULL,
   	"block_name" varchar
@@ -168,6 +169,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    ALTER TABLE "media_rels" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "pages_blocks_file_area" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "pages_blocks_image" DISABLE ROW LEVEL SECURITY;

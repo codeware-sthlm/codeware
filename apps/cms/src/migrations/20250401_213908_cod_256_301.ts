@@ -2,12 +2,13 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TYPE "payload"."enum_navigation_items_label_source" AS ENUM('document', 'custom');
   CREATE TABLE IF NOT EXISTS "navigation_items" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"label_source" "enum_navigation_items_label_source" DEFAULT 'document',
+  	"label_source" "payload"."enum_navigation_items_label_source" DEFAULT 'document',
   	"custom_label" varchar
   );
 
@@ -116,6 +117,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    ALTER TABLE "navigation_items" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "navigation" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "navigation_rels" DISABLE ROW LEVEL SECURITY;

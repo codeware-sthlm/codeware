@@ -110,7 +110,8 @@ export const EnvSchema = withEnvVars(
             'reset-db',
             'seed',
             'serve',
-            'test'
+            'test',
+            'verify'
           ],
           {
             description:

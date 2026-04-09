@@ -2,11 +2,12 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TYPE "payload"."enum_tenants_domains_page_types" AS ENUM('cms', 'client', 'disabled');
   CREATE TABLE IF NOT EXISTS "tenants_domains_page_types" (
   	"order" integer NOT NULL,
   	"parent_id" varchar NOT NULL,
-  	"value" "enum_tenants_domains_page_types",
+  	"value" "payload"."enum_tenants_domains_page_types",
   	"id" serial PRIMARY KEY NOT NULL
   );
 
@@ -26,6 +27,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    DROP TABLE "tenants_domains_page_types" CASCADE;
   DROP TYPE "payload"."enum_tenants_domains_page_types";`);
 }

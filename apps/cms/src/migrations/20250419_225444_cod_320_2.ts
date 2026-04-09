@@ -5,10 +5,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
    CREATE TYPE "payload"."enum_social_media_direction" AS ENUM('horizontal', 'vertical');
   ALTER TABLE "pages_blocks_social_media_social" ADD COLUMN "with_label" boolean;
   ALTER TABLE "pages_blocks_social_media_social" ADD COLUMN "label" varchar;
-  ALTER TABLE "pages_blocks_social_media" ADD COLUMN "direction" "enum_social_media_direction" DEFAULT 'horizontal';
+  ALTER TABLE "pages_blocks_social_media" ADD COLUMN "direction" "payload"."enum_social_media_direction" DEFAULT 'horizontal';
   ALTER TABLE "reusable_content_blocks_social_media_social" ADD COLUMN "with_label" boolean;
   ALTER TABLE "reusable_content_blocks_social_media_social" ADD COLUMN "label" varchar;
-  ALTER TABLE "reusable_content_blocks_social_media" ADD COLUMN "direction" "enum_social_media_direction" DEFAULT 'horizontal';`);
+  ALTER TABLE "reusable_content_blocks_social_media" ADD COLUMN "direction" "payload"."enum_social_media_direction" DEFAULT 'horizontal';`);
 }
 
 export async function down({

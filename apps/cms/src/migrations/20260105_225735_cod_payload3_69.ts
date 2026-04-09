@@ -26,7 +26,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"label" varchar,
   	"placeholder" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 

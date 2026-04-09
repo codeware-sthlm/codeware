@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TYPE "payload"."enum_cards_link_type" AS ENUM('reference', 'custom');
   CREATE TYPE "payload"."enum_cards_link_nav_trigger" AS ENUM('card', 'link');
   CREATE TYPE "payload"."enum_pages_blocks_card_custom_cards_card_link_type" AS ENUM('reference', 'custom');
@@ -11,10 +12,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"tenant_id" integer,
   	"icon" varchar,
   	"enable_link" boolean,
-  	"link_type" "enum_cards_link_type" DEFAULT 'reference',
+  	"link_type" "payload"."enum_cards_link_type" DEFAULT 'reference',
   	"link_new_tab" boolean,
   	"link_url" varchar,
-  	"link_nav_trigger" "enum_cards_link_nav_trigger" DEFAULT 'card',
+  	"link_nav_trigger" "payload"."enum_cards_link_nav_trigger" DEFAULT 'card',
   	"slug" varchar,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
@@ -26,7 +27,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"content" varchar NOT NULL,
   	"link_label" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
   );
 
@@ -42,17 +43,17 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE IF NOT EXISTS "pages_blocks_card_custom_cards" (
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"card_icon" varchar,
   	"card_title" varchar NOT NULL,
   	"card_description" varchar,
   	"card_content" varchar NOT NULL,
   	"card_enable_link" boolean,
-  	"card_link_type" "enum_pages_blocks_card_custom_cards_card_link_type" DEFAULT 'reference',
+  	"card_link_type" "payload"."enum_pages_blocks_card_custom_cards_card_link_type" DEFAULT 'reference',
   	"card_link_new_tab" boolean,
   	"card_link_url" varchar,
-  	"card_link_nav_trigger" "enum_pages_blocks_card_custom_cards_card_link_nav_trigger" DEFAULT 'card',
+  	"card_link_nav_trigger" "payload"."enum_pages_blocks_card_custom_cards_card_link_nav_trigger" DEFAULT 'card',
   	"card_link_label" varchar
   );
 
@@ -60,7 +61,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"block_name" varchar
   );
@@ -70,7 +71,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"order" integer,
   	"parent_id" integer NOT NULL,
   	"path" varchar NOT NULL,
-  	"locale" "_locales",
+  	"locale" "payload"."_locales",
   	"cards_id" integer,
   	"pages_id" integer,
   	"posts_id" integer
@@ -182,6 +183,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    ALTER TABLE "cards" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "cards_locales" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "cards_rels" DISABLE ROW LEVEL SECURITY;

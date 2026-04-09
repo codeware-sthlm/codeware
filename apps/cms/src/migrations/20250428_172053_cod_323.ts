@@ -2,14 +2,15 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TYPE "payload"."enum_spacing_size" AS ENUM('tight', 'regular', 'loose');
   CREATE TABLE IF NOT EXISTS "pages_blocks_spacing" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"size" "enum_spacing_size" DEFAULT 'regular' NOT NULL,
+  	"size" "payload"."enum_spacing_size" DEFAULT 'regular' NOT NULL,
   	"divider" boolean,
   	"color" varchar,
   	"block_name" varchar
@@ -20,7 +21,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"size" "enum_spacing_size" DEFAULT 'regular' NOT NULL,
+  	"size" "payload"."enum_spacing_size" DEFAULT 'regular' NOT NULL,
   	"divider" boolean,
   	"color" varchar,
   	"block_name" varchar
@@ -53,6 +54,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    DROP TABLE "pages_blocks_spacing" CASCADE;
   DROP TABLE "reusable_content_blocks_spacing" CASCADE;
   DROP TYPE "payload"."enum_spacing_size";`);

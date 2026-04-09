@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
+  SET search_path TO "payload";
 
 DO $$ BEGIN
  CREATE TYPE "payload"."_locales" AS ENUM('en', 'sv');
@@ -29,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "articles_locales" (
 	"title" varchar NOT NULL,
 	"content" jsonb,
 	"id" serial PRIMARY KEY NOT NULL,
-	"_locale" "_locales" NOT NULL,
+	"_locale" "payload"."_locales" NOT NULL,
 	"_parent_id" integer NOT NULL,
 	CONSTRAINT "articles_locales_locale_parent_id_unique" UNIQUE("_locale","_parent_id")
 );
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS "pages_locales" (
 	"intro" jsonb,
 	"content" jsonb,
 	"id" serial PRIMARY KEY NOT NULL,
-	"_locale" "_locales" NOT NULL,
+	"_locale" "payload"."_locales" NOT NULL,
 	"_parent_id" integer NOT NULL,
 	CONSTRAINT "pages_locales_locale_parent_id_unique" UNIQUE("_locale","_parent_id")
 );
@@ -67,7 +68,7 @@ CREATE TABLE IF NOT EXISTS "tenants" (
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar NOT NULL,
-	"role" "enum_users_role" NOT NULL,
+	"role" "payload"."enum_users_role" NOT NULL,
 	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
 	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
 	"email" varchar NOT NULL,
@@ -155,6 +156,7 @@ CREATE INDEX IF NOT EXISTS "payload_migrations_created_at_idx" ON "payload_migra
 
 export async function down({ payload }: MigrateDownArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
+  SET search_path TO "payload";
 
 DROP TABLE "articles" CASCADE;
 DROP TABLE "articles_locales" CASCADE;

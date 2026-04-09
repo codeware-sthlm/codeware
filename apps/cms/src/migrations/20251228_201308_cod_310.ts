@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TABLE IF NOT EXISTS "reusable_content_blocks_reusable_content" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
@@ -36,5 +37,6 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    DROP TABLE "reusable_content_blocks_reusable_content" CASCADE;`);
 }

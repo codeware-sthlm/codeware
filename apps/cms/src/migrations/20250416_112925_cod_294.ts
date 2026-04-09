@@ -2,11 +2,12 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    CREATE TABLE IF NOT EXISTS "pages_blocks_reusable_content" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"reusable_content_id" integer NOT NULL,
   	"ref_id" varchar,
@@ -20,10 +21,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"card_brand_icon" varchar,
   	"card_brand_color" varchar,
   	"card_enable_link" boolean,
-  	"card_link_type" "enum_link_type" DEFAULT 'reference',
+  	"card_link_type" "payload"."enum_link_type" DEFAULT 'reference',
   	"card_link_new_tab" boolean,
   	"card_link_url" varchar,
-  	"card_link_nav_trigger" "enum_nav_trigger" DEFAULT 'card'
+  	"card_link_nav_trigger" "payload"."enum_nav_trigger" DEFAULT 'card'
   );
 
   CREATE TABLE IF NOT EXISTS "reusable_content_blocks_card_custom_cards_locales" (
@@ -32,7 +33,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"card_content" varchar NOT NULL,
   	"card_link_label" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" varchar NOT NULL
   );
 
@@ -49,7 +50,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_parent_id" integer NOT NULL,
   	"_path" text NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"language" "enum_code_language" DEFAULT 'ts' NOT NULL,
+  	"language" "payload"."enum_code_language" DEFAULT 'ts' NOT NULL,
   	"code" varchar NOT NULL,
   	"block_name" varchar
   );
@@ -58,7 +59,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
-  	"size" "enum_content_column_size" DEFAULT 'full',
+  	"size" "payload"."enum_content_column_size" DEFAULT 'full',
   	"rich_text" jsonb
   );
 
@@ -100,7 +101,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TABLE IF NOT EXISTS "reusable_content_locales" (
   	"title" varchar NOT NULL,
   	"id" serial PRIMARY KEY NOT NULL,
-  	"_locale" "_locales" NOT NULL,
+  	"_locale" "payload"."_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
   );
 
@@ -275,6 +276,7 @@ export async function down({
   req
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+  SET search_path TO "payload";
    ALTER TABLE "pages_blocks_reusable_content" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "reusable_content_blocks_card_custom_cards" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "reusable_content_blocks_card_custom_cards_locales" DISABLE ROW LEVEL SECURITY;

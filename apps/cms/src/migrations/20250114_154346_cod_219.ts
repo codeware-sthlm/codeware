@@ -2,6 +2,7 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres';
 
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
+  SET search_path TO "payload";
 
 -- Handle new field tenants.slug --
 
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS "users_tenants" (
 	"_order" integer NOT NULL,
 	"_parent_id" integer NOT NULL,
 	"id" varchar PRIMARY KEY NOT NULL,
-	"role" "enum_users_tenants_role" NOT NULL
+	"role" "payload"."enum_users_tenants_role" NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "users_rels" (
@@ -141,6 +142,7 @@ CREATE INDEX IF NOT EXISTS "tenants_slug_idx" ON "tenants" USING btree ("slug");
 
 export async function down({ payload }: MigrateDownArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
+  SET search_path TO "payload";
 
 --ALTER TYPE "enum_users_role" ADD VALUE 'admin';
 DROP TABLE "articles_rels";

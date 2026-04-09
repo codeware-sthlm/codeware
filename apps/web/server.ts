@@ -44,7 +44,6 @@ const app = new Hono()
           tenantConfig: c.get('tenantConfig')
         } satisfies AppLoadContext;
 
-        console.log('[DEBUG] Context resolved:', ctx);
         return ctx;
       }
     })

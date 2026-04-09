@@ -406,6 +406,6 @@ exports[`fly-node schema validation > validates all schemas against fixtures > V
   "environment": "production",
   "name": "fly",
   "os": "darwin",
-  "version": "0.4.0",
+  "version": "0.4.33",
 }
 `;

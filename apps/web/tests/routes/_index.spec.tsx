@@ -1,24 +1,32 @@
-import { SiteSetting } from '@codeware/shared/util/payload-types';
+import * as CmsRenderer from '@codeware/shared/ui/cms-renderer';
 import * as RemixReact from '@remix-run/react';
 import { createRemixStub } from '@remix-run/testing';
 import { render, screen, waitFor } from '@testing-library/react';
 
 import Index, { ErrorBoundary } from '../../app/routes/_index';
 
+vi.mock('@codeware/shared/ui/cms-renderer', async (importOriginal) => {
+  const actual = await importOriginal<typeof CmsRenderer>();
+  return {
+    ...actual,
+    usePayload: () => ({ locale: 'en' })
+  };
+});
+
 it('renders loader data', async () => {
   vi.spyOn(RemixReact, 'useRouteLoaderData').mockImplementation((routeId) => {
     if (routeId === 'root') {
       return {
-        siteSettings: {
-          general: {
-            appName: 'Test App',
-            landingPage: {
-              header: 'Welcome home!',
-              name: 'home',
-              layout: [{}]
-            }
+        landingPage: {
+          header: 'Welcome home!',
+          name: 'home',
+          layout: [{}]
+        },
+        requestInfo: {
+          userPrefs: {
+            locale: 'en'
           }
-        } as Partial<SiteSetting>
+        }
       };
     }
     return undefined;

@@ -66,7 +66,7 @@ npm install @cdwr/fly-node
 > [!IMPORTANT]
 > This library requires the Fly CLI (`flyctl`) to be installed and accessible in your PATH.
 
-**Version used in test**: v0.4.0
+**Version used in test**: v0.4.33
 
 **Installation Instructions**:
 

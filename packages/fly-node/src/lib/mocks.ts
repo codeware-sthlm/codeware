@@ -271,7 +271,7 @@ export const mockStatusResponse = (
  */
 export const mockVersionResponse = {
   Name: 'fly',
-  Version: '0.4.0',
+  Version: '0.4.33',
   Commit: '641eb1c8b884eb191d574de8e11b8423e86e3260',
   BranchName: '',
   BuildDate: '2025-12-25T16:00:57Z',

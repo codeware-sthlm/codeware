@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
+import isCI from 'is-ci';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { Fly } from '../src/lib/fly.class';
@@ -59,11 +60,16 @@ describe('Fly CLI Compatibility & Schema Validation', () => {
         await expect(fly.isReady()).resolves.toBe(true);
       });
 
-      it('isReady should throw in assert mode without a token', async () => {
-        fly = createFly('none');
-        await expect(fly.isReady()).resolves.toBe(false);
-        await expect(fly.isReady('assert')).rejects.toThrow();
-      });
+      // Locally, `flyctl auth login` session auth bypasses token checks —
+      // this test is only meaningful in CI where no local session exists.
+      it.skipIf(!isCI)(
+        'isReady should throw in assert mode without a token',
+        async () => {
+          fly = createFly('none');
+          await expect(fly.isReady()).resolves.toBe(false);
+          await expect(fly.isReady('assert')).rejects.toThrow();
+        }
+      );
     });
 
     describe('cli namespace', () => {

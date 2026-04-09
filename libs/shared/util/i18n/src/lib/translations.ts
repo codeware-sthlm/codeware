@@ -95,8 +95,7 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'theme.system': 'system preference'
   },
   sv: {
-    'error.contactAdmin':
-      'Kontakta administratören om problemet kvarstår.',
+    'error.contactAdmin': 'Kontakta administratören om problemet kvarstår.',
     'error.landingPageNotFound': 'Startsida hittades inte',
     'error.landingPageNotFoundDescription':
       'Skapa en sida i CMS och tilldela den som startsida.',

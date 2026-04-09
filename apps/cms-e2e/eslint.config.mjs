@@ -6,6 +6,9 @@ export default [
   playwright.configs['flat/recommended'],
   ...baseConfig,
   {
+    ignores: ['.coverage/**']
+  },
+  {
     files: ['**/*.ts', '**/*.js'],
     // Override or add rules here
     rules: {}

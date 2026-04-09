@@ -3,7 +3,12 @@ import { findNavigationDoc } from '@codeware/shared/util/payload-api';
 import { NavigationDoc } from '@codeware/shared/util/payload-types';
 import { resolveMeta } from '@codeware/shared/util/payload-utils';
 import type { MetaFunction } from '@remix-run/node';
-import { json, useLoaderData, useRouteError, useRouteLoaderData } from '@remix-run/react';
+import {
+  json,
+  useLoaderData,
+  useRouteError,
+  useRouteLoaderData
+} from '@remix-run/react';
 
 import { Container } from '../components/container';
 import { ErrorContainer } from '../components/error-container';

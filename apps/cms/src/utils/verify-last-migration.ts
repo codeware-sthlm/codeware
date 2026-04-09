@@ -149,7 +149,8 @@ async function getTableSet(
 /**
  * This script is used to verify the last migration.
  *
- * - Runs a fresh migration on a clean database.
+ * - Drops the entire database (including schema) to simulate a blank preview environment.
+ * - Replays all migrations from scratch.
  * - Seeds the database.
  * - Asserts all seeded collections have non-zero row counts.
  * - Records row counts and table set as baseline before rollback.
@@ -200,11 +201,15 @@ async function verifyLastMigration() {
   const payload = await getPayload({ config });
   const adapter = payload.db as unknown as DrizzleAdapter;
 
-  // Run a fresh migration to apply all migrations on a clean database
-  console.log('🔄 Run fresh migration...');
-  await payload.db.migrateFresh({ forceAcceptWarning: true });
+  // Drop everything (tables, enums, schema) to simulate a blank preview database,
+  // then replay all migrations from scratch
+  console.log('🔄 Drop database...');
+  await payload.db.dropDatabase({ adapter });
 
-  note('Applied fresh migrations');
+  console.log('🔄 Run migrations on clean database...');
+  await payload.db.migrate();
+
+  note('Applied migrations on clean database');
 
   // Seed the database
   console.log('🔄 Run seed database...');

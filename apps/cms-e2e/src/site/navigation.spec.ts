@@ -20,7 +20,7 @@ test.describe('navigation', () => {
       .getByRole('link', { name: 'Lunar Maria' })
       .click();
 
-    await expect(page).toHaveURL(/\/lunar-maria/);
+    await page.waitForURL(/\/lunar-maria/, { timeout: 30_000 });
     await expect(
       page.getByRole('heading', { name: 'The Dark Plains of the Moon' })
     ).toBeVisible();

@@ -31,12 +31,19 @@ module.exports = async function globalSetup() {
         const body = await res.json();
         if (typeof body?.token === 'string') {
           console.log(`[setup] CMS ready after ${attempt} attempt(s)`);
-          await ctx.dispose();
-          return;
+          break;
         }
       }
     } catch {
       // Server not yet reachable — swallow network errors and retry
+    }
+
+    if (attempt === MAX_ATTEMPTS) {
+      await ctx.dispose();
+      throw new Error(
+        `[setup] CMS did not become ready after ${MAX_ATTEMPTS} attempts (~${(MAX_ATTEMPTS * INTERVAL_MS) / 1000}s). ` +
+          `Check that the server started and seed data was applied.`
+      );
     }
 
     console.log(
@@ -45,9 +52,23 @@ module.exports = async function globalSetup() {
     await new Promise((r) => setTimeout(r, INTERVAL_MS));
   }
 
+  // Next.js dev mode compiles routes on first request (JIT). In CI this compilation
+  // can take 20-40 seconds per route, causing tests that rely on those routes to time
+  // out before the first real assertion. Pre-warming here triggers compilation during
+  // setup so tests run against already-compiled routes.
+  const warmupRoutes = [
+    '/',
+    '/lunar-maria',
+    '/lunar-craters',
+    '/lunar-phases',
+    '/admin/collections/pages',
+    '/admin/collections/pages/create',
+    '/admin/collections/posts'
+  ];
+
+  console.log('[setup] Pre-warming routes for Next.js JIT compilation…');
+  await Promise.allSettled(warmupRoutes.map((route) => ctx.get(route)));
+  console.log('[setup] Route warmup complete');
+
   await ctx.dispose();
-  throw new Error(
-    `[setup] CMS did not become ready after ${MAX_ATTEMPTS} attempts (~${(MAX_ATTEMPTS * INTERVAL_MS) / 1000}s). ` +
-      `Check that the server started and seed data was applied.`
-  );
 };

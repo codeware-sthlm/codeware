@@ -12,18 +12,19 @@ import { expect } from '@playwright/test';
  * immediately before the shimmer has been added to the DOM.
  *
  * @param page Playwright Page object to scope the search for shimmers
- * @param timeout Maximum time to wait for shimmers to disappear, in milliseconds (default `20_000` = 20 seconds)
+ * @param timeout Maximum time to wait for shimmers to disappear, in milliseconds (default `30_000` = 30 seconds)
  */
 export async function waitForShimmer(
   page: Page,
-  timeout = 20_000
+  timeout = 30_000
 ): Promise<void> {
-  // Phase 1: wait for at least one shimmer to appear (short timeout — if none
-  // appear the shimmer was already gone before we checked, which is also fine).
+  // Phase 1: wait for at least one shimmer to appear. CI servers are slower so
+  // use a generous timeout — if none appear within the window the shimmer was
+  // already gone before we checked, which is also fine.
   await page
     .locator('.shimmer-effect')
     .first()
-    .waitFor({ state: 'visible', timeout: 3_000 })
+    .waitFor({ state: 'attached', timeout: 15_000 })
     .catch(() => undefined);
 
   // Phase 2: wait for all shimmers to clear

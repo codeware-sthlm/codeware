@@ -148,6 +148,9 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     DROP TYPE IF EXISTS "public"."enum_social_media_direction";
     DROP TYPE IF EXISTS "public"."enum_social_media_platform";
     DROP TYPE IF EXISTS "public"."enum_spacing_size";
+    -- enum_tenant_domain_page_type: orphaned public copy. The cod_290 migration
+    -- already renamed the payload copy to "n" and the column was migrated away
+    -- from this type, so there is no payload equivalent to create or cast to.
     DROP TYPE IF EXISTS "public"."enum_tenant_domain_page_type";
     DROP TYPE IF EXISTS "public"."enum_tenant_user_role";
     DROP TYPE IF EXISTS "public"."enum_user_role";

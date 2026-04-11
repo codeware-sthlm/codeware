@@ -1,5 +1,11 @@
 import { exec } from 'child_process';
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync
+} from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -90,25 +96,23 @@ async function startContainer(): Promise<void> {
 }
 
 /**
- * Supabase extensions that are unavailable (and crash the backend) on a plain
- * Docker postgres image. SQL blocks that create or depend on these are stripped
- * before restoring to the test container.
- */
-/**
- * Extract only the `payload` schema blocks from a Supabase pg_dump SQL file.
+ * Extract `payload` schema objects from a Supabase pg_dump SQL file into a
+ * temp file suitable for restoring into a plain Docker Postgres container.
  *
- * pg_dump precedes every object with a comment block of the form:
- *   -- Name: <name>; Type: <type>; Schema: <schema>; Owner: -
+ * Supabase dumps contain objects that crash a plain Postgres backend (pgsodium,
+ * pg_graphql, supabase_vault extensions, etc.). Rather than maintaining an
+ * exclusion list, we use inclusion-based filtering: walk the file line-by-line
+ * using pg_dump's object headers and only emit lines that belong to:
+ *   - the `payload` schema CREATE SCHEMA block  (Schema: -, Type: SCHEMA, Name: payload)
+ *   - all objects in the `payload` schema
+ *   - TYPE/ENUM objects in the `public` schema  (payload tables may reference them)
+ *   - safe preamble lines (comments, SET, SELECT pg_catalog.set_config, blanks)
  *
- * We walk the file line-by-line, tracking which schema the current object
- * belongs to, and only emit lines whose owning object lives in the `payload`
- * schema (or the preamble before the first object header).
+ * pg_dump header formats:
+ *   DDL:  -- Name: <name>; Type: <type>; Schema: <schema>; Owner: -
+ *   Data: -- Data for Name: <name>; Type: TABLE DATA; Schema: <schema>; Owner: -
  *
- * This is more reliable than exclusion-based filtering because it doesn't
- * depend on maintaining a list of Supabase-specific names, and it can never
- * produce broken SQL from a partially-stripped DO block.
- *
- * Writes the result to a temp file and returns the path.
+ * Returns the path of the temp file.
  */
 function extractPayloadSchema(sqlFile: string): string {
   const lines = readFileSync(sqlFile, 'utf8').split('\n');
@@ -184,7 +188,7 @@ async function psqlFile(
     } finally {
       // Clean up temp file regardless of success/failure
       try {
-        execAsync(`rm -f "${filteredFile}"`);
+        rmSync(filteredFile, { force: true });
       } catch {
         /* ignore */
       }
@@ -207,7 +211,7 @@ async function psqlFile(
       );
     } finally {
       try {
-        execAsync(`rm -f "${filteredFile}"`);
+        rmSync(filteredFile, { force: true });
       } catch {
         /* ignore */
       }

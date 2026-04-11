@@ -9,7 +9,7 @@
         "--",
         "npx",
         "-y",
-        "@sentry/mcp-server@latest"
+        "@sentry/mcp-server@0.31.0"
       ]
     }
   }

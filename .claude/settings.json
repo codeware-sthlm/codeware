@@ -1,4 +1,5 @@
 {
+  "enabledMcpjsonServers": ["sentry"],
   "extraKnownMarketplaces": {
     "nx-claude-plugins": {
       "source": {

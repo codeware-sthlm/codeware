@@ -1,5 +1,9 @@
 {
   "mcpServers": {
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
+    },
     "sentry": {
       "command": "infisical",
       "args": [

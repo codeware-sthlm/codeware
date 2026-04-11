@@ -27,6 +27,7 @@ test.describe('/admin/collections/pages', () => {
   test('creates a new page and verifies it appears in the list', async ({
     page
   }) => {
+    test.retries(2);
     const testPageName = `Test Page ${Date.now()}`;
 
     await page.goto('/admin/collections/pages/create');

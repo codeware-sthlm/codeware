@@ -26,6 +26,7 @@ import * as migration_20251221_124900_cod_356 from './20251221_124900_cod_356';
 import * as migration_20251228_201308_cod_310 from './20251228_201308_cod_310';
 import * as migration_20260105_225735_cod_payload3_69 from './20260105_225735_cod_payload3_69';
 import * as migration_20260409_174321_cod_290 from './20260409_174321_cod_290';
+import * as migration_20260411_000000_enum_schema_cleanup from './20260411_000000_enum_schema_cleanup';
 
 export const migrations = [
   {
@@ -167,5 +168,10 @@ export const migrations = [
     up: migration_20260409_174321_cod_290.up,
     down: migration_20260409_174321_cod_290.down,
     name: '20260409_174321_cod_290'
+  },
+  {
+    up: migration_20260411_000000_enum_schema_cleanup.up,
+    down: migration_20260411_000000_enum_schema_cleanup.down,
+    name: '20260411_000000_enum_schema_cleanup'
   }
 ];

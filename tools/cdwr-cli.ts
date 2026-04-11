@@ -6,6 +6,7 @@ import { backupCmsDatabase } from './db-tools/lib/backup-db.js';
 import { dropDatabase } from './db-tools/lib/drop-db.js';
 import { restoreCmsDatabase } from './db-tools/lib/restore-db.js';
 import { syncCmsStorage } from './db-tools/lib/sync-storage.js';
+import { testMigration } from './db-tools/lib/test-migration.js';
 import { showAppInfo } from './fly-tools/lib/app-info.js';
 import { patchFlyConfig } from './fly-tools/lib/patch-config.js';
 import { restartApp } from './fly-tools/lib/restart-app.js';
@@ -29,6 +30,11 @@ const tools: Tool[] = [
     name: 'restore-db',
     description: 'Restore CMS database to Supabase',
     action: restoreCmsDatabase
+  },
+  {
+    name: 'test-migration',
+    description: 'Test latest migration against a production backup in Docker',
+    action: testMigration
   },
   {
     name: 'sync-storage',

@@ -28,6 +28,15 @@
       "options": {
         "command": "tsx --tsconfig tools/db-tools/tsconfig.json tools/db-tools/lib/sync-storage.ts"
       }
+    },
+    "test-migration": {
+      "metadata": {
+        "description": "Test the latest migration against a production backup loaded into a Docker Postgres container"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig tools/db-tools/tsconfig.json tools/db-tools/lib/test-migration.ts"
+      }
     }
   }
 }

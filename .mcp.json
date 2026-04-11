@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "sentry": {
+      "command": "infisical",
+      "args": [
+        "run",
+        "--env=production",
+        "--path=apps/cms/sentry",
+        "--",
+        "npx",
+        "-y",
+        "@sentry/mcp-server@latest"
+      ]
+    }
+  }
+}

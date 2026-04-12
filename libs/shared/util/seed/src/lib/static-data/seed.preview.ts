@@ -218,7 +218,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'The Rise and Fall of the Empire',
         slug: 'rise-and-fall-of-empire',
-        createdAt: new Date('2026-09-01T00:00:00Z'),
+        createdAt: '2026-09-01',
         authors: [{ lookupEmail: 'yoda@local.dev' }],
         categories: [],
         content:
@@ -228,7 +228,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Jedi Training Methods',
         slug: 'jedi-training-methods',
-        createdAt: new Date('2026-09-15T00:00:00Z'),
+        createdAt: '2026-09-15',
         authors: [{ lookupEmail: 'luke@local.dev' }],
         categories: [],
         content:
@@ -238,7 +238,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Spacecraft of the Rebellion',
         slug: 'spacecraft-of-rebellion',
-        createdAt: new Date('2026-09-30T00:00:00Z'),
+        createdAt: '2026-09-30',
         authors: [
           { lookupEmail: 'luke@local.dev' },
           { lookupEmail: 'yoda@local.dev' }
@@ -251,7 +251,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Evolution of the Avengers',
         slug: 'evolution-of-avengers',
-        createdAt: new Date('2026-10-05T00:00:00Z'),
+        createdAt: '2026-10-05',
         authors: [{ lookupEmail: 'thor@local.dev' }],
         categories: [],
         content:
@@ -261,7 +261,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Science of Super Soldiers',
         slug: 'science-of-super-soldiers',
-        createdAt: new Date('2026-10-10T00:00:00Z'),
+        createdAt: '2026-10-10',
         authors: [{ lookupEmail: 'hulk@local.dev' }],
         categories: [],
         content:
@@ -271,7 +271,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Tech Revolution',
         slug: 'tech-revolution',
-        createdAt: new Date('2026-10-12T00:00:00Z'),
+        createdAt: '2026-10-12',
         authors: [{ lookupEmail: 'hulk@local.dev' }],
         categories: [{ lookupSlug: 'technology' }],
         content:
@@ -284,7 +284,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Bamses Styrka',
         slug: 'bamses-styrka',
-        createdAt: new Date('2026-10-15T00:00:00Z'),
+        createdAt: '2026-10-15',
         authors: [{ lookupEmail: 'bamse@local.dev' }],
         categories: [{ lookupSlug: 'biodling' }],
         content:
@@ -294,7 +294,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Vänskapens Kraft',
         slug: 'vanskapens-kraft',
-        createdAt: new Date('2026-10-20T00:00:00Z'),
+        createdAt: '2026-10-20',
         authors: [{ lookupEmail: 'bamse@local.dev' }],
         categories: [],
         content:
@@ -304,7 +304,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Skalman och Uppfinningarnas Värld',
         slug: 'skalman-och-uppfinningarnas-varld',
-        createdAt: new Date('2026-10-25T00:00:00Z'),
+        createdAt: '2026-10-25',
         authors: [
           { lookupEmail: 'bamse@local.dev' },
           { lookupEmail: 'skutt@local.dev' }
@@ -317,7 +317,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Vargens List och Komik',
         slug: 'vargens-list-och-komik',
-        createdAt: new Date('2026-10-30T00:00:00Z'),
+        createdAt: '2026-10-30',
         authors: [
           { lookupEmail: 'bamse@local.dev' },
           { lookupEmail: 'skutt@local.dev' }
@@ -330,7 +330,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Farmors Omtanke och Visdom',
         slug: 'farmors-omtanke-och-visdom',
-        createdAt: new Date('2026-11-05T00:00:00Z'),
+        createdAt: '2026-11-05',
         authors: [{ lookupEmail: 'skutt@local.dev' }],
         categories: [{ lookupSlug: 'biodling' }],
         content:

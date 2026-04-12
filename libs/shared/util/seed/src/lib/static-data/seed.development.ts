@@ -188,7 +188,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Supergiant Stars',
         slug: 'supergiant-stars',
-        createdAt: new Date('2026-01-10T00:00:00Z'),
+        createdAt: '2026-01-10',
         authors: [{ lookupEmail: 'antares@local.dev' }],
         categories: [{ lookupSlug: 'star-types' }],
         content:
@@ -198,7 +198,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'White Dwarf Stars',
         slug: 'white-dwarf-stars',
-        createdAt: new Date('2026-03-23T00:00:00Z'),
+        createdAt: '2026-03-23',
         authors: [{ lookupEmail: 'vega@local.dev' }],
         categories: [{ lookupSlug: 'star-types' }],
         content:
@@ -208,7 +208,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'The Hertzsprung-Russell Diagram',
         slug: 'the-hertzsprung-russell-diagram',
-        createdAt: new Date('2026-03-31T00:00:00Z'),
+        createdAt: '2026-03-31',
         authors: [{ lookupEmail: 'vega@local.dev' }],
         categories: [{ lookupSlug: 'stellar-evolution' }],
         content:
@@ -218,7 +218,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Open Star Clusters',
         slug: 'open-star-clusters',
-        createdAt: new Date('2026-09-06T00:00:00Z'),
+        createdAt: '2026-09-06',
         authors: [{ lookupEmail: 'vega@local.dev' }],
         categories: [{ lookupSlug: 'star-clusters' }],
         content:
@@ -228,7 +228,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Lunar Highlands',
         slug: 'lunar-highlands',
-        createdAt: new Date('2026-10-01T00:00:00Z'),
+        createdAt: '2026-10-01',
         authors: [{ lookupEmail: 'titan@local.dev' }],
         categories: [{ lookupSlug: 'lunar-features' }],
         content:
@@ -238,7 +238,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'The Lunar Atmosphere',
         slug: 'the-lunar-atmosphere',
-        createdAt: new Date('2026-10-15T00:00:00Z'),
+        createdAt: '2026-10-15',
         authors: [{ lookupEmail: 'titan@local.dev' }],
         categories: [{ lookupSlug: 'lunar-features' }],
         content:
@@ -248,7 +248,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Lunar Water',
         slug: 'lunar-water',
-        createdAt: new Date('2026-09-06T00:00:00Z'),
+        createdAt: '2026-09-06',
         authors: [{ lookupEmail: 'phobos@local.dev' }],
         categories: [{ lookupSlug: 'lunar-features' }],
         content:
@@ -258,7 +258,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: "The Moon's Formation",
         slug: 'the-moons-formation',
-        createdAt: new Date('2026-10-20T00:00:00Z'),
+        createdAt: '2026-10-20',
         authors: [{ lookupEmail: 'phobos@local.dev' }],
         categories: [{ lookupSlug: 'planetary-moons' }],
         content:
@@ -268,7 +268,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Solens Kärna',
         slug: 'the-solar-core',
-        createdAt: new Date('2026-11-01T00:00:00Z'),
+        createdAt: '2026-11-01',
         authors: [{ lookupEmail: 'rigel@local.dev' }],
         categories: [{ lookupSlug: 'solar-activity' }],
         content:
@@ -278,7 +278,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Solens Cykler',
         slug: 'solar-cycles',
-        createdAt: new Date('2026-11-15T00:00:00Z'),
+        createdAt: '2026-11-15',
         authors: [{ lookupEmail: 'rigel@local.dev' }],
         categories: [{ lookupSlug: 'solar-activity' }],
         content:
@@ -288,7 +288,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Heliosfären',
         slug: 'the-heliosphere',
-        createdAt: new Date('2026-12-01T00:00:00Z'),
+        createdAt: '2026-12-01',
         authors: [{ lookupEmail: 'rigel@local.dev' }],
         categories: [{ lookupSlug: 'solar-system' }],
         content:
@@ -298,7 +298,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         title: 'Solens Atmosfär',
         slug: 'the-suns-atmosphere',
-        createdAt: new Date('2026-12-15T00:00:00Z'),
+        createdAt: '2026-12-15',
         authors: [{ lookupEmail: 'ross@local.dev' }],
         categories: [{ lookupSlug: 'solar-activity' }],
         content:

@@ -43,6 +43,7 @@ export const generatePosts = (
             .replace(/[^a-zA-Z0-9-]/g, '')
             .toLowerCase(),
           authors: [user],
+          createdAt: '2026-10-01',
           categories: [category],
           content: `# ${title}
 ${randLine()}

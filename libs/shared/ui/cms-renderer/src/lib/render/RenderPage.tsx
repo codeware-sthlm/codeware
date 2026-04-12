@@ -1,4 +1,5 @@
 import type { Page } from '@codeware/shared/util/payload-types';
+import type { BlocksData } from '@codeware/shared/util/payload-utils';
 
 import { Container } from '../layout/Container';
 import { RenderBlocks } from '../RenderBlocks';
@@ -9,6 +10,11 @@ type RenderPageProps = {
    * The app is responsible for fetching this data and handling 404s.
    */
   page: Page;
+  /**
+   * Pre-fetched data for blocks that require server-side data.
+   * Keyed by block id.
+   */
+  blocksData?: BlocksData;
 };
 
 /**
@@ -27,12 +33,12 @@ type RenderPageProps = {
  * @example
  * ```tsx
  * // In Next.js app
- * const page = await getPage(payload, slug);
+ * const page = await getPageData(payload, slug);
  * if (!page) notFound();
- * return <RenderPage page={page} />;
+ * return <RenderPage page={page} blocksData={page.blocksData} />;
  * ```
  */
-export function RenderPage({ page }: RenderPageProps) {
+export function RenderPage({ page, blocksData }: RenderPageProps) {
   return (
     <Container className="mt-16 sm:mt-32">
       {page.header && (
@@ -43,7 +49,7 @@ export function RenderPage({ page }: RenderPageProps) {
         </header>
       )}
       <article className="mt-16">
-        <RenderBlocks blocks={page.layout} />
+        <RenderBlocks blocks={page.layout} blocksData={blocksData} />
       </article>
     </Container>
   );

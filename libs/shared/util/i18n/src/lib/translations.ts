@@ -35,6 +35,7 @@ export type TranslationKey =
   | 'notFound.description'
   | 'notFound.goHome'
   | 'notFound.title'
+  | 'posts.readMore'
   | 'social.clickToCopy'
   | 'social.copied'
   | 'social.copyFailed'
@@ -85,6 +86,7 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
       'Sorry, we could not find the page you were looking for.',
     'notFound.goHome': 'Go back home',
     'notFound.title': 'Page not found',
+    'posts.readMore': 'Read more',
     'social.clickToCopy': 'Click to copy',
     'social.copied': 'Copied',
     'social.copyFailed': 'Failed to copy to clipboard',
@@ -132,6 +134,7 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'notFound.description': 'Tyvärr kunde vi inte hitta sidan du letade efter.',
     'notFound.goHome': 'Gå tillbaka till startsidan',
     'notFound.title': 'Sidan hittades inte',
+    'posts.readMore': 'Läs mer',
     'social.clickToCopy': 'Klicka för att kopiera',
     'social.copied': 'Kopierad',
     'social.copyFailed': 'Kopiering misslyckades',

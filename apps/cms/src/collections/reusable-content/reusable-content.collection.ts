@@ -20,6 +20,8 @@ const blocks: Record<BlockSlug, boolean> = {
   media: true,
   'social-media': true,
   spacing: true,
+  // Unsupported blocks
+  posts: false,
   'reusable-content': false,
   video: false
 };

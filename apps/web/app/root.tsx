@@ -6,9 +6,11 @@ import { CdwrCloud } from '@codeware/shared/ui/primitives';
 import {
   type NavigationItem,
   findById,
+  getBlocksData,
   getNavigationTree
 } from '@codeware/shared/util/payload-api';
 import { Page } from '@codeware/shared/util/payload-types';
+import type { BlocksData } from '@codeware/shared/util/payload-utils';
 import type { LinksFunction } from '@remix-run/node';
 import {
   Link,
@@ -61,6 +63,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
     const tenantConfig = context.tenantConfig;
 
     let landingPage: Page | null = null;
+    let landingPageBlocksData: BlocksData = {};
     let navigationTree: Array<NavigationItem> = [];
 
     // Fetch layout data but don't propagate the exception to the error boundary
@@ -86,6 +89,13 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
 
       landingPage = response[0];
       navigationTree = response[1];
+
+      if (landingPage?.layout) {
+        landingPageBlocksData = await getBlocksData(
+          landingPage.layout,
+          requestOptions
+        );
+      }
     } catch (e) {
       const error = e as Error;
       console.error(`Failed to load data: ${error.message}`);
@@ -97,6 +107,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
       env,
       loaderErrorMessage,
       landingPage,
+      landingPageBlocksData,
       navigationTree,
       requestInfo: {
         hints: getHints(request),

@@ -3,7 +3,7 @@ import type { Payload, TypedLocale } from 'payload';
 
 export type PostData = Pick<
   Post,
-  'authors' | 'categories' | 'content' | 'tenant' | 'title'
+  'authors' | 'categories' | 'content' | 'createdAt' | 'tenant' | 'title'
 > & {
   slug: string;
 };
@@ -22,7 +22,7 @@ export async function ensurePost(
   options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<Post | number> {
   const { locale, transactionID } = options;
-  const { authors, categories, content, slug, tenant, title } = data;
+  const { authors, categories, content, createdAt, slug, tenant, title } = data;
 
   // Check if the post exists with the given slug
   const posts = await payload.find({
@@ -47,6 +47,7 @@ export async function ensurePost(
       authors,
       categories,
       content,
+      createdAt,
       slug,
       tenant,
       title

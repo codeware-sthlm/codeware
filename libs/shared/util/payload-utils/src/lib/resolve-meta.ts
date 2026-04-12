@@ -2,17 +2,18 @@ import type {
   NavigationDoc,
   Page,
   PageMeta,
+  Post,
   PostMeta
 } from '@codeware/shared/util/payload-types';
 
 /**
- * Resolve the meta for a navigation document or page.
+ * Resolve the meta for a navigation document, page, or post.
  *
- * @param data - The navigation document or page to resolve the meta for.
+ * @param data - The navigation document, page, or post to resolve the meta for.
  * @returns Page or post meta or `null` if the meta data is not found.
  */
 export const resolveMeta = (
-  data: NavigationDoc | Page | null | undefined
+  data: NavigationDoc | Page | Post | null | undefined
 ): PageMeta | PostMeta | null => {
   if (!data) {
     return null;

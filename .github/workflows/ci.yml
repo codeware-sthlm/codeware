@@ -83,7 +83,7 @@ jobs:
           INFISICAL_TEST_SITE: ${{ vars.INFISICAL_SITE }}
 
       - name: Linux e2e smoke (pnpm)
-        run: pnpm nx e2e nx-payload-e2e -c skip-docker
+        run: pnpm nx affected -t e2e nx-payload-e2e -c skip-docker
         env:
           CDWR_E2E_PACKAGE_MANAGER: pnpm
           CDWR_E2E_VERDACCIO_HOST: localhost

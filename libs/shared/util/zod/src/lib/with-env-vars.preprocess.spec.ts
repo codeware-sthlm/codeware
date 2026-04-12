@@ -138,6 +138,21 @@ describe('withEnvVars', () => {
     });
   });
 
+  it('should pass Date instances through unchanged', () => {
+    const date = new Date('2026-01-10T00:00:00Z');
+    const schema = withEnvVars(
+      z.object({
+        name: z.string(),
+        createdAt: z.date()
+      })
+    );
+
+    expect(schema.parse({ name: 'test', createdAt: date })).toEqual({
+      name: 'test',
+      createdAt: date
+    });
+  });
+
   it('should use a prefix to match environment variable', () => {
     const schema = withEnvVars(
       z.object({

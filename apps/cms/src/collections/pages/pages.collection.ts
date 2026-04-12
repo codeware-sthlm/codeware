@@ -20,6 +20,7 @@ const blocks: Record<BlockSlug, boolean> = {
   image: true,
   media: true,
   code: true,
+  posts: true,
   'reusable-content': true,
   'social-media': true,
   spacing: true,

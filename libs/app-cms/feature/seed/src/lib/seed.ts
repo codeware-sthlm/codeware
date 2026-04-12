@@ -563,6 +563,7 @@ export const seed = async (
                 payload.config,
                 post.content
               ),
+              createdAt: post.createdAt,
               slug: post.slug,
               title: post.title,
               tenant: entity.id

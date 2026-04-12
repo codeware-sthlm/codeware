@@ -20,6 +20,7 @@ const richTextBlocks: Record<BlockSlug, boolean> = {
   // Unsupported blocks
   content: false,
   'file-area': false,
+  posts: false,
   'reusable-content': false,
   video: false
 };
@@ -37,6 +38,7 @@ const inlineBlocks: Record<BlockSlug, boolean> = {
   // Unsupported blocks
   content: false,
   'file-area': false,
+  posts: false,
   video: false
 };
 

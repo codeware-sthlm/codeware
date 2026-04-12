@@ -52,6 +52,7 @@ export const SeedDataSchema = z.object({
     z.object({
       title: z.string(),
       slug: z.string(),
+      createdAt: z.date(),
       authors: z.array(UserLookupSchema),
       categories: z.array(CategoryLookupSchema),
       content: z.string({ description: 'Markdown content' }),

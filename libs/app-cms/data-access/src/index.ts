@@ -13,6 +13,7 @@ export { getNavigationDocs } from './lib/collections/get-navigation-docs';
 export { getNavigationTree } from './lib/collections/get-navigation-tree';
 
 export { getPage } from './lib/collections/get-page';
+export { type PageData, getPageData } from './lib/collections/get-page-data';
 export { getPages } from './lib/collections/get-pages';
 
 export { getPost } from './lib/collections/get-post';

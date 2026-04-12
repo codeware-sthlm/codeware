@@ -1,6 +1,9 @@
 import { RenderBlocks, usePayload } from '@codeware/shared/ui/cms-renderer';
 import { t } from '@codeware/shared/util/i18n';
-import { resolveMeta } from '@codeware/shared/util/payload-utils';
+import {
+  type BlocksData,
+  resolveMeta
+} from '@codeware/shared/util/payload-utils';
 import {
   type MetaFunction,
   useRouteError,
@@ -33,6 +36,8 @@ export const meta: MetaFunction = ({ matches }) => {
 export default function Index() {
   const landingPage = useLandingPage();
   const { locale } = usePayload();
+  const rootData = useRouteLoaderData<typeof rootLoader>('root');
+  const blocksData = rootData?.landingPageBlocksData as BlocksData | undefined;
 
   return (
     <Container className="mt-16 sm:mt-32">
@@ -45,7 +50,7 @@ export default function Index() {
       )}
       <article className="mt-16">
         {landingPage ? (
-          <RenderBlocks blocks={landingPage.layout} />
+          <RenderBlocks blocks={landingPage.layout} blocksData={blocksData} />
         ) : (
           <ErrorContainer
             title={t(locale, 'error.landingPageNotFound')}

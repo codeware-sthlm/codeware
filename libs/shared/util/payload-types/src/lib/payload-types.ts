@@ -110,6 +110,7 @@ export interface Config {
     form: FormBlock;
     image: ImageBlock;
     media: MediaBlock;
+    posts: PostsBlock;
     'reusable-content': ReusableContentBlock;
     'social-media': SocialMediaBlock;
     spacing: SpacingBlock;
@@ -319,6 +320,7 @@ export interface Page {
     | ImageBlock
     | MediaBlock
     | CodeBlock
+    | PostsBlock
     | ReusableContentBlock
     | SocialMediaBlock
     | SpacingBlock
@@ -1082,6 +1084,21 @@ export interface SpacingBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'spacing';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostsBlock".
+ */
+export interface PostsBlock {
+  title: string;
+  description?: string | null;
+  /**
+   * Maximum number of posts to display
+   */
+  limit: number;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'posts';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

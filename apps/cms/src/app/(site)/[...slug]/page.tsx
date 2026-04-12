@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { getPage } from '@codeware/app-cms/data-access';
+import { getPageData } from '@codeware/app-cms/data-access';
 import { RenderPage } from '@codeware/shared/ui/cms-renderer';
 
 import { payloadRuntime } from '../../../security/payload-runtime';
@@ -16,12 +16,11 @@ export default async function Page({ params }: Props) {
   const slugString = slug.join('/');
 
   const runtime = await payloadRuntime();
+  const data = await getPageData(runtime, slugString);
 
-  const page = await getPage(runtime, slugString);
-
-  if (!page) {
+  if (!data) {
     notFound();
   }
 
-  return <RenderPage page={page} />;
+  return <RenderPage page={data.page} blocksData={data.blocksData} />;
 }

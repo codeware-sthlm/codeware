@@ -5,6 +5,7 @@ import type {
   Page,
   ReusableContentBlock as ReusableContentBlockProps
 } from '@codeware/shared/util/payload-types';
+import type { BlocksData } from '@codeware/shared/util/payload-utils';
 import { cn } from '@codeware/shared/util/ui';
 import { useRef } from 'react';
 
@@ -14,22 +15,31 @@ import { FileAreaBlock } from './blocks/FileAreaBlock';
 import { FormBlock } from './blocks/FormBlock';
 import { ImageBlock } from './blocks/ImageBlock';
 import { MediaBlock } from './blocks/MediaBlock';
+import { PostsBlock } from './blocks/PostsBlock';
 import { RichText } from './blocks/RichText';
 import { SocialMediaBlock } from './blocks/SocialMediaBlock';
 import { SpacingBlock } from './blocks/SpacingBlock';
 import { VideoBlock } from './blocks/VideoBlock';
 import { ColumnSizeProvider } from './providers/ColumnSizeProvider';
 
+type ContentBlockWithData = ContentBlockProps & { blocksData?: BlocksData };
+type ReusableContentBlockWithData = ReusableContentBlockProps & {
+  blocksData?: BlocksData;
+};
+
 /**
  * Render Payload content block data, with the configured number of columns
  * and rich text content in each column.
  *
- * Optional blocks are rendered after the rich text content, whitin each column.
+ * Optional blocks are rendered after the rich text content, within each column.
  *
  * User defined column sizes are applied for tablets and desktops.
  * Mobile devices display all columns as full width.
  */
-export const ContentBlock: React.FC<ContentBlockProps> = ({ columns }) => {
+export const ContentBlock: React.FC<ContentBlockWithData> = ({
+  columns,
+  blocksData
+}) => {
   return (
     <div className="grid w-full grid-cols-12 gap-x-4 gap-y-8 overflow-hidden md:gap-x-8 lg:gap-x-16">
       {columns?.map((col, index) => {
@@ -50,6 +60,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ columns }) => {
                 <RenderBlocks
                   className={cn({ 'mt-8': !!richText })}
                   blocks={blocks}
+                  blocksData={blocksData}
                 />
               )}
             </div>
@@ -63,12 +74,19 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ columns }) => {
 /**
  * Render Payload reusable content block data, by rendering its layout blocks.
  */
-export const ReusableContentBlock: React.FC<ReusableContentBlockProps> = ({
+export const ReusableContentBlock: React.FC<ReusableContentBlockWithData> = ({
   reusableContent,
-  refId
+  refId,
+  blocksData
 }) => {
   if (reusableContent && typeof reusableContent === 'object') {
-    return <RenderBlocks blocks={reusableContent.layout} refId={refId} />;
+    return (
+      <RenderBlocks
+        blocks={reusableContent.layout}
+        refId={refId}
+        blocksData={blocksData}
+      />
+    );
   }
   return null;
 };
@@ -76,6 +94,39 @@ export const ReusableContentBlock: React.FC<ReusableContentBlockProps> = ({
 // Why are the components above defined here and not in `blocks/` folder?
 // Components depend on `RenderBlocks`. To avoid circular dependencies,
 // these components must be defined in the same file as `RenderBlocks`.
+
+/**
+ * Resolve extra props to inject into a block component from pre-fetched data.
+ *
+ * Blocks that use Payload relationship fields get their data resolved automatically
+ * by Payload's `depth` option and need no extra props.
+ *
+ * Blocks that query a collection dynamically (listing blocks) receive pre-fetched
+ * data keyed by block id via `blocksData`. This function maps each such block type
+ * to its resolved data, or threads `blocksData` through container blocks so nested
+ * listing blocks can also receive their data.
+ *
+ * When adding a new listing block (e.g. `tours`), add a case here alongside
+ * its entry in `BlocksData`.
+ */
+function resolveBlockProps(
+  block: NonNullable<Page['layout']>[number],
+  blocksData: BlocksData | undefined
+): Record<string, unknown> {
+  switch (block.blockType) {
+    // Container blocks: thread blocksData through so nested listing blocks receive their data
+    case 'content':
+    case 'reusable-content':
+      return { blocksData };
+
+    // Listing blocks: resolve pre-fetched collection data by block id
+    case 'posts':
+      return { posts: (block.id && blocksData?.posts?.[block.id]) ?? [] };
+
+    default:
+      return {};
+  }
+}
 
 /** Block slug to component mapping */
 const blocksMap: Record<
@@ -90,6 +141,7 @@ const blocksMap: Record<
   form: FormBlock,
   image: ImageBlock,
   media: MediaBlock,
+  posts: PostsBlock,
   'reusable-content': ReusableContentBlock,
   'social-media': SocialMediaBlock,
   spacing: SpacingBlock,
@@ -98,6 +150,7 @@ const blocksMap: Record<
 
 type Props = {
   blocks: Page['layout'];
+  blocksData?: BlocksData;
   refId?: string | null | undefined;
   className?: string;
 };
@@ -107,7 +160,12 @@ type Props = {
  *
  * @throws Error if not wrapped in PayloadProvider (development only)
  */
-export const RenderBlocks: React.FC<Props> = ({ blocks, className, refId }) => {
+export const RenderBlocks: React.FC<Props> = ({
+  blocks,
+  blocksData,
+  className,
+  refId
+}) => {
   const docRef = useRef<HTMLDivElement>(null);
 
   const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0;
@@ -124,6 +182,8 @@ export const RenderBlocks: React.FC<Props> = ({ blocks, className, refId }) => {
             (index > 0 && blocks[index - 1].blockType === 'spacing');
 
           if (Block) {
+            const extraProps = resolveBlockProps(block, blocksData);
+
             return (
               <div
                 // Do not set any margins around spacing block since it has its own margin options.
@@ -133,7 +193,7 @@ export const RenderBlocks: React.FC<Props> = ({ blocks, className, refId }) => {
                 })}
                 key={index}
               >
-                <Block {...block} />
+                <Block {...block} {...extraProps} />
               </div>
             );
           }

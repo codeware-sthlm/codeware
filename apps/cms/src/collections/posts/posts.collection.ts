@@ -27,6 +27,7 @@ const blocks: Record<BlockSlug, boolean> = {
   'file-area': false,
   form: false,
   content: false,
+  posts: false,
   'reusable-content': false,
   video: false
 };

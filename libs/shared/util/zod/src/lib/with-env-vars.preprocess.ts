@@ -39,8 +39,14 @@ const processData = (data: unknown, options: Required<Options>): unknown => {
     return data.map((item) => processData(item, options));
   }
 
-  // Recurse transform objects
-  if (data && typeof data === 'object' && data !== null) {
+  // Recurse transform objects — skip Date instances since they have no enumerable
+  // own properties and would be reduced to an empty object {} by Object.entries.
+  if (
+    data &&
+    typeof data === 'object' &&
+    data !== null &&
+    !(data instanceof Date)
+  ) {
     return Object.entries(data).reduce((acc, [key, value]) => {
       return {
         ...acc,

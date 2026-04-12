@@ -1,5 +1,7 @@
 export { RichText } from './lib/blocks/RichText';
+export { PostsBlock } from './lib/blocks/PostsBlock';
 export { RenderBlocks } from './lib/RenderBlocks';
+export { type BlocksData } from '@codeware/shared/util/payload-utils';
 
 export {
   Container,

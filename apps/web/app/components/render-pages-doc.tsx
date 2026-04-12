@@ -1,10 +1,14 @@
 import { RenderBlocks } from '@codeware/shared/ui/cms-renderer';
 import type { NavigationDoc } from '@codeware/shared/util/payload-types';
+import type { BlocksData } from '@codeware/shared/util/payload-utils';
 
 /**
  * Render a pages collection document.
  */
-export const RenderPagesDoc: React.FC<{ doc: NavigationDoc }> = ({ doc }) => {
+export const RenderPagesDoc: React.FC<{
+  doc: NavigationDoc;
+  blocksData?: BlocksData;
+}> = ({ doc, blocksData }) => {
   if (doc.collection !== 'pages') {
     return null;
   }
@@ -19,7 +23,7 @@ export const RenderPagesDoc: React.FC<{ doc: NavigationDoc }> = ({ doc }) => {
         </header>
       )}
       <article className="mt-16">
-        <RenderBlocks blocks={doc.layout} />
+        <RenderBlocks blocks={doc.layout} blocksData={blocksData} />
       </article>
     </>
   );

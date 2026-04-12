@@ -5,6 +5,7 @@ export { fileAreaBlock } from './lib/file-area/file-area.block';
 export { formBlock } from './lib/form/form.block';
 export { imageBlock } from './lib/image/image.block';
 export { mediaBlock } from './lib/media/media.block';
+export { postsBlock } from './lib/posts/posts.block';
 export { reusableContentBlock } from './lib/reusable-content/reusable-content.block';
 export { socialMediaBlock } from './lib/social-media/social-media.block';
 export { spacingBlock } from './lib/spacing/spacing.block';

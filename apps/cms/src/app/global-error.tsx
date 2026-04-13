@@ -1,5 +1,7 @@
 'use client';
 
+import { CdwrCloud } from '@codeware/shared/ui/primitives';
+
 type GlobalErrorProps = {
   error: Error & { digest?: string };
 };
@@ -15,9 +17,9 @@ type GlobalErrorProps = {
  */
 export default function GlobalError({ error }: GlobalErrorProps) {
   return (
-    <html>
+    <html lang="en">
       <head>
-        <title>Technical difficulties</title>
+        <title>Something went wrong</title>
       </head>
       <body
         style={{
@@ -32,11 +34,19 @@ export default function GlobalError({ error }: GlobalErrorProps) {
         }}
       >
         <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-            We&apos;re having technical difficulties
+          <CdwrCloud />
+          <h1
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              marginBottom: '0.5rem'
+            }}
+          >
+            Something went wrong
           </h1>
           <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-            The service is temporarily unavailable. Please try again in a moment.
+            The service is temporarily unavailable. Please try again in a
+            moment.
           </p>
           {error.digest && (
             <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>

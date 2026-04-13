@@ -12,7 +12,7 @@ test.describe('maintenance error page', () => {
     await page.goto('/test/error');
 
     await expect(
-      page.getByRole('heading', { name: 'We\'re having technical difficulties' })
+      page.getByRole('heading', { name: 'Something went wrong' })
     ).toBeVisible();
 
     await expect(
@@ -20,7 +20,7 @@ test.describe('maintenance error page', () => {
     ).toBeVisible();
   });
 
-  test('shows error reference digest when available', async ({ page }) => {
+  test('shows error reference digest', async ({ page }) => {
     await page.goto('/test/error');
 
     // Next.js includes a digest in the error object for server errors

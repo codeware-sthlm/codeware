@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 
 import { getPageData } from '@codeware/app-cms/data-access';
-import { RenderPage } from '@codeware/shared/ui/cms-renderer';
 
 import { payloadRuntime } from '../../../security/payload-runtime';
+
+import { PagePreview } from './page-preview.client';
 
 interface Props {
   params: Promise<{
@@ -22,5 +23,5 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
-  return <RenderPage page={data.page} blocksData={data.blocksData} />;
+  return <PagePreview page={data.page} blocksData={data.blocksData} />;
 }

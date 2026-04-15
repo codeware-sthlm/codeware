@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 
 import { getPage } from '@codeware/app-cms/data-access';
-import { RenderLandingPage } from '@codeware/shared/ui/cms-renderer';
 
 import { payloadRuntime } from '../../security/payload-runtime';
+
+import { LandingPagePreview } from './landing-page-preview.client';
 
 // TODO: metadata
 
@@ -19,5 +20,5 @@ export default async function SiteIndexPage() {
     notFound();
   }
 
-  return <RenderLandingPage landingPage={page} />;
+  return <LandingPagePreview landingPage={page} />;
 }

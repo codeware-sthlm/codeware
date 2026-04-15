@@ -58,6 +58,20 @@ export default buildConfig({
       graphics: {
         Logo: '@codeware/apps/cms/components/Logo.client'
       }
+    },
+    livePreview: {
+      breakpoints: [
+        { label: 'Mobile', name: 'mobile', width: 375, height: 667 },
+        { label: 'Tablet', name: 'tablet', width: 768, height: 1024 },
+        { label: 'Desktop', name: 'desktop', width: 1440, height: 900 }
+      ],
+      collections: ['pages', 'posts'],
+      url: ({ data, collectionConfig, locale }) => {
+        if (collectionConfig?.slug === 'posts') {
+          return `posts/${data.slug}?locale=${locale.code}`;
+        }
+        return `${data.slug}?locale=${locale.code}`;
+      }
     }
   },
   // Declare blocks globally and reference then by slug elsewhere

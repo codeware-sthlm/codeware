@@ -27,8 +27,10 @@ export async function getPost(
   options: QuerySingleOptions = {}
 ): Promise<Post | null> {
   const { payload, tenantConfig } = mapToRuntime(runtime);
-  const { depth = 2, locale } = options;
-  const overrideAccess = payload.authenticatedUser === null;
+  const { depth = 2, draft, locale } = options;
+  // Override access in draft/preview context — draft mode is only enabled after
+  // auth validation in /api/preview, so it is safe to bypass the status filter.
+  const overrideAccess = payload.authenticatedUser === null || !!draft;
 
   const where: Where =
     typeof slugOrId === 'number'
@@ -39,6 +41,7 @@ export async function getPost(
     collection: 'posts',
     where,
     depth,
+    draft,
     locale: locale ?? tenantConfig?.locale,
     limit: 1,
     overrideAccess,

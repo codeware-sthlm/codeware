@@ -12,9 +12,9 @@ import { AuthenticatedPayload } from './payload-runtime.types';
  *
  * Authentication strategy:
  * - **Tenant mode**: Use tenant API key authentication
- * - Otherwise just passthrough the payload instance
+ * - Otherwise use the built-in session authentication (if session cookie is present, e.g. from logging in to the admin UI)
  *
- * Property `authenticatedUser` will be populated if tenant authentication is successful, otherwise it will be `undefined`.
+ * Property `authenticatedUser` will be populated if authentication is successful, otherwise it will be `undefined`.
  *
  * @returns Authenticated Payload instance with user context
  */

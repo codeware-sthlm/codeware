@@ -19,7 +19,7 @@ export const NavigationArrayRowLabel: FieldComponentServer<
   const currentIndex = (rowNumber ?? 0) - 1;
   const currentItem = fieldData.items?.[currentIndex];
 
-  if (!currentItem) {
+  if (!currentItem || !currentItem.reference) {
     return rowLabel;
   }
 

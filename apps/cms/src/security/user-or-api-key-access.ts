@@ -1,4 +1,4 @@
-import type { Access } from 'payload';
+import type { Access, Where } from 'payload';
 
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { isUser } from '@codeware/app-cms/util/misc';
@@ -7,116 +7,110 @@ import { verifySignature } from '@codeware/shared/util/signature';
 import { resolveScopedTenant } from './resolve-scoped-tenant';
 
 /**
- * Collection access control supporting both user access and
- * tenant API key access with conditional signature verification.
+ * Read access control for tenant-enabled collections.
  *
- * Ensures authenticated user or a tenant via API key.
- * When a tenant is detected, access is restricted to the tenant scope.
+ * Unauthenticated requests are always denied. Authenticated behavior differs
+ * by identity type:
  *
- * Use this read access control for all tenant enabled collections.
+ * **Admin users**
  *
- * **Normal users in tenant mode**
+ * - Tenant mode: scoped to the active tenant so users with multi-tenant
+ *   memberships only see content for the running deployment. Combined with the
+ *   multi-tenant plugin's own constraint, results are narrowed to the active
+ *   tenant only. The tenant is resolved from `APP_MODE.apiKey` (or seed data
+ *   in development).
+ * - Host mode: unrestricted — the multi-tenant plugin handles scoping via the
+ *   `payload-tenant` cookie.
  *
- * Returns a WHERE constraint scoped to the active tenant so that users with
- * multi-tenant memberships cannot read content from other tenants while the
- * server is running as a single-tenant deployment. Combined with the
- * multi-tenant plugin's own `{ tenant: { in: userTenantIds } }` constraint
- * the AND intersection naturally limits results to the active tenant only.
+ * Admin users are never restricted by draft status. They see all documents
+ * regardless of `_status` so the admin panel can show drafts freely.
  *
- * The active tenant is resolved without React context to stay correct in both
- * RSC (admin UI) and route handler (REST API) invocations:
- * - Non-development: use `APP_MODE.apiKey` directly from env.
- * - Development: resolve the API key from static seed data via `TENANT_ID`.
+ * **Tenant (API key) clients**
  *
- * **Normal users in host mode**
+ * Always scoped to the tenant. When `hasStatus` is `true` (draft-enabled
+ * collections), results are further filtered to `_status = 'published'` or
+ * documents without a status (legacy documents created before versioning was
+ * enabled). This prevents clients from inadvertently reading draft content.
  *
- * Allows access when authenticated. The multi-tenant plugin applies its
- * own tenant scoping based on the `payload-tenant` cookie.
+ * In host mode, external REST requests are additionally verified with a
+ * request signature. Internal Local API calls (no `host` header) skip
+ * verification — they run in-process and cannot be spoofed.
  *
- * **Tenant users**
- *
- * Besides requiring authentication, additionally verifies request signature based on:
- *
- * - CMS host mode: Signature verification is **enabled** for external requests
- *   - External REST API requests (with HTTP headers): Signature verified
- *   - Internal Local API operations (minimal headers): Skip verification
- * - Tenant mode: Signature verification is **disabled** (Next.js internal client)
- *
- * **Security Model:**
- *
- * External REST API requests are distinguished from internal Local API operations by checking
- * for the `host` header, which is **required** by the HTTP/1.1 specification (RFC 2616).
- *
- * A malicious client cannot bypass signature verification by omitting the `host` header because:
- *
- * 1. HTTP/1.1 spec mandates the `host` header for all requests
- * 2. HTTP servers (Node.js, nginx, etc.) reject requests without `host` before reaching application code
- * 3. All HTTP clients (browsers, fetch, curl, etc.) automatically include the `host` header
- * 4. Internal Local API calls are direct function invocations within the same process (no HTTP involved)
- *
- * Therefore:
- * - Presence of `host` header → External HTTP request → Signature verification required
- * - Absence of `host` header → Internal Local API call → Trusted, skip verification
- *
- * Returns access filter for the tenant permissions, which will be merged
- * with the multi-tenant plugin's tenant access control.
- *
- * @returns Access control function with user and tenant scope support.
+ * @param hasStatus - Set to `true` for draft-enabled collections to restrict
+ *   API key clients to published documents only.
  */
-export const userOrApiKeyAccess = (): Access => async (args) => {
-  const {
-    req: { headers, payload, user }
-  } = args;
+export const userOrApiKeyAccess =
+  (hasStatus = false): Access =>
+  async (args) => {
+    const {
+      req: { headers, payload, user }
+    } = args;
 
-  // Restrict to authenticated users only
-  if (!user) {
-    return false;
-  }
-
-  const { APP_MODE } = getEnv();
-
-  // Allow access for normal users, scoped to active tenant in tenant mode.
-  if (isUser(user)) {
-    if (APP_MODE.type === 'tenant') {
-      const tenant = await resolveScopedTenant(payload);
-
-      // Ensure the authenticated user docs are also scoped to the resolved tenant
-      if (tenant) {
-        return { tenant: { equals: tenant.id } };
-      }
-
-      // If we can't resolve a tenant, deny access to be safe (shouldn't happen in tenant mode)
-      payload.logger.warn(
-        '[userOrApiKeyAccess] Could not resolve tenant for tenant-mode user, denying access'
-      );
+    // Restrict to authenticated users only
+    if (!user) {
       return false;
     }
 
-    return true;
-  }
+    const { APP_MODE } = getEnv();
 
-  // cms host mode
-  if (APP_MODE.type === 'host') {
-    // Detect if this is an external REST API request vs internal Local API operation
-    const isExternalRequest = headers.has('host');
+    // Allow access to admin panel for normal users, scoped to active tenant in tenant mode.
+    if (isUser(user)) {
+      if (APP_MODE.type === 'tenant') {
+        const tenant = await resolveScopedTenant(payload);
 
-    // Only verify signature for external REST API requests
-    if (isExternalRequest) {
-      const { success, error } = verifySignature({
-        headers,
-        secret: APP_MODE.signatureSecret
-      });
+        // Ensure the authenticated user docs are also scoped to the resolved tenant.
+        // No restrictions on draft/published status - the admin UI should be able to read all docs in the active tenant.
+        if (tenant) {
+          return { tenant: { equals: tenant.id } };
+        }
 
-      if (!success) {
-        payload.logger.info(`Tenant denied, invalid signature:\n${error}`);
+        // If we can't resolve a tenant, deny access to be safe (shouldn't happen in tenant mode)
+        payload.logger.warn(
+          '[userOrApiKeyAccess] Could not resolve tenant for tenant-mode user, denying access'
+        );
         return false;
       }
-    }
-    // Internal Local API operations (no 'host' header) skip signature verification
-  }
 
-  // Restrict access to the tenant scope
-  return {
-    tenant: { equals: user.id }
+      return true;
+    }
+
+    // cms host mode
+    if (APP_MODE.type === 'host') {
+      // Detect if this is an external REST API request vs internal Local API operation
+      const isExternalRequest = headers.has('host');
+
+      // Only verify signature for external REST API requests
+      if (isExternalRequest) {
+        const { success, error } = verifySignature({
+          headers,
+          secret: APP_MODE.signatureSecret
+        });
+
+        if (!success) {
+          payload.logger.info(`Tenant denied, invalid signature:\n${error}`);
+          return false;
+        }
+      }
+      // Internal Local API operations (no 'host' header) skip signature verification
+    }
+
+    // Restrict access to the tenant scope
+    const tenantConstraint: Where = { tenant: { equals: user.id } };
+
+    if (!hasStatus) {
+      return tenantConstraint;
+    }
+
+    // For draft-enabled collections: clients only see published docs or legacy null-status docs
+    return {
+      and: [
+        tenantConstraint,
+        {
+          or: [
+            { _status: { equals: 'published' } },
+            { _status: { exists: false } }
+          ]
+        }
+      ]
+    };
   };
-};

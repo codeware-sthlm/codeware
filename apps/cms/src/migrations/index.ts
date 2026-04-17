@@ -28,6 +28,7 @@ import * as migration_20260105_225735_cod_payload3_69 from './20260105_225735_co
 import * as migration_20260409_174321_cod_290 from './20260409_174321_cod_290';
 import * as migration_20260411_000000_enum_schema_cleanup from './20260411_000000_enum_schema_cleanup';
 import * as migration_20260412_202701_cod_295 from './20260412_202701_cod_295';
+import * as migration_20260416_053006_cod_293 from './20260416_053006_cod_293';
 
 export const migrations = [
   {
@@ -179,5 +180,10 @@ export const migrations = [
     up: migration_20260412_202701_cod_295.up,
     down: migration_20260412_202701_cod_295.down,
     name: '20260412_202701_cod_295'
+  },
+  {
+    up: migration_20260416_053006_cod_293.up,
+    down: migration_20260416_053006_cod_293.down,
+    name: '20260416_053006_cod_293'
   }
 ];

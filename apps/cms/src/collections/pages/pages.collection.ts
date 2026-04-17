@@ -35,7 +35,7 @@ const pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   admin: {
     group: adminGroups.content,
-    defaultColumns: ['name', 'slug', 'updatedAt'],
+    defaultColumns: ['name', 'slug', 'updatedAt', '_status'],
     useAsTitle: 'name',
     description: {
       en: 'Pages are the building blocks of the site and are used to create menus and navigation.',
@@ -43,7 +43,7 @@ const pages: CollectionConfig<'pages'> = {
     }
   },
   access: {
-    read: userOrApiKeyAccess()
+    read: userOrApiKeyAccess(true)
   },
   labels: {
     singular: { en: 'Page', sv: 'Sida' },
@@ -109,7 +109,14 @@ const pages: CollectionConfig<'pages'> = {
       ]
     },
     slugField({ sourceField: 'name' })
-  ]
+  ],
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 3000
+      }
+    }
+  }
 };
 
 export default pages;

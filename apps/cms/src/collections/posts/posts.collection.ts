@@ -39,7 +39,7 @@ const posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   admin: {
     group: adminGroups.content,
-    defaultColumns: ['title', 'updatedAt'],
+    defaultColumns: ['title', 'updatedAt', '_status'],
     useAsTitle: 'title',
     description: {
       en: 'Posts are standalone pages such as articles or blog posts and can be categorized.',
@@ -47,7 +47,7 @@ const posts: CollectionConfig<'posts'> = {
     }
   },
   access: {
-    read: userOrApiKeyAccess()
+    read: userOrApiKeyAccess(true)
   },
   labels: {
     singular: { en: 'Post', sv: 'Inlägg' },
@@ -145,7 +145,14 @@ const posts: CollectionConfig<'posts'> = {
       }
     },
     slugField({ sourceField: 'title' })
-  ]
+  ],
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 3000
+      }
+    }
+  }
 };
 
 export default posts;

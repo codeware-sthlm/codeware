@@ -24,13 +24,21 @@ export async function getPosts(
   options: QueryMultipleOptions<'posts'> = {}
 ): Promise<PaginatedDocs<Post> | null> {
   const { payload, tenantConfig } = runtime;
-  const { depth = 2, limit = 20, locale, where, sort = '-createdAt' } = options;
+  const {
+    depth = 2,
+    draft,
+    limit = 20,
+    locale,
+    where,
+    sort = '-createdAt'
+  } = options;
   const overrideAccess = payload.authenticatedUser === null;
 
   const result = await payload.find({
     collection: 'posts',
     where,
     depth,
+    draft,
     locale: locale ?? tenantConfig?.locale,
     limit,
     sort,

@@ -12,6 +12,11 @@ export type QuerySingleOptions = {
   depth?: number;
 
   /**
+   * Fetch draft version of the document (requires versions/drafts to be enabled on the collection)
+   */
+  draft?: boolean;
+
+  /**
    * Locale to query (overrides tenant configuration when available)
    */
   locale?: TypedLocale;

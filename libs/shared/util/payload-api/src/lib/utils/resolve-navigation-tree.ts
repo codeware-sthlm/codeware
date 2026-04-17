@@ -25,7 +25,8 @@ export const resolveNavigationTree = (
   const items = navigationData[0]?.items ?? [];
 
   return items.reduce((acc, { customLabel, id, labelSource, reference }) => {
-    if (typeof reference.value === 'number') {
+    // Reference can be missing when a page or post is deleted
+    if (!reference || typeof reference.value === 'number') {
       return acc;
     }
 

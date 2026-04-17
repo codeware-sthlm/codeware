@@ -67,14 +67,15 @@ export default buildConfig({
       ],
       collections: ['pages', 'posts'],
       url: ({ data, collectionConfig, locale }) => {
-        // Live preview in not enabled in host mode
+        // Live preview is not enabled in host mode
         if (env.APP_MODE.type === 'host') {
           return null;
         }
-        if (collectionConfig?.slug === 'posts') {
-          return `posts/${data.slug}?locale=${locale.code}`;
-        }
-        return `${data.slug}?locale=${locale.code}`;
+        const sitePath =
+          collectionConfig?.slug === 'posts'
+            ? `/posts/${data.slug}?locale=${locale.code}`
+            : `/${data.slug}?locale=${locale.code}`;
+        return `/api/preview?redirect=${encodeURIComponent(sitePath)}`;
       }
     }
   },

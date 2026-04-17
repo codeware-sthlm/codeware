@@ -72,7 +72,7 @@ test.describe('/admin/collections/pages', () => {
       .getByRole('textbox')
       .fill('Hello from test!');
 
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByRole('button', { name: 'Publish changes' }).click();
 
     // Payload navigates from /create to the new document URL on success.
     // Waiting for the URL change is more reliable than catching the toast,

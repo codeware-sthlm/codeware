@@ -50,7 +50,8 @@ export async function ensurePost(
       createdAt,
       slug,
       tenant,
-      title
+      title,
+      _status: 'published'
     },
     context: { seedAction: true },
     locale,

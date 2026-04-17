@@ -1,3 +1,4 @@
+import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
 
 import { getPageData } from '@codeware/app-cms/data-access';
@@ -16,8 +17,9 @@ export default async function Page({ params }: Props) {
   const { slug } = await params;
   const slugString = slug.join('/');
 
+  const { isEnabled: draft } = await draftMode();
   const runtime = await payloadRuntime();
-  const data = await getPageData(runtime, slugString);
+  const data = await getPageData(runtime, slugString, { draft });
 
   if (!data) {
     notFound();

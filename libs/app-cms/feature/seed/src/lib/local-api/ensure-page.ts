@@ -52,7 +52,8 @@ export async function ensurePage(
       layout,
       name,
       slug,
-      tenant
+      tenant,
+      _status: 'published'
     },
     locale,
     req: { transactionID }

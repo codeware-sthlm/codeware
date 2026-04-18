@@ -6,6 +6,13 @@ on:
       - opened
       - reopened
       - synchronize
+    paths-ignore:
+      - "**/*.md"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/PULL_REQUEST_TEMPLATE/**"
+      - ".github/CODEOWNERS"
+      - "LICENSE"
+      - "libs/shared/util/seed/src/lib/static-data/media/**"
   merge_group:
   push:
     branches:
@@ -22,7 +29,9 @@ permissions:
 env:
   CDWR_DEBUG_LOGGING: true
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') || github.event_name == 'push' || github.event_name == 'workflow_dispatch' || vars.NX_NO_CLOUD }}
+  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') ||
+    github.event_name == 'push' || github.event_name == 'workflow_dispatch' ||
+    vars.NX_NO_CLOUD }}
   NX_PARALLEL: ${{ vars.NX_PARALLEL }}
   NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}
 
@@ -49,10 +58,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Not needed in the merge queue — E2E and integration tests are skipped there
       - name: Install playwright browsers
+        if: github.event_name != 'merge_group'
         run: pnpm exec playwright install --with-deps
 
       - name: Install Fly CLI
+        if: github.event_name != 'merge_group'
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
           version: ${{ vars.FLY_CLI_VERSION }}
@@ -70,10 +82,17 @@ jobs:
 
       - run: pnpm nx affected -t lint,test,build -c ci
 
-      # nx-payload-e2e only runs in e2e-matrix workflow
-      - run: pnpm nx affected -t e2e -c ci --exclude nx-payload-e2e
+      # E2E, integration, and smoke tests are skipped in the merge queue — they were
+      # already verified in the PR. The merge queue only needs lint/test/build.
 
-      - run: pnpm nx affected -t integration-test -c ci
+      # nx-payload-e2e runs separately in the e2e-matrix workflow
+      - name: E2E tests
+        if: github.event_name != 'merge_group'
+        run: pnpm nx affected -t e2e -c ci --exclude nx-payload-e2e
+
+      - name: Integration tests
+        if: github.event_name != 'merge_group'
+        run: pnpm nx affected -t integration-test -c ci
         env:
           FLY_TEST_API_TOKEN: ${{ secrets.FLY_TEST_API_TOKEN }}
           FLY_TEST_ORG: ${{ vars.FLY_TEST_ORG }}
@@ -83,6 +102,7 @@ jobs:
           INFISICAL_TEST_SITE: ${{ vars.INFISICAL_SITE }}
 
       - name: Linux nx-payload e2e smoke (pnpm)
+        if: github.event_name != 'merge_group'
         run: pnpm nx affected -t e2e --exclude '*,!tag:scope:nx-payload-e2e' -c quick
         env:
           CDWR_E2E_PACKAGE_MANAGER: pnpm

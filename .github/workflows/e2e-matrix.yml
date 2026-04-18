@@ -156,7 +156,7 @@ jobs:
         with:
           lookup-only: true
           path: "**/node_modules"
-          key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
+          key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - if: steps.cache-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
@@ -235,7 +235,7 @@ jobs:
         id: cache-modules
         with:
           path: "**/node_modules"
-          key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ github.run_id }}
+          key: ${{ matrix.os }}-modules-${{ matrix.node }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

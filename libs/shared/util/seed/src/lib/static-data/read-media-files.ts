@@ -6,10 +6,9 @@ import { fileURLToPath } from 'url';
  * Media file names expected to be available remotely for seeding.
  */
 const remoteMediaFiles = [
-  'abstract-image-1.png',
-  'abstract-image-2.png',
-  'abstract-image-3.png',
-  'abstract-image-4.png',
+  'abstract-image-1.jpg',
+  'abstract-image-2.jpg',
+  'abstract-image-3.jpg',
   'data-1.json',
   'data-2.json',
   'document-1.pdf',

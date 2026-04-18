@@ -511,7 +511,6 @@ export interface Media {
    * Allow external access to the file without authentication. For example, this is required for file areas and document images.
    */
   external?: boolean | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1315,7 +1314,6 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   tags?: T;
   external?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

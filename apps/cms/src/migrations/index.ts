@@ -29,6 +29,7 @@ import * as migration_20260409_174321_cod_290 from './20260409_174321_cod_290';
 import * as migration_20260411_000000_enum_schema_cleanup from './20260411_000000_enum_schema_cleanup';
 import * as migration_20260412_202701_cod_295 from './20260412_202701_cod_295';
 import * as migration_20260416_053006_cod_293 from './20260416_053006_cod_293';
+import * as migration_20260418_101207_cod_293_drop_media_prefix from './20260418_101207_cod_293_drop_media_prefix';
 
 export const migrations = [
   {
@@ -185,5 +186,10 @@ export const migrations = [
     up: migration_20260416_053006_cod_293.up,
     down: migration_20260416_053006_cod_293.down,
     name: '20260416_053006_cod_293'
+  },
+  {
+    up: migration_20260418_101207_cod_293_drop_media_prefix.up,
+    down: migration_20260418_101207_cod_293_drop_media_prefix.down,
+    name: '20260418_101207_cod_293_drop_media_prefix'
   }
 ];

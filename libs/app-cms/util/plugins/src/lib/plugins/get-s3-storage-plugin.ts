@@ -11,15 +11,14 @@ export const getS3StoragePlugin = (env: Env) => {
   const s3 = (env.S3_STORAGE ?? {}) as NonNullable<typeof env.S3_STORAGE>;
   const s3Enabled =
     Boolean(s3.bucket) ||
-    // TODO: Running `dev` target without S3 will trigger db sync to remove prefix column from media collection.
-    // Until this is fixed (by Payload?) it's better to use S3 for develpment as well.
     ['build', 'gen', 'payload'].includes(env.NX_RUN_TARGET);
 
   return s3Storage({
     collections: {
       media: {
-        disableLocalStorage: true,
-        prefix: 'media'
+        // Only disable local storage when S3 is actually configured.
+        // Without this guard, Payload has nowhere to store files when S3 is disabled.
+        disableLocalStorage: Boolean(s3.bucket)
       }
     },
     bucket: s3.bucket,

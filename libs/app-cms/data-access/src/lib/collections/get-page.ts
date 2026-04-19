@@ -28,14 +28,20 @@ export async function getPage(
 ): Promise<Page | null> {
   const { payload, tenantConfig } = mapToRuntime(runtime);
   const { depth = 2, draft, locale } = options;
-  // Override access in draft/preview context — draft mode is only enabled after
-  // auth validation in /api/preview, so it is safe to bypass the status filter.
+  // Override access to bypass the _status filter — needed for unauthenticated fetches and
+  // draft mode (where the access function would otherwise restrict to published only).
+  // In draft mode, add an explicit tenant constraint to preserve tenant scoping, since
+  // overrideAccess also bypasses the tenant filter from the access control function.
   const overrideAccess = payload.authenticatedUser === null || !!draft;
 
-  const where: Where =
-    typeof slugOrId === 'number'
+  const where: Where = {
+    ...(typeof slugOrId === 'number'
       ? { id: { equals: slugOrId } }
-      : { slug: { equals: slugOrId } };
+      : { slug: { equals: slugOrId } }),
+    ...(draft && tenantConfig
+      ? { tenant: { equals: tenantConfig.tenant.id } }
+      : {})
+  };
 
   const result = await payload.find({
     collection: 'pages',

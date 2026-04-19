@@ -1,5 +1,5 @@
 import type { Post } from '@codeware/shared/util/payload-types';
-import type { PaginatedDocs } from 'payload';
+import type { PaginatedDocs, Where } from 'payload';
 
 import type { PayloadRuntime } from '../payload-runtime.types';
 
@@ -32,11 +32,20 @@ export async function getPosts(
     where,
     sort = '-createdAt'
   } = options;
-  const overrideAccess = payload.authenticatedUser === null;
+  // Mirror the same pattern as getPage/getPost: override access in draft mode to bypass
+  // the _status filter, and add explicit tenant scoping to preserve tenant isolation.
+  const overrideAccess = draft === true || payload.authenticatedUser === null;
+  const tenantWhere: Where | undefined =
+    draft && tenantConfig
+      ? { tenant: { equals: tenantConfig.tenant.id } }
+      : undefined;
+  const scopedWhere: Where | undefined = tenantWhere
+    ? { and: [...(where ? [where] : []), tenantWhere] }
+    : where;
 
   const result = await payload.find({
     collection: 'posts',
-    where,
+    where: scopedWhere,
     depth,
     draft,
     locale: locale ?? tenantConfig?.locale,

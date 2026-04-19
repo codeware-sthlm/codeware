@@ -19,15 +19,17 @@ import config from '../../../payload.config';
  * admin users can enable draft mode. Tenant API key clients are not allowed.
  */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const redirectTo = searchParams.get('redirect');
+  const requestUrl = new URL(request.url);
+  const redirectTo = requestUrl.searchParams.get('redirect');
 
   if (!redirectTo) {
     return new Response('Missing redirect parameter', { status: 400 });
   }
 
-  // Only allow relative paths to prevent open-redirect attacks
-  if (!redirectTo.startsWith('/')) {
+  // Only allow same-origin paths to prevent open-redirect attacks.
+  // Scheme-relative URLs like //evil.com pass startsWith('/') but resolve externally.
+  const resolved = new URL(redirectTo, requestUrl);
+  if (resolved.origin !== requestUrl.origin) {
     return new Response('Invalid redirect path', { status: 400 });
   }
 
@@ -49,5 +51,5 @@ export async function GET(request: Request) {
   const draft = await draftMode();
   draft.enable();
 
-  return NextResponse.redirect(new URL(redirectTo, request.url));
+  return NextResponse.redirect(resolved);
 }

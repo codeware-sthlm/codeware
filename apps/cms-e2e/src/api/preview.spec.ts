@@ -28,6 +28,11 @@ test.describe('GET /api/preview', () => {
     expect(res.status()).toBe(400);
   });
 
+  test('returns 400 for scheme-relative open-redirect', async ({ request }) => {
+    const res = await request.get('/api/preview?redirect=//evil.example.com');
+    expect(res.status()).toBe(400);
+  });
+
   test('returns 401 when unauthenticated', async ({ request }) => {
     const res = await request.get('/api/preview?redirect=/');
     expect(res.status()).toBe(401);
@@ -51,6 +56,21 @@ test.describe('GET /api/preview', () => {
 
 test.describe('GET /api/preview/exit', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
+
+  test('falls back to / for scheme-relative open-redirect', async ({
+    page
+  }) => {
+    await loginAs(page, 'tenantAdmin', { navigate: false });
+
+    // Enable draft mode first
+    await page.goto('/api/preview?redirect=/');
+
+    // Exit with a scheme-relative redirect — should land on / not external host
+    const response = await page.goto(
+      '/api/preview/exit?redirect=//evil.example.com'
+    );
+    expect(response?.url()).not.toContain('evil.example.com');
+  });
 
   test('clears draft mode cookie and redirects', async ({ page }) => {
     await loginAs(page, 'tenantAdmin', { navigate: false });

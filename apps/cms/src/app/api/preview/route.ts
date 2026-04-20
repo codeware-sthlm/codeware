@@ -1,5 +1,6 @@
 import { draftMode } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { redirect } from 'next/navigation';
+import { NextRequest } from 'next/server';
 import { getPayload } from 'payload';
 
 import { isUser } from '@codeware/app-cms/util/misc';
@@ -18,18 +19,15 @@ import config from '../../../payload.config';
  * Authentication: validates the Payload session cookie so only logged-in
  * admin users can enable draft mode. Tenant API key clients are not allowed.
  */
-export async function GET(request: Request) {
-  const requestUrl = new URL(request.url);
-  const redirectTo = requestUrl.searchParams.get('redirect');
+export async function GET(request: NextRequest): Promise<Response> {
+  const { searchParams } = new URL(request.url);
+  const redirectTo = searchParams.get('redirect');
 
   if (!redirectTo) {
     return new Response('Missing redirect parameter', { status: 400 });
   }
 
-  // Only allow same-origin paths to prevent open-redirect attacks.
-  // Scheme-relative URLs like //evil.com pass startsWith('/') but resolve externally.
-  const resolved = new URL(redirectTo, requestUrl);
-  if (resolved.origin !== requestUrl.origin) {
+  if (!redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
     return new Response('Invalid redirect path', { status: 400 });
   }
 
@@ -51,5 +49,5 @@ export async function GET(request: Request) {
   const draft = await draftMode();
   draft.enable();
 
-  return NextResponse.redirect(resolved);
+  redirect(redirectTo);
 }

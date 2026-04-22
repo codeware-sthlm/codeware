@@ -484,6 +484,7 @@ export interface Post {
 export interface Media {
   id: number;
   tenant?: (number | null) | Tenant;
+  filenameWithoutPrefix?: string | null;
   /**
    * Alternative text for SEO and accessibility.
    */
@@ -507,6 +508,7 @@ export interface Media {
     [k: string]: unknown;
   } | null;
   tags?: (number | Tag)[] | null;
+  prefix?: string | null;
   /**
    * Allow external access to the file without authentication. For example, this is required for file areas and document images.
    */
@@ -1310,9 +1312,11 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
+  filenameWithoutPrefix?: T;
   alt?: T;
   caption?: T;
   tags?: T;
+  prefix?: T;
   external?: T;
   updatedAt?: T;
   createdAt?: T;

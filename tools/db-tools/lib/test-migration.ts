@@ -83,10 +83,14 @@ async function startContainer(): Promise<void> {
       `postgres:17`
   );
 
-  // Poll until postgres accepts connections
+  // Poll until postgres accepts TCP connections from the host.
+  // pg_isready inside the container tests the UNIX socket; the host psql
+  // connects over TCP, which can lag behind by a second or two on macOS.
   for (let i = 0; i < 30; i++) {
     try {
-      await execAsync(`docker exec ${CONTAINER_NAME} pg_isready -q`);
+      await execAsync(
+        `psql "${TEST_DATABASE_URL}" --no-password -t -A -c "SELECT 1"`
+      );
       return;
     } catch {
       await new Promise((r) => setTimeout(r, 1000));

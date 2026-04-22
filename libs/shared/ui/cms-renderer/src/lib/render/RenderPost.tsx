@@ -1,8 +1,8 @@
 'use client';
 
-import { Image } from '@codeware/shared/ui/image';
 import type { Post } from '@codeware/shared/util/payload-types';
 
+import { ImageBlock } from '../blocks/ImageBlock';
 import { RichText } from '../blocks/RichText';
 import { Container } from '../layout/Container';
 import { usePayload } from '../providers/PayloadProvider';
@@ -51,7 +51,7 @@ function formatDate(dateString: string): string {
  * ```
  */
 export function RenderPost({ post }: RenderPostProps) {
-  const { navigate, payloadUrl } = usePayload();
+  const { navigate } = usePayload();
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -95,19 +95,11 @@ export function RenderPost({ post }: RenderPostProps) {
                 <span className="ml-3">{formatDate(post.createdAt)}</span>
               </time>
             </header>
-            {post.heroImage &&
-              typeof post.heroImage === 'object' &&
-              post.heroImage.url && (
-                <div className="relative mt-8">
-                  <Image
-                    src={`${payloadUrl}${post.heroImage.url}`}
-                    alt={post.heroImage.alt || ''}
-                    width={post.heroImage.width || 1200}
-                    height={post.heroImage.height || 630}
-                    className="aspect-video w-full rounded-2xl bg-zinc-100 object-cover dark:bg-zinc-800"
-                  />
-                </div>
-              )}
+            {post.heroImage && typeof post.heroImage === 'object' && (
+              <div className="prose relative mt-8">
+                <ImageBlock media={post.heroImage} hideCaption />
+              </div>
+            )}
             <div className="prose dark:prose-invert mt-8">
               <RichText data={post.content} />
             </div>

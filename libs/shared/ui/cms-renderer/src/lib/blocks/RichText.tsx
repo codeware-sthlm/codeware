@@ -3,6 +3,7 @@ import type {
   CodeBlock as CodeBlockProps,
   CollectionSlug,
   FormBlock as FormBlockProps,
+  ImageBlock as ImageBlockProps,
   MediaBlock as MediaBlockProps,
   SocialMediaBlock as SocialMediaBlockProps,
   SpacingBlock as SpacingBlockProps
@@ -23,6 +24,7 @@ import {
 import { CardBlock } from './CardBlock';
 import { CodeBlock } from './CodeBlock';
 import { FormBlock } from './FormBlock';
+import { ImageBlock } from './ImageBlock';
 import { MediaBlock } from './MediaBlock';
 import { SocialMediaBlock } from './SocialMediaBlock';
 import { SpacingBlock } from './SpacingBlock';
@@ -33,6 +35,7 @@ type NodeTypes =
       | CardBlockProps
       | CodeBlockProps
       | FormBlockProps
+      | ImageBlockProps
       | MediaBlockProps
       | SocialMediaBlockProps
       | SpacingBlockProps
@@ -76,6 +79,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({
     card: ({ node }) => <CardBlock {...node.fields} />,
     code: ({ node }) => <CodeBlock {...node.fields} />,
     form: ({ node }) => <FormBlock {...node.fields} />,
+    image: ({ node }) => <ImageBlock {...node.fields} />,
     media: ({ node }) => <MediaBlock {...node.fields} />,
     'social-media': ({ node }) => <SocialMediaBlock {...node.fields} />,
     spacing: ({ node }) => <SpacingBlock {...node.fields} />

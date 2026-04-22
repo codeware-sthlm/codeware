@@ -6,13 +6,18 @@ import { usePayload } from '../providers/PayloadProvider';
 
 import { RichText } from './RichText';
 
-type Props = ImageBlockProps;
+type Props = Pick<ImageBlockProps, 'media'> & {
+  hideCaption?: boolean;
+};
 
 /**
  * Renders image block with optional caption and alt text
  * with responsive image sizes.
+ *
+ * Suppresses caption if `hideCaption` is true, which is useful for hero images
+ * where the caption is often redundant with the post title or not desired in the design.
  */
-export const ImageBlock: React.FC<Props> = ({ media }) => {
+export const ImageBlock: React.FC<Props> = ({ hideCaption, media }) => {
   const { payloadUrl } = usePayload();
 
   if (!media || typeof media !== 'object') {
@@ -21,20 +26,22 @@ export const ImageBlock: React.FC<Props> = ({ media }) => {
 
   const { alt, caption, sizes = {}, url = '' } = media;
 
-  const src = url?.startsWith('http') ? url : `${payloadUrl}/${url}`;
+  const src = url?.startsWith('http') ? url : `${payloadUrl}${url}`;
   const mediaSizes = Object.values(sizes);
 
   // Convert media sizes to responsive image sizes
   let sizeCount = 0;
-  const responsiveSizes = mediaSizes.reduce((acc, { mimeType, url, width }) => {
+  const responsiveSizes = mediaSizes.reduce((acc, mediaSize) => {
     sizeCount++;
-    if (!url) {
+    if (!mediaSize.url) {
       return acc;
     }
     const size = {
-      src,
-      width: width ?? undefined,
-      mimeType: mimeType ?? undefined,
+      src: mediaSize.url?.startsWith('http')
+        ? mediaSize.url
+        : `${payloadUrl}${mediaSize.url}`,
+      width: mediaSize.width ?? undefined,
+      mimeType: mediaSize.mimeType ?? undefined,
       ignoreMedia: false
     };
     acc.push(size);
@@ -56,7 +63,7 @@ export const ImageBlock: React.FC<Props> = ({ media }) => {
         height={media.height ?? undefined}
         width={media.width ?? undefined}
       />
-      {caption && (
+      {!hideCaption && caption && (
         <div className="mt-2">
           <RichText data={caption} />
         </div>

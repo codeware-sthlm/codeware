@@ -53,7 +53,7 @@ export const MediaBlock: React.FC<Props> = ({ media }) => {
   const alt = media.alt ?? '';
   const src = media.url?.startsWith('http')
     ? media.url
-    : `${payloadUrl}/${media.url ?? ''}`;
+    : `${payloadUrl}${media.url ?? ''}`;
 
   return (
     <div>

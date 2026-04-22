@@ -12,13 +12,21 @@ export const FileAreaBlock: React.FC<Props> = ({ files: filesFromProps }) => {
     .map(({ media }) => (media && typeof media === 'object' ? media : null))
     .filter((media) => media !== null)
     .map(
-      ({ createdAt, id, filenameWithoutPrefix, filesize, mimeType, url }) => ({
+      ({
+        createdAt,
+        id,
+        filenameWithoutPrefix,
+        filename,
+        filesize,
+        mimeType,
+        url
+      }) => ({
         dateAdded: new Date(createdAt),
         id: String(id),
-        name: String(filenameWithoutPrefix),
+        name: filenameWithoutPrefix ?? filename ?? '',
         size: Number(filesize),
         mimeType: String(mimeType),
-        previewUrl: url?.startsWith('http') ? url : `${payloadUrl}/${url}`
+        previewUrl: url?.startsWith('http') ? url : `${payloadUrl}${url}`
       })
     );
 

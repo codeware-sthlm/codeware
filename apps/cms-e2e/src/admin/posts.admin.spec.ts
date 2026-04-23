@@ -29,9 +29,10 @@ test.describe('/admin/collections/posts', () => {
   }) => {
     await page.goto('/admin/collections/posts');
 
-    await page.getByRole('link', { name: 'Lunar Highlands' }).click();
-
-    await expect(page).toHaveURL(/\/admin\/collections\/posts\//);
+    const link = page.getByRole('link', { name: 'Lunar Highlands' });
+    await expect(link).toBeVisible();
+    await link.click();
+    await page.waitForURL(/\/admin\/collections\/posts\//);
 
     const titleField = page.getByLabel('Title');
     await expect(titleField).toBeVisible();

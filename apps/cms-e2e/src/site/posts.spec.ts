@@ -16,7 +16,10 @@ test.describe('/posts', () => {
   test('navigates to a post', async ({ page }) => {
     await page.goto('/posts');
 
-    await page.getByRole('link', { name: 'Lunar Highlands' }).click();
+    await Promise.all([
+      page.waitForURL(/\/posts\/lunar-highlands/),
+      page.getByRole('link', { name: 'Lunar Highlands' }).click()
+    ]);
 
     await expect(page).toHaveURL(/\/posts\/lunar-highlands/);
   });

@@ -1,0 +1,20 @@
+{
+  "name": "pr-comment-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pr-comment-action/src",
+  "projectType": "library",
+  "tags": ["scope:pr-comment-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/pr-comment-action/*.md",
+          "packages/pr-comment-action/action.yml"
+        ],
+        "additionalEntryPoints": ["packages/pr-comment-action/src/action.ts"],
+        "format": ["cjs", "esm"]
+      }
+    }
+  }
+}

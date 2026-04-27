@@ -1,0 +1,70 @@
+name: "Fly Build"
+
+description: >
+  Build Docker images for affected Nx applications and push them to the Fly registry.
+
+inputs:
+  fly-api-token:
+    description: >
+      Authenticate using a Fly API access token or with setting the `FLY_API_TOKEN`
+      environment variable.
+  fly-org:
+    description: >
+      The target organisation for your deployed applications.
+      Defaults to your personal organisation.
+  fly-trace-cli:
+    description: >
+      Whether to enable tracing of the Fly CLI commands. Secrets are redacted in the logs.
+      Defaults to `false`.
+  fly-console-logs:
+    description: >
+      Whether to enable console logs for Fly CLI commands (e.g., Docker build logs).
+      Defaults to `false`.
+  main-branch:
+    description: >
+      The main branch name.
+      Defaults to the default branch of the repository.
+  environment:
+    description: >
+      Override the deployment environment (preview or production).
+      If not provided, the environment will be auto-detected from the GitHub event.
+  apps:
+    description: >
+      JSON array of app names to build (e.g., ["web", "cms"]).
+    required: true
+  build-args:
+    description: >
+      A multiline string of build arguments to pass to Docker during image build.
+      Each argument should be on a new line in the format of `KEY=VALUE`.
+      Build args must be declared in your Dockerfile with `ARG` directives.
+      Use for client-side env vars (e.g. NEXT_PUBLIC_*) that need to be embedded in the bundle.
+      Defaults to an empty string.
+  app-details:
+    description: >
+      Optional JSON object mapping apps to their deployment details, when needed.
+      Each app maps to an array of objects with optional tenant, env, and secrets.
+      Example: {"web":[{"tenant":"acme"}]}
+      Used to determine which apps are multi-tenant so a single image is built per app.
+      Defaults to an empty object.
+  token:
+    description: >
+      The token to use for repository authentication.
+      For example `GITHUB_TOKEN`.
+    required: true
+  opt-out-depot-builder:
+    description: >
+      Whether to opt out of the default depot builder.
+      Defaults to `false`.
+
+outputs:
+  environment:
+    description: >
+      The environment used for the build.
+  images:
+    description: >
+      JSON object mapping project names to pushed image references.
+      Use as input to the deploy action to skip rebuilding during deployment.
+
+runs:
+  using: "node20"
+  main: "../../dist/packages/fly-build-action/action.cjs"

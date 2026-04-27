@@ -1,0 +1,45 @@
+{
+  "name": "@cdwr/fly-build-action",
+  "version": "0.1.0",
+  "description": "The Nx Fly Build Action builds Docker images for Nx applications and pushes them to the Fly registry.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "directory": "packages/nx-fly-build-action"
+  },
+  "author": {
+    "name": "Codeware Sthlm",
+    "email": "hello@codeware.se",
+    "url": "https://codeware.se"
+  },
+  "license": "MIT",
+  "keywords": [
+    "Automation",
+    "GitHub Actions",
+    "Build",
+    "Docker",
+    "Fly.io",
+    "Nx"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "@nx/devkit": "^20.0.0 || ^21.0.0 || ^22.0.2",
+    "@octokit/webhooks-types": "^7.6.1",
+    "zod": "^3.23.8"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "main": "./index.js",
+  "module": "./index.js"
+}

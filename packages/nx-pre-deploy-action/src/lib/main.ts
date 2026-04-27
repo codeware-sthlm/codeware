@@ -34,7 +34,7 @@ export async function run(): Promise<void> {
     core.exportVariable('DEPLOY_ENV', environment);
 
     // Set action outputs
-    core.setOutput('apps', apps);
+    core.setOutput('apps', JSON.stringify(apps));
     core.setOutput('environment', environment);
     core.setOutput('app-tenants', JSON.stringify(appTenants));
   } catch (error) {

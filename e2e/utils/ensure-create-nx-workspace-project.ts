@@ -2,14 +2,14 @@ import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { basename, join } from 'path';
 import { cwd } from 'process';
 
+import { runCommand } from '@codeware/core/testing';
 import {
   getPackageVersion,
   isDebugEnabled,
   logDebug,
   logError,
   logInfo,
-  logWarning,
-  runCommand
+  logWarning
 } from '@codeware/core/utils';
 import { type PackageManager, readJsonFile } from '@nx/devkit';
 import {

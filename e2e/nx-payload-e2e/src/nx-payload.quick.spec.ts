@@ -1,4 +1,5 @@
-import { logDebug, runCommand } from '@codeware/core/utils';
+import { runCommand } from '@codeware/core/testing';
+import { logDebug } from '@codeware/core/utils';
 import {
   ensureCreateNxWorkspaceProject,
   ensureLockFileIsDetected

@@ -102,6 +102,33 @@ export default [
               ]
             },
             {
+              sourceTag: 'scope:fly-build-action',
+              onlyDependOnLibsWithTags: [
+                'scope:fly-build-action',
+                'scope:core',
+                'scope:fly-node',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:fly-deployment-action',
+              onlyDependOnLibsWithTags: [
+                'scope:fly-deployment-action',
+                'scope:core',
+                'scope:fly-node',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:fly-destroy-action',
+              onlyDependOnLibsWithTags: [
+                'scope:fly-destroy-action',
+                'scope:core',
+                'scope:fly-node',
+                'scope:shared'
+              ]
+            },
+            {
               sourceTag: 'scope:fly-node',
               onlyDependOnLibsWithTags: [
                 'scope:fly-node',
@@ -147,6 +174,14 @@ export default [
               sourceTag: 'scope:nx-pre-deploy-action',
               onlyDependOnLibsWithTags: [
                 'scope:nx-pre-deploy-action',
+                'scope:core',
+                'scope:shared'
+              ]
+            },
+            {
+              sourceTag: 'scope:pr-comment-action',
+              onlyDependOnLibsWithTags: [
+                'scope:pr-comment-action',
                 'scope:core',
                 'scope:shared'
               ]

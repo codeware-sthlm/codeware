@@ -73,6 +73,9 @@
       ],
       "@codeware/e2e/utils": ["e2e/utils/index.ts"],
       "@codeware/fly-node": ["packages/fly-node/src/index.ts"],
+      "@codeware/fly-deployment-action": [
+        "packages/fly-deployment-action/src/index.ts"
+      ],
       "@codeware/nx-fly-deployment-action": [
         "packages/nx-fly-deployment-action/src/index.ts"
       ],

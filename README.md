@@ -21,6 +21,8 @@
 - [Packages](#packages)
   - [Nx Plugins](#nx-plugins)
   - [GitHub Actions](#github-actions)
+    - [`deploy-env-action` _(superseded)_](#deploy-env-action--superseded)
+    - [`nx-fly-deployment-action` _(deprecated)_](#nx-fly-deployment-action--deprecated)
   - [Node Libraries](#node-libraries)
   - [Utilities](#utilities)
 - [Startup Payload multi-tenant in dev mode](#startup-payload-multi-tenant-in-dev-mode)
@@ -56,21 +58,30 @@ npx create-nx-payload
 
 ### GitHub Actions
 
-#### [`deploy-env-action`](packages/deploy-env-action) <!-- omit in toc -->
+#### Fly.io Deployment Pipeline <!-- omit in toc -->
 
-GitHub action that analyzes the environment to deploy to based on the event details.
+Six focused actions that together handle the full deployment lifecycle:
 
-#### [`nx-fly-deployment-action`](packages/nx-fly-deployment-action) <!-- omit in toc -->
-
-GitHub action that brings automatic [Fly.io](https://fly.io) deployments to your [Nx](https://nx.dev) workspace.
+| Action                                                    | Purpose                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------- |
+| [`fly-conditions-action`](packages/fly-conditions-action) | Gate the pipeline based on branch rules and the preview label       |
+| [`nx-pre-deploy-action`](packages/nx-pre-deploy-action)   | Analyze affected apps, resolve environment, and fetch tenant config |
+| [`fly-build-action`](packages/fly-build-action)           | Build Docker images and push to the Fly registry                    |
+| [`fly-deployment-action`](packages/fly-deployment-action) | Deploy pre-built images to Fly.io                                   |
+| [`fly-destroy-action`](packages/fly-destroy-action)       | Destroy preview apps when a pull request is closed                  |
+| [`pr-comment-action`](packages/pr-comment-action)         | Post deployment status to a pull request                            |
 
 #### [`nx-migrate-action`](packages/nx-migrate-action) <!-- omit in toc -->
 
 GitHub action that brings automatic [Nx](https://nx.dev) migrations to your workspace.
 
-#### [`nx-pre-deploy-action`](packages/nx-pre-deploy-action) <!-- omit in toc -->
+#### [`deploy-env-action`](packages/deploy-env-action) <!-- omit in toc --> _(superseded)_
 
-GitHub action that brings pre-deployment analysis of environment, multi-tenancy and secrets to your workspace.
+Superseded by [`nx-pre-deploy-action`](packages/nx-pre-deploy-action), which covers environment detection plus affected apps analysis and multi-tenant support.
+
+#### [`nx-fly-deployment-action`](packages/nx-fly-deployment-action) <!-- omit in toc --> _(deprecated)_
+
+Renamed to [`fly-deployment-action`](packages/fly-deployment-action).
 
 ### Node Libraries
 
@@ -109,7 +120,7 @@ nx dx:postgres cms
 #### Serve admin UI <!-- omit in toc -->
 
 ```sh
-nx serve cms
+nx dev cms
 ```
 
 > [!NOTE]
@@ -141,7 +152,7 @@ nx seed cms
 > Live-reload is not fully operational.
 
 ```sh
-nx start web
+nx dev web
 ```
 
 ### Terminal 3: Start reverse proxy to simulate multi-tenancy
@@ -175,26 +186,14 @@ nx payload-proxy [docker compose options]
 
 ### CLI Tools
 
-Interactive CLI tools for managing Fly.io apps, databases, and configurations.
-
-**Quick Start:**
+Interactive CLI tools for managing Fly.io apps, databases, and Infisical configurations.
 
 ```sh
 pnpm cdwr
 ```
 
-Select from available tools:
-
-- **drop-db** - Drop databases from Fly Postgres cluster
-- **restart-app** - Restart Fly app machines
-- **app-info** - View Fly app information and machine states
-- **patch-config** - Apply TOML patches to Fly apps
-- **infisical-tenants** - Fetch application tenants from Infisical
-- **infisical-data** - Fetch tenant data from Infisical
-- **infisical-analysis** - Analyze Infisical configuration and secrets
-
 > [!TIP]
-> See [tools/README.md](tools/README.md) for more details and alternative usage options.
+> See [tools/README.md](tools/README.md) for available tools and usage options.
 
 ### Infisical Secrets Management
 
@@ -258,7 +257,7 @@ The [Fly.io](https://fly.io) platform is used to host the deployed applications 
 > [!NOTE] Configuration, multi-tenant setup, and workflow details
 > **See:** [DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
-Deployments are automatic on push events, detected by the [nx-fly-deployment-action](packages/nx-fly-deployment-action).
+Deployments are automatic on push events, handled by the [fly-deployment workflow](.github/workflows/fly-deployment.yml).
 
 For local development and troubleshooting, install the Fly CLI:
 

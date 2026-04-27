@@ -66,8 +66,8 @@ const findFlyConfig = (
  * Checks for the presence and validity of `github.json` files in app root,
  * and looks for fly configuration files.
  *
- * @param apps - Optional list of specific apps to analyze. If not provided, analyzes all affected apps.
  * @param environment - Environment to look for environment-specific fly configs or undefined
+ * @param apps - List of app project names to analyze. Defaults to all Nx affected apps.
  * @returns List of apps with their deployment status and details.
  */
 export const analyzeAppsToDeploy = async (
@@ -76,10 +76,8 @@ export const analyzeAppsToDeploy = async (
 ): Promise<App[]> => {
   const response: App[] = [];
 
-  // Create deployments based on affected apps or provided apps
   const projectNames = apps ?? (await getNxApps('affected'));
 
-  // Analyze each project
   for (const projectName of projectNames) {
     // Get project configuration
     const projectConfig = await getNxProject(projectName);

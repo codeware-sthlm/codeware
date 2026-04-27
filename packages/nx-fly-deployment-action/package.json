@@ -1,35 +1,26 @@
 {
   "name": "@cdwr/nx-fly-deployment-action",
-  "version": "0.4.0",
-  "description": "The Nx Fly Deployment Action will manage your deployments to fly.io.",
+  "version": "0.5.0",
+  "deprecated": "This package has been renamed to @cdwr/fly-deployment-action. Please update your workflow to use the new package.",
+  "description": "⚠️ Deprecated — use @cdwr/fly-deployment-action instead",
+  "license": "MIT",
+  "author": {
+    "name": "Codeware Sthlm",
+    "url": "https://github.com/codeware-sthlm"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/codeware-sthlm/codeware.git",
     "directory": "packages/nx-fly-deployment-action"
   },
-  "author": {
-    "name": "Codeware Sthlm",
-    "email": "hello@codeware.se",
-    "url": "https://codeware.se"
-  },
-  "license": "MIT",
   "keywords": [
-    "Automation",
-    "GitHub Actions",
-    "Deploy",
-    "Fly.io",
-    "Nx"
+    "deprecated"
   ],
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/exec": "^1.1.1",
-    "@actions/github": "^6.0.0",
-    "@nx/devkit": "^20.0.0 || ^21.0.0 || ^22.0.2",
-    "@octokit/webhooks-types": "^7.6.1",
-    "zod": "^3.23.8"
+    "@actions/core": "^1.11.1"
   },
   "type": "module",
   "exports": {

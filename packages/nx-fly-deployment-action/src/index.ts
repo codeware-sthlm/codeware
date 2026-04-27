@@ -1,2 +1,1 @@
-export * from './lib/fly-deployment';
-export * from './lib/main';
+export * from './action';

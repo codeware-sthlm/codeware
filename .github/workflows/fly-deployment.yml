@@ -17,7 +17,8 @@ on:
           - cms
           - web
       tenant:
-        description: "Tenant ID (leave empty for all tenants, only applies to multi-tenant apps)"
+        description: "Tenant ID (leave empty for all tenants, only applies to
+          multi-tenant apps)"
         required: false
         type: string
       environment:
@@ -63,21 +64,29 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      skip: ${{ steps.preview.outputs.skip }}
+      skip: ${{ steps.conditions.outputs.skip }}
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - uses: actions/github-script@v7
-        id: preview
-        env:
-          PREVIEW_LABEL: ${{ env.FLY_PREVIEW_LABEL  }}
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
         with:
-          script: |
-            const { default: analyze } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/github/analyze-fly-deployment-conditions.js`);
-            await analyze({ github, context, core, label: process.env.PREVIEW_LABEL });
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build conditions action
+        run: pnpm nx build fly-conditions-action
+
+      - name: Analyze deployment conditions
+        id: conditions
+        uses: ./packages/fly-conditions-action
+        with:
+          preview-label: ${{ env.FLY_PREVIEW_LABEL }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   pre-deploy:
     needs: analyze-conditions
@@ -123,17 +132,19 @@ jobs:
           manual-tenant: ${{ github.event.inputs.tenant }}
           manual-environment: ${{ github.event.inputs.environment }}
         env:
-          # Must be defined since `github.json` is validated and cms app uses it
+          # Must be defined since `github.json` is validated and cms app uses env
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
+          PR_NUMBER: ${{ github.event.number }}
 
-  fly-deployment:
-    if: ${{ needs.pre-deploy.outputs.environment != '' && needs.pre-deploy.outputs.apps != '[]' }}
-
+  build:
     needs: pre-deploy
+    if: >-
+      ${{ needs.pre-deploy.outputs.environment != '' &&
+      needs.pre-deploy.outputs.apps != '[]' && github.event.action != 'closed'
+      }}
     runs-on: ubuntu-latest
-
-    # Not possible to provide url since we might have multiple deployments
-    environment: ${{ needs.pre-deploy.outputs.environment }}
+    outputs:
+      images: ${{ steps.build.outputs.images }}
 
     steps:
       - uses: actions/create-github-app-token@v1
@@ -155,22 +166,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build fly deployment action
-        run: pnpm nx build nx-fly-deployment-action
+      - name: Build build action
+        run: pnpm nx build fly-build-action
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
           version: ${{ vars.FLY_CLI_VERSION }}
 
-      - name: Set SHAs for affected calculations
-        uses: nrwl/nx-set-shas@v4
-        with:
-          main-branch-name: main
-          set-environment-variables-for-job: true
-
+      # The Sentry webpack plugin uploads source maps during the Docker build and expects
+      # the release to already exist (next.config.mjs: create: false). So the release is
+      # created here, before the build. If anything fails afterward it is deleted below.
       - name: Create Sentry release
-        if: github.event.action != 'closed'
+        id: sentry-release
         uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
@@ -182,15 +190,19 @@ jobs:
           set_commits: "auto"
           finalize: false
 
-      - name: Run Deployment to Fly
-        id: deployment
-        uses: ./packages/nx-fly-deployment-action
+      - name: Resolve flags
+        id: flags
+        run: |
+          echo "console-logs=${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker images
+        id: build
+        uses: ./packages/fly-build-action
         with:
           fly-api-token: ${{ secrets.FLY_API_TOKEN }}
           fly-org: ${{ vars.FLY_ORG }}
-          fly-region: ${{ vars.FLY_REGION }}
           fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
-          fly-console-logs: ${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}
+          fly-console-logs: ${{ steps.flags.outputs.console-logs }}
           token: ${{ steps.generate-token.outputs.token }}
           apps: ${{ needs.pre-deploy.outputs.apps }}
           environment: ${{ needs.pre-deploy.outputs.environment }}
@@ -204,6 +216,78 @@ jobs:
             SENTRY_PROJECT=${{ secrets.INF_SENTRY_PROJECT }}
             SENTRY_RELEASE=${{ github.sha }}
             SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
+          opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
+
+      # Clean up the Sentry release if the build failed.
+      - name: Delete Sentry release on build failure
+        if: steps.sentry-release.outcome == 'success' && steps.build.outcome !=
+          'success'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
+        run: pnpm sentry-cli releases delete "${{ github.sha }}" || true
+
+  deploy:
+    needs: [pre-deploy, build]
+    if: needs.build.result == 'success'
+    runs-on: ubuntu-latest
+
+    # Not possible to provide url since we might have multiple deployments
+    environment: ${{ needs.pre-deploy.outputs.environment }}
+
+    outputs:
+      environment: ${{ steps.deployment.outputs.environment }}
+      deployed: ${{ steps.deployment.outputs.deployed }}
+      failed: ${{ steps.deployment.outputs.failed }}
+
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build deployment action
+        run: pnpm nx build fly-deployment-action
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: ${{ vars.FLY_CLI_VERSION }}
+
+      - name: Resolve flags
+        id: flags
+        run: |
+          echo "console-logs=${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Fly
+        id: deployment
+        uses: ./packages/fly-deployment-action
+        with:
+          fly-api-token: ${{ secrets.FLY_API_TOKEN }}
+          fly-org: ${{ vars.FLY_ORG }}
+          fly-region: ${{ vars.FLY_REGION }}
+          fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
+          fly-console-logs: ${{ steps.flags.outputs.console-logs }}
+          token: ${{ steps.generate-token.outputs.token }}
+          apps: ${{ needs.pre-deploy.outputs.apps }}
+          environment: ${{ needs.pre-deploy.outputs.environment }}
+          app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
+          images: ${{ needs.build.outputs.images }}
           # Runtime environment variables
           env: |
             INFISICAL_SITE=${{ vars.INFISICAL_SITE }}
@@ -218,20 +302,107 @@ jobs:
             INFISICAL_PROJECT_ID=${{ secrets.INFISICAL_PROJECT_ID }}
             SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
-        env:
-          # Postgres preview cluster defined in `github.json`
-          POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
 
       - name: Finalize Sentry release
-        if: github.event.action != 'closed' && success()
+        if: steps.deployment.outcome == 'success'
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
         run: pnpm sentry-cli releases finalize "${{ github.sha }}"
 
+      # Clean up the Sentry release if deployment failed.
+      - name: Delete Sentry release on deployment failure
+        if: steps.deployment.outcome != 'success'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
+        run: pnpm sentry-cli releases delete "${{ github.sha }}" || true
+
+  pr-comment:
+    needs: [pre-deploy, deploy]
+    if: >-
+      always() && github.event_name == 'pull_request' && github.event.action !=
+      'closed' && needs.deploy.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build PR comment action
+        run: pnpm nx build pr-comment-action
+
+      - name: Post PR comment
+        uses: ./packages/pr-comment-action
+        with:
+          pull-request: ${{ github.event.number }}
+          environment: ${{ needs.deploy.outputs.environment }}
+          deployed: ${{ needs.deploy.outputs.deployed }}
+          failed: ${{ needs.deploy.outputs.failed }}
+          token: ${{ steps.generate-token.outputs.token }}
+
+  destroy:
+    needs: pre-deploy
+    if: >-
+      github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build destroy action
+        run: pnpm nx build fly-destroy-action
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          version: ${{ vars.FLY_CLI_VERSION }}
+
+      - name: Resolve flags
+        id: flags
+        run: |
+          echo "console-logs=${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}" >> "$GITHUB_OUTPUT"
+
+      - name: Destroy preview apps
+        id: destroy
+        uses: ./packages/fly-destroy-action
+        with:
+          fly-api-token: ${{ secrets.FLY_API_TOKEN }}
+          fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
+          fly-console-logs: ${{ steps.flags.outputs.console-logs }}
+          token: ${{ steps.generate-token.outputs.token }}
+
   summary:
-    needs: [analyze-conditions, pre-deploy, fly-deployment]
+    needs: [analyze-conditions, pre-deploy, build, deploy, destroy, pr-comment]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -239,8 +410,12 @@ jobs:
         env:
           SKIPPED: ${{ needs.analyze-conditions.outputs.skip }}
           ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
-          DEPLOY_RESULT: ${{ needs.fly-deployment.result }}
-          IS_CLOSED_PR: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          DESTROY_RESULT: ${{ needs.destroy.result }}
+          IS_CLOSED_PR:
+            ${{ github.event_name == 'pull_request' && github.event.action ==
+            'closed' }}
           IS_MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
           MANUAL_APP: ${{ github.event.inputs.app }}
           MANUAL_TENANT: ${{ github.event.inputs.tenant }}
@@ -256,8 +431,17 @@ jobs:
           fi
 
           if [ "$IS_CLOSED_PR" = "true" ]; then
-            echo "🚪 PR closed - running cleanup deployment" >> $GITHUB_STEP_SUMMARY
+            echo "🚪 PR closed - running cleanup" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
+            if [ "$DESTROY_RESULT" = "success" ]; then
+              echo "✅ Preview apps destroyed successfully" >> $GITHUB_STEP_SUMMARY
+            elif [ "$DESTROY_RESULT" = "skipped" ]; then
+              echo "⏭️ No preview apps to destroy" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Preview app cleanup failed or was cancelled" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+            exit 0
           fi
 
           if [ "$SKIPPED" = "true" ]; then
@@ -267,11 +451,11 @@ jobs:
             echo "⏭️ No affected apps" >> $GITHUB_STEP_SUMMARY
             exit 0
           elif [ "$DEPLOY_RESULT" = "success" ]; then
-            echo "✅ Deployment completed successfully" >> $GITHUB_STEP_SUMMARY
-          elif [ "$DEPLOY_RESULT" = "skipped" ]; then
+            echo "✅ Build and deployment completed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "$DEPLOY_RESULT" = "skipped" ] && [ "$BUILD_RESULT" = "skipped" ]; then
             echo "⏭️ No apps to deploy" >> $GITHUB_STEP_SUMMARY
             exit 0
           else
-            echo "❌ Deployment failed or was cancelled" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Build or deployment failed or was cancelled" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi

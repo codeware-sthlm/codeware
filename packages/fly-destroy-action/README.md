@@ -1,0 +1,59 @@
+<p align="center">
+  <br />
+  <img width="200" src="../../assets/cdwr-cloud.png" alt="codeware sthlm logo">
+  <br />
+  <br />
+</p>
+
+<h1 align='center'>Fly Destroy Action</h1>
+
+<p align='center'>
+  GitHub action that destroys Fly.io preview applications when a pull request is closed.
+  <br />
+  <br />
+  <a href='https://www.npmjs.com/package/@cdwr/fly-destroy-action'><img src='https://img.shields.io/npm/v/@cdwr/fly-destroy-action?label=npm%20version' alt='@cdwr/fly-destroy-action npm'></a>
+  &nbsp;
+  <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
+  <br />
+  <br />
+</p>
+
+## Description
+
+Tears down Fly.io applications that were created for a pull request's preview environment. Runs automatically when a PR is closed, cleaning up all preview apps associated with that PR (including multi-tenant deployments).
+
+> [!NOTE] Architecture and configuration
+> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md)
+
+## Usage
+
+```yaml
+destroy:
+  if: github.event_name == 'pull_request' && github.event.action == 'closed'
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v4
+
+    # Install dependencies, build the action...
+
+    - name: Install Fly CLI
+      uses: superfly/flyctl-actions/setup-flyctl@master
+
+    - name: Destroy preview apps
+      uses: ./packages/fly-destroy-action
+      with:
+        fly-api-token: ${{ secrets.FLY_API_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+## Inputs
+
+See [action.yml](action.yml) for descriptions of all inputs.
+
+## Outputs
+
+| Output      | Description                                         |
+| ----------- | --------------------------------------------------- |
+| `destroyed` | List of app names that were successfully destroyed. |
+| `skipped`   | List of app names that could not be destroyed.      |

@@ -83,6 +83,9 @@ export const createFly = (
     token: auth === 'config-token' ? env.FLY_TEST_API_TOKEN : undefined,
     org: env.FLY_TEST_ORG,
     logger: {
+      // Suppress routine info logs — vitest prints the test name as a header
+      // for every console.log call, which makes the test names appear spammed.
+      info: () => undefined,
       traceCLI: env.FLY_TEST_TRACE_CLI
     }
   });
@@ -93,12 +96,28 @@ export const createFly = (
  * @param fly - An initialized Fly client instance
  * @returns The created app name and directory
  */
-export const createTestApp = async (fly: Fly) => {
+export const createTestApp = async (
+  fly: Fly,
+  options: { build: 'dockerfile' | 'image'; deploy: boolean } = {
+    build: 'image',
+    deploy: true
+  }
+) => {
+  const { build, deploy } = options;
   const testApp = `test-app-${Date.now()}`;
   const testRelativeDir = join('integration-tests', '__test-apps__', testApp);
   const testDir = join(__dirname, '__test-apps__', testApp);
 
   mkdirSync(testDir, { recursive: true });
+
+  if (build === 'dockerfile') {
+    // Dockerfile-based app so `fly deploy --build-only` triggers a real Docker
+    // build and pushes the image to registry.fly.io
+    writeFileSync(
+      join(testDir, 'Dockerfile'),
+      `FROM hashicorp/http-echo:latest\n`
+    );
+  }
 
   // Create fly.toml (using pre-built image instead of Dockerfile)
   const flyToml = `
@@ -106,7 +125,7 @@ app = "${testApp}"
 primary_region = "arn"
 
 [build]
-  image = "hashicorp/http-echo"
+  ${build === 'dockerfile' ? 'dockerfile = "Dockerfile"' : 'image = "hashicorp/http-echo"'}
 
 [http_service]
   internal_port = 5678
@@ -124,14 +143,18 @@ primary_region = "arn"
 
   // Create app first to track for cleanup, in case deploy fails
   const { name } = await fly.apps.create({ app: testApp });
-  console.log(`🆕 Created test app '${name}'`);
+  console.log(`🆕 [ setup ] Created test app '${name}'`);
   createdApps.push(name);
 
-  // Deploy the app
-  const { url } = await fly.deploy({ config: configFile });
-  console.log(`🚀 Deployed test app '${name}' at ${url}`);
+  // Deploy the app if deploy option is true (can be skipped for testing build-only)
+  if (deploy) {
+    const { url } = await fly.deploy({ config: configFile });
+    console.log(`🚀 [ setup ] Deployed test app '${name}' at ${url}`);
+  } else {
+    console.log(`⚡ [ setup ] Skipped deploying test app '${name}'`);
+  }
 
-  return { appName: name, directory: testDir };
+  return { appName: name, configFile, directory: testDir };
 };
 
 /**
@@ -139,13 +162,13 @@ primary_region = "arn"
  * @param fly - An initialized Fly client instance
  */
 export const cleanupTestApps = async (fly: Fly) => {
-  console.log(`🧹 Cleaning up ${createdApps.length} test apps...`);
+  console.log(`🧹 [ cleanup ] ${createdApps.length} test apps...`);
   for (const app of createdApps) {
     try {
       await fly.apps.destroy(app);
-      console.log(`🗑️  Destroyed test app '${app}'`);
+      console.log(`🗑️ [ cleanup ] Destroyed test app '${app}'`);
     } catch (error) {
-      console.warn(`Failed to cleanup app ${app}:`, error);
+      console.warn(`⚠️ [ cleanup ] Failed to cleanup app '${app}':`, error);
     }
   }
   createdApps.length = 0;
@@ -176,5 +199,6 @@ export const untrackAppForCleanup = (app: string) => {
   const index = createdApps.indexOf(app);
   if (index !== -1) {
     createdApps.splice(index, 1);
+    console.log(`⚠️ [ cleanup ] Untracked test app '${app}'`);
   }
 };

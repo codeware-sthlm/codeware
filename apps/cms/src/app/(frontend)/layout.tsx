@@ -9,11 +9,6 @@ import { ModeToggle } from './components/ThemeToggle.client';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata = {
-  title: 'Payload Start Page',
-  description: 'A start page for Payload in a Next.js app.'
-};
-
 export default async function RootLayout({
   children
 }: {
@@ -41,20 +36,12 @@ export default async function RootLayout({
           </main>
           <footer className="mx-auto flex flex-wrap justify-center gap-4 p-6 text-sm opacity-70 hover:opacity-100 hover:transition-opacity sm:flex-nowrap sm:gap-8 sm:p-8">
             <a
-              className="relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-full after:origin-right after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100"
-              href="https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-payload"
+              className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100"
+              href="https://github.com/codeware-sthlm/codeware/tree/main/README.md"
               rel="noopener noreferrer"
               target="_blank"
             >
-              @cdwr/payload
-            </a>
-            <a
-              className="relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-full after:origin-right after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100"
-              href="https://payloadcms.com/docs"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Documentation
+              @cdwr
             </a>
           </footer>
         </ThemeProvider>

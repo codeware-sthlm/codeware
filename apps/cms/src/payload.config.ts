@@ -42,7 +42,6 @@ import tags from './collections/tags/tags.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
-import { migrations } from './migrations';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -122,12 +121,7 @@ export default buildConfig({
     schemaName: env.DATABASE_SCHEMA,
     migrationDir: path.resolve(dirname, 'migrations'),
     // Ensure db push is disabled during build-time
-    push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build',
-    // Never run migrations in a tenant context or during build-time
-    prodMigrations:
-      env.APP_MODE.type === 'host' && env.NX_RUN_TARGET !== 'build'
-        ? migrations
-        : undefined
+    push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build'
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),

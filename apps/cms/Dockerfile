@@ -64,6 +64,28 @@ ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
 
 RUN npx nx build cms
 
+# Compile migration script into the standalone output.
+# Uses --packages=external so all npm deps stay as imports resolved at runtime
+# from the standalone node_modules. Only monorepo-internal code gets bundled.
+# Migrations are passed inline so no filesystem read is needed at runtime.
+RUN ./node_modules/.bin/esbuild apps/cms/src/migrate.ts \
+  --bundle \
+  --packages=external \
+  --platform=node \
+  --target=node20 \
+  --format=esm \
+  --loader:.css=empty \
+  --loader:.svg=empty \
+  --loader:.png=empty \
+  --loader:.jpg=empty \
+  --loader:.jpeg=empty \
+  --loader:.gif=empty \
+  --loader:.woff=empty \
+  --loader:.woff2=empty \
+  --loader:.ttf=empty \
+  --outfile=apps/cms/.next/standalone/apps/cms/migrate.mjs \
+  --tsconfig=apps/cms/tsconfig.json
+
 # Production image, copy all the files and run next
 FROM base AS runner
 

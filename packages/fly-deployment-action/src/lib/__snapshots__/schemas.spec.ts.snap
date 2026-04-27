@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > ActionInputsSchema transformed shape 1`] = `
+{
+  "appDetails": {},
+  "apps": [
+    {
+      "flyConfigFile": "apps/web/fly.toml",
+      "githubConfig": {},
+      "name": "web",
+    },
+    {
+      "flyConfigFile": "apps/cms/fly.toml",
+      "githubConfig": {},
+      "name": "cms",
+    },
+  ],
+  "env": [
+    "ENV_KEY1=env-value1",
+    "ENV_KEY2=env-value2",
+  ],
+  "environment": "production",
+  "flyApiToken": "fly-token",
+  "flyConsoleLogs": false,
+  "flyOrg": "company",
+  "flyRegion": "sea",
+  "flyTraceCli": false,
+  "optOutDepotBuilder": false,
+  "secrets": [
+    "SECRET_KEY1=secret-value1",
+    "SECRET_KEY2=secret-value2",
+  ],
+  "token": "github-token",
+}
+`;
+
+exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > ActionOutputsSchema transformed shape 1`] = `
+{
+  "environment": "production",
+  "projects": [
+    {
+      "action": "deploy",
+      "app": "nextgen-web-app",
+      "name": "nextgen-web",
+      "url": "https://nextgen-web-app.fly.dev",
+    },
+    {
+      "action": "destroy",
+      "app": "poc-api-app",
+    },
+    {
+      "action": "failed",
+      "appOrProject": "broken-project",
+      "error": "No fly.toml file found",
+    },
+  ],
+}
+`;
+
+exports[`Fly Deployment Action schema validation > validates all schemas against fixtures > DeploymentConfigSchema transformed shape 1`] = `
+{
+  "appDetails": {},
+  "apps": [
+    {
+      "flyConfigFile": "apps/web/fly.toml",
+      "githubConfig": {},
+      "name": "web",
+    },
+    {
+      "flyConfigFile": "apps/cms/fly.toml",
+      "githubConfig": {},
+      "name": "cms",
+    },
+  ],
+  "fly": {
+    "consoleLogs": false,
+    "optOutDepotBuilder": false,
+    "org": "company",
+    "region": "sea",
+    "token": "fly-token",
+    "traceCLI": false,
+  },
+  "secrets": {
+    "SECRET_KEY1": "secret-value1",
+    "SECRET_KEY2": "secret-value2",
+  },
+  "token": "github-token",
+}
+`;

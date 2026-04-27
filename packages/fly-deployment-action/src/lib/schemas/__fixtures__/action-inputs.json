@@ -1,0 +1,18 @@
+{
+  "apps": [
+    { "name": "web", "flyConfigFile": "apps/web/fly.toml", "githubConfig": {} },
+    { "name": "cms", "flyConfigFile": "apps/cms/fly.toml", "githubConfig": {} }
+  ],
+  "appDetails": {},
+  "environment": "production",
+  "flyApiToken": "fly-token",
+  "flyOrg": "company",
+  "flyRegion": "sea",
+  "flyTraceCli": false,
+  "flyConsoleLogs": false,
+  "mainBranch": "main",
+  "optOutDepotBuilder": false,
+  "env": ["ENV_KEY1=env-value1", "ENV_KEY2=env-value2"],
+  "secrets": ["SECRET_KEY1=secret-value1", "SECRET_KEY2=secret-value2"],
+  "token": "github-token"
+}

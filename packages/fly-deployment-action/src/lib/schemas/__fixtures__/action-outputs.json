@@ -1,0 +1,20 @@
+{
+  "environment": "production",
+  "projects": [
+    {
+      "action": "deploy",
+      "app": "nextgen-web-app",
+      "name": "nextgen-web",
+      "url": "https://nextgen-web-app.fly.dev"
+    },
+    {
+      "action": "destroy",
+      "app": "poc-api-app"
+    },
+    {
+      "action": "failed",
+      "appOrProject": "broken-project",
+      "error": "No fly.toml file found"
+    }
+  ]
+}

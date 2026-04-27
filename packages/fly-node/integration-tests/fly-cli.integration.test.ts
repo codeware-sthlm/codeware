@@ -7,9 +7,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Fly } from '../src/lib/fly.class';
 import { AppsCreateTransformedResponseSchema } from '../src/lib/schemas/apps-create.schema';
 import { AppsListTransformedResponseSchema } from '../src/lib/schemas/apps-list.schema';
+import { BuildResponseSchema } from '../src/lib/schemas/build-response.schema';
 import { CertsListWithAppTransformedResponseSchema } from '../src/lib/schemas/certs-list-with-app.schema';
 import { CertsListTransformedResponseSchema } from '../src/lib/schemas/certs-list.schema';
 import { ConfigShowResponseSchema } from '../src/lib/schemas/config-show.schema';
+import { DeployResponseSchema } from '../src/lib/schemas/deploy.schema';
 import { SecretsListWithAppTransformedResponseSchema } from '../src/lib/schemas/secrets-list-with-app.schema';
 import { SecretsListTransformedResponseSchema } from '../src/lib/schemas/secrets-list.schema';
 import { StatusExtendedTransformedResponseSchema } from '../src/lib/schemas/status-extended.schema';
@@ -249,21 +251,11 @@ describe('Fly CLI Compatibility & Schema Validation', () => {
       });
 
       it('secrets.unset executes without errors and removes the secret', async () => {
-        // Ensure a secret is set for testing removal
         await fly.secrets.set(
-          {
-            TEMP_SECRET: 'temp-value'
-          },
+          { TEMP_SECRET: 'temp-value' },
           { app: testAppName, stage: true }
         );
-        // Verify it's set
-        expect(
-          (await fly.secrets.list({ app: testAppName })).find(
-            (s) => s.name === 'TEMP_SECRET'
-          )
-        ).toBeDefined();
 
-        // Now unset it and verify removal
         await expect(
           fly.secrets.unset('TEMP_SECRET', {
             app: testAppName,
@@ -291,6 +283,49 @@ describe('Fly CLI Compatibility & Schema Validation', () => {
 
         expect(response).toBeDefined();
         StatusExtendedTransformedResponseSchema.parse(response);
+      });
+    });
+
+    describe('Build & Deploy Commands', () => {
+      let buildAppName: string;
+      let buildConfigFile: string;
+
+      beforeAll(async () => {
+        // Dockerfile-based app so fly deploy --build-only --push triggers a real
+        // Docker build and pushes the image to registry.fly.io.
+        const { appName, configFile } = await createTestApp(fly, {
+          build: 'dockerfile',
+          deploy: false
+        });
+        buildAppName = appName;
+        buildConfigFile = configFile;
+      });
+
+      it('build returns a valid BuildResponse with a Fly registry image ref', async () => {
+        const response = await fly.build({ config: buildConfigFile });
+
+        expect(response).toBeDefined();
+        BuildResponseSchema.parse(response);
+
+        expect(response.appName).toBe(buildAppName);
+        expect(response.imageRef).toMatch(/^registry\.fly\.io\//);
+      });
+
+      it('deploy with pre-built image returns a valid DeployResponse', async () => {
+        // Chain: build first, then deploy using the registry image — mirrors the
+        // two-phase CI workflow (build once, deploy to multiple tenant apps).
+        const built = await fly.build({ config: buildConfigFile });
+        const response = await fly.deploy({
+          app: buildAppName,
+          config: buildConfigFile,
+          image: built.imageRef
+        });
+
+        expect(response).toBeDefined();
+        DeployResponseSchema.parse(response);
+
+        expect(response.app).toBe(buildAppName);
+        expect(response.url).toMatch(/^https:\/\//);
       });
     });
   });

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';
 import { AppsListTransformedResponseSchema } from './schemas/apps-list.schema';
+import { BuildResponseSchema } from './schemas/build-response.schema';
 import { CertsListWithAppTransformedResponseSchema } from './schemas/certs-list-with-app.schema';
 import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema';
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
@@ -20,6 +21,9 @@ export type ListAppResponse = z.infer<typeof AppsListTransformedResponseSchema>;
 export type CreateAppResponse = z.infer<
   typeof AppsCreateTransformedResponseSchema
 >;
+
+/** Build application image response */
+export type BuildResponse = z.infer<typeof BuildResponseSchema>;
 
 /** Deploy application response */
 export type DeployResponse = z.infer<typeof DeployResponseSchema>;
@@ -256,6 +260,17 @@ export type DeployAppOptions = {
    * When provided, the build phase is skipped and the deployment uses the specified image.
    */
   image?: string;
+
+  /**
+   * Build the image and push it to the registry without deploying.
+   *
+   * Use this to separate the build phase from the deploy phase.
+   * The image reference is returned and can be passed to a subsequent
+   * deploy call via the `image` option to skip rebuilding.
+   *
+   * Defaults to `false`.
+   */
+  buildOnly?: boolean;
 
   /**
    * Whether to opt out of the Depot Builder.

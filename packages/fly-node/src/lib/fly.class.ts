@@ -12,6 +12,7 @@ import { ZodError } from 'zod';
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';
 import { AppsListTransformedResponseSchema } from './schemas/apps-list.schema';
+import { BuildResponseSchema } from './schemas/build-response.schema';
 import { CertsListWithAppTransformedResponseSchema } from './schemas/certs-list-with-app.schema';
 import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema';
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
@@ -26,6 +27,7 @@ import { StatusTransformedResponseSchema } from './schemas/status.schema';
 import { VersionTransformedResponseSchema } from './schemas/version.schema';
 import type {
   AppOrConfig,
+  BuildResponse,
   Config,
   CreateAppOptions,
   CreateAppResponse,
@@ -49,7 +51,17 @@ import type {
   VersionResponse
 } from './types';
 
-export type ExecFlyOptions = SpawnOptions & SpawnPtyOptions;
+export type ExecFlyOptions = SpawnOptions &
+  SpawnPtyOptions & {
+    /**
+     * How to assemble the returned output string from the spawned process.
+     * - `'stdout'` (default): return stdout only — correct for JSON and most text commands
+     * - `'stderr'`: return stderr only
+     * - `'combined'`: return stdout + stderr — use when the data of interest
+     *   may appear in either stream (e.g. `fly deploy --build-only`)
+     */
+    streamStrategy?: 'stdout' | 'stderr' | 'combined';
+  };
 
 /**
  * Manages deployments to Fly.io using the `flyctl` CLI tool.
@@ -328,7 +340,12 @@ export class Fly {
     }
   };
   /**
-   * Deploy an application.
+   * Deploy an application, or just build its Docker image without deploying when
+   * `buildOnly` is set (equivalent to using `build(options)`).
+   *
+   * Pre-building is useful to ensure the image can be built successfully and exists
+   * before running a deploy that depends on it, and also to get the image reference for use in
+   * subsequent operations.
    *
    * A valid config file is required but the app doesn't have to exist,
    * since it gets created if needed.
@@ -338,16 +355,42 @@ export class Fly {
    * 2. Instance app name
    * 3. App name from the provided config file
    *
-   * Existing secrets are preserved.
-   *
-   * @param options - Options for deploying an application
-   * @throws An error if the deployment fails
+   * @param options - Deployment or build options
+   * @returns Build or deploy response depending on `buildOnly` option
+   * @throws An error if the operation fails
    */
-  deploy = async (options?: DeployAppOptions): Promise<DeployResponse> => {
+  deploy = async <T extends DeployAppOptions>(
+    options?: T
+  ): Promise<
+    T extends { buildOnly: true } ? BuildResponse : DeployResponse
+  > => {
+    const isBuildOnly = options?.buildOnly === true;
+
     try {
       await this.ensureInitialized();
-      const appName = await this.deployApp(options);
 
+      if (isBuildOnly) {
+        const { appName, imageRef } = await this.deployApp({
+          ...options,
+          buildOnly: true
+        });
+
+        if (!imageRef) {
+          throw new Error(
+            'Build completed but image reference not found in output'
+          );
+        }
+
+        this.logger.info(`Image for '${appName}' built: ${imageRef}`);
+
+        return BuildResponseSchema.parse({ appName, imageRef }) as T extends {
+          buildOnly: true;
+        }
+          ? BuildResponse
+          : DeployResponse;
+      }
+
+      const { appName } = await this.deployApp(options);
       this.logger.info(`Application '${appName}' was deployed`);
 
       const status = await this.fetchAppStatus('throwOnError', {
@@ -358,13 +401,14 @@ export class Fly {
         app: status.name,
         hostname: status.hostname,
         url: `https://${status.hostname}`
-      });
+      }) as T extends { buildOnly: true } ? BuildResponse : DeployResponse;
     } catch (error) {
       throw new Error(
-        `[deploy] something broke, check your deployments\n${error}`
+        `[deploy] something broke, check your ${isBuildOnly ? 'builds' : 'deployments'}\n${error}`
       );
     }
   };
+
   /**
    * Manage machines
    */
@@ -527,6 +571,27 @@ export class Fly {
       return null;
     }
   };
+
+  //
+  // DX friendly methods outside what Fly CLI provides
+  //
+
+  /**
+   * Build a Docker image for an application and push it to the Fly registry
+   * without deploying.
+   *
+   * The image reference is returned for use in a subsequent `deploy` that depends on it.
+   *
+   * Shorthand for `deploy({ ...options, buildOnly: true })`.
+   *
+   * @param options - Build options
+   * @returns The app name and image reference for use in a subsequent `deploy`
+   * @throws An error if the build fails or the image reference cannot be parsed
+   */
+  build = (
+    options?: Omit<DeployAppOptions, 'buildOnly'>
+  ): Promise<BuildResponse> => this.deploy({ ...options, buildOnly: true });
+
   /**
    * Get the extended details of an application
    *
@@ -583,10 +648,12 @@ export class Fly {
 
   /**
    * @private
-   * @returns The name of the deployed application
+   * @returns The app name and optional image reference (only set when buildOnly is true)
    * @throws An error if the deployment fails
    */
-  private async deployApp(options?: DeployAppOptions): Promise<string> {
+  private async deployApp(
+    options?: DeployAppOptions
+  ): Promise<{ appName: string; imageRef?: string }> {
     let appName = '';
     let appSecrets: ListSecretForAppResponse = [];
     let deployConfig = options?.config || this.instanceConfig;
@@ -681,8 +748,9 @@ export class Fly {
     // Validate app name before proceeding
     NameSchema.parse(appName);
 
-    // Apply secrets to app before deployment. Only set new secrets that don't exist.
-    if (options?.secrets) {
+    // Apply secrets to app before deployment. Skipped for build-only (secrets are runtime, not build-time).
+    // Only set new secrets that don't exist.
+    if (!options?.buildOnly && options?.secrets) {
       const existingSecrets = new Set(appSecrets.map(({ name }) => name));
       const newSecrets: Record<string, string> = {};
 
@@ -714,8 +782,9 @@ export class Fly {
       appName = options.app;
     }
 
-    // Attach to Postgres cluster if provided and not already attached
-    if (options?.postgres) {
+    // Attach to Postgres cluster if provided and not already attached.
+    // Skipped for build-only (Postgres is a runtime concern, not a build-time one).
+    if (!options?.buildOnly && options?.postgres) {
       // Get connected apps
       const users = await this.fetchPostgresUsers(
         options.postgres,
@@ -766,16 +835,32 @@ export class Fly {
     if (options?.image) {
       args.push('--image', options.image);
     }
+    if (options?.buildOnly) {
+      args.push('--build-only', '--push');
+    }
     if (options?.optOutDepotBuilder) {
       args.push('--depot=false');
     }
     args.push('--yes');
 
-    this.logger.info(`Deploying '${appName}'...`);
+    this.logger.info(
+      options?.buildOnly
+        ? `Building image for '${appName}'...`
+        : `Deploying '${appName}'...`
+    );
 
-    await this.execFly(args);
+    // flyctl writes progress output (including the image ref) to stderr for
+    // --build-only, so use 'combined' strategy to search both streams.
+    const output = await this.execFly<string>(
+      args,
+      options?.buildOnly ? { streamStrategy: 'combined' } : undefined
+    );
 
-    return appName;
+    const imageRef = options?.buildOnly
+      ? output?.match(/registry\.fly\.io\/\S+/)?.[0]
+      : undefined;
+
+    return { appName, imageRef };
   }
 
   /**
@@ -1369,13 +1454,20 @@ ${JSON.stringify(response, null, 2)}`);
         this.traceCLI('RESULT', output);
       } else {
         // Otherwise use spawn
+        const { streamStrategy = 'stdout', ...spawnOpts } = options ?? {};
         const result = await spawn(flyCmd, args, {
-          ...options,
+          ...spawnOpts,
           streamToConsole: this.logger.streamToConsole
         });
-        output = result.stdout.trim();
+        const stdout = result.stdout.trim();
         const stderr = result.stderr.trim();
-        this.traceCLI('RESULT', `${output}${stderr ? `\n${stderr}` : ''}`);
+        this.traceCLI('RESULT', `${stdout}${stderr ? `\n${stderr}` : ''}`);
+        output =
+          streamStrategy === 'combined'
+            ? `${stdout}\n${stderr}`
+            : streamStrategy === 'stderr'
+              ? stderr
+              : stdout;
       }
     } catch (error) {
       const errorMsg = (error as Error).message;

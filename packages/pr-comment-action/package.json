@@ -1,0 +1,43 @@
+{
+  "name": "@cdwr/pr-comment-action",
+  "version": "0.1.0",
+  "description": "The Nx Fly PR Comment Action posts deployment status comments to GitHub pull requests.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "directory": "packages/nx-fly-pr-comment-action"
+  },
+  "author": {
+    "name": "Codeware Sthlm",
+    "email": "hello@codeware.se",
+    "url": "https://codeware.se"
+  },
+  "license": "MIT",
+  "keywords": [
+    "Automation",
+    "GitHub Actions",
+    "Pull Request",
+    "Comment",
+    "Fly.io",
+    "Nx"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "zod": "^3.23.8"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "main": "./index.js",
+  "module": "./index.js"
+}

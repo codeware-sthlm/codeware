@@ -1,0 +1,33 @@
+name: "PR Comment"
+
+description: >
+  Post a deployment status comment to a GitHub pull request.
+
+inputs:
+  pull-request:
+    description: >
+      The pull request number to comment on.
+    required: true
+  environment:
+    description: >
+      The deployment environment (preview or production).
+    required: true
+  deployed:
+    description: >
+      JSON object mapping project names to deployed URLs.
+      Example: {"web":"https://my-app-pr-42.fly.dev"}
+      Defaults to an empty object.
+  failed:
+    description: >
+      JSON array of project names that failed to deploy.
+      Example: ["web", "cms"]
+      Defaults to an empty array.
+  token:
+    description: >
+      The token to use for repository authentication.
+      For example `GITHUB_TOKEN`.
+    required: true
+
+runs:
+  using: "node20"
+  main: "../../dist/packages/pr-comment-action/action.cjs"

@@ -1,0 +1,22 @@
+{
+  "name": "fly-conditions-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/fly-conditions-action/src",
+  "projectType": "library",
+  "tags": ["scope:fly-conditions-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/fly-conditions-action/*.md",
+          "packages/fly-conditions-action/action.yml"
+        ],
+        "additionalEntryPoints": [
+          "packages/fly-conditions-action/src/action.ts"
+        ],
+        "format": ["cjs", "esm"]
+      }
+    }
+  }
+}

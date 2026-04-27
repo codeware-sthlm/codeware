@@ -1,0 +1,85 @@
+name: "Fly Deployment"
+
+description: >
+  Deploy affected Nx applications to Fly.io using pre-built images.
+
+inputs:
+  fly-api-token:
+    description: >
+      Authenticate using a Fly API access token or with setting the `FLY_API_TOKEN`
+      environment variable.
+  fly-org:
+    description: >
+      The target organisation for your deployed applications.
+      Defaults to your personal organisation.
+  fly-region:
+    description: >
+      The target region for your deployed applications.
+      Defaults to auto-detect the fastest location.
+  fly-trace-cli:
+    description: >
+      Whether to enable tracing of the Fly CLI commands. Secrets are redacted in the logs.
+      Defaults to `false`.
+  fly-console-logs:
+    description: >
+      Whether to enable console logs for Fly CLI commands (e.g., Docker build logs).
+      Defaults to `false`.
+  environment:
+    description: >
+      The deployment environment (preview or production).
+      Resolved by the pre-deploy action.
+    required: true
+  apps:
+    description: >
+      JSON array of app names to deploy (e.g., ["web", "cms"]).
+    required: true
+  env:
+    description: >
+      A multiline string of environment variables to set for the deployed applications.
+      Each variable should be on a new line in the format of `KEY=VALUE`.
+      Defaults to an empty string.
+  secrets:
+    description: >
+      A multiline string of secrets to pass to the deployed applications.
+      Each secret should be on a new line in the format of `KEY=VALUE`.
+      Defaults to an empty string.
+  token:
+    description: >
+      The token to use for repository authentication.
+      For example `GITHUB_TOKEN`.
+    required: true
+  app-details:
+    description: >
+      Optional JSON object mapping apps to their deployment details, when needed.
+      Each app maps to an array of objects with optional tenant, env, and secrets.
+      Example: {"web":[{"tenant":"acme","env":{"URL":"..."},"secrets":{"KEY":"..."}}]}
+      The tenant field is optional - you can provide env/secrets without a tenant.
+      If an app has an empty array, it will be deployed once without deployment-specific config.
+      Deployment-specific env/secrets are merged with global env/secrets (deployment takes precedence).
+      Defaults to an empty object (single deployment per app with global config only).
+  images:
+    description: >
+      JSON object mapping app names to pre-built image references
+      (e.g. `{"cms":"registry.fly.io/cdwr-cms:deployment-xyz"}`).
+      When provided, the deploy phase skips Docker builds and uses these images directly.
+      Typically set to the `images` output from the `@cdwr/fly-build-action`.
+      Defaults to an empty object (each app builds its own image during deploy).
+  opt-out-depot-builder:
+    description: >
+      Whether to opt out of the default depot builder.
+      Defaults to `false`.
+
+outputs:
+  environment:
+    description: >
+      The environment used for deployment.
+  failed:
+    description: >
+      A list of project names that failed to deploy.
+  deployed:
+    description: >
+      JSON object containing the deployed project names and their urls.
+
+runs:
+  using: "node20"
+  main: "../../dist/packages/fly-deployment-action/action.cjs"

@@ -7,7 +7,7 @@ import { analyzeAppsToDeploy } from './analyze-apps-to-deploy';
  * Integration tests for `analyzeAppsToDeploy` function.
  *
  * These tests verify the real behavior of analyzeAppsToDeploy without mocking
- * its internal dependencies (getNxApps, getNxProject, file system operations).
+ * its internal dependencies (getNxProject, file system operations).
  * This ensures the complete workflow from Nx workspace queries to deployment
  * decisions works correctly.
  */
@@ -62,19 +62,14 @@ describe('analyzeAppsToDeploy - Integration', () => {
   };
 
   /**
-   * Mock getNxApps response (affected apps)
+   * Mock getNxApps affected response
    */
   const mockAffectedApps = (appNames: string[]) => {
     mockGetExecOutput.mockImplementation(async (command, args) => {
       const argsStr = args?.join(' ') || '';
 
-      // Mock: nx show projects --type app --affected --json
       if (argsStr.includes('show projects') && argsStr.includes('--affected')) {
-        return {
-          exitCode: 0,
-          stdout: JSON.stringify(appNames),
-          stderr: ''
-        };
+        return { exitCode: 0, stdout: JSON.stringify(appNames), stderr: '' };
       }
 
       throw new Error(`Unexpected exec call: ${command} ${argsStr}`);
@@ -87,15 +82,6 @@ describe('analyzeAppsToDeploy - Integration', () => {
   const mockNxProject = (projects: { name: string; root: string }[]) => {
     mockGetExecOutput.mockImplementation(async (command, args) => {
       const argsStr = args?.join(' ') || '';
-
-      // Mock: nx show projects --type app --affected --json
-      if (argsStr.includes('show projects') && argsStr.includes('--affected')) {
-        return {
-          exitCode: 0,
-          stdout: JSON.stringify(projects.map((p) => p.name)),
-          stderr: ''
-        };
-      }
 
       // Mock: nx show project <name> --json
       if (argsStr.includes('show project')) {
@@ -157,7 +143,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['web', 'cms']);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -190,7 +176,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'api', root: 'apps/api' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['api']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -220,7 +206,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy('production');
+      const result = await analyzeAppsToDeploy('production', ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -247,7 +233,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -273,7 +259,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -289,24 +275,12 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockGetExecOutput.mockImplementation(async (command, args) => {
         const argsStr = args?.join(' ') || '';
 
-        // Mock: nx show projects --type app --affected --json
-        if (
-          argsStr.includes('show projects') &&
-          argsStr.includes('--affected')
-        ) {
-          return {
-            exitCode: 0,
-            stdout: JSON.stringify(['nonexistent']),
-            stderr: ''
-          };
-        }
-
-        // Mock: nx show project fails
+        // Mock: nx show project fails (mismatched name)
         if (argsStr.includes('show project')) {
           return {
             exitCode: 0,
             stdout: JSON.stringify({
-              name: 'wrong-name', // Mismatched name
+              name: 'wrong-name',
               root: 'apps/nonexistent'
             }),
             stderr: ''
@@ -317,7 +291,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       });
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['nonexistent']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -345,7 +319,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -373,7 +347,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -392,7 +366,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act & Assert
-      await expect(analyzeAppsToDeploy(undefined)).rejects.toThrow();
+      await expect(analyzeAppsToDeploy(undefined, ['web'])).rejects.toThrow();
     });
   });
 
@@ -429,7 +403,11 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, [
+        'web',
+        'cms',
+        'api'
+      ]);
 
       // Assert
       expect(result).toHaveLength(3);
@@ -449,14 +427,14 @@ describe('analyzeAppsToDeploy - Integration', () => {
       });
     });
 
-    it('should return empty array when no apps are affected', async () => {
-      // Arrange
+    it('should return empty array when no apps are provided', async () => {
+      const result = await analyzeAppsToDeploy(undefined, []);
+      expect(result).toEqual([]);
+    });
+
+    it('should fall back to affected apps when no list is provided', async () => {
       mockAffectedApps([]);
-
-      // Act
       const result = await analyzeAppsToDeploy(undefined);
-
-      // Assert
       expect(result).toEqual([]);
     });
 
@@ -493,7 +471,11 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, [
+        'app-a',
+        'app-b',
+        'app-c'
+      ]);
 
       // Assert
       expect(result.map((r) => r.projectName)).toEqual([
@@ -520,7 +502,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'nested-app', root: 'apps/nested/deep/app' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['nested-app']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -549,7 +531,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined);
+      const result = await analyzeAppsToDeploy(undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);

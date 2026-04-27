@@ -17,9 +17,6 @@
         ],
         "format": ["cjs", "esm"]
       }
-    },
-    "act": {
-      "command": "act schedule --env-file .env.act -j nx-fly-deployment"
     }
   }
 }

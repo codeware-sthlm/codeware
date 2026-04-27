@@ -1,3 +1,5 @@
-import { run } from './lib/main';
+import * as core from '@actions/core';
 
-run();
+core.setFailed(
+  'This action has been renamed. Update your workflow to use @cdwr/fly-deployment-action instead of @cdwr/nx-fly-deployment-action.'
+);

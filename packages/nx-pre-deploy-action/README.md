@@ -26,7 +26,7 @@ This action performs pre-deployment analysis for applications in an Nx workspace
 2. Analyzes which Nx applications that should be deployed
 3. Optionally fetches app-tenant relations and secrets from Infisical for multi-tenant deployments
 
-This action is intended to be used before the [Fly Deployment Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-fly-deployment-action#readme).
+This action is intended to be used before the [Fly Build Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-build-action#readme) and [Fly Deployment Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-deployment-action#readme).
 
 > [!NOTE] Deployment architecture and configuration overview
 > How this action fits in the workflow.
@@ -139,8 +139,9 @@ jobs:
       # app-tenants is compatible with app-details,
       # but with a stricter type
       - name: Deploy
-        uses: ./packages/nx-fly-deployment-action
+        uses: ./packages/fly-deployment-action
         with:
+          apps: ${{ needs.pre-deploy.outputs.apps }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
           # ... other inputs
 ```

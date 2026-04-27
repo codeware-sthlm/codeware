@@ -1,3 +1,4 @@
+import { DeployableAppSchema } from '@codeware/core/actions-internal';
 import { z } from 'zod';
 
 const EnvironmentSchema = z.enum(['preview', 'production', '']);
@@ -9,7 +10,7 @@ const AppTenantDetailsSchema = z.object({
 });
 
 export const ActionOutputsSchema = z.object({
-  apps: z.array(z.string()),
+  apps: z.array(DeployableAppSchema),
   environment: EnvironmentSchema,
   appTenants: z.record(z.string(), z.array(AppTenantDetailsSchema))
 });

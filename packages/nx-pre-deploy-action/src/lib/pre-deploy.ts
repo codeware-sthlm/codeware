@@ -1,7 +1,10 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { getDeployEnv, printGitHubContext } from '@codeware/core/actions';
-import { analyzeAppsToDeploy } from '@codeware/core/actions-internal';
+import {
+  type DeployableApp,
+  analyzeAppsToDeploy
+} from '@codeware/core/actions-internal';
 
 import type { ActionInputs } from './schemas/action-inputs.schema';
 import {
@@ -61,28 +64,35 @@ export async function preDeploy(
     core.endGroup();
 
     core.startGroup('Determine applications to deploy');
-    let apps: string[];
 
-    // Use manual app override if provided
     if (inputs.manualApp) {
       core.info(`Manual app override: ${inputs.manualApp}`);
-      apps = [inputs.manualApp];
-    } else {
-      apps = (await analyzeAppsToDeploy(environment))
-        .filter((apps) => {
-          if (apps.status === 'deploy') {
-            core.info(`Deploy: ${apps.projectName}`);
-            return true;
-          } else {
-            core.info(`Skip: ${apps.projectName} - ${apps.reason}`);
-            return false;
-          }
-        })
-        .map((app) => app.projectName);
     }
+
+    const analyzed = await analyzeAppsToDeploy(
+      environment,
+      inputs.manualApp ? [inputs.manualApp] : undefined
+    );
+
+    const apps: DeployableApp[] = analyzed.flatMap((app) => {
+      if (app.status === 'deploy') {
+        core.info(`Deploy: ${app.projectName}`);
+        return [
+          {
+            name: app.projectName,
+            flyConfigFile: app.flyConfigFile,
+            githubConfig: app.githubConfig
+          }
+        ];
+      }
+      core.info(`Skip: ${app.projectName} - ${app.reason}`);
+      return [];
+    });
+
     core.endGroup();
 
-    core.info(`Applications to deploy: ${apps.join(', ') || '<none>'}`);
+    const appNames = apps.map((a) => a.name);
+    core.info(`Applications to deploy: ${appNames.join(', ') || '<none>'}`);
 
     if (!config.infisical) {
       core.info(
@@ -118,7 +128,7 @@ export async function preDeploy(
     const deployRules = await fetchDeployRules(infisicalConfig);
 
     // Fetch all tenant-app relationships
-    const allAppTenants = await fetchAppTenants(infisicalConfig, apps);
+    const allAppTenants = await fetchAppTenants(infisicalConfig, appNames);
 
     // Apply deployment rules to filter tenants
     let appTenants = filterByDeployRules(allAppTenants, deployRules);

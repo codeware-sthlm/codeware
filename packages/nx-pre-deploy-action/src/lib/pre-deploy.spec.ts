@@ -20,7 +20,8 @@ vi.mock('@codeware/core/actions', async () => ({
   ...(await vi.importActual('@codeware/core/actions')),
   getRepositoryDefaultBranch: vi.fn()
 }));
-vi.mock('@codeware/core/actions-internal', () => ({
+vi.mock('@codeware/core/actions-internal', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@codeware/core/actions-internal')>()),
   analyzeAppsToDeploy: vi.fn()
 }));
 vi.mock('./utils/fetch-app-tenants', () => ({
@@ -218,7 +219,10 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web', 'api'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
+          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+        ],
         appTenants: {},
         environment: 'production'
       });
@@ -281,7 +285,10 @@ describe('preDeploy', () => {
       const config = setupTest();
       await preDeploy(config, true);
 
-      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production');
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith(
+        'production',
+        undefined
+      );
     });
   });
 
@@ -308,7 +315,9 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+        ],
         appTenants: {},
         environment: 'production'
       });
@@ -334,7 +343,9 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+        ],
         appTenants: {},
         environment: ''
       });
@@ -383,7 +394,9 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+        ],
         appTenants: { web: [{ tenant: 'demo' }, { tenant: 'customer1' }] },
         environment: 'production'
       });
@@ -435,7 +448,10 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web', 'api'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
+          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+        ],
         appTenants: {
           web: [{ tenant: 'demo' }, { tenant: 'acme' }, { tenant: 'globex' }],
           api: [{ tenant: 'demo' }, { tenant: 'acme' }]
@@ -481,7 +497,9 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['cms'],
+        apps: [
+          { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} }
+        ],
         appTenants: { cms: [] },
         environment: 'production'
       });
@@ -506,7 +524,9 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+        ],
         appTenants: { web: [{ tenant: 'demo' }] },
         environment: 'preview'
       });
@@ -579,7 +599,11 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web', 'cms', 'api'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
+          { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} },
+          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+        ],
         appTenants: {
           web: [{ tenant: 'demo' }, { tenant: 'customer1' }],
           cms: [],
@@ -688,7 +712,10 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result).toEqual({
-        apps: ['web', 'api'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
+          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+        ],
         appTenants: {
           web: [{ tenant: 'demo' }, { tenant: 'acme' }]
         },
@@ -721,7 +748,9 @@ describe('preDeploy', () => {
         })
       );
       expect(result).toEqual({
-        apps: ['web'],
+        apps: [
+          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+        ],
         appTenants: { web: [{ tenant: 'demo' }] },
         environment: 'preview'
       });
@@ -736,21 +765,25 @@ describe('preDeploy', () => {
       infisicalSite: 'eu'
     };
 
+    const allApps = [
+      {
+        projectName: 'web',
+        status: 'deploy' as const,
+        flyConfigFile: 'apps/web/fly.toml',
+        githubConfig: {}
+      },
+      {
+        projectName: 'cms',
+        status: 'deploy' as const,
+        flyConfigFile: 'apps/cms/fly.toml',
+        githubConfig: {}
+      }
+    ];
+
     beforeEach(() => {
-      mockAnalyzeAppsToDeploy.mockResolvedValue([
-        {
-          projectName: 'web',
-          status: 'deploy',
-          flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
-        },
-        {
-          projectName: 'cms',
-          status: 'deploy',
-          flyConfigFile: 'apps/cms/fly.toml',
-          githubConfig: {}
-        }
-      ]);
+      mockAnalyzeAppsToDeploy.mockImplementation(async (_env, apps) =>
+        apps ? allApps.filter((a) => apps.includes(a.projectName)) : allApps
+      );
     });
 
     it('should override environment when manualEnvironment is provided', async () => {
@@ -776,9 +809,13 @@ describe('preDeploy', () => {
       mockFetchAppTenants.mockResolvedValue({ cms: [] });
       const result = await preDeploy(config, true);
 
-      expect(result.apps).toEqual(['cms']);
+      expect(result.apps).toEqual([
+        { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} }
+      ]);
       expect(mockCoreInfo).toHaveBeenCalledWith('Manual app override: cms');
-      expect(mockAnalyzeAppsToDeploy).not.toHaveBeenCalled();
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production', [
+        'cms'
+      ]);
     });
 
     it('should override tenant when manualTenant is provided', async () => {
@@ -814,9 +851,11 @@ describe('preDeploy', () => {
 
       const result = await preDeploy(config, true);
 
-      expect(result.apps).toEqual(['web']);
+      expect(result.apps).toEqual([
+        { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+      ]);
       expect(result.environment).toBe('preview');
-      expect(mockAnalyzeAppsToDeploy).not.toHaveBeenCalled();
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('preview', ['web']);
     });
 
     it('should combine manual app, tenant, and environment overrides', async () => {
@@ -833,12 +872,16 @@ describe('preDeploy', () => {
 
       const result = await preDeploy(config, true);
 
-      expect(result.apps).toEqual(['web']);
+      expect(result.apps).toEqual([
+        { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+      ]);
       expect(result.environment).toBe('production');
       expect(result.appTenants).toEqual({
         web: [{ tenant: 'demo' }]
       });
-      expect(mockAnalyzeAppsToDeploy).not.toHaveBeenCalled();
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production', [
+        'web'
+      ]);
     });
 
     it('should not affect affected app analysis when manual overrides are not provided', async () => {
@@ -852,7 +895,10 @@ describe('preDeploy', () => {
       await preDeploy(config, true);
 
       expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledTimes(1);
-      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production');
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith(
+        'production',
+        undefined
+      );
     });
 
     it('should filter out tenants that do not match manualTenant', async () => {

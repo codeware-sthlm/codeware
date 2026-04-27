@@ -129,15 +129,19 @@ describe('main', () => {
   });
 
   it('should set outputs', async () => {
+    const apps: ActionOutputs['apps'] = [
+      { name: 'app1', flyConfigFile: 'apps/app1/fly.toml', githubConfig: {} },
+      { name: 'app2', flyConfigFile: 'apps/app2/fly.toml', githubConfig: {} }
+    ];
     const result: ActionOutputs = {
-      apps: ['app1', 'app2'],
+      apps,
       appTenants: { app1: [{ tenant: 'tenant1' }], app2: [] },
       environment: 'preview'
     };
     preDeployMock.mockResolvedValue(result);
     await main.run();
 
-    expect(setOutputMock).toHaveBeenCalledWith('apps', ['app1', 'app2']);
+    expect(setOutputMock).toHaveBeenCalledWith('apps', JSON.stringify(apps));
     expect(setOutputMock).toHaveBeenCalledWith('environment', 'preview');
     expect(setOutputMock).toHaveBeenCalledWith(
       'app-tenants',

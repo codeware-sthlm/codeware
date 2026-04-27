@@ -1,0 +1,27 @@
+name: "Fly Conditions"
+
+description: >
+  Analyze deployment conditions and determine whether the Fly deployment pipeline should run.
+
+inputs:
+  preview-label:
+    description: >
+      The GitHub label used to gate preview deployments on pull requests.
+      When set, the label is added automatically on PR open/reopen and checked on subsequent events.
+      Without the label, synchronize events are skipped.
+    required: true
+  token:
+    description: >
+      The token to use for repository authentication.
+      For example `GITHUB_TOKEN`.
+    required: true
+
+outputs:
+  skip:
+    description: >
+      Whether to skip the deployment pipeline.
+      'true' if the pipeline should be skipped, 'false' if it should continue.
+
+runs:
+  using: "node20"
+  main: "../../dist/packages/fly-conditions-action/action.cjs"

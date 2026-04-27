@@ -1,0 +1,21 @@
+{
+  "name": "fly-build-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/fly-build-action/src",
+  "projectType": "library",
+  "tags": ["scope:fly-build-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/fly-build-action/*.md",
+          "packages/fly-build-action/action.yml"
+        ],
+        "additionalEntryPoints": ["packages/fly-build-action/src/action.ts"],
+        "format": ["cjs", "esm"],
+        "external": ["@homebridge/node-pty-prebuilt-multiarch"]
+      }
+    }
+  }
+}

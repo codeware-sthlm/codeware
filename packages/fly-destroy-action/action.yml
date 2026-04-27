@@ -1,0 +1,35 @@
+name: "Fly Destroy"
+
+description: >
+  Destroy Fly applications associated with closed pull requests.
+
+inputs:
+  fly-api-token:
+    description: >
+      Authenticate using a Fly API access token or with setting the `FLY_API_TOKEN`
+      environment variable.
+  fly-trace-cli:
+    description: >
+      Whether to enable tracing of the Fly CLI commands. Secrets are redacted in the logs.
+      Defaults to `false`.
+  fly-console-logs:
+    description: >
+      Whether to enable console logs for Fly CLI commands.
+      Defaults to `false`.
+  token:
+    description: >
+      The token to use for repository authentication.
+      For example `GITHUB_TOKEN`.
+    required: true
+
+outputs:
+  destroyed:
+    description: >
+      A list of app names that were destroyed.
+  skipped:
+    description: >
+      A list of app names that were skipped (e.g., failed to destroy).
+
+runs:
+  using: "node20"
+  main: "../../dist/packages/fly-destroy-action/action.cjs"

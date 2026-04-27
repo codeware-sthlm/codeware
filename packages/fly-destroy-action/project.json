@@ -1,0 +1,21 @@
+{
+  "name": "fly-destroy-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/fly-destroy-action/src",
+  "projectType": "library",
+  "tags": ["scope:fly-destroy-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/fly-destroy-action/*.md",
+          "packages/fly-destroy-action/action.yml"
+        ],
+        "additionalEntryPoints": ["packages/fly-destroy-action/src/action.ts"],
+        "format": ["cjs", "esm"],
+        "external": ["@homebridge/node-pty-prebuilt-multiarch"]
+      }
+    }
+  }
+}

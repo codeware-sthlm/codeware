@@ -79,3 +79,5 @@ out
 
 # Infisical credentials (tools)
 .env.infisical
+
+.nx/self-healing

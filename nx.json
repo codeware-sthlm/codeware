@@ -271,5 +271,6 @@
       }
     },
     "./packages/nx-payload/plugin.ts"
-  ]
+  ],
+  "analytics": true
 }

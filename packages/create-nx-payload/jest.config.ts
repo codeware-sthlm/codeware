@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   displayName: 'create-nx-payload',
   preset: '../../jest.preset.cjs',
   testEnvironment: 'node',

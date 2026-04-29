@@ -9,3 +9,5 @@ pnpm-lock.yaml
 
 # Plugin templates
 **/*__tmpl__
+
+.nx/self-healing

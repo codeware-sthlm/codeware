@@ -22,6 +22,15 @@ inputs:
       JSON array of project names that failed to deploy.
       Example: ["web", "cms"]
       Defaults to an empty array.
+  projects:
+    description: >
+      JSON array of all deployment results from fly-deployment-action.
+      Each item has an action field ('deploy', 'destroy', or 'failed') and relevant properties.
+      When provided, renders a unified status table (preferred over deployed/failed).
+  projects-path:
+    description: >
+      Path to a JSON file containing the projects array (from fly-deployment-action projects-path output).
+      Preferred over `projects` — avoids GitHub Actions secret scanning suppression of job outputs.
   token:
     description: >
       The token to use for repository authentication.

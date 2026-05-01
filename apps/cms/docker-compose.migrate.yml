@@ -1,0 +1,39 @@
+# Migration test: builds the CMS image and runs migrate.mjs against a fresh postgres.
+# Run via: nx test-migrate cms
+# Or directly: docker compose -f apps/cms/docker-compose.migrate.yml up --build --abort-on-container-exit --exit-code-from migrate
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cms
+    networks:
+      - migrate-test
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  migrate:
+    build:
+      context: ../../
+      dockerfile: apps/cms/Dockerfile
+    command: node apps/cms/migrate.mjs
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/cms
+      DATABASE_SCHEMA: payload
+      PAYLOAD_SECRET_KEY: migrate-test-secret
+    networks:
+      - migrate-test
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+networks:
+  migrate-test:
+    driver: bridge

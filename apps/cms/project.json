@@ -69,6 +69,15 @@
           "SEED_SOURCE": "off"
         }
       }
+    },
+    "test-migrate": {
+      "metadata": {
+        "description": "Build the CMS Docker image and run migrate.mjs against a fresh postgres container to validate the migration bundle end-to-end."
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f apps/cms/docker-compose.migrate.yml up --build --abort-on-container-exit --exit-code-from migrate; RESULT=$?; docker compose -f apps/cms/docker-compose.migrate.yml down -v --remove-orphans; exit $RESULT"
+      }
     }
   }
 }

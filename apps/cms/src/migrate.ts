@@ -1,7 +1,7 @@
 import { type Migration, getPayload } from 'payload';
 
+import config from './migrate.config';
 import { migrations } from './migrations';
-import config from './payload.config';
 
 // Invoked via Fly release_command before machines are updated.
 // Passes migrations directly so no filesystem read is required in the standalone build.

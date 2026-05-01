@@ -65,15 +65,16 @@ ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
 RUN npx nx build cms
 
 # Compile migration script into the standalone output.
-# Uses --packages=external so all npm deps stay as imports resolved at runtime
-# from the standalone node_modules. Only monorepo-internal code gets bundled.
-# Migrations are passed inline so no filesystem read is needed at runtime.
+# Bundles payload and db adapter directly into migrate.mjs so it is self-contained.
+# The Next.js standalone node_modules does not include payload (webpack bundles it
+# into server.js), so --packages=external would fail at runtime with ERR_MODULE_NOT_FOUND.
+# The minimal migrate.config.ts avoids importing sharp or any Next.js-specific packages.
 RUN ./node_modules/.bin/esbuild apps/cms/src/migrate.ts \
   --bundle \
-  --packages=external \
   --platform=node \
   --target=node20 \
   --format=esm \
+  --banner:js="import { createRequire as _createRequire } from 'module'; const require = _createRequire(import.meta.url);" \
   --loader:.css=empty \
   --loader:.svg=empty \
   --loader:.png=empty \

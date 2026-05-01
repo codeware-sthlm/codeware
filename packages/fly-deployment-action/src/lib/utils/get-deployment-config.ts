@@ -1,4 +1,3 @@
-import * as core from '@actions/core';
 import { arrayToRecord } from '@codeware/core/utils';
 
 import type { ActionInputs } from '../schemas/action-inputs.schema';
@@ -50,7 +49,5 @@ export const getDeploymentConfig = (inputs: ActionInputs): DeploymentConfig => {
     appDetails: appDetails ?? {},
     token
   };
-  core.info(JSON.stringify(config, null, 2));
-
   return DeploymentConfigSchema.parse(config);
 };

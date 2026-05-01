@@ -28,15 +28,21 @@ export const runDeployApps = async (options: {
 
   const { config, environment, fly, imageMap, pullRequest } = options;
 
+  // Track apps whose host deployment failed so tenant deployments can be skipped.
+  // Deploying tenants against an incompatible schema would cause runtime failures.
+  const failedHostApps = new Set<string>();
+
   core.info(`Found ${config.apps.length} apps to deploy`);
 
   for (const app of config.apps) {
     const { flyConfigFile, githubConfig, name: projectName } = app;
 
+    core.startGroup(`Deploy ${projectName}`);
+
     // Read the base app name from local config
     let configAppName: string;
 
-    core.info(`[${projectName}] Read Fly config file: ${flyConfigFile}`);
+    core.info(`Read Fly config file: ${flyConfigFile}`);
     try {
       const flyConfig = await fly.config.show({
         config: flyConfigFile,
@@ -44,15 +50,14 @@ export const runDeployApps = async (options: {
       });
       configAppName = flyConfig.app;
     } catch {
+      core.endGroup();
       throw new Error(
-        `[${projectName}] Fly config file could not be resolved, cannot deploy`
+        `Fly config file could not be resolved, cannot deploy ${projectName}`
       );
     }
 
-    core.info(`[${projectName}] Resolved app name: ${configAppName}`);
-
-    // Requirements are met, ready to deploy
-    core.info(`[${projectName}] Ready to fly >>>`);
+    core.info(`Resolved app name: ${configAppName}`);
+    core.info(`Ready to fly >>>`);
 
     // Get deployment details for this specific app
     // If app not in appDetails map or has empty array, deploy once without deployment-specific config
@@ -72,21 +77,35 @@ export const runDeployApps = async (options: {
         .map((d) => d.tenant || 'default')
         .join(', ');
       core.info(
-        `[${projectName}] Multi-deployment app with ${appDeploymentDetails.length} deployment(s): ${tenantNames}`
+        `Multi-deployment app with ${appDeploymentDetails.length} deployment(s): ${tenantNames}`
       );
     } else {
-      core.info(`[${projectName}] Single deployment app`);
+      core.info(`Single deployment app`);
     }
 
     // Deploy once for each deployment configuration
     for (const deploymentDetails of deploymentsToRun) {
       const tenantId = deploymentDetails.tenant;
+      const isHostDeployment = !tenantId || tenantId === '_default';
       const tenantLabel = tenantId
         ? tenantId === '_default'
           ? ' (headless mode)'
           : ` for tenant '${tenantId}'`
         : '';
-      core.info(`[${projectName}] Deploying${tenantLabel}...`);
+
+      if (!isHostDeployment && failedHostApps.has(configAppName)) {
+        core.warning(
+          `Skipping${tenantLabel}: host deployment for '${configAppName}' failed — tenant would run against an incompatible schema`
+        );
+        projects.push({
+          appOrProject: `${projectName} (${tenantId})`,
+          action: 'failed',
+          error: `Skipped: host deployment failed`
+        });
+        continue;
+      }
+
+      core.info(`Deploying${tenantLabel}...`);
 
       const appName = getAppName({
         configAppName,
@@ -97,7 +116,7 @@ export const runDeployApps = async (options: {
 
       const preBuiltImage = imageMap?.[projectName];
       if (preBuiltImage) {
-        core.info(`[${projectName}] Using pre-built image: ${preBuiltImage}`);
+        core.info(`Using pre-built image: ${preBuiltImage}`);
       }
 
       // Merge secrets: global -> deployment-specific (deployment wins)
@@ -127,18 +146,7 @@ export const runDeployApps = async (options: {
       // Get database name (shared across all apps)
       const databaseName = githubConfig.flyPostgresDatabaseName;
 
-      core.info(
-        `[${projectName}] Deploy app '${appName}' to '${environment}'${tenantLabel}...`
-      );
-
-      // Enable maintenance mode on existing apps before deploying
-      const appExists = (await fly.status({ app: appName })) !== null;
-      if (appExists) {
-        core.info(
-          `[${projectName}] Enabling maintenance mode for '${appName}'`
-        );
-        await fly.secrets.set({ MAINTENANCE_MODE: 'true' }, { app: appName });
-      }
+      core.info(`Deploy app '${appName}' to '${environment}'${tenantLabel}...`);
 
       // Deploy app
       try {
@@ -155,9 +163,7 @@ export const runDeployApps = async (options: {
           secrets: mergedSecrets
         });
 
-        core.info(
-          `[${projectName}] 🚀 Deployed to '${result.url}'${tenantLabel}`
-        );
+        core.info(`🚀 Deployed to '${result.url}'${tenantLabel}`);
 
         projects.push({
           action: 'deploy',
@@ -168,34 +174,21 @@ export const runDeployApps = async (options: {
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
 
-        core.error(
-          `[${projectName}] ❌ Failed to deploy project${tenantLabel}: ${msg}`
-        );
+        core.error(`❌ Failed to deploy project${tenantLabel}: ${msg}`);
 
         projects.push({
           appOrProject: tenantId ? `${projectName} (${tenantId})` : projectName,
           action: 'failed',
           error: msg
         });
-      } finally {
-        if (appExists) {
-          core.info(
-            `[${projectName}] Disabling maintenance mode for '${appName}'`
-          );
-          try {
-            await fly.secrets.unset('MAINTENANCE_MODE', { app: appName });
-          } catch (cleanupError) {
-            const msg =
-              cleanupError instanceof Error
-                ? cleanupError.message
-                : String(cleanupError);
-            core.warning(
-              `[${projectName}] Failed to disable maintenance mode for '${appName}': ${msg}`
-            );
-          }
+
+        if (isHostDeployment) {
+          failedHostApps.add(configAppName);
         }
       }
     }
+
+    core.endGroup();
   }
 
   core.info(

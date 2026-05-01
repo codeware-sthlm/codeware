@@ -225,7 +225,12 @@ describe('flyDeployment', () => {
           url: `https://${app}.fly.dev`
         })
       ),
-      isReady: vi.fn()
+      isReady: vi.fn(),
+      secrets: {
+        set: vi.fn().mockResolvedValue(undefined),
+        unset: vi.fn().mockResolvedValue(undefined)
+      },
+      status: vi.fn().mockResolvedValue(null)
     } as unknown as Fly);
   };
 
@@ -1035,6 +1040,54 @@ describe('flyDeployment', () => {
       expect(getMockFly().deploy).toHaveBeenCalledWith(
         expect.objectContaining({
           environment: 'preview'
+        })
+      );
+    });
+  });
+
+  describe('workflow_run event', () => {
+    it('should deploy to preview using PR number from workflow_run pull_requests', async () => {
+      setContext('push-main-branch', {
+        eventName: 'workflow_run',
+        payload: {
+          workflow_run: {
+            event: 'pull_request',
+            pull_requests: [{ number: 42 }]
+          }
+        }
+      });
+      setupMocks();
+      const config = setupTest({}, 'preview');
+      const result = await flyDeployment(config, true);
+
+      expect(result.environment).toBe('preview');
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-42',
+          environment: 'preview'
+        })
+      );
+    });
+
+    it('should deploy to production when workflow_run is triggered by a push event', async () => {
+      setContext('push-main-branch', {
+        eventName: 'workflow_run',
+        payload: {
+          workflow_run: {
+            event: 'push',
+            pull_requests: []
+          }
+        }
+      });
+      setupMocks();
+      const config = setupTest({ environment: 'production' });
+      const result = await flyDeployment(config, true);
+
+      expect(result.environment).toBe('production');
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config',
+          environment: 'production'
         })
       );
     });

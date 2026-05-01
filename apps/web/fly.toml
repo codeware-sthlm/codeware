@@ -14,9 +14,9 @@ primary_region = 'arn'
 
 [[http_service.checks]]
   method = 'GET'
-  path = '/'
+  path = '/api/health'
   grace_period = '10s'
-  interval = '20s'
+  interval = '30s'
   timeout = '5s'
 
 [[vm]]

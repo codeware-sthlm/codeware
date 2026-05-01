@@ -31,9 +31,11 @@ export const runBuildApps = async (options: {
   for (const app of config.apps) {
     const { flyConfigFile, name: projectName } = app;
 
+    core.startGroup(`Build Docker image for ${projectName}`);
+
     let configAppName: string;
 
-    core.info(`[${projectName}] Read Fly config file: ${flyConfigFile}`);
+    core.info(`Read Fly config file: ${flyConfigFile}`);
     try {
       const flyConfig = await fly.config.show({
         config: flyConfigFile,
@@ -41,19 +43,31 @@ export const runBuildApps = async (options: {
       });
       configAppName = flyConfig.app;
     } catch {
+      core.endGroup();
       throw new Error(
-        `[${projectName}] Fly config file could not be resolved, cannot build image`
+        `Fly config file could not be resolved, cannot build image for ${projectName}`
       );
     }
 
-    // Build using the base app name (no tenant suffix) — one image shared across all tenants
+    // For apps that have no host deployment (no _default tenant), use the first tenant
+    // as the build target to avoid creating a ghost host app with no machines.
+    // The resulting image URL is still shared across all tenants of the same app.
+    const details = config.appDetails[projectName] ?? [];
+    const hasTenantOnlyDeployment =
+      details.length > 0 &&
+      !details.some((d) => !d.tenant || d.tenant === '_default');
+    const buildTenantId = hasTenantOnlyDeployment
+      ? details[0]?.tenant
+      : undefined;
+
     const appName = getAppName({
       configAppName,
       environment,
-      pullRequest
+      pullRequest,
+      tenantId: buildTenantId
     });
 
-    core.info(`[${projectName}] Building image for app '${appName}'...`);
+    core.info(`Building image for app '${appName}'...`);
 
     const buildArgs = config.buildArgs || {};
 
@@ -65,8 +79,10 @@ export const runBuildApps = async (options: {
       preferRemoteConfig: true
     });
 
-    core.info(`[${projectName}] Image built: ${imageRef}`);
+    core.info(`Image built: ${imageRef}`);
     images[projectName] = imageRef;
+
+    core.endGroup();
   }
 
   core.info(`Built images for ${Object.keys(images).length} apps`);

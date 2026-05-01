@@ -1,4 +1,3 @@
-import * as core from '@actions/core';
 import { getRepositoryDefaultBranch } from '@codeware/core/actions';
 import { arrayToRecord } from '@codeware/core/utils';
 
@@ -53,7 +52,5 @@ export const getBuildConfig = async (
     appDetails: appDetails ?? {},
     token
   };
-  core.info(JSON.stringify(config, null, 2));
-
   return BuildConfigSchema.parse(config);
 };

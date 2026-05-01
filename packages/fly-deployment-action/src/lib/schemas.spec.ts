@@ -1,6 +1,9 @@
 import { join } from 'path';
 
-import { SchemaRegistry, createSchemaTests } from '@codeware/core/testing';
+import {
+  SchemaRegistry,
+  createSchemaTests
+} from '@codeware/core/vitest-testing';
 
 import { ActionInputsSchema } from './schemas/action-inputs.schema';
 import { ActionOutputsSchema } from './schemas/action-outputs.schema';

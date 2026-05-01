@@ -1,6 +1,9 @@
 import { join } from 'path';
 
-import { SchemaRegistry, createSchemaTests } from '@codeware/core/testing';
+import {
+  SchemaRegistry,
+  createSchemaTests
+} from '@codeware/core/vitest-testing';
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';
 import { AppsListTransformedResponseSchema } from './schemas/apps-list.schema';

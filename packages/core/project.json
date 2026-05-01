@@ -21,6 +21,7 @@
           "packages/core/src/release.ts",
           "packages/core/src/testing.ts",
           "packages/core/src/utils.ts",
+          "packages/core/src/vitest-testing.ts",
           "packages/core/src/zod.ts"
         ],
         "format": ["cjs", "esm"]

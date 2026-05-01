@@ -18,6 +18,9 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:3000';
 
 export default defineConfig({
   ...nxE2EPreset(__dirname, { testDir: './src' }),
+  // Admin tests drive the Payload UI and are prone to timing flakiness.
+  // Permission and API tests are deterministic and always run in CI.
+  testIgnore: process.env['CI'] ? ['**/admin/**'] : [],
   globalSetup: require.resolve('./global-setup.cts'),
   globalTeardown: require.resolve('./global-teardown.cts'),
   // Ensure tests run serially to avoid

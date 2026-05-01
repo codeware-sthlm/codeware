@@ -39,6 +39,7 @@ describe('main', () => {
       if (name === 'app-details') return '{}';
       if (name === 'environment') return 'production';
       if (name === 'images') return '';
+      if (name === 'images-path') return '';
       return name;
     });
     getMultilineInputMock.mockImplementation(() => []);
@@ -65,6 +66,7 @@ describe('main', () => {
         return '{"web":[{"tenant":"t1","secrets":{"KEY":"val"}}]}';
       if (name === 'environment') return 'production';
       if (name === 'images') return '';
+      if (name === 'images-path') return '';
       return name;
     });
     await main.run();
@@ -169,6 +171,7 @@ describe('main', () => {
       if (name === 'app-details') return '{}';
       if (name === 'environment') return 'production';
       if (name === 'images') return '';
+      if (name === 'images-path') return '';
       return name;
     });
     const error = new Error('error message');

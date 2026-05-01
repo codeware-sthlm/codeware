@@ -5,6 +5,13 @@ import type { ActionInputs } from './schemas/action-inputs.schema';
 
 const BLOCKED_PREFIXES = ['renovate', 'update-nx-workspace'];
 
+type WorkflowRun = {
+  conclusion: string;
+  head_branch: string;
+  event: string;
+  pull_requests: Array<{ number: number; head: { ref: string } }>;
+};
+
 type Result = {
   skip: boolean;
 };
@@ -39,6 +46,14 @@ export async function flyConditions({
   if (eventName === 'workflow_dispatch') {
     core.info('Manual workflow dispatch -> continue');
     return { skip: false };
+  }
+
+  if (eventName === 'workflow_run') {
+    return handleWorkflowRun(payload['workflow_run'] as WorkflowRun, {
+      previewLabel,
+      token,
+      context
+    });
   }
 
   if (BLOCKED_PREFIXES.some((prefix) => branchName.startsWith(prefix))) {
@@ -96,4 +111,68 @@ export async function flyConditions({
 
   core.info(`Preview label '${previewLabel}' not found -> skip`);
   return { skip: true };
+}
+
+async function handleWorkflowRun(
+  workflowRun: WorkflowRun,
+  opts: {
+    previewLabel: string;
+    token: string;
+    context: typeof github.context;
+  }
+): Promise<Result> {
+  const { previewLabel, token, context } = opts;
+  const { conclusion, head_branch, event, pull_requests } = workflowRun;
+
+  core.info(
+    [
+      'CI workflow_run context:',
+      `  Conclusion:  ${conclusion}`,
+      `  Branch:      ${head_branch}`,
+      `  Trigger:     ${event}`
+    ].join('\n')
+  );
+
+  if (conclusion !== 'success') {
+    core.info(`CI checks did not pass (conclusion: '${conclusion}') -> skip`);
+    return { skip: true };
+  }
+
+  if (BLOCKED_PREFIXES.some((prefix) => head_branch.startsWith(prefix))) {
+    core.info(`Blocked branch prefix '${head_branch}' -> skip`);
+    return { skip: true };
+  }
+
+  if (event !== 'pull_request') {
+    core.info(`CI triggered by '${event}' (non-PR) -> continue`);
+    return { skip: false };
+  }
+
+  const prInfo = pull_requests[0];
+  if (!prInfo) {
+    core.info('No PR associated with CI run -> skip');
+    return { skip: true };
+  }
+
+  core.info(`PR number: ${prInfo.number}`);
+
+  const octokit = github.getOctokit(token);
+  const { data: labels } = await octokit.rest.issues.listLabelsOnIssue({
+    ...context.repo,
+    issue_number: prInfo.number
+  });
+
+  if (!labels.some((l) => l.name === previewLabel)) {
+    // First successful CI run for this PR — add the preview label
+    await octokit.rest.issues.addLabels({
+      ...context.repo,
+      issue_number: prInfo.number,
+      labels: [previewLabel]
+    });
+    core.info(`Added preview label '${previewLabel}' -> continue`);
+  } else {
+    core.info(`Preview label '${previewLabel}' present -> continue`);
+  }
+
+  return { skip: false };
 }

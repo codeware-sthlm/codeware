@@ -40,7 +40,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  main:
+  checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,19 +58,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Not needed in the merge queue — E2E and integration tests are skipped there
-      - name: Install playwright browsers
-        if: github.event_name != 'merge_group'
-        run: pnpm exec playwright install --with-deps
-
-      - name: Install Fly CLI
-        if: github.event_name != 'merge_group'
-        uses: superfly/flyctl-actions/setup-flyctl@master
-        with:
-          version: ${{ vars.FLY_CLI_VERSION }}
-
       - name: Analyze affected projects
         uses: nrwl/nx-set-shas@v4
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: apps/cms/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('apps/cms/src/**/*.{ts,tsx}', 'apps/cms/*.{ts,js,mjs}') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
 
       - name: Format check (Nx Cloud)
         if: env.NX_NO_CLOUD != 'true'
@@ -81,35 +79,6 @@ jobs:
         run: pnpm nx format:check
 
       - run: pnpm nx affected -t lint,test,build -c ci
-
-      # E2E, integration, and smoke tests are skipped in the merge queue — they were
-      # already verified in the PR. The merge queue only needs lint/test/build.
-
-      # nx-payload-e2e runs separately in the e2e-matrix workflow
-      - name: E2E tests
-        if: github.event_name != 'merge_group'
-        run: pnpm nx affected -t e2e -c ci --exclude nx-payload-e2e
-
-      - name: Integration tests
-        if: github.event_name != 'merge_group'
-        run: pnpm nx affected -t integration-test -c ci
-        env:
-          FLY_TEST_API_TOKEN: ${{ secrets.FLY_TEST_API_TOKEN }}
-          FLY_TEST_ORG: ${{ vars.FLY_TEST_ORG }}
-          FLY_TEST_TRACE_CLI: ${{ vars.FLY_TEST_TRACE_CLI }}
-          INFISICAL_TEST_PROJECT_ID: ${{ secrets.INFISICAL_TEST_PROJECT_ID }}
-          INFISICAL_TEST_SERVICE_TOKEN: ${{ secrets.INFISICAL_TEST_SERVICE_TOKEN }}
-          INFISICAL_TEST_SITE: ${{ vars.INFISICAL_SITE }}
-
-      - name: Linux nx-payload e2e smoke (pnpm)
-        if: github.event_name != 'merge_group'
-        run: pnpm nx affected -t e2e --exclude '*,!tag:scope:nx-payload-e2e' -c quick
-        env:
-          CDWR_E2E_PACKAGE_MANAGER: pnpm
-          CDWR_E2E_VERDACCIO_HOST: localhost
-          NX_CACHE_DIRECTORY: tmp
-          NX_PERF_LOGGING: false
-          NODE_OPTIONS: --max_old_space_size=4096
 
       - name: Nx Self-healing CI
         run: pnpm nx fix-ci

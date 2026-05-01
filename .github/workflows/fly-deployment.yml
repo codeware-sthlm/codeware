@@ -34,12 +34,17 @@ on:
         required: false
         type: boolean
         default: false
+  # Primary trigger once this workflow is on the default branch:
+  # deployment only starts after CI checks pass.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
   pull_request:
     types:
       - opened
-      - closed
       - reopened
       - synchronize
+      - closed
   push:
     branches:
       - main
@@ -56,7 +61,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch || github.head_ref || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -121,6 +126,15 @@ jobs:
           main-branch-name: main
           set-environment-variables-for-job: true
 
+      - name: Resolve PR number
+        id: resolve-pr
+        env:
+          WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
+          DIRECT_PR: ${{ github.event.number }}
+        run: |
+          PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
+          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
+
       - name: Run pre-deploy
         id: pre-deploy
         uses: ./packages/nx-pre-deploy-action
@@ -134,7 +148,7 @@ jobs:
         env:
           # Must be defined since `github.json` is validated and cms app uses env
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
-          PR_NUMBER: ${{ github.event.number }}
+          PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
 
   build:
     needs: pre-deploy
@@ -143,6 +157,8 @@ jobs:
       needs.pre-deploy.outputs.apps != '[]' && github.event.action != 'closed'
       }}
     runs-on: ubuntu-latest
+    env:
+      SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
     outputs:
       images: ${{ steps.build.outputs.images }}
 
@@ -179,6 +195,7 @@ jobs:
       # created here, before the build. If anything fails afterward it is deleted below.
       - name: Create Sentry release
         id: sentry-release
+        if: env.SENTRY_ORG != ''
         uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
@@ -218,10 +235,22 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
 
+      # Upload images map as artifact — job outputs are suppressed by GitHub
+      # when they match registered secret patterns (Fly registry URLs can trigger this).
+      # Artifact files bypass secret scanning and are read by the action's Node process.
+      - name: Upload images artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fly-built-images-${{ github.run_id }}
+          path: ${{ steps.build.outputs.images-path }}
+          retention-days: 1
+          if-no-files-found: error
+
       # Clean up the Sentry release if the build failed.
       - name: Delete Sentry release on build failure
-        if: steps.sentry-release.outcome == 'success' && steps.build.outcome !=
-          'success'
+        if: >-
+          env.SENTRY_ORG != '' && steps.sentry-release.outcome == 'success' &&
+          steps.build.outcome != 'success'
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
@@ -240,6 +269,7 @@ jobs:
       environment: ${{ steps.deployment.outputs.environment }}
       deployed: ${{ steps.deployment.outputs.deployed }}
       failed: ${{ steps.deployment.outputs.failed }}
+      projects: ${{ steps.deployment.outputs.projects }}
 
     steps:
       - uses: actions/create-github-app-token@v1
@@ -274,6 +304,12 @@ jobs:
         run: |
           echo "console-logs=${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}" >> "$GITHUB_OUTPUT"
 
+      - name: Download images artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fly-built-images-${{ github.run_id }}
+          path: ${{ runner.temp }}/fly-images
+
       - name: Deploy to Fly
         id: deployment
         uses: ./packages/fly-deployment-action
@@ -287,7 +323,7 @@ jobs:
           apps: ${{ needs.pre-deploy.outputs.apps }}
           environment: ${{ needs.pre-deploy.outputs.environment }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
-          images: ${{ needs.build.outputs.images }}
+          images-path: ${{ runner.temp }}/fly-images/fly-built-images.json
           # Runtime environment variables
           env: |
             INFISICAL_SITE=${{ vars.INFISICAL_SITE }}
@@ -313,18 +349,31 @@ jobs:
 
       # Clean up the Sentry release if deployment failed.
       - name: Delete Sentry release on deployment failure
-        if: steps.deployment.outcome != 'success'
+        if: always() && steps.deployment.outcome != 'success'
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
         run: pnpm sentry-cli releases delete "${{ github.sha }}" || true
 
+      # Upload projects as artifact — job outputs containing Fly.io URLs can be suppressed
+      # by GitHub Actions secret scanning. Artifact files bypass secret scanning.
+      - name: Upload projects artifact
+        if: always() && steps.deployment.outputs.projects-path != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: fly-deployed-projects-${{ github.run_id }}
+          path: ${{ steps.deployment.outputs.projects-path }}
+          retention-days: 1
+          if-no-files-found: warn
+
   pr-comment:
     needs: [pre-deploy, deploy]
     if: >-
-      always() && github.event_name == 'pull_request' && github.event.action !=
-      'closed' && needs.deploy.result != 'skipped'
+      always() &&
+      (github.event_name == 'pull_request' && github.event.action != 'closed' ||
+       github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request') &&
+      needs.deploy.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v1
@@ -332,6 +381,15 @@ jobs:
         with:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
+
+      - name: Resolve PR number
+        id: resolve-pr
+        env:
+          WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
+          DIRECT_PR: ${{ github.event.number }}
+        run: |
+          PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
+          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4
 
@@ -347,13 +405,21 @@ jobs:
       - name: Build PR comment action
         run: pnpm nx build pr-comment-action
 
+      - name: Download projects artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fly-deployed-projects-${{ github.run_id }}
+          path: ${{ runner.temp }}/fly-projects
+        continue-on-error: true
+
       - name: Post PR comment
         uses: ./packages/pr-comment-action
         with:
-          pull-request: ${{ github.event.number }}
+          pull-request: ${{ steps.resolve-pr.outputs.number }}
           environment: ${{ needs.deploy.outputs.environment }}
           deployed: ${{ needs.deploy.outputs.deployed }}
           failed: ${{ needs.deploy.outputs.failed }}
+          projects-path: ${{ runner.temp }}/fly-projects/fly-projects.json
           token: ${{ steps.generate-token.outputs.token }}
 
   destroy:
@@ -439,23 +505,18 @@ jobs:
               echo "⏭️ No preview apps to destroy" >> $GITHUB_STEP_SUMMARY
             else
               echo "❌ Preview app cleanup failed or was cancelled" >> $GITHUB_STEP_SUMMARY
-              exit 1
             fi
             exit 0
           fi
 
           if [ "$SKIPPED" = "true" ]; then
             echo "⏭️ Deployment skipped - conditions not met" >> $GITHUB_STEP_SUMMARY
-            exit 0
           elif [ "$ENVIRONMENT" = "" ]; then
             echo "⏭️ No affected apps" >> $GITHUB_STEP_SUMMARY
-            exit 0
           elif [ "$DEPLOY_RESULT" = "success" ]; then
             echo "✅ Build and deployment completed successfully" >> $GITHUB_STEP_SUMMARY
           elif [ "$DEPLOY_RESULT" = "skipped" ] && [ "$BUILD_RESULT" = "skipped" ]; then
             echo "⏭️ No apps to deploy" >> $GITHUB_STEP_SUMMARY
-            exit 0
           else
             echo "❌ Build or deployment failed or was cancelled" >> $GITHUB_STEP_SUMMARY
-            exit 1
           fi

@@ -78,6 +78,76 @@ describe('flyConditions', () => {
     });
   });
 
+  describe('workflow_run events', () => {
+    const workflowRunBase = {
+      conclusion: 'success',
+      head_branch: 'feature/my-feature',
+      event: 'pull_request',
+      pull_requests: [{ number: 42, head: { ref: 'feature/my-feature' } }]
+    };
+
+    beforeEach(() => {
+      mockContext.eventName = 'workflow_run';
+      mockContext.ref = 'refs/heads/main';
+      mockContext.payload = { workflow_run: workflowRunBase };
+    });
+
+    it('should skip when CI conclusion is not success', async () => {
+      mockContext.payload = {
+        workflow_run: { ...workflowRunBase, conclusion: 'failure' }
+      };
+      const result = await flyConditions(defaultInputs);
+      expect(result.skip).toBe(true);
+    });
+
+    it('should skip for blocked branch prefixes', async () => {
+      mockContext.payload = {
+        workflow_run: {
+          ...workflowRunBase,
+          head_branch: 'renovate/update-deps'
+        }
+      };
+      const result = await flyConditions(defaultInputs);
+      expect(result.skip).toBe(true);
+    });
+
+    it('should continue for push to main (non-PR trigger)', async () => {
+      mockContext.payload = {
+        workflow_run: { ...workflowRunBase, event: 'push', pull_requests: [] }
+      };
+      const result = await flyConditions(defaultInputs);
+      expect(result.skip).toBe(false);
+      expect(mockGetOctokit).not.toHaveBeenCalled();
+    });
+
+    it('should skip when no PR is associated', async () => {
+      mockContext.payload = {
+        workflow_run: { ...workflowRunBase, pull_requests: [] }
+      };
+      const result = await flyConditions(defaultInputs);
+      expect(result.skip).toBe(true);
+    });
+
+    it('should add preview label and continue when label is missing', async () => {
+      listLabelsMock.mockResolvedValue({ data: [] });
+      const result = await flyConditions(defaultInputs);
+      expect(addLabelsMock).toHaveBeenCalledWith({
+        owner: 'org',
+        repo: 'repo',
+        issue_number: 42,
+        labels: ['preview-deploy']
+      });
+      expect(result.skip).toBe(false);
+    });
+
+    it('should continue without adding label when it already exists', async () => {
+      listLabelsMock.mockResolvedValue({ data: [{ name: 'preview-deploy' }] });
+      const result = await flyConditions(defaultInputs);
+      expect(addLabelsMock).not.toHaveBeenCalled();
+      expect(result.skip).toBe(false);
+    });
+  });
+
   describe('pull_request events', () => {
     beforeEach(() => {
       mockContext.eventName = 'pull_request';

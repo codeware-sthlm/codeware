@@ -71,6 +71,11 @@ export const loadEnv = async (): Promise<Env | undefined> => {
     console.warn('[ENV] Could not load tenant CORS secrets from Infisical');
   }
 
+  // MAINTENANCE_MODE is controlled exclusively by the deployment action via Fly secrets.
+  // Deleting it here prevents an accidental Infisical entry from locking the app in
+  // maintenance mode permanently — the Fly secret is always transient.
+  delete process.env['MAINTENANCE_MODE'];
+
   // Validate loaded environment variables
   const { success, error, data } = EnvSchema.safeParse(process.env);
 

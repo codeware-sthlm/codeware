@@ -69,6 +69,10 @@
       "import": "./testing.js",
       "require": "./testing.cjs"
     },
+    "./vitest-testing": {
+      "types": "./src/vitest-testing.d.ts",
+      "import": "./vitest-testing.js"
+    },
     "./utils": {
       "types": "./src/utils.d.ts",
       "import": "./utils.js",

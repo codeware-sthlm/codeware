@@ -24,6 +24,8 @@ const build = (await import(
 )) as unknown as RemixMiddlewareOptions['build'];
 
 const app = new Hono()
+  // Lightweight health check — must not trigger Remix/Payload data fetching
+  .get('/api/health', (c) => c.text('ok'))
   // Serve static files from Remix client build
   .use('*', serveStatic({ root: './build/client' }))
   // Let Remix handle all requests

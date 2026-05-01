@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/codeware-sthlm/codeware.git",
-    "directory": "packages/nx-fly-deployment-action"
+    "directory": "packages/fly-deployment-action"
   },
   "author": {
     "name": "Codeware Sthlm",

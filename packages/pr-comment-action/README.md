@@ -20,11 +20,11 @@
 
 ## Description
 
-Posts a deployment status summary as a comment on the pull request. Upserts the comment on each run so the PR always shows the latest deployment state. The comment includes deployed URLs, skipped apps, and any failures.
+Posts a deployment status summary as a comment on the pull request. Updates the comment on each run so the PR always shows the latest deployment state. The comment includes deployed URLs and any failures.
 
 ## Usage
 
-This action is typically the last step after [fly-deployment-action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-deployment-action#readme). It uses the `deployed`, `failed`, and `skipped` outputs from the deployment step.
+This action is typically the last step after [fly-deployment-action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-deployment-action#readme). It uses the `deployed` and `failed` outputs from the deployment step.
 
 ```yaml
 pr-comment:
@@ -44,7 +44,6 @@ pr-comment:
         environment: ${{ needs.deploy.outputs.environment }}
         deployed: ${{ needs.deploy.outputs.deployed }}
         failed: ${{ needs.deploy.outputs.failed }}
-        skipped: ${{ needs.deploy.outputs.skipped }}
         token: ${{ secrets.GITHUB_TOKEN }}
 ```
 

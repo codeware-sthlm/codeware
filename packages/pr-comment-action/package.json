@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/codeware-sthlm/codeware.git",
-    "directory": "packages/nx-fly-pr-comment-action"
+    "directory": "packages/pr-comment-action"
   },
   "author": {
     "name": "Codeware Sthlm",

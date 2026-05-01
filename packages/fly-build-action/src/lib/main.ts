@@ -1,3 +1,6 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import * as core from '@actions/core';
 
 import { flyBuild } from './fly-build';
@@ -33,8 +36,18 @@ export async function run(): Promise<void> {
 
     const { environment, images } = await flyBuild(inputs);
 
+    // Write images to a temp file — GitHub Actions secret scanning suppresses
+    // job outputs that match registered secret patterns, which can happen with
+    // Fly registry image references. Reading from a file inside the action
+    // process bypasses this scanning entirely.
+    const imagesFilePath = join(
+      process.env['RUNNER_TEMP'] ?? process.env['TMPDIR'] ?? '/tmp',
+      'fly-built-images.json'
+    );
+    writeFileSync(imagesFilePath, JSON.stringify(images));
+
     core.setOutput('environment', environment);
-    core.setOutput('images', JSON.stringify(images));
+    core.setOutput('images-path', imagesFilePath);
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);

@@ -30,7 +30,8 @@ inputs:
       If not provided, the environment will be auto-detected from the GitHub event.
   apps:
     description: >
-      JSON array of app names to build (e.g., ["web", "cms"]).
+      JSON array of DeployableApp objects produced by nx-pre-deploy-action.
+      Each object has name, flyConfigFile, and githubConfig properties.
     required: true
   build-args:
     description: >
@@ -60,10 +61,11 @@ outputs:
   environment:
     description: >
       The environment used for the build.
-  images:
+  images-path:
     description: >
-      JSON object mapping project names to pushed image references.
-      Use as input to the deploy action to skip rebuilding during deployment.
+      Path to a JSON file mapping project names to pushed image references.
+      Pass to the deploy action via the `images-path` input to skip rebuilding during deployment.
+      Using a file avoids GitHub Actions secret scanning that can suppress the value as a job output.
 
 runs:
   using: "node20"

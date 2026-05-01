@@ -462,6 +462,30 @@ export class Fly {
       } catch (error) {
         throw new Error(`[restart machine] something broke\n${error}`);
       }
+    },
+    /**
+     * Update a machine's per-machine configuration (env vars, etc.).
+     *
+     * Unlike `restart`, this creates a new machine version from the updated config
+     * and forces a cold start — it does NOT resume from a suspended memory snapshot.
+     *
+     * @param app - The name of the application
+     * @param machineId - The machine ID to update
+     * @param options - Fields to update; env values set to `''` clear that var
+     * @throws An error if the machine cannot be updated
+     */
+    update: async (
+      app: string,
+      machineId: string,
+      options: { env?: Record<string, string> }
+    ): Promise<void> => {
+      try {
+        await this.ensureInitialized();
+        await this.updateMachine(app, machineId, options);
+        this.logger.info(`Machine '${machineId}' in app '${app}' was updated`);
+      } catch (error) {
+        throw new Error(`[update machine] something broke\n${error}`);
+      }
     }
   };
   postgres = {
@@ -1035,6 +1059,26 @@ export class Fly {
     // Wait a bit for the machine to fully stop
     await new Promise((resolve) => setTimeout(resolve, 2000));
     await this.startMachine(app, machineId);
+  }
+
+  /**
+   * @private
+   * Update a machine's per-machine config (env vars, etc.).
+   * Creates a new machine version so the machine cold-starts from the updated config,
+   * bypassing any suspended memory snapshot.
+   * @throws An error if the machine cannot be updated
+   */
+  private async updateMachine(
+    app: string,
+    machineId: string,
+    options: { env?: Record<string, string> }
+  ): Promise<void> {
+    const args = ['machine', 'update', machineId, '--app', app];
+    for (const [key, value] of Object.entries(options.env || {})) {
+      args.push('--env', `${key}=${this.safeArg(value)}`);
+    }
+    args.push('--yes');
+    await this.execFly(args);
   }
 
   /**

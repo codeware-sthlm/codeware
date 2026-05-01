@@ -12,6 +12,9 @@ migrations.json
 tools
 *.log
 
+# Build artifacts
+apps/cms/.next
+
 # Temporary files
 coverage
 dist

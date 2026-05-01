@@ -10,7 +10,8 @@ export function middleware(request: NextRequest) {
   if (
     process.env.MAINTENANCE_MODE === 'true' &&
     pathname !== '/api/health' &&
-    pathname !== '/maintenance'
+    pathname !== '/maintenance' &&
+    pathname !== '/cdwr-cloud.png'
   ) {
     return NextResponse.rewrite(new URL('/maintenance', request.url));
   }

@@ -31,7 +31,8 @@ inputs:
     required: true
   apps:
     description: >
-      JSON array of app names to deploy (e.g., ["web", "cms"]).
+      JSON array of DeployableApp objects produced by nx-pre-deploy-action.
+      Each object has name, flyConfigFile, and githubConfig properties.
     required: true
   env:
     description: >
@@ -57,12 +58,18 @@ inputs:
       If an app has an empty array, it will be deployed once without deployment-specific config.
       Deployment-specific env/secrets are merged with global env/secrets (deployment takes precedence).
       Defaults to an empty object (single deployment per app with global config only).
+  images-path:
+    description: >
+      Path to a JSON file mapping app names to pre-built image references.
+      Preferred over `images` — avoids GitHub Actions secret scanning on job outputs.
+      Typically set to the `images-path` output from the `@cdwr/fly-build-action`.
   images:
     description: >
       JSON object mapping app names to pre-built image references
       (e.g. `{"cms":"registry.fly.io/cdwr-cms:deployment-xyz"}`).
       When provided, the deploy phase skips Docker builds and uses these images directly.
-      Typically set to the `images` output from the `@cdwr/fly-build-action`.
+      Use `images-path` instead when consuming from the build action — job outputs may be
+      suppressed by GitHub Actions secret scanning.
       Defaults to an empty object (each app builds its own image during deploy).
   opt-out-depot-builder:
     description: >
@@ -79,6 +86,15 @@ outputs:
   deployed:
     description: >
       JSON object containing the deployed project names and their urls.
+  projects:
+    description: >
+      JSON array of all deployment results (deployed, failed, skipped).
+      Each item has an action field ('deploy', 'destroy', or 'failed') and relevant properties.
+  projects-path:
+    description: >
+      Path to a JSON file containing the projects array.
+      Use this instead of `projects` to avoid GitHub Actions secret scanning suppression
+      — upload as an artifact and pass the downloaded path to consuming actions.
 
 runs:
   using: "node20"

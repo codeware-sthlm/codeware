@@ -229,12 +229,14 @@
   "engines": {
     "node": ">=20 <22"
   },
-  "overrides": {
-    "react": "$react",
-    "react-dom": "$react-dom",
-    "tar": ">=7.5.11",
-    "fast-xml-parser": ">=4.5.5",
-    "@remix-run/server-runtime": ">=2.17.3",
-    "postcss": ">=8.5.14"
+  "pnpm": {
+    "overrides": {
+      "react": "$react",
+      "react-dom": "$react-dom",
+      "tar": ">=7.5.11",
+      "fast-xml-parser": ">=4.5.5",
+      "@remix-run/server-runtime": ">=2.17.3",
+      "postcss": ">=8.5.14"
+    }
   }
 }

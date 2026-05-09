@@ -10,7 +10,8 @@ export const getFormsPlugin = () => {
       ...customizedFields,
       // Disable unsupported form fields
       payment: false,
-      state: false
+      state: false,
+      upload: false
     },
     formOverrides: {
       admin: {

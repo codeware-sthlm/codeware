@@ -155,47 +155,29 @@ export interface Config {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    'reusable-content':
-      | ReusableContentSelect<false>
-      | ReusableContentSelect<true>;
+    'reusable-content': ReusableContentSelect<false> | ReusableContentSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
-    'form-submissions':
-      | FormSubmissionsSelect<false>
-      | FormSubmissionsSelect<true>;
+    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    'payload-locked-documents':
-      | PayloadLockedDocumentsSelect<false>
-      | PayloadLockedDocumentsSelect<true>;
-    'payload-preferences':
-      | PayloadPreferencesSelect<false>
-      | PayloadPreferencesSelect<true>;
-    'payload-migrations':
-      | PayloadMigrationsSelect<false>
-      | PayloadMigrationsSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
     defaultIDType: number;
   };
-  fallbackLocale:
-    | ('false' | 'none' | 'null')
-    | false
-    | null
-    | ('en' | 'sv')
-    | ('en' | 'sv')[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'sv') | ('en' | 'sv')[];
   globals: {};
   globalsSelect: {};
   locale: 'en' | 'sv';
-  user:
-    | (Tenant & {
-        collection: 'tenants';
-      })
-    | (User & {
-        collection: 'users';
-      });
+  widgets: {
+    collections: CollectionsWidget;
+  };
+  user: Tenant | User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -391,6 +373,7 @@ export interface Tenant {
   enableAPIKey?: boolean | null;
   apiKey?: string | null;
   apiKeyIndex?: string | null;
+  collection: 'tenants';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -425,6 +408,7 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+  collection: 'users';
 }
 /**
  * Posts are standalone pages such as articles or blog posts and can be categorized.
@@ -638,14 +622,7 @@ export interface ContentBlock {
               [k: string]: unknown;
             }[];
             direction: ('ltr' | 'rtl') | null;
-            format:
-              | 'left'
-              | 'start'
-              | 'center'
-              | 'right'
-              | 'end'
-              | 'justify'
-              | '';
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
             indent: number;
             version: number;
           };
@@ -755,14 +732,7 @@ export interface Form {
                   [k: string]: unknown;
                 }[];
                 direction: ('ltr' | 'rtl') | null;
-                format:
-                  | 'left'
-                  | 'start'
-                  | 'center'
-                  | 'right'
-                  | 'end'
-                  | 'justify'
-                  | '';
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
                 indent: number;
                 version: number;
               };
@@ -919,14 +889,7 @@ export interface Form {
               [k: string]: unknown;
             }[];
             direction: ('ltr' | 'rtl') | null;
-            format:
-              | 'left'
-              | 'start'
-              | 'center'
-              | 'right'
-              | 'end'
-              | 'justify'
-              | '';
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
             indent: number;
             version: number;
           };
@@ -1777,11 +1740,22 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
   [k: string]: unknown;
 }
+
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

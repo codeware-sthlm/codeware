@@ -98,6 +98,15 @@ export async function loginAs(
 
   await page.context().addCookies(cookies);
 
+  // Payload 3.79+ added CSRF protection to cookie-based JWT extraction: requests
+  // without an Origin/Sec-Fetch-Site header (which Playwright's APIRequestContext
+  // does not always send) are rejected even with a valid cookie. Setting the
+  // Authorization header forces Payload to use the JWT extraction strategy
+  // (first in the default jwtOrder) instead of the cookie strategy, bypassing
+  // the CSRF check for `page.request.*` calls. Browser navigations still
+  // continue to use the cookie since they do send proper headers.
+  await page.context().setExtraHTTPHeaders({ Authorization: `JWT ${token}` });
+
   if (navigate) {
     await page.goto('/admin');
   }

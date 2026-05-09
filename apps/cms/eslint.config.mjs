@@ -32,7 +32,11 @@ const config = [
   ...nx.configs['flat/react-typescript'],
   ...removeDuplicateImportPlugin(nextPlugins),
   {
-    ignores: ['.next/**/*', 'src/app/(payload)/admin/importMap.js']
+    ignores: [
+      '.next/**/*',
+      'next-env.d.ts',
+      'src/app/(payload)/admin/importMap.js'
+    ]
   },
   {
     files: ['src/app/(payload)/**/*'],

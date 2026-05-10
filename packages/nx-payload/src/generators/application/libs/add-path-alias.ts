@@ -1,5 +1,4 @@
-import { type Tree, readJson } from '@nx/devkit';
-import { addTsConfigPath } from '@nx/js';
+import { type Tree, readJson, updateJson } from '@nx/devkit';
 
 import type { NormalizedSchema } from './normalize-options';
 
@@ -8,6 +7,10 @@ import type { NormalizedSchema } from './normalize-options';
  * when the path is not already added.
  *
  * It's required to follow Payload design pattern in `src/app` files.
+ *
+ * Also ensures `baseUrl` is set — required so that both webpack's
+ * TsConfigPathsPlugin and get-tsconfig (used by tsx/Payload CLI) can resolve
+ * the path correctly without a leading `./`.
  */
 export function addPathAlias(tree: Tree, options: NormalizedSchema): void {
   const tsConfig = readJson(tree, 'tsconfig.base.json');
@@ -15,7 +18,13 @@ export function addPathAlias(tree: Tree, options: NormalizedSchema): void {
     return;
   }
 
-  addTsConfigPath(tree, '@payload-config', [
-    `${options.directory}/src/payload.config.ts`
-  ]);
+  updateJson(tree, 'tsconfig.base.json', (json) => {
+    json.compilerOptions ??= {};
+    json.compilerOptions.baseUrl ??= '.';
+    json.compilerOptions.paths ??= {};
+    json.compilerOptions.paths['@payload-config'] = [
+      `${options.directory}/src/payload.config.ts`
+    ];
+    return json;
+  });
 }

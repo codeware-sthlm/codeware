@@ -53,7 +53,9 @@ export function ensureProjectTargets(
     projectName: options.name,
     projectRoot: options.directory,
     // graphQL is disabled by design in `payload.config.ts` template
-    isGraphQLDisabled: true
+    isGraphQLDisabled: true,
+    // src folder is always used by design in this generator
+    configFile: 'src/payload.config.ts'
   });
 
   // Apply payload targets to project config

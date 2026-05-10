@@ -78,11 +78,15 @@ export const createPayloadNodes = async (
     ]
   );
 
+  // Path to the Payload config file relative to the project root
+  const configFile = relative(projectRoot, configFilePath);
+
   // Get payload targets to be inferred for the project
   targetsCache[hash] ??= createPayloadTargets({
     isGraphQLDisabled: graphQLDisabled,
     projectName: String(projectName), // Should have a value by design?
-    projectRoot
+    projectRoot,
+    configFile
   });
 
   return {

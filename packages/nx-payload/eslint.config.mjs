@@ -32,6 +32,8 @@ export default [
             '@nx/js',
             '@nx/next',
             'nx',
+            // peer dep used via type-only import; @nx/dependency-checks ignores type imports
+            'payload',
             'tslib',
             'typescript',
             'next'

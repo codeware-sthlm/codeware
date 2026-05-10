@@ -13,8 +13,9 @@ export function createPayloadTargets(args: {
   isGraphQLDisabled?: boolean;
   projectName: string;
   projectRoot: string;
+  configFile: string;
 }): Record<PayloadTarget, TargetConfiguration> {
-  const { isGraphQLDisabled, projectName, projectRoot } = args;
+  const { isGraphQLDisabled, projectName, projectRoot, configFile } = args;
 
   const dxPrefix = 'Developer experience (DX)';
 
@@ -26,7 +27,7 @@ export function createPayloadTargets(args: {
         technologies: ['node']
       },
       executor: 'nx:run-commands',
-      inputs: ['{projectRoot}/src/payload.config.ts'],
+      inputs: [`{projectRoot}/${configFile}`],
       options: {
         commands: isGraphQLDisabled
           ? ['npx payload generate:types']
@@ -35,6 +36,7 @@ export function createPayloadTargets(args: {
               'npx payload-graphql generate:schema'
             ],
         cwd: projectRoot,
+        env: { PAYLOAD_CONFIG_PATH: configFile },
         parallel: false
       } satisfies Partial<RunCommandsOptions>
     },
@@ -47,7 +49,8 @@ export function createPayloadTargets(args: {
       options: {
         command: 'npx payload',
         forwardAllArgs: true,
-        cwd: projectRoot
+        cwd: projectRoot,
+        env: { PAYLOAD_CONFIG_PATH: configFile }
       } satisfies Partial<RunCommandsOptions>
     },
     'payload-graphql': {
@@ -59,7 +62,8 @@ export function createPayloadTargets(args: {
       options: {
         command: 'npx payload-graphql',
         forwardAllArgs: true,
-        cwd: projectRoot
+        cwd: projectRoot,
+        env: { PAYLOAD_CONFIG_PATH: configFile }
       } satisfies Partial<RunCommandsOptions>
     },
     'dx:mongodb': {

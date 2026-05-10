@@ -5,8 +5,7 @@ import type { PackageJson } from 'nx/src/utils/package-json';
 import {
   graphqlVersion,
   next15Version,
-  payloadCommonJSVersion,
-  payloadESMVersion
+  payloadVersion
 } from '../../utils/versions';
 
 import { initGenerator } from './init';
@@ -26,43 +25,20 @@ describe('init', () => {
     tree = createTreeWithEmptyWorkspace();
   });
 
-  it('should use Payload version for CommonJS workspace', async () => {
+  it('should use Payload version', async () => {
     await initGenerator(tree, options);
     const packageJson = readJson<PackageJson>(tree, 'package.json');
 
     expect(packageJson).toMatchObject({
       dependencies: {
-        '@payloadcms/db-mongodb': payloadCommonJSVersion,
-        '@payloadcms/db-postgres': payloadCommonJSVersion,
-        '@payloadcms/next': payloadCommonJSVersion,
-        '@payloadcms/richtext-lexical': payloadCommonJSVersion,
-        payload: payloadCommonJSVersion
+        '@payloadcms/db-mongodb': payloadVersion,
+        '@payloadcms/db-postgres': payloadVersion,
+        '@payloadcms/next': payloadVersion,
+        '@payloadcms/richtext-lexical': payloadVersion,
+        payload: payloadVersion
       },
       devDependencies: {
-        '@payloadcms/graphql': payloadCommonJSVersion
-      }
-    });
-  });
-
-  it('should use Payload version for ESM workspaces', async () => {
-    const packageJsonESM = readJson<PackageJson>(tree, 'package.json');
-    packageJsonESM.type = 'module';
-    tree.write('package.json', JSON.stringify(packageJsonESM, null, 2));
-
-    await initGenerator(tree, options);
-
-    const packageJson = readJson<PackageJson>(tree, 'package.json');
-
-    expect(packageJson).toMatchObject({
-      dependencies: {
-        '@payloadcms/db-mongodb': payloadESMVersion,
-        '@payloadcms/db-postgres': payloadESMVersion,
-        '@payloadcms/next': payloadESMVersion,
-        '@payloadcms/richtext-lexical': payloadESMVersion,
-        payload: payloadESMVersion
-      },
-      devDependencies: {
-        '@payloadcms/graphql': payloadESMVersion
+        '@payloadcms/graphql': payloadVersion
       }
     });
   });

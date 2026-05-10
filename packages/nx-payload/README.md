@@ -316,6 +316,8 @@ The types can be distributed to the client developer manually or saved to a shar
 > nx payload [app-name] generate:types
 > nx payload-graphql [app-name] generate:schema
 > ```
+>
+> The generated app includes a `package.json` with `"type": "module"` to ensure the Payload config loads as ESM when running CLI targets on Node ≥ 20.11. If your workspace root `package.json` already has `"type": "module"`, this file is redundant but harmless.
 
 ### Troubleshooting
 

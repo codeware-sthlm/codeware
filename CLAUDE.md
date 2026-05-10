@@ -25,7 +25,7 @@
 ## Workspace constraints
 
 - Use pnpm
-- Use Node 20
+- Use Node 22
 - Entire repository is ESM (`"type": "module"`)
 
 ## Working conventions
@@ -37,7 +37,10 @@
 - Avoid adding new dependencies unless clearly justified
 - Do not add CI integration unless explicitly asked
 - Before making large structural changes, summarize the conventions found in the repo and the planned approach
-- Git commits should follow convential commit pattern in commitlint.config.cjs
+- Git commits should follow conventional commit pattern in commitlint.config.cjs
+- Commit messages should be short — single line preferred; no multi-paragraph explanations
+- Never add `Co-Authored-By` trailers to commits
+- Never push directly to main — always create a branch and open a PR
 
 ## Nx-generated projects cleanup
 

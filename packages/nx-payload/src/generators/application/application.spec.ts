@@ -212,7 +212,7 @@ describe('application generator', () => {
 
     const tsConfig = JSON.parse(tree.read('tsconfig.base.json', 'utf-8'));
     expect(tsConfig.compilerOptions.paths['@payload-config']).toEqual([
-      `./${options.directory}/src/payload.config.ts`
+      `${options.directory}/src/payload.config.ts`
     ]);
 
     // Add another app and the process should not throw

@@ -1,3 +1,13 @@
+// Prevent @nx/next:init and @cdwr/nx-payload:init from calling createProjectGraphAsync,
+// which hits the real filesystem even when given a virtual Tree.
+jest.mock('@nx/devkit', () => ({
+  ...jest.requireActual('@nx/devkit'),
+  createProjectGraphAsync: jest.fn().mockResolvedValue({
+    nodes: {},
+    dependencies: {}
+  })
+}));
+
 import { type Tree, readProjectConfiguration } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 
@@ -6,7 +16,7 @@ import { payloadTargets } from '../../utils/definitions';
 import { presetGenerator } from './preset';
 import type { PresetGeneratorSchema } from './schema';
 
-describe.skip('preset generator', () => {
+describe('preset generator', () => {
   let tree: Tree;
 
   const options: PresetGeneratorSchema = {
@@ -19,18 +29,6 @@ describe.skip('preset generator', () => {
 
   console.log = jest.fn();
   console.warn = jest.fn();
-
-  jest.setTimeout(10_000);
-
-  let nxDaemon: string;
-  beforeAll(() => {
-    nxDaemon = process.env['NX_DAEMON'];
-    process.env['NX_DAEMON'] = 'false';
-  });
-
-  afterAll(() => {
-    process.env['NX_DAEMON'] = nxDaemon;
-  });
 
   beforeEach(() => {
     jest.clearAllMocks();

@@ -162,6 +162,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Cache Playwright browsers
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/cache@v4
         id: cache-playwright
         with:
@@ -171,7 +172,7 @@ jobs:
             playwright-${{ runner.os }}-
 
       - name: Install Playwright browsers
-        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        if: matrix.os == 'ubuntu-latest' && steps.cache-playwright.outputs.cache-hit != 'true'
         run: pnpm exec playwright install
 
       - name: Install Playwright system dependencies
@@ -196,7 +197,7 @@ jobs:
           - os: ubuntu-latest
             name: Linux
             timeout: 30
-            configuration: skip-docker
+            configuration: main
             verdaccio: localhost
           - os: macos-latest
             name: macOS

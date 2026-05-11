@@ -16,8 +16,8 @@
         "docker": {
           "testPathPatterns": ["docker", "ui"]
         },
-        "skip-docker": {
-          "testPathIgnorePatterns": ["docker", "ui"]
+        "main": {
+          "testPathPatterns": ["main"]
         },
         "quick": {
           "testPathPatterns": ["quick"]

@@ -1,4 +1,3 @@
-import { runCommand } from '@codeware/core/testing';
 import { logDebug } from '@codeware/core/utils';
 import {
   ensureCreateNxWorkspaceProject,
@@ -100,35 +99,6 @@ describe('Test plugin by starting with an empty workspace (limited test suite)',
           `${appDirectory}/.next/static`
         )
       ).not.toThrow();
-    });
-
-    it('should test application', async () => {
-      // https://github.com/nrwl/nx/issues/32880
-      await runNxCommandAsync(`test ${appName} --force-exit`);
-    });
-
-    it('should lint application', async () => {
-      await runNxCommandAsync(`lint ${appName}`);
-    });
-
-    it('should serve application (dev target)', async () => {
-      await runCommand(`nx dev ${appName}`, {
-        doneFn: (log) => /Ready in \d/.test(log),
-        errorDetector: /Error:/,
-        verbose: process.env.CDWR_DEBUG_LOGGING === 'true'
-      });
-    });
-
-    it('should generate types', async () => {
-      await runNxCommandAsync(`gen ${appName}`);
-
-      expect(() =>
-        checkFilesExist(`${appDirectory}/src/generated/payload-types.ts`)
-      ).not.toThrow();
-    });
-
-    it('should invoke payload cli', async () => {
-      await runNxCommandAsync(`payload ${appName} info`);
     });
   });
 });

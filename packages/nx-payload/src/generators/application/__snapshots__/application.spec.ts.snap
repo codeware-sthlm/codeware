@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`application generator should generate docker files 1`] = `
-"FROM node:20-alpine AS base
+"FROM node:22-alpine AS base
 
 FROM base AS deps
 # Check the link to understand why libc6-compat might be needed

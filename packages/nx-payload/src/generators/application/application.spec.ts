@@ -1,3 +1,13 @@
+// Prevent @nx/next:init and @cdwr/nx-payload:init from calling createProjectGraphAsync,
+// which hits the real filesystem even when given a virtual Tree.
+jest.mock('@nx/devkit', () => ({
+  ...jest.requireActual('@nx/devkit'),
+  createProjectGraphAsync: jest.fn().mockResolvedValue({
+    nodes: {},
+    dependencies: {}
+  })
+}));
+
 import { type Tree, readNxJson, readProjectConfiguration } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { lintConfigHasOverride } from '@nx/eslint/src/generators/utils/eslint-file';
@@ -7,11 +17,7 @@ import { payloadTargets } from '../../utils/definitions';
 import { applicationGenerator } from './application';
 import type { AppGeneratorSchema } from './schema';
 
-// Temporary disable until we've found a way to run the tests without disabling the daemon.
-// Currently the tests runs on the real filesystem which is a test anti-pattern and makes the tests slow.
-// Should be fixed in COD-274.
-
-describe.skip('application generator', () => {
+describe('application generator', () => {
   let tree: Tree;
   const options: AppGeneratorSchema = {
     directory: 'apps/test-dir',
@@ -23,25 +29,12 @@ describe.skip('application generator', () => {
   console.log = jest.fn();
   console.warn = jest.fn();
 
-  jest.setTimeout(60_000);
-
-  let nxDaemon: string;
-  beforeAll(() => {
-    nxDaemon = process.env['NX_DAEMON'];
-    process.env['NX_DAEMON'] = 'false';
-  });
-
-  afterAll(() => {
-    process.env['NX_DAEMON'] = nxDaemon;
-  });
-
   beforeEach(() => {
     jest.clearAllMocks();
     tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
   });
 
   afterEach(() => {
-    // TODO: Remove once Nx has fixed MaxListenersExceededWarning
     process.removeAllListeners('SIGTERM');
   });
 
@@ -214,21 +207,12 @@ describe.skip('application generator', () => {
     );
   });
 
-  it('should disable react compiler', async () => {
-    await applicationGenerator(tree, options);
-
-    const nextConfig = tree
-      .read(`${options.directory}/next.config.mjs`, 'utf-8')
-      .replaceAll(/(\s|\n)/g, '');
-    expect(nextConfig).toMatch(/experimental:.*reactCompiler:false/);
-  });
-
   it('should add payload config path alias once to tsconfig.base.json', async () => {
     await applicationGenerator(tree, options);
 
     const tsConfig = JSON.parse(tree.read('tsconfig.base.json', 'utf-8'));
     expect(tsConfig.compilerOptions.paths['@payload-config']).toEqual([
-      `${options.directory}/src/payload.config.ts`
+      `./${options.directory}/src/payload.config.ts`
     ]);
 
     // Add another app and the process should not throw

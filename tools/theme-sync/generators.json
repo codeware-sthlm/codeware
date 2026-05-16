@@ -1,0 +1,10 @@
+{
+  "$schema": "../../node_modules/nx/schemas/generators.json",
+  "generators": {
+    "sync": {
+      "factory": "./generator",
+      "schema": "./schema.json",
+      "description": "Sync Storybook theme overrides from the shared theme lib"
+    }
+  }
+}

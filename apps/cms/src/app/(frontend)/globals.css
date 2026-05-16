@@ -4,7 +4,7 @@
  * Workaround to make `core-*` token utilities work with IntelliSense for all apps.
  * There's some issue with monorepo and Tailwind 4 without configuration files.
  */
-@import '../../../../../libs/shared/theme/src/lib/core/theme-map-core.css'
+@import '../../../../../libs/shared/theme/src/lib/_core/theme-map-core.css'
   layer(theme);
 
 @import '../../../../../libs/shared/theme/src/lib/codeware/tailwind-base.css';

@@ -1,0 +1,36 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from './button.stories';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+Shadcn `Button` with `variant` and `size` props. Tokens drive all colors so every variant adapts to the active theme.
+
+```tsx
+import { Button } from '@codeware/shared/ui/shadcn/components/button';
+```
+
+## Variants
+
+<Canvas of={ButtonStories.Variants} />
+
+## Sizes
+
+<Canvas of={ButtonStories.Sizes} />
+
+## With icon
+
+Icons inside `Button` are auto-sized to `size-4`. No need to set explicit size on the icon.
+
+<Canvas of={ButtonStories.WithIcon} />
+
+## Loading state
+
+Use `disabled` with an animated icon to communicate async operations.
+
+<Canvas of={ButtonStories.Loading} />
+
+## Disabled
+
+<Canvas of={ButtonStories.Disabled} />

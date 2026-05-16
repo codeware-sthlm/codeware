@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 @import '../../../libs/shared/theme/src/lib/spotlight/tailwind-base.css';
 
-@custom-variant dark (&:is(.dark *));
-
-@plugin "@tailwindcss/typography";
+@plugin '@tailwindcss/typography';
 @config '../../../libs/shared/theme/src/lib/spotlight/tailwind-typography.cjs';

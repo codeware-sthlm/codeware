@@ -270,7 +270,21 @@
         "ciTargetName": "e2e-ci"
       }
     },
-    "./packages/nx-payload/plugin.ts"
+    "./packages/nx-payload/plugin.ts",
+    {
+      "plugin": "@nx/storybook/plugin",
+      "options": {
+        "serveStorybookTargetName": "storybook",
+        "buildStorybookTargetName": "build-storybook",
+        "testStorybookTargetName": "test-storybook",
+        "staticStorybookTargetName": "static-storybook",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    }
   ],
+  "sync": {
+    "globalGenerators": ["dev-plugin:theme-sync"]
+  },
   "analytics": true
 }

@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "theme-sync": {
+      "factory": "./src/generators/theme-sync/theme-sync",
+      "schema": "./src/generators/theme-sync/schema.json",
+      "description": "theme-sync generator"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "storybook",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/storybook/src",
+  "projectType": "application",
+  "tags": ["scope:storybook", "type:app"],
+  "targets": {
+    "storybook": {
+      "executor": "@nx/storybook:storybook",
+      "options": {
+        "port": 6006,
+        "configDir": "apps/storybook/.storybook"
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      },
+      "syncGenerators": ["dev-plugin:theme-sync"]
+    },
+    "build-storybook": {
+      "executor": "@nx/storybook:build",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook",
+        "configDir": "apps/storybook/.storybook"
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      },
+      "syncGenerators": ["dev-plugin:theme-sync"]
+    }
+  }
+}

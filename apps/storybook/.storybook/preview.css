@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@layer theme, base, components, utilities;
+
+@source '../../../libs/app-cms/ui/dashboard/src';
+@source '../../../libs/shared/ui';
+
+@import '../../../libs/shared/theme/src/lib/_core/tailwind-setup.css';
+@import './themes.css';
+
+@import 'tailwindcss/theme.css' layer(theme);
+
+@layer utilities {
+  @import 'tailwindcss/utilities.css';
+}

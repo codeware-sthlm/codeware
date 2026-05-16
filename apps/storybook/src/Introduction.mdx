@@ -157,7 +157,7 @@ Only override the tokens that change in dark mode. Everything else cascades from
 
 **5. Register in the sync generator**
 
-Add your theme name to `STORYBOOK_THEMES` in `tools/theme-sync/generator.ts`:
+Add your theme name to `STORYBOOK_THEMES` in `tools/dev-plugin/src/generators/theme-sync/theme-sync.ts`:
 
 ```ts
 const STORYBOOK_THEMES = [
@@ -175,6 +175,8 @@ Add an item to `sbTheme.toolbar.items` in `apps/storybook/.storybook/preview.tsx
 ```ts
 { value: 'your-theme', title: 'Your Theme' }
 ```
+
+If your theme uses `.dark` class for dark mode (i.e. `@custom-variant dark (&:is(.dark *))`), also add it to `CLASS_DARK_THEMES` in both `preview.tsx` and `tools/dev-plugin/src/generators/theme-sync/theme-sync.ts` so the decorator and the generated CSS selectors stay in sync.
 
 **7. Run sync**
 
@@ -258,4 +260,4 @@ pnpm nx sync        # check sync status
 pnpm nx sync --yes  # apply changes
 ```
 
-Nx detects drift during CI and fails the sync check if the file is out of date. The generator that produces it lives at `tools/theme-sync/generator.ts`.
+Nx detects drift during CI and fails the sync check if the file is out of date. The generator that produces it lives at `tools/dev-plugin/src/generators/theme-sync/theme-sync.ts`. After modifying the generator itself, rebuild the plugin with `pnpm nx build dev-plugin` before running sync.

@@ -1,5 +1,5 @@
 import { cn } from '@codeware/shared/util/ui';
-import * as LabelPrimitive from '@radix-ui/react-label';
+import { Label as LabelPrimitive } from 'radix-ui';
 import * as React from 'react';
 
 function Label({

@@ -11,6 +11,12 @@ const OUTPUT_PATH = 'apps/storybook/.storybook/themes.css';
  */
 const STORYBOOK_THEMES = ['payload-admin', 'spotlight', 'codeware'] as const;
 
+/**
+ * Themes that use the .dark class strategy for dark mode instead of data-theme="dark".
+ * Must stay in sync with CLASS_DARK_THEMES in apps/storybook/.storybook/preview.tsx.
+ */
+const CLASS_DARK_THEMES = new Set(['spotlight', 'codeware']);
+
 function extractBlock(css: string): string {
   const start = css.indexOf('{');
   const end = css.lastIndexOf('}');
@@ -46,12 +52,10 @@ function generateThemesCss(tree: Tree): string {
     lines.push(
       scopedBlock(`[data-sb-theme="${theme}"]`, extractBlock(lightCss))
     );
-    lines.push(
-      scopedBlock(
-        `[data-sb-theme='${theme}'][data-theme='dark']`,
-        extractBlock(darkCss)
-      )
-    );
+    const darkSelector = CLASS_DARK_THEMES.has(theme)
+      ? `[data-sb-theme='${theme}'].dark`
+      : `[data-sb-theme='${theme}'][data-theme='dark']`;
+    lines.push(scopedBlock(darkSelector, extractBlock(darkCss)));
     lines.push('');
   }
 

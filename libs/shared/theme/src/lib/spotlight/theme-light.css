@@ -36,6 +36,7 @@
 
   /* === shadcn/ui tokens === */
   --radius: 0.5rem;
+  --radius-md: calc(var(--radius) - 0.125rem);
   --background: var(--core-background-content);
   --foreground: var(--core-text);
   --card: var(--color-zinc-50);

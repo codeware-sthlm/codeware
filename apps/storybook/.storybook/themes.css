@@ -3,6 +3,7 @@
 /* payload-admin */
 [data-sb-theme='payload-admin'] {
   --radius: 0.625rem;
+  --radius-md: calc(var(--radius) - 0.125rem);
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -120,6 +121,7 @@
 
   /* === shadcn/ui tokens === */
   --radius: 0.5rem;
+  --radius-md: calc(var(--radius) - 0.125rem);
   --background: var(--core-background-content);
   --foreground: var(--core-text);
   --card: var(--color-zinc-50);
@@ -174,7 +176,7 @@
   --underline: theme('colors.teal.500 / 0.2');
   --underline-hover: var(--color-brand-500);
 }
-[data-sb-theme='spotlight'][data-theme='dark'] {
+[data-sb-theme='spotlight'].dark {
   /* === core tokens === */
   --core-action-btn-foreground: var(--color-zinc-400);
   --core-action-btn-foreground-hover: var(--color-teal-400);
@@ -278,6 +280,7 @@
 
   /* === shadcn zink tokens === */
   --radius: 0.625rem;
+  --radius-md: calc(var(--radius) - 0.125rem);
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -310,7 +313,7 @@
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
-[data-sb-theme='codeware'][data-theme='dark'] {
+[data-sb-theme='codeware'].dark {
   /* === shadcn zinc tokens === */
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);

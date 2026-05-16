@@ -8,7 +8,7 @@
 @custom-variant data-disabled (&[data-disabled]);
 @custom-variant data-highlighted (&[data-highlighted]);
 @custom-variant data-placeholder (&[data-placeholder]);
-@custom-variant data-selected (&[data-selected]);
+@custom-variant data-selected (&[data-selected=true]);
 @custom-variant data-horizontal (&[data-orientation=horizontal]);
 @custom-variant data-vertical (&[data-orientation=vertical]);
 @custom-variant data-inset (&[data-inset]);

@@ -55,10 +55,7 @@ export const CalloutTip: StoryObj = {
 export const CalloutNoTitle: StoryObj = {
   name: 'Callout / No title',
   render: () => (
-    <Callout
-      kind="info"
-      description={['A simple note without a heading.']}
-    />
+    <Callout kind="info" description={['A simple note without a heading.']} />
   )
 };
 
@@ -125,7 +122,7 @@ export const SocialIconGrid: StoryObj = {
       ).map((platform) => (
         <div key={platform} className="flex flex-col items-center gap-1">
           <SocialIcon platform={platform} />
-          <span className="text-xs text-muted-foreground">{platform}</span>
+          <span className="text-muted-foreground text-xs">{platform}</span>
         </div>
       ))}
     </div>
@@ -138,15 +135,15 @@ export const SocialIconSizes: StoryObj = {
     <div className="flex items-end gap-6">
       <div className="flex flex-col items-center gap-1">
         <SocialIcon platform="github" size="small" />
-        <span className="text-xs text-muted-foreground">small</span>
+        <span className="text-muted-foreground text-xs">small</span>
       </div>
       <div className="flex flex-col items-center gap-1">
         <SocialIcon platform="github" size="regular" />
-        <span className="text-xs text-muted-foreground">regular</span>
+        <span className="text-muted-foreground text-xs">regular</span>
       </div>
       <div className="flex flex-col items-center gap-1">
         <SocialIcon platform="github" size="large" />
-        <span className="text-xs text-muted-foreground">large</span>
+        <span className="text-muted-foreground text-xs">large</span>
       </div>
     </div>
   )
@@ -157,7 +154,7 @@ export const SocialIconSizes: StoryObj = {
 export const NotFoundPage: StoryObj = {
   name: 'NotFound / With button',
   render: () => (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="overflow-hidden rounded-lg border">
       <NotFound onGoHome={() => alert('Go home!')} />
     </div>
   )
@@ -166,7 +163,7 @@ export const NotFoundPage: StoryObj = {
 export const NotFoundNoButton: StoryObj = {
   name: 'NotFound / No button',
   render: () => (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="overflow-hidden rounded-lg border">
       <NotFound />
     </div>
   )

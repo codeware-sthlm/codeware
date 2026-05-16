@@ -23,7 +23,7 @@ export default meta;
 export const InputField: StoryObj = {
   name: 'Input',
   render: () => (
-    <div className="flex flex-col gap-4 w-72">
+    <div className="flex w-72 flex-col gap-4">
       <div className="grid gap-1.5">
         <Label htmlFor="email">Email</Label>
         <Input id="email" type="email" placeholder="you@example.com" />
@@ -43,7 +43,7 @@ export const InputField: StoryObj = {
 export const TextareaField: StoryObj = {
   name: 'Textarea',
   render: () => (
-    <div className="grid gap-1.5 w-72">
+    <div className="grid w-72 gap-1.5">
       <Label htmlFor="bio">Bio</Label>
       <Textarea id="bio" placeholder="Tell us a bit about yourself…" />
     </div>
@@ -95,7 +95,7 @@ export const RadioGroupField: StoryObj = {
 export const SelectField: StoryObj = {
   name: 'Select',
   render: () => (
-    <div className="grid gap-1.5 w-56">
+    <div className="grid w-56 gap-1.5">
       <Label htmlFor="role">Role</Label>
       <Select>
         <SelectTrigger id="role">
@@ -114,7 +114,7 @@ export const SelectField: StoryObj = {
 export const FullForm: StoryObj = {
   name: 'Composed form',
   render: () => (
-    <form className="flex flex-col gap-4 w-80">
+    <form className="flex w-80 flex-col gap-4">
       <div className="grid gap-1.5">
         <Label htmlFor="name">Name</Label>
         <Input id="name" placeholder="Jane Doe" />

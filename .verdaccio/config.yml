@@ -9,15 +9,15 @@ uplinks:
 
 # give all users (including non-authenticated users) full access because it is a local registry
 packages:
-  '@cdwr/*':
+  "@cdwr/*":
     access: $all
     publish: $all
     unpublish: $all
-  'create-nx-payload':
+  "create-nx-payload":
     access: $all
     publish: $all
     unpublish: $all
-  '**':
+  "**":
     access: $all
     publish: $all
     unpublish: $all

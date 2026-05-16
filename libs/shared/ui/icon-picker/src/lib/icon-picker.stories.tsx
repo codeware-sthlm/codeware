@@ -15,7 +15,7 @@ export const Default: StoryObj = {
     return (
       <div className="flex flex-col gap-4">
         <IconPicker value={icon} onChange={setIcon} />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Selected: {icon ?? 'none'}
         </p>
       </div>
@@ -26,13 +26,11 @@ export const Default: StoryObj = {
 export const WithPreselected: StoryObj = {
   name: 'Pre-selected icon',
   render: () => {
-    const [icon, setIcon] = useState<IconPickerIcon | undefined>(
-      'StarIcon'
-    );
+    const [icon, setIcon] = useState<IconPickerIcon | undefined>('StarIcon');
     return (
       <div className="flex flex-col gap-4">
         <IconPicker value={icon} onChange={setIcon} />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Selected: {icon ?? 'none'}
         </p>
       </div>
@@ -44,9 +42,7 @@ export const WithColor: StoryObj = {
   name: 'Colored icon',
   render: () => {
     const [icon, setIcon] = useState<IconPickerIcon | undefined>('BoltIcon');
-    return (
-      <IconPicker value={icon} onChange={setIcon} color="amber-500" />
-    );
+    return <IconPicker value={icon} onChange={setIcon} color="amber-500" />;
   }
 };
 

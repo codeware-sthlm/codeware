@@ -196,42 +196,44 @@ describe('flyDeployment', () => {
     mockCoreWarning.mockImplementation((msg) => console.log(`[WARN] ${msg}`));
 
     // Mock Fly class
-    mockFly.mockReturnValue({
-      apps: {
-        destroy: vi.fn(),
-        // Deployed apps than can be destroyed
-        list: vi.fn().mockResolvedValue(flyApps)
-      },
-      build: vi.fn().mockImplementation(({ app }) =>
-        Promise.resolve({
-          appName: app,
-          imageRef: `registry.fly.io/${app}:deployment-abc123`
-        })
-      ),
-      cli: {
-        isInstalled: vi.fn().mockResolvedValue(true)
-      },
-      config: {
-        show: vi.fn().mockImplementation(({ config }) =>
+    mockFly.mockImplementation(function () {
+      return {
+        apps: {
+          destroy: vi.fn(),
+          // Deployed apps than can be destroyed
+          list: vi.fn().mockResolvedValue(flyApps)
+        },
+        build: vi.fn().mockImplementation(({ app }) =>
           Promise.resolve({
-            // App name from fly.toml is '{app-name}-config'
-            app: config.replace(/\/apps\/([^/]+)\/.*/, '$1-config')
+            appName: app,
+            imageRef: `registry.fly.io/${app}:deployment-abc123`
           })
-        )
-      },
-      deploy: vi.fn().mockImplementation(({ app }) =>
-        Promise.resolve({
-          app,
-          url: `https://${app}.fly.dev`
-        })
-      ),
-      isReady: vi.fn(),
-      secrets: {
-        set: vi.fn().mockResolvedValue(undefined),
-        unset: vi.fn().mockResolvedValue(undefined)
-      },
-      status: vi.fn().mockResolvedValue(null)
-    } as unknown as Fly);
+        ),
+        cli: {
+          isInstalled: vi.fn().mockResolvedValue(true)
+        },
+        config: {
+          show: vi.fn().mockImplementation(({ config }) =>
+            Promise.resolve({
+              // App name from fly.toml is '{app-name}-config'
+              app: config.replace(/\/apps\/([^/]+)\/.*/, '$1-config')
+            })
+          )
+        },
+        deploy: vi.fn().mockImplementation(({ app }) =>
+          Promise.resolve({
+            app,
+            url: `https://${app}.fly.dev`
+          })
+        ),
+        isReady: vi.fn(),
+        secrets: {
+          set: vi.fn().mockResolvedValue(undefined),
+          unset: vi.fn().mockResolvedValue(undefined)
+        },
+        status: vi.fn().mockResolvedValue(null)
+      } as unknown as Fly;
+    });
   };
 
   /**

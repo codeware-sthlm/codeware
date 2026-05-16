@@ -83,10 +83,27 @@
     "shadcn:add": {
       "executor": "nx:run-commands",
       "metadata": {
-        "description": "Generate a new Shadcn UI component"
+        "description": "Add a new Shadcn UI component"
       },
       "options": {
         "command": "pnpm shadcn add",
+        "env": {
+          "TS_NODE_PROJECT": "tsconfig.base.json"
+        }
+      }
+    },
+    "shadcn:update": {
+      "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Update all Shadcn UI components to latest nova templates"
+      },
+      "options": {
+        "commands": [
+          "pnpm shadcn apply --preset b2fA --yes",
+          "pnpm nx format",
+          "pnpm nx run-many --target=lint --fix --projects=shared-ui-shadcn,storybook"
+        ],
+        "sequential": true,
         "env": {
           "TS_NODE_PROJECT": "tsconfig.base.json"
         }

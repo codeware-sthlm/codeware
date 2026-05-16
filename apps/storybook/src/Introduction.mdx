@@ -117,6 +117,50 @@ Our `theme-light.css` / `theme-dark.css` files implement exactly those same vari
 
 ---
 
+## Keeping shadcn components up to date
+
+shadcn distributes components as source — there is no npm package to bump. Updates are applied by re-downloading the latest component templates via the CLI.
+
+### Update all components
+
+```sh
+pnpm nx shadcn:update
+```
+
+This runs three steps in sequence:
+
+1. `shadcn apply --preset <code>` — re-downloads all installed components from the nova registry using the preset derived from `components.json`
+2. `nx format` — normalises Prettier formatting (shadcn writes its own style)
+3. `nx run-many --target=lint --fix` — fixes ESLint import ordering
+
+After running, review the diff and verify stories in Storybook before committing.
+
+### Add a new component
+
+```sh
+pnpm nx shadcn:add -- <component>
+```
+
+> **Note:** the nova-style registry (`/r/styles/nova/<component>.json`) currently returns 404 for individual `add` requests. If this fails, add the component via a new preset on [ui.shadcn.com/create](https://ui.shadcn.com/create) and re-run `shadcn:update`.
+
+### Detect drift
+
+`shadcn add <component> --diff` does not work with the nova style (same 404 issue). To check whether upstream has changed a component:
+
+1. Run `pnpm nx shadcn:update` on a clean branch
+2. Review `git diff` — changed files indicate upstream drift
+3. Discard or keep changes as appropriate
+
+### Check current preset
+
+```sh
+pnpm nx shadcn:info
+```
+
+Prints the resolved preset code and all installed components. The preset code comes from `components.json` settings; it changes only if you modify the style, base colour, or icon library.
+
+---
+
 ## Adding a new theme
 
 **1. Create the theme directory**

@@ -1,0 +1,32 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as Stories from './icon-picker.stories';
+
+<Meta of={Stories} />
+
+# IconPicker
+
+A searchable Heroicons grid picker backed by Radix UI Dialog. The selected value is a Heroicon component name like `"StarIcon"` (from `@heroicons/react/20/solid`).
+
+```tsx
+import { IconPicker } from '@codeware/shared/ui/icon-picker';
+```
+
+The component wraps itself in `.twp` so it works correctly inside Payload Admin without an extra wrapper.
+
+## Default
+
+<Canvas of={Stories.Default} />
+
+## Pre-selected icon
+
+<Canvas of={Stories.WithPreselected} />
+
+## Colored icon
+
+Pass a `color` prop (Tailwind color name) to tint the selected icon on the trigger button.
+
+<Canvas of={Stories.WithColor} />
+
+## Custom labels
+
+<Canvas of={Stories.CustomLabels} />

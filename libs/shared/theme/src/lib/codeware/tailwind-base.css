@@ -2,7 +2,9 @@
 @import './theme-light.css';
 @import './theme-dark.css';
 
-@import '../core/theme-map-shadcn.css' layer(theme);
+@custom-variant dark (&:is(.dark *));
+
+@import '../_core/theme-map-shadcn.css' layer(theme);
 
 @theme inline {
   --color-cdwr-steel-blue: var(--steel-blue);

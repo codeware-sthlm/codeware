@@ -1,0 +1,56 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as Stories from './primitives.stories';
+
+<Meta of={Stories} />
+
+# Primitives
+
+Low-level building blocks: `Callout`, `HeroIcon`, `SocialIcon`, and `NotFound`.
+
+```tsx
+import {
+  Callout,
+  HeroIcon,
+  SocialIcon,
+  NotFound
+} from '@codeware/shared/ui/primitives';
+```
+
+---
+
+## Callout
+
+Inline contextual messages. Built on top of `Alert` from shadcn/ui. Supports `info`, `warning`, and `tip` kinds — each maps to a distinct Heroicon automatically.
+
+<Canvas of={Stories.CalloutInfo} />
+<Canvas of={Stories.CalloutWarning} />
+<Canvas of={Stories.CalloutTip} />
+<Canvas of={Stories.CalloutNoTitle} />
+
+---
+
+## HeroIcon
+
+Renders any icon from `@heroicons/react/20/solid` by name. Pass a Tailwind color name via `color` — it resolves to the actual hex value using the Tailwind palette.
+
+<Canvas of={Stories.HeroIconDefault} />
+<Canvas of={Stories.HeroIconColored} />
+<Canvas of={Stories.HeroIconSizes} />
+
+---
+
+## SocialIcon
+
+Social / contact platform icons in three sizes. Sources: `@icons-pack/react-simple-icons` for branded logos, `lucide-react` for email, phone, and web.
+
+<Canvas of={Stories.SocialIconGrid} />
+<Canvas of={Stories.SocialIconSizes} />
+
+---
+
+## NotFound
+
+A centered 404 page component. Framework-agnostic — pass `onGoHome` to handle navigation in Next.js, Remix, or any other router.
+
+<Canvas of={Stories.NotFoundPage} />
+<Canvas of={Stories.NotFoundNoButton} />

@@ -1,0 +1,7 @@
+{
+  "name": "theme-sync",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/theme-sync",
+  "projectType": "library",
+  "tags": ["scope:tools"]
+}

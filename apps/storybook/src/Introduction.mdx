@@ -1,0 +1,261 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Introduction" />
+
+# Design System
+
+This Storybook covers the UI and theming layer for the Codeware platform. Two concerns live here:
+
+- **Dashboard components** — `libs/app-cms/ui/dashboard`. Purpose-built components for Payload CMS admin customizations: cards, banners, modals, buttons, form inputs.
+- **Theme system** — `libs/shared/theme`. CSS custom property sets that drive visual identity across the CMS admin and tenant web apps, with Tailwind v4 wiring.
+
+More libraries will appear as they are added to `apps/storybook/.storybook/main.ts`.
+
+---
+
+## Toolbar controls
+
+Two independent controls sit in the Storybook toolbar:
+
+| Control         | Attribute set   | Effect                                              |
+| --------------- | --------------- | --------------------------------------------------- |
+| **App Theme**   | `data-sb-theme` | Activates a named token set — palette, radius, etc. |
+| **Color Theme** | `data-theme`    | Toggles `light` / `dark` within the active theme    |
+
+Every story is wrapped by the decorator in `preview.tsx`:
+
+```html
+<div
+  data-sb-theme="payload-admin"
+  data-theme="light"
+  class="twp bg-background p-6"
+>
+  <!-- story renders here -->
+</div>
+```
+
+Switching the toolbar changes these attributes at runtime. Because tokens resolve through CSS custom properties, the visual output updates instantly — no rebuild.
+
+### The three themes
+
+| Theme           | Where it's used             | Brand color        |
+| --------------- | --------------------------- | ------------------ |
+| `payload-admin` | CMS admin UI (`apps/cms`)   | Teal               |
+| `spotlight`     | Tenant web app (`apps/web`) | Teal               |
+| `codeware`      | Future company brand        | Blue (placeholder) |
+
+---
+
+## Token system
+
+There are three layers of CSS custom properties, all defined per-theme in `libs/shared/theme/src/lib/{theme}/theme-light.css`.
+
+```
+theme-light.css             _core/tailwind-setup.css        Tailwind utilities
+──────────────────          ────────────────────────        ──────────────────
+--background                --color-background:             bg-background
+--foreground                  var(--background)             text-foreground
+--primary            ──▶   --color-primary:          ──▶   bg-primary
+--border                      var(--primary)                border-border
+...                         ...
+
+--brand-50                  --color-brand-50:               bg-brand-50
+--brand-500                   var(--brand-500)              text-brand-600
+--brand-950                 ...                             ring-brand-500
+```
+
+`_core/tailwind-setup.css` bridges the gap with `@theme inline`:
+
+```css
+@theme inline {
+  --color-background: var(--background);
+  --color-brand-500: var(--brand-500);
+  /* ... all mappings ... */
+}
+```
+
+`@theme inline` instructs Tailwind to resolve these at runtime (not build time), so switching `data-sb-theme` causes all `bg-*`, `text-*` and `border-*` utilities to immediately reflect the new values.
+
+### Dark mode
+
+Each theme declares its own `@custom-variant dark` in `tailwind-base.css`, and the strategies differ:
+
+| Theme           | Declaration                                         | Trigger                                       |
+| --------------- | --------------------------------------------------- | --------------------------------------------- |
+| `payload-admin` | `(&:where([data-theme=dark], [data-theme=dark] *))` | `data-theme="dark"` attribute on any ancestor |
+| `spotlight`     | `(&:is(.dark *))`                                   | `.dark` class on any ancestor                 |
+| `codeware`      | `(&:is(.dark *))`                                   | `.dark` class on any ancestor                 |
+
+`payload-admin` uses an attribute strategy because the CMS admin wraps components in a div with `data-theme`, not a CSS class. `spotlight` and `codeware` follow the `.dark` class convention used by their respective apps.
+
+The Storybook decorator in `preview.tsx` handles both strategies: when a `.dark`-class theme is active it adds `class="dark"` to the wrapper instead of setting `data-theme`. The Color Theme toolbar works correctly for all three themes.
+
+### Brand tokens
+
+`--brand-*` is the semantic layer for the primary brand color. It maps to a concrete palette per theme:
+
+| Theme           | `--brand-500` resolves to |
+| --------------- | ------------------------- |
+| `payload-admin` | `var(--color-teal-500)`   |
+| `spotlight`     | `var(--color-teal-500)`   |
+| `codeware`      | `var(--color-blue-500)`   |
+
+Dashboard components use `brand-*` utilities (`bg-brand-500`, `text-brand-600`, etc.) rather than hardcoded color names. This is what makes them theme-portable — the same component renders teal in Payload Admin and blue in Codeware without code changes.
+
+---
+
+## Relation to shadcn
+
+[shadcn/ui](https://ui.shadcn.com) is a component collection distributed as copy-paste source (not an npm package). Each component uses CSS custom properties for color — `--background`, `--foreground`, `--primary`, `--muted`, etc. — with a defined naming convention.
+
+Our `theme-light.css` / `theme-dark.css` files implement exactly those same variable names. This means:
+
+- Any shadcn component copied into `libs/shared/ui/` inherits the active theme's colors without extra configuration.
+- Adding a new shadcn component that uses a variable you haven't defined in a theme causes that value to fall through to nothing (transparent or inherited). Check the [shadcn variable list](https://ui.shadcn.com/docs/theming#list-of-variables) when adding new components.
+- The dashboard components in this Storybook are _not_ shadcn — they are custom-built. But they use the same variables so they theme correctly alongside shadcn primitives.
+- shadcn v2 targets Tailwind v4 with CSS-first config. This repo uses Tailwind v4 (`@import 'tailwindcss'`), so shadcn components work as documented without adapter shims.
+
+---
+
+## Adding a new theme
+
+**1. Create the theme directory**
+
+```
+libs/shared/theme/src/lib/{your-theme}/
+```
+
+**2. Add `theme-light.css`**
+
+Copy `payload-admin/theme-light.css` as a starting point. Set all shadcn tokens and `--brand-*` palette entries:
+
+```css
+:root {
+  --radius: 0.5rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.14 0.005 285);
+  /* ... all shadcn tokens ... */
+
+  --brand-50: var(--color-indigo-50);
+  --brand-500: var(--color-indigo-500);
+  --brand-950: var(--color-indigo-950);
+  /* ... full 50–950 scale ... */
+}
+```
+
+**3. Add `theme-dark.css`**
+
+Only override the tokens that change in dark mode. Everything else cascades from the light file.
+
+**4. Add `tailwind-base.css`**
+
+```css
+@import './theme-light.css';
+@import './theme-dark.css';
+@import '../_core/tailwind-setup.css';
+```
+
+**5. Register in the sync generator**
+
+Add your theme name to `STORYBOOK_THEMES` in `tools/theme-sync/generator.ts`:
+
+```ts
+const STORYBOOK_THEMES = [
+  'payload-admin',
+  'spotlight',
+  'codeware',
+  'your-theme'
+] as const;
+```
+
+**6. Register in the Storybook toolbar**
+
+Add an item to `sbTheme.toolbar.items` in `apps/storybook/.storybook/preview.tsx`:
+
+```ts
+{ value: 'your-theme', title: 'Your Theme' }
+```
+
+**7. Run sync**
+
+```sh
+pnpm nx sync
+```
+
+This regenerates `apps/storybook/.storybook/themes.css` from the source files. Never edit that file by hand — it will be overwritten.
+
+**8. Use the theme in an app**
+
+At the top of the app's CSS entry point:
+
+```css
+@import 'tailwindcss';
+@import '../../../libs/shared/theme/src/lib/{your-theme}/tailwind-base.css';
+```
+
+---
+
+## Using components inside Payload Admin
+
+Payload Admin ships with its own global CSS and a browser-level reset. Applying Tailwind's preflight globally would break the admin UI, so it is scoped explicitly.
+
+### The `.twp` wrapper
+
+Wrap any Tailwind-based component in `className="twp"` to activate scoped preflight:
+
+```tsx
+export function MyAdminWidget() {
+  return (
+    <div className="twp">
+      <BrandBtn>Save</BrandBtn>
+    </div>
+  );
+}
+```
+
+`custom.css` applies `tailwindcss/preflight.css` only inside `.twp`, resetting browser defaults for that subtree without touching Payload's own elements.
+
+Without `.twp`, Tailwind utility classes still apply (colors, spacing, typography) but browser defaults are not reset — buttons, inputs, and headings may pick up Payload's global styles instead of yours.
+
+### The `.no-twp` escape hatch
+
+Inside a `.twp` block, wrap Payload-native elements with `.no-twp` to revert to Payload's own styles:
+
+```tsx
+<div className="twp">
+  <MyDashboardCard />
+  <div className="no-twp">
+    {/* Payload's native checkbox, select, and input styles apply here */}
+  </div>
+</div>
+```
+
+### Dialog and portal components
+
+shadcn `Dialog` (and other portal-based components) teleport their content outside the `.twp` node in the DOM tree, so the scoped preflight does not apply. `custom.css` handles this with an explicit selector alongside `.twp`:
+
+```css
+.twp,
+div[role='dialog'][data-slot='dialog-content'] {
+  @import 'tailwindcss/preflight.css';
+}
+```
+
+If you add other portal components that need scoped preflight, extend that selector list.
+
+### Dark mode in Payload Admin
+
+No action required. Payload's `ThemeProvider` sets `data-theme="light"` or `data-theme="dark"` on `<html>` automatically, driven by the user's preference cookie or OS setting. Because `payload-admin`'s `@custom-variant dark` targets `[data-theme=dark]` on any ancestor, dashboard components respond to Payload's toggle without any wiring on your part.
+
+---
+
+## Keeping `themes.css` in sync
+
+`apps/storybook/.storybook/themes.css` is auto-generated — the source of truth is each theme's `theme-light.css` and `theme-dark.css`.
+
+```sh
+pnpm nx sync        # check sync status
+pnpm nx sync --yes  # apply changes
+```
+
+Nx detects drift during CI and fails the sync check if the file is out of date. The generator that produces it lives at `tools/theme-sync/generator.ts`.

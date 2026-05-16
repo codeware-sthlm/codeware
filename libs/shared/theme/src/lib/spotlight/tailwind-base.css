@@ -2,13 +2,15 @@
 @import './theme-light.css';
 @import './theme-dark.css';
 
+@custom-variant dark (&:is(.dark *));
+
 /* Core utilities */
-@import '../core/utility-payload.css';
+@import '../_core/utility-payload.css';
 
 /* Add color utilities to theme layer */
-@import '../core/theme-map-brand.css' layer(theme);
-@import '../core/theme-map-core.css' layer(theme);
-@import '../core/theme-map-shadcn.css' layer(theme);
+@import '../_core/theme-map-brand.css' layer(theme);
+@import '../_core/theme-map-core.css' layer(theme);
+@import '../_core/theme-map-shadcn.css' layer(theme);
 
 /* Base layer */
-@import '../core/layer-base.css';
+@import '../_core/layer-base.css';

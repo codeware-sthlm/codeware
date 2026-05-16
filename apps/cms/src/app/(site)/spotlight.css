@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 @import '../../../../../libs/shared/theme/src/lib/spotlight/tailwind-base.css';
 
-@custom-variant dark (&:is(.dark *));
-
 /* Let Tailwind know about extracted components */
 @source '../../../../../libs/app-cms/ui/web';
 @source '../../../../../libs/shared/ui';

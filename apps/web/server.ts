@@ -19,9 +19,8 @@ import { resolveAppLoadContextMiddleware } from './middlewares/resolve-app-load-
 const noop = () => {};
 
 // Load the Remix server build
-const build = (await import(
-  './build/server/index.js'
-)) as unknown as RemixMiddlewareOptions['build'];
+const build =
+  (await import('./build/server/index.js')) as unknown as RemixMiddlewareOptions['build'];
 
 const app = new Hono()
   // Lightweight health check — must not trigger Remix/Payload data fetching

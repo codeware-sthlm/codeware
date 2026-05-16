@@ -15,7 +15,7 @@ export const Default: StoryObj = {
     return (
       <div className="flex flex-col gap-4">
         <ColorPicker value={color} onChange={setColor} />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Selected: {color ?? 'none'}
         </p>
       </div>
@@ -30,7 +30,7 @@ export const WithPreselected: StoryObj = {
     return (
       <div className="flex flex-col gap-4">
         <ColorPicker value={color} onChange={setColor} />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Selected: {color ?? 'none'}
         </p>
       </div>

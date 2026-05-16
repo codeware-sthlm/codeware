@@ -171,7 +171,6 @@ nx act nx-migrate-action
 ### GitHub App Settings
 
 1. Follow the instructions in [Register a GitHub App](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app) and apply the settings below:
-
    - Webhook is not needed, so uncheck `Active`under `Webhook`
    - Select under `Repository permissions`
      - `Contents` with `Write & Read` access
@@ -186,7 +185,6 @@ nx act nx-migrate-action
 3. Install the app to the repositories you want to run the action in.
 
 4. Create secrets and select which repositories to expose them to.
-
    - `APP_ID`: The GitHub App ID
    - `APP_PRIVATE_KEY`: The private key
 

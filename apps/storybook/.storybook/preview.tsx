@@ -24,7 +24,7 @@ const withTheme: Decorator = (Story, context) => {
     <div
       data-theme={usesClassDark ? undefined : theme}
       data-sb-theme={sbTheme}
-      className={`twp bg-background p-6${usesClassDark && theme === 'dark' ? ' dark' : ''}`}
+      className={`twp bg-background p-6${usesClassDark && theme === 'dark' ? 'dark' : ''}`}
     >
       <Story />
     </div>

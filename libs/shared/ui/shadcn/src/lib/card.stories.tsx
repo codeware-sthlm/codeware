@@ -25,7 +25,7 @@ export const Simple: StoryObj = {
         <CardDescription>Supporting description text.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Card body content goes here.
         </p>
       </CardContent>
@@ -41,7 +41,7 @@ export const WithFooter: StoryObj = {
         <CardDescription>This action cannot be undone.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           All associated data will be permanently removed from our servers.
         </p>
       </CardContent>
@@ -67,7 +67,9 @@ export const WithAction: StoryObj = {
       </CardHeader>
       <CardContent>
         <p className="text-3xl font-bold">12,430</p>
-        <p className="text-xs text-muted-foreground mt-1">requests this month</p>
+        <p className="text-muted-foreground mt-1 text-xs">
+          requests this month
+        </p>
       </CardContent>
     </Card>
   )

@@ -4,11 +4,7 @@ import { AlertTriangle, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './components/alert';
 import { Button } from './components/button';
 import { Separator } from './components/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from './components/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from './components/tooltip';
 
 const meta = {
   title: 'Shadcn UI/Alert & Tooltip'
@@ -57,7 +53,7 @@ export const AlertNoIcon: StoryObj = {
 export const TooltipBasic: StoryObj = {
   name: 'Tooltip',
   render: () => (
-    <div className="flex gap-4 items-center">
+    <div className="flex items-center gap-4">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="outline">Hover me</Button>

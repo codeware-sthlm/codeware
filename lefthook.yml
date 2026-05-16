@@ -21,7 +21,7 @@ pre-commit:
 
     # Validate Renovate config and suggest migrations
     renovate:
-      glob: '.github/renovate.json'
+      glob: ".github/renovate.json"
       run: npx --yes --package renovate -- renovate-config-validator --strict
 
 # Lint commit message after pre-commit

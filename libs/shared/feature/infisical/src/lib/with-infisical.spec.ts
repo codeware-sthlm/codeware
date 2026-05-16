@@ -61,9 +61,9 @@ describe('withInfisical', () => {
       })
     };
 
-    vi.mocked(InfisicalSDK).mockImplementation(
-      () => mockClient as unknown as InfisicalSDK
-    );
+    vi.mocked(InfisicalSDK).mockImplementation(function () {
+      return mockClient as unknown as InfisicalSDK;
+    });
 
     // Set required environment variables
     process.env['INFISICAL_CLIENT_ID'] = 'test-client-id';

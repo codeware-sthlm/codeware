@@ -99,7 +99,7 @@
       },
       "options": {
         "commands": [
-          "pnpm shadcn apply --preset b2fA --yes",
+          "pnpm shadcn apply --preset $(pnpm shadcn preset resolve --json | node -p 'JSON.parse(fs.readFileSync(0,\"utf8\")).code') --yes",
           "pnpm nx format",
           "pnpm nx run-many --target=lint --fix --projects=shared-ui-shadcn,storybook"
         ],

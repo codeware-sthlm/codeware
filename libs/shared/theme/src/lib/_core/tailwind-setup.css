@@ -1,6 +1,18 @@
 /* Dark mode variant for [data-theme] attribute strategy */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+/* Radix UI / shadcn nova data-attribute shorthand variants */
+@custom-variant data-open (&[data-state=open]);
+@custom-variant data-closed (&[data-state=closed]);
+@custom-variant data-checked (&[data-state=checked]);
+@custom-variant data-disabled (&[data-disabled]);
+@custom-variant data-highlighted (&[data-highlighted]);
+@custom-variant data-placeholder (&[data-placeholder]);
+@custom-variant data-selected (&[data-selected]);
+@custom-variant data-horizontal (&[data-orientation=horizontal]);
+@custom-variant data-vertical (&[data-orientation=vertical]);
+@custom-variant data-inset (&[data-inset]);
+
 /* Map shadcn CSS variables to Tailwind color utilities */
 @theme inline {
   --color-background: var(--background);

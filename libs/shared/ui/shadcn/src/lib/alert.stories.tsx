@@ -4,7 +4,12 @@ import { AlertTriangle, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './components/alert';
 import { Button } from './components/button';
 import { Separator } from './components/separator';
-import { Tooltip, TooltipContent, TooltipTrigger } from './components/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from './components/tooltip';
 
 const meta = {
   title: 'Shadcn UI/Alert & Tooltip'
@@ -53,24 +58,26 @@ export const AlertNoIcon: StoryObj = {
 export const TooltipBasic: StoryObj = {
   name: 'Tooltip',
   render: () => (
-    <div className="flex items-center gap-4">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="outline">Hover me</Button>
-        </TooltipTrigger>
-        <TooltipContent>Tooltip content</TooltipContent>
-      </Tooltip>
+    <TooltipProvider>
+      <div className="flex items-center gap-4">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline">Hover me</Button>
+          </TooltipTrigger>
+          <TooltipContent>Tooltip content</TooltipContent>
+        </Tooltip>
 
-      <Separator orientation="vertical" className="h-8" />
+        <Separator orientation="vertical" className="h-8" />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Info">
-            <Info className="size-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>More information</TooltipContent>
-      </Tooltip>
-    </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="Info">
+              <Info className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>More information</TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
   )
 };

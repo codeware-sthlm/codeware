@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@codeware/shared/ui/shadcn/components": [
+        "libs/shared/ui/shadcn/src/lib/components"
+      ],
+      "@codeware/shared/ui/shadcn/components/*": [
+        "libs/shared/ui/shadcn/src/lib/components/*"
+      ],
+      "@codeware/shared/ui/shadcn/hooks": [
+        "libs/shared/ui/shadcn/src/lib/hooks"
+      ],
+      "@codeware/shared/ui/shadcn/hooks/*": [
+        "libs/shared/ui/shadcn/src/lib/hooks/*"
+      ],
+      "@codeware/shared/util/ui": ["libs/shared/util/ui/src/index.ts"]
+    }
+  }
+}

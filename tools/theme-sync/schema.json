@@ -1,9 +1,0 @@
-{
-  "$schema": "http://json-schema.org/schema",
-  "cli": "nx",
-  "id": "sync-themes",
-  "title": "Sync Storybook Themes",
-  "description": "Sync Storybook theme overrides from the shared theme lib",
-  "type": "object",
-  "properties": {}
-}

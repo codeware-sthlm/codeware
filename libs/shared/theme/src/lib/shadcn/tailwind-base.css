@@ -1,0 +1,6 @@
+/* shadcn reference theme — pixel-perfect baseline against shadcn.com */
+@import './theme-light.css';
+@import './theme-dark.css';
+
+/* Core setup — variants, theme mappings, base layer */
+@import '../_core/tailwind-setup.css';

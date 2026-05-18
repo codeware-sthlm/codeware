@@ -1,5 +1,8 @@
 @import 'tailwindcss';
+
+/* Use Spotlight theme */
 @import '../../../libs/shared/theme/src/lib/spotlight/tailwind-base.css';
 
+/* Enable prose for custom Payload renderer components */
 @plugin '@tailwindcss/typography';
-@config '../../../libs/shared/theme/src/lib/spotlight/tailwind-typography.cjs';
+@config '../../../libs/shared/theme/src/lib/_core/tailwind-typography.cjs';

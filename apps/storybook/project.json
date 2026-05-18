@@ -16,7 +16,7 @@
           "quiet": true
         }
       },
-      "syncGenerators": ["./dist/tools/dev-plugin:theme-sync"]
+      "syncGenerators": ["dev-plugin:theme-sync"]
     },
     "build-storybook": {
       "executor": "@nx/storybook:build",
@@ -30,7 +30,7 @@
           "quiet": true
         }
       },
-      "syncGenerators": ["./dist/tools/dev-plugin:theme-sync"]
+      "syncGenerators": ["dev-plugin:theme-sync"]
     }
   }
 }

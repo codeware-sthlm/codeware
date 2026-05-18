@@ -2,15 +2,5 @@
 @import './theme-light.css';
 @import './theme-dark.css';
 
-@custom-variant dark (&:is(.dark *));
-
-/* Core utilities */
-@import '../_core/utility-payload.css';
-
-/* Add color utilities to theme layer */
-@import '../_core/theme-map-brand.css' layer(theme);
-@import '../_core/theme-map-core.css' layer(theme);
-@import '../_core/theme-map-shadcn.css' layer(theme);
-
-/* Base layer */
-@import '../_core/layer-base.css';
+/* Core setup — variants, theme mappings, base layer, utilities */
+@import '../_core/tailwind-setup.css';

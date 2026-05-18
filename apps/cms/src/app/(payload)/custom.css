@@ -3,26 +3,48 @@
 /* Scan classes from libs not resolvable via path aliases */
 @source '../../../../../libs/shared/ui';
 
+/* Use Payload Admin theme */
 @import '../../../../../libs/shared/theme/src/lib/payload-admin/tailwind-base.css';
 
 @import 'tailwindcss/theme.css' layer(theme);
 
 /*
- * Payload sets `html { font-size: 13px }` which shrinks all rem-based Tailwind
- * utilities. Reset to 16px for pages that contain our custom .twp dashboard so
- * rem units scale correctly. Using :has() scopes this to dashboard pages only
- * (Payload's native collection/admin views don't contain .twp).
+ * Payload sets html { font-size: 13px }, making rem-based Tailwind utilities
+ * resolve to wrong pixel values. Tailwind v4 generates utilities via CSS vars
+ * (e.g. padding: calc(var(--spacing) * 4)), so overriding those vars on .twp
+ * fixes all utilities in scope without touching html at all.
  *
- * The .nav sidebar is part of the same page layout and inherits the html font-size,
- * so it must be pinned back to 13px to prevent the sidebar from appearing larger
- * on the dashboard and then "shrinking" when navigating to a collection view.
+ * Without this fix, Tailwind's spacing scale is 0.75x too small (e.g. p-4 is 12px instead of 16px),
+ * and all font sizes are also 0.75x too small (e.g. text-base is 12px instead of 16px).
  */
-html:has(.twp) {
-  font-size: 16px !important;
-}
-
-html:has(.twp) .nav {
-  font-size: 13px;
+.twp {
+  --spacing: 4px;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 18px;
+  --text-lg--line-height: 28px;
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 32px;
+  --text-3xl: 30px;
+  --text-3xl--line-height: 36px;
+  --text-4xl: 36px;
+  --text-4xl--line-height: 40px;
+  --text-5xl: 48px;
+  --text-5xl--line-height: 1;
+  --text-6xl: 60px;
+  --text-6xl--line-height: 1;
+  --text-7xl: 72px;
+  --text-7xl--line-height: 1;
+  --text-8xl: 96px;
+  --text-8xl--line-height: 1;
+  --text-9xl: 128px;
+  --text-9xl--line-height: 1;
 }
 
 @layer base {

@@ -2,7 +2,7 @@
 
 /* shadcn */
 [data-sb-theme='shadcn'] {
-  /* === use zink as brand === */
+  /* === use zinc as brand === */
   --brand-50: var(--color-zinc-50);
   --brand-100: var(--color-zinc-100);
   --brand-200: var(--color-zinc-200);
@@ -142,7 +142,7 @@
   --brand-900: var(--color-teal-900);
   --brand-950: var(--color-teal-950);
 
-  /* === shadcn zink tokens === */
+  /* === shadcn zinc tokens === */
   --radius: 0.625rem;
   --radius-md: calc(var(--radius) - 0.125rem);
   --background: oklch(1 0 0);
@@ -450,7 +450,7 @@
   --brand-900: var(--color-blue-900);
   --brand-950: var(--color-blue-950);
 
-  /* === shadcn zink tokens === */
+  /* === shadcn zinc tokens === */
   --radius: 0.625rem;
   --radius-md: calc(var(--radius) - 0.125rem);
   --background: oklch(1 0 0);

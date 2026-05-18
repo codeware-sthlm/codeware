@@ -78,6 +78,9 @@ jobs:
         if: env.NX_NO_CLOUD == 'true'
         run: pnpm nx format:check
 
+      - name: Install Playwright Chromium (for Storybook tests)
+        run: pnpm exec playwright install chromium --with-deps
+
       - run: pnpm nx affected -t lint,test,build -c ci
 
       - name: Nx Self-healing CI

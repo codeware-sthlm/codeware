@@ -26,15 +26,23 @@ type DarkStrategy = 'class' | 'attribute';
  * strategy by reading the first selector before the opening brace.
  */
 function detectDarkStrategy(css: string): DarkStrategy {
-  const selector = css.slice(0, css.indexOf('{')).trim();
-  return selector === '.dark' ? 'class' : 'attribute';
+  const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const selector = stripped.slice(0, stripped.indexOf('{')).trim();
+  return /^\.dark(\s|,|$)/.test(selector) ? 'class' : 'attribute';
 }
 
 function extractBlock(css: string): string {
   const start = css.indexOf('{');
-  const end = css.lastIndexOf('}');
-  if (start === -1 || end === -1) return '';
-  return css.slice(start + 1, end).trim();
+  if (start === -1) return '';
+  let depth = 0;
+  for (let i = start; i < css.length; i++) {
+    if (css[i] === '{') depth++;
+    else if (css[i] === '}') {
+      depth--;
+      if (depth === 0) return css.slice(start + 1, i).trim();
+    }
+  }
+  return '';
 }
 
 function scopedBlock(selector: string, vars: string): string {
@@ -68,11 +76,13 @@ function extractDefinedTokens(css: string): Set<string> {
 
 /** Extract CSS variable names referenced inside the @theme inline { } block. */
 function extractThemeInlineTokens(css: string): Set<string> {
-  const match = css.match(/@theme\s+inline\s*\{([\s\S]*?)\}/);
-  const block = match?.[1] ?? '';
-  return new Set(
-    [...block.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((m) => m[1])
-  );
+  const tokens = new Set<string>();
+  for (const match of css.matchAll(/@theme\s+inline\s*\{([\s\S]*?)\}/g)) {
+    for (const varMatch of match[1].matchAll(/var\(\s*(--[\w-]+)\s*\)/g)) {
+      tokens.add(varMatch[1]);
+    }
+  }
+  return tokens;
 }
 
 /** Extract CSS variable names referenced in the prose plugin values. */
@@ -122,10 +132,13 @@ function generateThemesMeta(
     (t) =>
       !t.startsWith('--brand-') &&
       !t.startsWith('--core-') &&
+      t !== '--sidebar' &&
       !t.startsWith('--sidebar-') &&
       t !== '--radius'
   );
-  const sidebarTokens = setupArr.filter((t) => t.startsWith('--sidebar-'));
+  const sidebarTokens = setupArr.filter(
+    (t) => t === '--sidebar' || t.startsWith('--sidebar-')
+  );
   const brandTokens = setupArr.filter((t) => t.startsWith('--brand-'));
   const coreTokens = setupArr.filter((t) => t.startsWith('--core-'));
   const prose = [...proseTokens];
@@ -153,7 +166,7 @@ function generateThemesMeta(
 
 export async function themeSyncGenerator(
   tree: Tree
-): Promise<SyncGeneratorResult> {
+): Promise<SyncGeneratorResult | void> {
   // Detect dark strategy per theme from the actual CSS selector
   const strategies = {} as Record<SbTheme, DarkStrategy>;
   for (const theme of STORYBOOK_THEMES) {

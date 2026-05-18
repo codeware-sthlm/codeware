@@ -1,5 +1,5 @@
-const base = require('../_core/typography-base');
-const prose = require('../_core/typography-prose');
+const base = require('./typography-base');
+const prose = require('./typography-prose');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

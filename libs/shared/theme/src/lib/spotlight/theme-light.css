@@ -1,5 +1,5 @@
 :root {
-  /* === brand palette tokens === */
+  /* === use teal as brand === */
   --brand-50: var(--color-teal-50);
   --brand-100: var(--color-teal-100);
   --brand-200: var(--color-teal-200);
@@ -14,7 +14,7 @@
 
   /* === core tokens === */
   --core-action-btn-foreground: var(--color-zinc-600);
-  --core-action-btn-foreground-hover: var(--color-teal-500);
+  --core-action-btn-foreground-hover: var(--color-teal-700);
   --core-action-btn-background: theme('colors.white / 0.9');
   --core-action-btn-border: theme('colors.zinc.900 / 0.05');
   --core-action-btn-border-hover: theme('colors.zinc.900 / 0.1');
@@ -25,13 +25,13 @@
   --core-content-border: var(--color-zinc-100);
   --core-headline: var(--color-zinc-800);
   --core-header: var(--color-zinc-900);
-  --core-link: var(--color-teal-500);
+  --core-link: var(--color-teal-700);
   --core-navbar: theme('colors.white / 0.9');
   --core-navbar-border: theme('colors.zinc.900 / 0.05');
   --core-navbar-shadow: theme('colors.zinc.800 / 0.05');
   --core-nav-link: var(--color-zinc-800);
-  --core-nav-link-active: var(--color-teal-500);
-  --core-nav-link-hover: var(--color-teal-500);
+  --core-nav-link-active: var(--color-teal-700);
+  --core-nav-link-hover: var(--color-teal-700);
   --core-text: var(--color-zinc-600);
 
   /* === shadcn/ui tokens === */

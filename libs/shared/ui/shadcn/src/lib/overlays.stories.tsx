@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ChevronRight, LogOut, Settings, User } from 'lucide-react';
+import { LogOut, Settings, User } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from './components/button';
@@ -117,7 +117,10 @@ export const ToasterStory: StoryObj = {
           variant="outline"
           onClick={() =>
             toast('File uploaded', {
-              action: { label: 'Undo', onClick: () => {} }
+              action: {
+                label: 'Undo',
+                onClick: () => console.log('Undo action')
+              }
             })
           }
         >

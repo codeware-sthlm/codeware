@@ -1,9 +1,12 @@
 @import 'tailwindcss';
+
+/* Use Spotlight theme */
 @import '../../../../../libs/shared/theme/src/lib/spotlight/tailwind-base.css';
 
-/* Let Tailwind know about extracted components */
+/* PostCSS can only resolve within the cms app - let Tailwind know about extracted components */
 @source '../../../../../libs/app-cms/ui/web';
 @source '../../../../../libs/shared/ui';
 
+/* Enable prose for custom Payload renderer components */
 @plugin '@tailwindcss/typography';
-@config '../../../../../libs/shared/theme/src/lib/spotlight/tailwind-typography.cjs';
+@config '../../../../../libs/shared/theme/src/lib/_core/tailwind-typography.cjs';

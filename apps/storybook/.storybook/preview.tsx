@@ -1,24 +1,52 @@
 import type { Decorator, Preview } from '@storybook/react-vite';
+import { useEffect } from 'react';
 
 import './preview.css';
+import {
+  STORYBOOK_THEMES,
+  type SbTheme,
+  THEME_DARK_STRATEGIES
+} from './themes-meta';
 
-// Themes that use .dark class strategy instead of [data-theme=dark] attribute
-const CLASS_DARK_THEMES = new Set(['spotlight', 'codeware']);
+const CLASS_DARK_THEMES = new Set(
+  STORYBOOK_THEMES.filter((t) => THEME_DARK_STRATEGIES[t] === 'class')
+);
 
 const withTheme: Decorator = (Story, context) => {
   const theme = (context.globals['theme'] as string) ?? 'light';
-  const sbTheme = (context.globals['sbTheme'] as string) ?? 'payload-admin';
+  const sbTheme = (context.globals['sbTheme'] as SbTheme) ?? 'payload-admin';
   const usesClassDark = CLASS_DARK_THEMES.has(sbTheme);
 
-  // Mirror theme onto document.body so portaled content (dialogs etc.) inherits it
-  document.body.setAttribute('data-sb-theme', sbTheme);
-  if (usesClassDark) {
-    document.body.removeAttribute('data-theme');
-    document.body.classList.toggle('dark', theme === 'dark');
-  } else {
-    document.body.setAttribute('data-theme', theme);
-    document.body.classList.remove('dark');
-  }
+  // Mirror theme onto document.body so portaled content (dialogs etc.) inherits it.
+  // useEffect ensures cleanup on story unmount so state doesn't leak between stories.
+  useEffect(() => {
+    const prevSbTheme = document.body.getAttribute('data-sb-theme');
+    const prevDataTheme = document.body.getAttribute('data-theme');
+    const prevHadDark = document.body.classList.contains('dark');
+
+    document.body.setAttribute('data-sb-theme', sbTheme);
+    if (usesClassDark) {
+      document.body.removeAttribute('data-theme');
+      document.body.classList.toggle('dark', theme === 'dark');
+    } else {
+      document.body.setAttribute('data-theme', theme);
+      document.body.classList.remove('dark');
+    }
+
+    return () => {
+      if (prevSbTheme) {
+        document.body.setAttribute('data-sb-theme', prevSbTheme);
+      } else {
+        document.body.removeAttribute('data-sb-theme');
+      }
+      if (prevDataTheme) {
+        document.body.setAttribute('data-theme', prevDataTheme);
+      } else {
+        document.body.removeAttribute('data-theme');
+      }
+      document.body.classList.toggle('dark', prevHadDark);
+    };
+  }, [theme, sbTheme, usesClassDark]);
 
   return (
     <div
@@ -38,11 +66,12 @@ const preview: Preview = {
   globalTypes: {
     sbTheme: {
       description: 'App theme',
-      defaultValue: 'payload-admin',
+      defaultValue: STORYBOOK_THEMES[0],
       toolbar: {
         title: 'App Theme',
         icon: 'paintbrush',
         items: [
+          { value: 'shadcn', title: 'shadcn (reference)' },
           { value: 'payload-admin', title: 'Payload Admin' },
           { value: 'spotlight', title: 'Spotlight' },
           { value: 'codeware', title: 'Codeware' }

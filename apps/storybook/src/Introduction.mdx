@@ -36,71 +36,109 @@ Every story is wrapped by the decorator in `preview.tsx`:
 
 Switching the toolbar changes these attributes at runtime. Because tokens resolve through CSS custom properties, the visual output updates instantly — no rebuild.
 
-### The three themes
+### The four themes
 
-| Theme           | Where it's used             | Brand color        |
-| --------------- | --------------------------- | ------------------ |
-| `payload-admin` | CMS admin UI (`apps/cms`)   | Teal               |
-| `spotlight`     | Tenant web app (`apps/web`) | Teal               |
-| `codeware`      | Future company brand        | Blue (placeholder) |
+<pre className="mermaid">
+  {`flowchart TD
+  subgraph lib["libs/shared/theme/src/lib/"]
+    shadcn["shadcn\\nzinc · reference"]
+    pa["payload-admin\\nteal · CMS admin"]
+    sp["spotlight\\nteal · tenant app"]
+    cw["codeware\\nblue · future brand"]
+  end
+
+  cms["apps/cms"]
+  web["apps/web"]
+
+  pa -->|"custom.css"| cms
+  sp -->|"tailwind.css"| cms & web
+  cw -.->|"planned"| cms
+  shadcn -.->|"reference only"| pa`}
+</pre>
+
+`shadcn` is a pixel-perfect replica of the default shadcn.com theme. It is not used in any app — its purpose is to verify that shadcn components render correctly against the upstream reference before checking a project-specific theme.
 
 ---
 
 ## Token system
 
-There are three layers of CSS custom properties, all defined per-theme in `libs/shared/theme/src/lib/{theme}/theme-light.css`.
+Every theme is wired into Tailwind through three layers:
 
+<pre className="mermaid">
+  {`flowchart TD
+  A["1  Theme values\\ntheme-light.css / theme-dark.css\\n--background, --primary, --brand-500"]
+  B["2  Tailwind bridge\\n_core/tailwind-setup.css  @theme inline\\n--color-background, --color-primary, --color-brand-500"]
+  C["3  Utility classes\\nbg-background, bg-primary, bg-brand-500"]
+
+  A -->|"CSS cascade"| B
+  B -->|"runtime resolve"| C`}
+</pre>
+
+**Layer 1 — Theme values** (`theme-light.css` / `theme-dark.css`)
+
+Semantic CSS variables defined per theme and per color mode:
+
+```css
+--background: oklch(1 0 0);
+--primary: oklch(0.21 0.006 285.885);
+--brand-500: var(--color-teal-500);
+/* …full set of shadcn tokens + brand palette entries… */
 ```
-theme-light.css             _core/tailwind-setup.css        Tailwind utilities
-──────────────────          ────────────────────────        ──────────────────
---background                --color-background:             bg-background
---foreground                  var(--background)             text-foreground
---primary            ──▶   --color-primary:          ──▶   bg-primary
---border                      var(--primary)                border-border
-...                         ...
 
---brand-50                  --color-brand-50:               bg-brand-50
---brand-500                   var(--brand-500)              text-brand-600
---brand-950                 ...                             ring-brand-500
-```
+**Layer 2 — Tailwind bridge** (`_core/tailwind-setup.css`)
 
-`_core/tailwind-setup.css` bridges the gap with `@theme inline`:
+`@theme inline` maps theme variables to Tailwind's `--color-*` naming convention. The `inline` modifier means values resolve at runtime, not build time:
 
 ```css
 @theme inline {
   --color-background: var(--background);
+  --color-primary: var(--primary);
   --color-brand-500: var(--brand-500);
-  /* ... all mappings ... */
+  /* …all mappings… */
 }
 ```
 
-`@theme inline` instructs Tailwind to resolve these at runtime (not build time), so switching `data-sb-theme` causes all `bg-*`, `text-*` and `border-*` utilities to immediately reflect the new values.
+**Layer 3 — Utility classes**
+
+Tailwind generates color utilities from every `--color-*` variable:
+
+| CSS variable         | Generated utilities                          |
+| -------------------- | -------------------------------------------- |
+| `--color-background` | `bg-background`, `text-background`           |
+| `--color-primary`    | `bg-primary`, `text-primary`, `ring-primary` |
+| `--color-brand-500`  | `bg-brand-500`, `text-brand-500`             |
+
+Switching `data-sb-theme` swaps the variable values — all `bg-*`, `text-*`, and `border-*` utilities immediately reflect the new theme without a rebuild.
 
 ### Dark mode
 
-Each theme declares its own `@custom-variant dark` in `tailwind-base.css`, and the strategies differ:
+Each theme's `tailwind-base.css` imports `_core/tailwind-setup.css`, which declares `@custom-variant dark` using the `[data-theme=dark]` attribute strategy. The Storybook toolbar maps to this via the decorator:
 
-| Theme           | Declaration                                         | Trigger                                       |
-| --------------- | --------------------------------------------------- | --------------------------------------------- |
-| `payload-admin` | `(&:where([data-theme=dark], [data-theme=dark] *))` | `data-theme="dark"` attribute on any ancestor |
-| `spotlight`     | `(&:is(.dark *))`                                   | `.dark` class on any ancestor                 |
-| `codeware`      | `(&:is(.dark *))`                                   | `.dark` class on any ancestor                 |
+<pre className="mermaid">
+  {`flowchart TD
+  toolbar["Color Theme toolbar"]
 
-`payload-admin` uses an attribute strategy because the CMS admin wraps components in a div with `data-theme`, not a CSS class. `spotlight` and `codeware` follow the `.dark` class convention used by their respective apps.
+  toolbar -->|"payload-admin"| attr["data-theme=dark on wrapper\\nmatches @custom-variant"]
+  toolbar -->|"shadcn / spotlight / codeware"| cls[".dark class on wrapper\\nthemes.css scoped selectors"]
 
-The Storybook decorator in `preview.tsx` handles both strategies: when a `.dark`-class theme is active it adds `class="dark"` to the wrapper instead of setting `data-theme`. The Color Theme toolbar works correctly for all three themes.
+  attr --> active["dark: utilities activate"]
+  cls --> active`}
+</pre>
+
+`payload-admin` uses the attribute strategy because Payload CMS sets `data-theme` on `<html>` — not a CSS class. The other themes use `.dark` class, matched by scoped selectors in the auto-generated `themes.css`. The decorator derives the correct strategy from `THEME_DARK_STRATEGIES` in `themes-meta.ts`.
 
 ### Brand tokens
 
-`--brand-*` is the semantic layer for the primary brand color. It maps to a concrete palette per theme:
+`--brand-*` is the semantic brand color layer — each theme maps it to a concrete palette:
 
 | Theme           | `--brand-500` resolves to |
 | --------------- | ------------------------- |
+| `shadcn`        | `var(--color-zinc-500)`   |
 | `payload-admin` | `var(--color-teal-500)`   |
 | `spotlight`     | `var(--color-teal-500)`   |
 | `codeware`      | `var(--color-blue-500)`   |
 
-Dashboard components use `brand-*` utilities (`bg-brand-500`, `text-brand-600`, etc.) rather than hardcoded color names. This is what makes them theme-portable — the same component renders teal in Payload Admin and blue in Codeware without code changes.
+Dashboard components use `brand-*` utilities (`bg-brand-500`, `text-brand-600`, etc.) rather than hardcoded color names — the same component renders teal in Payload Admin and blue in Codeware without any code changes. `shadcn` maps `--brand-*` to zinc to satisfy the token contract without asserting a brand identity.
 
 ---
 
@@ -114,8 +152,6 @@ Our `theme-light.css` / `theme-dark.css` files implement exactly those same vari
 - Adding a new shadcn component that uses a variable you haven't defined in a theme causes that value to fall through to nothing (transparent or inherited). Check the [shadcn variable list](https://ui.shadcn.com/docs/theming#list-of-variables) when adding new components.
 - The dashboard components in this Storybook are _not_ shadcn — they are custom-built. But they use the same variables so they theme correctly alongside shadcn primitives.
 - shadcn v2 targets Tailwind v4 with CSS-first config. This repo uses Tailwind v4 (`@import 'tailwindcss'`), so shadcn components work as documented without adapter shims.
-
----
 
 ## Keeping shadcn components up to date
 
@@ -154,10 +190,63 @@ pnpm nx shadcn:add -- <component>
 ### Check current preset
 
 ```sh
-pnpm nx shadcn:info
+pnpm nx shadcn:preset
 ```
 
 Prints the resolved preset code and all installed components. The preset code comes from `components.json` settings; it changes only if you modify the style, base colour, or icon library.
+
+## Keeping `themes.css` in sync
+
+<pre className="mermaid">
+  {`flowchart TD
+  subgraph theme["libs/shared/theme/src/lib/"]
+    subgraph perTheme["{theme}/"]
+      light_src["theme-light.css"]
+      dark_src["theme-dark.css"]
+    end
+    subgraph core["_core/"]
+      setup_src["tailwind-setup.css"]
+      prose_src["typography-prose.js"]
+    end
+  end
+
+  gen["theme-sync generator\\npnpm nx sync"]
+
+  subgraph storybook["apps/storybook/.storybook/"]
+    css_out["themes.css"]
+    ts_out["themes-meta.ts"]
+    prev_css["preview.css"]
+    prev_tsx["preview.tsx"]
+  end
+
+  light_src --> gen
+  dark_src --> gen
+  setup_src --> gen
+  prose_src --> gen
+  gen --> css_out
+  gen --> ts_out
+  css_out --> prev_css
+  ts_out --> prev_tsx`}
+</pre>
+
+`themes.css` and `themes-meta.ts` are auto-generated — never edit them by hand. Two files in `_core/` act as the **contract blueprint** against which every theme is validated:
+
+| Blueprint file              | Defines                                                                     |
+| --------------------------- | --------------------------------------------------------------------------- |
+| `_core/tailwind-setup.css`  | All CSS variables that must be present in every theme (via `@theme inline`) |
+| `_core/typography-prose.js` | All prose CSS variables required for typography styling                     |
+
+The generator reads each theme's token files, checks completeness against both blueprints, detects the dark strategy from the opening selector of `theme-dark.css`, and writes the scoped CSS variables and TypeScript exports consumed by the Storybook preview. A theme missing any blueprint token causes sync to fail with a completeness error.
+
+> **Hard requirement.** Nx enforces that these files stay in sync with their source tokens. `pnpm nx sync` will fail during CI if the generated files are out of date, and the workspace will be marked out of sync locally until they are regenerated. Any change to a theme's token files or to `tailwind-setup.css` must be followed by a sync before committing.
+
+```sh
+pnpm nx sync     # sync files when needed (run after any token change)
+```
+
+After modifying the generator itself, rebuild the plugin with `pnpm nx build dev-plugin` before running sync.
+
+To verify a theme visually after syncing, open **Theme › Overview** in the sidebar — it renders every token as a color swatch for all four themes side by side, with light and dark variants.
 
 ---
 
@@ -189,7 +278,10 @@ Copy `payload-admin/theme-light.css` as a starting point. Set all shadcn tokens 
 
 **3. Add `theme-dark.css`**
 
-Only override the tokens that change in dark mode. Everything else cascades from the light file.
+Only override the tokens that change in dark mode. The **opening selector** is read by the sync generator to auto-detect the dark strategy:
+
+- `.dark { … }` → class strategy (decorator adds `.dark` class to wrapper)
+- Anything else (e.g. `:root`, `[data-theme='dark']`) → attribute strategy
 
 **4. Add `tailwind-base.css`**
 
@@ -205,6 +297,7 @@ Add your theme name to `STORYBOOK_THEMES` in `tools/dev-plugin/src/generators/th
 
 ```ts
 const STORYBOOK_THEMES = [
+  'shadcn',
   'payload-admin',
   'spotlight',
   'codeware',
@@ -220,7 +313,7 @@ Add an item to `sbTheme.toolbar.items` in `apps/storybook/.storybook/preview.tsx
 { value: 'your-theme', title: 'Your Theme' }
 ```
 
-If your theme uses `.dark` class for dark mode (i.e. `@custom-variant dark (&:is(.dark *))`), also add it to `CLASS_DARK_THEMES` in both `preview.tsx` and `tools/dev-plugin/src/generators/theme-sync/theme-sync.ts` so the decorator and the generated CSS selectors stay in sync.
+The dark strategy is **auto-detected** from the opening selector of `theme-dark.css`. After running sync, `themes-meta.ts` is regenerated with the correct `THEME_DARK_STRATEGIES` entry — no manual edits needed in `preview.tsx`.
 
 **7. Run sync**
 
@@ -228,7 +321,7 @@ If your theme uses `.dark` class for dark mode (i.e. `@custom-variant dark (&:is
 pnpm nx sync
 ```
 
-This regenerates `apps/storybook/.storybook/themes.css` from the source files. Never edit that file by hand — it will be overwritten.
+See [Keeping `themes.css` in sync](#keeping-themescss-in-sync) above for what the generator produces and how CI drift detection works.
 
 **8. Use the theme in an app**
 
@@ -243,9 +336,36 @@ At the top of the app's CSS entry point:
 
 ## Using components inside Payload Admin
 
-Payload Admin ships with its own global CSS and a browser-level reset. Applying Tailwind's preflight globally would break the admin UI, so it is scoped explicitly.
+Payload Admin ships with its own global CSS and a browser-level reset. Applying Tailwind's preflight globally would break the admin UI, so it is scoped with the `.twp` class.
+
+`apps/cms/src/app/(payload)/custom.css` wires the theme into Payload's admin with a single import:
+
+```css
+@import 'libs/shared/theme/src/lib/payload-admin/tailwind-base.css';
+```
+
+This brings in token definitions, the dark variant, the `@theme inline` mappings, and the base layer in one line.
 
 ### The `.twp` wrapper
+
+<pre className="mermaid">
+  {`flowchart TD
+  html_node["html\\ndata-theme = light OR dark\\nPayload ThemeProvider manages this"]
+
+  subgraph page["Payload Admin page"]
+    nav_node[".nav\\nPayload sidebar\\nfont-size: 13px"]
+
+    subgraph twp_node[".twp — Tailwind preflight scoped here"]
+      comp_node["Dashboard components\\nbg-brand-500, text-foreground\\nbrand utilities work correctly"]
+      notwp_node[".no-twp\\nPayload native styles restored"]
+    end
+  end
+
+  portal_node["div role=dialog\\nPortaled outside .twp by Radix UI\\npreflight applied explicitly in custom.css"]
+
+  html_node --> page
+  html_node -.->|"DOM teleport"| portal_node`}
+</pre>
 
 Wrap any Tailwind-based component in `className="twp"` to activate scoped preflight:
 
@@ -261,7 +381,7 @@ export function MyAdminWidget() {
 
 `custom.css` applies `tailwindcss/preflight.css` only inside `.twp`, resetting browser defaults for that subtree without touching Payload's own elements.
 
-Without `.twp`, Tailwind utility classes still apply (colors, spacing, typography) but browser defaults are not reset — buttons, inputs, and headings may pick up Payload's global styles instead of yours.
+Without `.twp`, Tailwind color utilities still apply but browser defaults are not reset — buttons, inputs, and headings may pick up Payload's global styles instead of yours.
 
 ### The `.no-twp` escape hatch
 
@@ -291,17 +411,6 @@ If you add other portal components that need scoped preflight, extend that selec
 
 ### Dark mode in Payload Admin
 
-No action required. Payload's `ThemeProvider` sets `data-theme="light"` or `data-theme="dark"` on `<html>` automatically, driven by the user's preference cookie or OS setting. Because `payload-admin`'s `@custom-variant dark` targets `[data-theme=dark]` on any ancestor, dashboard components respond to Payload's toggle without any wiring on your part.
+No action required.
 
----
-
-## Keeping `themes.css` in sync
-
-`apps/storybook/.storybook/themes.css` is auto-generated — the source of truth is each theme's `theme-light.css` and `theme-dark.css`.
-
-```sh
-pnpm nx sync        # check sync status
-pnpm nx sync --yes  # apply changes
-```
-
-Nx detects drift during CI and fails the sync check if the file is out of date. The generator that produces it lives at `tools/dev-plugin/src/generators/theme-sync/theme-sync.ts`. After modifying the generator itself, rebuild the plugin with `pnpm nx build dev-plugin` before running sync.
+Payload's `ThemeProvider` sets `data-theme="light"` or `data-theme="dark"` on `<html>` automatically, driven by the user's preference cookie or OS setting. Because `payload-admin`'s `@custom-variant dark` targets `[data-theme=dark]` on any ancestor, dashboard components respond to Payload's toggle without any wiring on your part.

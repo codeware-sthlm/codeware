@@ -6,11 +6,13 @@
   "types": "./src/index.d.ts",
   "dependencies": {
     "tslib": "^2.3.0",
-    "vitest": "^4.1.6",
-    "@nx/vite": "22.7.1",
     "@nx/devkit": "22.7.1",
     "nx": "22.7.1",
     "prettier": "~3.8.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.6",
+    "@nx/vite": "22.7.1"
   },
   "generators": "./generators.json"
 }

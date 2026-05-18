@@ -12,7 +12,7 @@
   --brand-900: var(--color-teal-900);
   --brand-950: var(--color-teal-950);
 
-  /* === shadcn zink tokens === */
+  /* === shadcn zinc tokens === */
   --radius: 0.625rem;
   --radius-md: calc(var(--radius) - 0.125rem);
   --background: oklch(1 0 0);

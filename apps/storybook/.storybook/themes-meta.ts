@@ -40,10 +40,10 @@ export const SHADCN_TOKENS = [
   '--chart-2',
   '--chart-3',
   '--chart-4',
-  '--chart-5',
-  '--sidebar'
+  '--chart-5'
 ] as const;
 export const SIDEBAR_TOKENS = [
+  '--sidebar',
   '--sidebar-foreground',
   '--sidebar-primary',
   '--sidebar-primary-foreground',

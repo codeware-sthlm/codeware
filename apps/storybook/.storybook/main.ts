@@ -1,10 +1,12 @@
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import type { StorybookConfig } from '@storybook/react-vite';
 import tailwindcss from '@tailwindcss/vite';
+import remarkGfm from 'remark-gfm';
 
 const config: StorybookConfig = {
   stories: [
     '../src/**/*.mdx',
+    '../src/**/*.stories.@(ts|tsx)',
     {
       directory: '../../../libs/app-cms/ui/dashboard/',
       files: '**/*.@(mdx|stories.@(ts|tsx))'
@@ -17,7 +19,16 @@ const config: StorybookConfig = {
   addons: [
     '@chromatic-com/storybook',
     '@storybook/addon-a11y',
-    '@storybook/addon-docs',
+    {
+      name: '@storybook/addon-docs',
+      options: {
+        mdxPluginOptions: {
+          mdxCompileOptions: {
+            remarkPlugins: [remarkGfm]
+          }
+        }
+      }
+    },
     '@storybook/addon-vitest'
   ],
   framework: {

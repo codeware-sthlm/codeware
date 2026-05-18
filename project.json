@@ -92,6 +92,18 @@
         }
       }
     },
+    "shadcn:preset": {
+      "executor": "nx:run-commands",
+      "metadata": {
+        "description": "Print the resolved shadcn preset"
+      },
+      "options": {
+        "command": "pnpm shadcn preset resolve",
+        "env": {
+          "TS_NODE_PROJECT": "tsconfig.base.json"
+        }
+      }
+    },
     "shadcn:update": {
       "executor": "nx:run-commands",
       "metadata": {
@@ -99,7 +111,7 @@
       },
       "options": {
         "commands": [
-          "pnpm shadcn apply --preset $(pnpm shadcn preset resolve --json | node -p 'JSON.parse(fs.readFileSync(0,\"utf8\")).code') --yes",
+          "pnpm shadcn apply --preset $(pnpm shadcn preset resolve --json | node -e \"process.stdout.write(JSON.parse(require('fs').readFileSync(0,'utf8')).code)\") --yes",
           "pnpm nx format",
           "pnpm nx run-many --target=lint --fix --projects=shared-ui-shadcn,storybook"
         ],

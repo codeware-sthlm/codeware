@@ -13,6 +13,7 @@ on:
       - ".github/CODEOWNERS"
       - "LICENSE"
       - "libs/shared/util/seed/src/lib/static-data/media/**"
+  merge_group:
   push:
     branches:
       - main

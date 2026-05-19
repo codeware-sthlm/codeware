@@ -48,6 +48,7 @@ export default [
             'clsx',
             'lucide-react',
             'next-themes',
+            'radix-ui',
             'react-hook-form',
             'sonner',
             'tailwind-merge',

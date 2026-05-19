@@ -21,9 +21,9 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install \
+RUN pnpm install --frozen-lockfile \
   && pnpm store prune \
   && STORE_PATH="$(pnpm store path --silent)" \
   && rm -rf "$STORE_PATH"
@@ -61,6 +61,8 @@ ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
     SENTRY_ORG=$SENTRY_ORG \
     SENTRY_PROJECT=$SENTRY_PROJECT \
     SENTRY_RELEASE=$SENTRY_RELEASE
+
+ENV NX_NO_CLOUD=true
 
 RUN npx nx build cms
 

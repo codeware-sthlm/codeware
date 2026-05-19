@@ -21,8 +21,7 @@ dist
 node_modules
 tmp
 
-# Don't let host lock files detect wrong package manager in Dockerfile
+# Exclude non-pnpm lock files to prevent wrong package manager detection
 bun.lockb
 package-lock.json
-pnpm-lock.yaml
 yarn.lock

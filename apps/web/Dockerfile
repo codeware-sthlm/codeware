@@ -19,11 +19,13 @@ FROM base AS builder
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 COPY . .
+
+ENV NX_NO_CLOUD=true
 
 RUN pnpm nx build web
 

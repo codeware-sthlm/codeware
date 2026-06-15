@@ -79,20 +79,20 @@ jobs:
           echo "run_status=$run_status" >> "$GITHUB_OUTPUT"
           echo "reason=$reason" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: steps.gate.outputs.run_status == 'true'
         with:
           fetch-depth: 0
 
       - name: Install pnpm package manager
         if: steps.gate.outputs.run_status == 'true'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
         if: steps.gate.outputs.run_status == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -101,7 +101,7 @@ jobs:
 
       - name: Resolve Nx base and head
         if: steps.gate.outputs.run_status == 'true'
-        uses: nrwl/nx-set-shas@v4
+        uses: nrwl/nx-set-shas@v5
         with:
           # For schedule: compare against last successful nightly run
           # For PR/push: normal base/head comparison
@@ -139,19 +139,19 @@ jobs:
 
     name: Cache install (${{ matrix.os }}, node v${{ matrix.node }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Install pnpm package manager
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         id: cache-modules
         with:
           lookup-only: true
@@ -163,7 +163,7 @@ jobs:
 
       - name: Cache Playwright browsers
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-playwright
         with:
           path: ~/.cache/ms-playwright
@@ -220,19 +220,19 @@ jobs:
 
     name: E2E ${{ matrix.os }}/${{ matrix.pm }}/${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Install pnpm package manager
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         id: cache-modules
         with:
           path: "**/node_modules"
@@ -246,7 +246,7 @@ jobs:
         run: pnpm exec playwright install-deps
 
       - name: Analyze affected projects
-        uses: nrwl/nx-set-shas@v4
+        uses: nrwl/nx-set-shas@v5
 
       - name: Record start time
         id: start
@@ -286,7 +286,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: results-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}
           path: results-${{ matrix.os }}-${{ matrix.pm }}-${{ matrix.node }}.json
@@ -299,7 +299,7 @@ jobs:
     steps:
       - name: Download all workflow run artifacts
         if: needs.e2e.result != 'skipped'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: results-*
@@ -367,7 +367,7 @@ jobs:
           fi
 
       - name: Upload summary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-test-summary
           path: summary.md

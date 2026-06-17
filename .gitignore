@@ -84,3 +84,5 @@ out
 .env.infisical
 
 .nx/self-healing
+
+.nx/migrate-runs

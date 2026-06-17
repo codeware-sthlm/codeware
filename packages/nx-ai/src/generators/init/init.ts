@@ -6,7 +6,7 @@ import {
   readNxJson,
   runTasksInSerial
 } from '@nx/devkit';
-import { addPlugin } from '@nx/devkit/src/utils/add-plugin';
+import { addPlugin } from '@nx/devkit/internal';
 
 import { isPluginInferenceEnabled } from '../../utils/is-plugin-inference-enabled';
 

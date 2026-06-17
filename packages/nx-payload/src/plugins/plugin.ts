@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { join } from 'path/posix';
 
 import {
-  CreateNodesV2,
+  CreateNodes,
   type TargetConfiguration,
   createNodesFromFiles,
   readJsonFile,
@@ -33,7 +33,7 @@ function writeTargetsToCache(
   });
 }
 
-export const createNodesV2: CreateNodesV2<PayloadPluginOptions> = [
+export const createNodesV2: CreateNodes<PayloadPluginOptions> = [
   payloadConfigBlob,
   async (configFiles, options, context) => {
     const optionsHash = hashObject(options ?? {});

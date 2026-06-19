@@ -40,10 +40,63 @@ export const SeedDataSchema = z.object({
   pages: z.array(
     z.object({
       name: z.string(),
-      header: z.string(),
-      layoutContent: z.string({
-        description: 'Layout column content as markdown'
-      }),
+      header: z.string().optional(),
+      hero: z
+        .object({
+          badge: z.string().optional(),
+          heading: z.string(),
+          lede: z.string(),
+          actions: z
+            .array(
+              z.object({
+                link: z.object({
+                  url: z.string(),
+                  label: z.string(),
+                  newTab: z.boolean().optional()
+                }),
+                emphasis: z.enum(['primary', 'secondary']).optional()
+              })
+            )
+            .optional()
+        })
+        .optional(),
+      featureCards: z
+        .object({
+          eyebrow: z.string().optional(),
+          heading: z.string(),
+          intro: z.string().optional(),
+          columns: z.enum(['auto', '2', '3', '4']).optional(),
+          items: z
+            .array(
+              z.object({
+                brand: z
+                  .object({
+                    icon: z.string().optional(),
+                    color: z.string().optional()
+                  })
+                  .optional(),
+                title: z.string(),
+                description: z.string()
+              })
+            )
+            .optional()
+        })
+        .optional(),
+      callout: z
+        .object({
+          showMark: z.boolean().optional(),
+          heading: z.string(),
+          body: z.string().optional(),
+          link: z.object({
+            url: z.string(),
+            label: z.string(),
+            newTab: z.boolean().optional()
+          })
+        })
+        .optional(),
+      layoutContent: z
+        .string({ description: 'Layout column content as markdown' })
+        .optional(),
       slug: z.string(),
       tenant: TenantLookupSchema.pick({ lookupApiKey: true })
     })

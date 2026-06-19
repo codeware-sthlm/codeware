@@ -39,7 +39,33 @@ type PostDataLookup = Prettify<
 >;
 type PageDataLookup = Prettify<
   Omit<PageData, 'layout' | 'tenant'> & {
-    layoutContent: string; // Markdown content
+    layoutContent?: string;
+    hero?: {
+      badge?: string;
+      heading: string;
+      lede: string;
+      actions?: Array<{
+        link: { url: string; label: string; newTab?: boolean };
+        emphasis?: 'primary' | 'secondary';
+      }>;
+    };
+    featureCards?: {
+      eyebrow?: string;
+      heading: string;
+      intro?: string;
+      columns?: 'auto' | '2' | '3' | '4';
+      items?: Array<{
+        brand?: { icon?: string; color?: string };
+        title: string;
+        description: string;
+      }>;
+    };
+    callout?: {
+      showMark?: boolean;
+      heading: string;
+      body?: string;
+      link: { url: string; label: string; newTab?: boolean };
+    };
     tenant: Pick<TenantLookup, 'lookupApiKey'>;
   }
 >;

@@ -2,6 +2,7 @@ import type {
   SeedSource,
   SeedStrategy
 } from '@codeware/app-cms/util/env-schema';
+import type { Page } from '@codeware/shared/util/payload-types';
 import { randPassword } from '@ngneat/falso';
 import type { Payload } from 'payload';
 
@@ -399,24 +400,72 @@ export const seed = async (
         const [entity] = lookupTenant(payload, [page.tenant]);
 
         try {
+          const layout: Page['layout'] = [];
+
+          if (page.hero) {
+            layout.push({
+              blockType: 'hero',
+              badge: page.hero.badge,
+              heading: page.hero.heading,
+              lede: page.hero.lede,
+              actions: page.hero.actions?.map(({ link, emphasis }) => ({
+                link: {
+                  type: 'custom' as const,
+                  url: link.url,
+                  label: link.label,
+                  newTab: link.newTab ?? false
+                },
+                emphasis: emphasis ?? 'primary'
+              }))
+            });
+          }
+
+          if (page.layoutContent) {
+            layout.push({
+              blockType: 'content',
+              columns: [
+                {
+                  size: 'full',
+                  richText: await convertMarkdownToLexical(
+                    payload.config,
+                    page.layoutContent
+                  )
+                }
+              ]
+            });
+          }
+
+          if (page.featureCards) {
+            layout.push({
+              blockType: 'feature-cards',
+              eyebrow: page.featureCards.eyebrow,
+              heading: page.featureCards.heading,
+              intro: page.featureCards.intro,
+              columns: page.featureCards.columns ?? 'auto',
+              items: page.featureCards.items ?? []
+            });
+          }
+
+          if (page.callout) {
+            layout.push({
+              blockType: 'callout',
+              showMark: page.callout.showMark ?? true,
+              heading: page.callout.heading,
+              body: page.callout.body,
+              link: {
+                type: 'custom' as const,
+                url: page.callout.link.url,
+                label: page.callout.link.label,
+                newTab: page.callout.link.newTab ?? false
+              }
+            });
+          }
+
           const response = await ensurePage(
             payload,
             {
               header: page.header,
-              layout: [
-                {
-                  blockType: 'content',
-                  columns: [
-                    {
-                      size: 'full',
-                      richText: await convertMarkdownToLexical(
-                        payload.config,
-                        page.layoutContent
-                      )
-                    }
-                  ]
-                }
-              ],
+              layout,
               name: page.name,
               slug: page.slug,
               tenant: entity.id

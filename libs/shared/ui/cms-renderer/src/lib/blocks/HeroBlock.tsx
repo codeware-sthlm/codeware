@@ -33,17 +33,16 @@ export const HeroBlock: React.FC<HeroBlockProps> = ({
         <div className="mt-8 flex flex-wrap gap-3">
           {actions.map((action, i) => {
             const resolved = resolveLinkGroup(action.link);
+            if (!resolved) return null;
             return (
               <Button
                 key={i}
                 variant={
                   action.emphasis === 'secondary' ? 'outline' : 'default'
                 }
-                onClick={() =>
-                  resolved && navigate(resolved.path, resolved.newTab)
-                }
+                onClick={() => navigate(resolved.path, resolved.newTab)}
               >
-                {action.link.label}
+                {resolved.label}
               </Button>
             );
           })}

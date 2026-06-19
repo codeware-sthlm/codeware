@@ -27,6 +27,8 @@ export type TranslationKey =
   | 'fileArea.typePresentation'
   | 'fileArea.typeSpreadsheet'
   | 'fileArea.typeVideo'
+  | 'fileArea.viewGrid'
+  | 'fileArea.viewList'
   | 'form.submitSuccess'
   | 'form.submitFailed'
   | 'form.submitFailedDescription'
@@ -77,6 +79,8 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'fileArea.typePresentation': 'Presentation',
     'fileArea.typeSpreadsheet': 'Spreadsheet',
     'fileArea.typeVideo': 'Video',
+    'fileArea.viewGrid': 'Grid view',
+    'fileArea.viewList': 'List view',
     'form.submitSuccess': 'Form submitted successfully',
     'form.submitFailed': 'Form submission failed',
     'form.submitFailedDescription': 'Please try again.',
@@ -126,6 +130,8 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'fileArea.typePresentation': 'Presentation',
     'fileArea.typeSpreadsheet': 'Kalkylark',
     'fileArea.typeVideo': 'Video',
+    'fileArea.viewGrid': 'Rutnätsvy',
+    'fileArea.viewList': 'Listvy',
     'form.submitSuccess': 'Formuläret skickades in',
     'form.submitFailed': 'Formuläret kunde inte skickas in',
     'form.submitFailedDescription': 'Försök igen.',

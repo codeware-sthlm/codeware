@@ -83,6 +83,7 @@ export const Toolbar = () => {
             <Button
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="icon"
+              aria-label={t(locale, 'fileArea.viewGrid')}
               onClick={() => setViewMode('grid')}
               className="h-9 rounded-none rounded-l-md px-2 hover:cursor-pointer"
             >
@@ -91,6 +92,7 @@ export const Toolbar = () => {
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="icon"
+              aria-label={t(locale, 'fileArea.viewList')}
               onClick={() => setViewMode('list')}
               className="h-9 rounded-none rounded-r-md px-2 hover:cursor-pointer"
             >

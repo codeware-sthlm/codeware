@@ -1,3 +1,5 @@
+import { PayloadProvider } from '@codeware/shared/ui/cms-renderer';
+import { CdwrCloud } from '@codeware/shared/ui/primitives';
 import type { Decorator, Preview } from '@storybook/react-vite';
 import { useEffect } from 'react';
 
@@ -11,6 +13,37 @@ import {
 const CLASS_DARK_THEMES = new Set(
   STORYBOOK_THEMES.filter((t) => THEME_DARK_STRATEGIES[t] === 'class')
 );
+
+const withPayload: Decorator = (Story, context) => {
+  const theme = (context.globals['theme'] as 'light' | 'dark') ?? 'light';
+
+  return (
+    <PayloadProvider
+      value={{
+        getCurrentPath: () => window.location.pathname,
+        tenantIcon: (size) => <CdwrCloud size={size} />,
+        navigate: (path, newTab) => {
+          if (newTab) {
+            window.open(path, '_blank', 'noreferrer');
+          } else {
+            window.location.href = path;
+          }
+        },
+        payloadUrl: 'http://localhost:3000',
+        submitForm: async () => ({
+          success: false,
+          data: { error: 'Not implemented in Storybook' }
+        }),
+        setTheme: () => undefined,
+        theme,
+        resolvedTheme: theme,
+        locale: 'en'
+      }}
+    >
+      <Story />
+    </PayloadProvider>
+  );
+};
 
 const withTheme: Decorator = (Story, context) => {
   const theme = (context.globals['theme'] as string) ?? 'light';
@@ -93,12 +126,26 @@ const preview: Preview = {
       }
     }
   },
-  decorators: [withTheme],
+  decorators: [withTheme, withPayload],
   parameters: {
     backgrounds: { disable: true },
 
     docs: {
       toc: true
+    },
+
+    options: {
+      storySort: {
+        order: [
+          'Introduction',
+          'Theme',
+          'CMS Renderer',
+          'cms-renderer',
+          'Shared UI',
+          'Shadcn UI',
+          '*'
+        ]
+      }
     },
 
     a11y: {

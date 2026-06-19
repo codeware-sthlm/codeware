@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from './components/button';
@@ -74,3 +75,12 @@ export const WithAction: StoryObj = {
     </Card>
   )
 };
+
+export const ShadcnLight = a11yStory(Simple, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(Simple, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(Simple, 'payload-admin', 'light');
+export const PayloadAdminDark = a11yStory(Simple, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(Simple, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(Simple, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(Simple, 'codeware', 'light');
+export const CodewareDark = a11yStory(Simple, 'codeware', 'dark');

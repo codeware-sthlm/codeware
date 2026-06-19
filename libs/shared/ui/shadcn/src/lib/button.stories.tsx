@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Download, Loader2, Mail, Plus } from 'lucide-react';
 
@@ -73,3 +74,12 @@ export const Disabled: StoryObj = {
     </div>
   )
 };
+
+export const ShadcnLight = a11yStory(Variants, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(Variants, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(Variants, 'payload-admin', 'light');
+export const PayloadAdminDark = a11yStory(Variants, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(Variants, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(Variants, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(Variants, 'codeware', 'light');
+export const CodewareDark = a11yStory(Variants, 'codeware', 'dark');

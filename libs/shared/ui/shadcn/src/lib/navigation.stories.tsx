@@ -8,6 +8,8 @@ import {
   User
 } from 'lucide-react';
 
+import { a11yStory } from '@codeware/shared/util/storybook';
+
 import {
   Command,
   CommandEmpty,
@@ -118,3 +120,20 @@ export const MenubarStory: StoryObj = {
     </Menubar>
   )
 };
+
+export const ShadcnLight = a11yStory(MenubarStory, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(MenubarStory, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  MenubarStory,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(
+  MenubarStory,
+  'payload-admin',
+  'dark'
+);
+export const SpotlightLight = a11yStory(MenubarStory, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(MenubarStory, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(MenubarStory, 'codeware', 'light');
+export const CodewareDark = a11yStory(MenubarStory, 'codeware', 'dark');

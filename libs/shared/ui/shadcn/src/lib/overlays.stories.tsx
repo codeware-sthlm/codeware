@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { LogOut, Settings, User } from 'lucide-react';
 import { toast } from 'sonner';
@@ -130,3 +131,20 @@ export const ToasterStory: StoryObj = {
     </>
   )
 };
+
+export const ShadcnLight = a11yStory(PopoverStory, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(PopoverStory, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  PopoverStory,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(
+  PopoverStory,
+  'payload-admin',
+  'dark'
+);
+export const SpotlightLight = a11yStory(PopoverStory, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(PopoverStory, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(PopoverStory, 'codeware', 'light');
+export const CodewareDark = a11yStory(PopoverStory, 'codeware', 'dark');

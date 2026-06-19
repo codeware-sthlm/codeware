@@ -189,6 +189,10 @@ export default [
             {
               sourceTag: 'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:core']
+            },
+            {
+              sourceTag: 'scope:storybook',
+              onlyDependOnLibsWithTags: ['scope:storybook', 'scope:shared']
             }
           ]
         }

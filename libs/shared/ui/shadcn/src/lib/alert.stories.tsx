@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AlertTriangle, Info } from 'lucide-react';
 
@@ -81,3 +82,20 @@ export const TooltipBasic: StoryObj = {
     </TooltipProvider>
   )
 };
+
+export const ShadcnLight = a11yStory(AlertDefault, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(AlertDefault, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  AlertDefault,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(
+  AlertDefault,
+  'payload-admin',
+  'dark'
+);
+export const SpotlightLight = a11yStory(AlertDefault, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(AlertDefault, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(AlertDefault, 'codeware', 'light');
+export const CodewareDark = a11yStory(AlertDefault, 'codeware', 'dark');

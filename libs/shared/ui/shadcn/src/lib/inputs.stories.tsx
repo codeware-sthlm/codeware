@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Search } from 'lucide-react';
 
@@ -147,3 +148,12 @@ export const InputGroupStory: StoryObj = {
     </div>
   )
 };
+
+export const ShadcnLight = a11yStory(TextInput, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(TextInput, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(TextInput, 'payload-admin', 'light');
+export const PayloadAdminDark = a11yStory(TextInput, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(TextInput, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(TextInput, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(TextInput, 'codeware', 'light');
+export const CodewareDark = a11yStory(TextInput, 'codeware', 'dark');

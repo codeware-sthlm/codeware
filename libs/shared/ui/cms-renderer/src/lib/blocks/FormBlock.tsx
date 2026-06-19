@@ -141,7 +141,6 @@ export const FormBlock: React.FC<Props> = ({
             }
             if (href) {
               try {
-                console.log('Redirecting to', href);
                 navigate(href);
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
               } catch (_) {
@@ -193,7 +192,7 @@ export const FormBlock: React.FC<Props> = ({
           className="my-6 mr-1 mb-1 last:mb-0"
         >
           {/* Grid columns must be in sync with forms plugin, width field */}
-          <Grid columns={6}>
+          <Grid columns={6} className="gap-y-4">
             {/* Loop through form builder field definitions */}
             {formBuilder?.fields?.map((fieldDef, index) => {
               // Handle message separately since it's not a form field.

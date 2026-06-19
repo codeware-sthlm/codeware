@@ -70,6 +70,7 @@
   --core-nav-link: var(--foreground);
   --core-nav-link-active: var(--primary);
   --core-nav-link-hover: var(--primary);
+  --core-surface-invert: oklch(0.205 0 0);
   --core-text: var(--foreground);
 
   /* === prose tokens — aliases to shadcn tokens === */
@@ -108,7 +109,7 @@
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: var(--color-red-700);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -125,6 +126,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* === core tokens === */
+  --core-surface-invert: var(--card);
 }
 
 /* payload-admin */
@@ -197,6 +201,7 @@
   --core-nav-link: var(--foreground);
   --core-nav-link-active: var(--primary);
   --core-nav-link-hover: var(--primary);
+  --core-surface-invert: var(--primary);
   --core-text: var(--foreground);
 
   /* === prose tokens — aliases to shadcn tokens === */
@@ -235,7 +240,7 @@
   --muted-foreground: oklch(0.705 0.015 286.067);
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: var(--color-red-700);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
@@ -252,6 +257,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+
+  /* === core tokens === */
+  --core-surface-invert: var(--card);
 }
 
 /* spotlight */
@@ -289,6 +297,7 @@
   --core-nav-link: var(--color-zinc-800);
   --core-nav-link-active: var(--color-teal-700);
   --core-nav-link-hover: var(--color-teal-700);
+  --core-surface-invert: var(--color-zinc-900);
   --core-text: var(--color-zinc-600);
 
   /* === shadcn/ui tokens === */
@@ -308,7 +317,7 @@
   --muted-foreground: var(--color-zinc-500);
   --accent: var(--color-zinc-100);
   --accent-foreground: var(--color-zinc-900);
-  --destructive: var(--color-red-500);
+  --destructive: var(--color-red-600);
   --border: var(--color-zinc-100);
   --input: var(--color-zinc-100);
   --ring: var(--color-zinc-900);
@@ -369,6 +378,7 @@
   --core-nav-link: var(--color-zinc-200);
   --core-nav-link-active: var(--color-teal-400);
   --core-nav-link-hover: var(--color-teal-400);
+  --core-surface-invert: var(--color-zinc-700);
   --core-text: var(--color-zinc-400);
 
   /* === shadcn/ui tokens: https://ui.shadcn.com/docs/theming#list-of-variables === */
@@ -378,8 +388,8 @@
   --card-foreground: var(--color-zinc-400);
   --popover: var(--secondary);
   --popover-foreground: var(--secondary-foreground);
-  --primary: var(--color-zinc-700);
-  --primary-foreground: var(--color-zinc-300);
+  --primary: var(--color-zinc-100);
+  --primary-foreground: var(--color-zinc-900);
   --secondary: var(--color-zinc-800);
   --secondary-foreground: var(--color-zinc-100);
   --muted: var(--color-zinc-800);
@@ -498,7 +508,8 @@
   --core-content-border: var(--border);
   --core-header: var(--foreground);
   --core-headline: var(--foreground);
-  --core-link: var(--primary);
+  --core-link: var(--brand-600);
+  --core-surface-invert: var(--eerie-black);
   --core-navbar: var(--background);
   --core-navbar-border: var(--border);
   --core-navbar-shadow: transparent;
@@ -543,7 +554,7 @@
   --muted-foreground: oklch(0.705 0.015 286.067);
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: var(--color-red-700);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
@@ -560,4 +571,8 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+
+  /* === core tokens - aliases to shadcn tokens === */
+  --core-link: var(--brand-400);
+  --core-surface-invert: var(--card);
 }

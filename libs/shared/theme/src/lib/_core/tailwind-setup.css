@@ -95,6 +95,7 @@
   --color-core-nav-link: var(--core-nav-link);
   --color-core-nav-link-active: var(--core-nav-link-active);
   --color-core-nav-link-hover: var(--core-nav-link-hover);
+  --color-core-surface-invert: var(--core-surface-invert);
   --color-core-text: var(--core-text);
 }
 

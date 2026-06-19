@@ -68,7 +68,8 @@
   --core-content-border: var(--border);
   --core-header: var(--foreground);
   --core-headline: var(--foreground);
-  --core-link: var(--primary);
+  --core-link: var(--brand-600);
+  --core-surface-invert: var(--eerie-black);
   --core-navbar: var(--background);
   --core-navbar-border: var(--border);
   --core-navbar-shadow: transparent;

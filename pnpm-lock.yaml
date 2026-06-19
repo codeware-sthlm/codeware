@@ -45,7 +45,7 @@ importers:
         version: 2.2.0(react@19.2.3)
       '@hono/node-server':
         specifier: ^1.19.14
-        version: 1.19.14(hono@4.12.18)
+        version: 1.19.14(hono@4.12.21)
       '@hookform/resolvers':
         specifier: ^4.1.3
         version: 4.1.3(react-hook-form@7.69.0(react@19.2.3))
@@ -180,7 +180,7 @@ importers:
         version: 16.12.0
       hono:
         specifier: ^4.12.14
-        version: 4.12.18
+        version: 4.12.21
       http-status-codes:
         specifier: ^2.3.0
         version: 2.3.0
@@ -10995,8 +10995,8 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
-  hono@4.12.18:
-    resolution: {integrity: sha512-RWzP96k/yv0PQfyXnWjs6zot20TqfpfsNXhOnev8d1InAxubW93L11/oNUc3tQqn2G0bSdAOBpX+2uDFHV7kdQ==}
+  hono@4.12.21:
+    resolution: {integrity: sha512-uV63apnb0kyPtAUwoWgaGh9HyIFcv8lgmzPZSiTBQAFOFGIzka5EZ1dZocmGnn0XdX0+XTqJ6Tqv7selMuGLRQ==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@6.1.3:
@@ -19594,9 +19594,9 @@ snapshots:
       node-addon-api: 7.1.1
       prebuild-install: 7.1.3
 
-  '@hono/node-server@1.19.14(hono@4.12.18)':
+  '@hono/node-server@1.19.14(hono@4.12.21)':
     dependencies:
-      hono: 4.12.18
+      hono: 4.12.21
 
   '@hookform/resolvers@4.1.3(react-hook-form@7.69.0(react@19.2.3))':
     dependencies:
@@ -20423,7 +20423,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.28.0(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 1.19.14(hono@4.12.18)
+      '@hono/node-server': 1.19.14(hono@4.12.21)
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       content-type: 1.0.5
@@ -20433,7 +20433,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.3.1(express@5.2.1)
-      hono: 4.12.18
+      hono: 4.12.21
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -29714,7 +29714,7 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono@4.12.18: {}
+  hono@4.12.21: {}
 
   hosted-git-info@6.1.3:
     dependencies:
@@ -34056,7 +34056,7 @@ snapshots:
   remix-hono@0.0.16(typescript@5.9.2)(zod@3.25.76):
     dependencies:
       '@remix-run/server-runtime': 2.17.3(typescript@5.9.2)
-      hono: 4.12.18
+      hono: 4.12.21
       pretty-cache-header: 1.0.0
     optionalDependencies:
       zod: 3.25.76

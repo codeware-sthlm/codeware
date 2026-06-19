@@ -66,10 +66,55 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         name: 'Home',
         slug: 'home',
-        header: 'Welcome to the Galaxy Archives',
-        layoutContent:
-          "## About Our Galaxy\n\nWelcome to a journey through the Star Wars universe! Here you'll find information about some of the most iconic characters who have shaped the fate of the galaxy. From wise Jedi Masters to brave Rebels, our archives contain knowledge spanning multiple eras of galactic history.\n\n## Featured Content\n\nExplore our collection of character profiles, each telling the story of individuals who have left their mark on the galaxy. Whether you're interested in the ways of the Force or the struggles of the Rebellion, you'll find detailed information about their roles, achievements, and impact on galactic events.",
-        tenant: { lookupApiKey: tenant.starWars.apiKey }
+        tenant: { lookupApiKey: tenant.starWars.apiKey },
+        hero: {
+          badge: 'Star Wars',
+          heading: 'Welcome to the Galaxy Archives',
+          lede: 'Explore the stories of those who shaped the fate of the galaxy — from legendary Jedi Masters to brave Rebel leaders.',
+          actions: [
+            {
+              link: { url: '/obi-wan-kenobi', label: 'Discover Obi-Wan' },
+              emphasis: 'primary' as const
+            },
+            {
+              link: { url: '/luke-skywalker', label: 'Luke Skywalker' },
+              emphasis: 'secondary' as const
+            }
+          ]
+        },
+        featureCards: {
+          eyebrow: 'Characters',
+          heading: 'Iconic Heroes of the Galaxy',
+          intro:
+            'From Jedi Knights to rebel leaders, discover the remarkable individuals who determined the fate of a galaxy far, far away.',
+          columns: '3' as const,
+          items: [
+            {
+              brand: { icon: 'ShieldCheckIcon', color: 'blue-400' },
+              title: 'Obi-Wan Kenobi',
+              description:
+                'Legendary Jedi Master whose training of Anakin and Luke Skywalker changed the fate of the galaxy.'
+            },
+            {
+              brand: { icon: 'StarIcon', color: 'yellow-400' },
+              title: 'Luke Skywalker',
+              description:
+                'Farm boy turned Jedi Knight whose belief in redemption brought balance to the Force.'
+            },
+            {
+              brand: { icon: 'BoltIcon', color: 'red-500' },
+              title: 'Darth Vader',
+              description:
+                "Dark Lord of the Sith and the Emperor's enforcer, with a destiny that shocked the galaxy."
+            }
+          ]
+        },
+        callout: {
+          showMark: true,
+          heading: 'May the Force be with you.',
+          body: 'Read our in-depth articles on galactic history and the ways of the Force.',
+          link: { url: '/obi-wan-kenobi', label: 'Read the archives' }
+        }
       },
       {
         name: 'Obi-Wan',
@@ -117,10 +162,55 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         name: 'Home',
         slug: 'home',
-        header: 'Welcome to the Marvel Universe',
-        layoutContent:
-          "## About Our Universe\n\nStep into the magnificent world of Marvel! Here you'll discover information about some of Earth's mightiest heroes and most compelling characters. From super soldiers to genius inventors, our archives contain knowledge spanning multiple eras of heroic adventures.\n\n## Featured Content\n\nDive into our collection of character profiles, each telling the story of remarkable individuals who have shaped the fate of our world and beyond. Whether you're interested in technological marvels or mystical powers, you'll find detailed information about their origins, abilities, and greatest achievements.",
-        tenant: { lookupApiKey: tenant.marvel.apiKey }
+        tenant: { lookupApiKey: tenant.marvel.apiKey },
+        hero: {
+          badge: 'Marvel',
+          heading: 'Welcome to the Marvel Universe',
+          lede: "Earth's mightiest heroes, assembled. Explore the stories of remarkable individuals who protect our world from threats beyond imagination.",
+          actions: [
+            {
+              link: { url: '/iron-man', label: 'Meet the Avengers' },
+              emphasis: 'primary' as const
+            },
+            {
+              link: { url: '/spider-man', label: 'Spider-Man' },
+              emphasis: 'secondary' as const
+            }
+          ]
+        },
+        featureCards: {
+          eyebrow: 'Heroes',
+          heading: "Earth's Mightiest Heroes",
+          intro:
+            "From genius inventors to gods of thunder, the Avengers represent humanity's best defence against the forces of evil.",
+          columns: '3' as const,
+          items: [
+            {
+              brand: { icon: 'CpuChipIcon', color: 'red-500' },
+              title: 'Iron Man',
+              description:
+                'Genius inventor Tony Stark built a suit of armour and became a founding Avenger.'
+            },
+            {
+              brand: { icon: 'BoltIcon', color: 'yellow-400' },
+              title: 'Thor',
+              description:
+                'Asgardian God of Thunder, wielding Mjolnir as a bridge between two worlds.'
+            },
+            {
+              brand: { icon: 'ShieldCheckIcon', color: 'blue-600' },
+              title: 'Black Widow',
+              description:
+                'Elite spy Natasha Romanoff whose skills and loyalty have saved the world countless times.'
+            }
+          ]
+        },
+        callout: {
+          showMark: true,
+          heading: 'Avengers, assemble.',
+          body: "Dive into the science, history and stories behind Marvel's most iconic characters.",
+          link: { url: '/iron-man', label: 'Explore the universe' }
+        }
       },
       {
         name: 'Iron Man',
@@ -168,10 +258,55 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         name: 'Hem',
         slug: 'home',
-        header: 'Välkommen till Bamses värld',
-        layoutContent:
-          '## Om Vår Värld\n\nVälkommen till den fantastiska världen av Bamse! Här kan du upptäcka information om några av de mest älskade karaktärerna i den svenska barnlitteraturen. Från världens starkaste björn till hans modiga vänner, innehåller våra arkiv kunskap som sträcker sig över många äventyr och lärdomar.\n\n## Utvalt Innehåll\n\nUtforska vår samling av karaktärsprofiler, där varje berättar historien om individer som har format Bamses värld. Oavsett om du är intresserad av styrka, vänskap eller mod, hittar du detaljerad information om deras ursprung, egenskaper och största bedrifter.',
-        tenant: { lookupApiKey: tenant.bamse.apiKey }
+        tenant: { lookupApiKey: tenant.bamse.apiKey },
+        hero: {
+          badge: 'Bamse',
+          heading: 'Välkommen till Bamses värld',
+          lede: 'Världens starkaste björn och hans trogna vänner – äventyr, vänskap och viktiga livslektioner.',
+          actions: [
+            {
+              link: { url: '/bamse', label: 'Möt Bamse' },
+              emphasis: 'primary' as const
+            },
+            {
+              link: { url: '/skalman', label: 'Träffa Skalman' },
+              emphasis: 'secondary' as const
+            }
+          ]
+        },
+        featureCards: {
+          eyebrow: 'Karaktärer',
+          heading: 'Bamses vänner',
+          intro:
+            'Från världens starkaste björn till den kloka sköldpaddan – möt de älskade karaktärerna i Bamses värld.',
+          columns: '3' as const,
+          items: [
+            {
+              brand: { icon: 'HeartIcon', color: 'yellow-500' },
+              title: 'Bamse',
+              description:
+                'Världens starkaste björn, känd för sin vänlighet och sitt mod att hjälpa dem som behöver det.'
+            },
+            {
+              brand: { icon: 'SparklesIcon', color: 'orange-400' },
+              title: 'Lille Skutt',
+              description:
+                'Den modiga kaninen som alltid visar stort hjärtemod när det verkligen gäller.'
+            },
+            {
+              brand: { icon: 'LightBulbIcon', color: 'teal-500' },
+              title: 'Skalman',
+              description:
+                'Den kloke sköldpaddan vars uppfinningar och visdom är ovärderliga för gängets äventyr.'
+            }
+          ]
+        },
+        callout: {
+          showMark: true,
+          heading: 'Nyfiken på Bamse?',
+          body: 'Utforska berättelserna om vänskap, mod och godhet i Bamses värld.',
+          link: { url: '/bamse', label: 'Läs mer' }
+        }
       },
       {
         name: 'Bamse',

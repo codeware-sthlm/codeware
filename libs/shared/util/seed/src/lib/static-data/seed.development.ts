@@ -162,26 +162,161 @@ export const seedData = (remoteDataUrl: string | undefined) => {
       {
         name: 'Home',
         slug: 'home',
-        header: 'We are all made of stars.',
-        layoutContent:
-          "## Antares\nA massive red supergiant in the constellation Scorpius. Its name means 'rival of Mars' due to its reddish color. It's about 700 times larger than our Sun and is one of the brightest stars in the night sky.\n## Vega\nThough not extremely small (about 2.5 times the radius of our Sun), Vega is a famous star with a simple name that's relatively smaller than giants like Antares. It's the fifth brightest star in the night sky and is part of the Summer Triangle.",
-        tenant: { lookupApiKey: tenants.star.apiKey }
+        tenant: { lookupApiKey: tenants.star.apiKey },
+        hero: {
+          badge: 'Star',
+          heading: 'We are all made of stars.',
+          lede: 'A luminous sphere of plasma, held together by gravity, generating energy through nuclear fusion at its core.',
+          actions: [
+            {
+              link: { url: '/red-giants', label: 'Explore' },
+              emphasis: 'primary' as const
+            },
+            {
+              link: { url: '/binary-stars', label: 'Binary Stars' },
+              emphasis: 'secondary' as const
+            }
+          ]
+        },
+        featureCards: {
+          eyebrow: 'Discover',
+          heading: 'Explore the Universe',
+          intro:
+            'From massive red giants to ultra-dense neutron stars, discover the fascinating world of stellar astronomy.',
+          columns: '3' as const,
+          items: [
+            {
+              brand: { icon: 'FireIcon', color: 'red-500' },
+              title: 'Red Giants',
+              description:
+                'Massive stars in their late stage, expanding to many times their original size.'
+            },
+            {
+              brand: { icon: 'StarIcon', color: 'indigo-400' },
+              title: 'Binary Stars',
+              description:
+                'Stellar systems with two stars orbiting their common center of mass.'
+            },
+            {
+              brand: { icon: 'SparklesIcon', color: 'purple-500' },
+              title: 'Neutron Stars',
+              description:
+                'Ultra-dense stellar remnants formed from the cores of massive supernovae.'
+            }
+          ]
+        },
+        callout: {
+          showMark: true,
+          heading: 'Curious about the cosmos?',
+          body: 'Dive deeper into our collection of stellar astronomy articles.',
+          link: { url: '/binary-stars', label: 'Read articles' }
+        }
       },
       {
         name: 'Home',
         slug: 'home',
-        header: 'Look at the silver moon.',
-        layoutContent:
-          "## Titan\nSaturn's largest moon and the second-largest moon in our solar system. It's bigger than the planet Mercury and is the only moon with a thick atmosphere.\n## Phobos\nOne of Mars' tiny moons, measuring only about 22 kilometers (14 miles) across. Its name means 'fear' in Greek, and it orbits extremely close to Mars, completing an orbit in less than 8 hours.",
-        tenant: { lookupApiKey: tenants.moon.apiKey }
+        tenant: { lookupApiKey: tenants.moon.apiKey },
+        hero: {
+          badge: 'Moon',
+          heading: 'Look at the silver moon.',
+          lede: 'A natural satellite that orbits a planet or other celestial body larger than itself.',
+          actions: [
+            {
+              link: { url: '/lunar-maria', label: 'Explore' },
+              emphasis: 'primary' as const
+            },
+            {
+              link: { url: '/lunar-craters', label: 'Lunar Craters' },
+              emphasis: 'secondary' as const
+            }
+          ]
+        },
+        featureCards: {
+          eyebrow: 'Discover',
+          heading: 'The Moon Up Close',
+          intro:
+            "From dark volcanic plains to ancient craters, explore the many faces of Earth's closest celestial neighbour.",
+          columns: '3' as const,
+          items: [
+            {
+              brand: { icon: 'GlobeAltIcon', color: 'stone-500' },
+              title: 'Lunar Maria',
+              description:
+                'Dark basaltic plains formed by volcanic eruptions that flooded ancient impact basins.'
+            },
+            {
+              brand: { icon: 'MapPinIcon', color: 'gray-400' },
+              title: 'Lunar Craters',
+              description:
+                'Bowl-shaped depressions preserving over 4 billion years of impact history.'
+            },
+            {
+              brand: { icon: 'MoonIcon', color: 'yellow-300' },
+              title: 'Lunar Phases',
+              description:
+                'The changing appearance of the Moon during its monthly orbit around Earth.'
+            }
+          ]
+        },
+        callout: {
+          showMark: true,
+          heading: 'Fascinated by the Moon?',
+          body: 'Learn more about lunar geology, atmosphere and the history of lunar exploration.',
+          link: { url: '/lunar-maria', label: 'Read articles' }
+        }
       },
       {
         name: 'Hem',
         slug: 'home',
-        header: 'Sommar och sol.',
-        layoutContent:
-          '## Rigel\nDenna blå superjätte är ungefär 79 gånger större än vår sol och en av de ljusaste stjärnorna på natthimlen.\n## Ross\nEn liten röd dvärgstjärna uppkallad efter astronomen Frank Ross som upptäckte den. Den är bara ungefär 15% av storleken på vår sol och relativt nära vårt solsystem.',
-        tenant: { lookupApiKey: tenants.sun.apiKey }
+        tenant: { lookupApiKey: tenants.sun.apiKey },
+        hero: {
+          badge: 'Sun',
+          heading: 'Sommar och sol.',
+          lede: 'Solen är den centrala stjärnan i vårt planetsystem, runt vilken planeter, månar och asteroider kretsar.',
+          actions: [
+            {
+              link: { url: '/solar-flares', label: 'Utforska' },
+              emphasis: 'primary' as const
+            },
+            {
+              link: { url: '/solar-wind', label: 'Solvinden' },
+              emphasis: 'secondary' as const
+            }
+          ]
+        },
+        featureCards: {
+          eyebrow: 'Utforska',
+          heading: 'Vår stjärna – solen',
+          intro:
+            'Från mäktiga solutbrott till mystiska solcykler – utforska vetenskapen bakom vår livgivande stjärna.',
+          columns: '3' as const,
+          items: [
+            {
+              brand: { icon: 'BoltIcon', color: 'orange-500' },
+              title: 'Solfläckar',
+              description:
+                'Massiva explosioner på solens yta som frigör enorm energi och påverkar hela solsystemet.'
+            },
+            {
+              brand: { icon: 'GlobeAltIcon', color: 'sky-400' },
+              title: 'Solvinden',
+              description:
+                'Den kontinuerliga strömmen av laddade partiklar som strömmar ut från solen i alla riktningar.'
+            },
+            {
+              brand: { icon: 'Cog6ToothIcon', color: 'blue-400' },
+              title: 'Solens dynamo',
+              description:
+                'Mekanismen som genererar solens magnetfält och driver dess 11-åriga aktivitetscykel.'
+            }
+          ]
+        },
+        callout: {
+          showMark: true,
+          heading: 'Nyfiken på solen?',
+          body: 'Fördjupa dig i vår samling av artiklar om solaktivitet och solsystemet.',
+          link: { url: '/solar-flares', label: 'Läs artiklar' }
+        }
       }
     ],
     posts: [

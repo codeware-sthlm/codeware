@@ -21,8 +21,13 @@ const blocks: Record<BlockSlug, boolean> = {
   'social-media': true,
   spacing: true,
   // Unsupported blocks
+  callout: false,
+  'feature-cards': false,
+  hero: false,
+  'pill-list': false,
   posts: false,
   'reusable-content': false,
+  showcase: false,
   video: false
 };
 

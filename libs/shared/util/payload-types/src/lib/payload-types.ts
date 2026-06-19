@@ -103,15 +103,20 @@ export interface Config {
     users: UserAuthOperations;
   };
   blocks: {
+    callout: CalloutBlock;
     card: CardBlock;
     code: CodeBlock;
     content: ContentBlock;
+    'feature-cards': FeatureCardsBlock;
     'file-area': FileAreaBlock;
     form: FormBlock;
+    hero: HeroBlock;
     image: ImageBlock;
     media: MediaBlock;
+    'pill-list': PillListBlock;
     posts: PostsBlock;
     'reusable-content': ReusableContentBlock;
+    showcase: ShowcaseBlock;
     'social-media': SocialMediaBlock;
     spacing: SpacingBlock;
     video: VideoBlock;
@@ -236,41 +241,22 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CardBlock".
+ * via the `definition` "CalloutBlock".
  */
-export interface CardBlock {
-  cards?:
-    | {
-        /**
-         * Select an icon and color that represent the card
-         */
-        brand?: {
-          icon?: string | null;
-          color?: string | null;
-        };
-        title: string;
-        /**
-         * A text that will complement the title
-         */
-        description?: string | null;
-        content: string;
-        /**
-         * Let the card link to a page or external URL
-         */
-        enableLink?: boolean | null;
-        link?: CardBlockLink;
-        id?: string | null;
-      }[]
-    | null;
+export interface CalloutBlock {
+  showMark?: boolean | null;
+  heading: string;
+  body?: string | null;
+  link: CalloutLink;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'card';
+  blockType: 'callout';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CardBlockLink".
+ * via the `definition` "CalloutLink".
  */
-export interface CardBlockLink {
+export interface CalloutLink {
   type?: ('reference' | 'custom') | null;
   newTab?: boolean | null;
   reference?:
@@ -286,8 +272,7 @@ export interface CardBlockLink {
    * Add protocol (http:// or https://) if the link is external
    */
   url?: string | null;
-  navTrigger?: ('card' | 'link') | null;
-  label?: string | null;
+  label: string;
 }
 /**
  * Pages are the building blocks of the site and are used to create menus and navigation.
@@ -310,15 +295,20 @@ export interface Page {
    * Build your page by adding the content you need. E.g. choose "Content" to create one or more columns. Then use the text editor and add more blocks if needed in each column.
    */
   layout: (
-    | ContentBlock
+    | CalloutBlock
     | CardBlock
+    | CodeBlock
+    | ContentBlock
+    | FeatureCardsBlock
     | FileAreaBlock
     | FormBlock
+    | HeroBlock
     | ImageBlock
     | MediaBlock
-    | CodeBlock
+    | PillListBlock
     | PostsBlock
     | ReusableContentBlock
+    | ShowcaseBlock
     | SocialMediaBlock
     | SpacingBlock
   )[];
@@ -622,6 +612,72 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CardBlock".
+ */
+export interface CardBlock {
+  cards?:
+    | {
+        /**
+         * Select an icon and color that represent the card
+         */
+        brand?: {
+          icon?: string | null;
+          color?: string | null;
+        };
+        title: string;
+        /**
+         * A text that will complement the title
+         */
+        description?: string | null;
+        content: string;
+        /**
+         * Let the card link to a page or external URL
+         */
+        enableLink?: boolean | null;
+        link?: CardBlockLink;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'card';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CardBlockLink".
+ */
+export interface CardBlockLink {
+  type?: ('reference' | 'custom') | null;
+  newTab?: boolean | null;
+  reference?:
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null);
+  /**
+   * Add protocol (http:// or https://) if the link is external
+   */
+  url?: string | null;
+  navTrigger?: ('card' | 'link') | null;
+  label?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock".
+ */
+export interface CodeBlock {
+  language: 'ts' | 'plaintext' | 'tsx' | 'js' | 'jsx';
+  code: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
@@ -653,10 +709,10 @@ export interface ContentBlock {
         blocks?:
           | (
               | CardBlock
+              | CodeBlock
               | FormBlock
               | ImageBlock
               | MediaBlock
-              | CodeBlock
               | ReusableContentBlock
               | SocialMediaBlock
               | SpacingBlock
@@ -962,17 +1018,6 @@ export interface MediaBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language: 'ts' | 'plaintext' | 'tsx' | 'js' | 'jsx';
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ReusableContentBlock".
  */
 export interface ReusableContentBlock {
@@ -1089,6 +1134,124 @@ export interface SpacingBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeatureCardsBlock".
+ */
+export interface FeatureCardsBlock {
+  /**
+   * Small uppercase label shown above the heading
+   */
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Short paragraph below the heading
+   */
+  intro?: string | null;
+  /**
+   * Desktop column count. Auto fits to the number of items.
+   */
+  columns?: ('auto' | '2' | '3' | '4') | null;
+  items?:
+    | {
+        /**
+         * Icon and color for this item
+         */
+        brand?: {
+          icon?: string | null;
+          color?: string | null;
+        };
+        title: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'feature-cards';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  /**
+   * Optional pill above the headline. The tenant logo is shown automatically when available.
+   */
+  badge?: string | null;
+  heading: string;
+  /**
+   * The part that hooks the reader and conveys the most essential information (often answering who, what, when, where, why).
+   */
+  lede: string;
+  actions?:
+    | {
+        link: HeroActionLink;
+        emphasis?: ('primary' | 'secondary') | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroActionLink".
+ */
+export interface HeroActionLink {
+  type?: ('reference' | 'custom') | null;
+  newTab?: boolean | null;
+  reference?:
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null);
+  /**
+   * Add protocol (http:// or https://) if the link is external
+   */
+  url?: string | null;
+  label: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PillListBlock".
+ */
+export interface PillListBlock {
+  /**
+   * Small uppercase label shown above the heading
+   */
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Short paragraph below the heading
+   */
+  intro?: string | null;
+  /**
+   * Background treatment
+   */
+  surface?: ('dark' | 'light') | null;
+  items?:
+    | {
+        /**
+         * e.g. "my-package"
+         */
+        label: string;
+        /**
+         * Optional external link
+         */
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pill-list';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "PostsBlock".
  */
 export interface PostsBlock {
@@ -1101,6 +1264,86 @@ export interface PostsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'posts';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ShowcaseBlock".
+ */
+export interface ShowcaseBlock {
+  /**
+   * Small uppercase label shown above the heading
+   */
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Short paragraph below the heading
+   */
+  intro?: string | null;
+  enableHeaderLink?: boolean | null;
+  link?: ShowcaseHeaderLink;
+  items?:
+    | {
+        /**
+         * Small badge, e.g. "Platform"
+         */
+        tag?: string | null;
+        title: string;
+        description: string;
+        /**
+         * Monospace line, e.g. "Nx · Payload · Postgres"
+         */
+        meta?: string | null;
+        link: ShowcaseItemLink;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'showcase';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ShowcaseHeaderLink".
+ */
+export interface ShowcaseHeaderLink {
+  type?: ('reference' | 'custom') | null;
+  newTab?: boolean | null;
+  reference?:
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null);
+  /**
+   * Add protocol (http:// or https://) if the link is external
+   */
+  url?: string | null;
+  label: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ShowcaseItemLink".
+ */
+export interface ShowcaseItemLink {
+  type?: ('reference' | 'custom') | null;
+  newTab?: boolean | null;
+  reference?:
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null);
+  /**
+   * Add protocol (http:// or https://) if the link is external
+   */
+  url?: string | null;
+  label: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

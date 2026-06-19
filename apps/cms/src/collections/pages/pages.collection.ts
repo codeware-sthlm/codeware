@@ -13,15 +13,20 @@ import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
  */
 // Using a record to make sure all blocks are included and not forgotten
 const blocks: Record<BlockSlug, boolean> = {
-  content: true,
+  callout: true,
   card: true,
+  code: true,
+  content: true,
+  'feature-cards': true,
   'file-area': true,
   form: true,
+  hero: true,
   image: true,
   media: true,
-  code: true,
+  'pill-list': true,
   posts: true,
   'reusable-content': true,
+  showcase: true,
   'social-media': true,
   spacing: true,
   // Unsupported blocks

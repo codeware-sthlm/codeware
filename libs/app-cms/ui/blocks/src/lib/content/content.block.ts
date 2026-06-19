@@ -18,27 +18,37 @@ const richTextBlocks: Record<BlockSlug, boolean> = {
   'social-media': true,
   spacing: true,
   // Unsupported blocks
+  callout: false,
   content: false,
+  'feature-cards': false,
   'file-area': false,
+  hero: false,
+  'pill-list': false,
   posts: false,
   'reusable-content': false,
+  showcase: false,
   video: false
 };
 
 /** Define which blocks are available within the content block itself. */
 const inlineBlocks: Record<BlockSlug, boolean> = {
   card: true,
+  code: true,
   form: true,
   image: true,
   media: true,
-  code: true,
   'reusable-content': true,
   'social-media': true,
   spacing: true,
   // Unsupported blocks
+  callout: false,
   content: false,
+  'feature-cards': false,
   'file-area': false,
+  hero: false,
+  'pill-list': false,
   posts: false,
+  showcase: false,
   video: false
 };
 

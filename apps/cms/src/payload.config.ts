@@ -12,15 +12,20 @@ import sharp from 'sharp';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { seed } from '@codeware/app-cms/feature/seed';
 import {
+  calloutBlock,
   cardBlock,
   codeBlock,
   contentBlock,
+  featureCardsBlock,
   fileAreaBlock,
   formBlock,
+  heroBlock,
   imageBlock,
   mediaBlock,
+  pillListBlock,
   postsBlock,
   reusableContentBlock,
+  showcaseBlock,
   socialMediaBlock,
   spacingBlock,
   videoBlock
@@ -81,15 +86,20 @@ export default buildConfig({
   // Declare blocks globally and reference then by slug elsewhere
   // https://payloadcms.com/docs/fields/blocks#block-references
   blocks: [
+    calloutBlock,
     cardBlock,
     codeBlock,
     contentBlock,
+    featureCardsBlock,
     fileAreaBlock,
     formBlock,
+    heroBlock,
     imageBlock,
     mediaBlock,
+    pillListBlock,
     postsBlock,
     reusableContentBlock,
+    showcaseBlock,
     socialMediaBlock,
     spacingBlock,
     videoBlock

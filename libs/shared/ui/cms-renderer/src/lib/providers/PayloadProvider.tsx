@@ -26,6 +26,17 @@ export type FormSubmitResponse =
 
 export type PayloadValue = {
   /**
+   * Provide a render function for the tenant's brand mark (icon/logo).
+   *
+   * Called with a pixel size so the block can request the appropriate scale
+   * (e.g. 16 for a badge pill, 48 for a centred callout mark). Return `null`
+   * to suppress the mark even when a block has `showMark` enabled.
+   *
+   * Example: `(size) => <MyLogo size={size} />`
+   */
+  tenantIcon?: ((size: number) => ReactNode) | null;
+
+  /**
    * Provide a function that returns the current URL path.
    * This is used for active route detection in navigation components.
    *
@@ -143,7 +154,7 @@ export function PayloadProvider({ children, value }: PayloadProviderProps) {
   return (
     <Context.Provider value={value}>
       {children}
-      <Toaster />
+      <Toaster theme={value.resolvedTheme ?? 'system'} />
     </Context.Provider>
   );
 }

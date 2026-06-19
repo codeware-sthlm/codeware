@@ -20,9 +20,8 @@ type LinkGroupShape = {
 
 type ResolvedLinkGroup = {
   /**
-   * Reference links: bare path without a leading slash, e.g. `"about"` or
-   * `"posts/my-post"` — consumers are responsible for prepending `/` when
-   * building an href.
+   * Reference links: absolute path with a leading slash, e.g. `"/about"` or
+   * `"/posts/my-post"` — ready to pass directly to `navigate()`.
    *
    * Custom links: the raw URL as entered by the editor, e.g.
    * `"https://github.com/..."` or `"/contact"` — use as-is.
@@ -53,8 +52,9 @@ export const resolveLinkGroup = (
         return null;
       }
       const { relationTo, value } = link.reference;
-      const slug = value.slug ?? '';
-      path = relationTo === 'pages' ? slug : `${relationTo}/${slug}`;
+      const slug = value.slug;
+      if (!slug) return null;
+      path = relationTo === 'pages' ? `/${slug}` : `/${relationTo}/${slug}`;
       break;
     }
     case 'custom':

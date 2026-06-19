@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   Calculator,
@@ -7,8 +8,6 @@ import {
   Smile,
   User
 } from 'lucide-react';
-
-import { a11yStory } from '@codeware/shared/util/storybook';
 
 import {
   Command,

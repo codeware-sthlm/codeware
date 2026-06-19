@@ -67,6 +67,7 @@
   --core-nav-link: var(--foreground);
   --core-nav-link-active: var(--primary);
   --core-nav-link-hover: var(--primary);
+  --core-surface-invert: oklch(0.205 0 0);
   --core-text: var(--foreground);
 
   /* === prose tokens — aliases to shadcn tokens === */

@@ -32,6 +32,7 @@
   --core-nav-link: var(--color-zinc-800);
   --core-nav-link-active: var(--color-teal-700);
   --core-nav-link-hover: var(--color-teal-700);
+  --core-surface-invert: var(--color-zinc-900);
   --core-text: var(--color-zinc-600);
 
   /* === shadcn/ui tokens === */
@@ -51,7 +52,7 @@
   --muted-foreground: var(--color-zinc-500);
   --accent: var(--color-zinc-100);
   --accent-foreground: var(--color-zinc-900);
-  --destructive: var(--color-red-500);
+  --destructive: var(--color-red-600);
   --border: var(--color-zinc-100);
   --input: var(--color-zinc-100);
   --ring: var(--color-zinc-900);

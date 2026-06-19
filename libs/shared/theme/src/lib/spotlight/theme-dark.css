@@ -19,6 +19,7 @@
   --core-nav-link: var(--color-zinc-200);
   --core-nav-link-active: var(--color-teal-400);
   --core-nav-link-hover: var(--color-teal-400);
+  --core-surface-invert: var(--color-zinc-700);
   --core-text: var(--color-zinc-400);
 
   /* === shadcn/ui tokens: https://ui.shadcn.com/docs/theming#list-of-variables === */
@@ -28,8 +29,8 @@
   --card-foreground: var(--color-zinc-400);
   --popover: var(--secondary);
   --popover-foreground: var(--secondary-foreground);
-  --primary: var(--color-zinc-700);
-  --primary-foreground: var(--color-zinc-300);
+  --primary: var(--color-zinc-100);
+  --primary-foreground: var(--color-zinc-900);
   --secondary: var(--color-zinc-800);
   --secondary-foreground: var(--color-zinc-100);
   --muted: var(--color-zinc-800);

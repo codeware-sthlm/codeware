@@ -6,6 +6,8 @@ const THEME_LIB_PATH = 'libs/shared/theme/src/lib';
 const CORE_PATH = `${THEME_LIB_PATH}/_core`;
 const OUTPUT_CSS = 'apps/storybook/.storybook/themes.css';
 const OUTPUT_META = 'apps/storybook/.storybook/themes-meta.ts';
+const OUTPUT_SHARED_THEMES =
+  'libs/shared/util/storybook/src/lib/storybook-themes.ts';
 
 /**
  * Themes included in the Storybook switcher.
@@ -248,18 +250,36 @@ export async function themeSyncGenerator(
   });
   const existingTs = tree.read(OUTPUT_META, 'utf-8') ?? '';
 
+  // Generate storybook-themes.ts (shared lib — theme names and SbTheme type only)
+  const rawSharedThemes = [
+    '/* AUTO-GENERATED — do not edit manually. Run `pnpm nx sync` to update. */',
+    '',
+    'export type SbTheme = (typeof STORYBOOK_THEMES)[number];',
+    '',
+    `export const STORYBOOK_THEMES = ${JSON.stringify(STORYBOOK_THEMES)} as const;`,
+    ''
+  ].join('\n');
+  const sharedThemesContent = await format(rawSharedThemes, {
+    ...prettierConfig,
+    parser: 'typescript'
+  });
+  const existingSharedThemes = tree.read(OUTPUT_SHARED_THEMES, 'utf-8') ?? '';
+
   const cssChanged = existingCss !== cssContent;
   const tsChanged = existingTs !== tsContent;
+  const sharedThemesChanged = existingSharedThemes !== sharedThemesContent;
 
-  if (!cssChanged && !tsChanged) {
+  if (!cssChanged && !tsChanged && !sharedThemesChanged) {
     return;
   }
 
   if (cssChanged) tree.write(OUTPUT_CSS, cssContent);
   if (tsChanged) tree.write(OUTPUT_META, tsContent);
+  if (sharedThemesChanged)
+    tree.write(OUTPUT_SHARED_THEMES, sharedThemesContent);
 
   return {
-    outOfSyncMessage: `'${OUTPUT_CSS}' and '${OUTPUT_META}' synced with theme token files.`
+    outOfSyncMessage: `'${OUTPUT_CSS}', '${OUTPUT_META}' and '${OUTPUT_SHARED_THEMES}' synced with theme token files.`
   };
 }
 

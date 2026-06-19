@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Callout } from './callout/Callout';
@@ -168,3 +169,16 @@ export const NotFoundNoButton: StoryObj = {
     </div>
   )
 };
+
+export const ShadcnLight = a11yStory(CalloutInfo, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(CalloutInfo, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  CalloutInfo,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(CalloutInfo, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(CalloutInfo, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(CalloutInfo, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(CalloutInfo, 'codeware', 'light');
+export const CodewareDark = a11yStory(CalloutInfo, 'codeware', 'dark');

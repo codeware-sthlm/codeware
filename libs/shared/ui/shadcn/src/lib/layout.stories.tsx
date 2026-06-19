@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { AspectRatio } from './components/aspect-ratio';
@@ -60,3 +61,20 @@ export const AspectRatioStory: StoryObj = {
     </div>
   )
 };
+
+export const ShadcnLight = a11yStory(SeparatorStory, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(SeparatorStory, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  SeparatorStory,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(
+  SeparatorStory,
+  'payload-admin',
+  'dark'
+);
+export const SpotlightLight = a11yStory(SeparatorStory, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(SeparatorStory, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(SeparatorStory, 'codeware', 'light');
+export const CodewareDark = a11yStory(SeparatorStory, 'codeware', 'dark');

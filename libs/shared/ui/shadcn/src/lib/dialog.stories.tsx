@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Settings } from 'lucide-react';
 
@@ -76,3 +77,12 @@ export const WithForm: StoryObj = {
     </Dialog>
   )
 };
+
+export const ShadcnLight = a11yStory(Basic, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(Basic, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(Basic, 'payload-admin', 'light');
+export const PayloadAdminDark = a11yStory(Basic, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(Basic, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(Basic, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(Basic, 'codeware', 'light');
+export const CodewareDark = a11yStory(Basic, 'codeware', 'dark');

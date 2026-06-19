@@ -1,4 +1,5 @@
 import { CopyButton } from '@codeware/shared/ui/copy-button';
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Code } from './Code';
@@ -65,3 +66,16 @@ export const CopyButtonStory: StoryObj = {
     </div>
   )
 };
+
+export const ShadcnLight = a11yStory(TypeScript, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(TypeScript, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  TypeScript,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(TypeScript, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(TypeScript, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(TypeScript, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(TypeScript, 'codeware', 'light');
+export const CodewareDark = a11yStory(TypeScript, 'codeware', 'dark');

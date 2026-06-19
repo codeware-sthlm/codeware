@@ -1,3 +1,4 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from './components/button';
@@ -143,3 +144,16 @@ export const FullForm: StoryObj = {
     </form>
   )
 };
+
+export const ShadcnLight = a11yStory(InputField, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(InputField, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  InputField,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(InputField, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(InputField, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(InputField, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(InputField, 'codeware', 'light');
+export const CodewareDark = a11yStory(InputField, 'codeware', 'dark');

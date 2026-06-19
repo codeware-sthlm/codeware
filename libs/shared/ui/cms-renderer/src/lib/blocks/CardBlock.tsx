@@ -15,7 +15,7 @@ import { ExternalLinkIcon, LinkIcon } from 'lucide-react';
 
 import { useColumnSize } from '../providers/ColumnSizeProvider';
 import { usePayload } from '../providers/PayloadProvider';
-import { extractCardLink } from '../utils/extract-card-link';
+import { resolveCardBlockLink } from '../utils/resolve-card-block-link';
 
 /**
  * Render Payload card block cards in a responsive grid,
@@ -49,7 +49,7 @@ export const CardBlock: React.FC<CardBlockProps> = ({ cards }) => {
         const { icon, color } = brand ?? {};
 
         const hasHeader = title || description || icon;
-        const linkDetails = enableLink ? extractCardLink(link) : null;
+        const linkDetails = enableLink ? resolveCardBlockLink(link) : null;
 
         return (
           <Card

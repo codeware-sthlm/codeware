@@ -9,14 +9,19 @@ import type { BlocksData } from '@codeware/shared/util/payload-utils';
 import { cn } from '@codeware/shared/util/ui';
 import { useRef } from 'react';
 
+import { CalloutBlock } from './blocks/CalloutBlock';
 import { CardBlock } from './blocks/CardBlock';
 import { CodeBlock } from './blocks/CodeBlock';
+import { FeatureCardsBlock } from './blocks/FeatureCardsBlock';
 import { FileAreaBlock } from './blocks/FileAreaBlock';
 import { FormBlock } from './blocks/FormBlock';
+import { HeroBlock } from './blocks/HeroBlock';
 import { ImageBlock } from './blocks/ImageBlock';
 import { MediaBlock } from './blocks/MediaBlock';
+import { PillListBlock } from './blocks/PillListBlock';
 import { PostsBlock } from './blocks/PostsBlock';
 import { RichText } from './blocks/RichText';
+import { ShowcaseBlock } from './blocks/ShowcaseBlock';
 import { SocialMediaBlock } from './blocks/SocialMediaBlock';
 import { SpacingBlock } from './blocks/SpacingBlock';
 import { VideoBlock } from './blocks/VideoBlock';
@@ -134,15 +139,20 @@ const blocksMap: Record<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   React.JSXElementConstructor<any>
 > = {
+  callout: CalloutBlock,
   card: CardBlock,
   code: CodeBlock,
   content: ContentBlock,
+  'feature-cards': FeatureCardsBlock,
   'file-area': FileAreaBlock,
   form: FormBlock,
+  hero: HeroBlock,
   image: ImageBlock,
   media: MediaBlock,
+  'pill-list': PillListBlock,
   posts: PostsBlock,
   'reusable-content': ReusableContentBlock,
+  showcase: ShowcaseBlock,
   'social-media': SocialMediaBlock,
   spacing: SpacingBlock,
   video: VideoBlock
@@ -189,7 +199,8 @@ export const RenderBlocks: React.FC<Props> = ({
                 // Do not set any margins around spacing block since it has its own margin options.
                 // For all other blocks, set a top margin unless it's the first block.
                 className={cn({
-                  'not-first:mt-8': !isSpacingBlockOrFollowing
+                  'not-first:mt-16 md:not-first:mt-24':
+                    !isSpacingBlockOrFollowing
                 })}
                 key={index}
               >

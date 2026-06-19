@@ -1,0 +1,179 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="CMS Renderer" />
+
+# cms-renderer
+
+`@codeware/shared/ui/cms-renderer` is the React render layer for Payload CMS content. It turns Payload block data (fetched from the API) into UI — without owning any of the app-specific concerns like routing, authentication, or theming.
+
+```ts
+import {
+  PayloadProvider,
+  RenderBlocks,
+  RenderPage,
+  RenderPost
+} from '@codeware/shared/ui/cms-renderer';
+```
+
+---
+
+## PayloadProvider
+
+Every consumer must wrap their app (or page root) in `PayloadProvider`. It supplies the context all block components draw from — navigation, form submission, media URLs, and the active theme.
+
+```tsx
+import { PayloadProvider } from '@codeware/shared/ui/cms-renderer';
+
+export default function Layout({ children }) {
+  const { theme, resolvedTheme, setTheme } = useTheme(); // e.g. next-themes
+  const pathname = usePathname(); // e.g. next/navigation
+  const router = useRouter();
+
+  return (
+    <PayloadProvider
+      value={{
+        payloadUrl: process.env.NEXT_PUBLIC_PAYLOAD_URL,
+        getCurrentPath: () => pathname,
+        navigate: (path, newTab) => {
+          if (newTab) window.open(path, '_blank');
+          else router.push(path);
+        },
+        setTheme,
+        theme,
+        resolvedTheme,
+        submitForm: async (data) => {
+          const res = await fetch(`${payloadUrl}/api/form-submissions`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+          if (!res.ok)
+            return { success: false, data: { error: 'Submit failed' } };
+          return { success: true, data: await res.json() };
+        },
+        tenantIcon: (size) => <MyLogo size={size} />,
+        locale: 'en'
+      }}
+    >
+      {children}
+    </PayloadProvider>
+  );
+}
+```
+
+| Prop             | Required | Purpose                                                                  |
+| ---------------- | -------- | ------------------------------------------------------------------------ |
+| `payloadUrl`     | Yes      | Base URL of the Payload CMS instance — used for media image src          |
+| `getCurrentPath` | Yes      | Returns the current URL path for active route detection in navigation    |
+| `navigate`       | Yes      | Navigates to a local path or external URL                                |
+| `setTheme`       | Yes      | Called by `ThemeSwitch` to change light/dark/system                      |
+| `theme`          | Yes      | Current theme setting (`'light'`, `'dark'`, `'system'`)                  |
+| `resolvedTheme`  | No       | Resolved theme — used to drive Sonner toasts; falls back to `'system'`   |
+| `submitForm`     | Yes      | Server-side handler for form block submissions (must carry API key auth) |
+| `tenantIcon`     | No       | Render function for the tenant brand mark; receives a pixel size hint    |
+| `locale`         | Yes      | Active locale code (`'en'`, `'sv'`, …) — drives i18n text in blocks      |
+
+`PayloadProvider` also mounts the Sonner `<Toaster />` scoped to the active `resolvedTheme`.
+
+---
+
+## Rendering content
+
+### RenderBlocks
+
+The core dispatcher. Takes a `blocks` array from a Payload page or post and renders each block through the appropriate component.
+
+```tsx
+import { RenderBlocks } from '@codeware/shared/ui/cms-renderer';
+
+<RenderBlocks blocks={page.layout} blocksData={blocksData} />;
+```
+
+Blocks are separated by `mt-16 md:mt-24` margins automatically. `SpacingBlock` manages its own spacing and suppresses that margin for itself and the block immediately following it.
+
+### Higher-level renderers
+
+| Export              | Wraps                                      | Use for                   |
+| ------------------- | ------------------------------------------ | ------------------------- |
+| `RenderPage`        | `Container` + `RenderBlocks`               | Standard CMS pages        |
+| `RenderPost`        | `Container` + post header + `RenderBlocks` | Blog / news posts         |
+| `RenderLandingPage` | `RenderBlocks` (no container)              | Full-width landing pages  |
+| `RenderLayout`      | nav + footer + children                    | App shell with navigation |
+
+### BlocksData — listing blocks
+
+Some blocks (like `PostsBlock`) cannot self-fetch — they need server-side data injected at render time. The app fetches this data and passes it as `blocksData`:
+
+```ts
+import type { BlocksData } from '@codeware/shared/ui/cms-renderer';
+
+const blocksData: BlocksData = {
+  posts: {
+    [block.id]: await payload.find({ collection: 'posts', ... }).docs
+  }
+};
+
+<RenderBlocks blocks={layout} blocksData={blocksData} />
+```
+
+`blocksData` is keyed by block `id` and threaded through container blocks (`content`, `reusable-content`) automatically.
+
+---
+
+## Block catalog
+
+| Block slug         | Component              | Purpose                                          |
+| ------------------ | ---------------------- | ------------------------------------------------ |
+| `callout`          | `CalloutBlock`         | Inline contextual alert with optional icon       |
+| `card`             | `CardBlock`            | Linked content card with image and text          |
+| `code`             | `CodeBlock`            | Syntax-highlighted code snippet                  |
+| `content`          | `ContentBlock`         | Multi-column rich text + nested blocks           |
+| `feature-cards`    | `FeatureCardsBlock`    | Grid of icon + text feature highlights           |
+| `file-area`        | `FileAreaBlock`        | Downloadable file list                           |
+| `form`             | `FormBlock`            | Dynamic Payload form with configurable fields    |
+| `hero`             | `HeroBlock`            | Full-width hero with headline, body, and CTA     |
+| `image`            | `ImageBlock`           | Responsive image with optional caption           |
+| `media`            | `MediaBlock`           | Generic Payload media (image or video)           |
+| `pill-list`        | `PillListBlock`        | Tag/badge row with optional surface colour       |
+| `posts`            | `PostsBlock`           | Server-side post listing (requires `blocksData`) |
+| `reusable-content` | `ReusableContentBlock` | Embeds a saved Payload reusable content entry    |
+| `showcase`         | `ShowcaseBlock`        | Alternating image + text feature sections        |
+| `social-media`     | `SocialMediaBlock`     | Social/contact icon row with optional labels     |
+| `spacing`          | `SpacingBlock`         | Explicit whitespace with optional divider line   |
+| `video`            | `VideoBlock`           | Embedded video player                            |
+
+---
+
+## Navigation & layout exports
+
+```ts
+import {
+  DesktopNavigation,
+  MobileNavigation,
+  Footer,
+  Container,
+  ThemeSwitch,
+  ErrorContainer
+} from '@codeware/shared/ui/cms-renderer';
+```
+
+These are used inside `RenderLayout` but can also be composed independently.
+
+---
+
+## Storybook story conventions
+
+Each block has a set of **interactive stories** (toolbar-driven light/dark) and a set of **a11y stories** locked to specific theme × color-mode combinations for automated accessibility testing:
+
+```ts
+import { a11yStory } from '@codeware/shared/util/storybook';
+
+export const ShadcnLight = a11yStory({ args }, 'shadcn', 'light');
+export const ShadcnDark = a11yStory({ args }, 'shadcn', 'dark');
+// … repeated for payload-admin, spotlight, codeware
+```
+
+The interactive base stories carry no `globals` lock — use the **App Theme** and **Color Theme** toolbar controls to switch between all combinations live.

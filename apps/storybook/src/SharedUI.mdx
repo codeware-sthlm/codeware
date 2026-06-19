@@ -1,0 +1,157 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Shared UI" />
+
+# Shared UI
+
+`libs/shared/ui/` is the React component library for the Codeware platform. It is consumed by both applications (`apps/cms` and `apps/web`) and is the primary place to add new presentational components.
+
+All libraries under `libs/shared/ui/` use the path alias `@codeware/shared/ui/<lib-name>`.
+
+---
+
+## Libraries
+
+| Library                       | Path alias                                     | Purpose                                                                    |
+| ----------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------- |
+| [cms-renderer](#cms-renderer) | `@codeware/shared/ui/cms-renderer`             | Renders Payload CMS block data into React UI                               |
+| [shadcn](#shadcn)             | `@codeware/shared/ui/shadcn/components/<name>` | shadcn/ui component collection                                             |
+| [primitives](#primitives)     | `@codeware/shared/ui/primitives`               | Low-level building blocks: `Callout`, `HeroIcon`, `SocialIcon`, `NotFound` |
+| [code](#code)                 | `@codeware/shared/ui/code`                     | Syntax-highlighted `Code` block with built-in `CopyButton`                 |
+| [copy-button](#copy-button)   | `@codeware/shared/ui/copy-button`              | Clipboard copy button with success feedback                                |
+| [color-picker](#color-picker) | `@codeware/shared/ui/color-picker`             | Tailwind color picker input                                                |
+| [icon-picker](#icon-picker)   | `@codeware/shared/ui/icon-picker`              | Lucide icon search + picker                                                |
+| [image](#image)               | `@codeware/shared/ui/image`                    | Responsive image component with fallback                                   |
+| [file-area](#file-area)       | `@codeware/shared/ui/file-area`                | Drag-and-drop + file listing UI                                            |
+| [video](#video)               | `@codeware/shared/ui/video`                    | Embedded video player                                                      |
+
+---
+
+## cms-renderer
+
+The largest library. Turns Payload CMS API data (blocks, pages, posts) into rendered React components. Requires a host app to supply a `PayloadProvider` with routing, form submission, and theme callbacks.
+
+See the **cms-renderer** docs page in the sidebar for the full API reference, block catalog, and wiring guide.
+
+```ts
+import {
+  PayloadProvider,
+  RenderPage,
+  RenderPost
+} from '@codeware/shared/ui/cms-renderer';
+```
+
+---
+
+## shadcn
+
+A copy-paste component collection sourced from [shadcn/ui](https://ui.shadcn.com). Components are not bundled as a barrel — import each one individually to avoid pulling in unused code:
+
+```ts
+import { Button } from '@codeware/shared/ui/shadcn/components/button';
+import {
+  Dialog,
+  DialogContent
+} from '@codeware/shared/ui/shadcn/components/dialog';
+import { Form, FormField } from '@codeware/shared/ui/shadcn/components/form';
+```
+
+Components are kept in sync with upstream via the shadcn CLI — see the **Introduction** page in the sidebar for update instructions.
+
+Installed components: `alert`, `aspect-ratio`, `button`, `card`, `checkbox`, `command`, `context-menu`, `dialog`, `dropdown-menu`, `form`, `input`, `input-group`, `label`, `menubar`, `popover`, `radio-group`, `scroll-area`, `select`, `separator`, `sonner`, `switch`, `table`, `textarea`, `tooltip`.
+
+---
+
+## primitives
+
+Small, focused building blocks used across cms-renderer and dashboard components.
+
+```ts
+import {
+  Callout,
+  HeroIcon,
+  SocialIcon,
+  NotFound
+} from '@codeware/shared/ui/primitives';
+```
+
+- **`Callout`** — inline contextual message (`info`, `warning`, `tip`) built on shadcn `Alert`
+- **`HeroIcon`** — renders a named [Heroicons](https://heroicons.com) icon by string slug
+- **`SocialIcon`** — renders a platform icon (GitHub, LinkedIn, X, email, …) by platform key
+- **`NotFound`** — styled 404 placeholder for app error pages
+
+---
+
+## code
+
+Syntax-highlighted code display powered by [prism-react-renderer](https://github.com/FormidableLabs/prism-react-renderer). A `CopyButton` is included automatically in the top-right corner.
+
+```ts
+import { Code } from '@codeware/shared/ui/code';
+import { CopyButton } from '@codeware/shared/ui/copy-button';
+```
+
+`Code` accepts a `language` prop (TypeScript, JavaScript, JSON, plaintext, …). The dark/light syntax theme follows the active Storybook color mode.
+
+---
+
+## copy-button
+
+Standalone clipboard copy button. Used inside `Code` but also importable independently for use in other surfaces.
+
+```ts
+import { CopyButton } from '@codeware/shared/ui/copy-button';
+
+<CopyButton value="text to copy" />
+```
+
+---
+
+## color-picker
+
+A Tailwind color picker. Used in Payload CMS field UI for letting editors choose a named Tailwind color (e.g. `blue-500`).
+
+```ts
+import { ColorPicker } from '@codeware/shared/ui/color-picker';
+```
+
+---
+
+## icon-picker
+
+Searchable Lucide icon picker with a popover UI. Used in Payload CMS fields so editors can select an icon by name.
+
+```ts
+import { IconPicker, useIconPicker } from '@codeware/shared/ui/icon-picker';
+```
+
+---
+
+## image
+
+Responsive image component that handles multiple size variants from Payload's media upload sizes. Renders the most appropriate `<source>` per viewport and shows a fallback icon on load failure.
+
+```ts
+import { Image } from '@codeware/shared/ui/image';
+```
+
+---
+
+## file-area
+
+Drag-and-drop file area plus a file listing UI. Used in Payload CMS field UI and rendered on the frontend as `FileAreaBlock`.
+
+```ts
+import { FileArea } from '@codeware/shared/ui/file-area';
+import type { FileItem } from '@codeware/shared/ui/file-area';
+```
+
+---
+
+## video
+
+Embedded video player component. Wraps a `<video>` element with controls and a poster image. Used in cms-renderer's `VideoBlock`.
+
+```ts
+import { Video } from '@codeware/shared/ui/video';
+```

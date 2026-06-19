@@ -46,12 +46,14 @@ export const resolveCardBlockLink = (
 
   const { path: url, newTab } = resolved;
 
+  if (navTrigger !== 'card' && !label) return null;
+
   return navTrigger === 'card'
     ? { navTrigger, newTab, url }
     : {
         // Label is a custom field (CardBlockLink uses skipLabel) — read directly
         // from the link, not from the base resolved group.
-        label: String(label),
+        label: label as string,
         navTrigger,
         newTab,
         url

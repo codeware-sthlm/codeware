@@ -83,4 +83,8 @@ out
 # Infisical credentials (tools)
 .env.infisical
 
+# Local environment overrides (may contain secrets)
+.env.local
+*.env.local
+
 .nx/self-healing

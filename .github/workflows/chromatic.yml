@@ -1,0 +1,56 @@
+name: Chromatic
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  statuses: write
+
+env:
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') ||
+    github.event_name == 'push' || github.event_name == 'workflow_dispatch' ||
+    vars.NX_NO_CLOUD }}
+  NX_PARALLEL: ${{ vars.NX_PARALLEL }}
+  NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm package manager
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Analyze affected projects
+        uses: nrwl/nx-set-shas@v4
+
+      - name: Publish to Chromatic
+        run: pnpm nx affected -t chromatic
+        env:
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

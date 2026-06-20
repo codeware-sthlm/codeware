@@ -31,6 +31,13 @@
         }
       },
       "syncGenerators": ["dev-plugin:theme-sync"]
+    },
+    "chromatic": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-storybook"],
+      "options": {
+        "command": "chromatic --no-interactive --config-file apps/storybook/chromatic.config.json"
+      }
     }
   }
 }

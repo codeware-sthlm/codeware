@@ -18,6 +18,7 @@
     "runAllTestsOnStartup": false,
     "type": "on-demand"
   },
+  "json.schemaDownload.enable": true,
   "nxConsole.generateAiAgentRules": true,
   "vitest.filesWatcherInclude": "apps/**,libs/**,packages/**",
   "[json]": {

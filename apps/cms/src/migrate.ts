@@ -2,7 +2,7 @@ import { type Migration, getPayload } from 'payload';
 
 import { withInfisical } from '@codeware/shared/feature/infisical';
 
-import config from './migrate.config';
+import { getConfig } from './migrate.config';
 import { migrations } from './migrations';
 
 // Invoked via Fly release_command before machines are updated.
@@ -42,8 +42,9 @@ try {
   }
 
   // Build a minimal Payload instance with the same DB config as the main app,
-  // and run the migrations directly against the database
-  const payload = await getPayload({ config, disableOnInit: true });
+  // and run the migrations directly against the database.
+  // getConfig() is called here (not at import time) so DATABASE_URL is already set.
+  const payload = await getPayload({ config: getConfig(), disableOnInit: true });
   await payload.db.migrate({ migrations: migrations as Migration[] });
   process.exit(0);
 } catch (error) {

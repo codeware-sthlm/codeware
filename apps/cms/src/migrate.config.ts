@@ -6,8 +6,7 @@ import { buildConfig } from 'payload';
 // payload and the DB adapter directly into migrate.mjs without pulling in Next.js dependencies.
 
 // Default to 'payload' — all migrations hardcode this schema via SET search_path.
-// The env-loader (Infisical) only runs in the main Next.js process, not in this
-// release-command script, so DATABASE_SCHEMA may be absent on fresh preview apps.
+// DATABASE_SCHEMA may be absent on fresh preview apps; the default is safe.
 const schemaName = process.env['DATABASE_SCHEMA'] || 'payload';
 
 export default buildConfig({

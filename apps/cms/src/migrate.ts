@@ -14,20 +14,36 @@ if (process.env.TENANT_ID) {
 
 console.log('[migrate] Running migrations for cms host...');
 
-// DATABASE_URL is env-specific and loaded from Infisical at runtime by the app.
-// The release machine has the Infisical credentials as Fly secrets, so load them
-// here if DATABASE_URL isn't already set as a native Fly secret.
-if (!process.env.DATABASE_URL) {
-  await withInfisical({
-    environment: process.env['DEPLOY_ENV'],
-    filter: { path: '/apps/cms', recurse: true },
-    injectEnv: true
-  });
-}
-
-const payload = await getPayload({ config, disableOnInit: true });
-
 try {
+  // DATABASE_URL is env-specific and loaded from Infisical at runtime by the app.
+  // The release machine has the Infisical credentials as Fly secrets, so load them
+  // here if DATABASE_URL isn't already set as a native Fly secret.
+  if (!process.env.DATABASE_URL) {
+    if (!process.env.DEPLOY_ENV) {
+      throw new Error(
+        'DEPLOY_ENV is not set — cannot load secrets from Infisical'
+      );
+    }
+    const secrets = await withInfisical({
+      environment: process.env['DEPLOY_ENV'],
+      filter: { path: '/apps/cms', recurse: true }
+    });
+
+    // Only database url is needed
+    const databaseUrl = secrets.find(
+      (s) => s.secretKey === 'DATABASE_URL'
+    )?.secretValue;
+    if (!databaseUrl) {
+      throw new Error(
+        'DATABASE_URL not available after loading from Infisical'
+      );
+    }
+    process.env.DATABASE_URL = databaseUrl;
+  }
+
+  // Build a minimal Payload instance with the same DB config as the main app,
+  // and run the migrations directly against the database
+  const payload = await getPayload({ config, disableOnInit: true });
   await payload.db.migrate({ migrations: migrations as Migration[] });
   process.exit(0);
 } catch (error) {

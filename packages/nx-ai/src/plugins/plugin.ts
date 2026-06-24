@@ -1,4 +1,4 @@
-import { type CreateNodesV2 } from '@nx/devkit';
+import { type CreateNodes } from '@nx/devkit';
 
 // No options for now, but this can be extended in the future when needed.
 export type NxAiPluginOptions = Record<string, never>;
@@ -9,7 +9,7 @@ export type NxAiPluginOptions = Record<string, never>;
  * No targets are inferred in this version.
  * This will be populated when automatic target inference is introduced.
  */
-export const createNodesV2: CreateNodesV2<NxAiPluginOptions> = [
+export const createNodesV2: CreateNodes<NxAiPluginOptions> = [
   '**/project.json',
   async () => []
 ];

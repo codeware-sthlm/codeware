@@ -1,5 +1,5 @@
 import type { Tree } from '@nx/devkit';
-import { addOverrideToLintConfig } from '@nx/eslint/src/generators/utils/eslint-file';
+import { addOverrideToLintConfig } from '@nx/eslint/internal';
 
 import type { NormalizedSchema } from './normalize-options';
 

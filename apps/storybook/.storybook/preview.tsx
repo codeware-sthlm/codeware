@@ -1,5 +1,5 @@
 import { PayloadProvider } from '@codeware/shared/ui/cms-renderer';
-import { CdwrCloud } from '@codeware/shared/ui/primitives';
+import { cdwrCloudSvg } from '@codeware/shared/ui/primitives';
 import type { Decorator, Preview } from '@storybook/react-vite';
 import { useEffect } from 'react';
 
@@ -21,7 +21,7 @@ const withPayload: Decorator = (Story, context) => {
     <PayloadProvider
       value={{
         getCurrentPath: () => window.location.pathname,
-        tenantIcon: (size) => <CdwrCloud size={size} />,
+        iconConfig: { source: 'svg', svgCode: cdwrCloudSvg },
         navigate: (path, newTab) => {
           if (newTab) {
             window.open(path, '_blank', 'noreferrer');

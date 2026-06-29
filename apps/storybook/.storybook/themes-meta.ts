@@ -33,6 +33,7 @@ export const SHADCN_TOKENS = [
   '--accent',
   '--accent-foreground',
   '--destructive',
+  '--destructive-foreground',
   '--border',
   '--input',
   '--ring',

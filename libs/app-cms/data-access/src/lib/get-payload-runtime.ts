@@ -36,6 +36,7 @@ export async function getPayloadRuntime(
 
   const tenantConfig: TenantRuntimeConfig = {
     appName: siteSettings.appName,
+    icon: siteSettings.icon,
     locale: siteSettings.defaultLocale,
     fallbackLocale: null,
     landingPage: { collection: 'pages', id: siteSettings.landingPage },

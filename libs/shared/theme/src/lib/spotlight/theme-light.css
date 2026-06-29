@@ -49,10 +49,11 @@
   --secondary: var(--color-zinc-100);
   --secondary-foreground: var(--color-zinc-900);
   --muted: var(--color-zinc-100);
-  --muted-foreground: var(--color-zinc-500);
+  --muted-foreground: var(--color-zinc-600);
   --accent: var(--color-zinc-100);
   --accent-foreground: var(--color-zinc-900);
   --destructive: var(--color-red-600);
+  --destructive-foreground: oklch(1 0 0);
   --border: var(--color-zinc-100);
   --input: var(--color-zinc-100);
   --ring: var(--color-zinc-900);

@@ -160,37 +160,22 @@ export interface Config {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    'reusable-content':
-      | ReusableContentSelect<false>
-      | ReusableContentSelect<true>;
+    'reusable-content': ReusableContentSelect<false> | ReusableContentSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
-    'form-submissions':
-      | FormSubmissionsSelect<false>
-      | FormSubmissionsSelect<true>;
+    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    'payload-locked-documents':
-      | PayloadLockedDocumentsSelect<false>
-      | PayloadLockedDocumentsSelect<true>;
-    'payload-preferences':
-      | PayloadPreferencesSelect<false>
-      | PayloadPreferencesSelect<true>;
-    'payload-migrations':
-      | PayloadMigrationsSelect<false>
-      | PayloadMigrationsSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
     defaultIDType: number;
   };
-  fallbackLocale:
-    | ('false' | 'none' | 'null')
-    | false
-    | null
-    | ('en' | 'sv')
-    | ('en' | 'sv')[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'sv') | ('en' | 'sv')[];
   globals: {};
   globalsSelect: {};
   locale: 'en' | 'sv';
@@ -694,14 +679,7 @@ export interface ContentBlock {
               [k: string]: unknown;
             }[];
             direction: ('ltr' | 'rtl') | null;
-            format:
-              | 'left'
-              | 'start'
-              | 'center'
-              | 'right'
-              | 'end'
-              | 'justify'
-              | '';
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
             indent: number;
             version: number;
           };
@@ -811,14 +789,7 @@ export interface Form {
                   [k: string]: unknown;
                 }[];
                 direction: ('ltr' | 'rtl') | null;
-                format:
-                  | 'left'
-                  | 'start'
-                  | 'center'
-                  | 'right'
-                  | 'end'
-                  | 'justify'
-                  | '';
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
                 indent: number;
                 version: number;
               };
@@ -975,14 +946,7 @@ export interface Form {
               [k: string]: unknown;
             }[];
             direction: ('ltr' | 'rtl') | null;
-            format:
-              | 'left'
-              | 'start'
-              | 'center'
-              | 'right'
-              | 'end'
-              | 'justify'
-              | '';
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
             indent: number;
             version: number;
           };
@@ -2065,6 +2029,7 @@ export interface CollectionsWidget {
 export interface Auth {
   [k: string]: unknown;
 }
+
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

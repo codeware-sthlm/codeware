@@ -12,6 +12,8 @@ import type {
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
+import { sanitizeSvgHook } from './hooks/sanitize-svg.hook';
+
 const isSource =
   (
     source: SiteSettingsIconSource
@@ -30,6 +32,9 @@ const siteSettings: CollectionConfig = {
   access: {
     read: userOrApiKeyAccess(),
     update: systemUserOrTenantAdminAccess
+  },
+  hooks: {
+    beforeChange: [sanitizeSvgHook]
   },
   labels: {
     singular: { en: 'Site Settings', sv: 'Webbplatsinställningar' },

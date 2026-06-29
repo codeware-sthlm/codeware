@@ -1,21 +1,29 @@
+import { sanitizeSvg } from '@codeware/shared/util/pure';
+
 type InlineIconProps = {
   size: number;
-} & ({ svgCode: string; src?: never } | { src: string; svgCode?: never });
-
-/** Strips known SVG XSS vectors: script elements, event handlers, javascript: hrefs, and foreignObject. */
-function sanitizeSvg(svg: string): string {
-  return svg
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '')
-    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*')/gi, '')
-    .replace(
-      /(?:href|xlink:href)\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi,
-      ''
-    );
-}
+} & (
+  | {
+      /**
+       * Raw SVG markup to render as an inline icon.
+       * The code is sanitized to prevent XSS attacks.
+       */
+      svgCode: string;
+      src?: never;
+    }
+  | {
+      /**
+       * URL of the image to render as an inline icon.
+       */
+      src: string;
+      svgCode?: never;
+    }
+);
 
 /**
  * Renders a sized icon from either raw SVG markup or an image URL.
+ *
+ * SVG markup is sanitized to prevent XSS attacks.
  */
 export function InlineIcon({ size, svgCode, src }: InlineIconProps) {
   if (svgCode) {

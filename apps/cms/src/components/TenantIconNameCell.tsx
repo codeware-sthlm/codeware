@@ -28,7 +28,7 @@ export const TenantIconNameCell: React.FC<
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={iconSource}
-          alt="tenant icon"
+          alt=""
           width={20}
           height={20}
           className="shrink-0 object-contain"

@@ -137,6 +137,7 @@ export function ImageCrop({
 
       <div className="flex gap-2">
         <Button
+          type="button"
           onClick={handleConfirm}
           disabled={!imageSrc || !croppedAreaPixels || isLoading}
         >
@@ -145,7 +146,7 @@ export function ImageCrop({
             : t(locale, 'imageCrop.confirm')}
         </Button>
         {onCancel && (
-          <Button variant="ghost" onClick={onCancel}>
+          <Button type="button" variant="ghost" onClick={onCancel}>
             {t(locale, 'imageCrop.cancel')}
           </Button>
         )}

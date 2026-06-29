@@ -38,6 +38,7 @@
   --accent: var(--color-zinc-800);
   --accent-foreground: var(--color-zinc-100);
   --destructive: var(--color-red-600);
+  --destructive-foreground: oklch(1 0 0);
   --border: theme('colors.zinc.700 / 0.4');
   --input: theme('colors.zinc.700 / 0.4');
   --ring: var(--primary);

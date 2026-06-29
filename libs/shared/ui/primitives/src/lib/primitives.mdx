@@ -5,18 +5,8 @@ import * as Stories from './primitives.stories';
 
 # Primitives
 
-Low-level building blocks: `Callout`, `HeroIcon`, `SocialIcon`, and `NotFound`.
-
-```tsx
-import {
-  Callout,
-  HeroIcon,
-  SocialIcon,
-  NotFound
-} from '@codeware/shared/ui/primitives';
-```
-
----
+Low-level building blocks for UI components.
+These are not meant to be used directly in most cases, but they can be useful for custom components that need a specific behaviour or style.
 
 ## Callout
 
@@ -27,8 +17,6 @@ Inline contextual messages. Built on top of `Alert` from shadcn/ui. Supports `in
 <Canvas of={Stories.CalloutTip} />
 <Canvas of={Stories.CalloutNoTitle} />
 
----
-
 ## HeroIcon
 
 Renders any icon from `@heroicons/react/20/solid` by name. Pass a Tailwind color name via `color` — it resolves to the actual hex value using the Tailwind palette.
@@ -37,7 +25,23 @@ Renders any icon from `@heroicons/react/20/solid` by name. Pass a Tailwind color
 <Canvas of={Stories.HeroIconColored} />
 <Canvas of={Stories.HeroIconSizes} />
 
----
+## InlineIcon
+
+Renders a sized icon from either raw SVG markup or an image URL. Pass exactly one of `svgCode` or `src`.
+
+SVG markup with `fill="currentColor"` inherits the surrounding CSS color, making it trivial to tint in context. The image URL path emits a plain `<img>` — no framework-specific optimisation.
+
+```tsx
+// SVG source — inherits currentColor
+<InlineIcon svgCode={myLogoSvg} size={48} />
+
+// Image URL source
+<InlineIcon src="https://example.com/logo.png" size={48} />
+```
+
+<Canvas of={Stories.InlineIconSvg} />
+<Canvas of={Stories.InlineIconSvgCurrentColor} />
+<Canvas of={Stories.InlineIconSrc} />
 
 ## SocialIcon
 
@@ -45,8 +49,6 @@ Social / contact platform icons in three sizes. Sources: `@icons-pack/react-simp
 
 <Canvas of={Stories.SocialIconGrid} />
 <Canvas of={Stories.SocialIconSizes} />
-
----
 
 ## NotFound
 

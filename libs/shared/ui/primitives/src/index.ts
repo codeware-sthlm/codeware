@@ -1,4 +1,5 @@
 export * from './lib/CdwrCloud';
+export * from './lib/InlineIcon';
 
 export * from './lib/callout/Callout';
 

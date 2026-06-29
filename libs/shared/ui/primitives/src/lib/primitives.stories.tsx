@@ -3,8 +3,17 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Callout } from './callout/Callout';
 import { HeroIcon } from './hero-icon/HeroIcon';
+import { InlineIcon } from './InlineIcon';
 import { NotFound } from './NotFound';
 import { SocialIcon } from './social-icon/SocialIcon';
+
+// Simple circle SVG that responds to currentColor
+const CIRCLE_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>';
+
+// SVG used as a data URL to demonstrate the src path
+const CIRCLE_SRC =
+  'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%20fill%3D%22%230ea5e9%22%2F%3E%3C%2Fsvg%3E';
 
 const meta = {
   title: 'Shared UI/Primitives'
@@ -96,6 +105,52 @@ export const HeroIconSizes: StoryObj = {
       <HeroIcon icon="AcademicCapIcon" color="blue-500" className="size-6" />
       <HeroIcon icon="AcademicCapIcon" color="blue-500" className="size-8" />
       <HeroIcon icon="AcademicCapIcon" color="blue-500" className="size-12" />
+    </div>
+  )
+};
+
+// --- InlineIcon ---
+
+export const InlineIconSvg: StoryObj = {
+  name: 'InlineIcon / SVG',
+  render: () => (
+    <div className="flex items-end gap-4">
+      <InlineIcon svgCode={CIRCLE_SVG} size={16} />
+      <InlineIcon svgCode={CIRCLE_SVG} size={24} />
+      <InlineIcon svgCode={CIRCLE_SVG} size={48} />
+      <InlineIcon svgCode={CIRCLE_SVG} size={64} />
+    </div>
+  )
+};
+
+export const InlineIconSvgCurrentColor: StoryObj = {
+  name: 'InlineIcon / SVG currentColor',
+  render: () => (
+    <div className="flex items-center gap-6">
+      <span className="text-blue-500">
+        <InlineIcon svgCode={CIRCLE_SVG} size={32} />
+      </span>
+      <span className="text-rose-500">
+        <InlineIcon svgCode={CIRCLE_SVG} size={32} />
+      </span>
+      <span className="text-emerald-500">
+        <InlineIcon svgCode={CIRCLE_SVG} size={32} />
+      </span>
+      <span className="text-amber-500">
+        <InlineIcon svgCode={CIRCLE_SVG} size={32} />
+      </span>
+    </div>
+  )
+};
+
+export const InlineIconSrc: StoryObj = {
+  name: 'InlineIcon / Image URL',
+  render: () => (
+    <div className="flex items-end gap-4">
+      <InlineIcon src={CIRCLE_SRC} size={16} />
+      <InlineIcon src={CIRCLE_SRC} size={24} />
+      <InlineIcon src={CIRCLE_SRC} size={48} />
+      <InlineIcon src={CIRCLE_SRC} size={64} />
     </div>
   )
 };

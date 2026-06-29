@@ -1,4 +1,5 @@
 'use client';
+import { t } from '@codeware/shared/util/i18n';
 import { ImageOffIcon } from 'lucide-react';
 import { ComponentPropsWithoutRef, JSX, useState } from 'react';
 
@@ -33,12 +34,8 @@ export const Image = ({
   height,
   width: fallbackWidth,
   sizes,
-  errorComponent = (
-    <div className="flex flex-col items-center text-red-500 opacity-70">
-      <ImageOffIcon className="" />
-      <span className="mt-2 text-sm">Image failed to load.</span>
-    </div>
-  )
+  locale = 'en',
+  errorComponent
 }: {
   /** Fallback image source to use when an image can not be loaded from `sizes` */
   src: string;
@@ -54,11 +51,21 @@ export const Image = ({
 
   /** Error component to display when image fails to load */
   errorComponent?: JSX.Element;
+
+  /** Locale for UI strings. Defaults to 'en'. */
+  locale?: string;
 } & ComponentPropsWithoutRef<'picture'>) => {
   const [error, setError] = useState(false);
 
+  const fallbackError = (
+    <div className="flex flex-col items-center text-red-500 opacity-70">
+      <ImageOffIcon className="" />
+      <span className="mt-2 text-sm">{t(locale, 'image.loadFailed')}</span>
+    </div>
+  );
+
   return (
-    (error && errorComponent) || (
+    (error && (errorComponent ?? fallbackError)) || (
       <picture>
         {(sizes ?? [])
           .sort((a, b) => Number(a.width ?? 0) - Number(b.width ?? 0))

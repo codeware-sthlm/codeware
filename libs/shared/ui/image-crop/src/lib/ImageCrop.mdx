@@ -1,0 +1,58 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as Stories from './ImageCrop.stories';
+
+<Meta of={Stories} />
+
+# ImageCrop
+
+A self-contained image crop panel. The user picks a file, adjusts zoom and position, then confirms. The component calls `onConfirm` with a PNG `Blob` — no upload logic included.
+
+```tsx
+import { ImageCrop } from '@codeware/shared/ui/image-crop';
+```
+
+## Use case
+
+Pick any raster image (PNG, JPEG, WebP, …), zoom and pan to frame the subject, then confirm to get a fixed-size PNG back.
+
+```tsx
+<ImageCrop
+  onConfirm={(blob) => uploadToServer(blob)}
+  onCancel={() => closeDialog()}
+/>
+```
+
+**Zooming**
+
+- Drag the slider or scroll/pinch on the canvas.
+- Zoom **in** (> 1×) to focus on a detail — the crop captures fewer natural pixels, scaled up to the output size.
+- Zoom **out** (< 1×) to fit a large image within the crop circle — the crop captures more pixels, scaled down. Areas outside the image render as transparent in the PNG.
+
+**Output**
+
+Always a square PNG at `outputSize × outputSize` pixels (default **256 × 256**). Zoom changes which region of the source image fills that square; it does not change the output dimensions.
+
+```tsx
+// Larger output for a high-DPI icon slot
+<ImageCrop outputSize={512} onConfirm={...} onCancel={...} />
+```
+
+---
+
+## Default
+
+Pick a file to activate the cropper. Crop, zoom, and click **Confirm** to see the 256 × 256 PNG result below the panel.
+
+<Canvas of={Stories.Default} />
+
+## Loading state
+
+While the parent is uploading the blob, pass `isLoading` to disable the confirm button and show feedback.
+
+<Canvas of={Stories.WithLoadingState} />
+
+## Error
+
+Pass an `error` string to surface an upload failure returned by the server.
+
+<Canvas of={Stories.WithError} />

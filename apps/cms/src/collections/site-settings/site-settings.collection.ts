@@ -1,11 +1,23 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Condition } from 'payload';
 
 import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { customT } from '@codeware/app-cms/util/i18n';
 import { findTenantFromCookie } from '@codeware/app-cms/util/misc';
+import type {
+  SiteSetting,
+  SiteSettingsGeneral,
+  SiteSettingsIconSource
+} from '@codeware/shared/util/payload-types';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
+
+const isSource =
+  (
+    source: SiteSettingsIconSource
+  ): Condition<SiteSetting, SiteSettingsGeneral['icon']> =>
+  (_, siblingData) =>
+    siblingData?.source === source;
 
 /**
  * Site settings collection.
@@ -29,6 +41,7 @@ const siteSettings: CollectionConfig = {
       tabs: [
         {
           name: 'general',
+          interfaceName: 'SiteSettingsGeneral',
           label: { en: 'General', sv: 'Allmänt' },
           fields: [
             {
@@ -50,6 +63,67 @@ const siteSettings: CollectionConfig = {
                 }
               },
               required: true
+            },
+            {
+              name: 'icon',
+              type: 'group',
+              label: { en: 'Icon', sv: 'Ikon' },
+              admin: {
+                description: {
+                  en: 'Optional tenant brand mark - use for a more unique identity.',
+                  sv: 'Valfritt varumärke för klienten - använd för en mer unik identitet.'
+                }
+              },
+              fields: [
+                {
+                  name: 'source',
+                  type: 'select',
+                  label: { en: 'Source', sv: 'Källa' },
+                  options: [
+                    { label: { en: 'SVG code', sv: 'SVG-kod' }, value: 'svg' },
+                    {
+                      label: { en: 'Upload image', sv: 'Ladda upp bild' },
+                      value: 'upload'
+                    }
+                  ]
+                },
+                {
+                  name: 'svgCode',
+                  type: 'textarea',
+                  label: { en: 'SVG code', sv: 'SVG-kod' },
+                  admin: {
+                    condition: isSource('svg'),
+                    description: {
+                      en: 'Paste raw SVG markup or generate a geometric icon. The viewBox attribute is required for correct scaling.',
+                      sv: 'Klistra in SVG-markup eller generera en geometrisk ikon. Attributet viewBox krävs för korrekt skalning.'
+                    },
+                    components: {
+                      Field:
+                        '@codeware/apps/cms/components/SvgPreviewField.client'
+                    }
+                  }
+                },
+                {
+                  name: 'file',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: { en: 'Image', sv: 'Bild' },
+                  filterOptions: {
+                    or: [{ mimeType: { contains: 'image/' } }]
+                  },
+                  admin: {
+                    condition: isSource('upload'),
+                    description: {
+                      en: 'Upload an image. Use the crop tool to select a 1:1 region.',
+                      sv: 'Ladda upp en bild. Använd beskärningsverktyget för att välja ett 1:1-område.'
+                    },
+                    components: {
+                      Field:
+                        '@codeware/app-cms/ui/fields/icon-crop/IconCropField.client'
+                    }
+                  }
+                }
+              ]
             },
             {
               name: 'defaultLocale',

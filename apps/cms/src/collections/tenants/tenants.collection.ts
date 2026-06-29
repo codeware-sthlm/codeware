@@ -7,6 +7,7 @@ import { adminGroups } from '@codeware/app-cms/util/definitions';
 
 import { restrictToTenantInTenantMode } from './access/restrict-to-tenant-in-tenant-mode';
 import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';
+import { populateIconHook } from './hooks/populate-icon.hook';
 
 /**
  * Tenants collection
@@ -24,11 +25,13 @@ const tenants: CollectionConfig = {
     update: systemUserAccess
   },
   hooks: {
+    afterRead: [populateIconHook],
     beforeChange: [enforceApiKeyHook]
   },
   admin: {
     group: adminGroups.settings,
     useAsTitle: 'name',
+    defaultColumns: ['name', 'slug', 'description', 'supportedLocales'],
     description: {
       en: 'A workspace is like an organization or a company and is often called a "tenant". The content is scoped to the members of the workspace.',
       sv: 'En arbetsyta är som en organisation eller ett företag och kallas ofta för en "tenant". Innehållet begränsas till medlemmarna i arbetsytan.'
@@ -39,6 +42,16 @@ const tenants: CollectionConfig = {
     plural: { en: 'Workspaces', sv: 'Arbetsytor' }
   },
   fields: [
+    {
+      name: 'iconSource',
+      type: 'text',
+      virtual: true, // Populated by populateIconHook
+      label: { en: 'Icon', sv: 'Ikon' },
+      admin: {
+        disableListFilter: true,
+        disableListColumn: true
+      }
+    },
     // Customize the API key fields to be protected from being updated
     {
       name: 'enableAPIKey',
@@ -61,7 +74,12 @@ const tenants: CollectionConfig = {
       name: 'name',
       type: 'text',
       label: { en: 'Name', sv: 'Namn' },
-      required: true
+      required: true,
+      admin: {
+        components: {
+          Cell: '@codeware/apps/cms/components/TenantIconNameCell'
+        }
+      }
     },
     {
       name: 'description',

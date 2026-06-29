@@ -108,8 +108,14 @@
         "libs/shared/ui/icon-picker/src/index.ts"
       ],
       "@codeware/shared/ui/image": ["libs/shared/ui/image/src/index.ts"],
+      "@codeware/shared/ui/image-crop": [
+        "libs/shared/ui/image-crop/src/index.ts"
+      ],
       "@codeware/shared/ui/primitives": [
         "libs/shared/ui/primitives/src/index.ts"
+      ],
+      "@codeware/shared/ui/seed-icon-studio": [
+        "libs/shared/ui/seed-icon-studio/src/index.ts"
       ],
       "@codeware/shared/ui/shadcn": ["libs/shared/ui/shadcn/src/index.ts"],
       "@codeware/shared/ui/shadcn/*": ["libs/shared/ui/shadcn/src/lib/*"],

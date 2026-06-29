@@ -7,6 +7,10 @@ import { defineConfig } from 'vitest/config';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// addon-vitest disables axe by default; opt-in so that `parameters.a11y.test: 'error'`
+// (set by a11yStory) actually fails tests — matching Chromatic's behaviour.
+process.env['VITEST_STORYBOOK_CONFIG'] = JSON.stringify({ a11y: true });
+
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [

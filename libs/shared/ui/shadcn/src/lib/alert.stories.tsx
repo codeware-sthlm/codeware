@@ -3,23 +3,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AlertTriangle, Info } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from './components/alert';
-import { Button } from './components/button';
-import { Separator } from './components/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from './components/tooltip';
 
 const meta = {
-  title: 'Shadcn UI/Alert & Tooltip'
+  title: 'Shadcn UI/Alert'
 } satisfies Meta;
 
 export default meta;
 
-export const AlertDefault: StoryObj = {
-  name: 'Alert — default',
+export const Default: StoryObj = {
   render: () => (
     <Alert>
       <Info className="size-4" />
@@ -31,8 +22,7 @@ export const AlertDefault: StoryObj = {
   )
 };
 
-export const AlertDestructive: StoryObj = {
-  name: 'Alert — destructive',
+export const Destructive: StoryObj = {
   render: () => (
     <Alert variant="destructive">
       <AlertTriangle className="size-4" />
@@ -44,8 +34,7 @@ export const AlertDestructive: StoryObj = {
   )
 };
 
-export const AlertNoIcon: StoryObj = {
-  name: 'Alert — no icon',
+export const NoIcon: StoryObj = {
   render: () => (
     <Alert>
       <AlertTitle>Note</AlertTitle>
@@ -56,46 +45,11 @@ export const AlertNoIcon: StoryObj = {
   )
 };
 
-export const TooltipBasic: StoryObj = {
-  name: 'Tooltip',
-  render: () => (
-    <TooltipProvider>
-      <div className="flex items-center gap-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline">Hover me</Button>
-          </TooltipTrigger>
-          <TooltipContent>Tooltip content</TooltipContent>
-        </Tooltip>
-
-        <Separator orientation="vertical" className="h-8" />
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Info">
-              <Info className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>More information</TooltipContent>
-        </Tooltip>
-      </div>
-    </TooltipProvider>
-  )
-};
-
-export const ShadcnLight = a11yStory(AlertDefault, 'shadcn', 'light');
-export const ShadcnDark = a11yStory(AlertDefault, 'shadcn', 'dark');
-export const PayloadAdminLight = a11yStory(
-  AlertDefault,
-  'payload-admin',
-  'light'
-);
-export const PayloadAdminDark = a11yStory(
-  AlertDefault,
-  'payload-admin',
-  'dark'
-);
-export const SpotlightLight = a11yStory(AlertDefault, 'spotlight', 'light');
-export const SpotlightDark = a11yStory(AlertDefault, 'spotlight', 'dark');
-export const CodewareLight = a11yStory(AlertDefault, 'codeware', 'light');
-export const CodewareDark = a11yStory(AlertDefault, 'codeware', 'dark');
+export const ShadcnLight = a11yStory(Default, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(Default, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(Default, 'payload-admin', 'light');
+export const PayloadAdminDark = a11yStory(Default, 'payload-admin', 'dark');
+export const SpotlightLight = a11yStory(Default, 'spotlight', 'light');
+export const SpotlightDark = a11yStory(Default, 'spotlight', 'dark');
+export const CodewareLight = a11yStory(Default, 'codeware', 'light');
+export const CodewareDark = a11yStory(Default, 'codeware', 'dark');

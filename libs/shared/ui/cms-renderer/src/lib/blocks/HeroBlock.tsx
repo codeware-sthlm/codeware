@@ -3,6 +3,7 @@ import type { HeroBlock as HeroBlockProps } from '@codeware/shared/util/payload-
 
 import { usePayload } from '../providers/PayloadProvider';
 import { resolveLinkGroup } from '../utils/resolve-link-group';
+import { TenantIcon } from '../utils/TenantIcon';
 
 /**
  * Hero block — page opener with badge, headline, lede and up to two CTA buttons.
@@ -13,13 +14,13 @@ export const HeroBlock: React.FC<HeroBlockProps> = ({
   lede,
   actions
 }) => {
-  const { navigate, tenantIcon } = usePayload();
+  const { navigate, iconConfig } = usePayload();
 
   return (
     <section>
       {badge && (
         <div className="border-border bg-card text-core-link mb-6 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
-          {tenantIcon?.(16)}
+          <TenantIcon config={iconConfig} size={16} />
           <span>{badge}</span>
         </div>
       )}

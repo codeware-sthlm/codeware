@@ -1,7 +1,7 @@
 'use client';
 
-import { CdwrCloud } from '@codeware/shared/ui/primitives';
 import type { NavigationItem } from '@codeware/shared/util/payload-api';
+import { House } from 'lucide-react';
 
 import { Container } from '../layout/Container';
 import { DesktopNavigation } from '../navigation/DesktopNavigation';
@@ -9,6 +9,7 @@ import { Footer } from '../navigation/Footer';
 import { MobileNavigation } from '../navigation/MobileNavigation';
 import { usePayload } from '../providers/PayloadProvider';
 import { ThemeSwitch } from '../theme/ThemeSwitch';
+import { TenantIcon } from '../utils/TenantIcon';
 
 type RenderLayoutProps = {
   children: React.ReactNode;
@@ -48,7 +49,7 @@ type RenderLayoutProps = {
  * ```
  */
 export function RenderLayout({ children, navigationTree }: RenderLayoutProps) {
-  const { navigate } = usePayload();
+  const { navigate, iconConfig } = usePayload();
 
   return (
     <div className="flex w-full">
@@ -72,7 +73,11 @@ export function RenderLayout({ children, navigationTree }: RenderLayoutProps) {
                       className="pointer-events-auto"
                       aria-label="Home"
                     >
-                      <CdwrCloud size={40} />
+                      {iconConfig ? (
+                        <TenantIcon config={iconConfig} size={40} />
+                      ) : (
+                        <House size={40} />
+                      )}
                     </button>
                   </div>
                 </div>

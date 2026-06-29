@@ -30,3 +30,5 @@ export { RenderPage } from './lib/render/RenderPage';
 export { RenderPost } from './lib/render/RenderPost';
 
 export { ThemeSwitch } from './lib/theme/ThemeSwitch';
+
+export { TenantIcon } from './lib/utils/TenantIcon';

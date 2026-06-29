@@ -1,6 +1,9 @@
 'use client';
 import { Toaster } from '@codeware/shared/ui/shadcn/components/sonner';
-import type { FormSubmission } from '@codeware/shared/util/payload-types';
+import type {
+  FormSubmission,
+  TenantIconConfig
+} from '@codeware/shared/util/payload-types';
 import { type ReactNode, createContext, use } from 'react';
 
 type FormSubmitData = {
@@ -26,15 +29,13 @@ export type FormSubmitResponse =
 
 export type PayloadValue = {
   /**
-   * Provide a render function for the tenant's brand mark (icon/logo).
+   * Provide a tenant icon for a branded user experience.
+   * This is used by components that render blocks with icons for tenants.
    *
-   * Called with a pixel size so the block can request the appropriate scale
-   * (e.g. 16 for a badge pill, 48 for a centred callout mark). Return `null`
-   * to suppress the mark even when a block has `showMark` enabled.
-   *
-   * Example: `(size) => <MyLogo size={size} />`
+   * Pass the icon from the tenant configuration directly - no app-level modification needed.
+   * Set to `null` to suppress icon marks even when a block has it enabled.
    */
-  tenantIcon?: ((size: number) => ReactNode) | null;
+  iconConfig: TenantIconConfig | null;
 
   /**
    * Provide a function that returns the current URL path.

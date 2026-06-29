@@ -52,6 +52,7 @@ export async function ensureSiteSetting(
         general: {
           ...general,
           appName: general.appName ?? generalFromProps.appName,
+          icon: general.icon ?? generalFromProps.icon,
           landingPage: general.landingPage ?? generalFromProps.landingPage
         }
       },

@@ -2,6 +2,7 @@ import type {
   SeedSource,
   SeedStrategy
 } from '@codeware/app-cms/util/env-schema';
+import { generateSeedIcon } from '@codeware/shared/ui/seed-icon-studio';
 import type { Page } from '@codeware/shared/util/payload-types';
 import { randPassword } from '@ngneat/falso';
 import type { Payload } from 'payload';
@@ -739,6 +740,14 @@ export const seed = async (
             {
               general: {
                 appName: `${tenant.name} App`,
+                icon: {
+                  source: 'svg',
+                  svgCode: generateSeedIcon(tenant.name, {
+                    shape: 'circular',
+                    style: 'tech',
+                    techTheme: 'current'
+                  })
+                },
                 landingPage: page,
                 defaultLocale: tenant.locale
               },

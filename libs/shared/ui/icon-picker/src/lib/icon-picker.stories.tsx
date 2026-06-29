@@ -47,27 +47,6 @@ export const WithColor: StoryObj = {
   }
 };
 
-export const CustomLabels: StoryObj = {
-  name: 'Custom labels',
-  render: () => {
-    const [icon, setIcon] = useState<IconPickerIcon | undefined>(undefined);
-    return (
-      <IconPicker
-        value={icon}
-        onChange={setIcon}
-        labels={{
-          dialogTitle: 'Pick an icon',
-          dialogDescription: 'Search and select a Heroicon',
-          searchFieldPlaceholder: 'Filter icons…',
-          noIconsFound: 'No icons match',
-          searchClearButton: 'Reset'
-        }}
-        trigger={{ labelSelect: 'Choose icon' }}
-      />
-    );
-  }
-};
-
 export const ShadcnLight = a11yStory(Default, 'shadcn', 'light');
 export const ShadcnDark = a11yStory(Default, 'shadcn', 'dark');
 export const PayloadAdminLight = a11yStory(Default, 'payload-admin', 'light');

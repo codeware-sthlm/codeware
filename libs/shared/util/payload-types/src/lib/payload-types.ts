@@ -336,6 +336,7 @@ export interface Page {
  */
 export interface Tenant {
   id: number;
+  iconSource?: string | null;
   name: string;
   description?: string | null;
   /**
@@ -1376,19 +1377,38 @@ export interface Navigation {
 export interface SiteSetting {
   id: number;
   tenant?: (number | null) | Tenant;
-  general: {
-    appName: string;
-    /**
-     * The page that will be used as the landing page for the application.
-     */
-    landingPage: number | Page;
-    /**
-     * The default locale for the client. Must be one of the supported locales for the workspace.
-     */
-    defaultLocale: 'en' | 'sv';
-  };
+  general: SiteSettingsGeneral;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsGeneral".
+ */
+export interface SiteSettingsGeneral {
+  appName: string;
+  /**
+   * The page that will be used as the landing page for the application.
+   */
+  landingPage: number | Page;
+  /**
+   * Optional tenant brand mark - use for a more unique identity.
+   */
+  icon?: {
+    source?: ('svg' | 'upload') | null;
+    /**
+     * Paste raw SVG markup or generate a geometric icon. The viewBox attribute is required for correct scaling.
+     */
+    svgCode?: string | null;
+    /**
+     * Upload an image. Use the crop tool to select a 1:1 region.
+     */
+    file?: (number | null) | Media;
+  };
+  /**
+   * The default locale for the client. Must be one of the supported locales for the workspace.
+   */
+  defaultLocale: 'en' | 'sv';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1708,15 +1728,25 @@ export interface ReusableContentSelect<T extends boolean = true> {
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   tenant?: T;
-  general?:
-    | T
-    | {
-        appName?: T;
-        landingPage?: T;
-        defaultLocale?: T;
-      };
+  general?: T | SiteSettingsGeneralSelect<T>;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsGeneral_select".
+ */
+export interface SiteSettingsGeneralSelect<T extends boolean = true> {
+  appName?: T;
+  landingPage?: T;
+  icon?:
+    | T
+    | {
+        source?: T;
+        svgCode?: T;
+        file?: T;
+      };
+  defaultLocale?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1745,6 +1775,7 @@ export interface TagsSelect<T extends boolean = true> {
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
+  iconSource?: T;
   name?: T;
   description?: T;
   supportedLocales?: T;

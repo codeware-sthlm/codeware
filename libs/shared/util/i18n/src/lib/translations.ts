@@ -9,6 +9,29 @@ export type TranslationKey =
   | 'error.somethingWentWrong'
   | 'error.unableToLoadContent'
   | 'fileArea.download'
+  | 'iconPicker.dialogDescription'
+  | 'iconPicker.dialogTitle'
+  | 'iconPicker.noIconsFound'
+  | 'iconPicker.searchClearButton'
+  | 'iconPicker.searchFieldPlaceholder'
+  | 'iconPicker.labelSelect'
+  | 'imageCrop.cancel'
+  | 'imageCrop.chooseImage'
+  | 'imageCrop.confirm'
+  | 'imageCrop.confirming'
+  | 'imageCrop.cropError'
+  | 'imageCrop.noFileChosen'
+  | 'imageCrop.zoom'
+  | 'image.loadFailed'
+  | 'iconCrop.currentIconAlt'
+  | 'iconCrop.drawerTitle'
+  | 'iconCrop.mediaFallback'
+  | 'iconCrop.remove'
+  | 'iconCrop.replace'
+  | 'iconCrop.uploadAndCrop'
+  | 'iconCrop.uploadFailed'
+  | 'iconCrop.uploadFailedStatus'
+  | 'svgPreview.browseStudio'
   | 'fileArea.noFiles'
   | 'fileArea.previewNotAvailable'
   | 'fileArea.search'
@@ -60,6 +83,29 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'error.somethingWentWrong': 'Something went wrong!',
     'error.unableToLoadContent':
       'Unable to load application content. Please try again later.',
+    'iconPicker.dialogDescription': 'Choose the best suited icon',
+    'iconPicker.dialogTitle': 'Select an Icon',
+    'iconPicker.noIconsFound': 'No icons found...',
+    'iconPicker.searchClearButton': 'Clear search',
+    'iconPicker.searchFieldPlaceholder': 'Search icon...',
+    'iconPicker.labelSelect': 'Select icon',
+    'imageCrop.cancel': 'Cancel',
+    'imageCrop.chooseImage': 'Choose image',
+    'imageCrop.confirm': 'Confirm',
+    'imageCrop.confirming': 'Uploading…',
+    'imageCrop.cropError': 'Failed to process the image. Please try again.',
+    'imageCrop.noFileChosen': 'No file chosen',
+    'imageCrop.zoom': 'Zoom',
+    'image.loadFailed': 'Image failed to load.',
+    'iconCrop.currentIconAlt': 'Current icon',
+    'iconCrop.drawerTitle': 'Crop Icon (1:1)',
+    'iconCrop.mediaFallback': 'Media #{{id}}',
+    'iconCrop.remove': 'Remove',
+    'iconCrop.replace': 'Replace',
+    'iconCrop.uploadAndCrop': 'Upload & Crop',
+    'iconCrop.uploadFailed': 'Upload failed',
+    'iconCrop.uploadFailedStatus': 'Upload failed ({{status}}): {{message}}',
+    'svgPreview.browseStudio': 'Browse Studio',
     'fileArea.download': 'Download',
     'fileArea.noFiles': 'No files',
     'fileArea.previewNotAvailable': 'Preview not available for this file type',
@@ -110,6 +156,30 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'error.somethingWentWrong': 'Något gick fel!',
     'error.unableToLoadContent':
       'Det gick inte att ladda innehållet. Försök igen senare.',
+    'iconPicker.dialogDescription': 'Välj den mest lämpade ikonen',
+    'iconPicker.dialogTitle': 'Välj en ikon',
+    'iconPicker.noIconsFound': 'Inga ikoner hittades...',
+    'iconPicker.searchClearButton': 'Rensa sökning',
+    'iconPicker.searchFieldPlaceholder': 'Sök ikon...',
+    'iconPicker.labelSelect': 'Välj ikon',
+    'imageCrop.cancel': 'Avbryt',
+    'imageCrop.chooseImage': 'Välj bild',
+    'imageCrop.confirm': 'Bekräfta',
+    'imageCrop.confirming': 'Laddar upp…',
+    'imageCrop.cropError': 'Kunde inte bearbeta bilden. Försök igen.',
+    'imageCrop.noFileChosen': 'Ingen fil vald',
+    'imageCrop.zoom': 'Zoom',
+    'image.loadFailed': 'Bilden kunde inte laddas.',
+    'iconCrop.currentIconAlt': 'Aktuell ikon',
+    'iconCrop.drawerTitle': 'Beskär ikon (1:1)',
+    'iconCrop.mediaFallback': 'Media #{{id}}',
+    'iconCrop.remove': 'Ta bort',
+    'iconCrop.replace': 'Ersätt',
+    'iconCrop.uploadAndCrop': 'Ladda upp och beskär',
+    'iconCrop.uploadFailed': 'Uppladdning misslyckades',
+    'iconCrop.uploadFailedStatus':
+      'Uppladdning misslyckades ({{status}}): {{message}}',
+    'svgPreview.browseStudio': 'Bläddra i studio',
     'fileArea.download': 'Ladda ner',
     'fileArea.noFiles': 'Inga filer',
     'fileArea.previewNotAvailable':

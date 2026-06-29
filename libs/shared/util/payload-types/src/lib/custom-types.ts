@@ -19,6 +19,7 @@ import type {
   Navigation,
   Page,
   Post,
+  SiteSettingsGeneral,
   SocialMediaBlock,
   Tenant,
   TenantsArrayField
@@ -133,10 +134,25 @@ export type NavigationReferenceCollection = NonNullable<
   NonNullable<Navigation['items']>[number]
 >['reference']['relationTo'];
 
+/** Site settings icon source */
+export type SiteSettingsIconSource = NonNullable<
+  NonNullable<SiteSettingsGeneral['icon']>['source']
+>;
+
 /** Social media block social details */
 export type SocialMediaBlockSocial = NonNullable<
   NonNullable<SocialMediaBlock['social']>[number]
 >;
+
+/**
+ * Serialisable icon data included in `TenantRuntimeConfig`.
+ *
+ * SVG path: raw markup rendered inline via dangerouslySetInnerHTML.
+ * Upload path: resolved URL to the media file.
+ */
+export type TenantIconConfig =
+  | { source: 'svg'; svgCode: string }
+  | { source: 'upload'; fileUrl: string };
 
 /**
  * Tenant runtime configuration type.
@@ -147,6 +163,7 @@ export type SocialMediaBlockSocial = NonNullable<
 export type TenantRuntimeConfig = {
   tenant: Tenant;
   appName: string;
+  icon: TenantIconConfig | null;
   locale: TypedLocale;
   fallbackLocale: TypedFallbackLocale;
   landingPage: TypeWithID & {

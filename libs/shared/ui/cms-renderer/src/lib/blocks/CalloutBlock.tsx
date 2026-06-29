@@ -3,6 +3,7 @@ import type { CalloutBlock as CalloutBlockProps } from '@codeware/shared/util/pa
 
 import { usePayload } from '../providers/PayloadProvider';
 import { resolveLinkGroup } from '../utils/resolve-link-group';
+import { TenantIcon } from '../utils/TenantIcon';
 
 /**
  * Callout block — compact centered CTA band ("mini hero").
@@ -14,13 +15,15 @@ export const CalloutBlock: React.FC<CalloutBlockProps> = ({
   body,
   link
 }) => {
-  const { navigate, tenantIcon } = usePayload();
+  const { navigate, iconConfig } = usePayload();
   const resolved = resolveLinkGroup(link);
 
   return (
     <section className="flex flex-col items-center text-center">
-      {showMark && tenantIcon && (
-        <div className="text-core-link mb-6">{tenantIcon(48)}</div>
+      {showMark && iconConfig && (
+        <div className="text-core-link mb-6">
+          <TenantIcon config={iconConfig} size={48} />
+        </div>
       )}
       <h2 className="text-core-headline max-w-2xl text-3xl font-semibold tracking-tight md:text-4xl">
         {heading}

@@ -44,6 +44,7 @@ export default async function RootLayout({
       </head>
       <body>
         <Providers
+          iconConfig={runtime.tenantConfig?.icon ?? null}
           locale={runtime.tenantConfig?.locale ?? 'en'}
           payloadUrl={env.APP_MODE.serverURL}
         >

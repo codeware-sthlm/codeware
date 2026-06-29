@@ -1,15 +1,15 @@
 import {
   PayloadProvider,
-  type PayloadValue
+  type PayloadValue,
+  TenantIcon
 } from '@codeware/shared/ui/cms-renderer';
-import { CdwrCloud } from '@codeware/shared/ui/primitives';
 import {
   type NavigationItem,
   findById,
   getBlocksData,
   getNavigationTree
 } from '@codeware/shared/util/payload-api';
-import { Page } from '@codeware/shared/util/payload-types';
+import type { Page } from '@codeware/shared/util/payload-types';
 import type { BlocksData } from '@codeware/shared/util/payload-utils';
 import type { LinksFunction } from '@remix-run/node';
 import {
@@ -23,6 +23,7 @@ import {
   useLoaderData,
   useNavigate
 } from '@remix-run/react';
+import { House } from 'lucide-react';
 
 import env from '../env-resolver/env';
 
@@ -173,6 +174,7 @@ export default function App() {
   // Provide app opinionated context to Payload components
   const context: PayloadValue = {
     getCurrentPath: () => loaderData.requestInfo.path,
+    iconConfig: loaderData.tenantConfig?.icon ?? null,
     navigate: (path, newTab) => {
       const isExternal = path.startsWith('http');
       // Open new tab
@@ -239,7 +241,14 @@ export default function App() {
                   <div className="flex flex-1">
                     <div className="flex h-10 w-10 items-center backdrop-blur">
                       <Link to="/" className="pointer-events-auto">
-                        <CdwrCloud size={40} />
+                        {loaderData.tenantConfig?.icon ? (
+                          <TenantIcon
+                            config={loaderData.tenantConfig.icon}
+                            size={40}
+                          />
+                        ) : (
+                          <House size={40} />
+                        )}
                       </Link>
                     </div>
                   </div>

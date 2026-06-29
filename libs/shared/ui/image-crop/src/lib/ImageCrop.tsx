@@ -12,7 +12,7 @@ type Area = { x: number; y: number; width: number; height: number };
 
 export type ImageCropProps = {
   /** Called with the cropped PNG blob when the user confirms. */
-  onConfirm: (blob: Blob) => void;
+  onConfirm: (blob: Blob) => Promise<void> | void;
   onCancel?: () => void;
   /** Show a loading state on the confirm button (e.g. while uploading). */
   isLoading?: boolean;
@@ -65,7 +65,7 @@ export function ImageCrop({
     if (!croppedAreaPixels || !imageSrc) return;
     try {
       const blob = await getCroppedImg(imageSrc, croppedAreaPixels, outputSize);
-      onConfirm(blob);
+      await onConfirm(blob);
     } catch {
       setCropError(t(locale, 'imageCrop.cropError'));
     }

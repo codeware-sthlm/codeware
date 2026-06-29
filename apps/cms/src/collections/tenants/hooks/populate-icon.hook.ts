@@ -1,6 +1,6 @@
 import type { CollectionAfterReadHook } from 'payload';
 
-import type { Media, Tenant } from '@codeware/shared/util/payload-types';
+import type { Tenant } from '@codeware/shared/util/payload-types';
 
 /**
  * Populates the virtual `iconSource` field from the tenant's site-settings.
@@ -15,7 +15,11 @@ export const populateIconHook: CollectionAfterReadHook<Tenant> = async ({
     collection: 'site-settings',
     where: { tenant: { equals: doc.id } },
     limit: 1,
-    depth: 0 // Important! Prevents infinite recursion on tenants lookup
+    // depth:1 populates icon.file so we get its URL without a second query.
+    // select restricts DB columns to only the icon group, which means the
+    // tenant relationship column is never fetched and cannot recurse back here.
+    depth: 1,
+    select: { general: { icon: true } }
   });
 
   if (!result.docs.length) {
@@ -28,19 +32,12 @@ export const populateIconHook: CollectionAfterReadHook<Tenant> = async ({
 
   if (icon?.source === 'svg' && icon.svgCode) {
     iconSource = icon.svgCode;
-  } else if (icon?.source === 'upload' && icon.file) {
-    const fileId =
-      typeof icon.file === 'number' ? icon.file : (icon.file as Media).id;
-    try {
-      const media = await req.payload.findByID({
-        collection: 'media',
-        id: fileId,
-        depth: 0
-      });
-      iconSource = media?.url ?? null;
-    } catch {
-      // Non-fatal: icon URL unavailable
-    }
+  } else if (
+    icon?.source === 'upload' &&
+    icon.file &&
+    typeof icon.file !== 'number'
+  ) {
+    iconSource = icon.file.url ?? null;
   }
 
   return { ...doc, iconSource };

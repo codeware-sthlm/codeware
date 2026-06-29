@@ -74,6 +74,7 @@ export const tenantConfigEndpoint: Endpoint = {
 
     const tenantConfig: TenantRuntimeConfig = {
       appName: settings.appName,
+      icon: settings.icon,
       locale: settings.defaultLocale,
       fallbackLocale: null,
       landingPage: { collection: 'pages', id: settings.landingPage },

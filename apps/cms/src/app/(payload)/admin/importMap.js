@@ -35,6 +35,9 @@ import { default as default_8586e6ac5ddd6a3f87ffe1dd472673f5 } from '@codeware/a
 import { default as default_1b21cdd8d72b60f58886e03c7a7a4ebd } from '@codeware/app-cms/ui/blocks/card/CardBlockArrayRowLabel.client';
 import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/app-cms/ui/fields/code/Code.client';
 import { default as default_75fddbc22d1b88f24f1cec1b82919953 } from '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client';
+import { default as default_9b432ee5078df3d1199812759fb4bc95 } from '@codeware/apps/cms/components/SvgPreviewField.client';
+import { default as default_6e6a399bf3ac570a97610e1e79572564 } from '@codeware/app-cms/ui/fields/icon-crop/IconCropField.client';
+import { default as default_771cb2e65e9273cda2ffcd43d25ab990 } from '@codeware/apps/cms/components/TenantIconNameCell';
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
 import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
 import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/apps/cms/components/TenantsArrayRowLabel';
@@ -121,6 +124,12 @@ export const importMap = {
     default_06af4458abd1296f9d6bccce90425927,
   '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client#default':
     default_75fddbc22d1b88f24f1cec1b82919953,
+  '@codeware/apps/cms/components/SvgPreviewField.client#default':
+    default_9b432ee5078df3d1199812759fb4bc95,
+  '@codeware/app-cms/ui/fields/icon-crop/IconCropField.client#default':
+    default_6e6a399bf3ac570a97610e1e79572564,
+  '@codeware/apps/cms/components/TenantIconNameCell#default':
+    default_771cb2e65e9273cda2ffcd43d25ab990,
   '@payloadcms/plugin-multi-tenant/client#WatchTenantCollection':
     WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   '@codeware/apps/cms/components/TenantsArrayField#default':

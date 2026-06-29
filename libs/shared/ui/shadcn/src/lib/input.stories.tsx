@@ -13,9 +13,9 @@ export default meta;
 export const States: StoryObj = {
   render: () => (
     <div className="flex w-72 flex-col gap-4">
-      <Input placeholder="Default" />
-      <Input placeholder="Disabled" disabled />
-      <Input placeholder="Invalid" aria-invalid />
+      <Input aria-label="Default" placeholder="Default" />
+      <Input aria-label="Disabled" placeholder="Disabled" disabled />
+      <Input aria-label="Invalid" placeholder="Invalid" aria-invalid />
     </div>
   )
 };

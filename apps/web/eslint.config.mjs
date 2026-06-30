@@ -29,6 +29,7 @@ export default [
             '@heroicons/react',
             '@payloadcms/richtext-lexical',
             'prism-react-renderer',
+            'sanitize-html',
             // Payload components - Tailwind/Shadcn
             '@radix-ui/react-aspect-ratio',
             '@radix-ui/react-checkbox',

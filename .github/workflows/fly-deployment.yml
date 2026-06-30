@@ -452,15 +452,21 @@ jobs:
         id: build-payload
         env:
           ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
+          BUILD_RESULT: ${{ needs.build.result }}
           DEPLOY_RESULT: ${{ needs.deploy.result }}
           PR_NUMBER: ${{ steps.resolve-pr.outputs.number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           PROJECTS_FILE: ${{ runner.temp }}/fly-projects/fly-projects.json
         run: |
-          STATUS_EMOJI=$([ "$DEPLOY_RESULT" = "success" ] && echo "✅" || echo "❌")
           ENV_LABEL=$([ "$ENVIRONMENT" = "production" ] && echo "Production" || echo "Preview")
           PR_SUFFIX=$([ -n "$PR_NUMBER" ] && echo " · PR #${PR_NUMBER}" || echo "")
-          HEADER="${STATUS_EMOJI} ${ENV_LABEL} Deployment${PR_SUFFIX}"
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            HEADER="✅ ${ENV_LABEL} Deployment${PR_SUFFIX}"
+          elif [ "$BUILD_RESULT" != "success" ]; then
+            HEADER="❌ ${ENV_LABEL} Build${PR_SUFFIX}"
+          else
+            HEADER="❌ ${ENV_LABEL} Deployment${PR_SUFFIX}"
+          fi
 
           APPS_TEXT=""
           if [ -f "$PROJECTS_FILE" ]; then

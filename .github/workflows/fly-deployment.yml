@@ -252,7 +252,7 @@ jobs:
       # Clean up the Sentry release if the build failed.
       - name: Delete Sentry release on build failure
         if: >-
-          env.SENTRY_ORG != '' && steps.sentry-release.outcome == 'success' &&
+          always() && env.SENTRY_ORG != '' && steps.sentry-release.outcome == 'success' &&
           steps.build.outcome != 'success'
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
@@ -426,10 +426,10 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
   notify:
-    needs: [pre-deploy, deploy]
+    needs: [pre-deploy, build, deploy]
     if: >-
       always() &&
-      needs.deploy.result != 'skipped'
+      needs.build.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
       - name: Resolve PR number

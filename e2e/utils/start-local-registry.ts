@@ -4,7 +4,7 @@
  * For e2e it is meant to be called in jest's `globalSetup`.
  */
 
-import { registerTsProject } from '@nx/js/src/internal';
+import { registerTsProject } from '@nx/js/internal';
 import { releasePublish, releaseVersion } from 'nx/release';
 
 import { isCI } from './is-ci';

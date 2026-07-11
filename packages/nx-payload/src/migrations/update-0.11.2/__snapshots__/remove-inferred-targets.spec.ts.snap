@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`remove-inferred-targets migration should not remove inferred targets when payload plugin is not installed: normal project 1`] = `
 "{

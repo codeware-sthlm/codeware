@@ -3,7 +3,10 @@ import type { CollectionConfig, Condition } from 'payload';
 import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { customT } from '@codeware/app-cms/util/i18n';
-import { findTenantFromCookie } from '@codeware/app-cms/util/misc';
+import {
+  findTenantFromCookie,
+  hasNoAdminRoles
+} from '@codeware/app-cms/util/misc';
 import type {
   SiteSetting,
   SiteSettingsGeneral,
@@ -27,7 +30,13 @@ const isSource =
 const siteSettings: CollectionConfig = {
   slug: 'site-settings',
   admin: {
-    group: adminGroups.settings
+    group: adminGroups.settings,
+    description: {
+      en: 'Configure the application name, landing page, and optional tenant brand mark.',
+      sv: 'Konfigurera applikationens namn, startsida och valfritt varumärke för klienten.'
+    },
+    // Hide from regular users
+    hidden: ({ user }) => hasNoAdminRoles(user)
   },
   access: {
     read: userOrApiKeyAccess(),

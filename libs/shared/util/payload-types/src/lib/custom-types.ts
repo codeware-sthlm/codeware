@@ -26,7 +26,7 @@ import type {
 } from './payload-types';
 
 /** Custom Payload API endpoints */
-export type CustomApiEndpoint = 'tenant-config';
+export type CustomApiEndpoint = 'palette-search' | 'tenant-config';
 
 export type CollectionWithoutPayload = {
   [key in keyof Config['collections'] as key extends `payload${string}`
@@ -171,6 +171,32 @@ export type TenantRuntimeConfig = {
   };
 };
 
+/**
+ * Single document match returned by the admin `palette-search` endpoint.
+ */
+export type PaletteSearchResultItem = {
+  /** Document id as string */
+  id: string;
+  /** Human-readable title; may be empty for unnamed drafts */
+  title: string;
+  collectionSlug: CollectionSlug;
+  /** Publish status — only present for collections with drafts enabled */
+  status?: 'draft' | 'published';
+  /** Secondary line, e.g. slug or filename */
+  meta?: string;
+  updatedAt: string;
+};
+
+/**
+ * Response shape of the admin `palette-search` endpoint.
+ */
+export type PaletteSearchResponse = {
+  /** Echo of the search query, lets clients discard stale responses */
+  query: string;
+  /** Matches in fixed collection order; clients group by `collectionSlug` */
+  results: Array<PaletteSearchResultItem>;
+};
+
 //
 // Rest API utility types until we implement the official Payload SDK
 //
@@ -183,13 +209,14 @@ export type RestApiTarget = CollectionSlug | CustomApiEndpoint;
 
 /** REST API targets with corresponding Payload types */
 export type RestApiTypes = CollectionWithoutPayload &
+  Record<'palette-search', PaletteSearchResponse> &
   Record<'tenant-config', TenantRuntimeConfig>;
 
 /** REST API expected responses for the given method and target */
 export type RestApiResponse<
   Method extends RestApiMethod,
   Target extends RestApiTarget
-> = Target extends 'tenant-config'
+> = Target extends CustomApiEndpoint
   ? RestApiTypes[Target]
   : Method extends 'GET'
     ? {

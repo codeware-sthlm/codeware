@@ -4,6 +4,7 @@ import type { BasePayload, Where } from 'payload';
 import { mapToRuntime } from '../map-to-runtime';
 import type { PayloadRuntime } from '../payload-runtime.types';
 
+import { resolveDraftQuery } from './resolve-draft-query';
 import type { QuerySingleOptions } from './types';
 
 /**
@@ -13,6 +14,10 @@ import type { QuerySingleOptions } from './types';
  *
  * Default options:
  * - depth: 2
+ *
+ * Set `draft: true` to fetch the newest version (including unpublished
+ * drafts). Access and tenant scoping in draft mode are handled by
+ * `resolveDraftQuery`.
  *
  * This function respects access control when `authenticatedUser` is present.
  *
@@ -26,22 +31,19 @@ export async function getPage(
   slugOrId: number | string,
   options: QuerySingleOptions = {}
 ): Promise<Page | null> {
-  const { payload, tenantConfig } = mapToRuntime(runtime);
+  const resolvedRuntime = mapToRuntime(runtime);
+  const { payload, tenantConfig } = resolvedRuntime;
   const { depth = 2, draft, locale } = options;
-  // Override access to bypass the _status filter — needed for unauthenticated fetches and
-  // draft mode (where the access function would otherwise restrict to published only).
-  // In draft mode, add an explicit tenant constraint to preserve tenant scoping, since
-  // overrideAccess also bypasses the tenant filter from the access control function.
-  const overrideAccess = payload.authenticatedUser === null || !!draft;
 
-  const where: Where = {
-    ...(typeof slugOrId === 'number'
+  const idWhere: Where =
+    typeof slugOrId === 'number'
       ? { id: { equals: slugOrId } }
-      : { slug: { equals: slugOrId } }),
-    ...(draft && tenantConfig
-      ? { tenant: { equals: tenantConfig.tenant.id } }
-      : {})
-  };
+      : { slug: { equals: slugOrId } };
+  const { overrideAccess, where } = resolveDraftQuery(
+    resolvedRuntime,
+    draft,
+    idWhere
+  );
 
   const result = await payload.find({
     collection: 'pages',

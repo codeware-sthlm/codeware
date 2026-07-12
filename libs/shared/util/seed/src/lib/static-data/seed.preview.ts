@@ -2,6 +2,7 @@
 
 import { capitalize } from '@codeware/shared/util/pure';
 
+import { faqData } from './faq-data';
 import { readMediaFiles } from './read-media-files';
 
 const tenantSlug = {
@@ -48,6 +49,7 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         tenant: { lookupApiKey: tenant.bamse.apiKey }
       }
     ],
+    faq: faqData(),
     // All tenants are seeded with media files
     media: tenantApiKeys.flatMap((lookupApiKey) =>
       mediaFiles.map(({ filePath, filename }) => ({

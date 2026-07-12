@@ -11,6 +11,7 @@ import { loadInfisicalData } from './load-infisical-data';
 import { loadStaticData } from './load-static-data';
 import { customSeed } from './local-api/custom-seed';
 import { ensureCategory } from './local-api/ensure-category';
+import { ensureFaq } from './local-api/ensure-faq';
 import { ensureMedia } from './local-api/ensure-media';
 import { ensureNavigation } from './local-api/ensure-navigation';
 import { ensurePage } from './local-api/ensure-page';
@@ -786,6 +787,42 @@ export const seed = async (
           : `[SEED] >> Site settings up to date (count: ${siteSettingCount})`
       );
       seedError = seedError || siteSettingFailed > 0;
+    }
+
+    // FAQ
+
+    if (seedData.faq.length > 0) {
+      await ensureTransaction();
+      let faqFailed = 0;
+
+      for (const faq of seedData.faq) {
+        try {
+          const response = await ensureFaq(payload, faq, { transactionID });
+
+          if (typeof response === 'object') {
+            payload.logger.info(`[SEED] FAQ '${faq.question.en}'`);
+          }
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `FAQ '${faq.question.en}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          faqFailed++;
+        }
+      }
+      const { totalDocs: faqCount } = await payload.count({
+        collection: 'faq',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        faqFailed
+          ? `[SEED] Problem occurred for ${faqFailed}/${seedData.faq.length} FAQ entries (count: ${faqCount})`
+          : `[SEED] >> FAQ up to date (count: ${faqCount})`
+      );
+      seedError = seedError || faqFailed > 0;
     }
 
     // CUSTOM SEED

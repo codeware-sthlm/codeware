@@ -123,6 +123,7 @@ export interface Config {
   };
   collections: {
     categories: Category;
+    faq: Faq;
     media: Media;
     navigation: Navigation;
     pages: Page;
@@ -156,6 +157,7 @@ export interface Config {
   };
   collectionsSelect: {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    faq: FaqSelect<false> | FaqSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -275,7 +277,7 @@ export interface CalloutLink {
   label: string;
 }
 /**
- * Pages are the building blocks of the site and are used to create menus and navigation.
+ * Pages are the foundation of the system and are used to build your website. Work with drafts and publish when ready.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
@@ -329,14 +331,22 @@ export interface Page {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * A workspace is like an organization or a company and is often called a "tenant". The content is scoped to the members of the workspace.
+ * A workspace is like an organization or group of users and is often called a "tenant". You must be a member to see its content.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenants".
  */
 export interface Tenant {
   id: number;
-  iconSource?: string | null;
+  iconConfig?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   name: string;
   description?: string | null;
   /**
@@ -382,6 +392,8 @@ export interface Tenant {
   collection: 'tenants';
 }
 /**
+ * Manage users and their access to workspaces.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -417,7 +429,7 @@ export interface User {
   collection: 'users';
 }
 /**
- * Posts are standalone pages such as articles or blog posts and can be categorized.
+ * Posts are standalone pages such as articles or blog posts. Work with drafts and publish when ready.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
@@ -468,6 +480,8 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Upload media files to the system and use them on your website. Images are converted to webp format for better performance.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -558,6 +572,8 @@ export interface Media {
   };
 }
 /**
+ * Labels are used to organize photos and files so they are easy to find and select.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tags".
  */
@@ -587,6 +603,8 @@ export interface Tag {
   createdAt: string;
 }
 /**
+ * Categories makes it possible to group blog posts by topic for better overview.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
@@ -753,6 +771,8 @@ export interface FormBlock {
   blockType: 'form';
 }
 /**
+ * Build contact and signup forms to place on your pages.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms".
  */
@@ -1032,7 +1052,7 @@ export interface ReusableContentBlock {
   blockType: 'reusable-content';
 }
 /**
- * Reusable content is a collection of blocks that can be combined freely and used in various places.
+ * Reusable content is created so that the same content can be reused in multiple places in pages and posts.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "reusable-content".
@@ -1360,6 +1380,25 @@ export interface VideoBlock {
   blockType: 'video';
 }
 /**
+ * Questions and answers shown to all users in the admin help drawer.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faq".
+ */
+export interface Faq {
+  id: number;
+  _order?: string | null;
+  question: string;
+  /**
+   * Plain text; line breaks are preserved.
+   */
+  answer: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Decide what appears in your website's menu and in what order.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation".
  */
@@ -1371,6 +1410,8 @@ export interface Navigation {
   createdAt: string;
 }
 /**
+ * Configure the application name, landing page, and optional tenant brand mark.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
@@ -1411,6 +1452,8 @@ export interface SiteSettingsGeneral {
   defaultLocale: 'en' | 'sv';
 }
 /**
+ * Messages visitors have sent through the forms on your website.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
@@ -1455,6 +1498,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'faq';
+        value: number | Faq;
       } | null)
     | ({
         relationTo: 'media';
@@ -1565,6 +1612,17 @@ export interface CategoriesSelect<T extends boolean = true> {
         relatedPosts?: T;
       };
   slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faq_select".
+ */
+export interface FaqSelect<T extends boolean = true> {
+  _order?: T;
+  question?: T;
+  answer?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1775,7 +1833,7 @@ export interface TagsSelect<T extends boolean = true> {
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
-  iconSource?: T;
+  iconConfig?: T;
   name?: T;
   description?: T;
   supportedLocales?: T;

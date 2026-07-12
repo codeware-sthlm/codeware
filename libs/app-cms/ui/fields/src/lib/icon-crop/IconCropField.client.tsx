@@ -109,11 +109,11 @@ export const IconCropField: React.FC<UploadFieldClientProps> = ({
           <img
             src={displayUrl}
             alt={t(locale, 'iconCrop.currentIconAlt')}
-            className="h-12 w-12 rounded border border-(--theme-elevation-150) object-contain"
+            className="border-border h-12 w-12 rounded border object-contain"
           />
         )}
         {currentId && !displayUrl && (
-          <span className="text-xs text-(--theme-text)">
+          <span className="text-foreground text-xs">
             {t(locale, 'iconCrop.mediaFallback', { id: String(currentId) })}
           </span>
         )}

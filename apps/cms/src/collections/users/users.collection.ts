@@ -6,7 +6,12 @@ import {
 } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
-import { getId, getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
+import {
+  getId,
+  getUserTenantIDs,
+  hasNoAdminRoles,
+  hasRole
+} from '@codeware/app-cms/util/misc';
 import { User } from '@codeware/shared/util/payload-types';
 
 import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
@@ -46,7 +51,14 @@ const users: CollectionConfig<'users'> = {
   auth: { maxLoginAttempts: 5, lockTime: 1000 * 60 * 60 * 24 },
   admin: {
     group: adminGroups.settings,
-    useAsTitle: 'name'
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'role', 'tenants', 'description'],
+    description: {
+      en: 'Manage users and their access to workspaces.',
+      sv: 'Hantera användare och deras åtkomst till arbetsytor.'
+    },
+    // Hide from regular users
+    hidden: ({ user }) => hasNoAdminRoles(user)
   },
   labels: {
     singular: { en: 'User', sv: 'Användare' },

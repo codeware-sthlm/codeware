@@ -47,8 +47,8 @@ const posts: CollectionConfig<'posts'> = {
     defaultColumns: ['title', 'updatedAt', '_status'],
     useAsTitle: 'title',
     description: {
-      en: 'Posts are standalone pages such as articles or blog posts and can be categorized.',
-      sv: 'Inlägg är fristående sidor som exempelvis artiklar eller bloggposter vilket kan bestämmas via kategorier.'
+      en: 'Posts are standalone pages such as articles or blog posts. Work with drafts and publish when ready.',
+      sv: 'Inlägg är fristående sidor som exempelvis artiklar eller bloggposter. Arbeta med utkast och publicera när det är klart.'
     }
   },
   access: {

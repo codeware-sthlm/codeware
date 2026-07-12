@@ -18,6 +18,11 @@ const UserLookupSchema = z.object({
   lookupEmail: z.string()
 });
 
+const LocalizedTextSchema = z.object({
+  en: z.string(),
+  sv: z.string()
+});
+
 // TODO: define more schemas for other data types to reuse
 export const SeedDataSchema = z.object({
   categories: z.array(
@@ -25,6 +30,12 @@ export const SeedDataSchema = z.object({
       name: z.string(),
       slug: z.string(),
       tenant: TenantLookupSchema.pick({ lookupApiKey: true })
+    })
+  ),
+  faq: z.array(
+    z.object({
+      question: LocalizedTextSchema,
+      answer: LocalizedTextSchema
     })
   ),
   media: z.array(

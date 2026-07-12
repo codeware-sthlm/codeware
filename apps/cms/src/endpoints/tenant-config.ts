@@ -68,7 +68,7 @@ export const tenantConfigEndpoint: Endpoint = {
           error: 'Tenant config could not be resolved',
           details: 'Site settings not found or access denied for tenant user'
         },
-        { status: 500 }
+        { status: StatusCodes.NOT_FOUND }
       );
     }
 

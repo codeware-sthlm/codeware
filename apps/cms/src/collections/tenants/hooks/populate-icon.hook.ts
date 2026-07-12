@@ -1,12 +1,15 @@
 import type { CollectionAfterReadHook, PayloadRequest } from 'payload';
 
-import type { Tenant } from '@codeware/shared/util/payload-types';
+import type {
+  Tenant,
+  TenantIconConfig
+} from '@codeware/shared/util/payload-types';
 
-type IconMap = Map<number, string | null>;
+type IconMap = Map<number, TenantIconConfig | null>;
 
 /**
  * Fetches all site-settings in two batched queries (settings + any media URLs)
- * and returns a map of tenantId → iconSource.
+ * and returns a map of tenantId → iconConfig.
  *
  * Called once per request; the result is cached on req.context.
  */
@@ -48,22 +51,25 @@ const buildIconMap = async (req: PayloadRequest): Promise<IconMap> => {
     if (!tenantId) continue;
 
     const icon = ss.general?.icon;
-    let iconSource: string | null = null;
+    let iconConfig: TenantIconConfig | null = null;
 
     if (icon?.source === 'svg' && icon.svgCode) {
-      iconSource = icon.svgCode;
+      iconConfig = { source: 'svg', svgCode: icon.svgCode };
     } else if (icon?.source === 'upload' && typeof icon.file === 'number') {
-      iconSource = urlById.get(icon.file) ?? null;
+      const fileUrl = urlById.get(icon.file);
+      if (fileUrl) {
+        iconConfig = { source: 'upload', fileUrl };
+      }
     }
 
-    map.set(tenantId, iconSource);
+    map.set(tenantId, iconConfig);
   }
 
   return map;
 };
 
 /**
- * Populates the virtual `iconSource` field from the tenant's site-settings.
+ * Populates the virtual `iconConfig` field from the tenant's site-settings.
  *
  * All afterRead calls within a single request share one batched lookup via
  * req.context, reducing the query cost from N+1 to at most 2 queries flat.
@@ -77,8 +83,8 @@ export const populateIconHook: CollectionAfterReadHook<Tenant> = async ({
     context.tenantIconMap = buildIconMap(req);
   }
 
-  const iconSource =
+  const iconConfig =
     (await (context.tenantIconMap as Promise<IconMap>)).get(doc.id) ?? null;
 
-  return { ...doc, iconSource };
+  return { ...doc, iconConfig };
 };

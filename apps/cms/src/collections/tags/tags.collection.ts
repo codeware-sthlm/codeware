@@ -17,7 +17,11 @@ const tags: CollectionConfig = {
   admin: {
     group: adminGroups.content,
     defaultColumns: ['name', 'slug'],
-    useAsTitle: 'name'
+    useAsTitle: 'name',
+    description: {
+      en: 'Labels are used to organize photos and files so they are easy to find and select.',
+      sv: 'Etiketter används för att organisera bilder och filer så att de är enkla att hitta och välja.'
+    }
   },
   access: {
     read: userOrApiKeyAccess()

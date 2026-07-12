@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@codeware/shared/util/ui';
 import { Label as LabelPrimitive } from 'radix-ui';
 import * as React from 'react';

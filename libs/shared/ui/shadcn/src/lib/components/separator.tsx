@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@codeware/shared/util/ui';
 import { Separator as SeparatorPrimitive } from 'radix-ui';
 import * as React from 'react';

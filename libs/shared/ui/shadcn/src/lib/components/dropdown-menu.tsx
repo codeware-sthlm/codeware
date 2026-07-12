@@ -1,5 +1,3 @@
-'use client';
-
 import { cn } from '@codeware/shared/util/ui';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react';
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';

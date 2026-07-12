@@ -14,13 +14,18 @@ test.describe('/admin/collections/pages', () => {
   test('lists all seeded pages', async ({ page }) => {
     await page.goto('/admin/collections/pages');
 
-    await expect(page.getByRole('link', { name: 'Home' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Lunar Maria' })).toBeVisible();
+    // Scope to the list table — the redesigned sidebar nav also renders a
+    // "Home" link, so an unscoped `link, name: 'Home'` matches two elements
+    // (the nav link and the seeded "Home" page row) and fails strict mode.
+    const list = page.getByRole('table');
+
+    await expect(list.getByRole('link', { name: 'Home' })).toBeVisible();
+    await expect(list.getByRole('link', { name: 'Lunar Maria' })).toBeVisible();
     await expect(
-      page.getByRole('link', { name: 'Lunar Craters' })
+      list.getByRole('link', { name: 'Lunar Craters' })
     ).toBeVisible();
     await expect(
-      page.getByRole('link', { name: 'Lunar Phases' })
+      list.getByRole('link', { name: 'Lunar Phases' })
     ).toBeVisible();
   });
 

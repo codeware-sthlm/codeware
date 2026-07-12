@@ -2,6 +2,10 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
 
 /* Radix UI / shadcn nova data-attribute shorthand variants */
+/* `data-active` covers both conventions: Radix state (tabs) and boolean
+   attributes like the sidebar's `data-active={isActive}`. Without this,
+   Tailwind's built-in presence variant matches `data-active="false"` too. */
+@custom-variant data-active (&:is([data-state=active], [data-active=true]));
 @custom-variant data-open (&[data-state=open]);
 @custom-variant data-closed (&[data-state=closed]);
 @custom-variant data-checked (&[data-state=checked]);

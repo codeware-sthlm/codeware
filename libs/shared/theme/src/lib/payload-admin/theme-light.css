@@ -1,16 +1,16 @@
 :root {
-  /* === use teal as brand === */
-  --brand-50: var(--color-teal-50);
-  --brand-100: var(--color-teal-100);
-  --brand-200: var(--color-teal-200);
-  --brand-300: var(--color-teal-300);
-  --brand-400: var(--color-teal-400);
-  --brand-500: var(--color-teal-500);
-  --brand-600: var(--color-teal-600);
-  --brand-700: var(--color-teal-700);
-  --brand-800: var(--color-teal-800);
-  --brand-900: var(--color-teal-900);
-  --brand-950: var(--color-teal-950);
+  /* === Codeware yale-blue brand === */
+  --brand-50: #eef5fb;
+  --brand-100: #d6e8f4;
+  --brand-200: #b3d1e9;
+  --brand-300: #85aed1;
+  --brand-400: #588bae;
+  --brand-500: #2f6ba1;
+  --brand-600: #0e4d92;
+  --brand-700: #0d3f76;
+  --brand-800: #0c325e;
+  --brand-900: #0a2347;
+  --brand-950: #081830;
 
   /* === shadcn zinc tokens === */
   --radius: 0.625rem;
@@ -48,6 +48,9 @@
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
 
+  /* === interactive link accent (text-(--link) in admin components) === */
+  --link: var(--brand-600);
+
   /* === core tokens - aliases to shadcn tokens === */
   --core-action-btn-foreground: var(--muted-foreground);
   --core-action-btn-foreground-hover: var(--foreground);
@@ -61,7 +64,7 @@
   --core-content-border: var(--border);
   --core-header: var(--foreground);
   --core-headline: var(--foreground);
-  --core-link: var(--primary);
+  --core-link: var(--brand-600);
   --core-navbar: var(--background);
   --core-navbar-border: var(--border);
   --core-navbar-shadow: transparent;

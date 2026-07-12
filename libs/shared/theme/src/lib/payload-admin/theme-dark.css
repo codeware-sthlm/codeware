@@ -32,6 +32,9 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
 
+  /* === interactive link accent — steps lighter for contrast on dark === */
+  --link: var(--brand-300);
+
   /* === core tokens === */
   --core-surface-invert: var(--card);
 }

@@ -1,10 +1,23 @@
 @layer theme, base, components, utilities;
 
+/* Inter — required by payload-retheme.css (--font-body); must be the first
+   non-layer statement since @import rules cannot follow other rules */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Scan classes from libs not resolvable via path aliases */
 @source '../../../../../libs/shared/ui';
+@source '../../../../../libs/app-cms/ui/dashboard';
 
-/* Use Payload Admin theme */
+/* Use Payload Admin theme — single source of truth for shadcn tokens */
 @import '../../../../../libs/shared/theme/src/lib/payload-admin/tailwind-base.css';
+
+/* Adapt Payload's native UI to the theme (one direction; never defines shadcn tokens) */
+@import '../../../../../libs/shared/theme/src/lib/payload-admin/payload-retheme.css';
+
+/* Animation utilities used by shadcn components (animate-in/out, slide/fade,
+ * accordion-up/down). The package was a declared dependency but never imported,
+ * so these classes generated no CSS until now. */
+@import 'tw-animate-css';
 
 @import 'tailwindcss/theme.css' layer(theme);
 
@@ -53,6 +66,20 @@
   div[role='dialog'][data-slot='dialog-content'] {
     @import 'tailwindcss/preflight.css';
   }
+  /*
+   * The scoped preflight above compiles to
+   * `:is(.twp, div[role=dialog][…]) *` whose `:is()` carries the specificity
+   * of its strongest argument (0,2,1) — beating both the global `*` defaults
+   * in tailwind-setup's base layer and any plain `.twp *` rule. Its
+   * currentColor border default would make bare `border-*` utilities
+   * near-black, so reassert the theme defaults with the *same* selector
+   * construction (equal specificity, later order wins).
+   */
+  :is(.twp, div[role='dialog'][data-slot='dialog-content']) *,
+  :is(.twp, div[role='dialog'][data-slot='dialog-content']) ::before,
+  :is(.twp, div[role='dialog'][data-slot='dialog-content']) ::after {
+    @apply border-border outline-ring/50;
+  }
   .no-twp {
     *,
     ::after,
@@ -69,4 +96,32 @@
   .table {
     display: block;
   }
+}
+
+/*
+ * Payload's toolbar is transparent by default. Paint it with the theme
+ * canvas so it reads as one surface with the page in both modes.
+ * (Sanctioned `--theme-*` usage: this styles Payload's own chrome.)
+ */
+.app-header {
+  background-color: var(--theme-bg);
+}
+
+/*
+ * Hide Payload's built-in content-locale selector — its bare language name
+ * is easily mistaken for a UI-language picker. Replaced by the clearly
+ * labeled toolbar action in `components/admin/LocaleSwitch.client.tsx`.
+ */
+.app-header__localizer-spacing,
+.app-header__localizer {
+  display: none;
+}
+
+/*
+ * Hide Payload's built-in toolbar account avatar. Identity and the link to
+ * `/admin/account` now live in the sidebar footer (`AdminNav.client.tsx`),
+ * so the toolbar copy is redundant.
+ */
+.app-header__account {
+  display: none;
 }

@@ -33,6 +33,12 @@
       "@codeware/app-cms/ui/components/*": [
         "libs/app-cms/ui/components/src/lib/*"
       ],
+      "@codeware/app-cms/ui/dashboard": [
+        "libs/app-cms/ui/dashboard/src/index.ts"
+      ],
+      "@codeware/app-cms/ui/dashboard/*": [
+        "libs/app-cms/ui/dashboard/src/lib/*"
+      ],
       "@codeware/app-cms/ui/fields": ["libs/app-cms/ui/fields/src/index.ts"],
       "@codeware/app-cms/ui/fields/*": ["libs/app-cms/ui/fields/src/lib/*"],
       "@codeware/app-cms/ui/lexical": ["libs/app-cms/ui/lexical/src/index.ts"],

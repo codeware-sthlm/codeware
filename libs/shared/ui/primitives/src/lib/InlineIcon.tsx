@@ -41,5 +41,13 @@ export function InlineIcon({ size, svgCode, src }: InlineIconProps) {
     );
   }
 
-  return <img src={src} width={size} height={size} alt="" />;
+  return (
+    <img
+      src={src}
+      width={size}
+      height={size}
+      alt=""
+      className="object-contain"
+    />
+  );
 }

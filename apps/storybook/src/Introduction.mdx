@@ -136,7 +136,7 @@ Each theme's `tailwind-base.css` imports `_core/tailwind-setup.css`, which decla
 | Theme           | `--brand-500` resolves to |
 | --------------- | ------------------------- |
 | `shadcn`        | `var(--color-zinc-500)`   |
-| `payload-admin` | `var(--color-teal-500)`   |
+| `payload-admin` | `#2f6ba1` (Codeware yale) |
 | `spotlight`     | `var(--color-teal-500)`   |
 | `codeware`      | `var(--color-blue-500)`   |
 
@@ -179,15 +179,11 @@ After running, review the diff and verify stories in Storybook before committing
 pnpm nx shadcn:add -- <component>
 ```
 
-> **Note:** the nova-style registry (`/r/styles/nova/<component>.json`) currently returns 404 for individual `add` requests. If this fails, add the component via a new preset on [ui.shadcn.com/create](https://ui.shadcn.com/create) and re-run `shadcn:update`.
-
 ### Detect drift
 
-`shadcn add <component> --diff` does not work with the nova style (same 404 issue). To check whether upstream has changed a component:
-
-1. Run `pnpm nx shadcn:update` on a clean branch
-2. Review `git diff` — changed files indicate upstream drift
-3. Discard or keep changes as appropriate
+```sh
+pnpm nx shadcn:add -- <component> --diff
+```
 
 ### Check current preset
 
@@ -340,13 +336,28 @@ At the top of the app's CSS entry point:
 
 Payload Admin ships with its own global CSS and a browser-level reset. Applying Tailwind's preflight globally would break the admin UI, so it is scoped with the `.twp` class.
 
-`apps/cms/src/app/(payload)/custom.css` wires the theme into Payload's admin with a single import:
+`apps/cms/src/app/(payload)/custom.css` wires the theme into Payload's admin with two imports:
 
 ```css
+/* shadcn tokens — single source of truth, same files Storybook renders */
 @import 'libs/shared/theme/src/lib/payload-admin/tailwind-base.css';
+
+/* Payload native UI adaptation — one direction, never defines shadcn tokens */
+@import 'libs/shared/theme/src/lib/payload-admin/payload-retheme.css';
 ```
 
-This brings in token definitions, the dark variant, the `@theme inline` mappings, and the base layer in one line.
+The first brings in token definitions, the dark variant, the `@theme inline` mappings, and the base layer. The second adapts Payload itself (see below).
+
+### The styling contract
+
+Two rules keep the admin and Storybook pixel-comparable:
+
+1. **`theme-light.css` / `theme-dark.css` are the single source of truth** for how shadcn components look in the admin. Design changes (surfaces, accents, radius) are made there and reviewed in Storybook first — the admin follows automatically because it imports the same files. Nothing else may define a shadcn token (`--background`, `--card`, `--muted`, `--accent`, …).
+2. **`payload-retheme.css` adapts Payload's _native_ UI** (toolbar, list views, document editor, fields, the tenant selector) to blend with that theme: zinc base palette for Payload's elevation system, Inter as `--font-body`, brand focus rings and links. It works in one direction only — it may _read_ theme tokens but must never define one. It is imported by the CMS app only and is invisible to Storybook.
+
+If a component in the admin doesn't match its `payload-admin` story, the bug is either a token defined outside the theme files (violates rule 1) or a Payload style leaking into the component (candidate for rule 2).
+
+The `codeware-admin` class seen on custom admin roots is a **structural marker only** — `payload-retheme.css` scopes some Payload-widget selectors to it (e.g. the tenant selector). It carries no tokens.
 
 ### The `.twp` wrapper
 

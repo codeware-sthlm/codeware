@@ -139,10 +139,11 @@ const preview: Preview = {
         order: [
           'Introduction',
           'Theme',
+          'Shadcn',
+          'Shared UI',
           'CMS Renderer',
           'cms-renderer',
-          'Shared UI',
-          'Shadcn UI',
+          'app-cms',
           '*'
         ]
       }

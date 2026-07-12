@@ -3,6 +3,7 @@ import type { CollectionConfig, Condition } from 'payload';
 import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
+import { hasNoAdminRoles } from '@codeware/app-cms/util/misc';
 import type { Navigation } from '@codeware/shared/util/payload-types';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
@@ -21,7 +22,13 @@ const isCustomLabelSource: Condition<
 const navigation: CollectionConfig = {
   slug: 'navigation',
   admin: {
-    group: adminGroups.settings
+    group: adminGroups.settings,
+    description: {
+      en: "Decide what appears in your website's menu and in what order.",
+      sv: 'Bestäm vad som visas i webbplatsens meny och i vilken ordning.'
+    },
+    // Hide from regular users
+    hidden: ({ user }) => hasNoAdminRoles(user)
   },
   access: {
     read: userOrApiKeyAccess(),

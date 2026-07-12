@@ -1,0 +1,210 @@
+'use client';
+
+import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PayloadSDK } from '@payloadcms/sdk';
+import { useAuth, useConfig, useTranslation } from '@payloadcms/ui';
+import Link from 'next/link';
+import type { TypedLocale } from 'payload';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
+import type {
+  TranslationsKeys,
+  TranslationsObject
+} from '@codeware/app-cms/util/i18n';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@codeware/shared/ui/shadcn/components/accordion';
+import { Button } from '@codeware/shared/ui/shadcn/components/button';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle
+} from '@codeware/shared/ui/shadcn/components/drawer';
+import type { Config, Faq, User } from '@codeware/shared/util/payload-types';
+
+/**
+ * Custom event that opens the help drawer from anywhere in the admin,
+ * e.g. the command palette quick action.
+ */
+export const OPEN_HELP_EVENT = 'cdwr:open-help';
+
+type FetchStatus = 'idle' | 'loading' | 'success' | 'error';
+
+/**
+ * Toolbar help button (`admin.components.actions`) opening a drawer with
+ * FAQ entries fetched from the global `faq` collection in the admin locale.
+ *
+ * Content is managed by system users in the FAQ collection; they also get
+ * a manage link at the bottom of the drawer.
+ */
+export function HelpDrawer() {
+  const { token, user } = useAuth<User>();
+  const { config } = useConfig();
+  const { i18n, t } = useTranslation<TranslationsObject, TranslationsKeys>();
+  const language = i18n.language;
+
+  const sdk = useMemo(
+    () =>
+      new PayloadSDK<Config>({
+        baseURL: `${config.serverURL ?? ''}/api`,
+        baseInit: token ? { headers: { Authorization: `JWT ${token}` } } : {}
+      }),
+    [config.serverURL, token]
+  );
+
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<FetchStatus>('idle');
+  const [faqs, setFaqs] = useState<Array<Faq>>([]);
+  // Locale of the latest fetch attempt. A ref rather than state so a failed
+  // request (e.g. expired session → 403) is not retried on every render —
+  // only when the drawer is reopened or the admin language changes.
+  const attemptedLocale = useRef<string>(undefined);
+
+  // Let the command palette (or anything else) open the drawer
+  useEffect(() => {
+    const openDrawer = () => setOpen(true);
+    window.addEventListener(OPEN_HELP_EVENT, openDrawer);
+    return () => window.removeEventListener(OPEN_HELP_EVENT, openDrawer);
+  }, []);
+
+  // Fetch entries lazily on first open and when the admin language changes
+  useEffect(() => {
+    if (!open || attemptedLocale.current === language) {
+      return;
+    }
+    attemptedLocale.current = language;
+    let cancelled = false;
+    let settled = false;
+    setStatus('loading');
+    sdk
+      .find({
+        collection: 'faq',
+        sort: '_order', // faq is orderable, so use the admin order for display
+        limit: 100,
+        depth: 0,
+        locale: language as TypedLocale<Config>
+      })
+      .then((result) => {
+        settled = true;
+        if (cancelled) {
+          return;
+        }
+        setFaqs(result.docs);
+        setStatus('success');
+      })
+      .catch(() => {
+        settled = true;
+        // Allow a fresh attempt the next time the drawer opens
+        attemptedLocale.current = undefined;
+        if (!cancelled) {
+          setStatus('error');
+        }
+      });
+    return () => {
+      cancelled = true;
+      // Closed while the request was in flight — retry on next open instead
+      // of leaving a stale loading state behind
+      if (!settled) {
+        attemptedLocale.current = undefined;
+      }
+    };
+  }, [sdk, language, open]);
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="codeware-admin twp">
+      <Button
+        onClick={() => setOpen(true)}
+        variant="outline"
+        size="sm"
+        className="text-muted-foreground hover:text-foreground gap-2 rounded-full font-normal"
+        title={t('help:openHelp')}
+        aria-label={t('help:drawerTitle')}
+      >
+        <QuestionMarkCircleIcon className="size-3.5" />
+        <span className="max-sm:hidden">{t('help:openHelp')}</span>
+      </Button>
+      <Drawer open={open} onOpenChange={setOpen} direction="right">
+        {/* Floating inset panel: the same-variant overrides replace the base
+            edge-anchored classes. `sm:max-w-100` uses the pinned spacing
+            scale (400px); named rem sizes like `max-w-sm` shrink under
+            Payload's 13px root font */}
+        {/* `after:hidden` removes vaul's over-drag filler pseudo-element,
+            which otherwise paints a solid strip in the floating gap */}
+        <DrawerContent className="codeware-admin twp after:hidden data-[vaul-drawer-direction=right]:inset-y-2 data-[vaul-drawer-direction=right]:right-2 data-[vaul-drawer-direction=right]:rounded-xl data-[vaul-drawer-direction=right]:border data-[vaul-drawer-direction=right]:sm:max-w-100">
+          <DrawerHeader className="border-border border-b">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-0.5">
+                <DrawerTitle>{t('help:drawerTitle')}</DrawerTitle>
+                <DrawerDescription>
+                  {t('help:drawerDescription')}
+                </DrawerDescription>
+              </div>
+              <DrawerClose asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="-mt-1 -mr-1"
+                  aria-label={t('general:close')}
+                >
+                  <XMarkIcon className="size-4" aria-hidden />
+                </Button>
+              </DrawerClose>
+            </div>
+          </DrawerHeader>
+          <div className="flex-1 overflow-y-auto p-6">
+            {status === 'loading' && (
+              <p className="text-muted-foreground text-sm">
+                {t('help:loading')}
+              </p>
+            )}
+            {status === 'error' && (
+              <p className="text-muted-foreground text-sm">
+                {t('help:loadError')}
+              </p>
+            )}
+            {status === 'success' && faqs.length === 0 && (
+              <p className="text-muted-foreground text-sm">{t('help:empty')}</p>
+            )}
+            {status === 'success' && faqs.length > 0 && (
+              <Accordion type="single" collapsible className="-mt-2">
+                {faqs.map((faq) => (
+                  <AccordionItem key={faq.id} value={String(faq.id)}>
+                    <AccordionTrigger>{faq.question}</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-muted-foreground whitespace-pre-line">
+                        {faq.answer}
+                      </p>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
+          </div>
+          {user.role === 'system-user' && (
+            <div className="border-border border-t p-6 py-4">
+              <Link
+                href="/admin/collections/faq"
+                className="text-sm text-(--link) hover:underline"
+                onClick={() => setOpen(false)}
+              >
+                {t('help:manageFaq')}
+              </Link>
+            </div>
+          )}
+        </DrawerContent>
+      </Drawer>
+    </div>
+  );
+}
+
+export default HelpDrawer;

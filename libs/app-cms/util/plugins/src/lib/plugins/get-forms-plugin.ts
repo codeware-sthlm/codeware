@@ -15,12 +15,20 @@ export const getFormsPlugin = () => {
     },
     formOverrides: {
       admin: {
-        group: adminGroups['forms']
+        group: adminGroups['forms'],
+        description: {
+          en: 'Build contact and signup forms to place on your pages.',
+          sv: 'Bygg kontakt- och anmälningsformulär att placera på dina sidor.'
+        }
       }
     },
     formSubmissionOverrides: {
       admin: {
-        group: adminGroups['forms']
+        group: adminGroups['forms'],
+        description: {
+          en: 'Messages visitors have sent through the forms on your website.',
+          sv: 'Meddelanden som besökare har skickat via formulären på din webbplats.'
+        }
       },
       hooks: {
         beforeValidate: [ensureTenant]

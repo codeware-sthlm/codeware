@@ -13,7 +13,11 @@ const categories: CollectionConfig = {
   admin: {
     group: adminGroups.content,
     defaultColumns: ['name', 'slug'],
-    useAsTitle: 'name'
+    useAsTitle: 'name',
+    description: {
+      en: 'Categories makes it possible to group blog posts by topic for better overview.',
+      sv: 'Kategorier gör det möjligt att gruppera inlägg efter ämne för bättre överblick.'
+    }
   },
   access: {
     read: userOrApiKeyAccess()

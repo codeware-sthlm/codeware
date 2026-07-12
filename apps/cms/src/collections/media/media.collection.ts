@@ -119,6 +119,10 @@ const media: CollectionConfig = {
       'tags',
       'createdAt'
     ],
+    description: {
+      en: 'Upload media files to the system and use them on your website. Images are converted to webp format for better performance.',
+      sv: 'Ladda upp bilder eller andra filer till arbetsytan och använd dem på din webbplats. Bilder konverteras till webp-format för bättre prestanda.'
+    },
     components: {
       beforeListTable: [
         {

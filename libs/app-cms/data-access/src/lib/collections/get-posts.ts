@@ -1,8 +1,9 @@
 import type { Post } from '@codeware/shared/util/payload-types';
-import type { PaginatedDocs, Where } from 'payload';
+import type { PaginatedDocs } from 'payload';
 
 import type { PayloadRuntime } from '../payload-runtime.types';
 
+import { resolveDraftQuery } from './resolve-draft-query';
 import type { QueryMultipleOptions } from './types';
 
 /**
@@ -12,6 +13,11 @@ import type { QueryMultipleOptions } from './types';
  * - depth: 2
  * - limit: 20
  * - sort: '-createdAt'
+ *
+ * Set `draft: true` to evaluate filters and sorting against each document's
+ * newest version (including unpublished drafts) instead of the main table
+ * row. Access and tenant scoping in draft mode are handled by
+ * `resolveDraftQuery`.
  *
  * This function respects access control when `authenticatedUser` is present.
  *
@@ -32,16 +38,11 @@ export async function getPosts(
     where,
     sort = '-createdAt'
   } = options;
-  // Mirror the same pattern as getPage/getPost: override access in draft mode to bypass
-  // the _status filter, and add explicit tenant scoping to preserve tenant isolation.
-  const overrideAccess = draft === true || payload.authenticatedUser === null;
-  const tenantWhere: Where | undefined =
-    draft && tenantConfig
-      ? { tenant: { equals: tenantConfig.tenant.id } }
-      : undefined;
-  const scopedWhere: Where | undefined = tenantWhere
-    ? { and: [...(where ? [where] : []), tenantWhere] }
-    : where;
+  const { overrideAccess, where: scopedWhere } = resolveDraftQuery(
+    runtime,
+    draft,
+    where
+  );
 
   const result = await payload.find({
     collection: 'posts',

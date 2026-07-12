@@ -43,8 +43,8 @@ const reusableContent: CollectionConfig = {
     group: adminGroups.content,
     useAsTitle: 'title',
     description: {
-      en: 'Reusable content is a collection of blocks that can be combined freely and used in various places.',
-      sv: 'Återanvändbara element är en samling block som kan kombineras fritt och användas på olika ställen.'
+      en: 'Reusable content is created so that the same content can be reused in multiple places in pages and posts.',
+      sv: 'Återanvändbara element skapas för att samma innehåll ska kunna återanvändas på flera olika ställen i sidor och inlägg.'
     }
   },
   labels: {

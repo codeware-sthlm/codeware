@@ -35,7 +35,11 @@ export type QueryMultipleOptions<TSlug extends CollectionSlug> =
     where?: Where;
 
     /**
-     * Sort order (e.g., 'name' for alphabetical)
+     * Sort order (e.g., 'name' for alphabetical, '-updatedAt' for descending)
      */
-    sort?: keyof TypedCollection[TSlug];
+    sort?: SortKey<TSlug>;
   };
+
+type SortKey<TSlug extends CollectionSlug> =
+  | (string & keyof TypedCollection[TSlug])
+  | `-${string & keyof TypedCollection[TSlug]}`;

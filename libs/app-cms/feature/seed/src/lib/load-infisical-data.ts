@@ -29,6 +29,7 @@ export const loadInfisicalData = async (args: {
 
     const seedData: SeedData = {
       categories: [],
+      faq: [],
       media: [],
       pages: [],
       posts: [],

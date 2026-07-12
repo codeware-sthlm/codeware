@@ -3,6 +3,7 @@ import type { PaginatedDocs } from 'payload';
 
 import type { PayloadRuntime } from '../payload-runtime.types';
 
+import { resolveDraftQuery } from './resolve-draft-query';
 import type { QueryMultipleOptions } from './types';
 
 /**
@@ -12,6 +13,11 @@ import type { QueryMultipleOptions } from './types';
  * - depth: 2
  * - limit: 50
  * - sort: 'name'
+ *
+ * Set `draft: true` to evaluate filters and sorting against each document's
+ * newest version (including unpublished drafts) instead of the main table
+ * row. Access and tenant scoping in draft mode are handled by
+ * `resolveDraftQuery`.
  *
  * This function respects access control when `authenticatedUser` is present.
  *
@@ -24,13 +30,25 @@ export async function getPages(
   options: QueryMultipleOptions<'pages'> = {}
 ): Promise<PaginatedDocs<Page> | null> {
   const { payload, tenantConfig } = runtime;
-  const { depth = 2, limit = 50, locale, where, sort = 'name' } = options;
-  const overrideAccess = payload.authenticatedUser === null;
+  const {
+    depth = 2,
+    draft,
+    limit = 50,
+    locale,
+    where,
+    sort = 'name'
+  } = options;
+  const { overrideAccess, where: scopedWhere } = resolveDraftQuery(
+    runtime,
+    draft,
+    where
+  );
 
   const result = await payload.find({
     collection: 'pages',
-    where,
+    where: scopedWhere,
     depth,
+    draft,
     locale: locale ?? tenantConfig?.locale,
     limit,
     sort,

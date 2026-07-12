@@ -37,6 +37,7 @@ import { isTenant, isUser } from '@codeware/app-cms/util/misc';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
 
 import categories from './collections/categories/categories.collection';
+import faq from './collections/faq/faq.collection';
 import media from './collections/media/media.collection';
 import navigation from './collections/navigation/navigation.collection';
 import pages from './collections/pages/pages.collection';
@@ -46,6 +47,7 @@ import siteSettings from './collections/site-settings/site-settings.collection';
 import tags from './collections/tags/tags.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
+import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
 
 const filename = fileURLToPath(import.meta.url);
@@ -59,8 +61,25 @@ export default buildConfig({
     user: users.slug,
     dateFormat: 'yyyy-MM-dd HH:mm:ss',
     components: {
+      actions: [
+        '@codeware/apps/cms/components/admin/LanguageSwitch.client',
+        '@codeware/apps/cms/components/admin/ThemeSwitch.client',
+        '@codeware/apps/cms/components/admin/HelpDrawer.client',
+        '@codeware/apps/cms/components/admin/LocaleSwitch.client',
+        '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client'
+      ],
       graphics: {
         Logo: '@codeware/apps/cms/components/Logo.client'
+      },
+      Nav: '@codeware/apps/cms/components/admin/AdminNavWrapper',
+      providers: [
+        '@codeware/apps/cms/components/admin/palette/PaletteProvider.client'
+      ],
+      views: {
+        dashboard: {
+          Component:
+            '@codeware/apps/cms/components/admin/dashboard/AdminDashboardView'
+        }
       }
     },
     livePreview: {
@@ -106,6 +125,7 @@ export default buildConfig({
   ],
   collections: [
     categories,
+    faq,
     media,
     navigation,
     pages,
@@ -135,7 +155,7 @@ export default buildConfig({
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
-  endpoints: [tenantConfigEndpoint],
+  endpoints: [paletteSearchEndpoint, tenantConfigEndpoint],
   plugins: getPlugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
   upload: { safeFileNames: true },

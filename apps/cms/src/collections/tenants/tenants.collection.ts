@@ -4,6 +4,7 @@ import { slugField } from '@codeware/app-cms/ui/fields';
 import { systemUserAccess } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
+import { hasNoAdminRoles } from '@codeware/app-cms/util/misc';
 
 import { restrictToTenantInTenantMode } from './access/restrict-to-tenant-in-tenant-mode';
 import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';
@@ -33,9 +34,11 @@ const tenants: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug', 'description', 'supportedLocales'],
     description: {
-      en: 'A workspace is like an organization or a company and is often called a "tenant". The content is scoped to the members of the workspace.',
-      sv: 'En arbetsyta är som en organisation eller ett företag och kallas ofta för en "tenant". Innehållet begränsas till medlemmarna i arbetsytan.'
-    }
+      en: 'A workspace is like an organization or group of users and is often called a "tenant". You must be a member to see its content.',
+      sv: 'En arbetsyta är som en organisation eller grupp av användare och kallas ofta för en "tenant". Man måste vara medlem för att kunna se innehållet.'
+    },
+    // Hide from regular users
+    hidden: ({ user }) => hasNoAdminRoles(user)
   },
   labels: {
     singular: { en: 'Workspace', sv: 'Arbetsyta' },
@@ -43,13 +46,14 @@ const tenants: CollectionConfig = {
   },
   fields: [
     {
-      name: 'iconSource',
-      type: 'text',
+      name: 'iconConfig',
+      type: 'json',
       virtual: true, // Populated by populateIconHook
       label: { en: 'Icon', sv: 'Ikon' },
       admin: {
         disableListFilter: true,
-        disableListColumn: true
+        disableListColumn: true,
+        hidden: true
       }
     },
     // Customize the API key fields to be protected from being updated

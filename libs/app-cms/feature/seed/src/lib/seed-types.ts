@@ -9,6 +9,7 @@ import type { Prettify } from '@codeware/shared/util/typesafe';
 import type { TypedLocale } from 'payload';
 
 import type { CategoryData } from './local-api/ensure-category';
+import type { FaqData } from './local-api/ensure-faq';
 import type { MediaData } from './local-api/ensure-media';
 import type { PageData } from './local-api/ensure-page';
 import type { PostData } from './local-api/ensure-post';
@@ -93,6 +94,7 @@ export type TenantDataLookup = Prettify<
 // TODO: infer from seedDataSchema when it's refactored
 export type SeedData = {
   categories: Array<CategoryDataLookup>;
+  faq: Array<FaqData>;
   media: Array<MediaDataLookup>;
   pages: Array<PageDataLookup>;
   posts: Array<PostDataLookup>;

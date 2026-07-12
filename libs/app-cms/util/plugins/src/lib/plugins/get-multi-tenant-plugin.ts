@@ -1,6 +1,16 @@
+import { globalCollectionSlugs } from '@codeware/app-cms/util/definitions';
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
 import type { Config } from '@codeware/shared/util/payload-types';
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
+
+// Map global collections to the multi-tenant collections config
+const globalCollectionsConfig = globalCollectionSlugs.reduce(
+  (acc, slug) => {
+    acc[slug] = { isGlobal: true };
+    return acc;
+  },
+  {} as Parameters<typeof multiTenantPlugin>['0']['collections']
+);
 
 export const getMultiTenantPlugin = () =>
   multiTenantPlugin<Config>({
@@ -33,17 +43,15 @@ export const getMultiTenantPlugin = () =>
       categories: {},
       forms: {},
       'form-submissions': {},
-      navigation: { isGlobal: true },
       media: {},
       pages: {},
       posts: {},
       'reusable-content': {},
-      'site-settings': { isGlobal: true },
-      tags: {}
+      tags: {},
+      ...globalCollectionsConfig
     },
     tenantsArrayField: {
       includeDefaultField: false
     },
-    tenantSelectorLabel: { en: 'Workspace scope', sv: 'Vald arbetsyta' },
     userHasAccessToAllTenants: (user) => hasRole(user, 'system-user')
   });

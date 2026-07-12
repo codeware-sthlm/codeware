@@ -22,7 +22,8 @@ import { t } from '@codeware/shared/util/i18n';
  */
 export const SvgPreviewField: React.FC<TextareaFieldClientProps> = ({
   field,
-  path
+  path,
+  readOnly
 }) => {
   const id = useId();
   const { value, setValue } = useField<string>({ path });
@@ -41,12 +42,14 @@ export const SvgPreviewField: React.FC<TextareaFieldClientProps> = ({
         value={value ?? ''}
         onChange={(e) => setValue(e.target.value)}
         rows={6}
+        readOnly={readOnly}
       />
       <div className="mt-2.5 flex items-center gap-2">
         <Button
           buttonStyle="subtle"
           size="medium"
           onClick={() => setStudioOpen(true)}
+          disabled={readOnly}
         >
           {t(i18n.language, 'svgPreview.browseStudio')}
         </Button>

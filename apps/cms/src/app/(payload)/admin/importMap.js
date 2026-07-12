@@ -41,11 +41,19 @@ import { default as default_771cb2e65e9273cda2ffcd43d25ab990 } from '@codeware/a
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
 import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
 import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/apps/cms/components/TenantsArrayRowLabel';
+import { default as default_176fd26d15967a8046e38df612c30d49 } from '@codeware/apps/cms/components/admin/AdminNavWrapper';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
+import { default as default_b53391252156a3e5a27683b2436d4ac3 } from '@codeware/apps/cms/components/admin/LanguageSwitch.client';
+import { default as default_d2a49a891cfd08d367302de7c6a74341 } from '@codeware/apps/cms/components/admin/ThemeSwitch.client';
+import { default as default_f3773f76922e241362ad8aac9e97fbcb } from '@codeware/apps/cms/components/admin/HelpDrawer.client';
+import { default as default_84801fdbb38ee83f29d6ca3070e6c648 } from '@codeware/apps/cms/components/admin/LocaleSwitch.client';
+import { default as default_221d51dba9c38b54ffc2c5a41546df9e } from '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client';
 import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc';
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc';
+import { default as default_67bc1060da1a6ada71dd6ec10de05eed } from '@codeware/apps/cms/components/admin/palette/PaletteProvider.client';
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc';
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client';
+import { default as default_7247ef290ed686d082a30d42a7adeb5b } from '@codeware/apps/cms/components/admin/dashboard/AdminDashboardView';
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc';
 
 /** @type import('payload').ImportMap */
@@ -136,16 +144,32 @@ export const importMap = {
     default_4a3552dc4f000a1797b4eb36166f8ff8,
   '@codeware/apps/cms/components/TenantsArrayRowLabel#default':
     default_dec1059b7bb8eb8da3a9f0fc400fffbd,
+  '@codeware/apps/cms/components/admin/AdminNavWrapper#default':
+    default_176fd26d15967a8046e38df612c30d49,
   '@codeware/apps/cms/components/Logo.client#default':
     default_42ab7a6f795fd44e8c166a2bb6b2adc0,
+  '@codeware/apps/cms/components/admin/LanguageSwitch.client#default':
+    default_b53391252156a3e5a27683b2436d4ac3,
+  '@codeware/apps/cms/components/admin/ThemeSwitch.client#default':
+    default_d2a49a891cfd08d367302de7c6a74341,
+  '@codeware/apps/cms/components/admin/HelpDrawer.client#default':
+    default_f3773f76922e241362ad8aac9e97fbcb,
+  '@codeware/apps/cms/components/admin/LocaleSwitch.client#default':
+    default_84801fdbb38ee83f29d6ca3070e6c648,
+  '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client#default':
+    default_221d51dba9c38b54ffc2c5a41546df9e,
   '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect':
     GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   '@payloadcms/plugin-multi-tenant/rsc#TenantSelector':
     TenantSelector_d6d5f193a167989e2ee7d14202901e62,
+  '@codeware/apps/cms/components/admin/palette/PaletteProvider.client#default':
+    default_67bc1060da1a6ada71dd6ec10de05eed,
   '@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider':
     TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   '@payloadcms/storage-s3/client#S3ClientUploadHandler':
     S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
+  '@codeware/apps/cms/components/admin/dashboard/AdminDashboardView#default':
+    default_7247ef290ed686d082a30d42a7adeb5b,
   '@payloadcms/next/rsc#CollectionCards':
     CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 };

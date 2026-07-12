@@ -43,8 +43,8 @@ const pages: CollectionConfig<'pages'> = {
     defaultColumns: ['name', 'slug', 'updatedAt', '_status'],
     useAsTitle: 'name',
     description: {
-      en: 'Pages are the building blocks of the site and are used to create menus and navigation.',
-      sv: 'Sidor är webbsidans byggstenar och används för att skapa menyer och navigering.'
+      en: 'Pages are the foundation of the system and are used to build your website. Work with drafts and publish when ready.',
+      sv: 'Sidor är fundamentet i systemet och används för att bygga din webbplats. Arbeta med utkast och publicera när det är klart.'
     }
   },
   access: {

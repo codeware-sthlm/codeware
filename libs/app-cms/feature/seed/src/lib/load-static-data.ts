@@ -153,6 +153,7 @@ export const loadStaticData = (args: {
   // Combine all data to the final seed object
   const seedData: SeedData = {
     categories,
+    faq: [], // faq is not generated
     media: [], // media is generated from proper files
     pages,
     posts,

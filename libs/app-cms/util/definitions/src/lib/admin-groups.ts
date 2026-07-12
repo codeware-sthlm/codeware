@@ -4,8 +4,8 @@
  * @see https://payloadcms.com/docs/configuration/collections#admin-options
  */
 export const adminGroups: Record<string, { en: string; sv: string }> = {
-  content: { en: 'Content', sv: 'Innehåll' },
-  fileArea: { en: 'File Area', sv: 'Filarea' },
-  forms: { en: 'Form Builder', sv: 'Formulärbyggare' },
-  settings: { en: 'Settings', sv: 'Inställningar' }
+  content: { en: 'Your Content', sv: 'Ditt Innehåll' },
+  fileArea: { en: 'Photos & Files', sv: 'Bilder & Filer' },
+  forms: { en: 'Forms & Messages', sv: 'Formulär & Meddelanden' },
+  settings: { en: 'Site Setup', sv: 'Inställningar' }
 };

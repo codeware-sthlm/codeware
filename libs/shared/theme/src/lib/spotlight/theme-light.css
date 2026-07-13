@@ -54,6 +54,8 @@
   --accent-foreground: var(--color-zinc-900);
   --destructive: var(--color-red-600);
   --destructive-foreground: oklch(1 0 0);
+  /* text on tinted destructive surfaces (badge/button/alert soft variants) */
+  --destructive-subtle: var(--color-red-700);
   --border: var(--color-zinc-100);
   --input: var(--color-zinc-100);
   --ring: var(--color-zinc-900);

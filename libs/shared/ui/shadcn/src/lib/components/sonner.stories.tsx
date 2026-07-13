@@ -43,11 +43,26 @@ export const Demo: StoryObj = {
   )
 };
 
-export const ShadcnLight = a11yStory(Demo, 'shadcn', 'light');
-export const ShadcnDark = a11yStory(Demo, 'shadcn', 'dark');
-export const PayloadAdminLight = a11yStory(Demo, 'payload-admin', 'light');
-export const PayloadAdminDark = a11yStory(Demo, 'payload-admin', 'dark');
-export const SpotlightLight = a11yStory(Demo, 'spotlight', 'light');
-export const SpotlightDark = a11yStory(Demo, 'spotlight', 'dark');
-export const CodewareLight = a11yStory(Demo, 'codeware', 'light');
-export const CodewareDark = a11yStory(Demo, 'codeware', 'dark');
+// sonner mounts its own `section` landmark per Toaster instance; the storybook
+// canvas already provides one, so axe sees two unlabelled landmarks. The
+// duplicate comes from sonner's internals, not from how we render it.
+const disabled = ['landmark-unique'];
+
+export const ShadcnLight = a11yStory(Demo, 'shadcn', 'light', disabled);
+export const ShadcnDark = a11yStory(Demo, 'shadcn', 'dark', disabled);
+export const PayloadAdminLight = a11yStory(
+  Demo,
+  'payload-admin',
+  'light',
+  disabled
+);
+export const PayloadAdminDark = a11yStory(
+  Demo,
+  'payload-admin',
+  'dark',
+  disabled
+);
+export const SpotlightLight = a11yStory(Demo, 'spotlight', 'light', disabled);
+export const SpotlightDark = a11yStory(Demo, 'spotlight', 'dark', disabled);
+export const CodewareLight = a11yStory(Demo, 'codeware', 'light', disabled);
+export const CodewareDark = a11yStory(Demo, 'codeware', 'dark', disabled);

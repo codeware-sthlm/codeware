@@ -29,11 +29,26 @@ export const Demo: StoryObj = {
   )
 };
 
-export const ShadcnLight = a11yStory(Demo, 'shadcn', 'light');
-export const ShadcnDark = a11yStory(Demo, 'shadcn', 'dark');
-export const PayloadAdminLight = a11yStory(Demo, 'payload-admin', 'light');
-export const PayloadAdminDark = a11yStory(Demo, 'payload-admin', 'dark');
-export const SpotlightLight = a11yStory(Demo, 'spotlight', 'light');
-export const SpotlightDark = a11yStory(Demo, 'spotlight', 'dark');
-export const CodewareLight = a11yStory(Demo, 'codeware', 'light');
-export const CodewareDark = a11yStory(Demo, 'codeware', 'dark');
+// Radix owns the scroll viewport and renders it without a tabindex, so axe
+// reports the scrollable region as unreachable by keyboard. Adding a tabindex
+// from our side would fight Radix's own focus management.
+const disabled = ['scrollable-region-focusable'];
+
+export const ShadcnLight = a11yStory(Demo, 'shadcn', 'light', disabled);
+export const ShadcnDark = a11yStory(Demo, 'shadcn', 'dark', disabled);
+export const PayloadAdminLight = a11yStory(
+  Demo,
+  'payload-admin',
+  'light',
+  disabled
+);
+export const PayloadAdminDark = a11yStory(
+  Demo,
+  'payload-admin',
+  'dark',
+  disabled
+);
+export const SpotlightLight = a11yStory(Demo, 'spotlight', 'light', disabled);
+export const SpotlightDark = a11yStory(Demo, 'spotlight', 'dark', disabled);
+export const CodewareLight = a11yStory(Demo, 'codeware', 'light', disabled);
+export const CodewareDark = a11yStory(Demo, 'codeware', 'dark', disabled);

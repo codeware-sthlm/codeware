@@ -32,21 +32,31 @@ type BaseStory = {
   decorators?: unknown;
 };
 
+type AxeRuleConfig = { rules: Array<{ id: string; enabled: false }> };
+
 type A11yStory<T extends BaseStory> = T & {
   name: string;
   globals: { sbTheme: SbTheme; theme: ColorMode };
-  parameters: { a11y: { test: 'error' }; docs: { disable: true } };
+  parameters: {
+    a11y: { test: 'error'; config?: AxeRuleConfig };
+    docs: { disable: true };
+  };
 };
 
 /**
  * Create a single a11y story for the given theme × mode combination.
  *
  * Always sets `parameters.a11y.test: 'error'` so axe violations fail.
+ *
+ * `disabledRules` turns off individual axe rules for this story. Reserve it for
+ * violations owned by an upstream primitive (Radix, cmdk, sonner) that we cannot
+ * fix from our side — never to silence a contrast issue in our own tokens.
  */
 export function a11yStory<T extends BaseStory>(
   base: T,
   sbTheme: SbTheme,
-  theme: ColorMode
+  theme: ColorMode,
+  disabledRules?: Array<string>
 ): A11yStory<T> {
   return {
     ...base,
@@ -54,7 +64,14 @@ export function a11yStory<T extends BaseStory>(
     globals: { sbTheme, theme },
     parameters: {
       ...base.parameters,
-      a11y: { test: 'error' },
+      a11y: {
+        test: 'error',
+        ...(disabledRules?.length && {
+          config: {
+            rules: disabledRules.map((id) => ({ id, enabled: false as const }))
+          }
+        })
+      },
       docs: { disable: true }
     }
   };

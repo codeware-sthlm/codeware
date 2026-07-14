@@ -28,17 +28,22 @@ export function PaletteTrigger() {
 
   return (
     <div className="codeware-admin twp">
+      {/* Same pill as the language/locale actions — `outline` resolves to a
+       * different surface in dark mode (`dark:bg-input/30`) and broke the row's
+       * visual rhythm. Labels collapse at `lg`, not `sm`: Payload clamps its
+       * actions row and scroll-fades the overflow, which the labelled pills
+       * blew past on medium viewports. */}
       <Button
         onClick={openPalette}
-        variant="outline"
+        variant="ghost"
         size="sm"
-        className="text-muted-foreground hover:text-foreground gap-2 rounded-full font-normal"
+        className="border-border bg-background text-muted-foreground hover:text-foreground h-7 gap-1.5 rounded-full border px-2.5 text-xs font-medium"
         title={t('palette:openPalette')}
         aria-label={t('palette:dialogTitle')}
       >
         <MagnifyingGlassIcon className="size-3.5" />
-        <span className="max-sm:hidden">{t('palette:openPalette')}</span>
-        <kbd className="border-border bg-muted text-muted-foreground rounded border px-1 py-px font-sans text-[10px] max-sm:hidden">
+        <span className="max-lg:hidden">{t('palette:openPalette')}</span>
+        <kbd className="border-border bg-muted text-muted-foreground rounded border px-1 py-px font-sans text-[10px] max-lg:hidden">
           {paletteShortcutLabel()}
         </kbd>
       </Button>

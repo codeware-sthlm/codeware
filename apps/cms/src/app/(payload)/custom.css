@@ -1,4 +1,14 @@
-@layer theme, base, components, utilities;
+/*
+ * Layer order is fixed by first encounter across the document, so it must be
+ * declared here — this file is bundled before Payload's own stylesheet in a
+ * production build, but after it in dev. Without naming `payload-default`
+ * explicitly, prod ends up with it as the LAST (highest priority) layer, and
+ * every Payload rule beats every Tailwind utility regardless of specificity:
+ * group labels render at Payload's size, flex/alignment utilities are ignored,
+ * inputs get Payload's focus ring, etc. Naming it first pins it as the lowest
+ * priority layer in both dev and prod.
+ */
+@layer payload-default, theme, base, components, utilities;
 
 /* Inter — required by payload-retheme.css (--font-body); must be the first
    non-layer statement since @import rules cannot follow other rules */
@@ -123,5 +133,40 @@
  * so the toolbar copy is redundant.
  */
 .app-header__account {
+  display: none;
+}
+
+/*
+ * Payload wraps every configured action in its own div, whether or not the
+ * action renders anything. `LocaleSwitch` returns null for single-locale
+ * tenants, leaving an empty div that still consumes a flex gap — which reads
+ * as a double gap between the help and palette actions.
+ */
+.app-header__actions > div:empty {
+  display: none;
+}
+
+/*
+ * Payload clamps its actions row to 300px on medium screens and scroll-fades
+ * the overflow with an absolutely-positioned gradient. That budget is sized for
+ * its own icon-only actions; our labelled pills overflow it, so the row got cut
+ * off and the gradient painted over the last action (the help button). Let the
+ * row size to its content — the pills already drop their labels below `lg`.
+ */
+.app-header__actions {
+  max-width: none;
+}
+
+.app-header__gradient-placeholder {
+  display: none;
+}
+
+/*
+ * Payload's StepNav falls back to its own logo mark when `admin.components
+ * .graphics.Icon` is unset, putting Payload branding in the toolbar. It reads
+ * as a stray glyph in dark mode, and home/identity already live in the sidebar
+ * (workspace tile + Home item), so the whole home link is redundant.
+ */
+.step-nav__home {
   display: none;
 }

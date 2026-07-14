@@ -1,21 +1,18 @@
-import { CdwrCloud } from '@codeware/shared/ui/primitives';
+import { HomeIcon } from '@heroicons/react/24/outline';
 
 /**
  * Mark for Payload's StepNav home link (`admin.components.graphics.Icon`).
  *
- * Without it Payload falls back to its own logo, putting Payload branding in
- * the toolbar. `CdwrCloud` paints with `currentColor`, so it picks up Payload's
- * own toolbar text color and stays legible in both themes.
+ * Without it Payload falls back to its own logo, putting Payload branding in the
+ * toolbar. A neutral home glyph is used rather than the cloud mark, which stays
+ * unique to the sidebar's workspace tile. It strokes with `currentColor`, so it
+ * picks up Payload's toolbar text color and reads in both themes.
+ *
+ * `custom.css` makes the link and its inner span a centering flex box — Payload
+ * leaves them `display: inline`, where the link's fixed square has no effect.
  */
 const Icon: React.FC = () => {
-  // Payload sizes the home link to a fixed 16px square. `size` is the mark's
-  // *width* — its height is derived from the aspect ratio (~11px) — so the
-  // wrapper has to fill the square and center it, or the mark hangs at the top.
-  return (
-    <span className="flex size-full items-center justify-center text-current opacity-80">
-      <CdwrCloud size={16} />
-    </span>
-  );
+  return <HomeIcon className="size-full text-current" />;
 };
 
 export default Icon;

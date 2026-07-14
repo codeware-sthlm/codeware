@@ -166,4 +166,23 @@
  * Payload's own logo mark is replaced by ours via `admin.components.graphics
  * .Icon` (`components/Icon.client.tsx`), which inherits `currentColor` so it
  * reads correctly in both themes.
+ *
+ * Payload gives the link a fixed square (18px, 16px on small) but leaves it and
+ * its inner span `display: inline` — where width/height don't apply at all, so
+ * the mark has no box to center in and hangs off the text baseline. Make the
+ * whole chain a centering flex box so the mark sits in the middle of the square.
  */
+.step-nav__home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fill the link's square so the mark has a box to center within. */
+.step-nav__home > span {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}

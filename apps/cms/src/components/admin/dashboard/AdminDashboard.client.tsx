@@ -58,9 +58,11 @@ export const AdminDashboard: React.FC<DashboardData> = ({
         onValueChange={changeTab}
         className="flex h-full flex-col gap-0"
       >
+        {/* `pb-0` keeps the active underline on the list's bottom border; the
+         * top padding is what separates the tab labels from the toolbar. */}
         <TabsList
           variant="line"
-          className="border-border h-auto w-full justify-start gap-6 rounded-none border-b px-7.5 py-0"
+          className="border-border h-auto w-full justify-start gap-6 rounded-none border-b px-7.5 pt-4 pb-0"
         >
           <TabsTrigger value="home" className={TAB_TRIGGER_CLASSES}>
             {t('dashboard:tabHome')}

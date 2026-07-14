@@ -162,11 +162,8 @@
 }
 
 /*
- * Payload's StepNav falls back to its own logo mark when `admin.components
- * .graphics.Icon` is unset, putting Payload branding in the toolbar. It reads
- * as a stray glyph in dark mode, and home/identity already live in the sidebar
- * (workspace tile + Home item), so the whole home link is redundant.
+ * The StepNav home link stays — it's the toolbar's way back to the dashboard.
+ * Payload's own logo mark is replaced by ours via `admin.components.graphics
+ * .Icon` (`components/Icon.client.tsx`), which inherits `currentColor` so it
+ * reads correctly in both themes.
  */
-.step-nav__home {
-  display: none;
-}

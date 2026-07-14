@@ -400,18 +400,23 @@ function AdminNavContent({
       {/* On mobile the Sidebar renders as a closed-by-default Sheet, so the
        * toggle button inside SidebarHeader is unreachable until it's open —
        * this external trigger is the only way to open it in the first place.
-       * Centered against Payload's own toolbar metrics rather than a fixed
-       * offset, so it stays aligned with the actions as the header height
-       * changes across breakpoints. */}
-      <Button
-        onClick={toggleSidebar}
-        variant="outline"
-        size="icon"
-        className="fixed top-[calc(var(--app-header-height)/2)] left-(--gutter-h) z-50 -translate-y-1/2 md:hidden"
-        title={t('nav:openSidebar')}
-      >
-        <Bars3Icon className="size-4" />
-      </Button>
+       *
+       * The wrapper does the centering: it spans Payload's toolbar height and
+       * centers with flex, matching the actions as the header height changes
+       * across breakpoints. Centering the Button itself with `-translate-y-1/2`
+       * would be clobbered on press by its own `active:translate-y-px`, which
+       * rewrites the same `--tw-translate-y` and drops the button half its
+       * height (animated, since the Button also sets `transition-all`). */}
+      <div className="fixed top-0 left-(--gutter-h) z-50 flex h-[var(--app-header-height)] items-center md:hidden">
+        <Button
+          onClick={toggleSidebar}
+          variant="outline"
+          size="icon"
+          title={t('nav:openSidebar')}
+        >
+          <Bars3Icon className="size-4" />
+        </Button>
+      </div>
     </>
   );
 }

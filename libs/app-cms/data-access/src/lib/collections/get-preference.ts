@@ -13,7 +13,11 @@ import type { PayloadRuntime } from '../payload-runtime.types';
  * Keys are user-writable, so callers own the value shape and should validate
  * it rather than trust the cast.
  *
- * This function respects access control when `authenticatedUser` is present.
+ * Unlike the other collection readers, an unauthenticated runtime returns `null`
+ * rather than bypassing access control: preferences are per-user, and the query
+ * filters on `key` alone, so `overrideAccess` here would not widen the view to a
+ * system one — it would just drop the scoping and hand back an arbitrary user's
+ * row. Without an identity there is no preference to read.
  *
  * @param runtime - Authenticated Payload runtime or BasePayload instance
  * @param key - Preference key (e.g. `admin-dashboard`)
@@ -25,14 +29,18 @@ export async function getPreference<T>(
 ): Promise<T | null> {
   const { payload } = mapToRuntime(runtime);
 
+  const user = payload.authenticatedUser;
+  if (user === null) {
+    return null;
+  }
+
   try {
     const { docs } = await payload.find({
       collection: 'payload-preferences',
       where: { key: { equals: key } },
       limit: 1,
       depth: 0,
-      overrideAccess: payload.authenticatedUser === null,
-      user: payload.authenticatedUser
+      user
     });
     return (docs[0]?.value as T | undefined) ?? null;
   } catch {

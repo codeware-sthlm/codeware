@@ -42,6 +42,7 @@ import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da1
 import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
 import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/apps/cms/components/TenantsArrayRowLabel';
 import { default as default_176fd26d15967a8046e38df612c30d49 } from '@codeware/apps/cms/components/admin/AdminNavWrapper';
+import { default as default_42c5f221d82b17c6d729c2d401f23dbf } from '@codeware/apps/cms/components/Icon.client';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
 import { default as default_b53391252156a3e5a27683b2436d4ac3 } from '@codeware/apps/cms/components/admin/LanguageSwitch.client';
 import { default as default_d2a49a891cfd08d367302de7c6a74341 } from '@codeware/apps/cms/components/admin/ThemeSwitch.client';
@@ -146,6 +147,8 @@ export const importMap = {
     default_dec1059b7bb8eb8da3a9f0fc400fffbd,
   '@codeware/apps/cms/components/admin/AdminNavWrapper#default':
     default_176fd26d15967a8046e38df612c30d49,
+  '@codeware/apps/cms/components/Icon.client#default':
+    default_42c5f221d82b17c6d729c2d401f23dbf,
   '@codeware/apps/cms/components/Logo.client#default':
     default_42ab7a6f795fd44e8c166a2bb6b2adc0,
   '@codeware/apps/cms/components/admin/LanguageSwitch.client#default':

@@ -69,6 +69,7 @@ export default buildConfig({
         '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client'
       ],
       graphics: {
+        Icon: '@codeware/apps/cms/components/Icon.client',
         Logo: '@codeware/apps/cms/components/Logo.client'
       },
       Nav: '@codeware/apps/cms/components/admin/AdminNavWrapper',

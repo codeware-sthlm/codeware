@@ -181,13 +181,24 @@
 /*
  * Below `md` the sidebar is a Sheet, opened by our own `fixed` toggler pinned to
  * the toolbar's left gutter (`AdminNav.client.tsx`). Payload reserves that slot
- * only for its own toggler, which we don't render — so the step-nav starts at
- * the same gutter and the home link ends up underneath the button. Reserve the
- * button's width (32px) plus a gap. Breakpoint matches `useIsMobile`/`md:`.
+ * only for its own toggler, which we don't render.
+ *
+ * The toggler owns the toolbar's left corner there, so the home link stands
+ * down — home is reachable from the nav sheet — while the rest of the step-nav
+ * (the breadcrumb trail) is pushed clear of the button instead of sliding under
+ * it. Reserve the button's width (32px) plus a gap; the breakpoint matches
+ * `useIsMobile`/`md:`.
  */
 @media (max-width: 767px) {
   .app-header__content {
     padding-left: calc(var(--gutter-h) + 32px + var(--base) / 2);
+  }
+
+  /* The `+ span` is the `/` separator StepNav renders after the home link —
+     without it the breadcrumb trail would start with a stray slash. */
+  .step-nav__home,
+  .step-nav__home + span {
+    display: none;
   }
 }
 

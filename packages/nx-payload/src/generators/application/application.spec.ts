@@ -10,7 +10,7 @@ jest.mock('@nx/devkit', () => ({
 
 import { type Tree, readNxJson, readProjectConfiguration } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
-import { lintConfigHasOverride } from '@nx/eslint/src/generators/utils/eslint-file';
+import { lintConfigHasOverride } from '@nx/eslint/internal';
 
 import { payloadTargets } from '../../utils/definitions';
 

@@ -27,7 +27,7 @@
   },
   "peerDependencies": {
     "@anthropic-ai/sdk": ">=0.20.0 <2.0.0",
-    "@nx/devkit": "^20.0.0 || ^21.0.0 || ^22.0.0"
+    "@nx/devkit": "^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.1.0"
   },
   "type": "commonjs",
   "main": "./index.js",

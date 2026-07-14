@@ -4,14 +4,14 @@ jest.mock('@nx/devkit', () => ({
   ...jest.requireActual('@nx/devkit'),
   readJsonFile: jest.fn()
 }));
-jest.mock('@nx/devkit/src/utils/calculate-hash-for-create-nodes', () => ({
+jest.mock('@nx/devkit/internal', () => ({
   calculateHashForCreateNodes: jest.fn().mockResolvedValue('hash-abc')
 }));
 jest.mock('@nx/js', () => ({
   getLockFileName: jest.fn().mockReturnValue('package-lock.json')
 }));
 
-import type { CreateNodesContextV2 } from '@nx/devkit';
+import type { CreateNodesContext } from '@nx/devkit';
 import { readJsonFile } from '@nx/devkit';
 
 import { findUpFs } from '../../utils/find-up-fs';
@@ -27,7 +27,7 @@ const mockReadJsonFile = readJsonFile as jest.MockedFunction<
   typeof readJsonFile
 >;
 
-const context: CreateNodesContextV2 = {
+const context: CreateNodesContext = {
   workspaceRoot: '/workspace',
   nxJsonConfiguration: {}
 };

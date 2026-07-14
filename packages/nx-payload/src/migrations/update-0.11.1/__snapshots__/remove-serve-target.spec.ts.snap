@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`remove-serve-target migration should not remove serve targets when payload plugin is not installed: normal project 1`] = `
 "{

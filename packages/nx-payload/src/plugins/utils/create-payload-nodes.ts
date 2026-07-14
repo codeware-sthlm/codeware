@@ -1,7 +1,7 @@
 import { dirname, join, relative } from 'path/posix';
 
 import {
-  type CreateNodesContextV2,
+  type CreateNodesContext,
   type CreateNodesResult,
   type ProjectConfiguration,
   type TargetConfiguration,
@@ -9,7 +9,7 @@ import {
   normalizePath,
   readJsonFile
 } from '@nx/devkit';
-import { calculateHashForCreateNodes } from '@nx/devkit/src/utils/calculate-hash-for-create-nodes';
+import { calculateHashForCreateNodes } from '@nx/devkit/internal';
 import { getLockFileName } from '@nx/js';
 
 import { createPayloadTargets } from '../../utils/create-payload-targets';
@@ -31,7 +31,7 @@ import {
  */
 export const createPayloadNodes = async (
   configFilePath: string,
-  context: CreateNodesContextV2,
+  context: CreateNodesContext,
   options: PayloadPluginOptions | undefined,
   targetsCache: Record<
     string,

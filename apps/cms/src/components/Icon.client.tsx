@@ -8,9 +8,11 @@ import { CdwrCloud } from '@codeware/shared/ui/primitives';
  * own toolbar text color and stays legible in both themes.
  */
 const Icon: React.FC = () => {
-  // Payload sizes the home link to a fixed 16px box, so the mark has to fit it.
+  // Payload sizes the home link to a fixed 16px square. `size` is the mark's
+  // *width* — its height is derived from the aspect ratio (~11px) — so the
+  // wrapper has to fill the square and center it, or the mark hangs at the top.
   return (
-    <span className="flex items-center text-current opacity-80">
+    <span className="flex size-full items-center justify-center text-current opacity-80">
       <CdwrCloud size={16} />
     </span>
   );

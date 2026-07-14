@@ -53,16 +53,18 @@ export const AdminDashboard: React.FC<DashboardData> = ({
        so a plain `h-full` makes it one toolbar-height too tall — the overflow
        pushes the tab strip up under the toolbar. Claim only what's left. */
     <div className="codeware-admin twp bg-background text-foreground flex h-[calc(100%-var(--app-header-height))] flex-col">
+      {/* The gap to the toolbar sits above the whole strip, not inside it:
+       * padding on the TabsList would push the triggers down while leaving its
+       * bottom border (the divider) behind, collapsing the space under the
+       * labels. The triggers keep their own symmetric `py`. */}
       <Tabs
         value={activeTab}
         onValueChange={changeTab}
-        className="flex h-full flex-col gap-0"
+        className="flex h-full flex-col gap-0 pt-4"
       >
-        {/* `pb-0` keeps the active underline on the list's bottom border; the
-         * top padding is what separates the tab labels from the toolbar. */}
         <TabsList
           variant="line"
-          className="border-border h-auto w-full justify-start gap-6 rounded-none border-b px-7.5 pt-4 pb-0"
+          className="border-border h-auto w-full justify-start gap-6 rounded-none border-b px-7.5 py-0"
         >
           <TabsTrigger value="home" className={TAB_TRIGGER_CLASSES}>
             {t('dashboard:tabHome')}

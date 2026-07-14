@@ -217,9 +217,12 @@ function AdminNavContent({
       {/* On mobile the Sidebar renders as a Sheet portaled to document.body,
        * which escapes the `codeware-admin twp` scope on the provider — the
        * scope has to travel with it or the mobile nav renders untokenized. */}
+      {/* `z-40` is desktop-only on purpose: on mobile this className lands on
+       * the Sheet, whose overlay is `z-50` — a lower z would park the nav
+       * behind the overlay's blur. The Sheet's own z-50 is already correct. */}
       <Sidebar
         collapsible="icon"
-        className="codeware-admin twp border-border z-40"
+        className="codeware-admin twp border-border md:z-40"
       >
         {/* ── Header: brand row, workspace switcher, filter ── */}
         <SidebarHeader className="gap-4 p-3.5">
@@ -396,12 +399,15 @@ function AdminNavContent({
 
       {/* On mobile the Sidebar renders as a closed-by-default Sheet, so the
        * toggle button inside SidebarHeader is unreachable until it's open —
-       * this external trigger is the only way to open it in the first place. */}
+       * this external trigger is the only way to open it in the first place.
+       * Centered against Payload's own toolbar metrics rather than a fixed
+       * offset, so it stays aligned with the actions as the header height
+       * changes across breakpoints. */}
       <Button
         onClick={toggleSidebar}
         variant="outline"
         size="icon"
-        className="fixed top-3.5 left-3.5 z-50 md:hidden"
+        className="fixed top-[calc(var(--app-header-height)/2)] left-(--gutter-h) z-50 -translate-y-1/2 md:hidden"
         title={t('nav:openSidebar')}
       >
         <Bars3Icon className="size-4" />

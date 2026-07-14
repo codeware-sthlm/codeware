@@ -49,7 +49,10 @@ export const AdminDashboard: React.FC<DashboardData> = ({
     /* `codeware-admin` is a structural marker only (scopes payload-retheme
        selectors like the tenant selector); shadcn tokens come from the
        payload-admin theme at :root. `twp` pins the Tailwind px scale. */
-    <div className="codeware-admin twp bg-background text-foreground flex h-full flex-col">
+    /* The view renders below Payload's toolbar inside `.template-default__wrap`,
+       so a plain `h-full` makes it one toolbar-height too tall — the overflow
+       pushes the tab strip up under the toolbar. Claim only what's left. */
+    <div className="codeware-admin twp bg-background text-foreground flex h-[calc(100%-var(--app-header-height))] flex-col">
       <Tabs
         value={activeTab}
         onValueChange={changeTab}

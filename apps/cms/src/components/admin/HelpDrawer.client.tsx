@@ -122,16 +122,18 @@ export function HelpDrawer() {
 
   return (
     <div className="codeware-admin twp">
+      {/* Matches the language/locale pills — see PaletteTrigger for why
+       * `outline` and the `sm` label breakpoint were wrong here. */}
       <Button
         onClick={() => setOpen(true)}
-        variant="outline"
+        variant="ghost"
         size="sm"
-        className="text-muted-foreground hover:text-foreground gap-2 rounded-full font-normal"
+        className="border-border bg-background text-muted-foreground hover:text-foreground h-7 gap-1.5 rounded-full border px-2.5 text-xs font-medium"
         title={t('help:openHelp')}
         aria-label={t('help:drawerTitle')}
       >
         <QuestionMarkCircleIcon className="size-3.5" />
-        <span className="max-sm:hidden">{t('help:openHelp')}</span>
+        <span className="max-lg:hidden">{t('help:openHelp')}</span>
       </Button>
       <Drawer open={open} onOpenChange={setOpen} direction="right">
         {/* Floating inset panel: the same-variant overrides replace the base

@@ -214,7 +214,13 @@ function AdminNavContent({
       {/* Payload's own toolbar (`.app-header`) sits at `--z-modal` (30) and
        * would otherwise paint over — and intercept clicks on — the sidebar's
        * `fixed` container (z-10 by default), so it needs to sit above that. */}
-      <Sidebar collapsible="icon" className="border-border z-40">
+      {/* On mobile the Sidebar renders as a Sheet portaled to document.body,
+       * which escapes the `codeware-admin twp` scope on the provider — the
+       * scope has to travel with it or the mobile nav renders untokenized. */}
+      <Sidebar
+        collapsible="icon"
+        className="codeware-admin twp border-border z-40"
+      >
         {/* ── Header: brand row, workspace switcher, filter ── */}
         <SidebarHeader className="gap-4 p-3.5">
           {/* Expanded: selected-workspace identity + subtle collapse toggle.

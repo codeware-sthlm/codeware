@@ -78,7 +78,11 @@ export function LocaleSwitch() {
             className="border-border bg-background text-muted-foreground hover:text-foreground h-7 gap-1.5 rounded-full border px-2.5 text-xs font-medium"
           >
             <GlobeAltIcon className="size-3.5" aria-hidden />
-            {t('nav:contentLocale')}: {locale.code.toUpperCase()}
+            {/* Collapses to just the code on narrow viewports, like the
+             * language pill — the full `Locale: EN` label is what kept this
+             * action from shrinking with the rest of the toolbar. */}
+            <span className="max-lg:hidden">{t('nav:contentLocale')}:</span>
+            <span>{locale.code.toUpperCase()}</span>
             <ChevronDownIcon className="size-3" aria-hidden />
             <span className="sr-only">{t('nav:contentLocaleAria')}</span>
           </Button>

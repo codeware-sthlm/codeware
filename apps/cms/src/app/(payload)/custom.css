@@ -178,6 +178,19 @@
   justify-content: center;
 }
 
+/*
+ * Below `md` the sidebar is a Sheet, opened by our own `fixed` toggler pinned to
+ * the toolbar's left gutter (`AdminNav.client.tsx`). Payload reserves that slot
+ * only for its own toggler, which we don't render — so the step-nav starts at
+ * the same gutter and the home link ends up underneath the button. Reserve the
+ * button's width (32px) plus a gap. Breakpoint matches `useIsMobile`/`md:`.
+ */
+@media (max-width: 767px) {
+  .app-header__content {
+    padding-left: calc(var(--gutter-h) + 32px + var(--base) / 2);
+  }
+}
+
 /* Fill the link's square so the mark has a box to center within. */
 .step-nav__home > span {
   display: inline-flex;

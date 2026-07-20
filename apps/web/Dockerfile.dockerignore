@@ -1,0 +1,28 @@
+.DS_Store
+.git
+
+# Config
+.settings
+.verdaccio
+.vscode
+
+# Nx
+.nx
+migrations.json
+tools
+*.log
+
+# Other apps
+/apps/*
+!/apps/web
+
+# Temporary files
+coverage
+dist
+node_modules
+tmp
+
+# Exclude non-pnpm lock files to prevent wrong package manager detection
+bun.lockb
+package-lock.json
+yarn.lock

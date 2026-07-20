@@ -7,6 +7,8 @@ export default defineConfig({
   plugins: [nxViteTsPaths()],
   test: {
     name: 'packages-fly-node-integration',
+    maxWorkers: 1,
+    isolate: false,
     globals: true,
     watch: false,
     environment: 'node',
@@ -21,11 +23,6 @@ export default defineConfig({
     testTimeout: 300000, // 5 minutes
     hookTimeout: 120000, // 2 minutes for deploy/destroy during setup/teardown
     // Run tests serially to avoid rate limiting and resource conflicts
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true
-      }
-    }
+    pool: 'forks'
   }
 });

@@ -286,5 +286,8 @@
   "sync": {
     "globalGenerators": ["dev-plugin:theme-sync"]
   },
-  "analytics": true
+  "analytics": true,
+  "migrate": {
+    "agentic": true
+  }
 }

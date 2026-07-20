@@ -8,16 +8,14 @@ import {
 import {
   determineDefaultBase,
   determineNxCloud,
-  determinePackageManager
-} from 'create-nx-workspace/src/internal-utils/prompts';
-import {
+  determinePackageManager,
+  output,
   withAllPrompts,
   withGitOptions,
   withNxCloud,
   withOptions,
   withPackageManager
-} from 'create-nx-workspace/src/internal-utils/yargs-options';
-import { output } from 'create-nx-workspace/src/utils/output';
+} from 'create-nx-workspace/internal';
 import * as enquirer from 'enquirer';
 import * as yargs from 'yargs';
 

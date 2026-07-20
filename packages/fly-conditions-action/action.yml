@@ -23,5 +23,5 @@ outputs:
       'true' if the pipeline should be skipped, 'false' if it should continue.
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "../../dist/packages/fly-conditions-action/action.cjs"

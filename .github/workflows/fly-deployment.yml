@@ -75,11 +75,11 @@ jobs:
       skip: ${{ steps.conditions.outputs.skip }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "pnpm"
 
@@ -107,13 +107,13 @@ jobs:
       app-tenants: ${{ steps.pre-deploy.outputs.app-tenants }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "pnpm"
 
@@ -124,7 +124,7 @@ jobs:
         run: pnpm nx build nx-pre-deploy-action
 
       - name: Set SHAs for affected calculations
-        uses: nrwl/nx-set-shas@v4
+        uses: nrwl/nx-set-shas@v5
         with:
           main-branch-name: main
           set-environment-variables-for-job: true
@@ -166,19 +166,19 @@ jobs:
       images: ${{ steps.build.outputs.images }}
 
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "pnpm"
 
@@ -275,19 +275,19 @@ jobs:
       projects: ${{ steps.deployment.outputs.projects }}
 
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "pnpm"
 
@@ -379,7 +379,7 @@ jobs:
       needs.deploy.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
@@ -394,11 +394,11 @@ jobs:
           PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
           echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "pnpm"
 
@@ -496,7 +496,7 @@ jobs:
           echo "PAYLOAD_EOF" >> "$GITHUB_OUTPUT"
 
       - name: Send Slack notification
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK }}
           webhook-type: incoming-webhook
@@ -509,17 +509,17 @@ jobs:
       github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           cache: "pnpm"
 

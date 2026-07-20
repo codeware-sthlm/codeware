@@ -19,5 +19,5 @@ outputs:
       The environment to deploy applications to.
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "../../dist/packages/deploy-env-action/action.cjs"

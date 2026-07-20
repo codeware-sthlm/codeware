@@ -68,5 +68,5 @@ outputs:
       Using a file avoids GitHub Actions secret scanning that can suppress the value as a job output.
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "../../dist/packages/fly-build-action/action.cjs"

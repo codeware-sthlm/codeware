@@ -61,5 +61,5 @@ outputs:
       Example: { "web": [{ "tenant": "acme", "env": { "PUBLIC_URL": "https://acme.com" }, "secrets": { "API_KEY": "..." } }] }
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "../../dist/packages/nx-pre-deploy-action/action.cjs"

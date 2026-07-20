@@ -5,5 +5,5 @@ description: >
   Please update your workflow to use the new package name.
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "../../dist/packages/nx-fly-deployment-action/action.cjs"

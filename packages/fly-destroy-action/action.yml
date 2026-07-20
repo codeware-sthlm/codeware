@@ -31,5 +31,5 @@ outputs:
       A list of app names that were skipped (e.g., failed to destroy).
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "../../dist/packages/fly-destroy-action/action.cjs"

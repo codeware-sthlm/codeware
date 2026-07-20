@@ -97,5 +97,5 @@ outputs:
       — upload as an artifact and pass the downloaded path to consuming actions.
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "../../dist/packages/fly-deployment-action/action.cjs"

@@ -19,7 +19,16 @@ export default defineConfig({
     })
   ],
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react/jsx-dev-runtime']
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-dev-runtime',
+      // Pulls in CJS-only deps (aria-query, lz-string) that would otherwise be
+      // served raw and fail their ESM named imports. Pre-bundling the parent
+      // inlines them; listing them directly doesn't work since pnpm keeps them
+      // unresolvable from the workspace root.
+      '@testing-library/dom'
+    ]
   },
   test: {
     name: 'storybook',

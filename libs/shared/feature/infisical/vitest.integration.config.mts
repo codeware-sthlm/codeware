@@ -7,6 +7,8 @@ export default defineConfig({
   plugins: [nxViteTsPaths()],
   test: {
     name: 'shared-feature-infisical-integration',
+    maxWorkers: 1,
+    isolate: false,
     globals: true,
     watch: false,
     environment: 'node',
@@ -23,11 +25,6 @@ export default defineConfig({
     setupFiles: ['integration-tests/setup.ts'],
     passWithNoTests: false,
     // Run tests serially to avoid rate limiting and resource conflicts
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true
-      }
-    }
+    pool: 'forks'
   }
 });

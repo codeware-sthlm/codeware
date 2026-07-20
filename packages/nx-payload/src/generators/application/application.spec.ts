@@ -207,6 +207,13 @@ describe('application generator', () => {
     );
   });
 
+  it('should declare @payloadcms/next/css module in index.d.ts', async () => {
+    await applicationGenerator(tree, options);
+
+    const declarations = tree.read(`${options.directory}/index.d.ts`, 'utf-8');
+    expect(declarations).toContain("declare module '@payloadcms/next/css';");
+  });
+
   it('should add payload config path alias once to tsconfig.base.json', async () => {
     await applicationGenerator(tree, options);
 

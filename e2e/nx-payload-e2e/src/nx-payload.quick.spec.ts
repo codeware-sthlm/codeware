@@ -1,7 +1,8 @@
 import { logDebug } from '@codeware/core/utils';
 import {
   ensureCreateNxWorkspaceProject,
-  ensureLockFileIsDetected
+  ensureLockFileIsDetected,
+  ensureTs6TsconfigCompat
 } from '@codeware/e2e/utils';
 import type { NxJsonConfiguration } from '@nx/devkit';
 import {
@@ -71,6 +72,7 @@ describe('Test plugin by starting with an empty workspace (limited test suite)',
       await runNxCommandAsync(
         `g @cdwr/nx-payload:app ${appName} --directory ${appDirectory}`
       );
+      ensureTs6TsconfigCompat();
       logDebug(
         'Application generated - package.json',
         JSON.stringify(readJson('package.json'), null, 2)

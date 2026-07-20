@@ -25,6 +25,7 @@ import type { PackageJson } from 'nx/src/utils/package-json';
 
 import { cleanupE2E } from './cleanup-e2e';
 import { ensureLegacyPeerDeps } from './ensure-legacy-peer-deps';
+import { ensureTs6TsconfigCompat } from './ensure-ts6-tsconfig-compat';
 import { getE2EPackageManager } from './get-e2e-package-manager';
 
 export type CreateNxWorkspaceProject = {
@@ -264,6 +265,9 @@ export async function ensureCreateNxWorkspaceProject({
 
   // ! Payload peers a later version of Next.js than Nx does
   ensureLegacyPeerDeps(pm);
+
+  // ! create-nx-workspace still emits deprecated `baseUrl`, a hard error on TS 6
+  ensureTs6TsconfigCompat();
 
   if (preset === 'apps' && options?.ensureNxPayload) {
     logDebug('Install @cdwr/nx-payload plugin in the empty apps workspace');

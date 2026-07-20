@@ -9,6 +9,7 @@ import { applicationGenerator as nextApplicationGenerator } from '@nx/next';
 
 import { initGenerator as payloadInitGenerator } from '../init/init';
 
+import { addCssModuleDeclaration } from './libs/add-css-module-declaration';
 import { addPathAlias } from './libs/add-path-alias';
 import { createApplicationFiles } from './libs/create-application-files';
 import { disableLegacyLinting } from './libs/disable-legacy-linting';
@@ -65,6 +66,7 @@ export async function applicationGeneratorInternal(
 
   // Application
   ensureProjectTargets(host, options);
+  addCssModuleDeclaration(host, options);
   updateEslintConfig(host, options);
 
   // Problems with legacy apps that probably is Nx related,

@@ -3,6 +3,7 @@ export * from './ensure-create-nx-workspace-project';
 export * from './ensure-docker-connect-to-local-registry';
 export * from './ensure-legacy-peer-deps';
 export * from './ensure-lock-file-is-detected';
+export * from './ensure-ts6-tsconfig-compat';
 export * from './get-folder-files';
 export * from './remove-folder-files';
 export * from './reset-docker';

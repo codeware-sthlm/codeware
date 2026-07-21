@@ -29,26 +29,30 @@ export function usePaletteSearch(query: string): {
 } {
   const { config } = useConfig();
   const apiRoute = config.routes.api;
+
+  const trimmed = query.trim();
+  const enabled = trimmed.length >= MIN_QUERY_LENGTH;
+
   const [status, setStatus] = useState<PaletteSearchStatus>('idle');
   const [results, setResults] = useState<Array<PaletteSearchResultItem>>([]);
   const abortRef = useRef<AbortController | null>(null);
   const queryRef = useRef(query);
-  queryRef.current = query;
 
   useEffect(() => {
-    const trimmed = query.trim();
-    if (trimmed.length < MIN_QUERY_LENGTH) {
+    queryRef.current = query;
+
+    // Short queries never leave the client — the idle/empty result is derived
+    // below rather than stored, so no state update is needed here.
+    if (!enabled) {
       abortRef.current?.abort();
-      setStatus('idle');
-      setResults([]);
       return;
     }
 
-    setStatus('loading');
     const timer = setTimeout(async () => {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
+      setStatus('loading');
 
       try {
         const response = await fetch(
@@ -72,10 +76,12 @@ export function usePaletteSearch(query: string): {
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
-  }, [query, apiRoute]);
+  }, [query, trimmed, enabled, apiRoute]);
 
   // Abort any in-flight request on unmount
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  return { status, results };
+  // While the query is too short the search is inactive: report idle with no
+  // results without persisting that derived state.
+  return enabled ? { status, results } : { status: 'idle', results: [] };
 }

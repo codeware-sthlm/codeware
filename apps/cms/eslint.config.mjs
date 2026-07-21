@@ -1,18 +1,13 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-import { fixupConfigRules } from '@eslint/compat';
-import { FlatCompat } from '@eslint/eslintrc';
-import js from '@eslint/js';
 import nx from '@nx/eslint-plugin';
+// eslint-config-next v16 ships a native flat config (`Linter.Config[]`), so it
+// is spread directly — no FlatCompat needed. `core-web-vitals` already includes
+// the base `next` config.
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 
 import baseConfig from '../../eslint.config.mjs';
 
-const compat = new FlatCompat({
-  baseDirectory: dirname(fileURLToPath(import.meta.url)),
-  recommendedConfig: js.configs.recommended
-});
-
+// The base config and the Next flat config both register the `import` plugin;
+// strip it from the Next config to avoid a flat-config "plugin redefined" error.
 const removeDuplicateImportPlugin = (configArr) => {
   for (const config of configArr) {
     if (config?.plugins && config?.plugins.import) {
@@ -22,15 +17,10 @@ const removeDuplicateImportPlugin = (configArr) => {
   return configArr;
 };
 
-const nextPlugins = [
-  ...fixupConfigRules(compat.extends('next')),
-  ...fixupConfigRules(compat.extends('next/core-web-vitals'))
-];
-
 const config = [
   ...baseConfig,
   ...nx.configs['flat/react-typescript'],
-  ...removeDuplicateImportPlugin(nextPlugins),
+  ...removeDuplicateImportPlugin([...nextCoreWebVitals]),
   {
     ignores: [
       '.next/**/*',

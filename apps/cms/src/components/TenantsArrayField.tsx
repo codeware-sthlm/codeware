@@ -22,13 +22,16 @@ export const TenantsArrayField: FieldComponentServer<'ArrayField'> = ({
 }) => {
   const tenantIds = getUserTenantIDs(user, 'admin').length;
 
-  if (!hasRole(user, 'system-user') && tenantIds > 0) {
-    clientField.maxRows = tenantIds;
-  }
+  // Cap the rows to the number of administered tenants without mutating the
+  // incoming prop.
+  const field =
+    !hasRole(user, 'system-user') && tenantIds > 0
+      ? { ...clientField, maxRows: tenantIds }
+      : clientField;
 
   return (
     <ArrayField
-      field={clientField}
+      field={field}
       path={path}
       schemaPath={schemaPath}
       permissions={permissions}

@@ -4,7 +4,7 @@ import type { PackageJson } from 'nx/src/utils/package-json';
 
 import {
   graphqlVersion,
-  next15Version,
+  next16Version,
   payloadVersion
 } from '../../utils/versions';
 
@@ -50,13 +50,15 @@ describe('init', () => {
     expect(packageJson).toMatchObject({
       dependencies: {
         graphql: graphqlVersion,
-        next: next15Version
+        next: next16Version
       }
     });
   });
 
-  it('should not add Next.js dependency when already present', async () => {
-    const existingNextVersion = '16.0.0';
+  it('should not add or downgrade Next.js when already present', async () => {
+    // A workspace already on Next 15 is kept as-is (Payload v3.86 still
+    // supports Next 15), never downgraded or bumped to the v16 default.
+    const existingNextVersion = '15.2.9';
     addDependenciesToPackageJson(tree, { next: existingNextVersion }, {});
 
     await initGenerator(tree, options);

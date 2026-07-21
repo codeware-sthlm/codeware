@@ -64,26 +64,19 @@
 ## Next.js Version
 
 > [!IMPORTANT]
-> This plugin installs **Next.js v15** when generating a new Payload application, unless your workspace already has a Next.js version installed.
+> This plugin installs **Next.js v16** when generating a new Payload application, unless your workspace already has a Next.js version installed.
 
-### Why Next.js v15? <!-- omit in toc -->
+**Next.js v16 is not required — Next.js v15 still works.** The plugin installs Payload v3.86, whose `@payloadcms/next` package supports both Next.js v16 (`>=16.2.6`) and Next.js v15 (`>=15.2.9`). v16 is simply the new default for fresh installs.
 
-Although Nx v22 scaffolds new Next.js apps using the latest major (currently Next.js v16), the Payload team has not yet marked v16 as fully stable or officially supported.
+### Can I stay on Next.js v15? <!-- omit in toc -->
 
-Next.js v15 provides a predictable experience and avoids subtle compatibility issues.
+Yes. If your workspace already has Next.js v15 installed, the generator **will not upgrade or downgrade** it — it only adds Next.js when none is present. Any Next.js version supported by the installed Payload release (`>=15.2.9`) is fine.
 
-### Can I use Next.js v16? <!-- omit in toc -->
+### Notes <!-- omit in toc -->
 
-Yes — the plugin does **not** prevent you from using Next.js v16. If your workspace already has Next.js v16 installed, the generator **will not downgrade** it.
-
-However, note that:
-
-- Payload’s official Next.js support currently targets **Next.js v15**
-- Payload v3.54 is required for Next.js v16
-- Next.js v16 may require additional configuration depending on your Payload version
-- Future releases of Payload (and this plugin) will expand support once the ecosystem stabilizes
-
-If you intentionally want to use Next.js v16, ensure it's installed before adding this plugin, or manually update afterwards.
+- Payload **v3.86** (installed by this plugin) is required for Next.js v16 support
+- Next.js v16 builds with **Turbopack** by default; the generated `next.config.mjs` is compatible with it
+- Next.js renamed the `middleware.ts` file convention to `proxy.ts` in v16 — the generated app follows the v16 convention
 
 > [!TIP]
 > See [this Payload PR](https://github.com/payloadcms/payload/pull/14456) related to their work on supporting Next.js v16
@@ -382,8 +375,11 @@ Generate a Payload application powered by Next.js.
 
 Later versions of Nx or Payload might work as well, but the versions below have been used during tests.
 
+> The Next.js column lists the version installed by default. See [Next.js Version](#nextjs-version) for the full supported range (Next.js v15 is also supported from `^2.3.0`).
+
 | Plugin    | Nx        | Payload   | React     | Next.js   |
 | --------- | --------- | --------- | --------- | --------- |
+| `^2.3.0`  | `22.x`    | `3.86.0`  | `^19.0.0` | `^16.0.0` |
 | `^2.2.1`  | `22.x`    | `3.84.1`  | `^19.0.0` | `^15.0.0` |
 | `^2.2.0`  | `22.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0` |
 | `^2.1.0`  | `21.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0` |

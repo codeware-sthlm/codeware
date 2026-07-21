@@ -65,8 +65,9 @@ const nextConfig = {
     }
   },
 
+  reactCompiler: false,
+
   experimental: {
-    reactCompiler: false,
     // Enable server-side source maps for better error tracking
     serverSourceMaps: true
   }

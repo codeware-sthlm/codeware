@@ -2,7 +2,7 @@
 
 import { useAuth, useTranslation } from '@payloadcms/ui';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { PaletteRow, getSlugIcon } from '@codeware/app-cms/ui/dashboard';
 import type {
@@ -58,15 +58,22 @@ function PaletteDialog({
   const { status: searchStatus, results: searchResults } =
     usePaletteSearch(query);
 
-  // Reset the query on close so the palette reopens in its start state
-  useEffect(() => {
-    if (!open) {
-      setQuery('');
-    }
-  }, [open]);
+  /**
+   * Wrap the parent handler so the query resets whenever the palette closes
+   * (via Escape, overlay click, or a command) — it reopens in its start state.
+   */
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      if (!next) {
+        setQuery('');
+      }
+      onOpenChange(next);
+    },
+    [onOpenChange]
+  );
 
   /** Memoized close function so it can be used in callbacks without re-rendering. */
-  const close = useCallback(() => onOpenChange(false), [onOpenChange]);
+  const close = useCallback(() => handleOpenChange(false), [handleOpenChange]);
 
   /** Run a command's side effect, then close the palette. */
   const runAndClose = useCallback(
@@ -112,7 +119,7 @@ function PaletteDialog({
   return (
     <CommandDialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       title={t('palette:dialogTitle')}
       description={t('palette:dialogDescription')}
       // spacing-scale width (680px via .twp) — the named rem sizes like

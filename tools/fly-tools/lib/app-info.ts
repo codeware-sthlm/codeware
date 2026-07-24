@@ -10,6 +10,7 @@ import {
   text
 } from '@clack/prompts';
 import { Fly } from '@codeware/fly-node';
+import chalk from 'chalk';
 import Table from 'cli-table3';
 
 // Initialize Fly client
@@ -47,6 +48,7 @@ function formatBytes(mb: number): string {
 function formatState(state: string): string {
   const stateMap: Record<string, string> = {
     started: '🟢 Started',
+    suspended: '🟠 Suspended',
     stopped: '🔴 Stopped',
     starting: '🟡 Starting',
     stopping: '🟡 Stopping',
@@ -57,12 +59,14 @@ function formatState(state: string): string {
 }
 
 /**
- * Format uptime from created date
+ * Format uptime from an epoch-millisecond timestamp (time elapsed until now)
  */
-function formatUptime(createdAt: string): string {
-  const created = new Date(createdAt);
-  const now = new Date();
-  const diff = now.getTime() - created.getTime();
+function formatUptime(sinceMs: number): string {
+  if (!Number.isFinite(sinceMs)) {
+    return '-';
+  }
+
+  const diff = Math.max(0, Date.now() - sinceMs);
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -76,19 +80,65 @@ function formatUptime(createdAt: string): string {
   return `${minutes}m`;
 }
 
+type MachineLike = {
+  createdAt: string;
+  events?: Array<{ type: string; timestamp: number }>;
+};
+
 /**
- * Format compact state indicator for tables
+ * Timestamp (epoch ms) of a machine's most recent start, so uptime reflects
+ * reboots/restarts rather than original creation. Falls back to the creation
+ * time when no start event is recorded.
+ */
+function getLastStartMs(machine: MachineLike): number {
+  const startTimestamps = (machine.events ?? [])
+    .filter((event) => event.type === 'start')
+    .map((event) => event.timestamp);
+
+  if (startTimestamps.length > 0) {
+    const ts = Math.max(...startTimestamps);
+    // Fly event timestamps are epoch milliseconds; guard against seconds.
+    return ts < 1e12 ? ts * 1000 : ts;
+  }
+
+  return Date.parse(machine.createdAt);
+}
+
+/**
+ * Format compact, color-coded state indicator for tables
  */
 function formatCompactState(state: string): string {
-  const stateMap: Record<string, string> = {
-    started: '●',
-    stopped: '○',
-    starting: '◐',
-    stopping: '◑',
-    created: '◌',
-    destroyed: '✕'
-  };
-  return stateMap[state] || '?';
+  switch (state) {
+    case 'started':
+      return chalk.green('●');
+    case 'suspended':
+    case 'stopped':
+      return chalk.gray('○');
+    case 'starting':
+      return chalk.yellow('◐');
+    case 'stopping':
+      return chalk.yellow('◑');
+    case 'created':
+      return chalk.blue('◌');
+    case 'destroyed':
+      return chalk.red('✕');
+    default:
+      return chalk.dim('?');
+  }
+}
+
+/**
+ * Legend explaining the compact state indicators
+ */
+function compactStateLegend(): string {
+  const items = [
+    `${chalk.green('●')} started`,
+    `${chalk.gray('○')} suspended/stopped`,
+    `${chalk.yellow('◐')} transitional`,
+    `${chalk.red('✕')} destroyed`,
+    `${chalk.dim('?')} unknown`
+  ];
+  return `${chalk.dim('States:')} ${items.join('   ')}`;
 }
 
 interface AppSummary {
@@ -131,13 +181,10 @@ async function fetchAppSummary(appName: string): Promise<AppSummary | null> {
         resources = `${cpuKind}×${cpus} ${memDisplay}`;
       }
 
-      // Get oldest machine uptime (most representative)
-      const oldestMachine = status.machines.reduce(
-        (oldest, m) =>
-          new Date(m.createdAt) < new Date(oldest.createdAt) ? m : oldest,
-        firstMachine
-      );
-      uptime = formatUptime(oldestMachine.createdAt);
+      // Uptime reflects the most recent machine start, so it resets on a
+      // reboot/restart rather than tracking original creation time.
+      const lastStartMs = Math.max(...status.machines.map(getLastStartMs));
+      uptime = formatUptime(lastStartMs);
     }
 
     // Fetch certificates count
@@ -230,6 +277,7 @@ async function displayAppTable(appNames: string[]): Promise<void> {
 
   log.message('');
   log.message(table.toString());
+  log.message(compactStateLegend());
   log.message('');
 }
 
@@ -292,7 +340,7 @@ async function displayAppInfo(appName: string): Promise<void> {
 
         log.message(`   🖥️  ${machine.name} (${machine.region})`);
         log.message(
-          `      ${formatState(machine.state)} | Uptime: ${formatUptime(machine.createdAt)}`
+          `      ${formatState(machine.state)} | Uptime: ${formatUptime(getLastStartMs(machine))}`
         );
 
         // Image info

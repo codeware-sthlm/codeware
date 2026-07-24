@@ -374,11 +374,11 @@ Generate a Payload application powered by Next.js.
 
 Later versions of Nx or Payload might work as well, but the versions below have been used during tests.
 
-> The Next.js column lists the version installed by default. As of `^2.3.0`, Next.js v15 (`>=15.2.9`) also works — see [Next.js Version](#nextjs-version) for the full supported range.
+> The Next.js column lists the version installed by default; Next.js v15 (`>=15.2.9`) also works — see [Next.js Version](#nextjs-version) for the full supported range. The `main` row is the current unreleased state; its plugin version is assigned when released via `nx release`.
 
 | Plugin    | Nx        | Payload   | React     | Next.js    |
 | --------- | --------- | --------- | --------- | ---------- |
-| `^2.3.0`  | `22.x`    | `3.86.0`  | `^19.0.0` | `^16.2.10` |
+| `main`    | `22.x`    | `3.86.0`  | `^19.0.0` | `^16.2.10` |
 | `^2.2.1`  | `22.x`    | `3.84.1`  | `^19.0.0` | `^15.0.0`  |
 | `^2.2.0`  | `22.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0`  |
 | `^2.1.0`  | `21.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0`  |

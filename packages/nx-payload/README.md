@@ -76,7 +76,6 @@ Yes. If your workspace already has Next.js v15 installed, the generator **will n
 
 - Payload **v3.86** (installed by this plugin) is required for Next.js v16 support
 - Next.js v16 builds with **Turbopack** by default; the generated `next.config.mjs` is compatible with it
-- Next.js renamed the `middleware.ts` file convention to `proxy.ts` in v16 — the generated app follows the v16 convention
 
 > [!TIP]
 > See [this Payload PR](https://github.com/payloadcms/payload/pull/14456) related to their work on supporting Next.js v16
@@ -375,22 +374,22 @@ Generate a Payload application powered by Next.js.
 
 Later versions of Nx or Payload might work as well, but the versions below have been used during tests.
 
-> The Next.js column lists the version installed by default. See [Next.js Version](#nextjs-version) for the full supported range (Next.js v15 is also supported from `^2.3.0`).
+> The Next.js column lists the version installed by default. As of `^2.3.0`, Next.js v15 (`>=15.2.9`) also works — see [Next.js Version](#nextjs-version) for the full supported range.
 
-| Plugin    | Nx        | Payload   | React     | Next.js   |
-| --------- | --------- | --------- | --------- | --------- |
-| `^2.3.0`  | `22.x`    | `3.86.0`  | `^19.0.0` | `^16.0.0` |
-| `^2.2.1`  | `22.x`    | `3.84.1`  | `^19.0.0` | `^15.0.0` |
-| `^2.2.0`  | `22.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0` |
-| `^2.1.0`  | `21.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0` |
-| `^2.0.0`  | `^20.4.2` | `^3.0.0`  | `^19.0.0` | `^15.0.0` |
-| `^1.0.0`  | `20.x`    | `^2.30.3` | `^18.0.0` | -         |
-| `^0.11.0` | `20.x`    | `^2.30.3` | `^18.0.0` | -         |
-| `^0.10.0` | `19.x`    | `^2.8.2`  | -         | -         |
-| `^0.9.5`  | `^19.5.7` | `^2.8.2`  | -         | -         |
-| `^0.9.0`  | `^19.0.2` | `^2.8.2`  | -         | -         |
-| `^0.8.0`  | `^18.3.4` | `^2.8.2`  | -         | -         |
-| `^0.7.0`  | `~18.2.2` | `^2.8.2`  | -         | -         |
-| `^0.6.0`  | `~18.1.1` | `^2.8.2`  | -         | -         |
-| `^0.5.0`  | `~18.0.3` | `^2.8.2`  | -         | -         |
-| `^0.1.0`  | `^17.0.0` | `^2.5.0`  | -         | -         |
+| Plugin    | Nx        | Payload   | React     | Next.js    |
+| --------- | --------- | --------- | --------- | ---------- |
+| `^2.3.0`  | `22.x`    | `3.86.0`  | `^19.0.0` | `^16.2.10` |
+| `^2.2.1`  | `22.x`    | `3.84.1`  | `^19.0.0` | `^15.0.0`  |
+| `^2.2.0`  | `22.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0`  |
+| `^2.1.0`  | `21.x`    | `~3.42.0` | `^19.0.0` | `^15.0.0`  |
+| `^2.0.0`  | `^20.4.2` | `^3.0.0`  | `^19.0.0` | `^15.0.0`  |
+| `^1.0.0`  | `20.x`    | `^2.30.3` | `^18.0.0` | -          |
+| `^0.11.0` | `20.x`    | `^2.30.3` | `^18.0.0` | -          |
+| `^0.10.0` | `19.x`    | `^2.8.2`  | -         | -          |
+| `^0.9.5`  | `^19.5.7` | `^2.8.2`  | -         | -          |
+| `^0.9.0`  | `^19.0.2` | `^2.8.2`  | -         | -          |
+| `^0.8.0`  | `^18.3.4` | `^2.8.2`  | -         | -          |
+| `^0.7.0`  | `~18.2.2` | `^2.8.2`  | -         | -          |
+| `^0.6.0`  | `~18.1.1` | `^2.8.2`  | -         | -          |
+| `^0.5.0`  | `~18.0.3` | `^2.8.2`  | -         | -          |
+| `^0.1.0`  | `^17.0.0` | `^2.5.0`  | -         | -          |

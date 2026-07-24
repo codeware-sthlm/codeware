@@ -134,7 +134,8 @@ function compactStateLegend(): string {
   const items = [
     `${chalk.green('●')} started`,
     `${chalk.gray('○')} suspended/stopped`,
-    `${chalk.yellow('◐')} transitional`,
+    `${chalk.yellow('◐◑')} transitional`,
+    `${chalk.blue('◌')} created`,
     `${chalk.red('✕')} destroyed`,
     `${chalk.dim('?')} unknown`
   ];
@@ -182,9 +183,14 @@ async function fetchAppSummary(appName: string): Promise<AppSummary | null> {
       }
 
       // Uptime reflects the most recent machine start, so it resets on a
-      // reboot/restart rather than tracking original creation time.
-      const lastStartMs = Math.max(...status.machines.map(getLastStartMs));
-      uptime = formatUptime(lastStartMs);
+      // reboot/restart rather than tracking original creation time. Ignore
+      // machines with a non-finite timestamp so one bad value doesn't blank
+      // out the whole app's uptime.
+      const startTimes = status.machines
+        .map(getLastStartMs)
+        .filter((ms) => Number.isFinite(ms));
+      uptime =
+        startTimes.length > 0 ? formatUptime(Math.max(...startTimes)) : '-';
     }
 
     // Fetch certificates count

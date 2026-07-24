@@ -8,19 +8,22 @@ import baseConfig from '../../eslint.config.mjs';
 
 // The base config and the Next flat config both register the `import` plugin;
 // strip it from the Next config to avoid a flat-config "plugin redefined" error.
-const removeDuplicateImportPlugin = (configArr) => {
-  for (const config of configArr) {
-    if (config?.plugins && config?.plugins.import) {
-      delete config.plugins.import;
+// Returns new config objects rather than mutating the imported `eslint-config-next`
+// singletons, which are shared across the process.
+const removeDuplicateImportPlugin = (configArr) =>
+  configArr.map((config) => {
+    if (!config?.plugins?.import) {
+      return config;
     }
-  }
-  return configArr;
-};
+    const plugins = { ...config.plugins };
+    delete plugins.import;
+    return { ...config, plugins };
+  });
 
 const config = [
   ...baseConfig,
   ...nx.configs['flat/react-typescript'],
-  ...removeDuplicateImportPlugin([...nextCoreWebVitals]),
+  ...removeDuplicateImportPlugin(nextCoreWebVitals),
   {
     ignores: [
       '.next/**/*',

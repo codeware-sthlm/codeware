@@ -116,7 +116,7 @@
     }
   },
   "release": {
-    "projects": ["packages/*"],
+    "projects": ["packages/*", "!tag:type:action"],
     "projectsRelationship": "independent",
     "changelog": {
       "automaticFromRef": true,

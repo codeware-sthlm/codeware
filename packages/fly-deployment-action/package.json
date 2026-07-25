@@ -1,6 +1,7 @@
 {
   "name": "@cdwr/fly-deployment-action",
   "version": "0.4.0",
+  "private": true,
   "description": "The Nx Fly Deployment Action will manage your deployments to fly.io.",
   "repository": {
     "type": "git",
@@ -20,9 +21,6 @@
     "Fly.io",
     "Nx"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",

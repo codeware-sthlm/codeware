@@ -1,6 +1,7 @@
 {
   "name": "@cdwr/fly-conditions-action",
   "version": "0.1.0",
+  "private": true,
   "description": "GitHub action that analyzes deployment conditions for the Fly.io deployment pipeline.",
   "repository": {
     "type": "git",
@@ -19,9 +20,6 @@
     "Fly.io",
     "Nx"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",

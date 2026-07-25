@@ -1,10 +1,7 @@
 /**
- * TODO: Could be moved back to a package once `@cdwr/core` is split into more specific packages.
- *
- * Using something from core makes the bundle bloated with code you don't need.
- *
- * Since this zod preprocessor is used implicit by `web` app it has been placed here
- * for better separation of concerns.
+ * Zod preprocessor used implicitly by the `web` app. It lives in this focused
+ * `shared/util/zod` lib so consumers don't pull in unrelated code — the reason
+ * `@cdwr/core` was split into focused libs (COD-410).
  */
 
 import { z } from 'zod';

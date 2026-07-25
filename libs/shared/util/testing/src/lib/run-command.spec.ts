@@ -10,8 +10,9 @@ vi.mock('@nx/plugin/testing', () => ({
   tmpProjPath: vi.fn(() => '/tmp/proj')
 }));
 
-// Optional: keep log output quiet in tests
-vi.mock('./log-utils', () => ({
+// Optional: keep log output quiet in tests (also avoids loading the heavy
+// misc barrel, which pulls in child_process.execFile / node-pty)
+vi.mock('@codeware/shared/util/misc', () => ({
   logDebug: vi.fn(),
   logError: vi.fn()
 }));

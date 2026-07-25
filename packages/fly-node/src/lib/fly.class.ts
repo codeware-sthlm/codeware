@@ -7,7 +7,7 @@ import {
   SpawnPtyOptions,
   spawn,
   spawnPty
-} from '@codeware/core/utils';
+} from '@codeware/shared/util/misc';
 import { ZodError } from 'zod';
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';

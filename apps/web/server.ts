@@ -8,7 +8,7 @@ import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 
-// TODO: Zod types does not get inferred correctly since the schema depends on `@codeware/core/zod`
+// TODO: Zod types does not get inferred correctly since the schema depends on `@codeware/shared/util/zod`
 // Something is different here since it works in the cms project
 import type { AppLoadContext } from './app/utils/types';
 import env from './env-resolver/env';

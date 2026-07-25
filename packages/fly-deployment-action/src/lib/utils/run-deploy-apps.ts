@@ -1,6 +1,9 @@
 import * as core from '@actions/core';
-import { type Environment, getAppName } from '@codeware/core/actions-internal';
 import { Fly } from '@codeware/fly-node';
+import {
+  type Environment,
+  getAppName
+} from '@codeware/shared/util/github/internal';
 
 import type { ActionOutputs } from '../schemas/action-outputs.schema';
 import type { DeploymentConfig } from '../schemas/deployment-config.schema';

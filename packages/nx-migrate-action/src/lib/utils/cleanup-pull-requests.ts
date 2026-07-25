@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { withGitHub } from '@codeware/core/actions';
+import { withGitHub } from '@codeware/shared/util/github';
 
 import { PULL_REQUEST_LABEL } from './definitions';
 import type { MigrateConfig } from './types';

@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import * as coreAction from '@codeware/core/actions';
-import { analyzeAppsToDeploy } from '@codeware/core/actions-internal';
+import * as coreAction from '@codeware/shared/util/github';
+import { analyzeAppsToDeploy } from '@codeware/shared/util/github/internal';
 
 import { preDeploy } from './pre-deploy';
 import type { ActionInputs } from './schemas/action-inputs.schema';
@@ -16,12 +16,14 @@ vi.mock('@actions/github', () => ({
   // Make context mock editable
   context: {}
 }));
-vi.mock('@codeware/core/actions', async () => ({
-  ...(await vi.importActual('@codeware/core/actions')),
+vi.mock('@codeware/shared/util/github', async () => ({
+  ...(await vi.importActual('@codeware/shared/util/github')),
   getRepositoryDefaultBranch: vi.fn()
 }));
-vi.mock('@codeware/core/actions-internal', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@codeware/core/actions-internal')>()),
+vi.mock('@codeware/shared/util/github/internal', async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import('@codeware/shared/util/github/internal')
+  >()),
   analyzeAppsToDeploy: vi.fn()
 }));
 vi.mock('./utils/fetch-app-tenants', () => ({

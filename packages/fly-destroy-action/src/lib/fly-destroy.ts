@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
-import { printGitHubContext } from '@codeware/core/actions';
 import { Fly } from '@codeware/fly-node';
+import { printGitHubContext } from '@codeware/shared/util/github';
 
 import type { ActionInputs } from './schemas/action-inputs.schema';
 import {

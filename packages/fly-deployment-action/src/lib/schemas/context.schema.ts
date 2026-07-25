@@ -1,7 +1,7 @@
 import {
   type Environment,
   EnvironmentSchema
-} from '@codeware/core/actions-internal';
+} from '@codeware/shared/util/github/internal';
 import { z } from 'zod';
 
 type PrettyPartial<T> = {

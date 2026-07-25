@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
 import process from 'process';
 
-import { spawn, spawnPty } from '@codeware/core/utils';
+import { spawn, spawnPty } from '@codeware/shared/util/misc';
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ExecFlyOptions, Fly } from './fly.class';
@@ -28,9 +28,9 @@ vi.mock('fs', async () => ({
   existsSync: vi.fn().mockReturnValue(true)
 }));
 vi.mock('os');
-vi.mock('@codeware/core/utils', async () => ({
+vi.mock('@codeware/shared/util/misc', async () => ({
   // Only mock `spawn` function
-  ...(await vi.importActual('@codeware/core/utils')),
+  ...(await vi.importActual('@codeware/shared/util/misc')),
   spawn: vi.fn(),
   spawnPty: vi.fn()
 }));

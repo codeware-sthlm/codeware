@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import * as coreActions from '@codeware/core/actions';
+import * as coreActions from '@codeware/shared/util/github';
 import * as devkit from '@nx/devkit';
 import * as replaceInFile from 'replace-in-file';
 

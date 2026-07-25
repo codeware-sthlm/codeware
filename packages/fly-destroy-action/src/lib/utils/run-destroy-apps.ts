@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
-import { getPullRequest } from '@codeware/core/actions';
 import { Fly } from '@codeware/fly-node';
+import { getPullRequest } from '@codeware/shared/util/github';
 
 /**
  * Destroy deprecated apps, which means apps that are associated with a closed pull request.

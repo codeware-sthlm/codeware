@@ -1,20 +1,19 @@
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/core',
-  plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+  cacheDir: '../../../../node_modules/.vite/libs/shared/util/misc',
+  plugins: [nxViteTsPaths()],
   test: {
-    name: 'packages-core',
+    name: 'shared-util-misc',
     watch: false,
     globals: true,
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../coverage/packages/core',
+      reportsDirectory: '../../../../coverage/libs/shared/util/misc',
       provider: 'v8'
     },
     passWithNoTests: true

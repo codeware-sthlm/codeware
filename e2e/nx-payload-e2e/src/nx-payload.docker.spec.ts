@@ -1,4 +1,3 @@
-import { dockerBuild, logDebug, logError } from '@codeware/core/utils';
 import {
   type CreateNxWorkspaceProject,
   ensureCleanupDockerContainers,
@@ -7,6 +6,7 @@ import {
   resetDocker,
   waitForDockerLogMatch
 } from '@codeware/e2e/utils';
+import { dockerBuild, logDebug, logError } from '@codeware/shared/util/misc';
 import { checkFilesExist, runNxCommand, tmpProjPath } from '@nx/plugin/testing';
 import { agent } from 'supertest';
 

@@ -1,9 +1,9 @@
-import { logDebug } from '@codeware/core/utils';
 import {
   ensureCreateNxWorkspaceProject,
   ensureLockFileIsDetected,
   ensureTs6TsconfigCompat
 } from '@codeware/e2e/utils';
+import { logDebug } from '@codeware/shared/util/misc';
 import type { NxJsonConfiguration } from '@nx/devkit';
 import {
   checkFilesExist,

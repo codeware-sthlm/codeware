@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { printGitHubContext } from '@codeware/core/actions';
 import { Fly } from '@codeware/fly-node';
+import { printGitHubContext } from '@codeware/shared/util/github';
 import type {
   PullRequestEvent,
   WebhookEventName

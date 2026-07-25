@@ -43,7 +43,6 @@ export default [
               onlyDependOnLibsWithTags: [
                 'scope:app-cms',
                 'scope:cms',
-                'scope:core',
                 'scope:shared',
                 'domain:signature'
               ]
@@ -74,30 +73,20 @@ export default [
               ]
             },
             {
-              sourceTag: 'scope:core',
-              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared']
-            },
-            {
               sourceTag: 'scope:create-nx-payload',
               onlyDependOnLibsWithTags: [
                 'scope:create-nx-payload',
-                'scope:core',
                 'scope:shared'
               ]
             },
             {
               sourceTag: 'scope:e2e-utils',
-              onlyDependOnLibsWithTags: [
-                'scope:e2e-utils',
-                'scope:core',
-                'scope:shared'
-              ]
+              onlyDependOnLibsWithTags: ['scope:e2e-utils', 'scope:shared']
             },
             {
               sourceTag: 'scope:fly-build-action',
               onlyDependOnLibsWithTags: [
                 'scope:fly-build-action',
-                'scope:core',
                 'scope:fly-node',
                 'scope:shared'
               ]
@@ -106,7 +95,6 @@ export default [
               sourceTag: 'scope:fly-deployment-action',
               onlyDependOnLibsWithTags: [
                 'scope:fly-deployment-action',
-                'scope:core',
                 'scope:fly-node',
                 'scope:shared'
               ]
@@ -115,40 +103,29 @@ export default [
               sourceTag: 'scope:fly-destroy-action',
               onlyDependOnLibsWithTags: [
                 'scope:fly-destroy-action',
-                'scope:core',
                 'scope:fly-node',
                 'scope:shared'
               ]
             },
             {
               sourceTag: 'scope:fly-node',
-              onlyDependOnLibsWithTags: [
-                'scope:fly-node',
-                'scope:core',
-                'scope:shared'
-              ]
+              onlyDependOnLibsWithTags: ['scope:fly-node', 'scope:shared']
             },
             {
               sourceTag: 'scope:nx-migrate-action',
               onlyDependOnLibsWithTags: [
                 'scope:nx-migrate-action',
-                'scope:core',
                 'scope:shared'
               ]
             },
             {
               sourceTag: 'scope:nx-payload',
-              onlyDependOnLibsWithTags: [
-                'scope:nx-payload',
-                'scope:core',
-                'scope:shared'
-              ]
+              onlyDependOnLibsWithTags: ['scope:nx-payload', 'scope:shared']
             },
             {
               sourceTag: 'scope:nx-payload-e2e',
               onlyDependOnLibsWithTags: [
                 'scope:nx-payload-e2e',
-                'scope:core',
                 'scope:e2e-utils',
                 'scope:shared'
               ]
@@ -157,7 +134,6 @@ export default [
               sourceTag: 'scope:nx-pre-deploy-action',
               onlyDependOnLibsWithTags: [
                 'scope:nx-pre-deploy-action',
-                'scope:core',
                 'scope:shared'
               ]
             },
@@ -165,13 +141,12 @@ export default [
               sourceTag: 'scope:pr-comment-action',
               onlyDependOnLibsWithTags: [
                 'scope:pr-comment-action',
-                'scope:core',
                 'scope:shared'
               ]
             },
             {
               sourceTag: 'scope:shared',
-              onlyDependOnLibsWithTags: ['scope:shared', 'scope:core']
+              onlyDependOnLibsWithTags: ['scope:shared']
             },
             {
               sourceTag: 'scope:storybook',

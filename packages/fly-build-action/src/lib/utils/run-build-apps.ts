@@ -1,6 +1,9 @@
 import * as core from '@actions/core';
-import { type Environment, getAppName } from '@codeware/core/actions-internal';
 import { Fly } from '@codeware/fly-node';
+import {
+  type Environment,
+  getAppName
+} from '@codeware/shared/util/github/internal';
 
 import type { BuildConfig } from '../schemas/build-config.schema';
 

@@ -1,6 +1,9 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { getRepositoryDefaultBranch, withGitHub } from '@codeware/core/actions';
+import {
+  getRepositoryDefaultBranch,
+  withGitHub
+} from '@codeware/shared/util/github';
 
 import { getActorId } from './get-actor-id';
 import { parseNameEmail } from './parse-name-email';

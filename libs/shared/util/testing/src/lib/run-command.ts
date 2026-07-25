@@ -1,8 +1,7 @@
 import { exec } from 'child_process';
 
+import { logDebug, logError } from '@codeware/shared/util/misc';
 import { tmpProjPath } from '@nx/plugin/testing';
-
-import { logDebug, logError } from './log-utils';
 
 type Options = {
   /** The working directory to run the command in */

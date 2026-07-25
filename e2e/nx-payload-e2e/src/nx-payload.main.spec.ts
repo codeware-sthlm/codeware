@@ -1,5 +1,3 @@
-import { runCommand } from '@codeware/core/testing';
-import { logDebug } from '@codeware/core/utils';
 import {
   type CreateNxWorkspaceProject,
   ensureCreateNxWorkspaceProject,
@@ -7,6 +5,8 @@ import {
   getFolderFiles,
   removeFolderFiles
 } from '@codeware/e2e/utils';
+import { logDebug } from '@codeware/shared/util/misc';
+import { runCommand } from '@codeware/shared/util/testing';
 import type { NxJsonConfiguration, ProjectConfiguration } from '@nx/devkit';
 import {
   checkFilesExist,

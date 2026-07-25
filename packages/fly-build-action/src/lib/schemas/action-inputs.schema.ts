@@ -2,7 +2,7 @@ import {
   type AppDeploymentDetails,
   AppDetailsSchema,
   DeployableAppSchema
-} from '@codeware/core/actions-internal';
+} from '@codeware/shared/util/github/internal';
 import { z } from 'zod';
 
 export const ActionInputsSchema = z.object({

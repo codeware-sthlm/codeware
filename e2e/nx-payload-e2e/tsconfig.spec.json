@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
+    // CommonJS Jest harness for the nx-payload plugin. `node` (node10)
+    // resolution is deprecated in TypeScript 6; keep it until the plugin
+    // packages migrate to `node16`/`nodenext` and silence the deprecation.
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "types": ["jest", "node"],
     "strict": false,
     "esModuleInterop": true

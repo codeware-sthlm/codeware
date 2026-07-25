@@ -16,7 +16,7 @@ export const createRequestInit = (
   const { headers, requestCredentials, signatureVertification, tenantApiKey } =
     options;
 
-  let initHeaders: HeadersInit = {
+  let initHeaders: NonNullable<RequestInit['headers']> = {
     'Content-Type': 'application/json',
     ...(headers ?? {})
   };

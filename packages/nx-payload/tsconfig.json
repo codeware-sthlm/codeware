@@ -2,7 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
+    // Published as a CommonJS Nx plugin. `node10` resolution is deprecated in
+    // TypeScript 6; migrating to `node16`/`nodenext` requires explicit `.js`
+    // import extensions and ESM/CJS interop changes, tracked separately. Keep
+    // `node10` until then and silence the TS 6 deprecation.
     "moduleResolution": "node10",
+    "ignoreDeprecations": "6.0",
     "esModuleInterop": true
   },
   "files": [],

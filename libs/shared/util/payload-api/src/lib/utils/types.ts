@@ -95,7 +95,7 @@ export type RequestInitOptions = {
    *
    * @default undefined
    */
-  headers?: HeadersInit;
+  headers?: RequestInit['headers'];
 
   /**
    * Whether to allow HTTP-only cookies depending on client and server domains.
@@ -105,7 +105,7 @@ export type RequestInitOptions = {
    *
    * @default undefined
    */
-  requestCredentials?: RequestCredentials;
+  requestCredentials?: RequestInit['credentials'];
 
   /**
    * Enable signature verification for the request

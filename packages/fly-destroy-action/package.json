@@ -1,6 +1,7 @@
 {
   "name": "@cdwr/fly-destroy-action",
   "version": "0.1.0",
+  "private": true,
   "description": "The Nx Fly Destroy Action removes Fly applications associated with closed pull requests.",
   "repository": {
     "type": "git",
@@ -21,9 +22,6 @@
     "Fly.io",
     "Nx"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",

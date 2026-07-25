@@ -1,7 +1,7 @@
 {
   "name": "@cdwr/nx-migrate-action",
   "version": "1.4.1",
-  "private": false,
+  "private": true,
   "description": "The Nx Migrate GitHub Action will keep your workspace up to date.",
   "repository": {
     "type": "git",
@@ -20,9 +20,6 @@
     "Migrate",
     "Nx"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",

@@ -1,8 +1,8 @@
 import { existsSync } from 'fs';
 
 import { logWarning } from '@codeware/core/utils';
-import { readJson, tmpProjPath, updateFile } from '@nx/plugin/testing';
-import type { PackageJson } from 'nx/src/utils/package-json';
+import { readDependencyVersion } from '@codeware/shared/util/node';
+import { tmpProjPath, updateFile } from '@nx/plugin/testing';
 
 /**
  * Ensure the generated workspace type checks under TypeScript 6.
@@ -29,17 +29,12 @@ import type { PackageJson } from 'nx/src/utils/package-json';
  * **Remove when `create-nx-workspace` no longer emits `baseUrl`.**
  */
 export const ensureTs6TsconfigCompat = (): void => {
-  const { dependencies, devDependencies } =
-    readJson<PackageJson>('package.json');
-  const tsSpec = devDependencies?.typescript ?? dependencies?.typescript;
-  if (!tsSpec) {
-    return;
-  }
-
-  // `tsSpec` is the workspace's declared TypeScript pin (e.g. `~5.9.0`, `^6.0.0`),
-  // so the leading number is the major it installs.
-  const major = Number(tsSpec.match(/\d+/)?.[0]);
-  if (!Number.isFinite(major) || major < 6) {
+  // The `typescript` pin is the workspace's declared spec (e.g. `~5.9.0`,
+  // `^6.0.0`), so the leading number is the major it installs.
+  const typescript = readDependencyVersion('typescript', {
+    cwd: tmpProjPath()
+  });
+  if (typescript?.major === undefined || typescript.major < 6) {
     return;
   }
 
@@ -65,7 +60,7 @@ export const ensureTs6TsconfigCompat = (): void => {
 
   if (applied) {
     logWarning(
-      `Set tsconfig.base.json ignoreDeprecations for TypeScript ${tsSpec}`,
+      `Set tsconfig.base.json ignoreDeprecations for TypeScript ${typescript.version}`,
       'Remove when create-nx-workspace drops baseUrl'
     );
   }

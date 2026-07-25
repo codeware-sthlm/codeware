@@ -116,8 +116,16 @@
     }
   },
   "release": {
-    "projects": ["packages/*", "!tag:type:action"],
-    "projectsRelationship": "independent",
+    "groups": {
+      "nx-plugins": {
+        "projects": ["nx-payload", "create-nx-payload"],
+        "projectsRelationship": "fixed"
+      },
+      "packages": {
+        "projects": ["nx-ai", "fly-node"],
+        "projectsRelationship": "independent"
+      }
+    },
     "changelog": {
       "automaticFromRef": true,
       "git": {

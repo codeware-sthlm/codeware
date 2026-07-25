@@ -28,10 +28,6 @@ const args: Story['args'] = {
       url: 'https://www.npmjs.com/package/@cdwr/create-nx-payload'
     },
     {
-      label: '@cdwr/nx-fly-deployment-action',
-      url: 'https://github.com/codeware-sthlm/nx-fly-deployment-action'
-    },
-    {
       label: '@cdwr/nx-migrate-action',
       url: 'https://github.com/codeware-sthlm/nx-migrate-action'
     },

@@ -1,6 +1,6 @@
 import { ChildProcess, spawn } from 'child_process';
 
-import { logDebug } from '@codeware/core/utils';
+import { logDebug } from '@codeware/shared/util/misc';
 
 type WaitForDockerLogMatchOptions = {
   /** The name of the container to listen to */

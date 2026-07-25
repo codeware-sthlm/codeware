@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 
-import { logWarning } from '@codeware/core/utils';
+import { logWarning } from '@codeware/shared/util/misc';
 import { readDependencyVersion } from '@codeware/shared/util/node';
 import { tmpProjPath, updateFile } from '@nx/plugin/testing';
 

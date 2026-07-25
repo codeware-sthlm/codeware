@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { getRepositoryDefaultBranch } from '@codeware/core/actions';
+import { getRepositoryDefaultBranch } from '@codeware/shared/util/github';
 
 import type { ActionInputs } from '../schemas/action-inputs.schema';
 import { type Config, ConfigSchema } from '../schemas/config.schema';

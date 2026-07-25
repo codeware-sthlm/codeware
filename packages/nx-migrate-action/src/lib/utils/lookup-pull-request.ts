@@ -1,5 +1,5 @@
 import * as github from '@actions/github';
-import { withGitHub } from '@codeware/core/actions';
+import { withGitHub } from '@codeware/shared/util/github';
 
 import { getFeatureBranchName } from './get-feature-branch-name';
 import type { MigrateConfig } from './types';

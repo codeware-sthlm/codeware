@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { getPullRequest } from '@codeware/core/actions';
+import { getPullRequest } from '@codeware/shared/util/github';
 import type {
   MutationEnablePullRequestAutoMergeArgs,
   PullRequestMergeMethod

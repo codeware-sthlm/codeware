@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { upsertPullRequestComment } from '@codeware/core/actions';
+import { upsertPullRequestComment } from '@codeware/shared/util/github';
 
 import type { ActionInputs, Project } from './schemas/action-inputs.schema';
 

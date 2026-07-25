@@ -3,7 +3,7 @@ import { join } from 'path';
 import {
   SchemaRegistry,
   createSchemaTests
-} from '@codeware/core/vitest-testing';
+} from '@codeware/shared/util/testing/vitest';
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';
 import { AppsListTransformedResponseSchema } from './schemas/apps-list.schema';

@@ -1,6 +1,6 @@
 import { existsSync, writeFileSync } from 'fs';
 
-import { logWarning } from '@codeware/core/utils';
+import { logWarning } from '@codeware/shared/util/misc';
 import type { PackageManager } from '@nx/devkit';
 import { tmpProjPath, updateFile } from '@nx/plugin/testing';
 

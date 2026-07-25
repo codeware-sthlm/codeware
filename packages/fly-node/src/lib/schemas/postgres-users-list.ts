@@ -1,4 +1,4 @@
-import { withCamelCase } from '@codeware/core/zod';
+import { withCamelCase } from '@codeware/shared/util/zod';
 import { z } from 'zod';
 
 /**

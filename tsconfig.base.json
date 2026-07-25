@@ -66,17 +66,6 @@
         "./libs/app-cms/util/plugins/src/index.ts"
       ],
       "@codeware/apps/cms/components/*": ["./apps/cms/src/components/*"],
-      "@codeware/core/actions-internal": [
-        "./packages/core/src/_actions-internal.ts"
-      ],
-      "@codeware/core/actions": ["./packages/core/src/actions.ts"],
-      "@codeware/core/release": ["./packages/core/src/release.ts"],
-      "@codeware/core/testing": ["./packages/core/src/testing.ts"],
-      "@codeware/core/vitest-testing": [
-        "./packages/core/src/vitest-testing.ts"
-      ],
-      "@codeware/core/utils": ["./packages/core/src/utils.ts"],
-      "@codeware/core/zod": ["./packages/core/src/zod.ts"],
       "@codeware/create-nx-payload": [
         "./packages/create-nx-payload/bin/index.ts"
       ],
@@ -125,7 +114,23 @@
       "@codeware/shared/ui/shadcn": ["./libs/shared/ui/shadcn/src/index.ts"],
       "@codeware/shared/ui/shadcn/*": ["./libs/shared/ui/shadcn/src/lib/*"],
       "@codeware/shared/ui/video": ["./libs/shared/ui/video/src/index.ts"],
+      "@codeware/shared/util/github": [
+        "./libs/shared/util/github/src/index.ts"
+      ],
+      "@codeware/shared/util/github/internal": [
+        "./libs/shared/util/github/src/internal.ts"
+      ],
+      "@codeware/shared/util/misc": ["./libs/shared/util/misc/src/index.ts"],
       "@codeware/shared/util/node": ["./libs/shared/util/node/src/index.ts"],
+      "@codeware/shared/util/release": [
+        "./libs/shared/util/release/src/index.ts"
+      ],
+      "@codeware/shared/util/testing": [
+        "./libs/shared/util/testing/src/index.ts"
+      ],
+      "@codeware/shared/util/testing/vitest": [
+        "./libs/shared/util/testing/src/vitest.ts"
+      ],
       "@codeware/shared/util/payload-api": [
         "./libs/shared/util/payload-api/src/index.ts"
       ],

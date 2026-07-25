@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { WebhookPayload } from '@actions/github/lib/interfaces';
-import * as coreAction from '@codeware/core/actions';
 import { type DeployAppOptions, Fly } from '@codeware/fly-node';
+import * as coreAction from '@codeware/shared/util/github';
 import type { PullRequestEvent } from '@octokit/webhooks-types';
 import { vol } from 'memfs';
 
@@ -33,8 +33,8 @@ vi.mock('@actions/github', () => ({
   // Make context mock editable
   context: {}
 }));
-vi.mock('@codeware/core/actions', async () => ({
-  ...(await vi.importActual('@codeware/core/actions')),
+vi.mock('@codeware/shared/util/github', async () => ({
+  ...(await vi.importActual('@codeware/shared/util/github')),
   getRepositoryDefaultBranch: vi.fn()
 }));
 vi.mock('@codeware/fly-node');

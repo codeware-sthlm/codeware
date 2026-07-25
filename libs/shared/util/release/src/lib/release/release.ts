@@ -7,13 +7,12 @@ import {
   select,
   text
 } from '@clack/prompts';
+import { whoami } from '@codeware/shared/util/misc';
 import { readJsonFile } from '@nx/devkit';
 import chalk from 'chalk';
 import { releaseVersion } from 'nx/release';
 import type { PackageJson } from 'nx/src/utils/package-json';
 import { simpleGit } from 'simple-git';
-
-import { whoami } from '../utils/whoami';
 
 import { changelogs } from './changelogs';
 import { publish } from './publish';

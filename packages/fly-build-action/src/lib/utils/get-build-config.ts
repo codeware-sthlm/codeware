@@ -1,5 +1,5 @@
-import { getRepositoryDefaultBranch } from '@codeware/core/actions';
-import { arrayToRecord } from '@codeware/core/utils';
+import { getRepositoryDefaultBranch } from '@codeware/shared/util/github';
+import { arrayToRecord } from '@codeware/shared/util/misc';
 
 import type { ActionInputs } from '../schemas/action-inputs.schema';
 import {

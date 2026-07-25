@@ -1,7 +1,7 @@
 import { rmSync } from 'fs';
 import { join } from 'path';
 
-import { logDebug } from '@codeware/core/utils';
+import { logDebug } from '@codeware/shared/util/misc';
 import { tmpProjPath } from '@nx/plugin/testing';
 
 import { getFolderFiles } from './get-folder-files';

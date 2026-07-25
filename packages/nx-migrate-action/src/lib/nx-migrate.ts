@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import {
   addPullRequestComment,
   printGitHubContext
-} from '@codeware/core/actions';
+} from '@codeware/shared/util/github';
 
 import { addPullRequestAssignees } from './utils/add-pull-request-assignees';
 import { addPullRequestLabel } from './utils/add-pull-request-label';

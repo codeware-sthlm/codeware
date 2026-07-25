@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
 import { platform } from 'os';
 
-import { logInfo, logWarning } from '@codeware/core/utils';
+import { logInfo, logWarning } from '@codeware/shared/util/misc';
 import { cleanup, tmpProjPath } from '@nx/plugin/testing';
 import { rimraf } from 'rimraf';
 

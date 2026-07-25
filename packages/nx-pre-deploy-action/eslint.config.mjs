@@ -10,7 +10,10 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
-          ignoredDependencies: ['@cdwr/core', '@cdwr/fly-node'],
+          ignoredDependencies: [
+            '@codeware/shared-util-github',
+            '@cdwr/fly-node'
+          ],
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs}',
             '{projectRoot}/vite.config.{js,ts,mjs,mts}'

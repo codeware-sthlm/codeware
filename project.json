@@ -31,7 +31,7 @@
       "metadata": {
         "description": "Run Nx release CLI to create new releases or publish pending releases"
       },
-      "command": "pnpm tsx ./packages/core/src/lib/release/run-release.ts"
+      "command": "pnpm tsx ./libs/shared/util/release/src/lib/release/run-release.ts"
     },
     "payload-proxy": {
       "executor": "nx:run-commands",

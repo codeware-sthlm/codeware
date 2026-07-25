@@ -1,10 +1,10 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { getDeployEnv, printGitHubContext } from '@codeware/core/actions';
+import { getDeployEnv, printGitHubContext } from '@codeware/shared/util/github';
 import {
   type DeployableApp,
   analyzeAppsToDeploy
-} from '@codeware/core/actions-internal';
+} from '@codeware/shared/util/github/internal';
 
 import type { ActionInputs } from './schemas/action-inputs.schema';
 import {

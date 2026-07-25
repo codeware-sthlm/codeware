@@ -1,4 +1,4 @@
-import { logDebug } from '@codeware/core/utils';
+import { logDebug } from '@codeware/shared/util/misc';
 import { dockerCommand } from 'docker-cli-js';
 
 type DockerRaw = { raw: string };

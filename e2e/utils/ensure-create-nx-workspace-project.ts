@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { basename, join } from 'path';
 import { cwd } from 'process';
 
-import { runCommand } from '@codeware/core/testing';
 import {
   getPackageVersion,
   isDebugEnabled,
@@ -10,7 +9,8 @@ import {
   logError,
   logInfo,
   logWarning
-} from '@codeware/core/utils';
+} from '@codeware/shared/util/misc';
+import { runCommand } from '@codeware/shared/util/testing';
 import { type PackageManager, readJsonFile } from '@nx/devkit';
 import {
   directoryExists,

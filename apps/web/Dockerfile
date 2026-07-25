@@ -34,11 +34,13 @@ FROM base
 ENV NODE_ENV=production
 WORKDIR /app
 
-COPY --from=builder /app/apps/web/package.json ./
+COPY --from=builder /app/apps/web/package.json /app/apps/web/pnpm-lock.yaml ./
 
-# Install runtime deps without optional packages and drop cached store
-RUN pnpm install --prod --no-optional \
-  && pnpm prune --prod \
+# Install runtime deps reproducibly from the committed lockfile so the image
+# ships the exact versions the workspace built against (build == runtime).
+# apps/web/package.json + pnpm-lock.yaml are kept in sync with the root
+# workspace by `nx sync` (dev-plugin:web-package-sync).
+RUN pnpm install --prod --no-optional --frozen-lockfile \
   && pnpm store prune \
   && STORE_PATH="$(pnpm store path --silent)" \
   && rm -rf "$STORE_PATH"

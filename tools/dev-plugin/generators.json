@@ -4,6 +4,11 @@
       "factory": "./src/generators/theme-sync/theme-sync",
       "schema": "./src/generators/theme-sync/schema.json",
       "description": "theme-sync generator"
+    },
+    "web-package-sync": {
+      "factory": "./src/generators/web-package-sync/web-package-sync",
+      "schema": "./src/generators/web-package-sync/schema.json",
+      "description": "Pin apps/web/package.json to root-resolved versions and regenerate its lockfile"
     }
   }
 }

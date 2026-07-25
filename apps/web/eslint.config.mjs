@@ -53,7 +53,6 @@ export default [
             'react-hook-form',
             'sonner',
             'tailwind-merge',
-            'tailwindcss-animate',
             // Dev dependencies
             '@nx/vite',
             '@remix-run/testing',

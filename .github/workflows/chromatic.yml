@@ -16,11 +16,16 @@ permissions:
   contents: read
   statuses: write
 
+# Environment details:
+# - Nx Cloud cache is used for human-driven runs: PRs, pushes to main, and
+#   manual workflow_dispatch.
+# - Disabled only for machine-driven runs — renovate branches (matched on push
+#   and PR via head_ref/ref_name) — or via the NX_NO_CLOUD repo variable, to
+#   keep costs down on high-frequency bot traffic. (Matches ci.yml.)
 env:
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
   NX_NO_CLOUD: ${{ startsWith(github.head_ref || github.ref_name, 'renovate') ||
-    github.event_name == 'push' || github.event_name == 'workflow_dispatch' ||
-    vars.NX_NO_CLOUD }}
+    vars.NX_NO_CLOUD == 'true' }}
   NX_PARALLEL: ${{ vars.NX_PARALLEL }}
   NX_VERBOSE_LOGGING: ${{ vars.NX_VERBOSE_LOGGING }}
 

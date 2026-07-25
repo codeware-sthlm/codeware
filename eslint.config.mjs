@@ -86,14 +86,6 @@ export default [
               ]
             },
             {
-              sourceTag: 'scope:deploy-env-action',
-              onlyDependOnLibsWithTags: [
-                'scope:deploy-env-action',
-                'scope:core',
-                'scope:shared'
-              ]
-            },
-            {
               sourceTag: 'scope:e2e-utils',
               onlyDependOnLibsWithTags: [
                 'scope:e2e-utils',
@@ -133,15 +125,6 @@ export default [
               onlyDependOnLibsWithTags: [
                 'scope:fly-node',
                 'scope:core',
-                'scope:shared'
-              ]
-            },
-            {
-              sourceTag: 'scope:nx-fly-deployment-action',
-              onlyDependOnLibsWithTags: [
-                'scope:nx-fly-deployment-action',
-                'scope:core',
-                'scope:fly-node',
                 'scope:shared'
               ]
             },

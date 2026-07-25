@@ -80,16 +80,10 @@
       "@codeware/create-nx-payload": [
         "./packages/create-nx-payload/bin/index.ts"
       ],
-      "@codeware/deploy-env-action": [
-        "./packages/deploy-env-action/src/index.ts"
-      ],
       "@codeware/e2e/utils": ["./e2e/utils/index.ts"],
       "@codeware/fly-node": ["./packages/fly-node/src/index.ts"],
       "@codeware/fly-deployment-action": [
         "./packages/fly-deployment-action/src/index.ts"
-      ],
-      "@codeware/nx-fly-deployment-action": [
-        "./packages/nx-fly-deployment-action/src/index.ts"
       ],
       "@codeware/nx-migrate-action": [
         "./packages/nx-migrate-action/src/index.ts"

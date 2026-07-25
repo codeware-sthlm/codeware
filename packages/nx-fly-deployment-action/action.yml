@@ -1,9 +1,0 @@
-name: "Nx Fly Deployment (Deprecated)"
-
-description: >
-  ⚠️ Deprecated — this action has been renamed to @cdwr/fly-deployment-action.
-  Please update your workflow to use the new package name.
-
-runs:
-  using: "node24"
-  main: "../../dist/packages/nx-fly-deployment-action/action.cjs"

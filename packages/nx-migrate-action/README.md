@@ -11,7 +11,6 @@
   GitHub action that brings automatic <a href='https://nx.dev'>Nx</a> migrations to your workspace.
   <br />
   <br />
-  <a href='https://www.npmjs.com/package/@cdwr/nx-migrate-action'><img src='https://img.shields.io/npm/v/@cdwr/nx-migrate-action?label=npm%20version' alt='@cdwr/nx-migrate-action npm'></a>
   &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />

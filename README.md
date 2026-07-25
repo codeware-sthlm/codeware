@@ -21,10 +21,7 @@
 - [Packages](#packages)
   - [Nx Plugins](#nx-plugins)
   - [GitHub Actions](#github-actions)
-    - [`deploy-env-action` _(superseded)_](#deploy-env-action--superseded)
-    - [`nx-fly-deployment-action` _(deprecated)_](#nx-fly-deployment-action--deprecated)
   - [Node Libraries](#node-libraries)
-  - [Utilities](#utilities)
 - [Startup Payload multi-tenant in dev mode](#startup-payload-multi-tenant-in-dev-mode)
   - [Terminal 1: Start Postgres and admin UI](#terminal-1-start-postgres-and-admin-ui)
   - [Terminal 2: Start web client](#terminal-2-start-web-client)
@@ -58,6 +55,10 @@ npx create-nx-payload
 
 ### GitHub Actions
 
+> These actions are **internal building blocks** consumed within this repository's own
+> workflows via `uses: ./packages/<name>`. They are not published to npm or the GitHub
+> Marketplace (a GitHub Action is not installable from npm).
+
 #### Fly.io Deployment Pipeline <!-- omit in toc -->
 
 Six focused actions that together handle the full deployment lifecycle:
@@ -75,25 +76,11 @@ Six focused actions that together handle the full deployment lifecycle:
 
 GitHub action that brings automatic [Nx](https://nx.dev) migrations to your workspace.
 
-#### [`deploy-env-action`](packages/deploy-env-action) <!-- omit in toc --> _(superseded)_
-
-Superseded by [`nx-pre-deploy-action`](packages/nx-pre-deploy-action), which covers environment detection plus affected apps analysis and multi-tenant support.
-
-#### [`nx-fly-deployment-action`](packages/nx-fly-deployment-action) <!-- omit in toc --> _(deprecated)_
-
-Renamed to [`fly-deployment-action`](packages/fly-deployment-action).
-
 ### Node Libraries
 
 #### [`fly-node`](packages/fly-node) <!-- omit in toc -->
 
 Fly CLI node wrapper for programmatic deployments to [Fly.io](https://fly.io).
-
-### Utilities
-
-#### [`core`](packages/core) <!-- omit in toc -->
-
-A set of core utilities for the [Codeware](https://codeware.se) ecosystem.
 
 ## Startup Payload multi-tenant in dev mode
 

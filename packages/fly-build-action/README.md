@@ -11,7 +11,6 @@
   GitHub action that builds Docker images for Nx applications and pushes them to the Fly registry.
   <br />
   <br />
-  <a href='https://www.npmjs.com/package/@cdwr/fly-build-action'><img src='https://img.shields.io/npm/v/@cdwr/fly-build-action?label=npm%20version' alt='@cdwr/fly-build-action npm'></a>
   &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />

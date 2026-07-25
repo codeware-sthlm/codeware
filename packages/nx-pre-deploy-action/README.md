@@ -11,7 +11,6 @@
   GitHub action that analyzes which applications to deploy, which environment to deploy to, and optionally fetches tenant secrets from Infisical for multi-tenant deployments.
   <br />
   <br />
-  <a href='https://www.npmjs.com/package/@cdwr/nx-pre-deploy-action'><img src='https://img.shields.io/npm/v/@cdwr/nx-pre-deploy-action?label=npm%20version' alt='@cdwr/nx-pre-deploy-action npm'></a>
   &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />

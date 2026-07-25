@@ -116,7 +116,7 @@ jobs:
 
           cmd=(pnpm nx show projects --affected --with-target=e2e)
           projects="$("${cmd[@]}")"
-          projects_list="$(printf '%s' "$projects" | tr -d '\r')"
+          projects_list="$(printf '%s' "$projects" | tr -d '\r' | tr '\n' ',' | sed 's/,$//')"
 
           if [ -n "$projects" ]; then
             affected=true

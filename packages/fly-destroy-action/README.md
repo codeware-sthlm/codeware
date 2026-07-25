@@ -11,7 +11,6 @@
   GitHub action that destroys Fly.io preview applications when a pull request is closed.
   <br />
   <br />
-  <a href='https://www.npmjs.com/package/@cdwr/fly-destroy-action'><img src='https://img.shields.io/npm/v/@cdwr/fly-destroy-action?label=npm%20version' alt='@cdwr/fly-destroy-action npm'></a>
   &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />

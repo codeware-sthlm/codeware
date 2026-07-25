@@ -11,7 +11,6 @@
   GitHub action that brings automatic <a href='https://fly.io'>Fly.io</a> deployments to your <a href='https://nx.dev'>Nx</a>  workspace.
   <br />
   <br />
-  <a href='https://www.npmjs.com/package/@cdwr/fly-deployment-action'><img src='https://img.shields.io/npm/v/@cdwr/fly-deployment-action?label=npm%20version' alt='@cdwr/fly-deployment-action npm'></a>
   &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />

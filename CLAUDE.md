@@ -151,16 +151,24 @@ e2e/         # End-to-end tests
 
 ### Publishable Packages (`packages/`)
 
-| Package                          | Purpose                                                                       |
-| -------------------------------- | ----------------------------------------------------------------------------- |
-| `@cdwr/core`                     | Shared utilities: GitHub Actions helpers, release CLI, Zod testing, CLI utils |
-| `@cdwr/nx-payload`               | Nx plugin adding Payload CMS generators/executors to any Nx workspace         |
-| `@cdwr/create-nx-payload`        | Preset to scaffold a new Nx workspace with Payload                            |
-| `@cdwr/nx-migrate-action`        | GitHub Action for automated Nx migrations                                     |
-| `@cdwr/nx-fly-deployment-action` | GitHub Action for Nx-aware Fly.io deployments                                 |
-| `@cdwr/nx-pre-deploy-action`     | GitHub Action for pre-deployment validation (env, tenancy, secrets)           |
-| `@cdwr/deploy-env-action`        | GitHub Action analyzing deployment environment from GitHub events             |
-| `@cdwr/fly-node`                 | Programmatic Node.js wrapper for the Fly CLI                                  |
+Only these four are published to npm (see `docs/COD-405-packages-strategy.md`):
+
+| Package                   | Purpose                                                               |
+| ------------------------- | --------------------------------------------------------------------- |
+| `@cdwr/nx-payload`        | Nx plugin adding Payload CMS generators/executors to any Nx workspace |
+| `@cdwr/create-nx-payload` | Preset to scaffold a new Nx workspace with Payload                    |
+| `@cdwr/nx-ai`             | Nx plugin for AI-assisted workspace tasks                             |
+| `@cdwr/fly-node`          | Programmatic Node.js wrapper for the Fly CLI                          |
+
+**Internal-only building blocks also under `packages/`** (not published — consumed in this
+repo's own workflows via `uses: ./packages/<name>`): the GitHub Action packages
+`fly-conditions-action`, `fly-build-action`, `fly-deployment-action`, `fly-destroy-action`,
+`pr-comment-action`, `nx-pre-deploy-action`, `nx-migrate-action`. A GitHub Action is not
+consumable from npm, so these carry `private: true` and are excluded from `nx release`.
+
+> The former `@cdwr/core` was split into focused `libs/shared/util/*` libs (COD-410); it is no
+> longer a package. Do not add a package that depends on an unpublished `@codeware/*` lib — a
+> published package may only depend on other published packages or code it fully bundles.
 
 ### Internal Libraries (`libs/`)
 
@@ -173,7 +181,7 @@ e2e/         # End-to-end tests
 
 **`libs/shared/ui/`** — React component library (shadcn/Radix UI based): cms-renderer, code highlighting, color-picker, copy-button, file-area, icon-picker, image, primitives, shadcn components, video.
 
-**`libs/shared/util/`** — Utility libraries: `node`, `payload-api`, `payload-types`, `payload-utils`, `pure`, `schemas`, `seed`, `signature`, `tailwind`, `typesafe`, `ui`, `zod`.
+**`libs/shared/util/`** — Utility libraries: `github` (GitHub Actions helpers + `/internal` Nx deploy analysis), `misc` (node/process/CLI utils), `node`, `payload-api`, `payload-types`, `payload-utils`, `pure`, `release` (Nx release CLI), `schemas`, `seed`, `signature`, `tailwind`, `testing` (+ `/vitest` schema-test helpers), `typesafe`, `ui`, `zod`. The `github`, `misc`, and `testing` libs carry a private `package.json` so esbuild externalizes their native deps for the packages that bundle them.
 
 **`libs/shared/feature/infisical`** — Infisical SDK integration for secrets management.
 
@@ -191,7 +199,7 @@ TypeScript path aliases are defined in `tsconfig.base.json`:
 
 The platform is multi-tenant. Tenants are configured via Infisical secrets. The Nginx reverse proxy (`nx payload-proxy:up`) can optionally be used to simulate multi-tenancy in local development by routing hostnames to the appropriate apps.
 
-In production, multi-tenancy is handled automatically by the `nx-pre-deploy-action` and `nx-fly-deployment-action` GitHub Actions, which fetch tenant configs from Infisical and deploy accordingly.
+In production, multi-tenancy is handled automatically by the `nx-pre-deploy-action` and `fly-deployment-action` GitHub Actions, which fetch tenant configs from Infisical and deploy accordingly.
 
 #### Tenancy & Authentication Model
 
@@ -226,4 +234,4 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint/test/build on PRs using Nx
 
 ### Release Process
 
-Packages under `packages/` use independent versioning driven by conventional commits. The `nx release-cli` target runs an interactive CLI (`packages/core`) that calls `nx release` — which bumps versions, generates changelogs, and tags releases. GitHub Actions then publish tagged packages to npm.
+Published packages use a hybrid `nx release` model (`nx.json` → `release.groups`): a **fixed** group for the Nx-plugin suite (`nx-payload` + `create-nx-payload`) and an **independent** group for `nx-ai` and `fly-node`. The `nx release-cli` target runs an interactive CLI (`libs/shared/util/release`) that calls `nx release` — which bumps versions, generates changelogs, and tags releases. GitHub Actions then publish tagged packages to npm.

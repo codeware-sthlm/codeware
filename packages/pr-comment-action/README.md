@@ -11,7 +11,6 @@
   GitHub action that posts a deployment status comment to a pull request.
   <br />
   <br />
-  <a href='https://www.npmjs.com/package/@cdwr/pr-comment-action'><img src='https://img.shields.io/npm/v/@cdwr/pr-comment-action?label=npm%20version' alt='@cdwr/pr-comment-action npm'></a>
   &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />

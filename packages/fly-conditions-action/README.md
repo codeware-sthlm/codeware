@@ -11,7 +11,6 @@
   GitHub action that analyzes deployment conditions and decides whether the Fly.io pipeline should run.
   <br />
   <br />
-  <a href='https://www.npmjs.com/package/@cdwr/fly-conditions-action'><img src='https://img.shields.io/npm/v/@cdwr/fly-conditions-action?label=npm%20version' alt='@cdwr/fly-conditions-action npm'></a>
   &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />

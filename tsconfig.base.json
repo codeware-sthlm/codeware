@@ -14,150 +14,155 @@
     "strict": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@codeware/app-cms/data-access": [
-        "libs/app-cms/data-access/src/index.ts"
+        "./libs/app-cms/data-access/src/index.ts"
       ],
       "@codeware/app-cms/feature/env-loader": [
-        "libs/app-cms/feature/env-loader/src/index.ts"
+        "./libs/app-cms/feature/env-loader/src/index.ts"
       ],
       "@codeware/app-cms/feature/seed": [
-        "libs/app-cms/feature/seed/src/index.ts"
+        "./libs/app-cms/feature/seed/src/index.ts"
       ],
-      "@codeware/app-cms/ui/blocks": ["libs/app-cms/ui/blocks/src/index.ts"],
-      "@codeware/app-cms/ui/blocks/*": ["libs/app-cms/ui/blocks/src/lib/*"],
+      "@codeware/app-cms/ui/blocks": ["./libs/app-cms/ui/blocks/src/index.ts"],
+      "@codeware/app-cms/ui/blocks/*": ["./libs/app-cms/ui/blocks/src/lib/*"],
       "@codeware/app-cms/ui/components": [
-        "libs/app-cms/ui/components/src/index.ts"
+        "./libs/app-cms/ui/components/src/index.ts"
       ],
       "@codeware/app-cms/ui/components/*": [
-        "libs/app-cms/ui/components/src/lib/*"
+        "./libs/app-cms/ui/components/src/lib/*"
       ],
       "@codeware/app-cms/ui/dashboard": [
-        "libs/app-cms/ui/dashboard/src/index.ts"
+        "./libs/app-cms/ui/dashboard/src/index.ts"
       ],
       "@codeware/app-cms/ui/dashboard/*": [
-        "libs/app-cms/ui/dashboard/src/lib/*"
+        "./libs/app-cms/ui/dashboard/src/lib/*"
       ],
-      "@codeware/app-cms/ui/fields": ["libs/app-cms/ui/fields/src/index.ts"],
-      "@codeware/app-cms/ui/fields/*": ["libs/app-cms/ui/fields/src/lib/*"],
-      "@codeware/app-cms/ui/lexical": ["libs/app-cms/ui/lexical/src/index.ts"],
-      "@codeware/app-cms/ui/tabs": ["libs/app-cms/ui/tabs/src/index.ts"],
+      "@codeware/app-cms/ui/fields": ["./libs/app-cms/ui/fields/src/index.ts"],
+      "@codeware/app-cms/ui/fields/*": ["./libs/app-cms/ui/fields/src/lib/*"],
+      "@codeware/app-cms/ui/lexical": [
+        "./libs/app-cms/ui/lexical/src/index.ts"
+      ],
+      "@codeware/app-cms/ui/tabs": ["./libs/app-cms/ui/tabs/src/index.ts"],
       "@codeware/app-cms/util/access": [
-        "libs/app-cms/util/access/src/index.ts"
+        "./libs/app-cms/util/access/src/index.ts"
       ],
-      "@codeware/app-cms/util/db": ["libs/app-cms/util/db/src/index.ts"],
+      "@codeware/app-cms/util/db": ["./libs/app-cms/util/db/src/index.ts"],
       "@codeware/app-cms/util/definitions": [
-        "libs/app-cms/util/definitions/src/index.ts"
+        "./libs/app-cms/util/definitions/src/index.ts"
       ],
-      "@codeware/app-cms/util/email": ["libs/app-cms/util/email/src/index.ts"],
+      "@codeware/app-cms/util/email": [
+        "./libs/app-cms/util/email/src/index.ts"
+      ],
       "@codeware/app-cms/util/env-schema": [
-        "libs/app-cms/util/env-schema/src/index.ts"
+        "./libs/app-cms/util/env-schema/src/index.ts"
       ],
       "@codeware/app-cms/util/filters": [
-        "libs/app-cms/util/filters/src/index.ts"
+        "./libs/app-cms/util/filters/src/index.ts"
       ],
-      "@codeware/app-cms/util/i18n": ["libs/app-cms/util/i18n/src/index.ts"],
-      "@codeware/app-cms/util/misc": ["libs/app-cms/util/misc/src/index.ts"],
+      "@codeware/app-cms/util/i18n": ["./libs/app-cms/util/i18n/src/index.ts"],
+      "@codeware/app-cms/util/misc": ["./libs/app-cms/util/misc/src/index.ts"],
       "@codeware/app-cms/util/plugins": [
-        "libs/app-cms/util/plugins/src/index.ts"
+        "./libs/app-cms/util/plugins/src/index.ts"
       ],
-      "@codeware/apps/cms/components/*": ["apps/cms/src/components/*"],
+      "@codeware/apps/cms/components/*": ["./apps/cms/src/components/*"],
       "@codeware/core/actions-internal": [
-        "packages/core/src/_actions-internal.ts"
+        "./packages/core/src/_actions-internal.ts"
       ],
-      "@codeware/core/actions": ["packages/core/src/actions.ts"],
-      "@codeware/core/release": ["packages/core/src/release.ts"],
-      "@codeware/core/testing": ["packages/core/src/testing.ts"],
-      "@codeware/core/vitest-testing": ["packages/core/src/vitest-testing.ts"],
-      "@codeware/core/utils": ["packages/core/src/utils.ts"],
-      "@codeware/core/zod": ["packages/core/src/zod.ts"],
+      "@codeware/core/actions": ["./packages/core/src/actions.ts"],
+      "@codeware/core/release": ["./packages/core/src/release.ts"],
+      "@codeware/core/testing": ["./packages/core/src/testing.ts"],
+      "@codeware/core/vitest-testing": [
+        "./packages/core/src/vitest-testing.ts"
+      ],
+      "@codeware/core/utils": ["./packages/core/src/utils.ts"],
+      "@codeware/core/zod": ["./packages/core/src/zod.ts"],
       "@codeware/create-nx-payload": [
-        "packages/create-nx-payload/bin/index.ts"
+        "./packages/create-nx-payload/bin/index.ts"
       ],
       "@codeware/deploy-env-action": [
-        "packages/deploy-env-action/src/index.ts"
+        "./packages/deploy-env-action/src/index.ts"
       ],
-      "@codeware/e2e/utils": ["e2e/utils/index.ts"],
-      "@codeware/fly-node": ["packages/fly-node/src/index.ts"],
+      "@codeware/e2e/utils": ["./e2e/utils/index.ts"],
+      "@codeware/fly-node": ["./packages/fly-node/src/index.ts"],
       "@codeware/fly-deployment-action": [
-        "packages/fly-deployment-action/src/index.ts"
+        "./packages/fly-deployment-action/src/index.ts"
       ],
       "@codeware/nx-fly-deployment-action": [
-        "packages/nx-fly-deployment-action/src/index.ts"
+        "./packages/nx-fly-deployment-action/src/index.ts"
       ],
       "@codeware/nx-migrate-action": [
-        "packages/nx-migrate-action/src/index.ts"
+        "./packages/nx-migrate-action/src/index.ts"
       ],
-      "@codeware/nx-payload": ["packages/nx-payload/index.ts"],
+      "@codeware/nx-payload": ["./packages/nx-payload/index.ts"],
       "@codeware/nx-pre-deploy-action": [
-        "packages/nx-pre-deploy-action/src/index.ts"
+        "./packages/nx-pre-deploy-action/src/index.ts"
       ],
       "@codeware/shared/feature/infisical": [
-        "libs/shared/feature/infisical/src/index.ts"
+        "./libs/shared/feature/infisical/src/index.ts"
       ],
-      "@codeware/shared/theme": ["libs/shared/theme/src/index.ts"],
+      "@codeware/shared/theme": ["./libs/shared/theme/src/index.ts"],
       "@codeware/shared/ui/cms-renderer": [
-        "libs/shared/ui/cms-renderer/src/index.ts"
+        "./libs/shared/ui/cms-renderer/src/index.ts"
       ],
-      "@codeware/shared/ui/code": ["libs/shared/ui/code/src/index.ts"],
+      "@codeware/shared/ui/code": ["./libs/shared/ui/code/src/index.ts"],
       "@codeware/shared/ui/color-picker": [
-        "libs/shared/ui/color-picker/src/index.ts"
+        "./libs/shared/ui/color-picker/src/index.ts"
       ],
       "@codeware/shared/ui/copy-button": [
-        "libs/shared/ui/copy-button/src/index.ts"
+        "./libs/shared/ui/copy-button/src/index.ts"
       ],
       "@codeware/shared/ui/file-area": [
-        "libs/shared/ui/file-area/src/index.ts"
+        "./libs/shared/ui/file-area/src/index.ts"
       ],
       "@codeware/shared/ui/icon-picker": [
-        "libs/shared/ui/icon-picker/src/index.ts"
+        "./libs/shared/ui/icon-picker/src/index.ts"
       ],
-      "@codeware/shared/ui/image": ["libs/shared/ui/image/src/index.ts"],
+      "@codeware/shared/ui/image": ["./libs/shared/ui/image/src/index.ts"],
       "@codeware/shared/ui/image-crop": [
-        "libs/shared/ui/image-crop/src/index.ts"
+        "./libs/shared/ui/image-crop/src/index.ts"
       ],
       "@codeware/shared/ui/primitives": [
-        "libs/shared/ui/primitives/src/index.ts"
+        "./libs/shared/ui/primitives/src/index.ts"
       ],
       "@codeware/shared/ui/seed-icon-studio": [
-        "libs/shared/ui/seed-icon-studio/src/index.ts"
+        "./libs/shared/ui/seed-icon-studio/src/index.ts"
       ],
-      "@codeware/shared/ui/shadcn": ["libs/shared/ui/shadcn/src/index.ts"],
-      "@codeware/shared/ui/shadcn/*": ["libs/shared/ui/shadcn/src/lib/*"],
-      "@codeware/shared/ui/video": ["libs/shared/ui/video/src/index.ts"],
-      "@codeware/shared/util/node": ["libs/shared/util/node/src/index.ts"],
+      "@codeware/shared/ui/shadcn": ["./libs/shared/ui/shadcn/src/index.ts"],
+      "@codeware/shared/ui/shadcn/*": ["./libs/shared/ui/shadcn/src/lib/*"],
+      "@codeware/shared/ui/video": ["./libs/shared/ui/video/src/index.ts"],
+      "@codeware/shared/util/node": ["./libs/shared/util/node/src/index.ts"],
       "@codeware/shared/util/payload-api": [
-        "libs/shared/util/payload-api/src/index.ts"
+        "./libs/shared/util/payload-api/src/index.ts"
       ],
       "@codeware/shared/util/payload-types": [
-        "libs/shared/util/payload-types/src/index.ts"
+        "./libs/shared/util/payload-types/src/index.ts"
       ],
-      "@codeware/shared/util/i18n": ["libs/shared/util/i18n/src/index.ts"],
+      "@codeware/shared/util/i18n": ["./libs/shared/util/i18n/src/index.ts"],
       "@codeware/shared/util/payload-utils": [
-        "libs/shared/util/payload-utils/src/index.ts"
+        "./libs/shared/util/payload-utils/src/index.ts"
       ],
-      "@codeware/shared/util/pure": ["libs/shared/util/pure/src/index.ts"],
+      "@codeware/shared/util/pure": ["./libs/shared/util/pure/src/index.ts"],
       "@codeware/shared/util/schemas": [
-        "libs/shared/util/schemas/src/index.ts"
+        "./libs/shared/util/schemas/src/index.ts"
       ],
       "@codeware/shared/util/storybook": [
-        "libs/shared/util/storybook/src/index.ts"
+        "./libs/shared/util/storybook/src/index.ts"
       ],
-      "@codeware/shared/util/seed": ["libs/shared/util/seed/src/index.ts"],
+      "@codeware/shared/util/seed": ["./libs/shared/util/seed/src/index.ts"],
       "@codeware/shared/util/signature": [
-        "libs/shared/util/signature/src/index.ts"
+        "./libs/shared/util/signature/src/index.ts"
       ],
       "@codeware/shared/util/tailwind": [
-        "libs/shared/util/tailwind/src/index.ts"
+        "./libs/shared/util/tailwind/src/index.ts"
       ],
       "@codeware/shared/util/typesafe": [
-        "libs/shared/util/typesafe/src/index.ts"
+        "./libs/shared/util/typesafe/src/index.ts"
       ],
-      "@codeware/shared/util/ui": ["libs/shared/util/ui/src/index.ts"],
-      "@codeware/shared/util/zod": ["libs/shared/util/zod/src/index.ts"],
-      "@payload-config": ["apps/cms/src/payload.config.ts"],
-      "dev-plugin": ["tools/dev-plugin/src/index.ts"]
+      "@codeware/shared/util/ui": ["./libs/shared/util/ui/src/index.ts"],
+      "@codeware/shared/util/zod": ["./libs/shared/util/zod/src/index.ts"],
+      "@payload-config": ["./apps/cms/src/payload.config.ts"],
+      "dev-plugin": ["./tools/dev-plugin/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

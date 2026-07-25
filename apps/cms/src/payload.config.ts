@@ -2,10 +2,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { postgresAdapter } from '@payloadcms/db-postgres';
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
 import { en } from '@payloadcms/translations/languages/en';
 import { sv } from '@payloadcms/translations/languages/sv';
 import * as Sentry from '@sentry/nextjs';
-import { getTenantFromCookie } from 'node_modules/@payloadcms/plugin-multi-tenant/dist/utilities/getTenantFromCookie';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 

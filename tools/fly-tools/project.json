@@ -8,19 +8,19 @@
     "app-info": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx --tsconfig tools/fly-tools/tsconfig.json tools/fly-tools/lib/app-info.ts"
+        "command": "tsx --tsconfig tools/tsconfig.tools.json tools/fly-tools/lib/app-info.ts"
       }
     },
     "patch-config": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx --tsconfig tools/fly-tools/tsconfig.json tools/fly-tools/lib/patch-config.ts"
+        "command": "tsx --tsconfig tools/tsconfig.tools.json tools/fly-tools/lib/patch-config.ts"
       }
     },
     "restart-app": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx --tsconfig tools/fly-tools/tsconfig.json tools/fly-tools/lib/restart-app.ts"
+        "command": "tsx --tsconfig tools/tsconfig.tools.json tools/fly-tools/lib/restart-app.ts"
       }
     }
   }

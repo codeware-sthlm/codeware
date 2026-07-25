@@ -2,8 +2,7 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../tools/tools-out",
-    "types": ["node"],
-    "baseUrl": "../"
+    "types": ["node"]
   },
   "include": ["**/*.ts"]
 }

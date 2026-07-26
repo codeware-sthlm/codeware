@@ -15,6 +15,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
+      "@cdwr/fly-node": ["./packages/fly-node/src/index.ts"],
       "@codeware/app-cms/data-access": [
         "./libs/app-cms/data-access/src/index.ts"
       ],
@@ -66,18 +67,7 @@
         "./libs/app-cms/util/plugins/src/index.ts"
       ],
       "@codeware/apps/cms/components/*": ["./apps/cms/src/components/*"],
-      "@codeware/create-nx-payload": [
-        "./packages/create-nx-payload/bin/index.ts"
-      ],
       "@codeware/e2e/utils": ["./e2e/utils/index.ts"],
-      "@codeware/fly-node": ["./packages/fly-node/src/index.ts"],
-      "@codeware/fly-deployment-action": [
-        "./packages/fly-deployment-action/src/index.ts"
-      ],
-      "@codeware/nx-migrate-action": [
-        "./packages/nx-migrate-action/src/index.ts"
-      ],
-      "@codeware/nx-payload": ["./packages/nx-payload/index.ts"],
       "@codeware/nx-pre-deploy-action": [
         "./packages/nx-pre-deploy-action/src/index.ts"
       ],

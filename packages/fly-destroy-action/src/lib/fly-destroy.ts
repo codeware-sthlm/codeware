@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { Fly } from '@codeware/fly-node';
+import { Fly } from '@cdwr/fly-node';
 import { printGitHubContext } from '@codeware/shared/util/github';
 
 import type { ActionInputs } from './schemas/action-inputs.schema';

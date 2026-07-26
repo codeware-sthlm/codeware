@@ -1,3 +1,4 @@
+import { Fly } from '@cdwr/fly-node';
 import {
   cancel,
   intro,
@@ -9,7 +10,6 @@ import {
   spinner,
   text
 } from '@clack/prompts';
-import { Fly } from '@codeware/fly-node';
 import chalk from 'chalk';
 import Table from 'cli-table3';
 

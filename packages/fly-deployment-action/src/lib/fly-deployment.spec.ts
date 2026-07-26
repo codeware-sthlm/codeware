@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { WebhookPayload } from '@actions/github/lib/interfaces';
-import { type DeployAppOptions, Fly } from '@codeware/fly-node';
+import { type DeployAppOptions, Fly } from '@cdwr/fly-node';
 import * as coreAction from '@codeware/shared/util/github';
 import type { PullRequestEvent } from '@octokit/webhooks-types';
 import { vol } from 'memfs';
@@ -37,7 +37,7 @@ vi.mock('@codeware/shared/util/github', async () => ({
   ...(await vi.importActual('@codeware/shared/util/github')),
   getRepositoryDefaultBranch: vi.fn()
 }));
-vi.mock('@codeware/fly-node');
+vi.mock('@cdwr/fly-node');
 
 describe('flyDeployment', () => {
   // Save environment variables before tests

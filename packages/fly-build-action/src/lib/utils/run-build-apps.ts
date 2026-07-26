@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { Fly } from '@codeware/fly-node';
+import { Fly } from '@cdwr/fly-node';
 import { type Environment, getAppName } from '@codeware/shared/util/nx-deploy';
 
 import type { BuildConfig } from '../schemas/build-config.schema';

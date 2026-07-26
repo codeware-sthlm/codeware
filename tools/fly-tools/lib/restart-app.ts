@@ -1,3 +1,4 @@
+import { Fly } from '@cdwr/fly-node';
 import {
   cancel,
   intro,
@@ -7,7 +8,6 @@ import {
   select,
   spinner
 } from '@clack/prompts';
-import { Fly } from '@codeware/fly-node';
 
 // Initialize Fly client
 const fly = new Fly({

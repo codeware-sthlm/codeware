@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Fly } from '@codeware/fly-node';
+import { Fly } from '@cdwr/fly-node';
 import { getDeployEnv, printGitHubContext } from '@codeware/shared/util/github';
 import type {
   PullRequestEvent,

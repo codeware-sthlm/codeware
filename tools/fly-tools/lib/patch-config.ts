@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import { basename, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { Fly } from '@cdwr/fly-node';
 import {
   cancel,
   confirm,
@@ -14,7 +15,6 @@ import {
   spinner,
   text
 } from '@clack/prompts';
-import { Fly } from '@codeware/fly-node';
 import * as TOML from 'smol-toml';
 
 // ESM __dirname equivalent

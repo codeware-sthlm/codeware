@@ -4,7 +4,7 @@ import { getDeployEnv, printGitHubContext } from '@codeware/shared/util/github';
 import {
   type DeployableApp,
   analyzeAppsToDeploy
-} from '@codeware/shared/util/github/internal';
+} from '@codeware/shared/util/nx-deploy';
 
 import type { ActionInputs } from './schemas/action-inputs.schema';
 import {

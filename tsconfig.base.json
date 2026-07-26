@@ -117,11 +117,11 @@
       "@codeware/shared/util/github": [
         "./libs/shared/util/github/src/index.ts"
       ],
-      "@codeware/shared/util/github/internal": [
-        "./libs/shared/util/github/src/internal.ts"
-      ],
       "@codeware/shared/util/misc": ["./libs/shared/util/misc/src/index.ts"],
       "@codeware/shared/util/node": ["./libs/shared/util/node/src/index.ts"],
+      "@codeware/shared/util/nx-deploy": [
+        "./libs/shared/util/nx-deploy/src/index.ts"
+      ],
       "@codeware/shared/util/release": [
         "./libs/shared/util/release/src/index.ts"
       ],

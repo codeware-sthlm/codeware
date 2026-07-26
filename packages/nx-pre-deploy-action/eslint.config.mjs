@@ -11,7 +11,7 @@ export default [
         'error',
         {
           ignoredDependencies: [
-            '@codeware/shared-util-github',
+            '@codeware/shared-util-nx-deploy',
             '@cdwr/fly-node'
           ],
           ignoredFiles: [

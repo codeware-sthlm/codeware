@@ -10,7 +10,7 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
-          ignoredDependencies: ['@codeware/shared-util-github'],
+          ignoredDependencies: [],
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs}',
             '{projectRoot}/vite.config.{js,ts,mjs,mts}'

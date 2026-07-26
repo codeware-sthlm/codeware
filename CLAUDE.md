@@ -185,6 +185,8 @@ consumable from npm, so these carry `private: true` and are excluded from `nx re
 
 **Internal-lib build convention:** internal libs are **not buildable** — they have no `build` target and are consumed by bundling their _source_ via `@codeware/*` tsconfig path aliases (nothing consumes a lib's `dist`), so `enforceBuildableLibDependency` is disabled workspace-wide. A lib only needs a private `package.json` (no `publishConfig`, `private: true`) when it imports an **un-bundleable** dep — a native `.node` module or a package with unresolvable dynamic requires — so esbuild externalizes it in every consumer that bundles it. Today only `nx-deploy` (`@nx/devkit`) and `misc` (`node-pty`) need one; consumers list those in the `@nx/dependency-checks` `ignoredDependencies`.
 
+> ⚠️ Any such private `package.json` **must include `"type": "module"`** (the repo is ESM). Without it, node treats that lib's files as CommonJS, and a `tsx`-run script that imports the lib's barrel fails with `does not provide an export named …` (this broke the `release-cli` target and `pnpm cdwr`). Files under a package.json inherit its module type, not the root's.
+
 **`libs/shared/feature/infisical`** — Infisical SDK integration for secrets management.
 
 **`libs/shared/theme/`** — Theme configuration and providers.

@@ -16,4 +16,3 @@ export {
 export { exec } from './lib/promisified-exec';
 export { type SpawnOptions, spawn } from './lib/promisified-spawn';
 export { spawnPty, type SpawnPtyOptions } from './lib/spawn-pty';
-export { whoami } from './lib/whoami';

@@ -1,13 +1,13 @@
 {
   "name": "@codeware/shared-util-misc",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@homebridge/node-pty-prebuilt-multiarch": "^0.13.0",
     "chalk": "^4.1.0",
     "docker-cli-js": "^2.10.0",
     "kill-port": "^2.0.1",
-    "npm-whoami": "^1.1.4",
     "tcp-port-used": "^1.0.2",
     "tiny-invariant": "^1.3.3",
     "tree-kill": "^1.2.2"

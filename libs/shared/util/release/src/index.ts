@@ -1,3 +1,3 @@
-export { changelogs } from './lib/release/changelogs';
-export { publish } from './lib/release/publish';
-export { release } from './lib/release/release';
+export { changelogs } from './lib/changelogs';
+export { publish } from './lib/publish';
+export { release } from './lib/release';

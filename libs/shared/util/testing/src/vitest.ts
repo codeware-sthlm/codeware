@@ -1,2 +1,2 @@
-export { createSchemaTests } from './lib/testing/create-schema-tests';
-export { SchemaRegistry } from './lib/testing/schema-registry.class';
+export { createSchemaTests } from './lib/create-schema-tests';
+export { SchemaRegistry } from './lib/schema-registry.class';

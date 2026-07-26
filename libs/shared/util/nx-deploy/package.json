@@ -1,0 +1,8 @@
+{
+  "name": "@codeware/shared-util-nx-deploy",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@nx/devkit": "^23.1.0"
+  }
+}

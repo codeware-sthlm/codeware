@@ -1,9 +1,6 @@
 import * as core from '@actions/core';
 import { Fly } from '@codeware/fly-node';
-import {
-  type Environment,
-  getAppName
-} from '@codeware/shared/util/github/internal';
+import { type Environment, getAppName } from '@codeware/shared/util/nx-deploy';
 
 import type { ActionOutputs } from '../schemas/action-outputs.schema';
 import type { DeploymentConfig } from '../schemas/deployment-config.schema';

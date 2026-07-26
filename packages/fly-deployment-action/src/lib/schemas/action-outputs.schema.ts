@@ -1,4 +1,4 @@
-import { EnvironmentSchema } from '@codeware/shared/util/github/internal';
+import { EnvironmentSchema } from '@codeware/shared/util/nx-deploy';
 import { z } from 'zod';
 
 export const ActionSchema = z.enum(['deploy', 'destroy', 'failed']);

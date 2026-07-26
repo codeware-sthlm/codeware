@@ -3,7 +3,7 @@ import {
   AppDetailsSchema,
   DeployableAppSchema,
   EnvironmentSchema
-} from '@codeware/shared/util/github/internal';
+} from '@codeware/shared/util/nx-deploy';
 import { z } from 'zod';
 
 export const ActionInputsSchema = z.object({

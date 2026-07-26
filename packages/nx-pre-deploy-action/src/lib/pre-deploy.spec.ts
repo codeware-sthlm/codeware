@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as coreAction from '@codeware/shared/util/github';
-import { analyzeAppsToDeploy } from '@codeware/shared/util/github/internal';
+import { analyzeAppsToDeploy } from '@codeware/shared/util/nx-deploy';
 
 import { preDeploy } from './pre-deploy';
 import type { ActionInputs } from './schemas/action-inputs.schema';
@@ -20,10 +20,8 @@ vi.mock('@codeware/shared/util/github', async () => ({
   ...(await vi.importActual('@codeware/shared/util/github')),
   getRepositoryDefaultBranch: vi.fn()
 }));
-vi.mock('@codeware/shared/util/github/internal', async (importOriginal) => ({
-  ...(await importOriginal<
-    typeof import('@codeware/shared/util/github/internal')
-  >()),
+vi.mock('@codeware/shared/util/nx-deploy', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@codeware/shared/util/nx-deploy')>()),
   analyzeAppsToDeploy: vi.fn()
 }));
 vi.mock('./utils/fetch-app-tenants', () => ({

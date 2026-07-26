@@ -1,4 +1,4 @@
-import { DeployableAppSchema } from '@codeware/shared/util/github/internal';
+import { DeployableAppSchema } from '@codeware/shared/util/nx-deploy';
 import { z } from 'zod';
 
 const EnvironmentSchema = z.enum(['preview', 'production', '']);

@@ -1,7 +1,7 @@
 import {
   AppDetailsSchema,
   DeployableAppSchema
-} from '@codeware/shared/util/github/internal';
+} from '@codeware/shared/util/nx-deploy';
 import { z } from 'zod';
 
 import { ActionInputsSchema } from './action-inputs.schema';

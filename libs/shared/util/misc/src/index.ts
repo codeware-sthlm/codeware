@@ -1,10 +1,10 @@
-export { arrayToRecord } from './lib/utils/array-to-record';
-export { dockerBuild } from './lib/utils/docker-build';
-export { getPackageVersion } from './lib/utils/get-package-version';
-export { findDown } from './lib/utils/find-down';
-export { killPort } from './lib/utils/kill-port';
-export { killProcessAndPorts } from './lib/utils/kill-process-and-ports';
-export { killProcessTree } from './lib/utils/kill-process-tree';
+export { arrayToRecord } from './lib/array-to-record';
+export { dockerBuild } from './lib/docker-build';
+export { getPackageVersion } from './lib/get-package-version';
+export { findDown } from './lib/find-down';
+export { killPort } from './lib/kill-port';
+export { killProcessAndPorts } from './lib/kill-process-and-ports';
+export { killProcessTree } from './lib/kill-process-tree';
 export {
   isDebugEnabled,
   logDebug,
@@ -12,8 +12,8 @@ export {
   logInfo,
   logSuccess,
   logWarning
-} from './lib/utils/log-utils';
-export { exec } from './lib/utils/promisified-exec';
-export { type SpawnOptions, spawn } from './lib/utils/promisified-spawn';
-export { spawnPty, type SpawnPtyOptions } from './lib/utils/spawn-pty';
-export { whoami } from './lib/utils/whoami';
+} from './lib/log-utils';
+export { exec } from './lib/promisified-exec';
+export { type SpawnOptions, spawn } from './lib/promisified-spawn';
+export { spawnPty, type SpawnPtyOptions } from './lib/spawn-pty';
+export { whoami } from './lib/whoami';

@@ -1,14 +1,11 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import * as tenancy from '@codeware/shared/feature/tenancy';
 import * as coreAction from '@codeware/shared/util/github';
 import { analyzeAppsToDeploy } from '@codeware/shared/util/nx-deploy';
 
 import { preDeploy } from './pre-deploy';
 import type { ActionInputs } from './schemas/action-inputs.schema';
-import { DeployRules } from './schemas/deploy-rules.schema';
-import * as fetchAppTenantsModule from './utils/fetch-app-tenants';
-import * as fetchDeployRulesModule from './utils/fetch-deploy-rules';
-import * as filterByDeployRulesModule from './utils/filter-by-deploy-rules';
 
 vi.mock('@actions/core');
 vi.mock('@actions/github', () => ({
@@ -24,14 +21,15 @@ vi.mock('@codeware/shared/util/nx-deploy', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@codeware/shared/util/nx-deploy')>()),
   analyzeAppsToDeploy: vi.fn()
 }));
-vi.mock('./utils/fetch-app-tenants', () => ({
-  fetchAppTenants: vi.fn()
-}));
-vi.mock('./utils/fetch-deploy-rules', () => ({
+// Partially mock the tenancy lib: override the two fetchers, but spread through
+// the real `filterByDeployRules` to test its actual (pure) implementation.
+vi.mock('@codeware/shared/feature/tenancy', async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import('@codeware/shared/feature/tenancy')
+  >()),
+  fetchAppTenants: vi.fn(),
   fetchDeployRules: vi.fn()
 }));
-// We don't mock `filterByDeployRules` to test its actual implementation,
-// since it's a simple pure function without external dependencies.
 
 describe('preDeploy', () => {
   let originalToken: string;
@@ -42,14 +40,9 @@ describe('preDeploy', () => {
   const mockCoreInfo = vi.mocked(core.info);
   const mockGithubContext = vi.mocked(github.context);
   const mockAnalyzeAppsToDeploy = vi.mocked(analyzeAppsToDeploy);
-  const mockFetchAppTenants = vi.mocked(fetchAppTenantsModule.fetchAppTenants);
-  const mockFetchDeployRules = vi.mocked(
-    fetchDeployRulesModule.fetchDeployRules
-  );
-  const spyFilterByDeployRules = vi.spyOn(
-    filterByDeployRulesModule,
-    'filterByDeployRules'
-  );
+  const mockFetchAppTenants = vi.mocked(tenancy.fetchAppTenants);
+  const mockFetchDeployRules = vi.mocked(tenancy.fetchDeployRules);
+  const spyFilterByDeployRules = vi.spyOn(tenancy, 'filterByDeployRules');
 
   /**
    * Set github context
@@ -668,7 +661,7 @@ describe('preDeploy', () => {
       const mockAppTenants: fetchAppTenantsModule.AppTenantsMap = {
         web: [{ tenant: 'demo' }, { tenant: 'acme' }, { tenant: 'globex' }]
       };
-      const mockRules: DeployRules = { apps: '*', tenants: 'demo' };
+      const mockRules: tenancy.DeployRules = { apps: '*', tenants: 'demo' };
 
       mockFetchAppTenants.mockResolvedValue(mockAppTenants);
       mockFetchDeployRules.mockResolvedValue(mockRules);

@@ -1,8 +1,8 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { fetchAppTenants } from '@codeware/nx-pre-deploy-action';
 import type { Environment } from '@codeware/shared/feature/infisical';
+import { fetchAppTenants } from '@codeware/shared/feature/tenancy';
 import * as dotenv from 'dotenv';
 
 const filename = fileURLToPath(import.meta.url);

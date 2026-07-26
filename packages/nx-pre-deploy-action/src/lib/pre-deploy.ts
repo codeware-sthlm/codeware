@@ -1,5 +1,11 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import {
+  type InfisicalConfig,
+  fetchAppTenants,
+  fetchDeployRules,
+  filterByDeployRules
+} from '@codeware/shared/feature/tenancy';
 import { getDeployEnv, printGitHubContext } from '@codeware/shared/util/github';
 import {
   type DeployableApp,
@@ -12,10 +18,6 @@ import {
   ActionOutputsSchema,
   type Environment
 } from './schemas/action-outputs.schema';
-import type { InfisicalConfig } from './schemas/config.schema';
-import { fetchAppTenants } from './utils/fetch-app-tenants';
-import { fetchDeployRules } from './utils/fetch-deploy-rules';
-import { filterByDeployRules } from './utils/filter-by-deploy-rules';
 import { normalizeInputs } from './utils/normailze-inputs';
 
 /**

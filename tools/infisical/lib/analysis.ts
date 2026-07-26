@@ -2,15 +2,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import {
+  type Environment,
+  withInfisical
+} from '@codeware/shared/feature/infisical';
+import {
   type InfisicalConfig,
   fetchAppTenants,
   fetchDeployRules,
   filterByDeployRules
-} from '@codeware/nx-pre-deploy-action';
-import {
-  type Environment,
-  withInfisical
-} from '@codeware/shared/feature/infisical';
+} from '@codeware/shared/feature/tenancy';
 import * as dotenv from 'dotenv';
 
 const filename = fileURLToPath(import.meta.url);

@@ -1,9 +1,8 @@
 import * as infisical from '@codeware/shared/feature/infisical';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { InfisicalConfig } from '../schemas/config.schema';
-
 import { fetchDeployRules } from './fetch-deploy-rules';
+import type { InfisicalConfig } from './infisical-config';
 
 vi.mock('@codeware/shared/feature/infisical');
 

@@ -1,9 +1,8 @@
 import * as core from '@actions/core';
 import * as infisicalModule from '@codeware/shared/feature/infisical';
 
-import type { InfisicalConfig } from '../schemas/config.schema';
-
 import { fetchAppTenants } from './fetch-app-tenants';
+import type { InfisicalConfig } from './infisical-config';
 
 vi.mock('@actions/core');
 vi.mock('@codeware/shared/feature/infisical');

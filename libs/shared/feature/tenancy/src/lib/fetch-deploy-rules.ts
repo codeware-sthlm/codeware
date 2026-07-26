@@ -1,11 +1,8 @@
 import * as core from '@actions/core';
 import { withInfisical } from '@codeware/shared/feature/infisical';
 
-import type { InfisicalConfig } from '../schemas/config.schema';
-import {
-  type DeployRules,
-  DeployRulesSchema
-} from '../schemas/deploy-rules.schema';
+import { type DeployRules, DeployRulesSchema } from './deploy-rules.schema';
+import type { InfisicalConfig } from './infisical-config';
 
 /**
  * Fetch deployment rules from Infisical.

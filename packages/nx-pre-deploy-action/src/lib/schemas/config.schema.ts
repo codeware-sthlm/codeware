@@ -1,4 +1,3 @@
-import type { Environment } from '@codeware/shared/feature/infisical';
 import { z } from 'zod';
 
 export const ConfigSchema = z.object({
@@ -17,12 +16,3 @@ export const ConfigSchema = z.object({
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
-
-/** Helper type when using `withInfisical` */
-export type InfisicalConfig = {
-  environment: Environment;
-  clientId: string;
-  clientSecret: string;
-  projectId: string;
-  site: NonNullable<Config['infisical']>['site'];
-};

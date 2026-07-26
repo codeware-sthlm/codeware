@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 
-import type { DeployRules } from '../schemas/deploy-rules.schema';
-
+import type { DeployRules } from './deploy-rules.schema';
 import type { AppTenantsMap } from './fetch-app-tenants';
 
 /**

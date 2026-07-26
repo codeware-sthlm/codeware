@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { withInfisical } from '@codeware/shared/feature/infisical';
 
-import type { InfisicalConfig } from '../schemas/config.schema';
+import type { InfisicalConfig } from './infisical-config';
 export type AppTenantDetails = {
   tenant: string;
   env?: Record<string, string>;

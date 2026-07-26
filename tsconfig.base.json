@@ -68,11 +68,11 @@
       ],
       "@codeware/apps/cms/components/*": ["./apps/cms/src/components/*"],
       "@codeware/e2e/utils": ["./e2e/utils/index.ts"],
-      "@codeware/nx-pre-deploy-action": [
-        "./packages/nx-pre-deploy-action/src/index.ts"
-      ],
       "@codeware/shared/feature/infisical": [
         "./libs/shared/feature/infisical/src/index.ts"
+      ],
+      "@codeware/shared/feature/tenancy": [
+        "./libs/shared/feature/tenancy/src/index.ts"
       ],
       "@codeware/shared/theme": ["./libs/shared/theme/src/index.ts"],
       "@codeware/shared/ui/cms-renderer": [

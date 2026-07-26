@@ -1,0 +1,7 @@
+{
+  "name": "shared-feature-tenancy",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/feature/tenancy/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:feature", "domain:apps"]
+}

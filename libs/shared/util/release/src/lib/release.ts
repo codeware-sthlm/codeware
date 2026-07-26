@@ -7,7 +7,6 @@ import {
   select,
   text
 } from '@clack/prompts';
-import { whoami } from '@codeware/shared/util/misc';
 import { readJsonFile } from '@nx/devkit';
 import chalk from 'chalk';
 import { releaseVersion } from 'nx/release';
@@ -17,6 +16,7 @@ import { simpleGit } from 'simple-git';
 import { changelogs } from './changelogs';
 import { publish } from './publish';
 import { revertPackageJson } from './revert-package-json';
+import { whoami } from './whoami';
 
 type Mode = 'publish' | 'release';
 

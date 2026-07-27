@@ -1,5 +1,10 @@
 {
   "generators": {
+    "externalize-deps-sync": {
+      "factory": "./src/generators/externalize-deps-sync/externalize-deps-sync",
+      "schema": "./src/generators/externalize-deps-sync/schema.json",
+      "description": "Guard private manifests for internal libs importing un-bundleable deps"
+    },
     "theme-sync": {
       "factory": "./src/generators/theme-sync/theme-sync",
       "schema": "./src/generators/theme-sync/schema.json",

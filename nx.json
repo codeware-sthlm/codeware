@@ -292,7 +292,11 @@
     }
   ],
   "sync": {
-    "globalGenerators": ["dev-plugin:theme-sync", "dev-plugin:web-package-sync"]
+    "globalGenerators": [
+      "dev-plugin:externalize-deps-sync",
+      "dev-plugin:theme-sync",
+      "dev-plugin:web-package-sync"
+    ]
   },
   "analytics": true,
   "migrate": {

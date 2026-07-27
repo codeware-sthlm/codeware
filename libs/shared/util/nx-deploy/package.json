@@ -4,6 +4,6 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@nx/devkit": "^23.1.0"
+    "@nx/devkit": "23.1.0"
   }
 }

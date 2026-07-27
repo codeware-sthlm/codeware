@@ -10,6 +10,12 @@ export const EnvSchema = z.object({
 
   // Injected at deployment
   DEPLOY_ENV: z.enum(['development', 'preview', 'production']),
+
+  // Build metadata (injected as Docker build args on deploy; absent in dev)
+  APP_SHA: z.string({ description: 'Commit sha of the build' }).optional(),
+  APP_BUILD_TIME: z
+    .string({ description: 'ISO timestamp when the image was built' })
+    .optional(),
   TENANT_ID: z
     .string({ description: 'Application identifier' })
     .min(1, { message: 'TENANT_ID is required' }),

@@ -31,6 +31,12 @@ export const EnvSchema = withEnvVars(
       FLY_URL: z.string({ description: 'Auto-generated Fly.io app URL' }),
       PR_NUMBER: z.string({ description: 'Number of the pull request' }),
 
+      // Build metadata (injected as Docker build args on deploy; absent in dev)
+      APP_SHA: z.string({ description: 'Commit sha of the build' }).optional(),
+      APP_BUILD_TIME: z
+        .string({ description: 'ISO timestamp when the image was built' })
+        .optional(),
+
       // Tenant deployment (optional - only present when deployed for a specific tenant)
       TENANT_ID: z
         .string({ description: 'Tenant identifier for site deployments' })

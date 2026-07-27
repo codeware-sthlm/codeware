@@ -215,6 +215,37 @@ jobs:
         run: |
           echo "console-logs=${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}" >> "$GITHUB_OUTPUT"
 
+      # Build metadata surfaced by each app's About UI (see COD-414).
+      - name: Resolve build metadata
+        id: meta
+        run: |
+          echo "short-sha=$(echo "${{ github.sha }}" | cut -c1-7)" >> "$GITHUB_OUTPUT"
+          echo "build-time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      # Version the affected apps (COD-414) — tag-driven, orchestrated by Nx, and
+      # never commits to main. Prod: `nx release version` bumps each changed app's
+      # manifest from conventional commits (so the Docker build bakes a real
+      # version) and tags + pushes it; `git-commit` stays false, so the tag lands
+      # on the already-pushed deploy commit — no push to main, no re-trigger loop.
+      # Preview: an ephemeral prerelease written to disk and discarded with the
+      # runner. Tags use the checkout's GITHUB_TOKEN, so they don't trigger the
+      # publish workflow (apps have no publish target anyway).
+      - name: Version apps
+        run: |
+          set -euo pipefail
+          if [ "${{ needs.pre-deploy.outputs.environment }}" != "production" ]; then
+            # Ephemeral prerelease on disk only — no git side effects.
+            pnpm nx release version --group apps --preid preview --stage-changes false
+            exit 0
+          fi
+          committer='${{ vars.CDWR_COMMITTER }}'
+          email="${committer##*<}"
+          git config user.name "${committer%% <*}"
+          git config user.email "${email%>}"
+          # Tag the deployed commit + push the tag; never commit the bump to main
+          # (git-commit false, so the tag lands on HEAD, not an extra commit).
+          pnpm nx release version --group apps --git-commit false --git-tag --git-push
+
       - name: Build Docker images
         id: build
         uses: ./packages/fly-build-action
@@ -229,6 +260,8 @@ jobs:
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
           # Build arguments for Docker build (client-side vars + Sentry source map upload)
           build-args: |
+            APP_SHA=${{ steps.meta.outputs.short-sha }}
+            APP_BUILD_TIME=${{ steps.meta.outputs.build-time }}
             NEXT_PUBLIC_DEPLOY_ENV=${{ needs.pre-deploy.outputs.environment }}
             NEXT_PUBLIC_SENTRY_DSN=${{ secrets.INF_SENTRY_DSN }}
             NEXT_PUBLIC_SENTRY_RELEASE=${{ github.sha }}

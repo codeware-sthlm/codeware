@@ -35,6 +35,7 @@ import { Footer } from './components/footer';
 import { MobileNavigation } from './components/mobile-navigation';
 import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';
+import { getAppInfo } from './utils/app-info';
 import { ClientHintCheck, getHints } from './utils/client-hints';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
 import { type Theme, getTheme } from './utils/theme.server';
@@ -106,6 +107,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
 
     return json({
       env,
+      appInfo: getAppInfo(),
       loaderErrorMessage,
       landingPage,
       landingPageBlocksData,
@@ -173,6 +175,7 @@ export default function App() {
 
   // Provide app opinionated context to Payload components
   const context: PayloadValue = {
+    appInfo: loaderData.appInfo,
     getCurrentPath: () => loaderData.requestInfo.path,
     iconConfig: loaderData.tenantConfig?.icon ?? null,
     navigate: (path, newTab) => {

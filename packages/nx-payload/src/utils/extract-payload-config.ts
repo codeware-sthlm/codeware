@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 
-import type { Config } from 'payload';
+import type { Config } from 'payload' with { 'resolution-mode': 'import' };
 import ts from 'typescript';
 
 import { ConfigExtractor } from './config-extractor.class';

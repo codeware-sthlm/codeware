@@ -1,12 +1,22 @@
 'use client';
 
 import {
+  type IconComponent,
+  getSlugIcon
+} from '@codeware/app-cms/ui/dashboard';
+import type {
+  TranslationsKeys,
+  TranslationsObject
+} from '@codeware/app-cms/util/i18n';
+import type { User } from '@codeware/shared/util/payload-types';
+import {
   ArrowsRightLeftIcon,
   BuildingOffice2Icon,
   DocumentIcon,
   DocumentTextIcon,
   GlobeAltIcon,
   HomeIcon,
+  InformationCircleIcon,
   LanguageIcon,
   MoonIcon,
   PhotoIcon,
@@ -28,16 +38,7 @@ import {
 import { useRouter } from 'next/navigation';
 import type { CollectionSlug } from 'payload';
 
-import {
-  type IconComponent,
-  getSlugIcon
-} from '@codeware/app-cms/ui/dashboard';
-import type {
-  TranslationsKeys,
-  TranslationsObject
-} from '@codeware/app-cms/util/i18n';
-import type { User } from '@codeware/shared/util/payload-types';
-
+import { OPEN_ABOUT_EVENT } from '../AboutDialogHost.client';
 import {
   DASHBOARD_PREFERENCES_KEY,
   type DashboardPreferences
@@ -207,6 +208,19 @@ export function usePaletteItems(query: string): {
             icon: QuestionMarkCircleIcon,
             run: () => {
               window.dispatchEvent(new CustomEvent(OPEN_HELP_EVENT));
+            }
+          }
+        ]
+      : []),
+    // About action (always present)
+    ...(matches(t('palette:actionAbout'))
+      ? [
+          {
+            value: 'action:open-about',
+            label: t('palette:actionAbout'),
+            icon: InformationCircleIcon,
+            run: () => {
+              window.dispatchEvent(new CustomEvent(OPEN_ABOUT_EVENT));
             }
           }
         ]

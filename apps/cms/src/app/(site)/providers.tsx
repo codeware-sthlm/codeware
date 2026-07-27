@@ -1,19 +1,18 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { useTheme } from 'next-themes';
-
 import {
   PayloadProvider,
   type PayloadValue
 } from '@codeware/shared/ui/cms-renderer';
 import type { FormSubmitResponse } from '@codeware/shared/ui/cms-renderer';
 import type { FormSubmission } from '@codeware/shared/util/payload-types';
+import { usePathname, useRouter } from 'next/navigation';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { useTheme } from 'next-themes';
 
 type ProvidersProps = {
   children: React.ReactNode;
-} & Pick<PayloadValue, 'iconConfig' | 'locale' | 'payloadUrl'>;
+} & Pick<PayloadValue, 'appInfo' | 'iconConfig' | 'locale' | 'payloadUrl'>;
 
 /**
  * Combines all client-side providers needed for the CMS site.
@@ -21,6 +20,7 @@ type ProvidersProps = {
  */
 export function Providers({
   children,
+  appInfo,
   iconConfig,
   locale,
   payloadUrl
@@ -28,6 +28,7 @@ export function Providers({
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
       <PayloadProviderInner
+        appInfo={appInfo}
         iconConfig={iconConfig}
         locale={locale}
         payloadUrl={payloadUrl}
@@ -40,6 +41,7 @@ export function Providers({
 
 function PayloadProviderInner({
   children,
+  appInfo,
   iconConfig,
   locale,
   payloadUrl
@@ -51,6 +53,7 @@ function PayloadProviderInner({
   return (
     <PayloadProvider
       value={{
+        appInfo,
         getCurrentPath: () => pathname,
         iconConfig,
         locale,

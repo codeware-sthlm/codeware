@@ -2,6 +2,7 @@
  * This is the entry point for the Node/Hono server aimed for production.
  */
 
+import { formatReleaseName } from '@codeware/shared/util/pure';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
@@ -10,6 +11,8 @@ import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 
 // TODO: Zod types does not get inferred correctly since the schema depends on `@codeware/shared/util/zod`
 // Something is different here since it works in the cms project
+
+import { getAppInfo } from './app/utils/app-info';
 import type { AppLoadContext } from './app/utils/types';
 import env from './env-resolver/env';
 import { debugHeadersMiddleware } from './middlewares/debug-headers';
@@ -25,6 +28,11 @@ const build =
 const app = new Hono()
   // Lightweight health check — must not trigger Remix/Payload data fetching
   .get('/api/health', (c) => c.text('ok'))
+  // Machine-readable build/version info (same source as the About block)
+  .get('/api/version', (c) => {
+    const appInfo = getAppInfo();
+    return c.json({ ...appInfo, release: formatReleaseName(appInfo) });
+  })
   // Serve static files from Remix client build
   .use('*', serveStatic({ root: './build/client' }))
   // Let Remix handle all requests

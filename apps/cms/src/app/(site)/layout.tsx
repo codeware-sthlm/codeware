@@ -1,14 +1,14 @@
-import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-
 import {
   getNavigationTree,
   getTenantContext
 } from '@codeware/app-cms/data-access';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
+import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 import './spotlight.css';
+import { getAppInfo } from '../../app-info';
 import { payloadRuntime } from '../../security/payload-runtime';
 
 import { Providers } from './providers';
@@ -31,7 +31,7 @@ export default async function RootLayout({
   // Fetch navigation with proper access control and tenant scoping
   const navigationTree = await getNavigationTree(runtime);
 
-  // Get Payload URL from environment
+  // Parsed once and shared — `getEnv()` revalidates `process.env` on every call
   const env = getEnv();
 
   return (
@@ -44,6 +44,7 @@ export default async function RootLayout({
       </head>
       <body>
         <Providers
+          appInfo={getAppInfo(env)}
           iconConfig={runtime.tenantConfig?.icon ?? null}
           locale={runtime.tenantConfig?.locale ?? 'en'}
           payloadUrl={env.APP_MODE.serverURL}

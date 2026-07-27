@@ -1,3 +1,5 @@
+export { AppAbout, type AppInfo } from './lib/about/AppAbout';
+
 export { RichText } from './lib/blocks/RichText';
 export { PostsBlock } from './lib/blocks/PostsBlock';
 export { RenderBlocks } from './lib/RenderBlocks';

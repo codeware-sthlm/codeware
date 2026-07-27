@@ -10,6 +10,7 @@ import type { Block } from 'payload';
  */
 // Using a record to make sure all blocks are included and not forgotten
 const richTextBlocks: Record<BlockSlug, boolean> = {
+  about: false,
   card: true,
   code: true,
   form: true,
@@ -32,6 +33,7 @@ const richTextBlocks: Record<BlockSlug, boolean> = {
 
 /** Define which blocks are available within the content block itself. */
 const inlineBlocks: Record<BlockSlug, boolean> = {
+  about: false,
   card: true,
   code: true,
   form: true,

@@ -67,6 +67,17 @@ Ensure Posgres cluster is running.
 nx dx:postgres cms
 ```
 
+#### CMS admin components + import map
+
+Payload resolves custom admin components (`admin.components.*` in `payload.config.ts`) through the
+committed import map at `apps/cms/src/app/(payload)/admin/importMap.js`. Payload only regenerates it
+in `dev` — the committed map is what the production build/runtime uses. So whenever you **add, remove,
+or re-path an admin component**, regenerate and commit it, or the component silently fails to load:
+
+```sh
+nx payload cms generate:importmap
+```
+
 #### CMS Host mode + external web client
 
 Ensure `TENANT_ID` has no value in `apps/cms/.env.local`.

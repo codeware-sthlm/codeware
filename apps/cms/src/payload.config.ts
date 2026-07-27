@@ -1,17 +1,10 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { postgresAdapter } from '@payloadcms/db-postgres';
-import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
-import { en } from '@payloadcms/translations/languages/en';
-import { sv } from '@payloadcms/translations/languages/sv';
-import * as Sentry from '@sentry/nextjs';
-import { buildConfig } from 'payload';
-import sharp from 'sharp';
-
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { seed } from '@codeware/app-cms/feature/seed';
 import {
+  aboutBlock,
   calloutBlock,
   cardBlock,
   codeBlock,
@@ -35,7 +28,15 @@ import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { customTranslations } from '@codeware/app-cms/util/i18n';
 import { isTenant, isUser } from '@codeware/app-cms/util/misc';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
+import { postgresAdapter } from '@payloadcms/db-postgres';
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
+import { en } from '@payloadcms/translations/languages/en';
+import { sv } from '@payloadcms/translations/languages/sv';
+import * as Sentry from '@sentry/nextjs';
+import { buildConfig } from 'payload';
+import sharp from 'sharp';
 
+import { getAppInfo } from './app-info';
 import categories from './collections/categories/categories.collection';
 import faq from './collections/faq/faq.collection';
 import media from './collections/media/media.collection';
@@ -66,7 +67,14 @@ export default buildConfig({
         '@codeware/apps/cms/components/admin/ThemeSwitch.client',
         '@codeware/apps/cms/components/admin/HelpDrawer.client',
         '@codeware/apps/cms/components/admin/LocaleSwitch.client',
-        '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client'
+        '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client',
+        {
+          // Client dialog host mounted (invisibly) in the actions row; opened
+          // from the command palette via `OPEN_ABOUT_EVENT`. Build metadata is
+          // resolved server-side at config load and passed as client props.
+          path: '@codeware/apps/cms/components/admin/AboutDialogHost.client',
+          clientProps: { appInfo: getAppInfo(env) }
+        }
       ],
       graphics: {
         Icon: '@codeware/apps/cms/components/Icon.client',
@@ -106,6 +114,7 @@ export default buildConfig({
   // Declare blocks globally and reference then by slug elsewhere
   // https://payloadcms.com/docs/fields/blocks#block-references
   blocks: [
+    aboutBlock,
     calloutBlock,
     cardBlock,
     codeBlock,

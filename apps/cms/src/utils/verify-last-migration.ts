@@ -2,12 +2,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { cancel, confirm, intro, note } from '@clack/prompts';
+import { loadEnv } from '@codeware/app-cms/feature/env-loader';
+import { seed } from '@codeware/app-cms/feature/seed';
 import { sql } from '@payloadcms/db-postgres';
 import type { DrizzleAdapter, PostgresDB } from '@payloadcms/drizzle';
 import { getMigrations, getPayload } from 'payload';
-
-import { loadEnv } from '@codeware/app-cms/feature/env-loader';
-import { seed } from '@codeware/app-cms/feature/seed';
 
 import config from '../payload.config';
 

@@ -1,6 +1,5 @@
-import { ArrayField } from '@payloadcms/ui';
-
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
+import { ArrayField } from '@payloadcms/ui';
 
 import type { FieldComponentServer } from './component-types';
 

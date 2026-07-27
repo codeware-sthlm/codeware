@@ -1,8 +1,7 @@
-import { Payload } from 'payload';
-
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import type { Tenant } from '@codeware/shared/util/payload-types';
 import { resolveTenantSeedFromSlug } from '@codeware/shared/util/seed';
+import { Payload } from 'payload';
 
 /**
  * Resolves the active tenant based on the current deployment's API key in tenant mode.

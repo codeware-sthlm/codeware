@@ -1,8 +1,3 @@
-import { TenantSelector } from '@payloadcms/plugin-multi-tenant/rsc';
-import { cookies } from 'next/headers';
-import type { CollectionSlug, ServerProps } from 'payload';
-import React from 'react';
-
 import {
   type PayloadRuntime,
   getCollectionCounts,
@@ -10,6 +5,10 @@ import {
   mapToRuntime
 } from '@codeware/app-cms/data-access';
 import type { TenantIconConfig } from '@codeware/shared/util/payload-types';
+import { TenantSelector } from '@payloadcms/plugin-multi-tenant/rsc';
+import { cookies } from 'next/headers';
+import type { CollectionSlug, ServerProps } from 'payload';
+import React from 'react';
 
 import { AdminNav } from './AdminNav.client';
 import { getTenantWhere } from './utils/tenant-where';

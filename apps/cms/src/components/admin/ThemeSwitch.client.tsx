@@ -1,16 +1,15 @@
 'use client';
 
-import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
-import type { Theme } from '@payloadcms/ui';
-import { useTheme, useTranslation } from '@payloadcms/ui';
-import React from 'react';
-
 import type {
   TranslationsKeys,
   TranslationsObject
 } from '@codeware/app-cms/util/i18n';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import { cn } from '@codeware/shared/util/ui';
+import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
+import type { Theme } from '@payloadcms/ui';
+import { useTheme, useTranslation } from '@payloadcms/ui';
+import React from 'react';
 
 /**
  * Compact light/dark pill for Payload's toolbar (`admin.components.actions`),

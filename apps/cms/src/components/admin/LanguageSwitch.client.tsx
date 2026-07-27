@@ -1,10 +1,5 @@
 'use client';
 
-import { ChevronDownIcon, LanguageIcon } from '@heroicons/react/24/outline';
-import type { AcceptedLanguages } from '@payloadcms/translations';
-import { useTranslation } from '@payloadcms/ui';
-import React from 'react';
-
 import type {
   TranslationsKeys,
   TranslationsObject
@@ -17,6 +12,10 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger
 } from '@codeware/shared/ui/shadcn/components/dropdown-menu';
+import { ChevronDownIcon, LanguageIcon } from '@heroicons/react/24/outline';
+import type { AcceptedLanguages } from '@payloadcms/translations';
+import { useTranslation } from '@payloadcms/ui';
+import React from 'react';
 
 /**
  * Admin UI language select for Payload's toolbar (`admin.components.actions`).

@@ -1,6 +1,5 @@
-import type { Access, Where } from 'payload';
-
 import type { Media } from '@codeware/shared/util/payload-types';
+import type { Access, Where } from 'payload';
 
 import { userOrApiKeyAccess } from '../../../security/user-or-api-key-access';
 

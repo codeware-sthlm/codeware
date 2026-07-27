@@ -1,9 +1,8 @@
-import type { CollectionAfterReadHook, PayloadRequest } from 'payload';
-
 import type {
   Tenant,
   TenantIconConfig
 } from '@codeware/shared/util/payload-types';
+import type { CollectionAfterReadHook, PayloadRequest } from 'payload';
 
 type IconMap = Map<number, TenantIconConfig | null>;
 

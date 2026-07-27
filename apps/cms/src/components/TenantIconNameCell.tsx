@@ -1,11 +1,10 @@
-import Link from 'next/link';
-import type { DefaultServerCellComponentProps } from 'payload';
-
 import { TenantIcon } from '@codeware/shared/ui/cms-renderer';
 import type {
   Tenant,
   TenantIconConfig
 } from '@codeware/shared/util/payload-types';
+import Link from 'next/link';
+import type { DefaultServerCellComponentProps } from 'payload';
 
 /**
  * Renders the tenant name with its icon in the list view cell.

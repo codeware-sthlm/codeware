@@ -1,6 +1,5 @@
-import { type Migration, getPayload } from 'payload';
-
 import { withInfisical } from '@codeware/shared/feature/infisical';
+import { type Migration, getPayload } from 'payload';
 
 import { getConfig } from './migrate.config';
 import { migrations } from './migrations';

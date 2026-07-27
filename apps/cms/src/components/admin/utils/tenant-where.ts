@@ -1,8 +1,7 @@
+import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
 import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
 import { headers } from 'next/headers';
 import type { TypedUser, Where } from 'payload';
-
-import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
 
 /**
  * Scopes a collection query to the tenant selected via the nav's workspace

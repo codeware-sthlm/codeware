@@ -1,5 +1,3 @@
-import { CollectionConfig, Condition } from 'payload';
-
 import {
   systemUserAccess,
   systemUserOrTenantAdminAccess
@@ -13,6 +11,7 @@ import {
   hasRole
 } from '@codeware/app-cms/util/misc';
 import { User } from '@codeware/shared/util/payload-types';
+import { CollectionConfig, Condition } from 'payload';
 
 import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
 import { tenantsArrayField } from './fields/tenants-array.field';

@@ -1,6 +1,5 @@
-import { getPayload } from 'payload';
-
 import { loadEnv } from '@codeware/app-cms/feature/env-loader';
+import { getPayload } from 'payload';
 
 import config from '../payload.config';
 

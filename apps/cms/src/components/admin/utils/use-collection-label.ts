@@ -1,13 +1,12 @@
 'use client';
 
-import { useConfig, useTranslation } from '@payloadcms/ui';
-import type { CollectionSlug } from 'payload';
-import { useCallback } from 'react';
-
 import type {
   TranslationsKeys,
   TranslationsObject
 } from '@codeware/app-cms/util/i18n';
+import { useConfig, useTranslation } from '@payloadcms/ui';
+import type { CollectionSlug } from 'payload';
+import { useCallback } from 'react';
 
 import { localize } from './localize';
 

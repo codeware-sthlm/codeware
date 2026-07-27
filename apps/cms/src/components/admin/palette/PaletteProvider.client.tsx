@@ -1,9 +1,8 @@
 'use client';
 
+import type { User } from '@codeware/shared/util/payload-types';
 import { useAuth } from '@payloadcms/ui';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-
-import type { User } from '@codeware/shared/util/payload-types';
 
 type PaletteContextValue = {
   /** Whether the palette is currently open. */

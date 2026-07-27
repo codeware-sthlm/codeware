@@ -1,5 +1,3 @@
-import type { Access } from 'payload';
-
 import {
   getId,
   getUserTenantIDs,
@@ -7,6 +5,7 @@ import {
   isUser
 } from '@codeware/app-cms/util/misc';
 import type { User } from '@codeware/shared/util/payload-types';
+import type { Access } from 'payload';
 
 /**
  * This access control ensures that only users with admin access

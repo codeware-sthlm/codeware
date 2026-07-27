@@ -1,7 +1,6 @@
+import { enumName } from '@codeware/app-cms/util/db';
 import { tenantsArrayField as tenantsArrayFieldPlugin } from '@payloadcms/plugin-multi-tenant/fields';
 import type { Field } from 'payload';
-
-import { enumName } from '@codeware/app-cms/util/db';
 
 /**
  * Customized tenants array field in the users collection, based on the `tenantsArrayField` plugin utility function.

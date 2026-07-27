@@ -1,8 +1,5 @@
 'use client';
 
-import { useTranslation } from '@payloadcms/ui';
-import React from 'react';
-
 import type { DashboardData } from '@codeware/app-cms/ui/dashboard';
 import type {
   TranslationsKeys,
@@ -14,6 +11,8 @@ import {
   TabsList,
   TabsTrigger
 } from '@codeware/shared/ui/shadcn/components/tabs';
+import { useTranslation } from '@payloadcms/ui';
+import React from 'react';
 
 import { AllContentTab } from './AllContentTab.client';
 import { HomeTab } from './HomeTab.client';

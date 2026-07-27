@@ -1,10 +1,5 @@
 'use client';
 
-import { useAuth, useTranslation } from '@payloadcms/ui';
-import Link from 'next/link';
-import type { ClientCollectionConfig } from 'payload';
-import { useMemo } from 'react';
-
 import {
   CollectionCard,
   type DashboardData,
@@ -16,6 +11,10 @@ import type {
   TranslationsObject
 } from '@codeware/app-cms/util/i18n';
 import type { User } from '@codeware/shared/util/payload-types';
+import { useAuth, useTranslation } from '@payloadcms/ui';
+import Link from 'next/link';
+import type { ClientCollectionConfig } from 'payload';
+import { useMemo } from 'react';
 
 import { localize } from '../utils/localize';
 import { useVisibleCollections } from '../utils/use-visible-collections';

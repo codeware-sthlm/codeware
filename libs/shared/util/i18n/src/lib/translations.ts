@@ -1,6 +1,11 @@
 export type SupportedLocale = 'en' | 'sv';
 
 export type TranslationKey =
+  | 'about.built'
+  | 'about.commit'
+  | 'about.environment'
+  | 'about.release'
+  | 'about.version'
   | 'error.contactAdmin'
   | 'error.landingPageNotFound'
   | 'error.landingPageNotFoundDescription'
@@ -72,6 +77,11 @@ export type TranslationKey =
 
 const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
   en: {
+    'about.built': 'Built',
+    'about.commit': 'Commit',
+    'about.environment': 'Environment',
+    'about.release': 'Release',
+    'about.version': 'Version',
     'error.contactAdmin':
       'Please contact the administrator if the problem persists.',
     'error.landingPageNotFound': 'Landing page was not found',
@@ -147,6 +157,11 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'theme.system': 'system preference'
   },
   sv: {
+    'about.built': 'Byggd',
+    'about.commit': 'Commit',
+    'about.environment': 'Miljö',
+    'about.release': 'Utgåva',
+    'about.version': 'Version',
     'error.contactAdmin': 'Kontakta administratören om problemet kvarstår.',
     'error.landingPageNotFound': 'Startsida hittades inte',
     'error.landingPageNotFoundDescription':

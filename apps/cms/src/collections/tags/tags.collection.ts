@@ -1,11 +1,10 @@
-import type { CollectionConfig } from 'payload';
-
 import {
   colorPickerField,
   iconPickerField,
   slugField
 } from '@codeware/app-cms/ui/fields';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
+import type { CollectionConfig } from 'payload';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 

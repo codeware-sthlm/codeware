@@ -1,7 +1,6 @@
-import type { TypedLocale } from 'payload';
-
 import { getPage, getPost } from '@codeware/app-cms/data-access';
 import type { Navigation } from '@codeware/shared/util/payload-types';
+import type { TypedLocale } from 'payload';
 
 import type { FieldComponentServer } from './component-types';
 

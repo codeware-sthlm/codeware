@@ -1,11 +1,3 @@
-import { StatusCodes, getReasonPhrase } from 'http-status-codes';
-import {
-  type Endpoint,
-  type PayloadRequest,
-  type Where,
-  headersWithCors
-} from 'payload';
-
 import {
   getPages,
   getPosts,
@@ -16,6 +8,13 @@ import type {
   PaletteSearchResponse,
   PaletteSearchResultItem
 } from '@codeware/shared/util/payload-types';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
+import {
+  type Endpoint,
+  type PayloadRequest,
+  type Where,
+  headersWithCors
+} from 'payload';
 
 import { getTenantWhereFromHeaders } from '../components/admin/utils/tenant-where';
 

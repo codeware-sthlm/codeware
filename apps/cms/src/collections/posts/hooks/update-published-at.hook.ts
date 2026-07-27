@@ -1,6 +1,5 @@
-import type { FieldHook } from 'payload';
-
 import type { Post } from '@codeware/shared/util/payload-types';
+import type { FieldHook } from 'payload';
 
 export const updatePublishedAtHook: FieldHook<Post, Date, Post> = async ({
   siblingData,

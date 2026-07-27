@@ -1,7 +1,6 @@
+import { getPage } from '@codeware/app-cms/data-access';
 import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
-
-import { getPage } from '@codeware/app-cms/data-access';
 
 import { payloadRuntime } from '../../security/payload-runtime';
 

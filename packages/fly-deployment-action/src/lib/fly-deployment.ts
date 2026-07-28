@@ -102,6 +102,18 @@ export async function flyDeployment(
           break;
       }
     }
+
+    // Explicit input wins; workflow_dispatch payloads carry no PR
+    if (inputs.prNumber) {
+      context.pullRequest = inputs.prNumber;
+    }
+
+    if (context.environment === 'preview' && !context.pullRequest) {
+      throw new Error(
+        'A pull request number is required for preview deployments. ' +
+          'Provide the `pr-number` input when the triggering event carries no pull request.'
+      );
+    }
     core.endGroup();
 
     ContextSchema.parse(context);

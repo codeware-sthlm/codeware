@@ -1,9 +1,5 @@
 'use client';
 
-import { useAuth, useTranslation } from '@payloadcms/ui';
-import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
-
 import { PaletteRow, getSlugIcon } from '@codeware/app-cms/ui/dashboard';
 import type {
   TranslationsKeys,
@@ -23,6 +19,9 @@ import type {
   PaletteSearchResultItem,
   User
 } from '@codeware/shared/util/payload-types';
+import { useAuth, useTranslation } from '@payloadcms/ui';
+import { useRouter } from 'next/navigation';
+import { useCallback, useMemo, useState } from 'react';
 
 import { formatRelativeTime } from '../utils/relative-time';
 import { useCollectionLabel } from '../utils/use-collection-label';

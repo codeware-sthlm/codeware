@@ -1,16 +1,5 @@
 'use client';
 
-import { ChevronDownIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
-import { getTranslation } from '@payloadcms/translations';
-import {
-  useConfig,
-  useLocale,
-  useRouteTransition,
-  useTranslation
-} from '@payloadcms/ui';
-import { useRouter } from 'next/navigation';
-import React from 'react';
-
 import type {
   TranslationsKeys,
   TranslationsObject
@@ -23,6 +12,16 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger
 } from '@codeware/shared/ui/shadcn/components/dropdown-menu';
+import { ChevronDownIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { getTranslation } from '@payloadcms/translations';
+import {
+  useConfig,
+  useLocale,
+  useRouteTransition,
+  useTranslation
+} from '@payloadcms/ui';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
 /**
  * Content-locale select for Payload's toolbar (`admin.components.actions`).

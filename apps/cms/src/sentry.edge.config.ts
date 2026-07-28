@@ -1,6 +1,5 @@
-import * as Sentry from '@sentry/nextjs';
-
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import * as Sentry from '@sentry/nextjs';
 
 import { getSentrySampleRate } from './utils/get-sentry-sample-rate';
 

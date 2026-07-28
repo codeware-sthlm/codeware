@@ -1,10 +1,9 @@
 'use client';
 
+import { usePayload } from '@codeware/shared/ui/cms-renderer';
 import { RefreshRouteOnSave as PayloadLivePreview } from '@payloadcms/live-preview-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-
-import { usePayload } from '@codeware/shared/ui/cms-renderer';
 
 /**
  * Client component for server-side live preview.

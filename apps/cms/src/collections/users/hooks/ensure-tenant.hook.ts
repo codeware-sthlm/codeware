@@ -1,8 +1,7 @@
-import { type CollectionBeforeValidateHook, ValidationError } from 'payload';
-
 import { customT } from '@codeware/app-cms/util/i18n';
 import { hasRole } from '@codeware/app-cms/util/misc';
 import type { User } from '@codeware/shared/util/payload-types';
+import { type CollectionBeforeValidateHook, ValidationError } from 'payload';
 
 /**
  * Ensures that a collection user belongs to a workspace,

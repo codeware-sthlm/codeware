@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "web",
+  "version": "0.0.0",
   "scripts": {},
   "type": "module",
   "dependencies": {

@@ -9,6 +9,7 @@ import type { BlocksData } from '@codeware/shared/util/payload-utils';
 import { cn } from '@codeware/shared/util/ui';
 import { useRef } from 'react';
 
+import { AboutBlock } from './blocks/AboutBlock';
 import { CalloutBlock } from './blocks/CalloutBlock';
 import { CardBlock } from './blocks/CardBlock';
 import { CodeBlock } from './blocks/CodeBlock';
@@ -139,6 +140,7 @@ const blocksMap: Record<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   React.JSXElementConstructor<any>
 > = {
+  about: AboutBlock,
   callout: CalloutBlock,
   card: CardBlock,
   code: CodeBlock,

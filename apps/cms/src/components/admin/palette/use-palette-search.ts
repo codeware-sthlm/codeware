@@ -1,12 +1,11 @@
 'use client';
 
-import { useConfig } from '@payloadcms/ui';
-import { useEffect, useRef, useState } from 'react';
-
 import type {
   PaletteSearchResponse,
   PaletteSearchResultItem
 } from '@codeware/shared/util/payload-types';
+import { useConfig } from '@payloadcms/ui';
+import { useEffect, useRef, useState } from 'react';
 
 const DEBOUNCE_MS = 250;
 

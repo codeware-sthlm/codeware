@@ -1,15 +1,14 @@
 'use client';
 
-import { useAuth, usePreferences, useTranslation } from '@payloadcms/ui';
-import type { CollectionSlug } from 'payload';
-import { useEffect, useState } from 'react';
-
 import type { GettingStartedStep } from '@codeware/app-cms/ui/dashboard';
 import type {
   TranslationsKeys,
   TranslationsObject
 } from '@codeware/app-cms/util/i18n';
 import type { User } from '@codeware/shared/util/payload-types';
+import { useAuth, usePreferences, useTranslation } from '@payloadcms/ui';
+import type { CollectionSlug } from 'payload';
+import { useEffect, useState } from 'react';
 
 import {
   DASHBOARD_PREFERENCES_KEY,

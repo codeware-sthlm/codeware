@@ -1,19 +1,5 @@
 'use client';
 
-import {
-  ArrowLeftOnRectangleIcon,
-  Bars3Icon,
-  ChevronDoubleLeftIcon,
-  HomeIcon,
-  MagnifyingGlassIcon
-} from '@heroicons/react/24/outline';
-import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client';
-import { useAuth, useNav, useTranslation } from '@payloadcms/ui';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import type { ClientCollectionConfig } from 'payload';
-import React, { useEffect, useMemo, useState } from 'react';
-
 import { getSlugIcon } from '@codeware/app-cms/ui/dashboard';
 import type {
   TranslationsKeys,
@@ -48,6 +34,19 @@ import type {
   TenantIconConfig,
   User
 } from '@codeware/shared/util/payload-types';
+import {
+  ArrowLeftOnRectangleIcon,
+  Bars3Icon,
+  ChevronDoubleLeftIcon,
+  HomeIcon,
+  MagnifyingGlassIcon
+} from '@heroicons/react/24/outline';
+import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client';
+import { useAuth, useNav, useTranslation } from '@payloadcms/ui';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import type { ClientCollectionConfig } from 'payload';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { paletteShortcutLabel } from './palette/palette-shortcut-label';
 import { usePalette } from './palette/PaletteProvider.client';

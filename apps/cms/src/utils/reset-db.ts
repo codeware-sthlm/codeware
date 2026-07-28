@@ -1,7 +1,6 @@
+import { loadEnv } from '@codeware/app-cms/feature/env-loader';
 import type { DrizzleAdapter } from '@payloadcms/drizzle';
 import { getPayload } from 'payload';
-
-import { loadEnv } from '@codeware/app-cms/feature/env-loader';
 
 import config from '../payload.config';
 

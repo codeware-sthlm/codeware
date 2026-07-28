@@ -1,14 +1,13 @@
 'use client';
 
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from '@payloadcms/ui';
-import React from 'react';
-
 import type {
   TranslationsKeys,
   TranslationsObject
 } from '@codeware/app-cms/util/i18n';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from '@payloadcms/ui';
+import React from 'react';
 
 import { paletteShortcutLabel } from './palette-shortcut-label';
 import { PaletteDialogHost } from './PaletteDialog.client';

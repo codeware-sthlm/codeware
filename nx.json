@@ -133,7 +133,11 @@
       },
       "apps": {
         "projects": ["cms", "web"],
-        "projectsRelationship": "independent"
+        "projectsRelationship": "independent",
+        "releaseTag": {
+          "pattern": "{projectName}-{version}",
+          "checkAllBranchesWhen": true
+        }
       }
     },
     "changelog": {

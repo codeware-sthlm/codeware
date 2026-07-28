@@ -60,7 +60,8 @@ export default [
             '@testing-library/react',
             '@vitejs/plugin-react',
             'jsonc-eslint-parser',
-            'vite'
+            'vite',
+            'vitest'
           ],
           ignoredFiles: [
             '{projectRoot}/eslint.config.{js,cjs,mjs}',

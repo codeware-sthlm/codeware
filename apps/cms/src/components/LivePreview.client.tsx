@@ -1,8 +1,7 @@
 'use client';
 
-import { useLivePreview } from '@payloadcms/live-preview-react';
-
 import { usePayload } from '@codeware/shared/ui/cms-renderer';
+import { useLivePreview } from '@payloadcms/live-preview-react';
 
 interface LivePreviewProps<T extends Record<string, any>> {
   initialData: T;

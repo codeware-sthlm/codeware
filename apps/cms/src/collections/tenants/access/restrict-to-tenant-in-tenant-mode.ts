@@ -1,8 +1,7 @@
-import type { Access } from 'payload';
-
 import { getTenantContext } from '@codeware/app-cms/data-access';
 import { isUser } from '@codeware/app-cms/util/misc';
 import type { User } from '@codeware/shared/util/payload-types';
+import type { Access } from 'payload';
 
 /**
  * Restrict access to the tenant matching the current deployment's API key in tenant mode.

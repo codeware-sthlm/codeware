@@ -1,9 +1,8 @@
 'use client';
 
+import type { CollectionSlug } from '@codeware/shared/util/payload-types';
 import { usePreferences } from '@payloadcms/ui';
 import { useCallback, useEffect, useState } from 'react';
-
-import type { CollectionSlug } from '@codeware/shared/util/payload-types';
 
 export type RecentEntry = {
   id: string;

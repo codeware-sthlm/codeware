@@ -1,7 +1,3 @@
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import { BlocksFeature } from '@payloadcms/richtext-lexical';
-import type { CollectionConfig } from 'payload';
-
 import { mediaUploadField, slugField } from '@codeware/app-cms/ui/fields';
 import { multiTenantLinkFeature } from '@codeware/app-cms/ui/lexical';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
@@ -9,6 +5,9 @@ import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { filterByTenantScope } from '@codeware/app-cms/util/filters';
 import type { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
+import { BlocksFeature } from '@payloadcms/richtext-lexical';
+import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import type { CollectionConfig } from 'payload';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
@@ -17,6 +16,7 @@ import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
  */
 // Using a record to make sure all blocks are included and not forgotten
 const blocks: Record<BlockSlug, boolean> = {
+  about: false,
   card: true,
   code: true,
   image: true,

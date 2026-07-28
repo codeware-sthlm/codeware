@@ -1,12 +1,5 @@
 'use client';
 
-import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { PayloadSDK } from '@payloadcms/sdk';
-import { useAuth, useConfig, useTranslation } from '@payloadcms/ui';
-import Link from 'next/link';
-import type { TypedLocale } from 'payload';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-
 import type {
   TranslationsKeys,
   TranslationsObject
@@ -27,6 +20,12 @@ import {
   DrawerTitle
 } from '@codeware/shared/ui/shadcn/components/drawer';
 import type { Config, Faq, User } from '@codeware/shared/util/payload-types';
+import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PayloadSDK } from '@payloadcms/sdk';
+import { useAuth, useConfig, useTranslation } from '@payloadcms/ui';
+import Link from 'next/link';
+import type { TypedLocale } from 'payload';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 /**
  * Custom event that opens the help drawer from anywhere in the admin,

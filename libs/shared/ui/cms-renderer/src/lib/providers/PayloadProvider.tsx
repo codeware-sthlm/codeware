@@ -6,6 +6,8 @@ import type {
 } from '@codeware/shared/util/payload-types';
 import { type ReactNode, createContext, use } from 'react';
 
+import type { AppInfo } from '../about/AppAbout';
+
 type FormSubmitData = {
   form: FormSubmission['form'];
 } & {
@@ -28,6 +30,13 @@ export type FormSubmitResponse =
     };
 
 export type PayloadValue = {
+  /**
+   * Provide the running app's build metadata (name, version, sha, deployEnv,
+   * build time). Each app supplies its own — the About block renders it
+   * app-agnostically via `usePayload().appInfo`.
+   */
+  appInfo: AppInfo;
+
   /**
    * Provide a tenant icon for a branded user experience.
    * This is used by components that render blocks with icons for tenants.

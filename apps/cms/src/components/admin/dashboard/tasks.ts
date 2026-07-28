@@ -1,3 +1,5 @@
+import type { IconComponent } from '@codeware/app-cms/ui/dashboard';
+import type { TranslationsKeys } from '@codeware/app-cms/util/i18n';
 import {
   Bars3Icon,
   DocumentIcon,
@@ -7,9 +9,6 @@ import {
   UserPlusIcon
 } from '@heroicons/react/24/outline';
 import type { CollectionSlug } from 'payload';
-
-import type { IconComponent } from '@codeware/app-cms/ui/dashboard';
-import type { TranslationsKeys } from '@codeware/app-cms/util/i18n';
 
 export type TaskDef = {
   labelKey: TranslationsKeys;

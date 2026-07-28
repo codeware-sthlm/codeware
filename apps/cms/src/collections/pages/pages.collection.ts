@@ -1,10 +1,9 @@
-import type { CollectionConfig } from 'payload';
-
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { seoTab } from '@codeware/app-cms/ui/tabs';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
+import type { CollectionConfig } from 'payload';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
@@ -13,6 +12,7 @@ import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
  */
 // Using a record to make sure all blocks are included and not forgotten
 const blocks: Record<BlockSlug, boolean> = {
+  about: true,
   callout: true,
   card: true,
   code: true,

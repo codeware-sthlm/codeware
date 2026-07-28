@@ -1,7 +1,6 @@
-import type { CollectionBeforeChangeHook } from 'payload';
-
 import type { SiteSetting } from '@codeware/shared/util/payload-types';
 import { sanitizeSvg } from '@codeware/shared/util/pure';
+import type { CollectionBeforeChangeHook } from 'payload';
 
 /**
  * Before change hook.

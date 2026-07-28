@@ -99,6 +99,13 @@ ENV NODE_ENV=production
 # Disable telemetry during runtime.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build metadata surfaced by the About UI (version is inlined from package.json
+# at build time; sha + build time are injected as build args on deploy).
+ARG APP_SHA
+ARG APP_BUILD_TIME
+ENV APP_SHA=$APP_SHA \
+    APP_BUILD_TIME=$APP_BUILD_TIME
+
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/apps/cms/.next/standalone ./

@@ -1,5 +1,3 @@
-import type { CollectionConfig, Condition } from 'payload';
-
 import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { customT } from '@codeware/app-cms/util/i18n';
@@ -12,6 +10,7 @@ import type {
   SiteSettingsGeneral,
   SiteSettingsIconSource
 } from '@codeware/shared/util/payload-types';
+import type { CollectionConfig, Condition } from 'payload';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 

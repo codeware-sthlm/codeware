@@ -90,6 +90,9 @@ const customTranslationsSchema = z.object({
     uploadMedia: z.string()
   }),
   palette: z.object({
+    aboutDescription: z.string(),
+    aboutTitle: z.string(),
+    actionAbout: z.string(),
     actionGettingStarted: z.string(),
     actionHelp: z.string(),
     dialogDescription: z.string(),
@@ -207,6 +210,9 @@ You can assign multiple tags to a file.`,
       uploadMedia: 'Upload media'
     },
     palette: {
+      aboutDescription: 'Build and deployment details for this app',
+      aboutTitle: 'About',
+      actionAbout: 'About',
       actionGettingStarted: 'Show getting started',
       actionHelp: 'Open help',
       dialogDescription: 'Search content and run quick actions',
@@ -321,6 +327,9 @@ Du kan tilldela flera etiketter till en fil.`,
       uploadMedia: 'Ladda upp media'
     },
     palette: {
+      aboutDescription: 'Bygg- och distributionsdetaljer för appen',
+      aboutTitle: 'Om',
+      actionAbout: 'Om',
       actionGettingStarted: 'Visa kom igång',
       actionHelp: 'Öppna hjälpen',
       dialogDescription: 'Sök innehåll och kör snabbåtgärder',

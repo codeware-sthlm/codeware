@@ -34,6 +34,13 @@ FROM base
 ENV NODE_ENV=production
 WORKDIR /app
 
+# Build metadata surfaced by the About UI (version is inlined from package.json
+# at build time; sha + build time are injected as build args on deploy).
+ARG APP_SHA
+ARG APP_BUILD_TIME
+ENV APP_SHA=$APP_SHA \
+    APP_BUILD_TIME=$APP_BUILD_TIME
+
 COPY --from=builder /app/apps/web/package.json /app/apps/web/pnpm-lock.yaml ./
 
 # Install runtime deps reproducibly from the committed lockfile so the image

@@ -1,6 +1,3 @@
-import type { ServerProps, Where } from 'payload';
-import React from 'react';
-
 import {
   QueryMultipleOptions,
   getCollectionCounts,
@@ -17,6 +14,8 @@ import type {
   Page,
   Post
 } from '@codeware/shared/util/payload-types';
+import type { ServerProps, Where } from 'payload';
+import React from 'react';
 
 import { getTenantWhere } from '../utils/tenant-where';
 

@@ -1,8 +1,7 @@
+import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { useConfig, useEntityVisibility } from '@payloadcms/ui';
 import { CollectionSlug } from 'payload';
 import { useMemo } from 'react';
-
-import { adminGroups } from '@codeware/app-cms/util/definitions';
 
 import { localize } from './localize';
 

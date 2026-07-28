@@ -1,6 +1,5 @@
-import * as Sentry from '@sentry/nextjs';
-
 import { loadEnv } from '@codeware/app-cms/feature/env-loader';
+import * as Sentry from '@sentry/nextjs';
 
 export async function register() {
   const runtime = process.env.NEXT_RUNTIME;

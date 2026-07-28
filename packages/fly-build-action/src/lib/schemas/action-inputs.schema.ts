@@ -15,6 +15,8 @@ export const ActionInputsSchema = z.object({
   flyConsoleLogs: z.boolean().optional(),
   mainBranch: z.string().optional(),
   optOutDepotBuilder: z.boolean().optional(),
+  // Takes precedence over the event payload; required for preview
+  prNumber: z.number().int().positive().optional(),
   appDetails: AppDetailsSchema.optional(),
   token: z.string().min(1, 'A GitHub token is required')
 });

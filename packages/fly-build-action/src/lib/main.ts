@@ -9,6 +9,12 @@ import {
   ActionInputsSchema
 } from './schemas/action-inputs.schema';
 
+/** Treat anything that isn't a positive integer as absent */
+const parsePrNumber = (value: string): number | undefined => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+};
+
 /**
  * Main action function
  */
@@ -28,6 +34,7 @@ export async function run(): Promise<void> {
       flyConsoleLogs: core.getBooleanInput('fly-console-logs'),
       mainBranch: core.getInput('main-branch'),
       optOutDepotBuilder: core.getBooleanInput('opt-out-depot-builder'),
+      prNumber: parsePrNumber(core.getInput('pr-number')),
       appDetails,
       token: core.getInput('token', { required: true })
     } satisfies ActionInputs);

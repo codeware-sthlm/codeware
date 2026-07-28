@@ -71,6 +71,11 @@ inputs:
       Use `images-path` instead when consuming from the build action — job outputs may be
       suppressed by GitHub Actions secret scanning.
       Defaults to an empty object (each app builds its own image during deploy).
+  pr-number:
+    description: >
+      Pull request number the deployment belongs to.
+      Takes precedence over the number derived from the event payload.
+      Required for `preview` when the event carries no pull request.
   opt-out-depot-builder:
     description: >
       Whether to opt out of the default depot builder.

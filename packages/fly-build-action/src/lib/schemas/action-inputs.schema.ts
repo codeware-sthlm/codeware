@@ -15,6 +15,10 @@ export const ActionInputsSchema = z.object({
   flyConsoleLogs: z.boolean().optional(),
   mainBranch: z.string().optional(),
   optOutDepotBuilder: z.boolean().optional(),
+  // Explicit pull request number, taking precedence over the event payload.
+  // Required for `preview` when the payload carries no PR (manual dispatch,
+  // or a `workflow_run` whose `pull_requests` array is empty).
+  prNumber: z.number().int().positive().optional(),
   appDetails: AppDetailsSchema.optional(),
   token: z.string().min(1, 'A GitHub token is required')
 });

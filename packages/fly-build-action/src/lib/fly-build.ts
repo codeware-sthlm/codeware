@@ -92,6 +92,22 @@ export async function flyBuild(inputs: ActionInputs): Promise<ActionOutputs> {
         break;
     }
   }
+
+  // An explicitly supplied PR number wins over whatever the payload implied.
+  // Neither `workflow_dispatch` nor `workflow_run` carries a usable pull request
+  // here — `workflow_run.pull_requests` is frequently empty — so this is the only
+  // reliable source for a preview build. The caller resolves it once and passes
+  // it to both this action and the deployment action.
+  if (inputs.prNumber) {
+    pullRequest = inputs.prNumber;
+  }
+
+  if (environment === 'preview' && !pullRequest) {
+    throw new Error(
+      'A pull request number is required for preview builds. ' +
+        'Provide the `pr-number` input when the triggering event carries no pull request.'
+    );
+  }
   core.endGroup();
 
   core.startGroup('Build Docker images for affected applications');

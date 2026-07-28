@@ -56,6 +56,13 @@ inputs:
     description: >
       Whether to opt out of the default depot builder.
       Defaults to `false`.
+  pr-number:
+    description: >
+      Pull request number the build belongs to.
+      Takes precedence over the number derived from the triggering event payload.
+      Required for the `preview` environment when the event carries no pull request,
+      such as a manual `workflow_dispatch` run or a `workflow_run` with an empty
+      `pull_requests` array.
 
 outputs:
   environment:

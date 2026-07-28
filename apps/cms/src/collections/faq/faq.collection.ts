@@ -1,11 +1,10 @@
-import type { CollectionConfig } from 'payload';
-
 import {
   authenticatedAccess,
   systemUserAccess
 } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { hasRole } from '@codeware/app-cms/util/misc';
+import type { CollectionConfig } from 'payload';
 
 /**
  * FAQ collection

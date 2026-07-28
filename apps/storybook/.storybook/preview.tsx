@@ -20,6 +20,13 @@ const withPayload: Decorator = (Story, context) => {
   return (
     <PayloadProvider
       value={{
+        appInfo: {
+          name: 'storybook',
+          version: '0.0.0',
+          sha: '',
+          deployEnv: 'development',
+          buildTime: ''
+        },
         getCurrentPath: () => window.location.pathname,
         iconConfig: { source: 'svg', svgCode: cdwrCloudSvg },
         navigate: (path, newTab) => {

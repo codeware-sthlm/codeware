@@ -1,4 +1,7 @@
 'use client';
+import { InlineIcon } from '@codeware/shared/ui/primitives';
+import { SeedIconStudio } from '@codeware/shared/ui/seed-icon-studio';
+import { t } from '@codeware/shared/util/i18n';
 import {
   Button,
   FieldLabel,
@@ -9,10 +12,6 @@ import {
 import type { TextareaFieldClientProps } from 'payload';
 import { useId, useState } from 'react';
 import { createPortal } from 'react-dom';
-
-import { InlineIcon } from '@codeware/shared/ui/primitives';
-import { SeedIconStudio } from '@codeware/shared/ui/seed-icon-studio';
-import { t } from '@codeware/shared/util/i18n';
 
 /**
  * Renders a textarea for SVG markup input with a button to open the Seed Icon Studio.

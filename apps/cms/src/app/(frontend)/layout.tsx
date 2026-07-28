@@ -1,7 +1,6 @@
+import { cn } from '@codeware/shared/util/ui';
 import { Inter } from 'next/font/google';
 import React from 'react';
-
-import { cn } from '@codeware/shared/util/ui';
 
 import './globals.css';
 import { ThemeProvider } from './components/theme-provider';

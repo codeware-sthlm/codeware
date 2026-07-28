@@ -2,6 +2,13 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    projects: ['**/*/vite.config.mts', '**/*/vitest.config.mts']
+    projects: [
+      // Scoped to source roots so repo copies under `.claude/worktrees` are
+      // not picked up as duplicate projects
+      '{apps,e2e,libs,packages,tools}/**/vite.config.{ts,mts}',
+      '{apps,e2e,libs,packages,tools}/**/vitest.config.{ts,mts}',
+      // Remix build config, no `test` block
+      '!apps/web/vite.config.mts'
+    ]
   }
 });

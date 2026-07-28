@@ -1,3 +1,4 @@
+export { aboutBlock } from './lib/about/about.block';
 export { calloutBlock } from './lib/callout/callout.block';
 export { cardBlock } from './lib/card/card.block';
 export { codeBlock } from './lib/code/code.block';

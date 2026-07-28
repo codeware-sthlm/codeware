@@ -1,14 +1,6 @@
 'use client';
 
 import {
-  ClockIcon,
-  PencilSquareIcon,
-  PlusIcon
-} from '@heroicons/react/24/outline';
-import { useAuth, useTranslation } from '@payloadcms/ui';
-import Link from 'next/link';
-
-import {
   type DashboardData,
   DocRow,
   EmptyState,
@@ -31,6 +23,13 @@ import {
   CardTitle
 } from '@codeware/shared/ui/shadcn/components/card';
 import type { User } from '@codeware/shared/util/payload-types';
+import {
+  ClockIcon,
+  PencilSquareIcon,
+  PlusIcon
+} from '@heroicons/react/24/outline';
+import { useAuth, useTranslation } from '@payloadcms/ui';
+import Link from 'next/link';
 
 import { formatRelativeTime } from '../utils/relative-time';
 import { useCollectionLabel } from '../utils/use-collection-label';

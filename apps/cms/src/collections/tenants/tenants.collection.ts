@@ -1,10 +1,9 @@
-import type { CollectionConfig } from 'payload';
-
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { systemUserAccess } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { hasNoAdminRoles } from '@codeware/app-cms/util/misc';
+import type { CollectionConfig } from 'payload';
 
 import { restrictToTenantInTenantMode } from './access/restrict-to-tenant-in-tenant-mode';
 import { enforceApiKeyHook } from './hooks/enforce-api-key.hook';

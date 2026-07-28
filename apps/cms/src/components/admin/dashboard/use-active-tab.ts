@@ -1,9 +1,8 @@
 'use client';
 
+import type { DashboardTab } from '@codeware/app-cms/ui/dashboard';
 import { usePreferences } from '@payloadcms/ui';
 import { useState } from 'react';
-
-import type { DashboardTab } from '@codeware/app-cms/ui/dashboard';
 
 import {
   DASHBOARD_PREFERENCES_KEY,

@@ -1,9 +1,8 @@
+import { isUser } from '@codeware/app-cms/util/misc';
 import { draftMode } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { NextRequest } from 'next/server';
 import { getPayload } from 'payload';
-
-import { isUser } from '@codeware/app-cms/util/misc';
 
 import config from '../../../payload.config';
 

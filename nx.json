@@ -119,11 +119,25 @@
     "groups": {
       "nx-plugins": {
         "projects": ["nx-payload", "create-nx-payload"],
-        "projectsRelationship": "fixed"
+        "projectsRelationship": "fixed",
+        "version": {
+          "groupPreVersionCommand": "pnpm nx run-many -t build"
+        }
       },
       "packages": {
         "projects": ["nx-ai", "fly-node"],
-        "projectsRelationship": "independent"
+        "projectsRelationship": "independent",
+        "version": {
+          "groupPreVersionCommand": "pnpm nx run-many -t build"
+        }
+      },
+      "apps": {
+        "projects": ["cms", "web"],
+        "projectsRelationship": "independent",
+        "releaseTag": {
+          "pattern": "{projectName}-{version}",
+          "checkAllBranchesWhen": true
+        }
       }
     },
     "changelog": {
@@ -140,7 +154,6 @@
       "workspaceChangelog": false
     },
     "version": {
-      "preVersionCommand": "pnpm nx run-many -t build",
       "conventionalCommits": true,
       "fallbackCurrentVersionResolver": "disk",
       "preserveLocalDependencyProtocols": false

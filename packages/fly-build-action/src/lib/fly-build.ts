@@ -92,6 +92,18 @@ export async function flyBuild(inputs: ActionInputs): Promise<ActionOutputs> {
         break;
     }
   }
+
+  // Explicit input wins; workflow_dispatch and workflow_run carry no usable PR
+  if (inputs.prNumber) {
+    pullRequest = inputs.prNumber;
+  }
+
+  if (environment === 'preview' && !pullRequest) {
+    throw new Error(
+      'A pull request number is required for preview builds. ' +
+        'Provide the `pr-number` input when the triggering event carries no pull request.'
+    );
+  }
   core.endGroup();
 
   core.startGroup('Build Docker images for affected applications');

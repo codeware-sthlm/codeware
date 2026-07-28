@@ -29,6 +29,11 @@ on:
           - preview
           - production
         default: production
+      pr-number:
+        description: "PR number to deploy (required for preview, ignored for
+          production)"
+        required: false
+        type: string
       console-logs:
         description: "Show native logs from e.g. Fly and Docker"
         required: false
@@ -130,14 +135,29 @@ jobs:
           main-branch-name: main
           set-environment-variables-for-job: true
 
+      # workflow_run payload, then pull_request event, then manual dispatch input
       - name: Resolve PR number
         id: resolve-pr
         env:
           WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
           DIRECT_PR: ${{ github.event.number }}
+          MANUAL_PR: ${{ github.event.inputs.pr-number }}
         run: |
           PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
-          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
+          PR="${PR:-${DIRECT_PR:-$MANUAL_PR}}"
+          # Drop non-numeric input before it can reach tagging
+          [[ "$PR" =~ ^[0-9]+$ ]] || PR=""
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
+
+      # App name, database and tags are all keyed on the PR number
+      - name: Require PR number for manual preview
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.environment == 'preview' &&
+          steps.resolve-pr.outputs.number == '' }}
+        run: |
+          echo "::error::A PR number is required to deploy to preview. Re-run this workflow with the 'pr-number' input set."
+          exit 1
 
       - name: Run pre-deploy
         id: pre-deploy
@@ -173,19 +193,8 @@ jobs:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
-      # Deliberately the default ref (the PR merge ref), never `pull_request.head.sha`.
-      # This job is privileged — it runs on `workflow_run`, holds Fly/Infisical/Sentry
-      # secrets and a write-scoped token, and executes what it checks out (install,
-      # build, docker). Checking out PR-controlled code here is CodeQL
-      # `actions/untrusted-checkout/critical`, and on `workflow_run` it is a genuine
-      # repo-takeover vector rather than a lint nit.
-      #
-      # The head sha was briefly used here so preview tags would not land on a merge
-      # commit (the release-tag ruleset enforces `required_linear_history`). That is
-      # no longer needed: the ruleset now excludes `refs/tags/*-preview.*`, and an
-      # excluded ref bypasses every rule in the ruleset. Preview tags therefore land
-      # on the merge ref, which is fine — they are disposable and GC'd on PR close
-      # (COD-420). APP_SHA below still reports the head sha, since that is data only.
+      # Privileged job (secrets + write token) — keep the default ref, never
+      # check out `pull_request.head.sha`
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
@@ -229,46 +238,18 @@ jobs:
         run: |
           echo "console-logs=${{ github.event.inputs.console-logs == 'true' && 'true' || vars.FLY_CONSOLE_LOGS }}" >> "$GITHUB_OUTPUT"
 
-      # Build metadata surfaced by each app's About UI (see COD-414).
+      # Build metadata surfaced by each app's About UI
       - name: Resolve build metadata
         id: meta
         env:
-          # Report the PR head — the commit a reader can actually find — rather than
-          # the ephemeral merge ref that gets built. Passed via `env` rather than
-          # interpolated into the script below, so it can never be treated as code.
+          # PR head rather than the merge ref, so the sha is findable
           BUILD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           echo "short-sha=$(echo "$BUILD_SHA" | cut -c1-7)" >> "$GITHUB_OUTPUT"
           echo "build-time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
-      # Version the affected apps (COD-414) — tag-driven, orchestrated by Nx, and
-      # never commits. `nx release version` bumps each changed app's manifest from
-      # conventional commits (so the Docker build bakes a real version) and tags
-      # it. `git-commit` stays false, so the tag lands on the already-pushed deploy
-      # commit — no push to the branch, no re-trigger loop. Tags use the checkout's
-      # GITHUB_TOKEN, so they don't trigger the publish workflow (apps have no
-      # publish target anyway).
-      #
-      # Tags are pushed explicitly rather than via `--git-push`, which runs
-      # `git push --follow-tags <remote>` with no refspec. That pushes the current
-      # branch, and `actions/checkout` leaves HEAD detached on `pull_request`, so it
-      # fails with "You are not currently on a branch". Pushing the resolved tag
-      # refs works detached and keeps the branch untouched, which is the intent.
-      #
-      # Preview uses the same tag-and-push path as production so both environments
-      # share one code path. The PR number goes into the prerelease identifier
-      # (`1.4.1-preview.42.0`) to give each PR its own lane — without it, concurrent
-      # PRs resolve the same base tag and race for the same counter. Nx increments
-      # only the trailing segment, leaving the PR number intact.
-      #
-      # Known wart: once a version is a prerelease, Nx resolves the specifier as
-      # "prerelease" without consulting commit types, so the base stays frozen at
-      # whatever the first commit on the branch implied — a later feat/breaking
-      # change bumps the counter, not the minor/major. Production resolves from the
-      # last stable tag and is unaffected, so a preview version can legitimately
-      # disagree with the release that follows it.
-      #
-      # Preview tags accumulate one per app per push; GC on PR close is COD-420.
+      # Bump each affected app's manifest and tag it. `git-commit false` keeps the
+      # branch untouched — only tags are pushed.
       - name: Version apps
         env:
           ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
@@ -282,6 +263,7 @@ jobs:
           git config user.email "${email%>}"
           args=(--group apps --git-commit false --git-tag)
           if [ "$ENVIRONMENT" != "production" ]; then
+            # Per-PR lane so concurrent PRs don't race for the same counter
             args+=(--preid "preview.${PR_NUMBER}")
           fi
 
@@ -289,10 +271,8 @@ jobs:
           pnpm nx release version "${args[@]}"
           after="$(git tag --list | sort)"
 
-          # Push only the tags this run created. `comm -13` yields lines new to
-          # `after`; the checkout fetches all remote tags, so anything new here was
-          # created by the command above. Tag names cannot contain whitespace, so
-          # the unquoted expansion below splits into one refspec per tag.
+          # Push only the new tags. `--git-push` would push the current branch,
+          # which fails on the detached HEAD left by checkout.
           new_tags="$(comm -13 <(printf '%s\n' "$before") <(printf '%s\n' "$after"))"
           if [ -z "$new_tags" ]; then
             echo "No new tags to push"
@@ -314,9 +294,6 @@ jobs:
           apps: ${{ needs.pre-deploy.outputs.apps }}
           environment: ${{ needs.pre-deploy.outputs.environment }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
-          # Preview image names are keyed on the PR. Neither workflow_run nor
-          # workflow_dispatch carries a usable pull request, so pass the number
-          # resolved in pre-deploy.
           pr-number: ${{ needs.pre-deploy.outputs.pr-number }}
           # Build arguments for Docker build (client-side vars + Sentry source map upload)
           build-args: |
@@ -419,6 +396,7 @@ jobs:
           apps: ${{ needs.pre-deploy.outputs.apps }}
           environment: ${{ needs.pre-deploy.outputs.environment }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
+          pr-number: ${{ needs.pre-deploy.outputs.pr-number }}
           images-path: ${{ runner.temp }}/fly-images/fly-built-images.json
           # Runtime environment variables
           env: |
@@ -478,14 +456,19 @@ jobs:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
+      # workflow_run payload, then pull_request event, then manual dispatch input
       - name: Resolve PR number
         id: resolve-pr
         env:
           WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
           DIRECT_PR: ${{ github.event.number }}
+          MANUAL_PR: ${{ github.event.inputs.pr-number }}
         run: |
           PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
-          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
+          PR="${PR:-${DIRECT_PR:-$MANUAL_PR}}"
+          # Drop non-numeric input before it can reach tagging
+          [[ "$PR" =~ ^[0-9]+$ ]] || PR=""
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v5
 
@@ -525,14 +508,19 @@ jobs:
       needs.build.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
+      # workflow_run payload, then pull_request event, then manual dispatch input
       - name: Resolve PR number
         id: resolve-pr
         env:
           WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
           DIRECT_PR: ${{ github.event.number }}
+          MANUAL_PR: ${{ github.event.inputs.pr-number }}
         run: |
           PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
-          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
+          PR="${PR:-${DIRECT_PR:-$MANUAL_PR}}"
+          # Drop non-numeric input before it can reach tagging
+          [[ "$PR" =~ ^[0-9]+$ ]] || PR=""
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
 
       - name: Download projects artifact
         uses: actions/download-artifact@v4

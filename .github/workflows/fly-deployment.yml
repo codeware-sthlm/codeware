@@ -29,6 +29,11 @@ on:
           - preview
           - production
         default: production
+      pr-number:
+        description: "PR number to deploy (required for preview, ignored for
+          production)"
+        required: false
+        type: string
       console-logs:
         description: "Show native logs from e.g. Fly and Docker"
         required: false
@@ -130,14 +135,30 @@ jobs:
           main-branch-name: main
           set-environment-variables-for-job: true
 
+      # Resolution order: workflow_run payload, then the pull_request event, then
+      # the manual dispatch input. workflow_dispatch payloads carry no PR, so the
+      # input is the only way a manual preview run can name its target.
       - name: Resolve PR number
         id: resolve-pr
         env:
           WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
           DIRECT_PR: ${{ github.event.number }}
+          MANUAL_PR: ${{ github.event.inputs.pr-number }}
         run: |
           PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
-          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
+          echo "number=${PR:-${DIRECT_PR:-$MANUAL_PR}}" >> "$GITHUB_OUTPUT"
+
+      # Fail fast with an actionable message. Without a PR number a preview
+      # deployment has no lane: the Fly app name, the `cdwr_cms_${PR_NUMBER}`
+      # database and the preview tags are all keyed on it.
+      - name: Require PR number for manual preview
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.environment == 'preview' &&
+          steps.resolve-pr.outputs.number == '' }}
+        run: |
+          echo "::error::A PR number is required to deploy to preview. Re-run this workflow with the 'pr-number' input set."
+          exit 1
 
       - name: Run pre-deploy
         id: pre-deploy
@@ -411,6 +432,9 @@ jobs:
           apps: ${{ needs.pre-deploy.outputs.apps }}
           environment: ${{ needs.pre-deploy.outputs.environment }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
+          # Manual dispatches carry no PR in the payload; pass the resolved number
+          # so preview deployments can be triggered by hand.
+          pr-number: ${{ needs.pre-deploy.outputs.pr-number }}
           images-path: ${{ runner.temp }}/fly-images/fly-built-images.json
           # Runtime environment variables
           env: |
@@ -470,14 +494,18 @@ jobs:
           app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
+      # Resolution order: workflow_run payload, then the pull_request event, then
+      # the manual dispatch input. workflow_dispatch payloads carry no PR, so the
+      # input is the only way a manual preview run can name its target.
       - name: Resolve PR number
         id: resolve-pr
         env:
           WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
           DIRECT_PR: ${{ github.event.number }}
+          MANUAL_PR: ${{ github.event.inputs.pr-number }}
         run: |
           PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
-          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
+          echo "number=${PR:-${DIRECT_PR:-$MANUAL_PR}}" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v5
 
@@ -517,14 +545,18 @@ jobs:
       needs.build.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
+      # Resolution order: workflow_run payload, then the pull_request event, then
+      # the manual dispatch input. workflow_dispatch payloads carry no PR, so the
+      # input is the only way a manual preview run can name its target.
       - name: Resolve PR number
         id: resolve-pr
         env:
           WR_PRS: ${{ toJSON(github.event.workflow_run.pull_requests) }}
           DIRECT_PR: ${{ github.event.number }}
+          MANUAL_PR: ${{ github.event.inputs.pr-number }}
         run: |
           PR=$(echo "$WR_PRS" | jq -r 'first | .number // empty')
-          echo "number=${PR:-$DIRECT_PR}" >> "$GITHUB_OUTPUT"
+          echo "number=${PR:-${DIRECT_PR:-$MANUAL_PR}}" >> "$GITHUB_OUTPUT"
 
       - name: Download projects artifact
         uses: actions/download-artifact@v4

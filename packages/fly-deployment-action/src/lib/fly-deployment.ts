@@ -102,6 +102,21 @@ export async function flyDeployment(
           break;
       }
     }
+
+    // An explicitly supplied PR number wins over whatever the payload implied.
+    // `workflow_dispatch` payloads carry no PR at all, so this is the only way a
+    // manual preview deployment can resolve its target — the caller resolves the
+    // number (from the dispatch input) and passes it in.
+    if (inputs.prNumber) {
+      context.pullRequest = inputs.prNumber;
+    }
+
+    if (context.environment === 'preview' && !context.pullRequest) {
+      throw new Error(
+        'A pull request number is required for preview deployments. ' +
+          'Provide the `pr-number` input when the triggering event carries no pull request.'
+      );
+    }
     core.endGroup();
 
     ContextSchema.parse(context);

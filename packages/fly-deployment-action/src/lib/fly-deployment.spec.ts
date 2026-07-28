@@ -1045,6 +1045,61 @@ describe('flyDeployment', () => {
         })
       );
     });
+
+    // A real workflow_dispatch payload carries no pull request, so the number has
+    // to come from the `pr-number` input.
+    it('should deploy to preview using the prNumber input when the payload has none', async () => {
+      setContext('push-main-branch', {
+        eventName: 'workflow_dispatch',
+        payload: { ref: 'refs/heads/main' }
+      });
+      setupMocks();
+      const config = setupTest(
+        { environment: 'preview', prNumber: 42 },
+        'preview'
+      );
+      const result = await flyDeployment(config, true);
+
+      expect(result.environment).toBe('preview');
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          environment: 'preview',
+          env: expect.objectContaining({ PR_NUMBER: '42' })
+        })
+      );
+    });
+
+    it('should fail preview deployment when no pull request can be resolved', async () => {
+      setContext('push-main-branch', {
+        eventName: 'workflow_dispatch',
+        payload: { ref: 'refs/heads/main' }
+      });
+      setupMocks();
+      const config = setupTest({ environment: 'preview' }, 'preview');
+
+      await expect(flyDeployment(config, true)).rejects.toThrow(
+        /pull request number is required for preview deployments/i
+      );
+    });
+
+    it('should let the prNumber input take precedence over the payload', async () => {
+      setContext('pr-opened', {
+        eventName: 'workflow_dispatch',
+        payload: { number: 1, state: 'open' }
+      });
+      setupMocks();
+      const config = setupTest(
+        { environment: 'preview', prNumber: 99 },
+        'preview'
+      );
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          env: expect.objectContaining({ PR_NUMBER: '99' })
+        })
+      );
+    });
   });
 
   describe('workflow_run event', () => {

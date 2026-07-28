@@ -11,6 +11,18 @@ import {
 } from './schemas/action-inputs.schema';
 
 /**
+ * Parse the optional `pr-number` input.
+ *
+ * Anything that isn't a positive integer is treated as absent, so a malformed
+ * value can't surface as a confusing schema error. Preview deployments still
+ * fail loudly further down when no pull request could be resolved at all.
+ */
+const parsePrNumber = (value: string): number | undefined => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+};
+
+/**
  * Main action function
  */
 export async function run(): Promise<void> {
@@ -40,6 +52,7 @@ export async function run(): Promise<void> {
       flyConsoleLogs: core.getBooleanInput('fly-console-logs'),
       images,
       optOutDepotBuilder: core.getBooleanInput('opt-out-depot-builder'),
+      prNumber: parsePrNumber(core.getInput('pr-number')),
       secrets: core.getMultilineInput('secrets'),
       appDetails,
       token: core.getInput('token', { required: true })

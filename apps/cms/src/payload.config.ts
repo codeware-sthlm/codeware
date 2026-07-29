@@ -50,7 +50,9 @@ import tags from './collections/tags/tags.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
+import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
+import { queryStatsLogger } from './perf/query-stats';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -162,11 +164,12 @@ export default buildConfig({
     schemaName: env.DATABASE_SCHEMA,
     migrationDir: path.resolve(dirname, 'migrations'),
     // Ensure db push is disabled during build-time
-    push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build'
+    push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build',
+    ...(env.PERF_PROFILE ? { logger: queryStatsLogger } : {})
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
-  endpoints: [paletteSearchEndpoint, tenantConfigEndpoint],
+  endpoints: [paletteSearchEndpoint, perfStatsEndpoint, tenantConfigEndpoint],
   plugins: getPlugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
   upload: { safeFileNames: true },

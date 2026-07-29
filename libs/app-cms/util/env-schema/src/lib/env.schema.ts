@@ -105,6 +105,9 @@ export const EnvSchema = withEnvVars(
       DISABLE_DB_PUSH: coerceBoolean(false).describe(
         'Disable database schema push in development'
       ),
+      PERF_PROFILE: coerceBoolean(false).describe(
+        'Collect database query counts and expose them via /api/perf-stats'
+      ),
       NX_TASK_TARGET_TARGET: z
         .enum(
           [

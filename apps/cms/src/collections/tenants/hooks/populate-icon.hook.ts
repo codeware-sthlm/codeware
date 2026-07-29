@@ -7,10 +7,23 @@ import type { CollectionAfterReadHook, PayloadRequest } from 'payload';
 type IconMap = Map<number, TenantIconConfig | null>;
 
 /**
+ * Tenant reads arrive as separate Payload operations (access control,
+ * filterAvailableLocales, the multi-tenant plugin), each with its own `req` and
+ * therefore its own context — so a per-request cache alone still rebuilt this
+ * map ~21 times per admin render. Icons change rarely, so the map is held
+ * process-wide for a short window and dropped whenever site-settings change.
+ */
+const CACHE_TTL_MS = 30_000;
+let cached: { at: number; promise: Promise<IconMap> } | undefined;
+
+/** Called from the site-settings afterChange hook so edits show up immediately */
+export const invalidateIconMap = (): void => {
+  cached = undefined;
+};
+
+/**
  * Fetches all site-settings in two batched queries (settings + any media URLs)
  * and returns a map of tenantId → iconConfig.
- *
- * Called once per request; the result is cached on req.context.
  */
 const buildIconMap = async (req: PayloadRequest): Promise<IconMap> => {
   const settings = await req.payload.find({
@@ -20,6 +33,10 @@ const buildIconMap = async (req: PayloadRequest): Promise<IconMap> => {
     depth: 0,
     pagination: false,
     select: { tenant: true, general: { icon: true } },
+    // Cached across requests, so the result must not depend on the caller.
+    // Safe: entries are only ever read for tenant docs that already passed
+    // access control in the hook below.
+    overrideAccess: true,
     req
   });
 
@@ -39,6 +56,7 @@ const buildIconMap = async (req: PayloadRequest): Promise<IconMap> => {
       limit: fileIds.length,
       depth: 0,
       select: { url: true },
+      overrideAccess: true,
       req
     });
     urlById = new Map(media.docs.map((m) => [m.id, m.url ?? '']));
@@ -70,20 +88,23 @@ const buildIconMap = async (req: PayloadRequest): Promise<IconMap> => {
 /**
  * Populates the virtual `iconConfig` field from the tenant's site-settings.
  *
- * All afterRead calls within a single request share one batched lookup via
- * req.context, reducing the query cost from N+1 to at most 2 queries flat.
+ * All afterRead calls share one batched lookup, reducing the query cost from
+ * N+1 to at most 2 queries per cache window.
  */
 export const populateIconHook: CollectionAfterReadHook<Tenant> = async ({
   doc,
-  req,
-  context
+  req
 }) => {
-  if (!context.tenantIconMap) {
-    context.tenantIconMap = buildIconMap(req);
+  if (!cached || Date.now() - cached.at >= CACHE_TTL_MS) {
+    const promise = buildIconMap(req).catch((error) => {
+      // Never cache a failed lookup — the next read should retry
+      cached = undefined;
+      throw error;
+    });
+    cached = { at: Date.now(), promise };
   }
 
-  const iconConfig =
-    (await (context.tenantIconMap as Promise<IconMap>)).get(doc.id) ?? null;
+  const iconConfig = (await cached.promise).get(doc.id) ?? null;
 
   return { ...doc, iconConfig };
 };

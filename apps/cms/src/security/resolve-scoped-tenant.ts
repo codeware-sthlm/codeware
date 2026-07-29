@@ -4,6 +4,18 @@ import { resolveTenantSeedFromSlug } from '@codeware/shared/util/seed';
 import { Payload } from 'payload';
 
 /**
+ * Access control calls this per collection per operation, so a single admin
+ * render resolved the same tenant hundreds of times. The identity is pinned by
+ * the deployment's API key, so it only needs re-reading often enough to pick up
+ * an edited tenant doc.
+ */
+const CACHE_TTL_MS = 10_000;
+const cache = new Map<
+  string,
+  { at: number; promise: Promise<Tenant | undefined> }
+>();
+
+/**
  * Resolves the active tenant based on the current deployment's API key in tenant mode.
  * @param payload - The Payload instance for database access
  * @returns The active Tenant or undefined if not in tenant mode or tenant not found
@@ -37,14 +49,27 @@ export const resolveScopedTenant = async (
     return undefined;
   }
 
+  const cached = cache.get(apiKey);
+  if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
+    return cached.promise;
+  }
+
   // The apiKey field is hashed in the DB index and cannot be matched via
   // a WHERE clause. Fetch all tenants and match in JS — same pattern used
   // by restrictToTenantInTenantMode for the same reason.
-  const { docs } = await payload.find({
-    collection: 'tenants',
-    overrideAccess: true,
-    pagination: false
-  });
+  const promise = payload
+    .find({
+      collection: 'tenants',
+      overrideAccess: true,
+      pagination: false
+    })
+    .then(({ docs }) => docs.find((t) => t.apiKey === apiKey))
+    .catch((error) => {
+      // Never cache a failed lookup — the next call should retry
+      cache.delete(apiKey);
+      throw error;
+    });
 
-  return docs.find((t) => t.apiKey === apiKey);
+  cache.set(apiKey, { at: Date.now(), promise });
+  return promise;
 };

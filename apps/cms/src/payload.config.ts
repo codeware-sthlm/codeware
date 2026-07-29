@@ -50,7 +50,9 @@ import tags from './collections/tags/tags.collection';
 import tenants from './collections/tenants/tenants.collection';
 import users from './collections/users/users.collection';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
+import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
+import { queryStatsLogger } from './perf/query-stats';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -69,6 +71,12 @@ export default buildConfig({
         '@codeware/apps/cms/components/admin/HelpDrawer.client',
         '@codeware/apps/cms/components/admin/LocaleSwitch.client',
         '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client',
+        {
+          // Registered unconditionally to keep the import map stable; the
+          // profiler only exists in development, so gate on the rendered side.
+          path: '@codeware/apps/cms/components/admin/PerfStatsLink.client',
+          clientProps: { enabled: env.DEPLOY_ENV === 'development' }
+        },
         {
           // Client dialog host mounted (invisibly) in the actions row; opened
           // from the command palette via `OPEN_ABOUT_EVENT`. Build metadata is
@@ -162,11 +170,14 @@ export default buildConfig({
     schemaName: env.DATABASE_SCHEMA,
     migrationDir: path.resolve(dirname, 'migrations'),
     // Ensure db push is disabled during build-time
-    push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build'
+    push: env.DISABLE_DB_PUSH === false && env.NX_RUN_TARGET !== 'build',
+    // Installed on dev boots only; records nothing until started from
+    // /api/perf-stats, so it costs a no-op call per query until then
+    ...(env.DEPLOY_ENV === 'development' ? { logger: queryStatsLogger } : {})
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
-  endpoints: [paletteSearchEndpoint, tenantConfigEndpoint],
+  endpoints: [paletteSearchEndpoint, perfStatsEndpoint, tenantConfigEndpoint],
   plugins: getPlugins(env),
   secret: env.PAYLOAD_SECRET_KEY,
   upload: { safeFileNames: true },

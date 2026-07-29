@@ -13,6 +13,7 @@ import type {
 import type { CollectionConfig, Condition } from 'payload';
 
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
+import { invalidateIconMap } from '../tenants/hooks/populate-icon.hook';
 
 import { sanitizeSvgHook } from './hooks/sanitize-svg.hook';
 
@@ -42,7 +43,14 @@ const siteSettings: CollectionConfig = {
     update: systemUserOrTenantAdminAccess
   },
   hooks: {
-    beforeChange: [sanitizeSvgHook]
+    beforeChange: [sanitizeSvgHook],
+    // Tenant icons are derived from these settings and cached — drop it on edit
+    afterChange: [
+      ({ doc }) => {
+        invalidateIconMap();
+        return doc;
+      }
+    ]
   },
   labels: {
     singular: { en: 'Site Settings', sv: 'Webbplatsinställningar' },

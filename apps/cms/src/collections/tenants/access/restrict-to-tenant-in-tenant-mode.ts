@@ -3,6 +3,8 @@ import { isUser } from '@codeware/app-cms/util/misc';
 import type { User } from '@codeware/shared/util/payload-types';
 import type { Access } from 'payload';
 
+import { findTenantByApiKey } from '../../../security/find-tenant-by-api-key';
+
 /**
  * Restrict access to the tenant matching the current deployment's API key in tenant mode.
  *
@@ -23,12 +25,9 @@ export const restrictToTenantInTenantMode: Access<User> = async ({
 
   if (tenantContext) {
     // Fetch tenant ID from API key
-    const { docs: allTenants } = await payload.find({
-      collection: 'tenants',
-      pagination: false
-    });
-    const tenant = allTenants.find(
-      (t) => t.apiKey === tenantContext.tenantApiKey
+    const tenant = await findTenantByApiKey(
+      payload,
+      tenantContext.tenantApiKey
     );
     // Restrict to this tenant only
     return {

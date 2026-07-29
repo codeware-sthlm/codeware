@@ -44,12 +44,14 @@ const processData = (data: unknown, options: Required<Options>): unknown => {
     data !== null &&
     !(data instanceof Date)
   ) {
-    return Object.entries(data).reduce((acc, [key, value]) => {
-      return {
-        ...acc,
-        [key]: processData(value, options)
-      };
-    }, {});
+    // Spreading an accumulator would copy every key already collected on each
+    // iteration, making the walk quadratic; `fromEntries` stays linear.
+    return Object.fromEntries(
+      Object.entries(data).map(([key, value]) => [
+        key,
+        processData(value, options)
+      ])
+    );
   }
 
   // Main Process of string values

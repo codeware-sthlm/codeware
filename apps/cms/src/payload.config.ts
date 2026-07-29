@@ -28,6 +28,7 @@ import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { customTranslations } from '@codeware/app-cms/util/i18n';
 import { isTenant, isUser } from '@codeware/app-cms/util/misc';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
+import type { Tenant } from '@codeware/shared/util/payload-types';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
 import { en } from '@payloadcms/translations/languages/en';
@@ -194,15 +195,21 @@ export default buildConfig({
     ],
     defaultLocale: 'en',
     fallback: true,
-    // Filter available locales based on current tenant
+    // Filter available locales based on current tenant.
+    // Payload calls this several times per render, so the lookup is cached on
+    // the request context to keep it to a single query.
     filterAvailableLocales: async ({ req, locales }) => {
       const tenantId = getTenantFromCookie(req.headers, 'text');
       if (tenantId) {
-        const tenant = await req.payload.findByID({
-          id: tenantId,
-          collection: 'tenants',
-          req
-        });
+        const key = `availableLocalesTenant:${tenantId}`;
+        if (!req.context[key]) {
+          req.context[key] = req.payload.findByID({
+            id: tenantId,
+            collection: 'tenants',
+            req
+          });
+        }
+        const tenant = (await req.context[key]) as Tenant | null;
         if (tenant && tenant.supportedLocales.length) {
           return locales.filter((locale) => {
             return tenant.supportedLocales.map(String).includes(locale.code);

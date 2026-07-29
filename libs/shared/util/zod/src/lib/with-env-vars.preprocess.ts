@@ -44,12 +44,14 @@ const processData = (data: unknown, options: Required<Options>): unknown => {
     data !== null &&
     !(data instanceof Date)
   ) {
-    return Object.entries(data).reduce((acc, [key, value]) => {
-      return {
-        ...acc,
-        [key]: processData(value, options)
-      };
-    }, {});
+    // `fromEntries` builds the object in one pass — spreading an accumulator
+    // would copy every key on each iteration and make the walk quadratic.
+    return Object.fromEntries(
+      Object.entries(data).map(([key, value]) => [
+        key,
+        processData(value, options)
+      ])
+    );
   }
 
   // Main Process of string values

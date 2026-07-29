@@ -85,30 +85,36 @@ const transformKeys = (options: {
 
   // Recurse transform objects
   if (data && typeof data === 'object' && data !== null) {
-    return Object.entries(data).reduce((acc, [key, value]) => {
-      // Check if current key is within the value of a key to preserve.
-      // For example `path.to.env` should preserve `env` object,
-      // and transform the `env` key to camelCase when needed.
-      const shouldPreserveValue = preserve.some((path) =>
-        [...currentPath, key].join('.').match(new RegExp(`^${path}.`))
-      );
+    // `fromEntries` builds the object in one pass — spreading an accumulator
+    // would copy every key on each iteration and make the walk quadratic.
+    return Object.fromEntries(
+      Object.entries(data).map(([key, value]) => {
+        // Check if current key is within the value of a key to preserve.
+        // For example `path.to.env` should preserve `env` object,
+        // and transform the `env` key to camelCase when needed.
+        const shouldPreserveValue = preserve.some((path) =>
+          [...currentPath, key].join('.').match(new RegExp(`^${path}.`))
+        );
 
-      const newKey = shouldPreserveValue ? key : toCamelCase(key, specialCases);
+        const newKey = shouldPreserveValue
+          ? key
+          : toCamelCase(key, specialCases);
 
-      // Store transformed paths to let `preserve` option
-      // support target schema paths.
-      const newPath = [...currentPath, newKey];
+        // Store transformed paths to let `preserve` option
+        // support target schema paths.
+        const newPath = [...currentPath, newKey];
 
-      return {
-        ...acc,
-        [newKey]: transformKeys({
-          currentPath: newPath,
-          data: value,
-          preserve,
-          specialCases
-        })
-      };
-    }, {});
+        return [
+          newKey,
+          transformKeys({
+            currentPath: newPath,
+            data: value,
+            preserve,
+            specialCases
+          })
+        ];
+      })
+    );
   }
 
   return data;

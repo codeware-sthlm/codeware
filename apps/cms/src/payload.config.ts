@@ -28,6 +28,7 @@ import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { customTranslations } from '@codeware/app-cms/util/i18n';
 import { isTenant, isUser } from '@codeware/app-cms/util/misc';
 import { getPlugins } from '@codeware/app-cms/util/plugins';
+import type { Tenant } from '@codeware/shared/util/payload-types';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
 import { en } from '@payloadcms/translations/languages/en';
@@ -194,15 +195,34 @@ export default buildConfig({
     ],
     defaultLocale: 'en',
     fallback: true,
-    // Filter available locales based on current tenant
+    // Filter available locales based on current tenant.
+    // Payload calls this several times per render, so the lookup is cached on
+    // the request context to keep it to a single query.
     filterAvailableLocales: async ({ req, locales }) => {
       const tenantId = getTenantFromCookie(req.headers, 'text');
       if (tenantId) {
-        const tenant = await req.payload.findByID({
-          id: tenantId,
-          collection: 'tenants',
-          req
-        });
+        const key = `availableLocalesTenant:${tenantId}`;
+        // `context` is typed as required but treated as optional elsewhere,
+        // and skipping the cache is harmless — only fall back to it
+        const context = req.context as Record<string, unknown> | undefined;
+        let lookup = context?.[key] as Promise<Tenant | null> | undefined;
+
+        if (!lookup) {
+          lookup = req.payload
+            .findByID({ id: tenantId, collection: 'tenants', req })
+            .catch((error) => {
+              // Never leave a rejected promise cached for the rest of the request
+              if (context) {
+                delete context[key];
+              }
+              throw error;
+            });
+          if (context) {
+            context[key] = lookup;
+          }
+        }
+
+        const tenant = await lookup;
         if (tenant && tenant.supportedLocales.length) {
           return locales.filter((locale) => {
             return tenant.supportedLocales.map(String).includes(locale.code);

@@ -30,6 +30,8 @@
     "@radix-ui/react-tooltip": "1.2.8",
     "@remix-run/node": "2.17.3",
     "@remix-run/react": "2.17.3",
+    "@sentry/node": "10.32.1",
+    "@sentry/react": "10.32.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "hono": "4.12.21",

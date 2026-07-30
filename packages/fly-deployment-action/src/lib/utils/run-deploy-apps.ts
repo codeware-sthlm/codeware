@@ -35,7 +35,7 @@ export const runDeployApps = async (options: {
   core.info(`Found ${config.apps.length} apps to deploy`);
 
   for (const app of config.apps) {
-    const { flyConfigFile, githubConfig, name: projectName } = app;
+    const { flyConfigFile, githubConfig, name: projectName, sentry } = app;
 
     core.startGroup(`Deploy ${projectName}`);
 
@@ -125,9 +125,15 @@ export const runDeployApps = async (options: {
         ...deploymentDetails.secrets
       };
 
-      // Merge environment variables: global -> deployment-specific (deployment wins)
+      // Merge environment variables: global -> app Sentry -> deployment-specific
+      // (deployment wins). Sentry is per app since projects map to apps.
       const mergedEnv = {
         ...config.env,
+        ...(sentry && {
+          SENTRY_DSN: sentry.dsn,
+          SENTRY_PROJECT: sentry.project,
+          ...(sentry.release && { SENTRY_RELEASE: sentry.release })
+        }),
         ...deploymentDetails.env
       };
 

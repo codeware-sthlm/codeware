@@ -263,6 +263,59 @@ describe('flyBuild', () => {
       );
     });
 
+    it("should add the app's own Sentry details as build args", async () => {
+      setContext('push', {}, 'refs/heads/main');
+      await flyBuild(
+        setupTest({
+          apps: [
+            {
+              ...app('app-one'),
+              sentry: {
+                project: 'app-one',
+                dsn: 'https://one@sentry.io/1',
+                release: 'app-one@1.2.3+abc1234'
+              }
+            }
+          ],
+          buildArgs: ['SENTRY_ORG=acme']
+        })
+      );
+
+      expect(getMockFly().build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          buildArgs: {
+            SENTRY_ORG: 'acme',
+            SENTRY_DSN: 'https://one@sentry.io/1',
+            SENTRY_PROJECT: 'app-one',
+            SENTRY_RELEASE: 'app-one@1.2.3+abc1234'
+          }
+        })
+      );
+    });
+
+    it('should omit the release build arg when it is not resolved yet', async () => {
+      setContext('push', {}, 'refs/heads/main');
+      await flyBuild(
+        setupTest({
+          apps: [
+            {
+              ...app('app-one'),
+              sentry: { project: 'app-one', dsn: 'https://one@sentry.io/1' }
+            }
+          ]
+        })
+      );
+
+      expect(getMockFly().build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          buildArgs: {
+            SENTRY_DSN: 'https://one@sentry.io/1',
+            SENTRY_PROJECT: 'app-one'
+          }
+        })
+      );
+    });
+
     it('should throw when the fly config cannot be resolved', async () => {
       setContext('push', {}, 'refs/heads/main');
       // Must be a `function` so it can be constructed with `new`

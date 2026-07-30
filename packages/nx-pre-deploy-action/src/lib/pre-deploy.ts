@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import {
   type InfisicalConfig,
+  fetchAppSentry,
   fetchAppTenants,
   fetchDeployRules,
   filterByDeployRules
@@ -114,8 +115,6 @@ export async function preDeploy(
       return ActionOutputsSchema.parse({ apps, environment, appTenants: {} });
     }
 
-    core.startGroup('Fetch app-specific tenant configuration from Infisical');
-
     const { clientId, clientSecret, projectId, site } = config.infisical;
 
     const infisicalConfig: InfisicalConfig = {
@@ -125,6 +124,19 @@ export async function preDeploy(
       projectId,
       site
     };
+
+    core.startGroup('Fetch app-specific Sentry configuration from Infisical');
+
+    // Attach the Sentry project each app reports to. Apps without a complete
+    // configuration are left untouched, which disables Sentry for them.
+    const appSentry = await fetchAppSentry(infisicalConfig, appNames);
+    for (const app of apps) {
+      app.sentry = appSentry[app.name];
+    }
+
+    core.endGroup();
+
+    core.startGroup('Fetch app-specific tenant configuration from Infisical');
 
     // Fetch deployment rules
     const deployRules = await fetchDeployRules(infisicalConfig);

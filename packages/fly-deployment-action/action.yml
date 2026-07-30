@@ -32,7 +32,9 @@ inputs:
   apps:
     description: >
       JSON array of DeployableApp objects produced by nx-pre-deploy-action.
-      Each object has name, flyConfigFile, and githubConfig properties.
+      Each object has name, flyConfigFile, and githubConfig properties, plus an
+      optional sentry object ({ project, dsn, release }) which is applied as
+      per-app SENTRY_* runtime env on top of `env`.
     required: true
   env:
     description: >

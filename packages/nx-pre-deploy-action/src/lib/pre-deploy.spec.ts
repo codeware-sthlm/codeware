@@ -21,12 +21,13 @@ vi.mock('@codeware/shared/util/nx-deploy', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@codeware/shared/util/nx-deploy')>()),
   analyzeAppsToDeploy: vi.fn()
 }));
-// Partially mock the tenancy lib: override the two fetchers, but spread through
+// Partially mock the tenancy lib: override the fetchers, but spread through
 // the real `filterByDeployRules` to test its actual (pure) implementation.
 vi.mock('@codeware/shared/feature/tenancy', async (importOriginal) => ({
   ...(await importOriginal<
     typeof import('@codeware/shared/feature/tenancy')
   >()),
+  fetchAppSentry: vi.fn(),
   fetchAppTenants: vi.fn(),
   fetchDeployRules: vi.fn()
 }));
@@ -40,6 +41,7 @@ describe('preDeploy', () => {
   const mockCoreInfo = vi.mocked(core.info);
   const mockGithubContext = vi.mocked(github.context);
   const mockAnalyzeAppsToDeploy = vi.mocked(analyzeAppsToDeploy);
+  const mockFetchAppSentry = vi.mocked(tenancy.fetchAppSentry);
   const mockFetchAppTenants = vi.mocked(tenancy.fetchAppTenants);
   const mockFetchDeployRules = vi.mocked(tenancy.fetchDeployRules);
   const spyFilterByDeployRules = vi.spyOn(tenancy, 'filterByDeployRules');
@@ -125,6 +127,7 @@ describe('preDeploy', () => {
 
     // Default mocks
     mockAnalyzeAppsToDeploy.mockResolvedValue([]);
+    mockFetchAppSentry.mockResolvedValue({});
     mockFetchAppTenants.mockResolvedValue({});
     mockFetchDeployRules.mockResolvedValue({ apps: '*', tenants: '*' });
   });
@@ -365,6 +368,51 @@ describe('preDeploy', () => {
       expect(mockFetchDeployRules).not.toHaveBeenCalled();
       expect(mockCoreInfo).toHaveBeenCalledWith(
         'Skipping tenant fetching (no apps to deploy)'
+      );
+    });
+
+    it('should attach Sentry details to the apps that have them', async () => {
+      mockAnalyzeAppsToDeploy.mockResolvedValue([
+        {
+          projectName: 'web',
+          status: 'deploy',
+          flyConfigFile: 'apps/web/fly.toml',
+          githubConfig: {}
+        },
+        {
+          projectName: 'cms',
+          status: 'deploy',
+          flyConfigFile: 'apps/cms/fly.toml',
+          githubConfig: {}
+        }
+      ]);
+
+      mockFetchAppSentry.mockResolvedValue({
+        web: { project: 'web', dsn: 'https://web@sentry.io/2' }
+      });
+
+      setContext('push-main-branch');
+      const config = setupTest(infisicalConfig);
+      const result = await preDeploy(config, true);
+
+      expect(result.apps).toEqual([
+        {
+          name: 'web',
+          flyConfigFile: 'apps/web/fly.toml',
+          githubConfig: {},
+          sentry: { project: 'web', dsn: 'https://web@sentry.io/2' }
+        },
+        { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} }
+      ]);
+      expect(mockFetchAppSentry).toHaveBeenCalledWith(
+        {
+          clientId: 'test-client-id',
+          clientSecret: 'test-client-secret',
+          projectId: 'test-project-id',
+          site: 'eu',
+          environment: 'production'
+        },
+        ['web', 'cms']
       );
     });
 

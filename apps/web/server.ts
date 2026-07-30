@@ -5,6 +5,7 @@
 import { formatReleaseName } from '@codeware/shared/util/pure';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
+import * as Sentry from '@sentry/node';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
@@ -13,10 +14,14 @@ import { type RemixMiddlewareOptions, remix } from 'remix-hono/handler';
 // Something is different here since it works in the cms project
 
 import { getAppInfo } from './app/utils/app-info';
+import { initSentry } from './app/utils/sentry.server';
 import type { AppLoadContext } from './app/utils/types';
 import env from './env-resolver/env';
 import { debugHeadersMiddleware } from './middlewares/debug-headers';
 import { resolveAppLoadContextMiddleware } from './middlewares/resolve-app-load-context.js';
+
+// Before any request is handled
+initSentry();
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -56,7 +61,14 @@ const app = new Hono()
         return ctx;
       }
     })
-  );
+  )
+  // Report anything that escapes the Remix handler, then answer with a plain
+  // 500 rather than letting the error reach the client
+  .onError((error, c) => {
+    Sentry.captureException(error);
+    console.error(error);
+    return c.text('Internal Server Error', 500);
+  });
 
 serve(
   {

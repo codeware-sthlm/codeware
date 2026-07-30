@@ -29,7 +29,7 @@ export const runBuildApps = async (options: {
   core.info(`Found ${config.apps.length} apps to build`);
 
   for (const app of config.apps) {
-    const { flyConfigFile, name: projectName } = app;
+    const { flyConfigFile, name: projectName, sentry } = app;
 
     core.startGroup(`Build Docker image for ${projectName}`);
 
@@ -69,7 +69,22 @@ export const runBuildApps = async (options: {
 
     core.info(`Building image for app '${appName}'...`);
 
-    const buildArgs = config.buildArgs || {};
+    // The app's own Sentry project and release, so source maps upload to the
+    // right project. Shared credentials stay in the workflow-level build args.
+    const buildArgs = {
+      ...config.buildArgs,
+      ...(sentry && {
+        SENTRY_DSN: sentry.dsn,
+        SENTRY_PROJECT: sentry.project,
+        ...(sentry.release && { SENTRY_RELEASE: sentry.release })
+      })
+    };
+
+    if (sentry) {
+      core.info(
+        `Sentry project '${sentry.project}', release '${sentry.release ?? '<none>'}'`
+      );
+    }
 
     const { imageRef } = await fly.build({
       app: appName,

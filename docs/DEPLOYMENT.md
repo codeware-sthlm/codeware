@@ -12,7 +12,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [Fly Configuration Files](#fly-configuration-files)
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
-  - [Sentry Releases](#sentry-releases)
+  - [Sentry](#sentry)
   - [Deployment Rules (Required)](#deployment-rules-required)
   - [GitHub Secrets](#github-secrets)
 - [Deployment Flow](#deployment-flow)
@@ -297,21 +297,59 @@ Secrets in Infisical are handled as **secrets by default**.
 
 To make a secret visible as **environment variable**, add metadata key `env` set to `true`.
 
-### Sentry Releases
+### Sentry
 
-Sentry releases enable you to associate errors with specific deployments, track which versions have bugs, and get better source map resolution.
+**The model: projects are apps, releases are builds, tenants are a tag.**
+
+- **One Sentry project per app** — `cms` and `web`. Projects never reflect tenants.
+- **One release per build per app** — `name@version+sha`, e.g. `cms@1.4.0+ab12cd3`. All
+  tenants run the same image, so they share the release. Never per-tenant releases.
+- **Tenants are separated by a `tenant` tag** set at runtime, filtered within the one
+  project and release.
+
+**Configuration:**
+
+The project slug and DSN live in the app's own Infisical folder, so each app resolves its
+own. Organization and auth token are shared and come from the root path via GitHub secrets.
+
+| Location      | Secret              | Used by                                                  |
+| ------------- | ------------------- | -------------------------------------------------------- |
+| `/` (root)    | `SENTRY_ORG`        | workflow, as `INF_SENTRY_ORG`                            |
+| `/` (root)    | `SENTRY_AUTH_TOKEN` | workflow + source map upload, as `INF_SENTRY_AUTH_TOKEN` |
+| `/apps/<app>` | `SENTRY_PROJECT`    | that app only                                            |
+| `/apps/<app>` | `SENTRY_DSN`        | that app only                                            |
+
+An app missing either `/apps/<app>` key simply runs without Sentry — the deployment is not
+affected.
 
 **How it works:**
 
-1. **Release creation** (GitHub workflow): A single release is created using the Git SHA before any deployments
-2. **Commit association**: The release is linked to commits for better error tracking
-3. **Source map upload** (Docker build): Each app uploads source maps to the shared release during build
-4. **Release finalization** (GitHub workflow): After all deployments succeed, the release is finalized and marked as deployed
-5. **Error tracking**: Errors are automatically associated with the release version
+1. **Resolution** (`nx-pre-deploy-action`): reads `/apps/<app>/SENTRY_{PROJECT,DSN}` from
+   Infisical and attaches them to each app as `sentry: { project, dsn }`
+2. **Release naming** (GitHub workflow): after `Version apps` bumps the manifests, the
+   release name `name@version+sha` is resolved per app and merged into `sentry.release`
+3. **Release creation** (GitHub workflow): one release per app, created in that app's own
+   project before the build so source maps have something to attach to
+4. **Commit association**: each release is linked to commits (best-effort)
+5. **Source map upload** (Docker build): `@sentry/nextjs` for cms, `@sentry/vite-plugin`
+   for web, each uploading to its own project and release
+6. **Release finalization** (GitHub workflow): after all deployments succeed, every release
+   is finalized. On failure they are deleted again.
 
-**Workflow Steps:**
+The build and deploy actions are pass-through: they turn each app's `sentry` details into
+per-app `SENTRY_DSN`, `SENTRY_PROJECT` and `SENTRY_RELEASE` build args and runtime env, on
+top of the shared values the workflow passes.
 
-The deployment workflow ([.github/workflows/fly-deployment.yml](../.github/workflows/fly-deployment.yml)) orchestrates the release lifecycle:
+**Tenant tagging:**
+
+| Deployment              | Tag source                                                          |
+| ----------------------- | ------------------------------------------------------------------- |
+| web (always one tenant) | `TENANT_ID` at boot, server and client                              |
+| cms tenant mode         | `TENANT_ID` at boot, plus `mode: tenant`                            |
+| cms host mode           | per request from the authenticated tenant's slug, plus `mode: host` |
+
+A host deployment serves every tenant from one process, so a boot-time tenant tag would be
+wrong there — it tags the isolation scope of each request instead.
 
 **Docker Build Requirements:**
 
@@ -324,15 +362,18 @@ Example in Dockerfile:
 
 ```dockerfile
 ARG SENTRY_AUTH_TOKEN
+ARG SENTRY_DSN
 ARG SENTRY_ORG
 ARG SENTRY_PROJECT
 ARG SENTRY_RELEASE
 
-# Convert to ENV so Sentry webpack plugin can access them during build
+# Convert to ENV so the bundler plugin can access them during build.
+# The client-side prefix differs per framework (NEXT_PUBLIC_ / VITE_).
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
     SENTRY_ORG=$SENTRY_ORG \
     SENTRY_PROJECT=$SENTRY_PROJECT \
-    SENTRY_RELEASE=$SENTRY_RELEASE
+    SENTRY_RELEASE=$SENTRY_RELEASE \
+    NEXT_PUBLIC_SENTRY_DSN=$SENTRY_DSN
 
 RUN npx nx build cms  # Source maps uploaded here
 ```

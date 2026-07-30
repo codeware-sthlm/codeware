@@ -3,6 +3,8 @@ import { isUser } from '@codeware/app-cms/util/misc';
 import { verifySignature } from '@codeware/shared/util/signature';
 import type { Access, Where } from 'payload';
 
+import { setSentryTenantTag } from '../utils/set-sentry-tenant-tag';
+
 import { resolveScopedTenant } from './resolve-scoped-tenant';
 
 /**
@@ -71,6 +73,12 @@ export const userOrApiKeyAccess =
       }
 
       return true;
+    }
+
+    // The identity is the tenant itself, so its slug attributes any error raised
+    // while serving this request — the only tenant signal a host deployment has.
+    if ('slug' in user && typeof user.slug === 'string') {
+      setSentryTenantTag(user.slug);
     }
 
     // cms host mode

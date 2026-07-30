@@ -7,10 +7,9 @@ import {
   useRouteError,
   useRouteLoaderData
 } from '@remix-run/react';
+import * as Sentry from '@sentry/react';
 import * as React from 'react';
 
-// TODO Use Sentry for error tracking - COD-202
-// import { captureRemixErrorBoundaryError } from '@sentry/remix'
 import type { loader as rootLoader } from '../root';
 import { getErrorMessage } from '../utils/misc';
 
@@ -35,7 +34,6 @@ export function GeneralErrorBoundary({
   unexpectedErrorHandler?: (error: unknown) => React.JSX.Element | null;
 }) {
   const error = useRouteError();
-  // captureRemixErrorBoundaryError(error)
   const params = useParams();
   const rootData = useRouteLoaderData<typeof rootLoader>('root');
   const locale = rootData?.requestInfo.userPrefs.locale ?? 'en';
@@ -43,6 +41,14 @@ export function GeneralErrorBoundary({
   if (typeof document !== 'undefined') {
     console.error(error);
   }
+
+  // Route error responses are expected outcomes (404s and the like); only real
+  // exceptions are worth reporting
+  React.useEffect(() => {
+    if (!isRouteErrorResponse(error)) {
+      Sentry.captureException(error);
+    }
+  }, [error]);
 
   return (
     <ErrorContainer locale={locale} severity="error">

@@ -466,6 +466,58 @@ describe('flyDeployment', () => {
       );
     });
 
+    it('should deploy an app with its own Sentry details as env', async () => {
+      setContext('pr-opened');
+      setupMocks();
+      const apps = getDefaultApps('preview');
+      const config = setupTest(
+        {
+          apps: [
+            {
+              ...apps[0],
+              sentry: {
+                project: 'app-one',
+                dsn: 'https://one@sentry.io/1',
+                release: 'app-one@1.2.3+abc1234'
+              }
+            },
+            apps[1]
+          ],
+          env: ['SENTRY_ORG=acme']
+        },
+        'preview'
+      );
+      await flyDeployment(config, true);
+
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-one-config-pr-1',
+          env: {
+            APP_NAME: 'app-one-config-pr-1',
+            FLY_URL: 'https://app-one-config-pr-1.fly.dev',
+            PR_NUMBER: '1',
+            SENTRY_ORG: 'acme',
+            SENTRY_DSN: 'https://one@sentry.io/1',
+            SENTRY_PROJECT: 'app-one',
+            SENTRY_RELEASE: 'app-one@1.2.3+abc1234'
+          }
+        } satisfies Partial<DeployAppOptions>)
+      );
+
+      // The app without Sentry details only gets the shared env
+      expect(getMockFly().deploy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          app: 'app-two-config-pr-1',
+          env: {
+            APP_NAME: 'app-two-config-pr-1',
+            FLY_URL: 'https://app-two-config-pr-1.fly.dev',
+            PR_NUMBER: '1',
+            SENTRY_ORG: 'acme'
+          }
+        } satisfies Partial<DeployAppOptions>)
+      );
+    });
+
     it('should deploy apps to preview with the same secrets', async () => {
       setContext('pr-opened');
       setupMocks();

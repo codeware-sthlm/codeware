@@ -31,7 +31,9 @@ inputs:
   apps:
     description: >
       JSON array of DeployableApp objects produced by nx-pre-deploy-action.
-      Each object has name, flyConfigFile, and githubConfig properties.
+      Each object has name, flyConfigFile, and githubConfig properties, plus an
+      optional sentry object ({ project, dsn, release }) which is applied as
+      per-app SENTRY_* build args on top of `build-args`.
     required: true
   build-args:
     description: >

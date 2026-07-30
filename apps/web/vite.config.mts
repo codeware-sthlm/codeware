@@ -1,5 +1,6 @@
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { vitePlugin as remix } from '@remix-run/dev';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig } from 'vite';
 
 declare module '@remix-run/node' {
@@ -20,10 +21,17 @@ declare module '@remix-run/node' {
  * Therefore we stick to output compiled code to app root until we know better.
  */
 
+// Source maps are only uploaded when the deploy supplies Sentry credentials.
+// The release is created by the build workflow, so the plugin only attaches
+// artifacts to it.
+const sentryEnabled =
+  !!process.env.SENTRY_AUTH_TOKEN && !!process.env.SENTRY_ORG;
+
 export default defineConfig({
   root: __dirname,
   build: {
-    target: ['node20', 'esnext']
+    target: ['node20', 'esnext'],
+    sourcemap: sentryEnabled
   },
   plugins: [
     remix({
@@ -35,6 +43,23 @@ export default defineConfig({
         v3_lazyRouteDiscovery: true
       }
     }),
-    nxViteTsPaths()
+    nxViteTsPaths(),
+    ...(sentryEnabled
+      ? [
+          sentryVitePlugin({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: process.env.SENTRY_ORG,
+            project: process.env.SENTRY_PROJECT,
+            telemetry: false,
+            release: {
+              name: process.env.SENTRY_RELEASE,
+              create: false,
+              finalize: false
+            },
+            // Keep source maps out of the deployed image
+            sourcemaps: { filesToDeleteAfterUpload: ['**/*.map'] }
+          })
+        ]
+      : [])
   ]
 });

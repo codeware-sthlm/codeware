@@ -44,6 +44,14 @@ export const EnvSchema = z.object({
     })
   ),
   PORT: z.coerce.number({ description: 'Port to run the server on' }),
+
+  // Sentry (per app; injected on deploy, absent in dev)
+  SENTRY_DSN: z
+    .string({ description: 'Data Source Name - Sentry project identifier' })
+    .optional(),
+  SENTRY_RELEASE: z
+    .string({ description: 'Release identifier `name@version+sha`' })
+    .optional(),
   SIGNATURE_SECRET: z
     .string({ description: 'Secret key for API request signatures' })
     .min(1, {

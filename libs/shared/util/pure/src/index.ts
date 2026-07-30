@@ -3,6 +3,7 @@ export * from './lib/deep-merge';
 export * from './lib/extract-version';
 export * from './lib/format-release-name';
 export * from './lib/get-active-keys';
+export * from './lib/get-sentry-sample-rate';
 export * from './lib/is-object';
 export * from './lib/is-regex-pattern';
 export * from './lib/sanitize-svg';

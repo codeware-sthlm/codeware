@@ -23,7 +23,9 @@ import {
   useLoaderData,
   useNavigate
 } from '@remix-run/react';
+import * as Sentry from '@sentry/react';
 import { House } from 'lucide-react';
+import * as React from 'react';
 
 import env from '../env-resolver/env';
 
@@ -172,6 +174,13 @@ export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const theme = useTheme();
+  const tenantId = loaderData.env.TENANT_ID;
+
+  // One bundle serves every tenant, so the client learns which one it is from
+  // the loader rather than at build time
+  React.useEffect(() => {
+    Sentry.setTag('tenant', tenantId);
+  }, [tenantId]);
 
   // Provide app opinionated context to Payload components
   const context: PayloadValue = {

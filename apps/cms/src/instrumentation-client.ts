@@ -1,7 +1,6 @@
+import { getSentrySampleRate } from '@codeware/shared/util/pure';
 import * as Sentry from '@sentry/nextjs';
 import { isbot } from 'isbot';
-
-import { getSentrySampleRate } from './utils/get-sentry-sample-rate';
 
 // Client-side env variables must use NEXT_PUBLIC_ prefix
 type ClientEnv = {

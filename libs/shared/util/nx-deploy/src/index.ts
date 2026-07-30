@@ -1,5 +1,7 @@
 export { analyzeAppsToDeploy } from './lib/analyze-apps-to-deploy';
 export {
+  type AppSentry,
+  AppSentrySchema,
   type DeployableApp,
   DeployableAppSchema
 } from './lib/deployable-app.schema';

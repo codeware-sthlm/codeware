@@ -49,7 +49,11 @@ inputs:
 outputs:
   apps:
     description: >
-      A list of applications to deploy (Nx project names).
+      JSON array of applications to deploy.
+      Each entry has name, flyConfigFile, githubConfig and an optional sentry
+      object ({ project, dsn }) resolved from `/apps/<app-name>` in Infisical.
+      The sentry object carries no release yet - it is added by the caller once
+      the app manifests have been versioned.
   environment:
     description: >
       The environment to deploy applications to ('preview', 'production').

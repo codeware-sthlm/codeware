@@ -92,8 +92,11 @@ const transformKeys = (options: {
         // Check if current key is within the value of a key to preserve.
         // For example `path.to.env` should preserve `env` object,
         // and transform the `env` key to camelCase when needed.
+        // `preserve` holds dot-notation paths, so match on the separator
+        // directly — building a RegExp from them would break on metacharacters.
+        const fullPath = [...currentPath, key].join('.');
         const shouldPreserveValue = preserve.some((path) =>
-          [...currentPath, key].join('.').match(new RegExp(`^${path}.`))
+          fullPath.startsWith(`${path}.`)
         );
 
         const newKey = shouldPreserveValue

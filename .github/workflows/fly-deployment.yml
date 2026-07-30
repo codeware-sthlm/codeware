@@ -185,6 +185,8 @@ jobs:
       SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
     outputs:
       images: ${{ steps.build.outputs.images }}
+      # Apps from pre-deploy, enriched with the resolved Sentry release names
+      apps: ${{ steps.sentry-apps.outputs.apps }}
 
     steps:
       - uses: actions/create-github-app-token@v3
@@ -217,23 +219,6 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
           version: ${{ vars.FLY_CLI_VERSION }}
-
-      # The Sentry webpack plugin uploads source maps during the Docker build and expects
-      # the release to already exist (next.config.mjs: create: false). So the release is
-      # created here, before the build. If anything fails afterward it is deleted below.
-      - name: Create Sentry release
-        id: sentry-release
-        if: env.SENTRY_ORG != ''
-        uses: getsentry/action-release@v3
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
-        with:
-          environment: ${{ needs.pre-deploy.outputs.environment }}
-          release: ${{ github.sha }}
-          set_commits: "auto"
-          finalize: false
 
       - name: Resolve flags
         id: flags
@@ -290,6 +275,106 @@ jobs:
             git push --no-verify --atomic origin $new_tags
           fi
 
+      # `nx release version` only writes a manifest when conventional commits
+      # produce a bump for that project, but `nx affected` deploys an app
+      # whenever anything it depends on changed. An app can therefore be rebuilt
+      # without being bumped, and since bumps are never committed (only tagged),
+      # its manifest still holds the placeholder version that lives in git.
+      #
+      # The tags are the real source of truth, so backfill whatever nx left
+      # alone. The image inlines this value for the About UI and /api/version,
+      # and the Sentry release name is derived from it — all three agree.
+      - name: Backfill unbumped app versions
+        env:
+          APPS: ${{ needs.pre-deploy.outputs.apps }}
+          ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
+          PR_NUMBER: ${{ needs.pre-deploy.outputs.pr-number || 0 }}
+        run: |
+          set -euo pipefail
+
+          # `versionsort.suffix` makes git rank `-preview.N` below its own
+          # release; a plain `-v:refname` sort gets that backwards
+          latest_tag() {
+            git -c versionsort.suffix=-preview tag --list "$1" --sort=-v:refname \
+              | { [ "${2:-}" = release-only ] && grep -v -- '-preview\.' || cat; } \
+              | head -1
+          }
+
+          for name in $(jq -r '.[].name' <<< "$APPS"); do
+            config="$(jq -r --arg n "$name" '.[] | select(.name == $n) | .flyConfigFile' <<< "$APPS")"
+            manifest="$(dirname "$config")/package.json"
+
+            # nx stages what it writes, so compare against HEAD rather than the
+            # working tree
+            if ! git diff HEAD --quiet -- "$manifest"; then
+              echo "$name: bumped to $(jq -r .version "$manifest")"
+              continue
+            fi
+
+            tag=''
+            if [ "$ENVIRONMENT" != production ]; then
+              # Stay in this PR's lane — another PR's preview tag is not our version
+              tag="$(latest_tag "${name}-[0-9]*-preview.${PR_NUMBER}.*")"
+            fi
+            # Otherwise the newest real release the app was last cut at
+            [ -n "$tag" ] || tag="$(latest_tag "${name}-[0-9]*" release-only)"
+
+            version="${tag#"${name}-"}"
+            if [ -z "$version" ]; then
+              echo "$name: no release tag, keeping $(jq -r .version "$manifest")"
+              continue
+            fi
+
+            tmp="$(mktemp)"
+            jq --arg v "$version" '.version = $v' "$manifest" > "$tmp"
+            mv "$tmp" "$manifest"
+            echo "$name: not bumped, backfilled to $version"
+          done
+
+      # One release per build per app, `name@version+sha`, using the version
+      # resolved above. All tenants of an app share it — tenants are told
+      # apart by a runtime tag, never by a separate release.
+      - name: Resolve Sentry releases
+        id: sentry-apps
+        env:
+          APPS: ${{ needs.pre-deploy.outputs.apps }}
+          SHORT_SHA: ${{ steps.meta.outputs.short-sha }}
+        run: |
+          set -euo pipefail
+          apps="$APPS"
+          for name in $(jq -r '.[] | select(.sentry) | .name' <<< "$APPS"); do
+            config="$(jq -r --arg n "$name" '.[] | select(.name == $n) | .flyConfigFile' <<< "$APPS")"
+            version="$(jq -r .version "$(dirname "$config")/package.json")"
+            release="${name}@${version}+${SHORT_SHA}"
+            echo "$name -> $release"
+            apps="$(jq -c --arg n "$name" --arg r "$release" \
+              'map(if .name == $n then .sentry.release = $r else . end)' <<< "$apps")"
+          done
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+
+      # The Sentry bundler plugins upload source maps during the Docker build and
+      # expect the release to already exist (cms next.config.mjs: create: false).
+      # So releases are created here, before the build, and deleted below if
+      # anything afterwards fails.
+      - name: Create Sentry releases
+        id: sentry-release
+        if: env.SENTRY_ORG != ''
+        env:
+          APPS: ${{ steps.sentry-apps.outputs.apps }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
+        run: |
+          set -euo pipefail
+          jq -r '.[] | select(.sentry.release) | "\(.sentry.project) \(.sentry.release)"' <<< "$APPS" |
+            while read -r project release; do
+              echo "Creating '$release' in project '$project'"
+              SENTRY_PROJECT="$project" pnpm sentry-cli releases new "$release"
+              # Commit association is best-effort; a shallow or unmatched history
+              # must not fail the build
+              SENTRY_PROJECT="$project" pnpm sentry-cli releases set-commits --auto "$release" \
+                || echo "::warning::Could not associate commits with '$release'"
+            done
+
       - name: Build Docker images
         id: build
         uses: ./packages/fly-build-action
@@ -299,20 +384,18 @@ jobs:
           fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
           fly-console-logs: ${{ steps.flags.outputs.console-logs }}
           token: ${{ steps.generate-token.outputs.token }}
-          apps: ${{ needs.pre-deploy.outputs.apps }}
+          apps: ${{ steps.sentry-apps.outputs.apps }}
           environment: ${{ needs.pre-deploy.outputs.environment }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
           pr-number: ${{ needs.pre-deploy.outputs.pr-number }}
-          # Build arguments for Docker build (client-side vars + Sentry source map upload)
+          # Shared build arguments. The per-app SENTRY_DSN, SENTRY_PROJECT and
+          # SENTRY_RELEASE are added by the action from each app's `sentry` details.
           build-args: |
             APP_SHA=${{ steps.meta.outputs.short-sha }}
             APP_BUILD_TIME=${{ steps.meta.outputs.build-time }}
+            DEPLOY_ENV=${{ needs.pre-deploy.outputs.environment }}
             NEXT_PUBLIC_DEPLOY_ENV=${{ needs.pre-deploy.outputs.environment }}
-            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.INF_SENTRY_DSN }}
-            NEXT_PUBLIC_SENTRY_RELEASE=${{ github.sha }}
             SENTRY_ORG=${{ secrets.INF_SENTRY_ORG }}
-            SENTRY_PROJECT=${{ secrets.INF_SENTRY_PROJECT }}
-            SENTRY_RELEASE=${{ github.sha }}
             SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
 
@@ -327,16 +410,20 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      # Clean up the Sentry release if the build failed.
-      - name: Delete Sentry release on build failure
+      # Clean up the Sentry releases if the build failed.
+      - name: Delete Sentry releases on build failure
         if: >-
           always() && env.SENTRY_ORG != '' && steps.sentry-release.outcome == 'success' &&
           steps.build.outcome != 'success'
         env:
+          APPS: ${{ steps.sentry-apps.outputs.apps }}
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
-        run: pnpm sentry-cli releases delete "${{ github.sha }}" || true
+        run: |
+          jq -r '.[] | select(.sentry.release) | "\(.sentry.project) \(.sentry.release)"' <<< "$APPS" |
+            while read -r project release; do
+              SENTRY_PROJECT="$project" pnpm sentry-cli releases delete "$release" || true
+            done
 
   deploy:
     needs: [pre-deploy, build]
@@ -401,18 +488,17 @@ jobs:
           fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
           fly-console-logs: ${{ steps.flags.outputs.console-logs }}
           token: ${{ steps.generate-token.outputs.token }}
-          apps: ${{ needs.pre-deploy.outputs.apps }}
+          apps: ${{ needs.build.outputs.apps }}
           environment: ${{ needs.pre-deploy.outputs.environment }}
           app-details: ${{ needs.pre-deploy.outputs.app-tenants }}
           pr-number: ${{ needs.pre-deploy.outputs.pr-number }}
           images-path: ${{ runner.temp }}/fly-images/fly-built-images.json
-          # Runtime environment variables
+          # Shared runtime environment variables. The per-app SENTRY_DSN,
+          # SENTRY_PROJECT and SENTRY_RELEASE are added by the action from each
+          # app's `sentry` details.
           env: |
             INFISICAL_SITE=${{ vars.INFISICAL_SITE }}
-            SENTRY_DSN=${{ secrets.INF_SENTRY_DSN }}
             SENTRY_ORG=${{ secrets.INF_SENTRY_ORG }}
-            SENTRY_PROJECT=${{ secrets.INF_SENTRY_PROJECT }}
-            SENTRY_RELEASE=${{ github.sha }}
           # Sensitive secrets are also passed to app env on deployment
           secrets: |
             INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_READ_CLIENT_ID }}
@@ -421,22 +507,35 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
 
-      - name: Finalize Sentry release
+      - name: Finalize Sentry releases
         if: steps.deployment.outcome == 'success'
         env:
+          APPS: ${{ needs.build.outputs.apps }}
+          ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
-        run: pnpm sentry-cli releases finalize "${{ github.sha }}"
+        run: |
+          set -euo pipefail
+          jq -r '.[] | select(.sentry.release) | "\(.sentry.project) \(.sentry.release)"' <<< "$APPS" |
+            while read -r project release; do
+              SENTRY_PROJECT="$project" pnpm sentry-cli releases finalize "$release"
+              # Record where it landed, now that the deployment has succeeded
+              SENTRY_PROJECT="$project" pnpm sentry-cli deploys new \
+                --release "$release" --env "$ENVIRONMENT"
+            done
 
-      # Clean up the Sentry release if deployment failed.
-      - name: Delete Sentry release on deployment failure
+      # Clean up the Sentry releases if deployment failed.
+      - name: Delete Sentry releases on deployment failure
         if: always() && steps.deployment.outcome != 'success'
         env:
+          APPS: ${{ needs.build.outputs.apps }}
           SENTRY_AUTH_TOKEN: ${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.INF_SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.INF_SENTRY_PROJECT }}
-        run: pnpm sentry-cli releases delete "${{ github.sha }}" || true
+        run: |
+          jq -r '.[] | select(.sentry.release) | "\(.sentry.project) \(.sentry.release)"' <<< "$APPS" |
+            while read -r project release; do
+              SENTRY_PROJECT="$project" pnpm sentry-cli releases delete "$release" || true
+            done
 
       # Upload projects as artifact — job outputs containing Fly.io URLs can be suppressed
       # by GitHub Actions secret scanning. Artifact files bypass secret scanning.

@@ -1,4 +1,9 @@
 export {
+  fetchAppSentry,
+  type AppSentryDetails,
+  type AppSentryMap
+} from './lib/fetch-app-sentry';
+export {
   fetchAppTenants,
   type AppTenantDetails,
   type AppTenantsMap

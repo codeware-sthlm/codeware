@@ -40,12 +40,12 @@ COPY . .
 # Build arguments for Next.js client-side environment variables
 # These are embedded in the JavaScript bundle during build
 ARG NEXT_PUBLIC_DEPLOY_ENV
-ARG NEXT_PUBLIC_SENTRY_DSN
-ARG NEXT_PUBLIC_SENTRY_RELEASE
 
-# Build arguments for Sentry source map upload
-# Required by Sentry webpack plugin during build (not persisted in final image)
+# Build arguments for Sentry. DSN, project and release are per app and injected
+# by the build action; org and auth token are shared across apps.
+# Required by the Sentry webpack plugin during build (not persisted in final image)
 ARG SENTRY_AUTH_TOKEN
+ARG SENTRY_DSN
 ARG SENTRY_ORG
 ARG SENTRY_PROJECT
 ARG SENTRY_RELEASE
@@ -55,12 +55,15 @@ ARG SENTRY_RELEASE
 # Comment the following line in case you want to enable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Convert Sentry ARGs to ENV so the webpack plugin can upload source maps
+# Convert Sentry ARGs to ENV so the webpack plugin can upload source maps and the
+# client bundle gets its DSN and release.
 # These are only in the builder stage, not in the final deployed image
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
     SENTRY_ORG=$SENTRY_ORG \
     SENTRY_PROJECT=$SENTRY_PROJECT \
-    SENTRY_RELEASE=$SENTRY_RELEASE
+    SENTRY_RELEASE=$SENTRY_RELEASE \
+    NEXT_PUBLIC_SENTRY_DSN=$SENTRY_DSN \
+    NEXT_PUBLIC_SENTRY_RELEASE=$SENTRY_RELEASE
 
 ENV NX_NO_CLOUD=true
 ENV NODE_OPTIONS=--max-old-space-size=4096

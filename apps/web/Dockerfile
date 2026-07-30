@@ -25,7 +25,33 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+# Build arguments for Sentry. DSN, project and release are per app and injected
+# by the build action; org and auth token are shared across apps.
+# Required by the Sentry vite plugin to upload source maps, and by the client
+# bundle which reads the VITE_ prefixed copies.
+# These stay in the builder stage and are not part of the final image.
+ARG DEPLOY_ENV
+ARG SENTRY_AUTH_TOKEN
+ARG SENTRY_DSN
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG SENTRY_RELEASE
+
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
+    SENTRY_ORG=$SENTRY_ORG \
+    SENTRY_PROJECT=$SENTRY_PROJECT \
+    SENTRY_RELEASE=$SENTRY_RELEASE \
+    SENTRY_DSN=$SENTRY_DSN \
+    VITE_SENTRY_DSN=$SENTRY_DSN \
+    VITE_SENTRY_RELEASE=$SENTRY_RELEASE \
+    VITE_DEPLOY_ENV=$DEPLOY_ENV
+
 ENV NX_NO_CLOUD=true
+
+# The Sentry vite plugin skips source map upload entirely unless NODE_ENV is
+# 'production' — it logs "Running in development mode" and silently does nothing.
+# Must come after `pnpm install` above, which needs devDependencies.
+ENV NODE_ENV=production
 
 RUN pnpm nx build web
 

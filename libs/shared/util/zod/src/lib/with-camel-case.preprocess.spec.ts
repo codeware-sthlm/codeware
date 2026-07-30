@@ -236,6 +236,23 @@ describe('withCamelCase', () => {
     });
   });
 
+  it('should handle regex metacharacters in preserve paths', () => {
+    const schema = withCamelCase(
+      z.object({ id: z.string(), 'a(b': z.record(z.string()) }),
+      { preserve: ['a(b'] }
+    );
+
+    const result = schema.parse({
+      ID: 'test',
+      'a(b': { API_KEY: 'key123' }
+    });
+
+    expect(result).toEqual({
+      id: 'test',
+      'a(b': { API_KEY: 'key123' }
+    });
+  });
+
   it('should use transformed keys in preserve option', () => {
     const schema = withCamelCase(
       z.object({

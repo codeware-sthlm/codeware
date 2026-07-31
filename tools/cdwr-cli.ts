@@ -13,6 +13,7 @@ import { restartApp } from './fly-tools/lib/restart-app.js';
 import { analysisMain } from './infisical/lib/analysis.js';
 import { fetchAppTenantsMain } from './infisical/lib/fetch-app-tenants.js';
 import { fetchDataMain } from './infisical/lib/fetch-data.js';
+import { rotateTenantKeyMain } from './infisical/lib/rotate-tenant-key.js';
 
 interface Tool {
   name: string;
@@ -75,6 +76,11 @@ const tools: Tool[] = [
     name: 'infisical-analysis',
     description: 'Analyze Infisical configuration and secrets',
     action: analysisMain
+  },
+  {
+    name: 'rotate-tenant-key',
+    description: "Rotate a tenant's Payload API key in Payload and Infisical",
+    action: rotateTenantKeyMain
   }
 ];
 

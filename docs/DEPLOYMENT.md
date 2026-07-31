@@ -13,6 +13,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
   - [Signature Secret Rollover](#signature-secret-rollover)
+  - [Tenant API Key Rotation](#tenant-api-key-rotation)
   - [Sentry](#sentry)
   - [Deployment Rules (Required)](#deployment-rules-required)
   - [GitHub Secrets](#github-secrets)
@@ -304,15 +305,51 @@ To make a secret visible as **environment variable**, add metadata key `env` set
 verifies them. Replacing it in one place breaks every signed request, so cms host accepts an
 optional `SIGNATURE_SECRET_PREVIOUS` to keep both valid while clients roll over.
 
-| Step | Action                                                                        |
-| ---- | ----------------------------------------------------------------------------- |
-| 1    | Set `/apps/cms/SIGNATURE_SECRET_PREVIOUS` to the current secret, redeploy cms |
-| 2    | Set the new value on `SIGNATURE_SECRET` everywhere, redeploy cms              |
-| 3    | Redeploy every `web` tenant so they sign with the new secret                  |
-| 4    | Remove `SIGNATURE_SECRET_PREVIOUS`, redeploy cms                              |
+The secret lives in `/apps/cms/signature/`, which `web` picks up through an Infisical folder
+import — that is why a single value is shared by every deployment. cms loads `/apps/cms`
+recursively, so the rollover key goes in that same folder.
 
-Skipping steps 1 and 4 works too, but every tenant site fails to load content between the
-cms and web deployments.
+Drive the rollover through the CLI rather than editing Infisical by hand:
+
+```sh
+pnpm cdwr   # → rotate-signature-secret
+```
+
+The two secrets _are_ the progress marker — there is nothing else to track — so the command
+reads them, works out which step is next and applies only that one. Run it again after each
+redeploy to continue:
+
+| Step | Action                                                   | Then         |
+| ---- | -------------------------------------------------------- | ------------ |
+| 1    | Copy the active secret to `SIGNATURE_SECRET_PREVIOUS`    | Redeploy cms |
+| 2    | Generate a new `SIGNATURE_SECRET` (cms now accepts both) | Redeploy cms |
+| 3    | —                                                        | Redeploy web |
+| 4    | Remove `SIGNATURE_SECRET_PREVIOUS`                       | Redeploy cms |
+
+Step 4 is the one to be careful with: any `web` deployment still signing with the old secret
+starts failing the moment it is removed.
+
+Skipping steps 1 and 4 works too, but then every tenant site fails to load content between
+the cms and web deployments.
+
+### Tenant API Key Rotation
+
+`PAYLOAD_API_KEY` is stored twice: on the Payload tenant document (the source of truth) and
+in Infisical under every `/tenants/<id>/apps/<app>` that deploys it. Both have to move
+together, so rotate through the CLI rather than by hand:
+
+```sh
+pnpm cdwr   # → rotate-tenant-key
+```
+
+It generates a new key, writes the tenant document via the local-api, mirrors it to each
+Infisical app folder, then prints the redeploy command. The `apiKey` field is
+`update: () => false` for REST, GraphQL and the admin UI, which is why this runs as a
+script and not from the admin panel.
+
+There is no zero-downtime path — Payload stores one key per tenant. The tenant's
+deployments keep using the retired key until the redeploy completes, so that tenant serves
+errors in between. Rotate one tenant at a time.
 
 ### Sentry
 

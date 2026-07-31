@@ -125,7 +125,7 @@ nx seed cms
 
 ```sh
 pnpm cdwr
-# Options: drop-db, restart-app, app-info, patch-config, infisical-tenants, infisical-data, infisical-analysis
+# Options: drop-db, restart-app, app-info, patch-config, infisical-tenants, infisical-data, infisical-analysis, rotate-tenant-key
 ```
 
 ### Release Packages

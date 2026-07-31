@@ -12,6 +12,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [Fly Configuration Files](#fly-configuration-files)
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
+  - [Tenant API Key Rotation](#tenant-api-key-rotation)
   - [Sentry](#sentry)
   - [Deployment Rules (Required)](#deployment-rules-required)
   - [GitHub Secrets](#github-secrets)
@@ -296,6 +297,25 @@ Secrets can be resolved to either an environment variable or a hidden secret in 
 Secrets in Infisical are handled as **secrets by default**.
 
 To make a secret visible as **environment variable**, add metadata key `env` set to `true`.
+
+### Tenant API Key Rotation
+
+`PAYLOAD_API_KEY` is stored twice: on the Payload tenant document (the source of truth) and
+in Infisical under every `/tenants/<id>/apps/<app>` that deploys it. Both have to move
+together, so rotate through the CLI rather than by hand:
+
+```sh
+pnpm cdwr   # → rotate-tenant-key
+```
+
+It generates a new key, writes the tenant document via the local-api, mirrors it to each
+Infisical app folder, then prints the redeploy command. The `apiKey` field is
+`update: () => false` for REST, GraphQL and the admin UI, which is why this runs as a
+script and not from the admin panel.
+
+There is no zero-downtime path — Payload stores one key per tenant. The tenant's
+deployments keep using the retired key until the redeploy completes, so that tenant serves
+errors in between. Rotate one tenant at a time.
 
 ### Sentry
 

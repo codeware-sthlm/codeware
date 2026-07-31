@@ -78,7 +78,7 @@ export const verifySignature = ({
   if (Date.now() - Number(timestamp) > ttl) {
     return {
       success: false,
-      error: `Request expired ${new Date(timestamp).toISOString()} (TTL: ${ttl}ms)`
+      error: `Request expired ${new Date(Number(timestamp)).toISOString()} (TTL: ${ttl}ms)`
     };
   }
 

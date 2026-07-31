@@ -12,6 +12,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [Fly Configuration Files](#fly-configuration-files)
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
+  - [Signature Secret Rollover](#signature-secret-rollover)
   - [Sentry](#sentry)
   - [Deployment Rules (Required)](#deployment-rules-required)
   - [GitHub Secrets](#github-secrets)
@@ -296,6 +297,39 @@ Secrets can be resolved to either an environment variable or a hidden secret in 
 Secrets in Infisical are handled as **secrets by default**.
 
 To make a secret visible as **environment variable**, add metadata key `env` set to `true`.
+
+### Signature Secret Rollover
+
+`SIGNATURE_SECRET` is shared: every `web` deployment signs its requests with it and cms host
+verifies them. Replacing it in one place breaks every signed request, so cms host accepts an
+optional `SIGNATURE_SECRET_PREVIOUS` to keep both valid while clients roll over.
+
+The secret lives in `/apps/cms/signature/`, which `web` picks up through an Infisical folder
+import — that is why a single value is shared by every deployment. cms loads `/apps/cms`
+recursively, so the rollover key goes in that same folder.
+
+Drive the rollover through the CLI rather than editing Infisical by hand:
+
+```sh
+pnpm cdwr   # → rotate-signature-secret
+```
+
+The two secrets _are_ the progress marker — there is nothing else to track — so the command
+reads them, works out which step is next and applies only that one. Run it again after each
+redeploy to continue:
+
+| Step | Action                                                   | Then         |
+| ---- | -------------------------------------------------------- | ------------ |
+| 1    | Copy the active secret to `SIGNATURE_SECRET_PREVIOUS`    | Redeploy cms |
+| 2    | Generate a new `SIGNATURE_SECRET` (cms now accepts both) | Redeploy cms |
+| 3    | —                                                        | Redeploy web |
+| 4    | Remove `SIGNATURE_SECRET_PREVIOUS`                       | Redeploy cms |
+
+Step 4 is the one to be careful with: any `web` deployment still signing with the old secret
+starts failing the moment it is removed.
+
+Skipping steps 1 and 4 works too, but then every tenant site fails to load content between
+the cms and web deployments.
 
 ### Sentry
 

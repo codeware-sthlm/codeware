@@ -17,6 +17,7 @@ import {
   EnvironmentSchema,
   withInfisical
 } from '@codeware/shared/feature/infisical';
+import { toPoolerUrl } from '@codeware/shared/util/pure';
 import * as dotenv from 'dotenv';
 
 const execAsync = promisify(exec);
@@ -55,32 +56,6 @@ async function fetchDatabaseUrl(environment: BackupEnv): Promise<string> {
   }
 
   return dbUrlSecret.secretValue;
-}
-
-/**
- * Convert a Supabase direct connection URL to a Session Mode pooler URL.
- *
- * Direct:  postgresql://postgres:[pass]@db.[ref].supabase.co:5432/postgres
- * Pooler:  postgresql://postgres.[ref]:[pass]@aws-0-[region].pooler.supabase.com:5432/postgres
- *
- * The pooler is reachable from more networks and is compatible with pg_dump
- * (unlike Transaction Mode which does not support prepared statements).
- *
- * If the URL is already a pooler URL, it is returned unchanged.
- */
-function toPoolerUrl(dbUrl: string, region: string): string {
-  const url = new URL(dbUrl);
-  const directHostMatch = url.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/);
-
-  if (!directHostMatch) {
-    // Already a pooler URL or an unrecognised format — use as-is
-    return dbUrl;
-  }
-
-  const projectRef = directHostMatch[1];
-  url.hostname = `aws-0-${region}.pooler.supabase.com`;
-  url.username = `postgres.${projectRef}`;
-  return url.toString();
 }
 
 /**

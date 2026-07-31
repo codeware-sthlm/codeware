@@ -41,7 +41,7 @@ export const tenantConfigEndpoint: Endpoint = {
     // Verify the required request signature
     const { success, error } = verifySignature({
       headers: req.headers,
-      secret: APP_MODE.signatureSecret
+      secret: APP_MODE.signatureSecrets
     });
 
     if (!success) {

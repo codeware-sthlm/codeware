@@ -90,7 +90,7 @@ export const userOrApiKeyAccess =
       if (isExternalRequest) {
         const { success, error } = verifySignature({
           headers,
-          secret: APP_MODE.signatureSecret
+          secret: APP_MODE.signatureSecrets
         });
 
         if (!success) {

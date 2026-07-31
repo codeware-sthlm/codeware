@@ -12,6 +12,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [Fly Configuration Files](#fly-configuration-files)
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
+  - [Signature Secret Rollover](#signature-secret-rollover)
   - [Sentry](#sentry)
   - [Deployment Rules (Required)](#deployment-rules-required)
   - [GitHub Secrets](#github-secrets)
@@ -296,6 +297,22 @@ Secrets can be resolved to either an environment variable or a hidden secret in 
 Secrets in Infisical are handled as **secrets by default**.
 
 To make a secret visible as **environment variable**, add metadata key `env` set to `true`.
+
+### Signature Secret Rollover
+
+`SIGNATURE_SECRET` is shared: every `web` deployment signs its requests with it and cms host
+verifies them. Replacing it in one place breaks every signed request, so cms host accepts an
+optional `SIGNATURE_SECRET_PREVIOUS` to keep both valid while clients roll over.
+
+| Step | Action                                                                        |
+| ---- | ----------------------------------------------------------------------------- |
+| 1    | Set `/apps/cms/SIGNATURE_SECRET_PREVIOUS` to the current secret, redeploy cms |
+| 2    | Set the new value on `SIGNATURE_SECRET` everywhere, redeploy cms              |
+| 3    | Redeploy every `web` tenant so they sign with the new secret                  |
+| 4    | Remove `SIGNATURE_SECRET_PREVIOUS`, redeploy cms                              |
+
+Skipping steps 1 and 4 works too, but every tenant site fails to load content between the
+cms and web deployments.
 
 ### Sentry
 

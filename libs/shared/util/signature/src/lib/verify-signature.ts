@@ -9,8 +9,11 @@ type Args = {
 
   /**
    * The same secret key used to sign the signature.
+   *
+   * Pass several secrets to accept more than one during a rollover.
+   * Verification succeeds when any of them matches.
    */
-  secret: string;
+  secret: string | Array<string>;
 
   /**
    * The time in milliseconds before the signature is expired.
@@ -82,16 +85,31 @@ export const verifySignature = ({
     };
   }
 
-  // Verify the signature by creating a token like in the client
-  const token = createToken({
-    requestId,
-    deviceId,
-    userAgent,
-    timestamp,
-    secret
-  });
+  const secrets = (Array.isArray(secret) ? secret : [secret]).filter(Boolean);
 
-  if (clientToken !== token) {
+  if (!secrets.length) {
+    return {
+      success: false,
+      error: 'No signature secret provided'
+    };
+  }
+
+  // Verify the signature by creating a token like in the client.
+  // Any secret may match to keep requests signed with the previous
+  // secret valid while a rollover is in progress.
+  const isValid = secrets.some(
+    (secret) =>
+      clientToken ===
+      createToken({
+        requestId,
+        deviceId,
+        userAgent,
+        timestamp,
+        secret
+      })
+  );
+
+  if (!isValid) {
     return {
       success: false,
       error: 'Invalid signature token'

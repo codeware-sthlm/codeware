@@ -12,7 +12,11 @@ type AppModeCommon = {
   /** Fully qualified URL to the cms app */
   serverURL: string;
 };
-type AppModeHost = AppModeCommon & { type: 'host'; signatureSecret: string };
+type AppModeHost = AppModeCommon & {
+  type: 'host';
+  /** Accepted request signature secrets, active secret first */
+  signatureSecrets: Array<string>;
+};
 type AppModeTenant = AppModeCommon & {
   type: 'tenant';
   apiKey: string;
@@ -92,6 +96,12 @@ export const EnvSchema = withEnvVars(
       // Api key request verification
       SIGNATURE_SECRET: z
         .string({ description: 'Secret key for API request signatures' })
+        .optional(),
+      SIGNATURE_SECRET_PREVIOUS: z
+        .string({
+          description:
+            'Previous signature secret, kept valid while clients roll over to a new one'
+        })
         .optional(),
 
       // Seed configuration
@@ -194,6 +204,7 @@ export const EnvSchema = withEnvVars(
     SENTRY_ORG,
     SENTRY_RELEASE,
     SIGNATURE_SECRET,
+    SIGNATURE_SECRET_PREVIOUS,
     TENANT_ID,
     ...env
   }) => ({
@@ -212,7 +223,10 @@ export const EnvSchema = withEnvVars(
       : ({
           type: 'host',
           serverURL: CUSTOM_URL || FLY_URL || PAYLOAD_URL,
-          signatureSecret: SIGNATURE_SECRET ?? '' // guarded by related refine above
+          signatureSecrets: [
+            SIGNATURE_SECRET ?? '', // guarded by related refine above
+            ...(SIGNATURE_SECRET_PREVIOUS ? [SIGNATURE_SECRET_PREVIOUS] : [])
+          ]
         } satisfies AppModeHost),
     // Expose Fly url for e.g. dynamic cors configuration
     FLY_URL,

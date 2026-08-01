@@ -1,4 +1,5 @@
 export { type Environment, EnvironmentSchema } from './lib/infisical.schemas';
+export { deleteInfisicalSecret } from './lib/delete-infisical-secret';
 export {
   type SetSecretResult,
   setInfisicalSecret

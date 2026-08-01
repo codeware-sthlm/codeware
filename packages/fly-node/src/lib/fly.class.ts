@@ -494,6 +494,34 @@ export class Fly {
     }
   };
   /**
+   * Run commands inside a running machine
+   */
+  ssh = {
+    /**
+     * Execute a command in a running machine and return its output.
+     *
+     * Requires a started machine - Fly cannot connect to a stopped or
+     * suspended one. Use `machines.start` first when the app may be idle.
+     *
+     * The output is returned to the caller and not logged unless CLI tracing
+     * is enabled, so it can be used to read values that are otherwise
+     * write-only, such as secrets injected at deploy time.
+     *
+     * @param app - The name of the application
+     * @param command - The command to run inside the machine
+     * @returns The command output
+     * @throws An error if there is no started machine or the command fails
+     */
+    exec: async (app: string, command: string): Promise<string> => {
+      try {
+        await this.ensureInitialized();
+        return await this.sshExec(app, command);
+      } catch (error) {
+        throw new Error(`[ssh exec] something broke\n${error}`);
+      }
+    }
+  };
+  /**
    * Manage application secrets
    */
   secrets = {
@@ -519,6 +547,27 @@ export class Fly {
         throw new Error(
           `[set secrets] something broke, check your app secrets\n${error}`
         );
+      }
+    },
+    /**
+     * Apply secrets that were staged with `set({ stage: true })`.
+     *
+     * Staging first and deploying afterwards lets a set of apps take a new
+     * value together, instead of each restarting as its own secret is written.
+     *
+     * Fly needs a started machine to update, so an app whose machines are all
+     * stopped or suspended has to be started before this will do anything.
+     *
+     * @param app - The name of the application
+     * @throws An error if the staged secrets cannot be deployed
+     */
+    deploy: async (app: string): Promise<void> => {
+      try {
+        await this.ensureInitialized();
+        await this.deployStagedSecrets(app);
+        this.logger.info(`Staged secrets were deployed for '${app}'`);
+      } catch (error) {
+        throw new Error(`[deploy secrets] something broke\n${error}`);
       }
     },
     /**
@@ -1027,6 +1076,27 @@ export class Fly {
     await this.execFly(args);
 
     return NameSchema.parse(status.name);
+  }
+
+  /**
+   * @private
+   * Deploy secrets previously staged for an application
+   * @throws An error if the staged secrets cannot be deployed
+   */
+  private async deployStagedSecrets(app: string): Promise<void> {
+    const args = ['secrets', 'deploy', '--app', app];
+    await this.execFly(args);
+  }
+
+  /**
+   * @private
+   * Execute a command inside a running machine
+   * @returns The command output
+   * @throws An error if the command fails
+   */
+  private async sshExec(app: string, command: string): Promise<string> {
+    const args = ['ssh', 'console', '--app', app, '--command', command];
+    return await this.execFly<string>(args);
   }
 
   /**

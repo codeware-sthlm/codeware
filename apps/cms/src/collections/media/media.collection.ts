@@ -16,6 +16,8 @@ import type {
   TypeWithID
 } from 'payload';
 
+import { userOnlyAccess } from '../../security/user-only-access';
+
 import { externalOrApiKeyAccess } from './access/external-or-api-key-access';
 
 const filename = fileURLToPath(import.meta.url);
@@ -136,7 +138,10 @@ const media: CollectionConfig = {
     }
   },
   access: {
-    read: externalOrApiKeyAccess()
+    read: externalOrApiKeyAccess(),
+    create: userOnlyAccess(),
+    update: userOnlyAccess(),
+    delete: userOnlyAccess()
   },
   hooks: {
     beforeOperation: [prefixFilenameWithTenant],

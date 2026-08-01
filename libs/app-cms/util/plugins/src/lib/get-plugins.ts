@@ -8,10 +8,14 @@ import { getSeoPlugin } from './plugins/get-seo-plugin';
 
 type Options = {
   /**
-   * Tenant scoped access control applied to the form submissions collection
-   * added by the forms plugin.
+   * Tenant scoped access controls applied to the collections added by plugins.
    */
-  submissionAccess: Access;
+  access: {
+    /** Client read access — admin users and tenant api keys */
+    read: Access;
+    /** Write access — admin users only */
+    write: Access;
+  };
 };
 
 /**
@@ -21,11 +25,8 @@ type Options = {
  * @param options - Access controls owned by the app
  * @returns Array of plugins
  */
-export const getPlugins = (
-  env: Env,
-  { submissionAccess }: Options
-): Array<Plugin> => [
-  getFormsPlugin({ submissionAccess }),
+export const getPlugins = (env: Env, { access }: Options): Array<Plugin> => [
+  getFormsPlugin({ access }),
   getMultiTenantPlugin(),
   getSeoPlugin(),
   getS3StoragePlugin(env)

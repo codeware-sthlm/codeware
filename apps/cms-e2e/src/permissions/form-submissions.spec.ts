@@ -5,16 +5,18 @@
  * The form-builder plugin ships `read: ({ req: { user } }) => !!user` and leaves
  * delete at the Payload default, and the multi-tenant plugin only constrains
  * admin users. A tenant api key identity was therefore unscoped and could read
- * and delete every tenant's submissions (COD-425). Both operations now run
- * through `userOrApiKeyAccess`, like every other tenant enabled collection.
+ * and delete every tenant's submissions (COD-425). Reads now run through
+ * `userOrApiKeyAccess` and deleting is an admin user operation.
+ *
+ * Creating is the one write a tenant api key still performs — see [K-02] in
+ * api-key-scope.spec.ts for the rest of the key surface.
  *
  * E2E runs in moon tenant mode, where api key requests are not signature
  * verified — these tests cover the tenant constraint only.
  */
 
-import type { Form } from '@codeware/shared/util/payload-types';
-
 import { expect, test } from '../fixtures';
+import { createForm } from '../helpers/create-form';
 import { loginAs } from '../helpers/login';
 
 /** Tenant API keys from seed data (always present in the e2e environment) */
@@ -24,24 +26,6 @@ const STAR_API_KEY = 'a76d0168-f9b2-48d2-bc57-96e45aaf8542';
 const apiKeyHeader = (apiKey: string) => ({
   Authorization: `tenants API-Key ${apiKey}`
 });
-
-/** Minimal Lexical value for the required confirmation message */
-const confirmationMessage = {
-  root: {
-    type: 'root',
-    children: [
-      {
-        type: 'paragraph',
-        version: 1,
-        children: [{ type: 'text', text: 'Thanks!', version: 1 }]
-      }
-    ],
-    direction: 'ltr',
-    format: '',
-    indent: 0,
-    version: 1
-  }
-};
 
 test.describe('Form submissions — tenant scope', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -57,24 +41,13 @@ test.describe('Form submissions — tenant scope', () => {
       // The tenant is derived from the admin session, so the form lands in moon
       await loginAs(page, 'tenantAdmin', { navigate: false });
 
-      const formRes = await page.request.post('/api/forms', {
-        data: {
-          title: `E2E Scope Form ${Date.now()}`,
-          confirmationType: 'message',
-          confirmationMessage,
-          fields: [
-            { blockType: 'email', name: 'email', label: 'Email', width: 6 }
-          ]
-        }
-      });
-      expect(formRes.status(), await formRes.text()).toBe(201);
-      const { doc } = (await formRes.json()) as { doc: Form };
+      const form = await createForm(page, `E2E Scope Form ${Date.now()}`);
 
       // /api/form-submissions is a site route that authenticates as the
       // deployment's own tenant (moon), regardless of the caller
       const submissionRes = await page.request.post('/api/form-submissions', {
         data: {
-          form: doc.id,
+          form: form.id,
           submissionData: [{ field: 'email', value: 'moon@example.com' }]
         }
       });
@@ -119,13 +92,17 @@ test.describe('Form submissions — tenant scope', () => {
   // [F-02] Delete a moon submission
   // -------------------------------------------------------------------------
 
-  test('star api key cannot delete a moon submission [F-02]', async ({
-    request
-  }) => {
-    const res = await request.delete(`/api/form-submissions/${submissionId}`, {
-      headers: apiKeyHeader(STAR_API_KEY)
-    });
-    expect([403, 404]).toContain(res.status());
+  test('no api key can delete a submission [F-02]', async ({ request }) => {
+    // Deleting is an admin user operation — api key clients are read-only
+    for (const apiKey of [STAR_API_KEY, MOON_API_KEY]) {
+      const res = await request.delete(
+        `/api/form-submissions/${submissionId}`,
+        {
+          headers: apiKeyHeader(apiKey)
+        }
+      );
+      expect([403, 404]).toContain(res.status());
+    }
 
     // The document must still be there for its owner
     const check = await request.get(`/api/form-submissions/${submissionId}`, {
@@ -135,12 +112,20 @@ test.describe('Form submissions — tenant scope', () => {
   });
 
   // Runs last — it removes the document the other scenarios rely on
-  test('moon api key can delete a moon submission [F-02]', async ({
-    request
+  test('tenant admin can delete a moon submission [F-02]', async ({
+    browser
   }) => {
-    const res = await request.delete(`/api/form-submissions/${submissionId}`, {
-      headers: apiKeyHeader(MOON_API_KEY)
-    });
-    expect(res.status()).toBe(200);
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    try {
+      await loginAs(page, 'tenantAdmin', { navigate: false });
+      const res = await page.request.delete(
+        `/api/form-submissions/${submissionId}`
+      );
+      expect(res.status()).toBe(200);
+    } finally {
+      await context.close();
+    }
   });
 });

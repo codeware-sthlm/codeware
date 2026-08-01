@@ -1,4 +1,5 @@
 import {
+  adminUserAccess,
   systemUserAccess,
   systemUserOrTenantAdminAccess
 } from '@codeware/app-cms/util/access';
@@ -64,6 +65,10 @@ const users: CollectionConfig<'users'> = {
     plural: { en: 'Users', sv: 'Användare' }
   },
   access: {
+    // Read and unlock fall back to "any authenticated identity", which includes
+    // tenant api keys — and those the multi-tenant plugin never scopes
+    read: adminUserAccess,
+    unlock: systemUserOrTenantAdminAccess,
     create: systemUserOrTenantAdminAccess,
     update: adminAccessToAllDocTenants('allowSelf'),
     delete: adminAccessToAllDocTenants('denySelf')

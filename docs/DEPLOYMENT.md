@@ -316,21 +316,28 @@ pnpm cdwr   # → rotate-signature-secret
 ```
 
 The two secrets _are_ the progress marker — there is nothing else to track — so the command
-reads them, works out which step is next and applies only that one. Run it again after each
-redeploy to continue:
+reads them, works out where the rollover stands and carries it through in one run:
 
-| Step | Action                                                   | Then         |
-| ---- | -------------------------------------------------------- | ------------ |
-| 1    | Copy the active secret to `SIGNATURE_SECRET_PREVIOUS`    | Redeploy cms |
-| 2    | Generate a new `SIGNATURE_SECRET` (cms now accepts both) | Redeploy cms |
-| 3    | —                                                        | Redeploy web |
-| 4    | Remove `SIGNATURE_SECRET_PREVIOUS`                       | Redeploy cms |
+| Step | Action                                                   | Then            |
+| ---- | -------------------------------------------------------- | --------------- |
+| 1    | Copy the active secret to `SIGNATURE_SECRET_PREVIOUS`    | Restart cms     |
+| 2    | Generate a new `SIGNATURE_SECRET` (cms now accepts both) | Restart cms→web |
+| 3    | Remove `SIGNATURE_SECRET_PREVIOUS`                       | Restart cms     |
 
-Step 4 is the one to be careful with: any `web` deployment still signing with the old secret
-starts failing the moment it is removed.
+Unlike `PAYLOAD_API_KEY`, this secret is a **runtime** one: cms loads `/apps/cms` recursively
+when it boots and web loads `/apps/web`, so neither holds it as a Fly secret. Restarting is
+therefore enough — no redeploy, and nothing to write to Fly.
 
-Skipping steps 1 and 4 works too, but then every tenant site fails to load content between
-the cms and web deployments.
+Ordering is what keeps it seamless. cms learns each new value before web starts using it, and
+accepts both throughout, so no request is ever rejected mid-rollover. Step 3 is the only
+destructive one, and by then every signer is already on the new secret.
+
+If a run is interrupted the progress lives in the secrets themselves, so running the command
+again resumes from wherever it stopped. An interruption leaves cms accepting _more_ secrets
+rather than fewer, which is the safe direction.
+
+Tenant-scoped cms deployments are skipped: they run in tenant mode, where the signature secret
+is not part of `APP_MODE` and nothing verifies with it.
 
 ### Tenant API Key Rotation
 

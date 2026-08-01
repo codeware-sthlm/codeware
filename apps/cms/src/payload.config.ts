@@ -53,6 +53,7 @@ import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
 import { queryStatsLogger } from './perf/query-stats';
+import { userOrApiKeyAccess } from './security/user-or-api-key-access';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -178,7 +179,7 @@ export default buildConfig({
   editor: defaultLexical,
   email: getEmailAdapter(env),
   endpoints: [paletteSearchEndpoint, perfStatsEndpoint, tenantConfigEndpoint],
-  plugins: getPlugins(env),
+  plugins: getPlugins(env, { submissionAccess: userOrApiKeyAccess() }),
   secret: env.PAYLOAD_SECRET_KEY,
   upload: { safeFileNames: true },
   // i18n support

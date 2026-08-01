@@ -54,6 +54,13 @@ Only system users can create, update, or delete tenants. Read is restricted to t
 - **Update navigation / site-settings**: system user or tenant admin only. Tenant users are denied.
 - **Create / delete**: any authenticated user within their tenant scope.
 
+### Form submissions
+
+Created on behalf of a tenant API key only — the `ensureTenant` hook needs that identity to populate
+the required tenant field. Read and delete run through the same `userOrApiKeyAccess` as the other
+tenant-enabled collections, so an API key never reaches another tenant's submissions. Update is
+disabled by the form-builder plugin.
+
 ### Multi-tenant cookie scoping (`payload-tenant`)
 
 The `payload-tenant` cookie is read on **every API request** for plugin-managed content collections. Setting it to a specific tenant ID restricts all results to that tenant, even for users with multi-tenant access. This applies at the REST API level, not just the admin UI.
@@ -134,11 +141,22 @@ Password for every seed user: **`dev`** (blank in seed data, defaulted to `dev` 
 > (e.g. `multiAdmin` with moon+star+sun) therefore only receive moon content — server-enforced,
 > independent of the `payload-tenant` cookie.
 
+### Form submissions
+
+Exercised with tenant API keys rather than user sessions, since that is the identity external
+clients present. `moon` is the deployment's own tenant, `star` is a foreign one.
+
+| Scenario                        | Moon API key | Star API key | Unauthenticated |
+| ------------------------------- | ------------ | ------------ | --------------- |
+| [F-01] Read a moon submission   | ✓            | ✗            | ✗               |
+| [F-02] Delete a moon submission | ✓            | ✗            | —               |
+
 ---
 
 ## Implementation Notes
 
 - All `[T-*]`, `[U-*]`, `[C-*]` tests are **API-level** (`page.request`, `{ navigate: false }`) — faster and more precise, no admin page load interference.
+- `[F-*]` tests use tenant API keys on a plain request context instead of a user session, since that is how external clients authenticate.
 - Browser/UI tests that verify admin menu visibility or tenant selector behaviour live in `src/admin/`.
 - `otherAdmin` (`antares@local.dev`) represents the "no moon access" column. Because login is denied in tenant mode, their role is exercised exclusively in `auth.spec.ts`.
 - Cookie-scope tests (S-series) are only meaningful in host mode and are not part of this e2e suite.

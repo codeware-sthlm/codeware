@@ -9,6 +9,7 @@ import { BlocksFeature } from '@payloadcms/richtext-lexical';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
 
+import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
@@ -52,7 +53,11 @@ const posts: CollectionConfig<'posts'> = {
     }
   },
   access: {
-    read: userOrApiKeyAccess(true)
+    read: userOrApiKeyAccess(true),
+    readVersions: userOnlyAccess({ tenantPath: 'version.tenant' }),
+    create: userOnlyAccess(),
+    update: userOnlyAccess(),
+    delete: userOnlyAccess()
   },
   labels: {
     singular: { en: 'Post', sv: 'Inlägg' },

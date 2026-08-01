@@ -35,31 +35,53 @@ These three personas are what the tests exercise:
 
 ## How Access Is Determined
 
+### Tenant API keys are read-only clients
+
+External clients authenticate as the tenant itself (`Authorization: tenants API-Key …`). This is a
+second identity type, and it is the one the multi-tenant plugin does **not** cover: the plugin adds
+its tenant constraint only for identities from the `users` collection. Anything a collection leaves
+to the Payload default (`Boolean(user)`) is therefore unscoped for a key — it reaches every tenant.
+
+Every tenant-enabled collection must state its access explicitly:
+
+- **Read** → `userOrApiKeyAccess()`: constrains the key to `tenant = itself` and, in host mode,
+  verifies the request signature.
+- **Create / update / delete / version history** → `userOnlyAccess()`: admin users only. Keys are
+  read-only, so a leaked key cannot modify anything, not even its own tenant's content.
+- The single exception is **creating a form submission**, which is what the key exists to do.
+
+Keys are also denied on `users` and `tenants` (the latter holds every tenant's API key).
+
 ### Tenants collection
 
-Only system users can create, update, or delete tenants. Read is restricted to the active tenant in tenant mode.
+Only system users can create, update, or delete tenants. Read is restricted to the active tenant in tenant mode and denied to API keys.
 
 ### Users collection
 
 - **Create**: system user or tenant admin (admin can only create users for their own tenants).
-- **Read**: any authenticated user, constrained to users who share at least one tenant with the requester. System users see all.
+- **Read**: any authenticated **admin user**, constrained to users who share at least one tenant with the requester. System users see all. API keys are denied.
 - **Update**: system user (all), tenant admin (users whose every tenant membership the admin controls), self (own profile only).
 - **Delete**: system user (all), tenant admin (users in their tenants — cannot delete self).
+- **Unlock**: system user or tenant admin.
 - **`users.role` field**: create/update restricted to system users only. Tenant admins cannot escalate privileges.
 - **`tenants[]` array**: tenant admins cannot assign users to tenants they do not administer, nor change roles in those tenants.
 
-### Content collections (pages, posts, categories, navigation, site-settings, tags, media, reusable-content)
+### Content collections (pages, posts, categories, navigation, site-settings, tags, media, reusable-content, forms)
 
-- **Read**: any authenticated user or valid tenant API key, scoped to the active tenant (`payload-tenant` cookie).
-- **Update navigation / site-settings**: system user or tenant admin only. Tenant users are denied.
-- **Create / delete**: any authenticated user within their tenant scope.
+- **Read**: any authenticated user or valid tenant API key, scoped to the active tenant.
+- **Create / update / delete**: admin users only, scoped to the active tenant in tenant mode. API keys are denied.
+- **navigation / site-settings**: writes additionally require a system user or tenant admin. Tenant users are denied.
+- **Version history (pages, posts)**: admin users only — versions hold unpublished drafts.
+
+Write scope follows read scope: in tenant mode a user with several memberships can only write inside
+the running deployment's tenant, so they can never reach a document they are not allowed to read.
 
 ### Form submissions
 
-Created on behalf of a tenant API key only — the `ensureTenant` hook needs that identity to populate
-the required tenant field. Read and delete run through the same `userOrApiKeyAccess` as the other
-tenant-enabled collections, so an API key never reaches another tenant's submissions. Update is
-disabled by the form-builder plugin.
+**Create** is reserved for tenant API keys — the `ensureTenant` hook needs that identity to populate
+the required tenant field. **Read** uses `userOrApiKeyAccess`, so a key only sees its own tenant's
+submissions. **Delete** is an admin user operation, and **update** is disabled by the form-builder
+plugin.
 
 ### Multi-tenant cookie scoping (`payload-tenant`)
 
@@ -128,6 +150,7 @@ Password for every seed user: **`dev`** (blank in seed data, defaulted to `dev` 
 | [C-03] Update navigation                                   | ✓           | ✓            | ✗           | ✗              |
 | [C-04] Update site-settings                                | ✓           | ✓            | ✗           | ✗              |
 | [C-05] Multi-tenant user restricted to moon in tenant mode | ✓           | ✓            | ✓           | —              |
+| [C-06] Write to a document outside the active tenant       | ✗           | ✗            | ✗           | ✗              |
 
 > **No moon access column:** All denials happen at login — `verifyTenantModeAccessHook` rejects
 > users without moon membership before a session token is issued. See `auth.spec.ts`.
@@ -141,22 +164,28 @@ Password for every seed user: **`dev`** (blank in seed data, defaulted to `dev` 
 > (e.g. `multiAdmin` with moon+star+sun) therefore only receive moon content — server-enforced,
 > independent of the `payload-tenant` cookie.
 
-### Form submissions
+### Tenant API keys
 
 Exercised with tenant API keys rather than user sessions, since that is the identity external
-clients present. `moon` is the deployment's own tenant, `star` is a foreign one.
+clients present. `moon` is the deployment's own tenant, `star` is a foreign one. A denial for the
+**own** key is the point: keys are read-only everywhere.
 
-| Scenario                        | Moon API key | Star API key | Unauthenticated |
-| ------------------------------- | ------------ | ------------ | --------------- |
-| [F-01] Read a moon submission   | ✓            | ✗            | ✗               |
-| [F-02] Delete a moon submission | ✓            | ✗            | —               |
+| Scenario                                | Moon API key | Star API key | Unauthenticated |
+| --------------------------------------- | ------------ | ------------ | --------------- |
+| [K-01] Read moon content                | ✓            | ✗            | ✗               |
+| [K-02] Create / update / delete content | ✗            | ✗            | ✗               |
+| [K-03] Read users / tenants             | ✗            | ✗            | ✗               |
+| [K-04] Read version history             | ✗            | ✗            | ✗               |
+| [F-01] Read a moon form submission      | ✓            | ✗            | ✗               |
+| [F-02] Delete a moon form submission    | ✗            | ✗            | ✗               |
+| Create a form submission (site route)   | ✓            | —            | —               |
 
 ---
 
 ## Implementation Notes
 
 - All `[T-*]`, `[U-*]`, `[C-*]` tests are **API-level** (`page.request`, `{ navigate: false }`) — faster and more precise, no admin page load interference.
-- `[F-*]` tests use tenant API keys on a plain request context instead of a user session, since that is how external clients authenticate.
+- `[K-*]` and `[F-*]` tests use tenant API keys on a plain request context instead of a user session, since that is how external clients authenticate. They must never share a context with `loginAs`, which sets an `Authorization` header on the whole browser context.
 - Browser/UI tests that verify admin menu visibility or tenant selector behaviour live in `src/admin/`.
 - `otherAdmin` (`antares@local.dev`) represents the "no moon access" column. Because login is denied in tenant mode, their role is exercised exclusively in `auth.spec.ts`.
 - Cookie-scope tests (S-series) are only meaningful in host mode and are not part of this e2e suite.

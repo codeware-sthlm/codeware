@@ -88,3 +88,42 @@ test.describe('Content scope — create [C-02]', () => {
     expect(res.status()).toBe(201);
   });
 });
+
+// ---------------------------------------------------------------------------
+// [C-06] Write scope follows read scope
+// ---------------------------------------------------------------------------
+
+test.describe('Content scope — write [C-06]', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  /** Highest id to probe — comfortably above the seeded page count */
+  const MAX_ID = 40;
+
+  test('multi-tenant user cannot write pages outside the active tenant', async ({
+    page
+  }) => {
+    // multiAdmin belongs to moon+star+sun. The multi-tenant plugin only
+    // constrains writes to their memberships, so without the active-tenant
+    // scope they could edit a star page by id — a document they cannot read.
+    await loginAs(page, 'multiAdmin');
+
+    const list = await page.request.get('/api/pages?limit=100&depth=0');
+    expect(list.status()).toBe(200);
+    const { docs } = (await list.json()) as { docs: Array<{ id: number }> };
+    const readable = new Set(docs.map((doc) => doc.id));
+    expect(readable.size).toBeGreaterThan(0);
+
+    // Seed data spans all three tenants, so ids outside the readable set exist
+    const foreign = Array.from({ length: MAX_ID }, (_, i) => i + 1).filter(
+      (id) => !readable.has(id)
+    );
+    expect(foreign.length).toBeGreaterThan(0);
+
+    for (const id of foreign) {
+      const res = await page.request.patch(`/api/pages/${id}`, {
+        data: { header: 'cross-tenant write' }
+      });
+      expect(res.status(), `PATCH /api/pages/${id}`).not.toBe(200);
+    }
+  });
+});

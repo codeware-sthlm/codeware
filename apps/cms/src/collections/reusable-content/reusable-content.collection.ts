@@ -3,6 +3,7 @@ import { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
 import type { CollectionConfig } from 'payload';
 
+import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
@@ -37,7 +38,10 @@ const blocks: Record<BlockSlug, boolean> = {
 const reusableContent: CollectionConfig = {
   slug: 'reusable-content',
   access: {
-    read: userOrApiKeyAccess()
+    read: userOrApiKeyAccess(),
+    create: userOnlyAccess(),
+    update: userOnlyAccess(),
+    delete: userOnlyAccess()
   },
   admin: {
     group: adminGroups.content,

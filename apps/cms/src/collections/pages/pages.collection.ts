@@ -5,6 +5,7 @@ import { BlockSlug } from '@codeware/shared/util/payload-types';
 import { getActiveKeys } from '@codeware/shared/util/pure';
 import type { CollectionConfig } from 'payload';
 
+import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
@@ -48,7 +49,11 @@ const pages: CollectionConfig<'pages'> = {
     }
   },
   access: {
-    read: userOrApiKeyAccess(true)
+    read: userOrApiKeyAccess(true),
+    readVersions: userOnlyAccess({ tenantPath: 'version.tenant' }),
+    create: userOnlyAccess(),
+    update: userOnlyAccess(),
+    delete: userOnlyAccess()
   },
   labels: {
     singular: { en: 'Page', sv: 'Sida' },

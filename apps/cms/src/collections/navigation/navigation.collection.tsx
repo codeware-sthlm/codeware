@@ -1,10 +1,10 @@
-import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { hasNoAdminRoles } from '@codeware/app-cms/util/misc';
 import type { Navigation } from '@codeware/shared/util/payload-types';
 import type { CollectionConfig, Condition } from 'payload';
 
+import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
@@ -31,7 +31,9 @@ const navigation: CollectionConfig = {
   },
   access: {
     read: userOrApiKeyAccess(),
-    update: systemUserOrTenantAdminAccess
+    create: userOnlyAccess({ adminOnly: true }),
+    update: userOnlyAccess({ adminOnly: true }),
+    delete: userOnlyAccess({ adminOnly: true })
   },
   labels: {
     singular: { en: 'Navigation', sv: 'Navigation' },

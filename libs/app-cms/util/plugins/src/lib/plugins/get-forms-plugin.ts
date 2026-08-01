@@ -8,15 +8,20 @@ import { submissionCreateAccess } from './forms/submission-create-access';
 
 type Options = {
   /**
-   * Tenant scoped access control applied to form submissions.
+   * Tenant scoped access controls for the collections this plugin adds.
    *
    * Owned by the app since the tenant scope is resolved from the runtime
    * environment.
    */
-  submissionAccess: Access;
+  access: {
+    /** Client read access — admin users and tenant api keys */
+    read: Access;
+    /** Write access — admin users only */
+    write: Access;
+  };
 };
 
-export const getFormsPlugin = ({ submissionAccess }: Options) => {
+export const getFormsPlugin = ({ access }: Options) => {
   return formBuilderPlugin({
     fields: {
       ...customizedFields,
@@ -26,6 +31,14 @@ export const getFormsPlugin = ({ submissionAccess }: Options) => {
       upload: false
     },
     formOverrides: {
+      // The plugin default is `read: () => true`, leaving every tenant's forms
+      // world readable
+      access: {
+        read: access.read,
+        create: access.write,
+        update: access.write,
+        delete: access.write
+      },
       admin: {
         group: adminGroups['forms'],
         description: {
@@ -40,8 +53,8 @@ export const getFormsPlugin = ({ submissionAccess }: Options) => {
       // an api key to its own tenant. Update stays disabled by the plugin.
       access: {
         create: submissionCreateAccess,
-        read: submissionAccess,
-        delete: submissionAccess
+        read: access.read,
+        delete: access.write
       },
       admin: {
         group: adminGroups['forms'],

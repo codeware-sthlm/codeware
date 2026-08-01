@@ -1,4 +1,3 @@
-import { systemUserOrTenantAdminAccess } from '@codeware/app-cms/util/access';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { customT } from '@codeware/app-cms/util/i18n';
 import {
@@ -12,6 +11,7 @@ import type {
 } from '@codeware/shared/util/payload-types';
 import type { CollectionConfig, Condition } from 'payload';
 
+import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 import { invalidateIconMap } from '../tenants/hooks/populate-icon.hook';
 
@@ -40,7 +40,9 @@ const siteSettings: CollectionConfig = {
   },
   access: {
     read: userOrApiKeyAccess(),
-    update: systemUserOrTenantAdminAccess
+    create: userOnlyAccess({ adminOnly: true }),
+    update: userOnlyAccess({ adminOnly: true }),
+    delete: userOnlyAccess({ adminOnly: true })
   },
   hooks: {
     beforeChange: [sanitizeSvgHook],

@@ -6,6 +6,7 @@ import {
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import type { CollectionConfig } from 'payload';
 
+import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
 /**
@@ -23,7 +24,10 @@ const tags: CollectionConfig = {
     }
   },
   access: {
-    read: userOrApiKeyAccess()
+    read: userOrApiKeyAccess(),
+    create: userOnlyAccess(),
+    update: userOnlyAccess(),
+    delete: userOnlyAccess()
   },
   labels: {
     singular: { en: 'Tag', sv: 'Etikett' },

@@ -347,6 +347,16 @@ Infisical app folder, then prints the redeploy command. The `apiKey` field is
 `update: () => false` for REST, GraphQL and the admin UI, which is why this runs as a
 script and not from the admin panel.
 
+Reaching the database differs per environment, which the tool handles:
+
+- **Production** runs on Supabase, so `DATABASE_URL` is an Infisical secret. It is rewritten
+  to the Session Mode pooler host, which is routable from a laptop.
+- **Preview** databases are created by `fly postgres attach` at deploy time, so the URL only
+  exists as a Fly secret on that pull request's cms app — not in Infisical, and
+  `fly secrets list` returns digests rather than values. The tool asks which cms app to use,
+  starts a machine if they are all suspended, reads the URL from inside it over SSH, then
+  opens a `fly proxy` tunnel because the host is a private `.flycast` address.
+
 There is no zero-downtime path — Payload stores one key per tenant. The tenant's
 deployments keep using the retired key until the redeploy completes, so that tenant serves
 errors in between. Rotate one tenant at a time.

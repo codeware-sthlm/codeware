@@ -1,8 +1,10 @@
-import { exec } from 'child_process';
+import { type ChildProcess, exec, spawn } from 'child_process';
+import { connect } from 'net';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 
+import { Fly } from '@cdwr/fly-node';
 import {
   cancel,
   confirm,
@@ -35,6 +37,21 @@ const Environments = EnvironmentSchema.options;
 const SUPABASE_REGION = 'eu-central-1';
 
 const workspaceRoot = path.resolve(__dirname, '../../..');
+
+// Silent client — the ssh output carries a connection string, so nothing from
+// the Fly CLI should reach the console
+const fly = new Fly({
+  logger: {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    info: () => {},
+    error: console.error,
+    traceCLI: false,
+    redactSecrets: true,
+    verbose: false,
+    debug: false,
+    streamToConsole: false
+  }
+});
 
 /**
  * Discover which apps each tenant deploys, from the `/tenants/<id>/apps/<app>`
@@ -76,11 +93,13 @@ async function fetchTenantApps(
 }
 
 /**
- * Fetch the CMS host DATABASE_URL for an environment
+ * Resolve the production DATABASE_URL from Infisical.
+ *
+ * Production runs on Supabase, so the connection string is a managed secret.
  */
-async function fetchDatabaseUrl(environment: Environment): Promise<string> {
+async function fetchProductionDatabaseUrl(): Promise<string> {
   const secrets = await withInfisical({
-    environment,
+    environment: 'production',
     filter: { path: '/apps/cms' }
   });
 
@@ -89,26 +108,169 @@ async function fetchDatabaseUrl(environment: Environment): Promise<string> {
   )?.secretValue;
 
   if (!dbUrl) {
-    throw new Error(
-      `DATABASE_URL not found in Infisical /apps/cms for environment: ${environment}`
-    );
+    throw new Error('DATABASE_URL not found in Infisical /apps/cms');
+  }
+
+  return toPoolerUrl(dbUrl, SUPABASE_REGION);
+}
+
+/**
+ * Resolve a preview DATABASE_URL from the selected cms app.
+ *
+ * Preview databases are created by `fly postgres attach` during deploy, so the
+ * connection string only exists as a Fly secret on the app itself - it is not
+ * in Infisical and `fly secrets list` returns digests, not values. The only way
+ * to read it back is from inside a running machine.
+ *
+ * All cms apps for a pull request share one database (`flyPostgresDatabaseName`),
+ * so the host app is enough - the tenant-suffixed apps point at the same place.
+ */
+async function fetchPreviewDatabaseUrl(app: string): Promise<string> {
+  const status = await fly.status({ app });
+  const machines = status?.machines ?? [];
+
+  if (!machines.length) {
+    throw new Error(`App '${app}' has no machines - is the preview deployed?`);
+  }
+
+  // Preview machines auto-stop when idle and Fly cannot ssh into a stopped one
+  if (!machines.some(({ state }) => state === 'started')) {
+    await fly.machines.start(app, machines[0].id);
+
+    // Give the machine a moment to accept connections
+    await new Promise((resolve) => setTimeout(resolve, 5_000));
+  }
+
+  const dbUrl = (await fly.ssh.exec(app, 'printenv DATABASE_URL')).trim();
+
+  if (!dbUrl.startsWith('postgres')) {
+    throw new Error(`Could not read DATABASE_URL from app '${app}'`);
   }
 
   return dbUrl;
 }
 
 /**
+ * List the cms host apps deployed for open pull requests
+ */
+async function fetchPreviewCmsApps(): Promise<Array<string>> {
+  const apps = await fly.apps.list();
+
+  return apps
+    .map(({ name }) => name)
+    .filter((name) => /-pr-\d+$/.test(name) && name.includes('cms'))
+    .sort();
+}
+
+/** Local port used for the Fly proxy tunnel */
+const PROXY_PORT = 15432;
+
+/** Whether a connection string points at a Fly private network address */
+const isFlyPrivateUrl = (dbUrl: string) =>
+  /\.(flycast|internal)$/.test(new URL(dbUrl).hostname);
+
+/** Whether something is already accepting connections on a local port */
+const isPortOpen = (port: number) =>
+  new Promise<boolean>((resolve) => {
+    const socket = connect({ host: '127.0.0.1', port })
+      .on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      })
+      .on('error', () => resolve(false));
+  });
+
+/** Wait until the spawned proxy accepts connections on a local port */
+async function waitForPort(
+  port: number,
+  proxy: ChildProcess,
+  timeoutMs = 20_000
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    // A proxy that died is never going to open the port, and `fly proxy` exits
+    // immediately when the port is taken or the app is unreachable
+    if (proxy.exitCode !== null || proxy.signalCode !== null) {
+      throw new Error(
+        `Fly proxy exited before opening port ${port} (code ${proxy.exitCode ?? proxy.signalCode})`
+      );
+    }
+
+    if (await isPortOpen(port)) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  throw new Error(`Fly proxy did not open port ${port} in time`);
+}
+
+/**
+ * Run `fn` with a Fly proxy tunnelling the Postgres app to localhost.
+ *
+ * Preview databases are only routable inside the Fly private network
+ * (`<pg-app>.flycast`), so a local process cannot reach them without a tunnel.
+ */
+async function withFlyProxy<T>(
+  pgApp: string,
+  remotePort: string,
+  fn: (localPort: number) => Promise<T>
+): Promise<T> {
+  // Refuse to reuse a port something else is already serving. Waiting on an
+  // open port would otherwise succeed instantly and point the rotation at
+  // whatever is listening, which could be a different database entirely.
+  if (await isPortOpen(PROXY_PORT)) {
+    throw new Error(
+      `Port ${PROXY_PORT} is already in use - close it before rotating, ` +
+        'the tunnel must be the only thing listening there'
+    );
+  }
+
+  const proxy = spawn(
+    'flyctl',
+    ['proxy', `${PROXY_PORT}:${remotePort}`, '--app', pgApp],
+    { stdio: 'ignore' }
+  );
+
+  try {
+    await waitForPort(PROXY_PORT, proxy);
+    return await fn(PROXY_PORT);
+  } finally {
+    proxy.kill();
+  }
+}
+
+/**
  * Rotate the key in Payload via the local-api and return the new value
  */
 async function rotateInPayload(
+  environment: Environment,
   tenantId: string,
   databaseUrl: string
 ): Promise<string> {
+  // The CLI itself runs under `tsx --tsconfig tools/tsconfig.tools.json`, which
+  // exports that path relatively. Inheriting it makes the child resolve it
+  // against `apps/cms` and fail before it starts.
+  const { TSX_TSCONFIG_PATH: _ignored, ...parentEnv } = process.env;
+
   const { stdout } = await execAsync('npx tsx src/utils/rotate-tenant-key.ts', {
     cwd: path.join(workspaceRoot, 'apps/cms'),
     env: {
-      ...process.env,
-      DATABASE_URL: databaseUrl,
+      ...parentEnv,
+      // The target environment decides which PAYLOAD_SECRET_KEY is loaded, and
+      // that key encrypts the API key - inheriting the local one would write a
+      // value the deployment cannot decrypt
+      DEPLOY_ENV: environment,
+      // Rotation is a host-mode operation across all tenants
+      TENANT_ID: '',
+      // Normally injected by the deployment action, and required by the env
+      // schema even though a local rotation does not use them
+      APP_NAME: 'cdwr-cms',
+      FLY_URL: '',
+      PR_NUMBER: '',
+      ROTATE_DATABASE_URL: databaseUrl,
       ROTATE_TENANT_SLUG: tenantId,
       DISABLE_DB_PUSH: 'true',
       SEED_SOURCE: 'off'
@@ -142,6 +304,43 @@ async function main() {
   }
 
   const s = spinner();
+
+  // Preview has one database per pull request, so the app has to be named
+  // before anything can be read from it
+  let previewApp = '';
+
+  if (environment === 'preview') {
+    s.start('Listing preview cms apps...');
+
+    let previewApps: Array<string>;
+    try {
+      previewApps = await fetchPreviewCmsApps();
+      s.stop(`Found ${previewApps.length} preview cms app(s)`);
+    } catch (error) {
+      s.stop('Failed to list apps');
+      cancel(
+        `Error: ${error instanceof Error ? error.message : String(error)}`
+      );
+      process.exit(1);
+    }
+
+    if (!previewApps.length) {
+      cancel('No preview cms apps are deployed');
+      process.exit(0);
+    }
+
+    const selected = await select<string>({
+      message: 'Select the cms app holding the preview database:',
+      options: previewApps.map((app) => ({ value: app, label: app }))
+    });
+
+    if (isCancel(selected)) {
+      cancel('Operation cancelled');
+      process.exit(0);
+    }
+
+    previewApp = selected;
+  }
 
   s.start(`Fetching tenants for ${environment} from Infisical...`);
 
@@ -180,6 +379,13 @@ async function main() {
     [
       `Payload tenant '${tenantId}' gets a new API key, then Infisical is`,
       `updated for: ${apps.map((app) => `/tenants/${tenantId}/apps/${app}`).join(', ')}`,
+      ...(previewApp
+        ? [
+            '',
+            `Database is read from '${previewApp}', which is started first if`,
+            `its machines are stopped.`
+          ]
+        : []),
       '',
       `The running deployments keep using the old key until they are`,
       `redeployed, so ${tenantId} serves errors until that completes.`
@@ -197,17 +403,20 @@ async function main() {
     process.exit(0);
   }
 
-  s.start(`Fetching DATABASE_URL for ${environment}...`);
+  s.start(
+    previewApp
+      ? `Reading DATABASE_URL from '${previewApp}'...`
+      : 'Fetching DATABASE_URL from Infisical...'
+  );
 
   let databaseUrl: string;
   try {
-    databaseUrl = toPoolerUrl(
-      await fetchDatabaseUrl(environment),
-      SUPABASE_REGION
-    );
-    s.stop('Database URL fetched');
+    databaseUrl = previewApp
+      ? await fetchPreviewDatabaseUrl(previewApp)
+      : await fetchProductionDatabaseUrl();
+    s.stop('Database URL resolved');
   } catch (error) {
-    s.stop('Failed to fetch database URL');
+    s.stop('Failed to resolve database URL');
     cancel(`Error: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   }
@@ -216,7 +425,19 @@ async function main() {
 
   let apiKey: string;
   try {
-    apiKey = await rotateInPayload(tenantId, databaseUrl);
+    if (isFlyPrivateUrl(databaseUrl)) {
+      // Only reachable from inside Fly, so tunnel it for the rotation
+      const url = new URL(databaseUrl);
+      const pgApp = url.hostname.replace(/\.(flycast|internal)$/, '');
+
+      apiKey = await withFlyProxy(pgApp, url.port || '5432', (localPort) => {
+        url.hostname = '127.0.0.1';
+        url.port = String(localPort);
+        return rotateInPayload(environment, tenantId, url.toString());
+      });
+    } else {
+      apiKey = await rotateInPayload(environment, tenantId, databaseUrl);
+    }
     s.stop('Payload tenant updated');
   } catch (error) {
     s.stop('Rotation failed');
@@ -261,12 +482,18 @@ async function main() {
     process.exit(1);
   }
 
+  const pullRequest = previewApp.match(/-pr-(\d+)$/)?.[1];
+
   note(
     [
       `Redeploy ${tenantId} so the deployments pick up the new key:`,
       '',
-      `  Actions → Fly Deployment → Run workflow`,
-      `  App: <empty>  Tenant: ${tenantId}  Environment: ${environment}`,
+      ...(pullRequest
+        ? [`  Re-run the Fly Deployment workflow for PR #${pullRequest}`]
+        : [
+            `  Actions → Fly Deployment → Run workflow`,
+            `  App: <empty>  Tenant: ${tenantId}  Environment: ${environment}`
+          ]),
       '',
       `Until then ${tenantId} authenticates with the retired key.`
     ].join('\n'),

@@ -494,6 +494,34 @@ export class Fly {
     }
   };
   /**
+   * Run commands inside a running machine
+   */
+  ssh = {
+    /**
+     * Execute a command in a running machine and return its output.
+     *
+     * Requires a started machine - Fly cannot connect to a stopped or
+     * suspended one. Use `machines.start` first when the app may be idle.
+     *
+     * The output is returned to the caller and not logged unless CLI tracing
+     * is enabled, so it can be used to read values that are otherwise
+     * write-only, such as secrets injected at deploy time.
+     *
+     * @param app - The name of the application
+     * @param command - The command to run inside the machine
+     * @returns The command output
+     * @throws An error if there is no started machine or the command fails
+     */
+    exec: async (app: string, command: string): Promise<string> => {
+      try {
+        await this.ensureInitialized();
+        return await this.sshExec(app, command);
+      } catch (error) {
+        throw new Error(`[ssh exec] something broke\n${error}`);
+      }
+    }
+  };
+  /**
    * Manage application secrets
    */
   secrets = {
@@ -1027,6 +1055,17 @@ export class Fly {
     await this.execFly(args);
 
     return NameSchema.parse(status.name);
+  }
+
+  /**
+   * @private
+   * Execute a command inside a running machine
+   * @returns The command output
+   * @throws An error if the command fails
+   */
+  private async sshExec(app: string, command: string): Promise<string> {
+    const args = ['ssh', 'console', '--app', app, '--command', command];
+    return await this.execFly<string>(args);
   }
 
   /**

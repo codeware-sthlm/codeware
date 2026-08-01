@@ -1,4 +1,5 @@
 import { type Credentials, createClient } from './create-client';
+import { isNotFound } from './error-status';
 import { type Environment } from './infisical.schemas';
 
 type Options<TEnv> = Credentials & {
@@ -26,31 +27,6 @@ type Options<TEnv> = Credentials & {
    */
   value: string;
 };
-
-/**
- * HTTP status behind a rejected SDK call, however it chose to report it.
- */
-const statusOf = (error: unknown): number | undefined => {
-  if (typeof error !== 'object' || error === null) {
-    return undefined;
-  }
-
-  const fromResponse = (error as { response?: { status?: number } }).response
-    ?.status;
-
-  if (fromResponse) {
-    return fromResponse;
-  }
-
-  // `InfisicalSDKRequestError` carries no status field - the code only exists
-  // inside the message, as `[StatusCode=404]`
-  const message = String((error as { message?: unknown }).message ?? '');
-  const matched = /\[StatusCode=(\d{3})\]/.exec(message);
-
-  return matched ? Number(matched[1]) : undefined;
-};
-
-const isNotFound = (error: unknown): boolean => statusOf(error) === 404;
 
 export type SetSecretResult = {
   /** Whether the secret was created or an existing one was updated */

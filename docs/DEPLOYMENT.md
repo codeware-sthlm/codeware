@@ -347,6 +347,27 @@ Infisical app folder, then prints the redeploy command. The `apiKey` field is
 `update: () => false` for REST, GraphQL and the admin UI, which is why this runs as a
 script and not from the admin panel.
 
+> [!IMPORTANT]
+> An Infisical tenant id is **not** a Payload tenant slug. `/tenants/demo` is a deployment
+> name; the tenant it configures may be slugged something else entirely. The link between
+> them is the API key — which is exactly what a deployment authenticates with, see
+> `resolveScopedTenant`.
+>
+> So the tool resolves the tenant by the key currently in Infisical, shows you which Payload
+> tenant that turned out to be, and only rotates after you confirm that mapping. If no tenant
+> matches, the two have drifted apart or the wrong environment was selected — rotating on a
+> guess would hand a new key to the wrong tenant.
+
+Reaching the database differs per environment, which the tool handles:
+
+- **Production** runs on Supabase, so `DATABASE_URL` is an Infisical secret. It is rewritten
+  to the Session Mode pooler host, which is routable from a laptop.
+- **Preview** databases are created by `fly postgres attach` at deploy time, so the URL only
+  exists as a Fly secret on that pull request's cms app — not in Infisical, and
+  `fly secrets list` returns digests rather than values. The tool asks which cms app to use,
+  starts a machine if they are all suspended, reads the URL from inside it over SSH, then
+  opens a `fly proxy` tunnel because the host is a private `.flycast` address.
+
 There is no zero-downtime path — Payload stores one key per tenant. The tenant's
 deployments keep using the retired key until the redeploy completes, so that tenant serves
 errors in between. Rotate one tenant at a time.

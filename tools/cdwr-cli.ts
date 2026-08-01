@@ -13,6 +13,7 @@ import { restartApp } from './fly-tools/lib/restart-app.js';
 import { analysisMain } from './infisical/lib/analysis.js';
 import { fetchAppTenantsMain } from './infisical/lib/fetch-app-tenants.js';
 import { fetchDataMain } from './infisical/lib/fetch-data.js';
+import { rotateSignatureSecretMain } from './infisical/lib/rotate-signature-secret.js';
 import { rotateTenantKeyMain } from './infisical/lib/rotate-tenant-key.js';
 
 interface Tool {
@@ -81,6 +82,11 @@ const tools: Tool[] = [
     name: 'rotate-tenant-key',
     description: "Rotate a tenant's Payload API key in Payload and Infisical",
     action: rotateTenantKeyMain
+  },
+  {
+    name: 'rotate-signature-secret',
+    description: 'Roll over the shared request signature secret, step by step',
+    action: rotateSignatureSecretMain
   }
 ];
 

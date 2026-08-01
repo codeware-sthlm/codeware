@@ -1,12 +1,10 @@
 import { type ChildProcess, exec, spawn } from 'child_process';
 import { randomUUID } from 'crypto';
-import { readFileSync } from 'fs';
 import { connect } from 'net';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 
-import { Fly } from '@cdwr/fly-node';
 import {
   cancel,
   confirm,
@@ -25,10 +23,10 @@ import {
   setInfisicalSecret,
   withInfisical
 } from '@codeware/shared/feature/infisical';
-import { getAppName } from '@codeware/shared/util/nx-deploy';
 import { toPoolerUrl } from '@codeware/shared/util/pure';
 import * as dotenv from 'dotenv';
-import * as TOML from 'smol-toml';
+
+import { fly, flyAppName, startMachines, workspaceRoot } from './fly-apps';
 
 const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
@@ -40,23 +38,6 @@ const Environments = EnvironmentSchema.options;
 
 // Supabase project region — used to construct the Session Mode pooler hostname
 const SUPABASE_REGION = 'eu-central-1';
-
-const workspaceRoot = path.resolve(__dirname, '../../..');
-
-// Silent client — the ssh output carries a connection string, so nothing from
-// the Fly CLI should reach the console
-const fly = new Fly({
-  logger: {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    info: () => {},
-    error: console.error,
-    traceCLI: false,
-    redactSecrets: true,
-    verbose: false,
-    debug: false,
-    streamToConsole: false
-  }
-});
 
 type TenantDeployment = {
   /** App folders holding a `PAYLOAD_API_KEY`, all of which must be updated */
@@ -205,60 +186,6 @@ async function assertInfisicalWritable(
     );
   } finally {
     await deleteInfisicalSecret({ environment, path: secretPath, key });
-  }
-}
-
-/**
- * Resolve the Fly app name for a tenant's deployment of an app.
- *
- * The base name lives in the app's own fly config, and `getAppName` applies the
- * same pull request and tenant suffixes the deployment action uses.
- */
-function flyAppName(
-  app: string,
-  tenantId: string,
-  pullRequest?: string
-): string {
-  const configPath = path.join(workspaceRoot, 'apps', app, 'fly.toml');
-  const config = TOML.parse(readFileSync(configPath, 'utf-8')) as {
-    app?: string;
-  };
-
-  if (!config.app) {
-    throw new Error(`No app name found in ${configPath}`);
-  }
-
-  return getAppName({
-    configAppName: config.app,
-    environment: pullRequest ? 'preview' : 'production',
-    pullRequest: pullRequest ? Number(pullRequest) : undefined,
-    tenantId
-  });
-}
-
-/**
- * Start every machine of an app that is not already running.
- *
- * Preview machines suspend when idle, and Fly can neither ssh into nor update
- * a machine that is not started.
- */
-async function startMachines(app: string): Promise<void> {
-  const status = await fly.status({ app });
-  const machines = status?.machines ?? [];
-
-  if (!machines.length) {
-    throw new Error(`App '${app}' has no machines - is it deployed?`);
-  }
-
-  const stopped = machines.filter(({ state }) => state !== 'started');
-
-  for (const machine of stopped) {
-    await fly.machines.start(app, machine.id);
-  }
-
-  if (stopped.length) {
-    // Give them a moment to accept connections
-    await new Promise((resolve) => setTimeout(resolve, 5_000));
   }
 }
 

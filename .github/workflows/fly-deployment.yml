@@ -169,6 +169,7 @@ jobs:
           manual-app: ${{ github.event.inputs.app }}
           manual-tenant: ${{ github.event.inputs.tenant }}
           manual-environment: ${{ github.event.inputs.environment }}
+          pr-number: ${{ steps.resolve-pr.outputs.number }}
         env:
           # Must be defined since `github.json` is validated and cms app uses env
           POSTGRES_PREVIEW: ${{ vars.FLY_POSTGRES_PREVIEW }}
@@ -200,7 +201,6 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          # Push tags as the app, the ruleset's bypass actor
           token: ${{ steps.generate-token.outputs.token }}
 
       - uses: pnpm/action-setup@v5
@@ -235,113 +235,31 @@ jobs:
           echo "short-sha=$(echo "$BUILD_SHA" | cut -c1-7)" >> "$GITHUB_OUTPUT"
           echo "build-time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
-      # Bump each affected app's manifest and tag it. `git-commit false` keeps the
-      # branch untouched — only tags are pushed.
-      - name: Version apps
-        env:
-          ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
-          # PR numbers start at 1, so 0 is a safe lane for manual dispatches
-          PR_NUMBER: ${{ needs.pre-deploy.outputs.pr-number || 0 }}
-          # Empty outside pull_request, where HEAD is already a real commit
-          TAG_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          set -euo pipefail
-          committer='${{ vars.CDWR_COMMITTER }}'
-          email="${committer##*<}"
-          git config user.name "${committer%% <*}"
-          git config user.email "${email%>}"
-          args=(--group apps --git-commit false --git-tag)
-          if [ "$ENVIRONMENT" != "production" ]; then
-            # Per-PR lane so concurrent PRs don't race for the same counter
-            args+=(--preid "preview.${PR_NUMBER}")
-          fi
-
-          before="$(git tag --list | sort)"
-          pnpm nx release version "${args[@]}"
-          after="$(git tag --list | sort)"
-
-          # Push only the new tags. `--git-push` would push the current branch,
-          # which fails on the detached HEAD left by checkout.
-          new_tags="$(comm -13 <(printf '%s\n' "$before") <(printf '%s\n' "$after"))"
-          if [ -z "$new_tags" ]; then
-            echo "No new tags to push"
-          else
-            # Nx tags HEAD, which is the ephemeral merge ref on pull_request
-            if [ -n "$TAG_SHA" ]; then
-              for t in $new_tags; do git tag -f -a "$t" -m "$t" "$TAG_SHA"; done
-            fi
-            echo "Pushing tags: $(echo $new_tags)"
-            # shellcheck disable=SC2086
-            git push --no-verify --atomic origin $new_tags
-          fi
-
-      # `nx release version` only writes a manifest when conventional commits
-      # produce a bump for that project, but `nx affected` deploys an app
-      # whenever anything it depends on changed. An app can therefore be rebuilt
-      # without being bumped, and since bumps are never committed (only tagged),
-      # its manifest still holds the placeholder version that lives in git.
+      # Each app carries the version `nx release` resolved for it in pre-deploy,
+      # which is also what selected it for deployment. Write it into the manifest
+      # so the image inlines it for the About UI and /api/version.
       #
-      # The tags are the real source of truth, so backfill whatever nx left
-      # alone. The image inlines this value for the About UI and /api/version,
-      # and the Sentry release name is derived from it — all three agree.
-      - name: Backfill unbumped app versions
+      # Nothing is committed and nothing is tagged here — the release tag is the
+      # baseline nx versions from, so it is written only once the deployment has
+      # succeeded (see `Tag released apps`).
+      - name: Stamp app versions
         env:
           APPS: ${{ needs.pre-deploy.outputs.apps }}
-          ENVIRONMENT: ${{ needs.pre-deploy.outputs.environment }}
-          PR_NUMBER: ${{ needs.pre-deploy.outputs.pr-number || 0 }}
         run: |
           set -euo pipefail
-
-          # `versionsort.suffix` makes git rank `-preview.N` below its own
-          # release; a plain `-v:refname` sort gets that backwards
-          latest_tag() {
-            local tags
-            tags="$(git -c versionsort.suffix=-preview tag --list "$1" --sort=-v:refname)"
-            if [ "${2:-}" = release-only ]; then
-              # grep exits 1 when it filters everything out, which is not an error here
-              tags="$(printf '%s\n' "$tags" | grep -v -- '-preview\.' || true)"
-            fi
-            # Take the first line by expansion rather than piping to `head`.
-            # `head` closes the pipe early, so once the tag list outgrows the
-            # 64KB pipe buffer git dies of SIGPIPE and `pipefail` turns that
-            # into a failed deployment.
-            printf '%s' "${tags%%$'\n'*}"
-          }
-
-          for name in $(jq -r '.[].name' <<< "$APPS"); do
-            config="$(jq -r --arg n "$name" '.[] | select(.name == $n) | .flyConfigFile' <<< "$APPS")"
-            manifest="$(dirname "$config")/package.json"
-
-            # nx stages what it writes, so compare against HEAD rather than the
-            # working tree
-            if ! git diff HEAD --quiet -- "$manifest"; then
-              echo "$name: bumped to $(jq -r .version "$manifest")"
-              continue
-            fi
-
-            tag=''
-            if [ "$ENVIRONMENT" != production ]; then
-              # Stay in this PR's lane — another PR's preview tag is not our version
-              tag="$(latest_tag "${name}-[0-9]*-preview.${PR_NUMBER}.*")"
-            fi
-            # Otherwise the newest real release the app was last cut at
-            [ -n "$tag" ] || tag="$(latest_tag "${name}-[0-9]*" release-only)"
-
-            version="${tag#"${name}-"}"
-            if [ -z "$version" ]; then
-              echo "$name: no release tag, keeping $(jq -r .version "$manifest")"
-              continue
-            fi
-
+          jq -c '.[]' <<< "$APPS" | while read -r app; do
+            name="$(jq -r .name <<< "$app")"
+            version="$(jq -r .version <<< "$app")"
+            manifest="$(dirname "$(jq -r .flyConfigFile <<< "$app")")/package.json"
             tmp="$(mktemp)"
             jq --arg v "$version" '.version = $v' "$manifest" > "$tmp"
             mv "$tmp" "$manifest"
-            echo "$name: not bumped, backfilled to $version"
+            echo "$name: stamped $version"
           done
 
-      # One release per build per app, `name@version+sha`, using the version
-      # resolved above. All tenants of an app share it — tenants are told
-      # apart by a runtime tag, never by a separate release.
+      # One release per build per app, `name@version+sha`. All tenants of an app
+      # share it — tenants are told apart by a runtime tag, never by a separate
+      # release.
       - name: Resolve Sentry releases
         id: sentry-apps
         env:
@@ -349,15 +267,10 @@ jobs:
           SHORT_SHA: ${{ steps.meta.outputs.short-sha }}
         run: |
           set -euo pipefail
-          apps="$APPS"
-          for name in $(jq -r '.[] | select(.sentry) | .name' <<< "$APPS"); do
-            config="$(jq -r --arg n "$name" '.[] | select(.name == $n) | .flyConfigFile' <<< "$APPS")"
-            version="$(jq -r .version "$(dirname "$config")/package.json")"
-            release="${name}@${version}+${SHORT_SHA}"
-            echo "$name -> $release"
-            apps="$(jq -c --arg n "$name" --arg r "$release" \
-              'map(if .name == $n then .sentry.release = $r else . end)' <<< "$apps")"
-          done
+          apps="$(jq -c --arg sha "$SHORT_SHA" \
+            'map(if .sentry then .sentry.release = "\(.name)@\(.version)+\($sha)" else . end)' \
+            <<< "$APPS")"
+          jq -r '.[] | select(.sentry.release) | "\(.name) -> \(.sentry.release)"' <<< "$apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
 
       # The Sentry bundler plugins upload source maps during the Docker build and
@@ -457,6 +370,8 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          # Push release tags as the app, the ruleset's bypass actor
+          token: ${{ steps.generate-token.outputs.token }}
 
       - uses: pnpm/action-setup@v5
 
@@ -514,6 +429,54 @@ jobs:
             INFISICAL_PROJECT_ID=${{ secrets.INFISICAL_PROJECT_ID }}
             SENTRY_AUTH_TOKEN=${{ secrets.INF_SENTRY_AUTH_TOKEN }}
           opt-out-depot-builder: ${{ vars.FLY_OPT_OUT_DEPOT }}
+
+      # The release tag is the baseline `nx release` resolves the next bump from,
+      # so it is written only for apps that actually reached production/preview.
+      # A failed deploy leaves the baseline behind, and the next run resolves the
+      # same bump again and redeploys — which is what keeps a preview from going
+      # silently stale after a failed or cancelled run.
+      - name: Tag released apps
+        if: steps.deployment.outcome == 'success'
+        env:
+          APPS: ${{ needs.build.outputs.apps }}
+          DEPLOYED: ${{ steps.deployment.outputs.deployed }}
+          # Empty outside pull_request, where HEAD is already a real commit
+          TAG_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          committer='${{ vars.CDWR_COMMITTER }}'
+          email="${committer##*<}"
+          git config user.name "${committer%% <*}"
+          git config user.email "${email%>}"
+
+          tags=()
+          for name in $(jq -r 'keys[]' <<< "$DEPLOYED"); do
+            version="$(jq -r --arg n "$name" \
+              '.[] | select(.name == $n) | .version' <<< "$APPS")"
+            [ -n "$version" ] || continue
+            tag="${name}-${version}"
+            # A manual dispatch redeploys an unbumped app at its last released
+            # version, so the tag can already exist. Re-tagging is fatal under
+            # `set -e` and would fail a deployment that actually succeeded.
+            if git rev-parse -q --verify "refs/tags/${tag}" > /dev/null; then
+              echo "$name: $tag already exists, leaving it alone"
+              continue
+            fi
+            # On pull_request HEAD is the ephemeral merge ref, so tag the PR head
+            if [ -n "$TAG_SHA" ]; then
+              git tag -a "$tag" -m "$tag" "$TAG_SHA"
+            else
+              git tag -a "$tag" -m "$tag"
+            fi
+            tags+=("$tag")
+          done
+
+          if [ ${#tags[@]} -eq 0 ]; then
+            echo "No tags to push"
+          else
+            echo "Pushing tags: ${tags[*]}"
+            git push --no-verify --atomic origin "${tags[@]}"
+          fi
 
       - name: Finalize Sentry releases
         if: steps.deployment.outcome == 'success'

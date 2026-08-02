@@ -137,6 +137,15 @@
         "releaseTag": {
           "pattern": "{projectName}-{version}",
           "checkAllBranchesWhen": true
+        },
+        "changelog": {
+          "projectChangelogs": {
+            "createRelease": "github",
+            "file": false,
+            "renderOptions": {
+              "authors": false
+            }
+          }
         }
       }
     },

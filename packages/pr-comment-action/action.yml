@@ -31,6 +31,11 @@ inputs:
     description: >
       Path to a JSON file containing the projects array (from fly-deployment-action projects-path output).
       Preferred over `projects` — avoids GitHub Actions secret scanning suppression of job outputs.
+  changelogs-path:
+    description: >
+      Path to a JSON file mapping project names to rendered markdown changelogs
+      (from nx-changelog-action `changelogs-path` output).
+      Each app is rendered as a collapsed section below the status table.
   token:
     description: >
       The token to use for repository authentication.

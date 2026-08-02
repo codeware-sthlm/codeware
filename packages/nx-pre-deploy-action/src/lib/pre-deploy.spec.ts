@@ -195,7 +195,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         },
         {
           projectName: 'cms',
@@ -206,7 +207,8 @@ describe('preDeploy', () => {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -216,17 +218,27 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
-          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          },
+          {
+            name: 'api',
+            flyConfigFile: 'apps/api/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: {},
         environment: 'production'
       });
-      expect(mockCoreInfo).toHaveBeenCalledWith('Deploy: web');
+      expect(mockCoreInfo).toHaveBeenCalledWith('Deploy: web @ 1.0.0');
       expect(mockCoreInfo).toHaveBeenCalledWith(
         'Skip: cms - Deployment is disabled'
       );
-      expect(mockCoreInfo).toHaveBeenCalledWith('Deploy: api');
+      expect(mockCoreInfo).toHaveBeenCalledWith('Deploy: api @ 1.0.0');
     });
 
     it('should return empty apps array when no apps are ready for deployment', async () => {
@@ -283,6 +295,7 @@ describe('preDeploy', () => {
 
       expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith(
         'production',
+        undefined,
         undefined
       );
     });
@@ -302,7 +315,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -312,7 +326,12 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: {},
         environment: 'production'
@@ -330,7 +349,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -340,7 +360,12 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: {},
         environment: ''
@@ -377,13 +402,15 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         },
         {
           projectName: 'cms',
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -400,9 +427,15 @@ describe('preDeploy', () => {
           name: 'web',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
+          version: '1.0.0',
           sentry: { project: 'web', dsn: 'https://web@sentry.io/2' }
         },
-        { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} }
+        {
+          name: 'cms',
+          flyConfigFile: 'apps/cms/fly.toml',
+          githubConfig: {},
+          version: '1.0.0'
+        }
       ]);
       expect(mockFetchAppSentry).toHaveBeenCalledWith(
         {
@@ -422,7 +455,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -436,7 +470,12 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: { web: [{ tenant: 'demo' }, { tenant: 'customer1' }] },
         environment: 'production'
@@ -464,13 +503,15 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         },
         {
           projectName: 'cms',
@@ -490,8 +531,18 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
-          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          },
+          {
+            name: 'api',
+            flyConfigFile: 'apps/api/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: {
           web: [{ tenant: 'demo' }, { tenant: 'acme' }, { tenant: 'globex' }],
@@ -525,7 +576,8 @@ describe('preDeploy', () => {
           projectName: 'cms',
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -539,7 +591,12 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} }
+          {
+            name: 'cms',
+            flyConfigFile: 'apps/cms/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: { cms: [] },
         environment: 'production'
@@ -552,7 +609,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -566,7 +624,12 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: { web: [{ tenant: 'demo' }] },
         environment: 'preview'
@@ -586,7 +649,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -613,19 +677,22 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         },
         {
           projectName: 'cms',
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -641,9 +708,24 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
-          { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} },
-          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          },
+          {
+            name: 'cms',
+            flyConfigFile: 'apps/cms/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          },
+          {
+            name: 'api',
+            flyConfigFile: 'apps/api/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: {
           web: [{ tenant: 'demo' }, { tenant: 'customer1' }],
@@ -674,7 +756,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -702,7 +785,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
 
@@ -732,13 +816,15 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
       // Filter should remove api based on apps rule
@@ -754,8 +840,18 @@ describe('preDeploy', () => {
 
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} },
-          { name: 'api', flyConfigFile: 'apps/api/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          },
+          {
+            name: 'api',
+            flyConfigFile: 'apps/api/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: {
           web: [{ tenant: 'demo' }, { tenant: 'acme' }]
@@ -770,7 +866,8 @@ describe('preDeploy', () => {
           projectName: 'web',
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
-          githubConfig: {}
+          githubConfig: {},
+          version: '1.0.0'
         }
       ]);
       // Filter should keep only 'demo' tenant based on tenants rule
@@ -790,7 +887,12 @@ describe('preDeploy', () => {
       );
       expect(result).toEqual({
         apps: [
-          { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+          {
+            name: 'web',
+            flyConfigFile: 'apps/web/fly.toml',
+            githubConfig: {},
+            version: '1.0.0'
+          }
         ],
         appTenants: { web: [{ tenant: 'demo' }] },
         environment: 'preview'
@@ -811,18 +913,20 @@ describe('preDeploy', () => {
         projectName: 'web',
         status: 'deploy' as const,
         flyConfigFile: 'apps/web/fly.toml',
-        githubConfig: {}
+        githubConfig: {},
+        version: '1.0.0'
       },
       {
         projectName: 'cms',
         status: 'deploy' as const,
         flyConfigFile: 'apps/cms/fly.toml',
-        githubConfig: {}
+        githubConfig: {},
+        version: '1.0.0'
       }
     ];
 
     beforeEach(() => {
-      mockAnalyzeAppsToDeploy.mockImplementation(async (_env, apps) =>
+      mockAnalyzeAppsToDeploy.mockImplementation(async (_env, _preid, apps) =>
         apps ? allApps.filter((a) => apps.includes(a.projectName)) : allApps
       );
     });
@@ -851,12 +955,19 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result.apps).toEqual([
-        { name: 'cms', flyConfigFile: 'apps/cms/fly.toml', githubConfig: {} }
+        {
+          name: 'cms',
+          flyConfigFile: 'apps/cms/fly.toml',
+          githubConfig: {},
+          version: '1.0.0'
+        }
       ]);
       expect(mockCoreInfo).toHaveBeenCalledWith('Manual app override: cms');
-      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production', [
-        'cms'
-      ]);
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith(
+        'production',
+        undefined,
+        ['cms']
+      );
     });
 
     it('should override tenant when manualTenant is provided', async () => {
@@ -893,10 +1004,19 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result.apps).toEqual([
-        { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+        {
+          name: 'web',
+          flyConfigFile: 'apps/web/fly.toml',
+          githubConfig: {},
+          version: '1.0.0'
+        }
       ]);
       expect(result.environment).toBe('preview');
-      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('preview', ['web']);
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith(
+        'preview',
+        undefined,
+        ['web']
+      );
     });
 
     it('should combine manual app, tenant, and environment overrides', async () => {
@@ -914,15 +1034,22 @@ describe('preDeploy', () => {
       const result = await preDeploy(config, true);
 
       expect(result.apps).toEqual([
-        { name: 'web', flyConfigFile: 'apps/web/fly.toml', githubConfig: {} }
+        {
+          name: 'web',
+          flyConfigFile: 'apps/web/fly.toml',
+          githubConfig: {},
+          version: '1.0.0'
+        }
       ]);
       expect(result.environment).toBe('production');
       expect(result.appTenants).toEqual({
         web: [{ tenant: 'demo' }]
       });
-      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith('production', [
-        'web'
-      ]);
+      expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith(
+        'production',
+        undefined,
+        ['web']
+      );
     });
 
     it('should not affect affected app analysis when manual overrides are not provided', async () => {
@@ -938,6 +1065,7 @@ describe('preDeploy', () => {
       expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledTimes(1);
       expect(mockAnalyzeAppsToDeploy).toHaveBeenCalledWith(
         'production',
+        undefined,
         undefined
       );
     });

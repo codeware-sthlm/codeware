@@ -20,6 +20,7 @@ export async function run(): Promise<void> {
       infisicalProjectId: core.getInput('infisical-project-id') || undefined,
       infisicalSite: (core.getInput('infisical-site') ||
         undefined) as ActionInputs['infisicalSite'],
+      prNumber: core.getInput('pr-number') || undefined,
       manualApp: core.getInput('manual-app') || undefined,
       manualTenant: core.getInput('manual-tenant') || undefined,
       manualEnvironment: (core.getInput('manual-environment') ||

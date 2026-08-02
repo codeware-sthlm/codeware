@@ -57,8 +57,18 @@ describe('main', () => {
 
   it('should have valid inputs with all inputs provided truthly', async () => {
     const apps: ActionInputs['apps'] = [
-      { name: 'app1', flyConfigFile: 'apps/app1/fly.toml', githubConfig: {} },
-      { name: 'app2', flyConfigFile: 'apps/app2/fly.toml', githubConfig: {} }
+      {
+        name: 'app1',
+        flyConfigFile: 'apps/app1/fly.toml',
+        githubConfig: {},
+        version: '1.0.0'
+      },
+      {
+        name: 'app2',
+        flyConfigFile: 'apps/app2/fly.toml',
+        githubConfig: {},
+        version: '1.0.0'
+      }
     ];
     getInputMock.mockImplementation((name: string) => {
       if (name === 'apps') return JSON.stringify(apps);

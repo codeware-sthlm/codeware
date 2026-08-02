@@ -72,19 +72,29 @@ export async function preDeploy(
       core.info(`Manual app override: ${inputs.manualApp}`);
     }
 
+    // Preview deployments version within a per-PR lane so concurrent PRs never
+    // race for the same counter. Production releases have no prerelease id.
+    const preid =
+      environment && environment !== 'production' && inputs.prNumber
+        ? `preview.${inputs.prNumber}`
+        : undefined;
+    core.info(`Release lane: ${preid ?? '<production>'}`);
+
     const analyzed = await analyzeAppsToDeploy(
       environment,
+      preid,
       inputs.manualApp ? [inputs.manualApp] : undefined
     );
 
     const apps: DeployableApp[] = analyzed.flatMap((app) => {
       if (app.status === 'deploy') {
-        core.info(`Deploy: ${app.projectName}`);
+        core.info(`Deploy: ${app.projectName} @ ${app.version}`);
         return [
           {
             name: app.projectName,
             flyConfigFile: app.flyConfigFile,
-            githubConfig: app.githubConfig
+            githubConfig: app.githubConfig,
+            version: app.version
           }
         ];
       }

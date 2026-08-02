@@ -8,11 +8,13 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
       "flyConfigFile": "apps/web/fly.toml",
       "githubConfig": {},
       "name": "web",
+      "version": "1.0.0",
     },
     {
       "flyConfigFile": "apps/cms/fly.toml",
       "githubConfig": {},
       "name": "cms",
+      "version": "1.0.0",
     },
   ],
   "env": [
@@ -65,11 +67,13 @@ exports[`Fly Deployment Action schema validation > validates all schemas against
       "flyConfigFile": "apps/web/fly.toml",
       "githubConfig": {},
       "name": "web",
+      "version": "1.0.0",
     },
     {
       "flyConfigFile": "apps/cms/fly.toml",
       "githubConfig": {},
       "name": "cms",
+      "version": "1.0.0",
     },
   ],
   "fly": {

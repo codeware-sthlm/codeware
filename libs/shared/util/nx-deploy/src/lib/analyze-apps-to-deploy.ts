@@ -6,7 +6,7 @@ import {
   GitHubConfigSchema
 } from '@codeware/shared/util/schemas';
 
-import { getNxApps } from './get-nx-apps';
+import { getAppsToRelease } from './get-apps-to-release';
 import { getNxProject } from './get-nx-project';
 
 const githubJsonFileName = 'github.json' as const;
@@ -21,6 +21,8 @@ type App = {
       flyConfigFile: string;
       /** Parsed GitHub configuration */
       githubConfig: GitHubConfig;
+      /** Version to stamp into the image and release as */
+      version: string;
     }
   | {
       status: 'skip';
@@ -66,17 +68,30 @@ const findFlyConfig = (
  * Checks for the presence and validity of `github.json` files in app root,
  * and looks for fly configuration files.
  *
+ * Selection is driven by `nx release`, not `nx affected`: an app deploys when
+ * its conventional commits produce a version bump since its last release tag.
+ * Affected answers "what must be rebuilt and retested", which is a strictly
+ * wider question than "what changed for the consumer".
+ *
  * @param environment - Environment to look for environment-specific fly configs or undefined
- * @param apps - List of app project names to analyze. Defaults to all Nx affected apps.
+ * @param preid - Prerelease identifier for preview lanes (e.g. `preview.42`)
+ * @param apps - Explicit app project names, bypassing bump selection. Used by
+ *               manual dispatch to force a redeploy of an unbumped app.
  * @returns List of apps with their deployment status and details.
  */
 export const analyzeAppsToDeploy = async (
   environment: string | undefined,
+  preid?: string,
   apps?: string[]
 ): Promise<App[]> => {
   const response: App[] = [];
 
-  const projectNames = apps ?? (await getNxApps('affected'));
+  const releases = await getAppsToRelease(preid);
+
+  // A forced app deploys at its last released version when nothing bumped it
+  const projectNames =
+    apps ??
+    [...releases].filter(([, { bumped }]) => bumped).map(([name]) => name);
 
   for (const projectName of projectNames) {
     // Get project configuration
@@ -131,13 +146,26 @@ export const analyzeAppsToDeploy = async (
       continue;
     }
 
+    // Nothing to stamp into the image, so nothing that can be released
+    const release = releases.get(projectName);
+
+    if (!release) {
+      response.push({
+        projectName,
+        status: 'skip',
+        reason: 'Not a member of the `apps` release group'
+      });
+      continue;
+    }
+
     // All checks passed, mark the app ready for deployment
     const githubConfig = githubConfigParsed.data;
     response.push({
       projectName,
       status: 'deploy',
       flyConfigFile,
-      githubConfig
+      githubConfig,
+      version: release.version
     });
   }
 

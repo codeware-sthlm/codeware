@@ -12,6 +12,6 @@ export {
   type AppDetails
 } from './lib/app-deployment-details.schema';
 export { getAppName } from './lib/get-app-name';
-export { getNxApps } from './lib/get-nx-apps';
+export { type AppRelease, getAppsToRelease } from './lib/get-apps-to-release';
 export { getNxProject } from './lib/get-nx-project';
 export { type Environment, EnvironmentSchema } from './lib/environment.schema';

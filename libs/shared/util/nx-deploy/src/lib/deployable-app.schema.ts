@@ -34,6 +34,12 @@ export const DeployableAppSchema = z.object({
    * is built, and tagged once the deployment succeeds.
    */
   version: z.string(),
+  /**
+   * Version the app was last released as — where its changelog range starts.
+   * Carried from pre-deploy because it is unrecoverable once the new tag is
+   * pushed: nx would then resolve that tag as the current version.
+   */
+  previousVersion: z.string(),
   /** Absent when the app has no Sentry configuration, which disables Sentry */
   sentry: AppSentrySchema.optional()
 });

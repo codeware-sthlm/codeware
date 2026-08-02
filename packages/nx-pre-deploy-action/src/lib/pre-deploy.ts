@@ -99,7 +99,8 @@ export async function preDeploy(
             name: app.projectName,
             flyConfigFile: app.flyConfigFile,
             githubConfig: app.githubConfig,
-            version: app.version
+            version: app.version,
+            previousVersion: app.previousVersion
           }
         ];
       }

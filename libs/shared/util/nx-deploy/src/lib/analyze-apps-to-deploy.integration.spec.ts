@@ -51,7 +51,10 @@ describe('analyzeAppsToDeploy - Integration', () => {
     mockReleases(
       Object.fromEntries(
         ['web', 'cms', 'api', 'app-a', 'app-b', 'app-c', 'nested-app'].map(
-          (name) => [name, { version: '1.0.0', bumped: true }]
+          (name) => [
+            name,
+            { version: '1.0.0', previousVersion: '0.9.0', bumped: true }
+          ]
         )
       )
     );
@@ -261,8 +264,8 @@ describe('analyzeAppsToDeploy - Integration', () => {
     it('should deploy only the apps that were bumped', async () => {
       twoApps();
       mockReleases({
-        web: { version: '1.1.4', bumped: true },
-        cms: { version: '1.3.2', bumped: false }
+        web: { version: '1.1.4', previousVersion: '1.1.3', bumped: true },
+        cms: { version: '1.3.2', previousVersion: '1.3.1', bumped: false }
       });
 
       const result = await analyzeAppsToDeploy(undefined);
@@ -274,8 +277,8 @@ describe('analyzeAppsToDeploy - Integration', () => {
     it('should carry the resolved version onto each app', async () => {
       twoApps();
       mockReleases({
-        web: { version: '1.1.4', bumped: true },
-        cms: { version: '1.3.2', bumped: true }
+        web: { version: '1.1.4', previousVersion: '1.1.3', bumped: true },
+        cms: { version: '1.3.2', previousVersion: '1.3.1', bumped: true }
       });
 
       const result = await analyzeAppsToDeploy(undefined);
@@ -289,8 +292,8 @@ describe('analyzeAppsToDeploy - Integration', () => {
     it('should stamp the last released version on a forced unbumped app', async () => {
       twoApps();
       mockReleases({
-        web: { version: '1.1.4', bumped: false },
-        cms: { version: '1.3.2', bumped: false }
+        web: { version: '1.1.4', previousVersion: '1.1.3', bumped: false },
+        cms: { version: '1.3.2', previousVersion: '1.3.1', bumped: false }
       });
 
       const result = await analyzeAppsToDeploy(undefined, undefined, ['web']);
@@ -302,7 +305,13 @@ describe('analyzeAppsToDeploy - Integration', () => {
 
     it('should resolve versions within the preview lane', async () => {
       twoApps();
-      mockReleases({ web: { version: '1.1.4-preview.466.0', bumped: true } });
+      mockReleases({
+        web: {
+          version: '1.1.4-preview.466.0',
+          previousVersion: '1.1.3',
+          bumped: true
+        }
+      });
 
       const result = await analyzeAppsToDeploy(undefined, 'preview.466');
 
@@ -314,7 +323,9 @@ describe('analyzeAppsToDeploy - Integration', () => {
 
     it('should skip a forced app outside the release group', async () => {
       twoApps();
-      mockReleases({ web: { version: '1.1.4', bumped: true } });
+      mockReleases({
+        web: { version: '1.1.4', previousVersion: '1.1.3', bumped: true }
+      });
 
       const result = await analyzeAppsToDeploy(undefined, undefined, ['cms']);
 
@@ -547,7 +558,9 @@ describe('analyzeAppsToDeploy - Integration', () => {
     });
 
     it('should return empty array when nothing was bumped', async () => {
-      mockReleases({ web: { version: '1.0.0', bumped: false } });
+      mockReleases({
+        web: { version: '1.0.0', previousVersion: '1.0.0', bumped: false }
+      });
       const result = await analyzeAppsToDeploy(undefined);
       expect(result).toEqual([]);
     });

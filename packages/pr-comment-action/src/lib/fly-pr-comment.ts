@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { upsertPullRequestComment } from '@codeware/shared/util/github';
+import { addPullRequestComment } from '@codeware/shared/util/github';
 
 import type { ActionInputs, Project } from './schemas/action-inputs.schema';
 
@@ -38,12 +38,51 @@ function renderProjectsTable(projects: Project[]): string[] {
 }
 
 /**
+ * Neutralise HTML tags in text that ends up inside a `<details>` block.
+ *
+ * Changelog bodies are built from commit messages, so a `</details>` or any
+ * stray `<` would escape the block and reshape the comment. Only `<` is
+ * escaped: it is the whole injection vector, and touching `>` or `&` would
+ * break blockquotes and link URLs in the surrounding markdown.
+ */
+const escapeTags = (text: string): string => text.replaceAll('<', '&lt;');
+
+/**
+ * Render each app's changelog as a collapsed section.
+ *
+ * The range is the previous preview deploy up to this one, so this is what the
+ * latest push added — not everything the pull request contains.
+ */
+function renderChangelogs(changelogs: Record<string, string>): string[] {
+  const entries = Object.entries(changelogs);
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const lines = ['', '---', ''];
+
+  for (const [name, contents] of entries) {
+    lines.push(
+      '<details>',
+      `<summary><b>${escapeTags(name)}</b> — changes in this deploy</summary>`,
+      '',
+      escapeTags(contents),
+      '',
+      '</details>',
+      ''
+    );
+  }
+
+  return lines;
+}
+
+/**
  * Post a deployment status comment to a GitHub pull request.
  *
  * @param inputs Comment options
  */
 export async function flyPrComment(inputs: ActionInputs): Promise<void> {
-  const { pullRequest, deployed, failed, projects, token } = inputs;
+  const { pullRequest, deployed, failed, projects, changelogs, token } = inputs;
 
   const comment: string[] = [];
 
@@ -81,11 +120,12 @@ export async function flyPrComment(inputs: ActionInputs): Promise<void> {
     }
   }
 
-  core.info(`Upsert comment on pull request ${pullRequest}`);
-  await upsertPullRequestComment(
-    token,
-    pullRequest,
-    comment.join('\n'),
-    'codeware/fly-deployment'
-  );
+  comment.push(...renderChangelogs(changelogs ?? {}));
+
+  // One comment per deploy, never updated in place. Each deploy's changelog is
+  // a delta, so replacing the previous comment would throw away the only record
+  // of what earlier pushes shipped — and move the reader's scroll position. The
+  // extra comments are cheaper than the lost history.
+  core.info(`Add comment to pull request ${pullRequest}`);
+  await addPullRequestComment(token, pullRequest, comment.join('\n'));
 }

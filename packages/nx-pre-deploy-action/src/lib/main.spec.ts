@@ -144,8 +144,20 @@ describe('main', () => {
 
   it('should set outputs', async () => {
     const apps: ActionOutputs['apps'] = [
-      { name: 'app1', flyConfigFile: 'apps/app1/fly.toml', githubConfig: {} },
-      { name: 'app2', flyConfigFile: 'apps/app2/fly.toml', githubConfig: {} }
+      {
+        name: 'app1',
+        flyConfigFile: 'apps/app1/fly.toml',
+        githubConfig: {},
+        version: '1.0.0',
+        previousVersion: '0.9.0'
+      },
+      {
+        name: 'app2',
+        flyConfigFile: 'apps/app2/fly.toml',
+        githubConfig: {},
+        version: '1.0.0',
+        previousVersion: '0.9.0'
+      }
     ];
     const result: ActionOutputs = {
       apps,

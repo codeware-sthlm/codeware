@@ -17,6 +17,11 @@ This document explains the deployment architecture and configuration for the Cod
   - [Sentry](#sentry)
   - [Deployment Rules (Required)](#deployment-rules-required)
   - [GitHub Secrets](#github-secrets)
+- [Versioning](#versioning)
+  - [What Triggers a Deployment](#what-triggers-a-deployment)
+  - [Preview Lanes](#preview-lanes)
+  - [Tags Are Written After a Successful Deploy](#tags-are-written-after-a-successful-deploy)
+  - [Why Not `nx affected`](#why-not-nx-affected)
 - [Deployment Flow](#deployment-flow)
   - [Multi-Tenant Deployment](#multi-tenant-deployment)
   - [Single-Tenant Apps](#single-tenant-apps)
@@ -30,7 +35,7 @@ This document explains the deployment architecture and configuration for the Cod
 The deployment system automatically:
 
 - Determines deployment environment (preview for PRs, production for main)
-- Analyzes which Nx apps have been affected by code changes
+- Analyzes which Nx apps have a new release to ship (see [Versioning](#versioning))
 - Fetches tenant configuration from Infisical for multi-tenant apps
 - Deploys each app to Fly.io (once per tenant for multi-tenant apps)
 - Posts preview URLs as PR comments
@@ -44,7 +49,7 @@ Sometimes deployments fail or you need to redeploy without pushing new code. The
 1. Navigate to **Actions** → **Fly Deployment** in GitHub
 2. Click **Run workflow** button
 3. Configure deployment options:
-   - **App**: Select specific app (`cms`, `web`) or leave empty for all affected apps
+   - **App**: Select specific app (`cms`, `web`) or leave empty for all apps with a new release
    - **Tenant**: Enter tenant ID (e.g., `demo`) or leave empty for all tenants
    - **Environment**: Choose `preview` or `production` (required)
    - **Console logs**: Enable to see aggregated application logs during deployment (useful for debugging Fly commands)
@@ -84,7 +89,7 @@ Sometimes deployments fail or you need to redeploy without pushing new code. The
 - Console logs: `enabled`
 
 > [!NOTE]
-> Manual deployments bypass the affected app analysis and deploy the specified app(s) regardless of code changes. The tenant input only applies to multi-tenant apps like `web`.
+> Manual deployments bypass the release analysis and deploy the specified app(s) regardless of whether anything bumped them, at their last released version. The tenant input only applies to multi-tenant apps like `web`.
 
 ## Architecture
 
@@ -109,7 +114,7 @@ Sometimes deployments fail or you need to redeploy without pushing new code. The
     ├─► Job 2: pre-deploy
     │    ├─ Abort deployment process when skip output from job 1 is 'true'
     │    ├─ Determine environment (preview/production)
-    │    ├─ Analyze affected Nx apps
+    │    ├─ Resolve app versions and select what to release
     │    ├─ Fetch secrets and app-tenant relationships
     │    │   from Infisical
     │    └─ Output: apps, environment, app-tenants
@@ -125,7 +130,7 @@ Sometimes deployments fail or you need to redeploy without pushing new code. The
 
 1. **[@cdwr/nx-pre-deploy-action](../packages/nx-pre-deploy-action/README.md)** - Analyzes deployment requirements
    - Determines target environment based on GitHub event
-   - Identifies affected Nx applications
+   - Identifies Nx applications with a new release to ship
    - Validates `github.json` for each application
    - Fetches app-specific tenant configuration and secrets from Infisical
 2. **[@cdwr/nx-fly-deployment-action](../packages/nx-fly-deployment-action/README.md)** - Executes deployments
@@ -417,8 +422,9 @@ affected.
 
 1. **Resolution** (`nx-pre-deploy-action`): reads `/apps/<app>/SENTRY_{PROJECT,DSN}` from
    Infisical and attaches them to each app as `sentry: { project, dsn }`
-2. **Release naming** (GitHub workflow): after `Version apps` bumps the manifests, the
-   release name `name@version+sha` is resolved per app and merged into `sentry.release`
+2. **Release naming** (GitHub workflow): after `Stamp app versions` writes the resolved
+   version into each manifest (see [Versioning](#versioning)), the release name
+   `name@version+sha` is resolved per app and merged into `sentry.release`
 3. **Release creation** (GitHub workflow): one release per app, created in that app's own
    project before the build so source maps have something to attach to
 4. **Commit association**: each release is linked to commits (best-effort)
@@ -527,6 +533,71 @@ FLY_OPT_OUT_DEPOT              # Opt out of depot builder
 FLY_POSTGRES_PREVIEW           # Preview postgres cluster
 ```
 
+## Versioning
+
+Apps are versioned by `nx release`, in the `apps` release group (`nx.json` → `release.groups`).
+Versions are never committed — the branch stays untouched and the release **tag** is the source
+of truth. Each app's version is stamped into its manifest during the build so the image, the
+About UI, `/api/version` and the Sentry release name all agree.
+
+### What Triggers a Deployment
+
+**A deployment is a release.** An app deploys when its conventional commits produce a version
+bump since its last release tag — nothing else.
+
+`nx release` resolves this per project, using the same affected detection as `nx affected` but
+with the project's last release tag as the baseline. Consequences worth knowing:
+
+- **There is one project graph.** A change to a lib reaches every app depending on it, even
+  though app manifests declare no `@codeware/*` dependencies (they are consumed via tsconfig
+  path aliases). A shared-lib change therefore releases both apps.
+- **An indirect change still yields a patch bump.** Reaching a project only through the graph
+  is enough.
+- **`test:` and `ci:` commits produce nothing.** They are configured `semverBump: none`, so a
+  PR containing only those deploys nothing. This is deliberate — but it means the commit type
+  has to honestly reflect whether the change ships. A `test:` commit that also edits a
+  `Dockerfile` or `fly.*.toml` will **not** deploy.
+- **Workspace-root config bumps everything.** `nx.json`, `eslint.config.mjs`, `tsconfig.base.json`
+  and the lockfile are global inputs to the project graph, so editing one marks every app as
+  changed and redeploys them all. Expected, but worth knowing before a one-line config tweak
+  ships both apps.
+- **Manual dispatch bypasses all of this.** Selecting an app deploys it regardless of bump, at
+  its last released version.
+
+### Preview Lanes
+
+Preview deployments version within a per-PR lane, `--preid preview.<pr-number>`, producing tags
+like `cms-1.3.2-preview.466.2`. Concurrent PRs therefore never race for the same counter.
+Production releases carry no prerelease id.
+
+### Tags Are Written After a Successful Deploy
+
+The release tag is pushed in the `deploy` job, only for apps that actually deployed — never
+before the build. This ordering is what makes the pipeline self-healing:
+
+| Outcome         | Tag pushed? | Next run                                      |
+| --------------- | ----------- | --------------------------------------------- |
+| Deploy succeeds | yes         | baseline advances, no new commits → no deploy |
+| Deploy fails    | no          | baseline unchanged → same bump → redeploys    |
+
+A failed or cancelled run therefore cannot leave a preview silently stale, and a successful one
+is never redeployed for nothing.
+
+### Why Not `nx affected`
+
+Deployment selection used to be `nx affected` against `origin/main`, which asks a wider
+question: _what must be rebuilt and retested?_ That is the right question for lint, test and
+build, but not for shipping — it redeploys apps whose consumer-visible behaviour did not
+change.
+
+It also forced a workaround. Because affected deployed apps that `nx release` never versioned,
+their manifests still held the placeholder version from git, and a `Backfill unbumped app
+versions` step had to recover the real version from the tags. Making the bump the deploy
+trigger removed the mismatch, and the backfill with it.
+
+The self-healing property that previously justified affected is preserved by the tag ordering
+above, rather than by re-deploying the whole PR diff every time.
+
 ## Deployment Flow
 
 ```mermaid
@@ -548,7 +619,7 @@ sequenceDiagram
       Pre->>Pre:Environment = production
     end
 
-    Pre->>Pre: Analyze affected apps (Nx)
+    Pre->>Pre: Resolve app versions (nx release)
     Pre->>Pre: Verify github.json for apps
     Pre->>Inf: Fetch tenant details for apps to deploy
     Inf-->>Pre: Return app-tenant mapping

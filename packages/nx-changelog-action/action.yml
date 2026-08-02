@@ -1,0 +1,45 @@
+name: "Nx Changelog"
+
+description: >
+  Render the release changelog for each deployed app.
+  Creates a GitHub release per app in production, and returns the rendered
+  contents for previews so they can be surfaced on the pull request instead.
+
+inputs:
+  apps:
+    description: >
+      JSON array of deployed applications, as produced by `nx-pre-deploy-action`.
+      Each entry must carry `name`, `version` and `previousVersion` - the
+      changelog range runs from `previousVersion` to `HEAD`.
+    required: true
+  released:
+    description: >
+      JSON array of Nx project names that actually deployed - pass the
+      deployment action's `deployed-projects` output. Not its `deployed` map,
+      whose keys are display labels (`project (tenant)`).
+      Apps outside this set are skipped.
+    required: true
+  create-release:
+    description: >
+      Create a GitHub release per app. Enable for production only - a release
+      per preview push would bury the real ones.
+    default: "false"
+  token:
+    description: >
+      The token to use for repository authentication, used when creating
+      GitHub releases.
+    required: true
+
+outputs:
+  changelogs:
+    description: >
+      JSON object mapping app name to its rendered markdown changelog.
+      Apps whose range produced no entries are left out.
+  changelogs-path:
+    description: >
+      Path to a JSON file holding the same mapping. Preferred over `changelogs`
+      for passing between jobs.
+
+runs:
+  using: "node24"
+  main: "../../dist/packages/nx-changelog-action/action.cjs"

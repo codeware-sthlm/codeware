@@ -3,6 +3,12 @@ import { releaseVersion } from 'nx/release';
 export type AppRelease = {
   /** Version to stamp — the resolved bump, or the last released version */
   version: string;
+  /**
+   * Version the app was last released as. The changelog range starts here, and
+   * it cannot be recovered later — once the new tag is pushed it becomes the
+   * one nx resolves.
+   */
+  previousVersion: string;
   /** Whether conventional commits produced a bump for this app */
   bumped: boolean;
 };
@@ -45,6 +51,7 @@ export const getAppsToRelease = async (
     releases.set(projectName, {
       // `newVersion` is null when conventional commits produced no bump
       version: newVersion ?? currentVersion,
+      previousVersion: currentVersion,
       bumped: newVersion !== null
     });
   }

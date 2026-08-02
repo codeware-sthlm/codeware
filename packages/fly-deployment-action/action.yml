@@ -90,9 +90,16 @@ outputs:
   failed:
     description: >
       A list of project names that failed to deploy.
+  deployed-projects:
+    description: >
+      JSON array of the Nx project names that deployed, deduplicated.
+      A multi-tenant app deploys once per tenant but appears here once.
+      Use this - not `deployed` - whenever a project name has to be matched.
   deployed:
     description: >
-      JSON object containing the deployed project names and their urls.
+      JSON object containing the deployed project labels and their urls.
+      Keys are `project (tenant)` for tenant-scoped deployments, so they are
+      display labels rather than project names.
   projects:
     description: >
       JSON array of all deployment results (deployed, failed, skipped).

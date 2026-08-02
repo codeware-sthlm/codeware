@@ -38,12 +38,41 @@ function renderProjectsTable(projects: Project[]): string[] {
 }
 
 /**
+ * Render each app's changelog as a collapsed section.
+ *
+ * The range is the previous preview deploy up to this one, so this is what the
+ * latest push added — not everything the pull request contains.
+ */
+function renderChangelogs(changelogs: Record<string, string>): string[] {
+  const entries = Object.entries(changelogs);
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const lines = ['', '---', ''];
+
+  for (const [name, contents] of entries) {
+    lines.push(
+      '<details>',
+      `<summary><b>${name}</b> — changes in this deploy</summary>`,
+      '',
+      contents,
+      '',
+      '</details>',
+      ''
+    );
+  }
+
+  return lines;
+}
+
+/**
  * Post a deployment status comment to a GitHub pull request.
  *
  * @param inputs Comment options
  */
 export async function flyPrComment(inputs: ActionInputs): Promise<void> {
-  const { pullRequest, deployed, failed, projects, token } = inputs;
+  const { pullRequest, deployed, failed, projects, changelogs, token } = inputs;
 
   const comment: string[] = [];
 
@@ -80,6 +109,8 @@ export async function flyPrComment(inputs: ActionInputs): Promise<void> {
       comment.push('', 'No affected projects to deploy.');
     }
   }
+
+  comment.push(...renderChangelogs(changelogs ?? {}));
 
   core.info(`Upsert comment on pull request ${pullRequest}`);
   await upsertPullRequestComment(

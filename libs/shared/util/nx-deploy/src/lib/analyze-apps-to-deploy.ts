@@ -23,6 +23,8 @@ type App = {
       githubConfig: GitHubConfig;
       /** Version to stamp into the image and release as */
       version: string;
+      /** Version it is released from, the changelog range start */
+      previousVersion: string;
     }
   | {
       status: 'skip';
@@ -165,7 +167,8 @@ export const analyzeAppsToDeploy = async (
       status: 'deploy',
       flyConfigFile,
       githubConfig,
-      version: release.version
+      version: release.version,
+      previousVersion: release.previousVersion
     });
   }
 

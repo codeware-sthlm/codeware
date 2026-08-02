@@ -4,13 +4,15 @@
       "name": "web",
       "flyConfigFile": "apps/web/fly.toml",
       "githubConfig": {},
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "previousVersion": "0.9.0"
     },
     {
       "name": "cms",
       "flyConfigFile": "apps/cms/fly.toml",
       "githubConfig": {},
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "previousVersion": "0.9.0"
     }
   ],
   "appDetails": {},

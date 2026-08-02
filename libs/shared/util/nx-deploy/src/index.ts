@@ -12,6 +12,10 @@ export {
   type AppDetails
 } from './lib/app-deployment-details.schema';
 export { getAppName } from './lib/get-app-name';
+export {
+  type AppChangelogRange,
+  generateAppChangelogs
+} from './lib/generate-app-changelogs';
 export { type AppRelease, getAppsToRelease } from './lib/get-apps-to-release';
 export { getNxProject } from './lib/get-nx-project';
 export { type Environment, EnvironmentSchema } from './lib/environment.schema';

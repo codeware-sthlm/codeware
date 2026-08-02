@@ -23,12 +23,19 @@ export async function run(): Promise<void> {
       projectsParsed = JSON.parse(projectsInput);
     }
 
+    const changelogsPathInput = core.getInput('changelogs-path');
+    const changelogsParsed =
+      changelogsPathInput && existsSync(changelogsPathInput)
+        ? JSON.parse(readFileSync(changelogsPathInput, 'utf-8'))
+        : undefined;
+
     const inputs = ActionInputsSchema.parse({
       pullRequest: Number(core.getInput('pull-request', { required: true })),
       environment: core.getInput('environment', { required: true }),
       deployed: deployedInput ? JSON.parse(deployedInput) : undefined,
       failed: failedInput ? JSON.parse(failedInput) : undefined,
       projects: projectsParsed,
+      changelogs: changelogsParsed,
       token: core.getInput('token', { required: true })
     });
 

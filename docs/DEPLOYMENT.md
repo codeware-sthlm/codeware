@@ -21,6 +21,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [What Triggers a Deployment](#what-triggers-a-deployment)
   - [Preview Lanes](#preview-lanes)
   - [Tags Are Written After a Successful Deploy](#tags-are-written-after-a-successful-deploy)
+  - [Changelogs](#changelogs)
   - [Why Not `nx affected`](#why-not-nx-affected)
 - [Deployment Flow](#deployment-flow)
   - [Multi-Tenant Deployment](#multi-tenant-deployment)
@@ -582,6 +583,17 @@ before the build. This ordering is what makes the pipeline self-healing:
 
 A failed or cancelled run therefore cannot leave a preview silently stale, and a successful one
 is never redeployed for nothing.
+
+### Changelogs
+
+Production creates a **GitHub release** per app. Previews post the same contents as a collapsed
+section on the deploy comment instead — a release per preview push would bury the real ones.
+No `CHANGELOG.md` is written either way: apps have no consumers to read one, and committing it
+would fight the release process leaving the branch untouched.
+
+Selection follows the project graph, but a changelog only lists commits that touched the app's
+own files. A shared-lib or workspace-config change therefore deploys an app with an empty
+changelog — those are omitted rather than rendered as "no changes".
 
 ### Why Not `nx affected`
 

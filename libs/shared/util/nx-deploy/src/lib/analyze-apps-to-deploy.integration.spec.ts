@@ -2,6 +2,7 @@ import * as exec from '@actions/exec';
 import { vol } from 'memfs';
 
 import { analyzeAppsToDeploy } from './analyze-apps-to-deploy';
+import { type AppRelease, getAppsToRelease } from './get-apps-to-release';
 
 /**
  * Integration tests for `analyzeAppsToDeploy` function.
@@ -28,8 +29,32 @@ vi.mock('fs', async () => {
 // Mock exec for Nx CLI commands
 vi.mock('@actions/exec');
 
+// Mock the release resolver — it drives `nx release` against the real workspace
+vi.mock('./get-apps-to-release');
+
 describe('analyzeAppsToDeploy - Integration', () => {
   const mockGetExecOutput = vi.mocked(exec.getExecOutput);
+  const mockGetAppsToRelease = vi.mocked(getAppsToRelease);
+
+  /**
+   * Mock the versions `nx release` resolves for the workspace apps
+   */
+  const mockReleases = (releases: Record<string, AppRelease>) => {
+    mockGetAppsToRelease.mockResolvedValue(new Map(Object.entries(releases)));
+  };
+
+  /**
+   * Every app the suite references, bumped and ready to release. Tests that care
+   * about the bump itself set their own map.
+   */
+  const allAppsBumped = () =>
+    mockReleases(
+      Object.fromEntries(
+        ['web', 'cms', 'api', 'app-a', 'app-b', 'app-c', 'nested-app'].map(
+          (name) => [name, { version: '1.0.0', bumped: true }]
+        )
+      )
+    );
 
   /**
    * Helper to create a mock Nx workspace structure
@@ -59,21 +84,6 @@ describe('analyzeAppsToDeploy - Integration', () => {
     }
 
     vol.fromJSON(files);
-  };
-
-  /**
-   * Mock getNxApps affected response
-   */
-  const mockAffectedApps = (appNames: string[]) => {
-    mockGetExecOutput.mockImplementation(async (command, args) => {
-      const argsStr = args?.join(' ') || '';
-
-      if (argsStr.includes('show projects') && argsStr.includes('--affected')) {
-        return { exitCode: 0, stdout: JSON.stringify(appNames), stderr: '' };
-      }
-
-      throw new Error(`Unexpected exec call: ${command} ${argsStr}`);
-    });
   };
 
   /**
@@ -111,6 +121,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
     vi.clearAllMocks();
     vol.reset();
     process.cwd = () => '/';
+    allAppsBumped();
   });
 
   afterEach(() => {
@@ -143,7 +154,10 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['web', 'cms']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, [
+        'web',
+        'cms'
+      ]);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -176,7 +190,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'api', root: 'apps/api' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['api']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['api']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -206,7 +220,9 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy('production', ['web']);
+      const result = await analyzeAppsToDeploy('production', undefined, [
+        'web'
+      ]);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -215,6 +231,100 @@ describe('analyzeAppsToDeploy - Integration', () => {
         status: 'deploy',
         flyConfigFile: 'apps/web/fly.production.toml'
       });
+    });
+  });
+
+  describe('release-driven selection', () => {
+    const twoApps = () => {
+      createWorkspace([
+        {
+          name: 'web',
+          root: 'apps/web',
+          hasGithubJson: true,
+          githubConfig: {},
+          hasFlyToml: true
+        },
+        {
+          name: 'cms',
+          root: 'apps/cms',
+          hasGithubJson: true,
+          githubConfig: {},
+          hasFlyToml: true
+        }
+      ]);
+      mockNxProject([
+        { name: 'web', root: 'apps/web' },
+        { name: 'cms', root: 'apps/cms' }
+      ]);
+    };
+
+    it('should deploy only the apps that were bumped', async () => {
+      twoApps();
+      mockReleases({
+        web: { version: '1.1.4', bumped: true },
+        cms: { version: '1.3.2', bumped: false }
+      });
+
+      const result = await analyzeAppsToDeploy(undefined);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({ projectName: 'web', status: 'deploy' });
+    });
+
+    it('should carry the resolved version onto each app', async () => {
+      twoApps();
+      mockReleases({
+        web: { version: '1.1.4', bumped: true },
+        cms: { version: '1.3.2', bumped: true }
+      });
+
+      const result = await analyzeAppsToDeploy(undefined);
+
+      expect(result).toMatchObject([
+        { projectName: 'web', version: '1.1.4' },
+        { projectName: 'cms', version: '1.3.2' }
+      ]);
+    });
+
+    it('should stamp the last released version on a forced unbumped app', async () => {
+      twoApps();
+      mockReleases({
+        web: { version: '1.1.4', bumped: false },
+        cms: { version: '1.3.2', bumped: false }
+      });
+
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['web']);
+
+      expect(result).toMatchObject([
+        { projectName: 'web', status: 'deploy', version: '1.1.4' }
+      ]);
+    });
+
+    it('should resolve versions within the preview lane', async () => {
+      twoApps();
+      mockReleases({ web: { version: '1.1.4-preview.466.0', bumped: true } });
+
+      const result = await analyzeAppsToDeploy(undefined, 'preview.466');
+
+      expect(mockGetAppsToRelease).toHaveBeenCalledWith('preview.466');
+      expect(result).toMatchObject([
+        { projectName: 'web', version: '1.1.4-preview.466.0' }
+      ]);
+    });
+
+    it('should skip a forced app outside the release group', async () => {
+      twoApps();
+      mockReleases({ web: { version: '1.1.4', bumped: true } });
+
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['cms']);
+
+      expect(result).toMatchObject([
+        {
+          projectName: 'cms',
+          status: 'skip',
+          reason: 'Not a member of the `apps` release group'
+        }
+      ]);
     });
   });
 
@@ -233,7 +343,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['web']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -259,7 +369,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['web']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -291,7 +401,9 @@ describe('analyzeAppsToDeploy - Integration', () => {
       });
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['nonexistent']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, [
+        'nonexistent'
+      ]);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -319,7 +431,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['web']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -347,7 +459,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['web']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -366,7 +478,9 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act & Assert
-      await expect(analyzeAppsToDeploy(undefined, ['web'])).rejects.toThrow();
+      await expect(
+        analyzeAppsToDeploy(undefined, undefined, ['web'])
+      ).rejects.toThrow();
     });
   });
 
@@ -403,7 +517,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, [
+      const result = await analyzeAppsToDeploy(undefined, undefined, [
         'web',
         'cms',
         'api'
@@ -428,12 +542,12 @@ describe('analyzeAppsToDeploy - Integration', () => {
     });
 
     it('should return empty array when no apps are provided', async () => {
-      const result = await analyzeAppsToDeploy(undefined, []);
+      const result = await analyzeAppsToDeploy(undefined, undefined, []);
       expect(result).toEqual([]);
     });
 
-    it('should fall back to affected apps when no list is provided', async () => {
-      mockAffectedApps([]);
+    it('should return empty array when nothing was bumped', async () => {
+      mockReleases({ web: { version: '1.0.0', bumped: false } });
       const result = await analyzeAppsToDeploy(undefined);
       expect(result).toEqual([]);
     });
@@ -471,7 +585,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       ]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, [
+      const result = await analyzeAppsToDeploy(undefined, undefined, [
         'app-a',
         'app-b',
         'app-c'
@@ -502,7 +616,9 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'nested-app', root: 'apps/nested/deep/app' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['nested-app']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, [
+        'nested-app'
+      ]);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -531,7 +647,7 @@ describe('analyzeAppsToDeploy - Integration', () => {
       mockNxProject([{ name: 'web', root: 'apps/web' }]);
 
       // Act
-      const result = await analyzeAppsToDeploy(undefined, ['web']);
+      const result = await analyzeAppsToDeploy(undefined, undefined, ['web']);
 
       // Assert
       expect(result).toHaveLength(1);

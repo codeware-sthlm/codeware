@@ -247,6 +247,7 @@ describe('flyDeployment', () => {
     {
       name: 'app-one',
       flyConfigFile: '/apps/app-one/fly.toml',
+      version: '1.0.0',
       githubConfig: {
         flyPostgresPreview: 'pg-preview',
         flyPostgresProduction: 'pg-production',
@@ -256,6 +257,7 @@ describe('flyDeployment', () => {
     {
       name: 'app-two',
       flyConfigFile: `/apps/app-two/fly${env === 'production' ? '.production' : ''}.toml`,
+      version: '2.0.0',
       githubConfig: {}
     }
   ];
@@ -589,11 +591,13 @@ describe('flyDeployment', () => {
             {
               name: 'app-one',
               flyConfigFile: '/apps/app-one/fly.toml',
+              version: '1.0.0',
               githubConfig: { flyPostgresProduction: 'pg-production' }
             },
             {
               name: 'app-two',
               flyConfigFile: '/apps/app-two/fly.toml',
+              version: '2.0.0',
               githubConfig: {}
             }
           ]
@@ -828,11 +832,13 @@ describe('flyDeployment', () => {
           {
             name: 'app-one',
             flyConfigFile: '/apps/app-one/fly.toml',
+            version: '1.0.0',
             githubConfig: { flyPostgresPreview: 'pg-preview' }
           },
           {
             name: 'app-two',
             flyConfigFile: '/apps/app-two/fly.production.toml',
+            version: '2.0.0',
             githubConfig: {}
           }
         ]
@@ -996,7 +1002,8 @@ describe('flyDeployment', () => {
           {
             name: 'cms',
             flyConfigFile: '/apps/app-one/fly.toml',
-            githubConfig: {}
+            githubConfig: {},
+            version: '1.0.0'
           }
         ],
         appDetails: {

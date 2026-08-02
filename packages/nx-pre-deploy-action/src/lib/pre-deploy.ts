@@ -72,19 +72,34 @@ export async function preDeploy(
       core.info(`Manual app override: ${inputs.manualApp}`);
     }
 
+    // Preview deployments version within a per-PR lane so concurrent PRs never
+    // race for the same counter. Production releases have no prerelease id.
+    //
+    // Anything non-production must get a lane even when the PR number is
+    // missing — without a preid nx resolves production versions, and the
+    // deployment would push a real release tag and advance the production
+    // baseline. PR numbers start at 1, so 0 is a safe lane to fall back to.
+    const preid =
+      environment && environment !== 'production'
+        ? `preview.${inputs.prNumber || 0}`
+        : undefined;
+    core.info(`Release lane: ${preid ?? '<production>'}`);
+
     const analyzed = await analyzeAppsToDeploy(
       environment,
+      preid,
       inputs.manualApp ? [inputs.manualApp] : undefined
     );
 
     const apps: DeployableApp[] = analyzed.flatMap((app) => {
       if (app.status === 'deploy') {
-        core.info(`Deploy: ${app.projectName}`);
+        core.info(`Deploy: ${app.projectName} @ ${app.version}`);
         return [
           {
             name: app.projectName,
             flyConfigFile: app.flyConfigFile,
-            githubConfig: app.githubConfig
+            githubConfig: app.githubConfig,
+            version: app.version
           }
         ];
       }

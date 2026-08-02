@@ -8,6 +8,12 @@ export const ActionInputsSchema = z.object({
   infisicalClientSecret: z.string().optional(),
   infisicalProjectId: z.string().optional(),
   infisicalSite: z.enum(['eu', 'us']).optional(),
+  // Preview lane the release versions are resolved within. Digits only — it
+  // reaches `nx release` as a prerelease id, where anything else is invalid.
+  prNumber: z
+    .string()
+    .regex(/^\d+$/, 'PR number must contain digits only')
+    .optional(),
   // Manual deployment overrides
   manualApp: z.string().optional(),
   manualTenant: z.string().optional(),

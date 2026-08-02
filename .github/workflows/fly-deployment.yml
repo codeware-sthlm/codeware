@@ -439,7 +439,8 @@ jobs:
         if: steps.deployment.outcome == 'success'
         env:
           APPS: ${{ needs.build.outputs.apps }}
-          DEPLOYED: ${{ steps.deployment.outputs.deployed }}
+          # Project names, not the `deployed` map — its keys are display labels
+          DEPLOYED: ${{ steps.deployment.outputs.deployed-projects }}
           # Empty outside pull_request, where HEAD is already a real commit
           TAG_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
@@ -450,7 +451,8 @@ jobs:
           git config user.email "${email%>}"
 
           tags=()
-          for name in $(jq -r 'keys[]' <<< "$DEPLOYED"); do
+          while IFS= read -r name; do
+            [ -n "$name" ] || continue
             version="$(jq -r --arg n "$name" \
               '.[] | select(.name == $n) | .version' <<< "$APPS")"
             [ -n "$version" ] || continue
@@ -469,7 +471,7 @@ jobs:
               git tag -a "$tag" -m "$tag"
             fi
             tags+=("$tag")
-          done
+          done < <(jq -r '.[]' <<< "$DEPLOYED")
 
           if [ ${#tags[@]} -eq 0 ]; then
             echo "No tags to push"
@@ -477,6 +479,33 @@ jobs:
             echo "Pushing tags: ${tags[*]}"
             git push --no-verify --atomic origin "${tags[@]}"
           fi
+
+      # Production gets a GitHub release per app; previews get the same contents
+      # back as a comment on the pull request, since a release per preview push
+      # would bury the real ones. No CHANGELOG.md is written either way — apps
+      # have no consumers to read one.
+      - name: Build changelog action
+        if: steps.deployment.outcome == 'success'
+        run: pnpm nx build nx-changelog-action
+
+      - name: Release changelogs
+        id: changelogs
+        if: steps.deployment.outcome == 'success'
+        uses: ./packages/nx-changelog-action
+        with:
+          apps: ${{ needs.build.outputs.apps }}
+          released: ${{ steps.deployment.outputs.deployed-projects }}
+          create-release: ${{ needs.pre-deploy.outputs.environment == 'production' }}
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Upload changelogs artifact
+        if: steps.changelogs.outputs.changelogs-path != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: fly-changelogs-${{ github.run_id }}
+          path: ${{ steps.changelogs.outputs.changelogs-path }}
+          retention-days: 1
+          if-no-files-found: warn
 
       - name: Finalize Sentry releases
         if: steps.deployment.outcome == 'success'
@@ -569,6 +598,14 @@ jobs:
           path: ${{ runner.temp }}/fly-projects
         continue-on-error: true
 
+      # Previews surface their changelog here rather than as a GitHub release
+      - name: Download changelogs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fly-changelogs-${{ github.run_id }}
+          path: ${{ runner.temp }}/fly-changelogs
+        continue-on-error: true
+
       - name: Post PR comment
         uses: ./packages/pr-comment-action
         with:
@@ -577,6 +614,7 @@ jobs:
           deployed: ${{ needs.deploy.outputs.deployed }}
           failed: ${{ needs.deploy.outputs.failed }}
           projects-path: ${{ runner.temp }}/fly-projects/fly-projects.json
+          changelogs-path: ${{ runner.temp }}/fly-changelogs/nx-changelogs.json
           token: ${{ steps.generate-token.outputs.token }}
 
   notify:

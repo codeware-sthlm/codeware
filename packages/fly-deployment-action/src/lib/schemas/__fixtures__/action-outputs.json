@@ -5,6 +5,7 @@
       "action": "deploy",
       "app": "nextgen-web-app",
       "name": "nextgen-web",
+      "projectName": "nextgen-web",
       "url": "https://nextgen-web-app.fly.dev"
     },
     {

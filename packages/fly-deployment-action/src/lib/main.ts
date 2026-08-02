@@ -71,6 +71,19 @@ export async function run(): Promise<void> {
         .filter((p) => p.action === 'deploy')
         .reduce((acc, p) => ({ ...acc, [`${p.name}`]: p.url }), {})
     );
+    // Nx project names, deduplicated — a multi-tenant app deploys once per
+    // tenant but is released once. `deployed` is keyed by display label, so it
+    // cannot be used for anything that needs to match a project.
+    core.setOutput(
+      'deployed-projects',
+      JSON.stringify([
+        ...new Set(
+          projects
+            .filter((p) => p.action === 'deploy')
+            .map((p) => p.projectName)
+        )
+      ])
+    );
     core.setOutput('projects', JSON.stringify(projects));
 
     // Write projects to a file for artifact-based transfer — job outputs containing

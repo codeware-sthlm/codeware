@@ -12,7 +12,10 @@ const ActionDeploySchema = FlyAppNameSchema.merge(
   z.object({
     action: z.literal(ActionSchema.enum.deploy),
     name: z
-      .string({ description: 'Project name' })
+      .string({ description: 'Display label, `project (tenant)` when scoped' })
+      .min(1, 'A name is required'),
+    projectName: z
+      .string({ description: 'Nx project name, without any tenant suffix' })
       .min(1, 'A project name is required'),
     url: z
       .string({ description: 'Deployment URL' })

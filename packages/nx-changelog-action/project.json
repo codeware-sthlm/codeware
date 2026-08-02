@@ -1,0 +1,20 @@
+{
+  "name": "nx-changelog-action",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/nx-changelog-action/src",
+  "projectType": "library",
+  "tags": ["scope:nx-changelog-action", "type:action"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "options": {
+        "assets": [
+          "packages/nx-changelog-action/*.md",
+          "packages/nx-changelog-action/action.yml"
+        ],
+        "additionalEntryPoints": ["packages/nx-changelog-action/src/action.ts"],
+        "format": ["cjs", "esm"]
+      }
+    }
+  }
+}

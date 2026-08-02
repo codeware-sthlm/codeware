@@ -61,13 +61,15 @@ describe('main', () => {
         name: 'app1',
         flyConfigFile: 'apps/app1/fly.toml',
         githubConfig: {},
-        version: '1.0.0'
+        version: '1.0.0',
+        previousVersion: '0.9.0'
       },
       {
         name: 'app2',
         flyConfigFile: 'apps/app2/fly.toml',
         githubConfig: {},
-        version: '1.0.0'
+        version: '1.0.0',
+        previousVersion: '0.9.0'
       }
     ];
     getInputMock.mockImplementation((name: string) => {
@@ -145,12 +147,14 @@ describe('main', () => {
           action: 'deploy',
           app: 'app-one-app',
           name: 'app-one',
+          projectName: 'app-one',
           url: 'one.preview.io'
         },
         {
           action: 'deploy',
           app: 'app-two-app',
           name: 'app-two',
+          projectName: 'app-two',
           url: 'two.preview.io'
         },
         {

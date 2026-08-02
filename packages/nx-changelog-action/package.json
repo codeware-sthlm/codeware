@@ -1,0 +1,39 @@
+{
+  "name": "@cdwr/nx-changelog-action",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Nx Changelog Action renders release changelogs for deployed apps, creating GitHub releases for production and returning the contents for previews.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "directory": "packages/nx-changelog-action"
+  },
+  "author": {
+    "name": "Codeware Sthlm",
+    "email": "hello@codeware.se",
+    "url": "https://codeware.se"
+  },
+  "license": "MIT",
+  "keywords": [
+    "Automation",
+    "GitHub Actions",
+    "Changelog",
+    "Release",
+    "Nx"
+  ],
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "zod": "^3.23.8"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "types": "./src/index.d.ts",
+  "main": "./index.js",
+  "module": "./index.js"
+}

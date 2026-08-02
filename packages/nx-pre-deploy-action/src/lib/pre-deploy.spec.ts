@@ -196,7 +196,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         },
         {
           projectName: 'cms',
@@ -208,7 +209,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -222,13 +224,15 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           },
           {
             name: 'api',
             flyConfigFile: 'apps/api/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: {},
@@ -316,7 +320,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -330,7 +335,8 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: {},
@@ -350,7 +356,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -364,7 +371,8 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: {},
@@ -403,14 +411,16 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         },
         {
           projectName: 'cms',
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -428,13 +438,15 @@ describe('preDeploy', () => {
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
           version: '1.0.0',
+          previousVersion: '0.9.0',
           sentry: { project: 'web', dsn: 'https://web@sentry.io/2' }
         },
         {
           name: 'cms',
           flyConfigFile: 'apps/cms/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
       expect(mockFetchAppSentry).toHaveBeenCalledWith(
@@ -456,7 +468,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -474,7 +487,8 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: { web: [{ tenant: 'demo' }, { tenant: 'customer1' }] },
@@ -504,14 +518,16 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         },
         {
           projectName: 'cms',
@@ -535,13 +551,15 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           },
           {
             name: 'api',
             flyConfigFile: 'apps/api/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: {
@@ -577,7 +595,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -595,7 +614,8 @@ describe('preDeploy', () => {
             name: 'cms',
             flyConfigFile: 'apps/cms/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: { cms: [] },
@@ -610,7 +630,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -628,7 +649,8 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: { web: [{ tenant: 'demo' }] },
@@ -650,7 +672,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -678,21 +701,24 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         },
         {
           projectName: 'cms',
           status: 'deploy',
           flyConfigFile: 'apps/cms/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -712,19 +738,22 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           },
           {
             name: 'cms',
             flyConfigFile: 'apps/cms/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           },
           {
             name: 'api',
             flyConfigFile: 'apps/api/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: {
@@ -757,7 +786,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -786,7 +816,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
 
@@ -817,14 +848,16 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         },
         {
           projectName: 'api',
           status: 'deploy',
           flyConfigFile: 'apps/api/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
       // Filter should remove api based on apps rule
@@ -844,13 +877,15 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           },
           {
             name: 'api',
             flyConfigFile: 'apps/api/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: {
@@ -867,7 +902,8 @@ describe('preDeploy', () => {
           status: 'deploy',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
       // Filter should keep only 'demo' tenant based on tenants rule
@@ -891,7 +927,8 @@ describe('preDeploy', () => {
             name: 'web',
             flyConfigFile: 'apps/web/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appTenants: { web: [{ tenant: 'demo' }] },
@@ -914,14 +951,16 @@ describe('preDeploy', () => {
         status: 'deploy' as const,
         flyConfigFile: 'apps/web/fly.toml',
         githubConfig: {},
-        version: '1.0.0'
+        version: '1.0.0',
+        previousVersion: '0.9.0'
       },
       {
         projectName: 'cms',
         status: 'deploy' as const,
         flyConfigFile: 'apps/cms/fly.toml',
         githubConfig: {},
-        version: '1.0.0'
+        version: '1.0.0',
+        previousVersion: '0.9.0'
       }
     ];
 
@@ -959,7 +998,8 @@ describe('preDeploy', () => {
           name: 'cms',
           flyConfigFile: 'apps/cms/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
       expect(mockCoreInfo).toHaveBeenCalledWith('Manual app override: cms');
@@ -1008,7 +1048,8 @@ describe('preDeploy', () => {
           name: 'web',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
       expect(result.environment).toBe('preview');
@@ -1038,7 +1079,8 @@ describe('preDeploy', () => {
           name: 'web',
           flyConfigFile: 'apps/web/fly.toml',
           githubConfig: {},
-          version: '1.0.0'
+          version: '1.0.0',
+          previousVersion: '0.9.0'
         }
       ]);
       expect(result.environment).toBe('production');

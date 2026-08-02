@@ -145,6 +145,13 @@ export default [
               ]
             },
             {
+              sourceTag: 'scope:nx-changelog-action',
+              onlyDependOnLibsWithTags: [
+                'scope:nx-changelog-action',
+                'scope:shared'
+              ]
+            },
+            {
               sourceTag: 'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared']
             },

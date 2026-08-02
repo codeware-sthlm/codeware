@@ -46,6 +46,7 @@ describe('main', () => {
     getInputMock.mockImplementation((name: string) => {
       if (name === 'infisical-site') return 'eu';
       if (name === 'manual-environment') return 'production';
+      if (name === 'pr-number') return '467';
       return name;
     });
     await main.run();
@@ -57,6 +58,7 @@ describe('main', () => {
       infisicalClientSecret: 'infisical-client-secret',
       infisicalProjectId: 'infisical-project-id',
       infisicalSite: 'eu',
+      prNumber: '467',
       manualApp: 'manual-app',
       manualTenant: 'manual-tenant',
       manualEnvironment: 'production'
@@ -74,6 +76,7 @@ describe('main', () => {
       infisicalClientSecret: undefined,
       infisicalProjectId: undefined,
       infisicalSite: undefined,
+      prNumber: undefined,
       manualApp: undefined,
       manualTenant: undefined,
       manualEnvironment: undefined
@@ -97,11 +100,22 @@ describe('main', () => {
       infisicalClientSecret: undefined,
       infisicalProjectId: undefined,
       infisicalSite: undefined,
+      prNumber: undefined,
       manualApp: 'web',
       manualTenant: 'acme',
       manualEnvironment: 'production'
     } satisfies ActionInputs);
     expect(runMock).toHaveReturned();
+  });
+
+  it('should reject a non-numeric pr-number', async () => {
+    getInputMock.mockImplementation((name: string) =>
+      name === 'pr-number' ? 'not-a-number' : ''
+    );
+    await main.run();
+
+    expect(preDeployMock).not.toHaveBeenCalled();
+    expect(core.setFailed).toHaveBeenCalled();
   });
 
   it('should set the environment variable', async () => {

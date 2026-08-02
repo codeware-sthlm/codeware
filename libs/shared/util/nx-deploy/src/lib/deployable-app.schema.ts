@@ -28,6 +28,12 @@ export const DeployableAppSchema = z.object({
   name: z.string(),
   flyConfigFile: z.string(),
   githubConfig: ResolvedGithubConfigSchema,
+  /**
+   * Version this deployment releases the app as, resolved by `nx release` from
+   * the app's conventional commits. Stamped into the manifest before the image
+   * is built, and tagged once the deployment succeeds.
+   */
+  version: z.string(),
   /** Absent when the app has no Sentry configuration, which disables Sentry */
   sentry: AppSentrySchema.optional()
 });

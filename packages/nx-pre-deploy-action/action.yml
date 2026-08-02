@@ -29,6 +29,11 @@ inputs:
     description: >
       Infisical site to use ('eu' or 'us').
       Defaults to 'eu'.
+  pr-number:
+    description: >
+      The pull request number, used as the preview release lane
+      (`preview.<pr-number>`) when resolving app versions.
+      Optional - omitted for production releases.
   manual-app:
     description: >
       Manual override: specific app to deploy.
@@ -49,11 +54,13 @@ inputs:
 outputs:
   apps:
     description: >
-      JSON array of applications to deploy.
-      Each entry has name, flyConfigFile, githubConfig and an optional sentry
-      object ({ project, dsn }) resolved from `/apps/<app-name>` in Infisical.
-      The sentry object carries no release yet - it is added by the caller once
-      the app manifests have been versioned.
+      JSON array of applications to deploy, selected by `nx release` bump
+      rather than by `nx affected` - an app is listed when its conventional
+      commits produce a version bump since its last release tag.
+      Each entry has name, flyConfigFile, githubConfig, the resolved version
+      and an optional sentry object ({ project, dsn }) resolved from
+      `/apps/<app-name>` in Infisical. The sentry object carries no release
+      yet - it is added by the caller once the version is known.
   environment:
     description: >
       The environment to deploy applications to ('preview', 'production').

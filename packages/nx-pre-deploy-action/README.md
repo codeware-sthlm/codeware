@@ -44,9 +44,14 @@ Automatically determines whether to deploy to `preview` or `production` based on
 
 Returned in `environment` output.
 
-### Affected Apps Analysis
+### Release Analysis
 
-Uses Nx to determine which applications have been affected by code changes and should be deployed.
+Uses `nx release` to determine which applications have a version bump since their last release
+tag, and resolves the version each one should be released as. Preview deployments resolve
+within a per-PR lane (`preview.<pr-number>`).
+
+A `manual-app` override bypasses the bump check and deploys that app at its last released
+version.
 
 Returned in `apps` output.
 
@@ -59,7 +64,7 @@ Optionally fetches tenant secrets from Infisical to enable multi-tenant deployme
   → `/tenants/<tenant-id>/apps/<app-name>/`
 - Classifies secrets as **environment variables** (public, visible) or **secrets** (encrypted, hidden) using Infisical secret metadata:  
   → set `env` key to `true` for public secrets
-- Each affected application is deployed once per tenant with isolated configuration when available
+- Each application is deployed once per tenant with isolated configuration when available
 
 Returned in `app-tenant` output.
 
@@ -155,6 +160,7 @@ jobs:
 | `infisical-client-secret` | Infisical machine client secret      | No       | -                         |
 | `infisical-project-id`    | Infisical project ID                 | No       | -                         |
 | `infisical-site`          | Infisical site to use (`eu` or `us`) | No       | `eu`                      |
+| `pr-number`               | Preview release lane to version in   | No       | - (production)            |
 
 ## Outputs
 

@@ -5,9 +5,11 @@ import type { Access } from 'payload';
  * Create access control for form submissions.
  *
  * Submissions are always created on behalf of a tenant API key client, either
- * from the cms site route or from an external client. The `ensureTenant` hook
- * needs that identity to populate the required tenant field, so any other
- * caller would only end up with a failed validation.
+ * from the cms site route or from an external client. Any other caller is
+ * denied here, rather than left to fail later on the required tenant field —
+ * `ensureTenant` only populates it for a tenant identity.
+ *
+ * Which tenant the submission may reference is enforced by `verifyFormTenant`.
  */
 export const submissionCreateAccess: Access = ({ req: { user } }) =>
   isTenant(user);

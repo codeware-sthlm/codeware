@@ -5,6 +5,7 @@ import type { Access } from 'payload';
 import { customizedFields } from './forms/customized-fields';
 import { ensureTenant } from './forms/ensure-tenant';
 import { submissionCreateAccess } from './forms/submission-create-access';
+import { verifyFormTenant } from './forms/verify-form-tenant';
 
 type Options = {
   /**
@@ -50,10 +51,12 @@ export const getFormsPlugin = ({ access }: Options) => {
     formSubmissionOverrides: {
       // The plugin defaults leave submissions readable by any authenticated
       // identity and deletable by the Payload default, neither of which scopes
-      // an api key to its own tenant. Update stays disabled by the plugin.
+      // an api key to its own tenant. `update` repeats the plugin's own default
+      // so submissions stay immutable without depending on how it merges.
       access: {
         create: submissionCreateAccess,
         read: access.read,
+        update: () => false,
         delete: access.write
       },
       admin: {
@@ -64,7 +67,7 @@ export const getFormsPlugin = ({ access }: Options) => {
         }
       },
       hooks: {
-        beforeValidate: [ensureTenant]
+        beforeValidate: [ensureTenant, verifyFormTenant]
       }
     },
     redirectRelationships: ['pages']

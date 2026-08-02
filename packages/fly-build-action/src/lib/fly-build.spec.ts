@@ -80,7 +80,8 @@ describe('flyBuild', () => {
     name,
     flyConfigFile: `/apps/${name}/fly.toml`,
     githubConfig: {},
-    version: '1.0.0'
+    version: '1.0.0',
+    previousVersion: '0.9.0'
   });
 
   const setupTest = (configOverride?: Partial<ActionInputs>): ActionInputs => ({

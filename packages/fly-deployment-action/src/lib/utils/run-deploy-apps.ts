@@ -175,6 +175,7 @@ export const runDeployApps = async (options: {
           action: 'deploy',
           app: result.app,
           name: tenantId ? `${projectName} (${tenantId})` : projectName,
+          projectName,
           url: result.url
         });
       } catch (error) {

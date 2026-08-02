@@ -248,6 +248,7 @@ describe('flyDeployment', () => {
       name: 'app-one',
       flyConfigFile: '/apps/app-one/fly.toml',
       version: '1.0.0',
+      previousVersion: '0.9.0',
       githubConfig: {
         flyPostgresPreview: 'pg-preview',
         flyPostgresProduction: 'pg-production',
@@ -258,6 +259,7 @@ describe('flyDeployment', () => {
       name: 'app-two',
       flyConfigFile: `/apps/app-two/fly${env === 'production' ? '.production' : ''}.toml`,
       version: '2.0.0',
+      previousVersion: '0.9.0',
       githubConfig: {}
     }
   ];
@@ -414,12 +416,14 @@ describe('flyDeployment', () => {
             action: 'deploy',
             app: 'app-one-config-pr-1',
             name: 'app-one',
+            projectName: 'app-one',
             url: 'https://app-one-config-pr-1.fly.dev'
           },
           {
             action: 'deploy',
             app: 'app-two-config-pr-1',
             name: 'app-two',
+            projectName: 'app-two',
             url: 'https://app-two-config-pr-1.fly.dev'
           }
         ]
@@ -592,12 +596,14 @@ describe('flyDeployment', () => {
               name: 'app-one',
               flyConfigFile: '/apps/app-one/fly.toml',
               version: '1.0.0',
+              previousVersion: '0.9.0',
               githubConfig: { flyPostgresProduction: 'pg-production' }
             },
             {
               name: 'app-two',
               flyConfigFile: '/apps/app-two/fly.toml',
               version: '2.0.0',
+              previousVersion: '0.9.0',
               githubConfig: {}
             }
           ]
@@ -698,12 +704,14 @@ describe('flyDeployment', () => {
             action: 'deploy',
             app: 'app-one-config',
             name: 'app-one',
+            projectName: 'app-one',
             url: 'https://app-one-config.fly.dev'
           },
           {
             action: 'deploy',
             app: 'app-two-config',
             name: 'app-two',
+            projectName: 'app-two',
             url: 'https://app-two-config.fly.dev'
           }
         ]
@@ -833,12 +841,14 @@ describe('flyDeployment', () => {
             name: 'app-one',
             flyConfigFile: '/apps/app-one/fly.toml',
             version: '1.0.0',
+            previousVersion: '0.9.0',
             githubConfig: { flyPostgresPreview: 'pg-preview' }
           },
           {
             name: 'app-two',
             flyConfigFile: '/apps/app-two/fly.production.toml',
             version: '2.0.0',
+            previousVersion: '0.9.0',
             githubConfig: {}
           }
         ]
@@ -969,24 +979,28 @@ describe('flyDeployment', () => {
             action: 'deploy',
             app: 'app-one-config-demo',
             name: 'app-one (demo)',
+            projectName: 'app-one',
             url: 'https://app-one-config-demo.fly.dev'
           },
           {
             action: 'deploy',
             app: 'app-one-config-customer1',
             name: 'app-one (customer1)',
+            projectName: 'app-one',
             url: 'https://app-one-config-customer1.fly.dev'
           },
           {
             action: 'deploy',
             app: 'app-two-config-demo',
             name: 'app-two (demo)',
+            projectName: 'app-two',
             url: 'https://app-two-config-demo.fly.dev'
           },
           {
             action: 'deploy',
             app: 'app-two-config-customer1',
             name: 'app-two (customer1)',
+            projectName: 'app-two',
             url: 'https://app-two-config-customer1.fly.dev'
           }
         ]
@@ -1003,7 +1017,8 @@ describe('flyDeployment', () => {
             name: 'cms',
             flyConfigFile: '/apps/app-one/fly.toml',
             githubConfig: {},
-            version: '1.0.0'
+            version: '1.0.0',
+            previousVersion: '0.9.0'
           }
         ],
         appDetails: {
@@ -1054,12 +1069,14 @@ describe('flyDeployment', () => {
             action: 'deploy',
             app: 'app-one-config', // No -_default suffix
             name: 'cms (_default)',
+            projectName: 'cms',
             url: 'https://app-one-config.fly.dev'
           },
           {
             action: 'deploy',
             app: 'app-one-config-demo',
             name: 'cms (demo)',
+            projectName: 'cms',
             url: 'https://app-one-config-demo.fly.dev'
           }
         ]

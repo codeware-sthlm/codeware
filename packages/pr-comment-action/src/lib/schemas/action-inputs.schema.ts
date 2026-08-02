@@ -33,6 +33,8 @@ export const ActionInputsSchema = z.object({
   deployed: z.record(z.string(), z.string()).optional(),
   failed: z.array(z.string()).optional(),
   projects: z.array(ProjectSchema).optional(),
+  /** Rendered markdown changelog per project, from `nx-changelog-action` */
+  changelogs: z.record(z.string(), z.string()).optional(),
   token: z.string().min(1, 'A GitHub token is required')
 });
 

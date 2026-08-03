@@ -1,4 +1,5 @@
 import {
+  getFooter,
   getNavigationTree,
   getTenantContext
 } from '@codeware/app-cms/data-access';
@@ -28,8 +29,9 @@ export default async function RootLayout({
   // Get authenticated payload instance
   const runtime = await payloadRuntime();
 
-  // Fetch navigation with proper access control and tenant scoping
+  // Fetch navigation and footer with proper access control and tenant scoping
   const navigationTree = await getNavigationTree(runtime);
+  const footer = await getFooter(runtime, navigationTree);
 
   // Parsed once and shared — `getEnv()` revalidates `process.env` on every call
   const env = getEnv();
@@ -49,7 +51,7 @@ export default async function RootLayout({
           locale={runtime.tenantConfig?.locale ?? 'en'}
           payloadUrl={env.APP_MODE.serverURL}
         >
-          <RenderLayout navigationTree={navigationTree}>
+          <RenderLayout footer={footer} navigationTree={navigationTree}>
             {children}
           </RenderLayout>
         </Providers>

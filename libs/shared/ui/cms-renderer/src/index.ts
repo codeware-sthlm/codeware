@@ -26,6 +26,8 @@ export { MobileNavigation } from './lib/navigation/MobileNavigation';
 
 export { ErrorContainer } from './lib/error/ErrorContainer';
 
+export { type SocialLink, SocialLinks } from './lib/social/SocialLinks';
+
 export { RenderLandingPage } from './lib/render/RenderLandingPage';
 export { RenderLayout } from './lib/render/RenderLayout';
 export { RenderPage } from './lib/render/RenderPage';

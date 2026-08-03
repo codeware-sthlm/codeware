@@ -1425,6 +1425,7 @@ export interface SiteSetting {
   id: number;
   tenant?: (number | null) | Tenant;
   general: SiteSettingsGeneral;
+  footer?: SiteSettingsFooter;
   updatedAt: string;
   createdAt: string;
 }
@@ -1456,6 +1457,85 @@ export interface SiteSettingsGeneral {
    * The default locale for the client. Must be one of the supported locales for the workspace.
    */
   defaultLocale: 'en' | 'sv';
+}
+/**
+ * Control what the site footer displays.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsFooter".
+ */
+export interface SiteSettingsFooter {
+  /**
+   * Uncheck to hide the footer on all pages.
+   */
+  enabled?: boolean | null;
+  linkSource?: ('navigation' | 'custom' | 'none') | null;
+  /**
+   * Pick the pages worth a footer link — usually fewer than the top navigation.
+   */
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          /**
+           * Add protocol (http:// or https://) if the link is external
+           */
+          url?: string | null;
+          label: string;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Short text above the footer links, e.g. a one-line description of the business.
+   */
+  tagline?: string | null;
+  /**
+   * Email, phone and social media to display in the footer.
+   */
+  contact?:
+    | {
+        platform:
+          | 'discord'
+          | 'email'
+          | 'facebook'
+          | 'github'
+          | 'instagram'
+          | 'linkedin'
+          | 'npm'
+          | 'phone'
+          | 'web'
+          | 'x'
+          | 'youtube';
+        email?: string | null;
+        phone?: string | null;
+        url?: string | null;
+        withLabel?: boolean | null;
+        /**
+         * Short text to display next to the icon
+         */
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Use {year} for the current year. Defaults to "© {year} <application name>" when empty.
+   */
+  copyright?: string | null;
+  /**
+   * Display the running release, e.g. web@1.4.0+ab12cd3.
+   */
+  showVersion?: boolean | null;
 }
 /**
  * Messages visitors have sent through the forms on your website.
@@ -1793,6 +1873,7 @@ export interface ReusableContentSelect<T extends boolean = true> {
 export interface SiteSettingsSelect<T extends boolean = true> {
   tenant?: T;
   general?: T | SiteSettingsGeneralSelect<T>;
+  footer?: T | SiteSettingsFooterSelect<T>;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1811,6 +1892,42 @@ export interface SiteSettingsGeneralSelect<T extends boolean = true> {
         file?: T;
       };
   defaultLocale?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsFooter_select".
+ */
+export interface SiteSettingsFooterSelect<T extends boolean = true> {
+  enabled?: T;
+  linkSource?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        id?: T;
+      };
+  tagline?: T;
+  contact?:
+    | T
+    | {
+        platform?: T;
+        email?: T;
+        phone?: T;
+        url?: T;
+        withLabel?: T;
+        label?: T;
+        id?: T;
+      };
+  copyright?: T;
+  showVersion?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

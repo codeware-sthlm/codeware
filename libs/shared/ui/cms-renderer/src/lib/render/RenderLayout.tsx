@@ -1,6 +1,9 @@
 'use client';
 
-import type { NavigationItem } from '@codeware/shared/util/payload-api';
+import type {
+  FooterData,
+  NavigationItem
+} from '@codeware/shared/util/payload-api';
 import { House } from 'lucide-react';
 
 import { Container } from '../layout/Container';
@@ -14,7 +17,12 @@ import { TenantIcon } from '../utils/TenantIcon';
 type RenderLayoutProps = {
   children: React.ReactNode;
   /**
-   * Navigation items for header and footer.
+   * Footer content, or `null` when the tenant has no footer.
+   * The app is responsible for fetching this data.
+   */
+  footer: FooterData | null;
+  /**
+   * Navigation items for the header.
    * The app is responsible for fetching this data.
    */
   navigationTree: NavigationItem[];
@@ -26,11 +34,11 @@ type RenderLayoutProps = {
  * Renders the main layout structure with:
  * - Header with logo, navigation (desktop/mobile), and theme switcher
  * - Main content area
- * - Footer with navigation
+ * - Footer as configured in the CMS site settings
  *
  * **Usage:**
  * The app is responsible for:
- * - Fetching navigation data
+ * - Fetching navigation and footer data
  * - Providing PayloadProvider context with framework-specific implementations
  * - Wrapping with theme provider if needed (e.g., next-themes for Next.js)
  *
@@ -38,17 +46,22 @@ type RenderLayoutProps = {
  * ```tsx
  * // In Next.js app
  * const navigationTree = await getNavigationTree(payload);
+ * const footer = await getFooter(payload, navigationTree);
  *
  * return (
  *   <Providers>
- *     <RenderLayout navigationTree={navigationTree}>
+ *     <RenderLayout footer={footer} navigationTree={navigationTree}>
  *       {children}
  *     </RenderLayout>
  *   </Providers>
  * );
  * ```
  */
-export function RenderLayout({ children, navigationTree }: RenderLayoutProps) {
+export function RenderLayout({
+  children,
+  footer,
+  navigationTree
+}: RenderLayoutProps) {
   const { navigate, iconConfig } = usePayload();
 
   return (
@@ -103,7 +116,7 @@ export function RenderLayout({ children, navigationTree }: RenderLayoutProps) {
         </header>
 
         <main className="flex-auto">{children}</main>
-        <Footer navigationTree={navigationTree} />
+        <Footer footer={footer} />
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ import type {
   Navigation,
   Page,
   Post,
+  SiteSettingsFooter,
   SiteSettingsGeneral,
   SocialMediaBlock,
   Tenant,
@@ -133,6 +134,16 @@ export type NavigationDoc =
 export type NavigationReferenceCollection = NonNullable<
   NonNullable<Navigation['items']>[number]
 >['reference']['relationTo'];
+
+/** Site settings footer contact details */
+export type SiteSettingsFooterContact = NonNullable<
+  NonNullable<SiteSettingsFooter['contact']>[number]
+>;
+
+/** Site settings footer link item */
+export type SiteSettingsFooterLink = NonNullable<
+  NonNullable<SiteSettingsFooter['links']>[number]
+>;
 
 /** Site settings icon source */
 export type SiteSettingsIconSource = NonNullable<

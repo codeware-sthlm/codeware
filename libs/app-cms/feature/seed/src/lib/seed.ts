@@ -739,6 +739,19 @@ export const seed = async (
           const response = await ensureSiteSetting(
             payload,
             {
+              // Standard footer for every tenant, with contacts that exercise
+              // both click-to-copy paths and the release line
+              footer: {
+                contact: [
+                  { platform: 'email', email: `hello@${tenant.slug}.dev` },
+                  { platform: 'phone', phone: '+46 70 123 45 67' }
+                ],
+                enabled: true,
+                linkSource: 'navigation',
+                showVersion: true,
+                tagline: tenant.description,
+                variant: 'standard'
+              },
               general: {
                 appName: `${tenant.name} App`,
                 icon: {

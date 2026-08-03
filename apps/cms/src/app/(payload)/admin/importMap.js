@@ -37,6 +37,7 @@ import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/a
 import { default as default_75fddbc22d1b88f24f1cec1b82919953 } from '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client';
 import { default as default_9b432ee5078df3d1199812759fb4bc95 } from '@codeware/apps/cms/components/SvgPreviewField.client';
 import { default as default_6e6a399bf3ac570a97610e1e79572564 } from '@codeware/app-cms/ui/fields/icon-crop/IconCropField.client';
+import { default as default_5c18d3b3aea5f17616430e623e9ed650 } from '@codeware/apps/cms/components/FooterLinkArrayRowLabel';
 import { default as default_771cb2e65e9273cda2ffcd43d25ab990 } from '@codeware/apps/cms/components/TenantIconNameCell';
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
 import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
@@ -139,6 +140,8 @@ export const importMap = {
     default_9b432ee5078df3d1199812759fb4bc95,
   '@codeware/app-cms/ui/fields/icon-crop/IconCropField.client#default':
     default_6e6a399bf3ac570a97610e1e79572564,
+  '@codeware/apps/cms/components/FooterLinkArrayRowLabel#default':
+    default_5c18d3b3aea5f17616430e623e9ed650,
   '@codeware/apps/cms/components/TenantIconNameCell#default':
     default_771cb2e65e9273cda2ffcd43d25ab990,
   '@payloadcms/plugin-multi-tenant/client#WatchTenantCollection':

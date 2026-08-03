@@ -20,6 +20,8 @@ export { createFormSubmission } from './lib/collections/create-form-submission';
 export { getCategory } from './lib/collections/get-category';
 export { getCategories } from './lib/collections/get-categories';
 
+export { getFooter } from './lib/collections/get-footer';
+
 export { getMedia } from './lib/collections/get-media';
 export { getMediaList } from './lib/collections/get-media-list';
 

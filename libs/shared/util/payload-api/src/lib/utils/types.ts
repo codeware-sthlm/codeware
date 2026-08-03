@@ -1,8 +1,81 @@
 import type {
   NavigationReferenceCollection,
-  RestApiMethod
+  RestApiMethod,
+  SiteSettingsFooterContact
 } from '@codeware/shared/util/payload-types';
 import type { TypedLocale } from 'payload';
+
+/**
+ * Footer content ready for rendering.
+ */
+export type FooterData = {
+  /**
+   * Application name, rendered as the brand mark of the expanded footer.
+   */
+  appName: string;
+
+  /**
+   * Contact details and social media links.
+   */
+  contact: Array<SiteSettingsFooterContact>;
+
+  /**
+   * Copyright text where `{year}` is yet to be replaced,
+   * or `null` when the copyright line is turned off.
+   */
+  copyright: string | null;
+
+  /**
+   * Links to display, resolved from the navigation tree or from custom links.
+   */
+  links: Array<FooterLink>;
+
+  /**
+   * Whether to display the running release of the app.
+   */
+  showVersion: boolean;
+
+  /**
+   * Short text above the links, or `null` when not set.
+   */
+  tagline: string | null;
+
+  /**
+   * How much room the footer takes: a single centered row (`compact`),
+   * links and contacts on one row (`standard`) or columns (`expanded`).
+   */
+  variant: FooterVariant;
+};
+
+/**
+ * Footer layout size.
+ */
+export type FooterVariant = 'compact' | 'standard' | 'expanded';
+
+/**
+ * Footer link item.
+ */
+export type FooterLink = {
+  /**
+   * Unique identifier for the link.
+   */
+  key: string;
+
+  /**
+   * Link label in the language declared in the request.
+   */
+  label: string;
+
+  /**
+   * Whether to open the link in a new tab.
+   */
+  newTab: boolean;
+
+  /**
+   * Local path or absolute URL to navigate to.
+   */
+  url: string;
+};
 
 /**
  * Available request options depending on the request method.

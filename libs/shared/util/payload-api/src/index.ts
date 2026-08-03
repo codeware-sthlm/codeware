@@ -1,6 +1,9 @@
 export { apiKeyPrefix, authorizationHeader } from './lib/utils/definitions';
+export { resolveFooter } from './lib/utils/resolve-footer';
 export { resolveNavigationTree } from './lib/utils/resolve-navigation-tree';
 export type {
+  FooterData,
+  FooterLink,
   MethodOptions,
   NavigationItem,
   RequestBaseOptions

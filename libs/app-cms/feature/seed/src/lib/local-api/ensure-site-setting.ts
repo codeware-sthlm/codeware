@@ -2,12 +2,15 @@ import { getId } from '@codeware/app-cms/util/misc';
 import type { SiteSetting } from '@codeware/shared/util/payload-types';
 import type { Payload, TypedLocale } from 'payload';
 
-export type SiteSettingData = Pick<SiteSetting, 'general' | 'tenant'>;
+export type SiteSettingData = Pick<
+  SiteSetting,
+  'footer' | 'general' | 'tenant'
+>;
 
 /**
  * Ensure that a site setting exist with the given tenant.
  *
- * Update general setting values when missing.
+ * Update general and footer setting values when missing.
  *
  * @param payload - Payload instance
  * @param data - Site setting data
@@ -20,7 +23,7 @@ export async function ensureSiteSetting(
   options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<SiteSetting | number> {
   const { locale, transactionID } = options;
-  const { general: generalFromProps, tenant } = data;
+  const { footer: footerFromProps, general: generalFromProps, tenant } = data;
 
   if (!tenant) {
     throw new Error('Tenant is required');
@@ -38,9 +41,13 @@ export async function ensureSiteSetting(
   });
 
   if (siteSettings.totalDocs) {
-    const { general, id } = siteSettings.docs[0];
+    const { footer, general, id } = siteSettings.docs[0];
 
-    if (general.appName && general.landingPage) {
+    // Footer columns have database defaults, so a footer left untouched still
+    // has values — seeded content is what tells the two apart
+    const hasFooterContent = !!footer?.tagline || !!footer?.contact?.length;
+
+    if (general.appName && general.landingPage && hasFooterContent) {
       return id;
     }
 
@@ -49,6 +56,15 @@ export async function ensureSiteSetting(
       collection: 'site-settings',
       id,
       data: {
+        footer: {
+          ...footer,
+          contact: footer?.contact?.length
+            ? footer.contact
+            : footerFromProps?.contact,
+          showVersion: footer?.showVersion ?? footerFromProps?.showVersion,
+          tagline: footer?.tagline ?? footerFromProps?.tagline,
+          variant: footer?.variant ?? footerFromProps?.variant
+        },
         general: {
           ...general,
           appName: general.appName ?? generalFromProps.appName,
@@ -67,6 +83,7 @@ export async function ensureSiteSetting(
   const newSiteSetting = await payload.create({
     collection: 'site-settings',
     data: {
+      footer: footerFromProps,
       general: generalFromProps,
       tenant
     },

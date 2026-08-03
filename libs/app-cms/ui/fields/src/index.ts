@@ -8,5 +8,6 @@ export { linkGroupField } from './lib/link-group/link-group.field';
 export { mediaUploadField } from './lib/media-upload/media-upload.field';
 export { sectionHeaderFields } from './lib/section-header/section-header.field';
 export { slugField } from './lib/slug/slug.field';
+export { socialLinksField } from './lib/social-links/social-links.field';
 export { tagsSelectField } from './lib/tags-select/tags-select.field';
 export { virtualComposeField } from './lib/virtual-compose/virtual-compose.field';

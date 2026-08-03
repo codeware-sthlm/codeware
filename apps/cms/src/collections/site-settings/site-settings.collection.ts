@@ -16,6 +16,7 @@ import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 import { invalidateIconMap } from '../tenants/hooks/populate-icon.hook';
 
 import { sanitizeSvgHook } from './hooks/sanitize-svg.hook';
+import { footerTab } from './tabs/footer.tab';
 
 const isSource =
   (
@@ -180,7 +181,8 @@ const siteSettings: CollectionConfig = {
               required: true
             }
           ]
-        }
+        },
+        footerTab
       ]
     }
   ]

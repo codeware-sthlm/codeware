@@ -1,13 +1,17 @@
 import {
+  Footer,
   PayloadProvider,
   type PayloadValue,
   TenantIcon
 } from '@codeware/shared/ui/cms-renderer';
 import {
+  type FooterData,
   type NavigationItem,
   findById,
   getBlocksData,
-  getNavigationTree
+  getNavigationTree,
+  getSiteSettings,
+  resolveFooter
 } from '@codeware/shared/util/payload-api';
 import type { Page } from '@codeware/shared/util/payload-types';
 import type { BlocksData } from '@codeware/shared/util/payload-utils';
@@ -31,7 +35,6 @@ import { Container } from './components/container';
 import { DesktopNavigation } from './components/desktop-navigation';
 import { GeneralErrorBoundary } from './components/error-boundary';
 import { ErrorContainer } from './components/error-container';
-import { Footer } from './components/footer';
 import { MobileNavigation } from './components/mobile-navigation';
 import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';
@@ -65,6 +68,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
     const theme = await getTheme(request);
     const tenantConfig = context.tenantConfig;
 
+    let footer: FooterData | null = null;
     let landingPage: Page | null = null;
     let landingPageBlocksData: BlocksData = {};
     let navigationTree: Array<NavigationItem> = [];
@@ -75,7 +79,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
         throw new Error('No tenant configuration available in loader context');
       }
 
-      // Fetch landing page and navigation tree with proper locale
+      // Fetch landing page, navigation tree and site settings with proper locale
       const requestOptions = getPayloadRequestOptions(
         'GET',
         context,
@@ -87,11 +91,13 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
           tenantConfig.landingPage.id,
           requestOptions
         ),
-        getNavigationTree(requestOptions)
+        getNavigationTree(requestOptions),
+        getSiteSettings(requestOptions)
       ]);
 
       landingPage = response[0];
       navigationTree = response[1];
+      footer = resolveFooter(response[2], navigationTree);
 
       if (landingPage?.layout) {
         landingPageBlocksData = await getBlocksData(
@@ -110,6 +116,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
       // Never the raw server env — this is serialized into the HTML
       env: getClientEnv(),
       appInfo: getAppInfo(),
+      footer,
       loaderErrorMessage,
       landingPage,
       landingPageBlocksData,
@@ -287,7 +294,7 @@ export default function App() {
               </ErrorContainer>
             )) || <Outlet />}
           </main>
-          <Footer />
+          <Footer footer={loaderData.footer} />
         </div>
       </div>
     </PayloadProvider>

@@ -9,6 +9,9 @@ const cookie = createCookie(cookieName);
 /**
  * Get the theme from the 'en_theme' cookie if present.
  *
+ * Without the cookie there is no explicit user choice, so the caller falls
+ * back to the client hint (the OS preference) and ultimately to light mode.
+ *
  * @param request The incoming request
  *
  * @returns The user selected theme or null if the theme is not set
@@ -17,7 +20,7 @@ export async function getTheme(request: Request) {
   const cookieHeader = request.headers.get('cookie');
   const parsed: Theme | null = cookieHeader
     ? await cookie.parse(cookieHeader)
-    : 'light';
+    : null;
   if (parsed === 'light' || parsed === 'dark') {
     return parsed;
   }

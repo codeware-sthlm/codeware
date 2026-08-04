@@ -85,6 +85,7 @@ const customTranslationsSchema = z.object({
     roleEditor: z.string(),
     roleSystemAdmin: z.string(),
     searchPlaceholder: z.string(),
+    themeAuto: z.string(),
     themeDark: z.string(),
     themeLight: z.string(),
     uploadMedia: z.string()
@@ -205,6 +206,7 @@ You can assign multiple tags to a file.`,
       roleEditor: 'Editor',
       roleSystemAdmin: 'System admin',
       searchPlaceholder: 'Filter menu…',
+      themeAuto: 'System mode',
       themeDark: 'Dark mode',
       themeLight: 'Light mode',
       uploadMedia: 'Upload media'
@@ -322,6 +324,7 @@ Du kan tilldela flera etiketter till en fil.`,
       roleEditor: 'Redaktör',
       roleSystemAdmin: 'Systemadministratör',
       searchPlaceholder: 'Filtrera menyn…',
+      themeAuto: 'Systemläge',
       themeDark: 'Mörkt läge',
       themeLight: 'Ljust läge',
       uploadMedia: 'Ladda upp media'

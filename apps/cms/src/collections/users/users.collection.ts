@@ -16,6 +16,7 @@ import { CollectionConfig, Condition } from 'payload';
 
 import { adminAccessToAllDocTenants } from './access/admin-access-to-all-doc-tenants';
 import { tenantsArrayField } from './fields/tenants-array.field';
+import { applyTenantLocaleHook } from './hooks/apply-tenant-locale.hook';
 import { ensureTenantHook } from './hooks/ensure-tenant.hook';
 import { validateTenantsArrayAccessHook } from './hooks/validate-tenants-array-access.hook';
 import { verifyTenantModeAccessHook } from './hooks/verify-tenant-mode-access.hook';
@@ -76,7 +77,7 @@ const users: CollectionConfig<'users'> = {
   hooks: {
     beforeValidate: [ensureTenantHook],
     beforeChange: [validateTenantsArrayAccessHook],
-    afterLogin: [verifyTenantModeAccessHook]
+    afterLogin: [verifyTenantModeAccessHook, applyTenantLocaleHook]
   },
   fields: [
     {

@@ -6,33 +6,50 @@ import type {
 } from '@codeware/app-cms/util/i18n';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import { cn } from '@codeware/shared/util/ui';
-import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
+import {
+  ComputerDesktopIcon,
+  MoonIcon,
+  SunIcon
+} from '@heroicons/react/24/outline';
 import type { Theme } from '@payloadcms/ui';
 import { useTheme, useTranslation } from '@payloadcms/ui';
 import React from 'react';
 
+type ThemeOption = Theme | 'auto';
+
 /**
- * Compact light/dark pill for Payload's toolbar (`admin.components.actions`),
- * giving editors one-click access to the theme instead of digging into the
- * account page. Persistence comes from Payload's own `useTheme` provider.
+ * Compact system/light/dark pill for Payload's toolbar
+ * (`admin.components.actions`), giving editors one-click access to the theme
+ * instead of digging into the account page. Persistence comes from Payload's
+ * own `useTheme` provider.
+ *
+ * `auto` follows the operating system preference and is the state until an
+ * explicit choice is made — Payload resolves it to light unless the OS asks
+ * for dark.
  */
 export function ThemeSwitch() {
-  const { setTheme, theme } = useTheme();
+  const { autoMode, setTheme, theme } = useTheme();
   const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
 
-  const options: { value: Theme; icon: typeof SunIcon; label: string }[] = [
-    { value: 'light', icon: SunIcon, label: t('nav:themeLight') },
-    { value: 'dark', icon: MoonIcon, label: t('nav:themeDark') }
-  ];
+  const options: { value: ThemeOption; icon: typeof SunIcon; label: string }[] =
+    [
+      { value: 'auto', icon: ComputerDesktopIcon, label: t('nav:themeAuto') },
+      { value: 'light', icon: SunIcon, label: t('nav:themeLight') },
+      { value: 'dark', icon: MoonIcon, label: t('nav:themeDark') }
+    ];
+
+  const current: ThemeOption = autoMode ? 'auto' : theme;
 
   return (
     <div className="codeware-admin twp border-border bg-background flex items-center gap-0.5 rounded-full border p-0.5">
       {options.map(({ value, icon: Icon, label }) => {
-        const active = theme === value;
+        const active = current === value;
         return (
           <Button
             key={value}
-            onClick={() => setTheme(value)}
+            // `auto` is handled by the provider but missing from its types,
+            // just like Payload's own account page toggle
+            onClick={() => setTheme(value as Theme)}
             variant="ghost"
             size="icon-xs"
             aria-pressed={active}

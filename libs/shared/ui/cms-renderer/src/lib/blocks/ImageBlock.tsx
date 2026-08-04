@@ -1,12 +1,20 @@
 import { Image, type Size } from '@codeware/shared/ui/image';
-import type { ImageBlock as ImageBlockProps } from '@codeware/shared/util/payload-types';
+import type {
+  ImageBlock as ImageBlockProps,
+  StockMedia
+} from '@codeware/shared/util/payload-types';
 import React from 'react';
 
 import { usePayload } from '../providers/PayloadProvider';
 
 import { RichText } from './RichText';
 
-type Props = Pick<ImageBlockProps, 'media'> & {
+type Props = {
+  /**
+   * Image to render, from either upload collection. `stock-media` documents
+   * carry the same sizes as `media` but never a caption.
+   */
+  media: ImageBlockProps['media'] | StockMedia;
   hideCaption?: boolean;
 };
 
@@ -24,7 +32,8 @@ export const ImageBlock: React.FC<Props> = ({ hideCaption, media }) => {
     return null;
   }
 
-  const { alt, caption, sizes = {}, url = '' } = media;
+  const { alt, sizes = {}, url = '' } = media;
+  const caption = 'caption' in media ? media.caption : undefined;
 
   const src = url?.startsWith('http') ? url : `${payloadUrl}${url}`;
   const mediaSizes = Object.values(sizes);

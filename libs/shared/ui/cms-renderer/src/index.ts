@@ -2,6 +2,7 @@ export { AppAbout, type AppInfo } from './lib/about/AppAbout';
 
 export { RichText } from './lib/blocks/RichText';
 export { PostsBlock } from './lib/blocks/PostsBlock';
+export { ToursBlock } from './lib/blocks/ToursBlock';
 export { RenderBlocks } from './lib/RenderBlocks';
 export { type BlocksData } from '@codeware/shared/util/payload-utils';
 
@@ -32,6 +33,7 @@ export { RenderLandingPage } from './lib/render/RenderLandingPage';
 export { RenderLayout } from './lib/render/RenderLayout';
 export { RenderPage } from './lib/render/RenderPage';
 export { RenderPost } from './lib/render/RenderPost';
+export { RenderTour } from './lib/render/RenderTour';
 
 export { ThemeSwitch } from './lib/theme/ThemeSwitch';
 

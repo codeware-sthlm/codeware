@@ -19,6 +19,11 @@ export const getS3StoragePlugin = (env: Env) => {
         // Only disable local storage when S3 is actually configured.
         // Without this guard, Payload has nowhere to store files when S3 is disabled.
         disableLocalStorage: Boolean(s3.bucket)
+      },
+      'stock-media': {
+        disableLocalStorage: Boolean(s3.bucket),
+        // Platform-owned library, so a single shared folder rather than a tenant one
+        prefix: 'stock-media'
       }
     },
     bucket: s3.bucket,

@@ -25,6 +25,7 @@ import { RichText } from './blocks/RichText';
 import { ShowcaseBlock } from './blocks/ShowcaseBlock';
 import { SocialMediaBlock } from './blocks/SocialMediaBlock';
 import { SpacingBlock } from './blocks/SpacingBlock';
+import { ToursBlock } from './blocks/ToursBlock';
 import { VideoBlock } from './blocks/VideoBlock';
 import { ColumnSizeProvider } from './providers/ColumnSizeProvider';
 
@@ -112,8 +113,8 @@ export const ReusableContentBlock: React.FC<ReusableContentBlockWithData> = ({
  * to its resolved data, or threads `blocksData` through container blocks so nested
  * listing blocks can also receive their data.
  *
- * When adding a new listing block (e.g. `tours`), add a case here alongside
- * its entry in `BlocksData`.
+ * When adding a new listing block, add a case here alongside its entry in
+ * `BlocksData`.
  */
 function resolveBlockProps(
   block: NonNullable<Page['layout']>[number],
@@ -128,6 +129,8 @@ function resolveBlockProps(
     // Listing blocks: resolve pre-fetched collection data by block id
     case 'posts':
       return { posts: (block.id && blocksData?.posts?.[block.id]) ?? [] };
+    case 'tours':
+      return { tours: (block.id && blocksData?.tours?.[block.id]) ?? [] };
 
     default:
       return {};
@@ -157,6 +160,7 @@ const blocksMap: Record<
   showcase: ShowcaseBlock,
   'social-media': SocialMediaBlock,
   spacing: SpacingBlock,
+  tours: ToursBlock,
   video: VideoBlock
 };
 

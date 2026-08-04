@@ -35,6 +35,7 @@ const blocks: Record<BlockSlug, boolean> = {
   posts: false,
   'reusable-content': false,
   showcase: false,
+  tours: false,
   video: false
 };
 
@@ -136,7 +137,7 @@ const posts: CollectionConfig<'posts'> = {
             }
           ]
         },
-        seoTab
+        seoTab()
       ]
     },
     {

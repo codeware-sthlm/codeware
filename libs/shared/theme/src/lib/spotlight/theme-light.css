@@ -57,7 +57,10 @@
   /* text on tinted destructive surfaces (badge/button/alert soft variants) */
   --destructive-subtle: var(--color-red-700);
   --border: var(--color-zinc-100);
-  --input: var(--color-zinc-100);
+  /* Form controls need a boundary you can actually see. zinc-100 on a white
+     background is ~1.07:1 — the field edge disappears. Kept a step darker than
+     `--border`, which stays light for dividers and card edges. */
+  --input: var(--color-zinc-300);
   --ring: var(--color-zinc-900);
   /* default zinc colors for now - replace when charts and sidebar is implemented */
   --chart-1: oklch(0.646 0.222 41.116);

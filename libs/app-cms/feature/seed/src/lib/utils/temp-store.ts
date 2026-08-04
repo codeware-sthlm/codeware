@@ -18,6 +18,12 @@ const mapper = {
   // Map to page id (unique per tenant)
   page: new Map<string, number>(),
 
+  // Map to place id (unique per tenant)
+  place: new Map<string, number>(),
+
+  // Map filename to stock media id (shared across tenants)
+  stockMedia: new Map<string, number>(),
+
   // Map to tag id (unique per tenant)
   tag: new Map<string, number>(),
 
@@ -62,6 +68,26 @@ export const tempStore = {
    */
   page: (page: MapKey, pageId: number) => {
     mapper.page.set(JSON.stringify(page), pageId);
+  },
+
+  /**
+   * Store place to map.
+   *
+   * @param place - The place to store.
+   * @param placeId - The id of the place.
+   */
+  place: (place: MapKey, placeId: number) => {
+    mapper.place.set(JSON.stringify(place), placeId);
+  },
+
+  /**
+   * Store stock media filename to map.
+   *
+   * @param filename - The filename of the stock image.
+   * @param stockMediaId - The id of the stock image.
+   */
+  stockMedia: (filename: string, stockMediaId: number) => {
+    mapper.stockMedia.set(filename, stockMediaId);
   },
 
   /**
@@ -129,7 +155,7 @@ export function lookupMedia(
   media: Array<MapKey>
 ): Array<number> {
   return media.reduce((acc, media) => {
-    const mediaId = mapper.category.get(JSON.stringify(media));
+    const mediaId = mapper.media.get(JSON.stringify(media));
     if (!mediaId) {
       payload.logger.error(
         `Skip: Media '${media.slug}' for tenant '${media.apiKey}' not found`
@@ -162,6 +188,46 @@ export function lookupPage(
     acc.push(pageId);
     return acc;
   }, [] as Array<number>);
+}
+
+/**
+ * Lookup place id's.
+ *
+ * @param payload - The payload instance.
+ * @param places - The places to lookup.
+ */
+export function lookupPlace(
+  payload: Payload,
+  places: Array<MapKey>
+): Array<number> {
+  return places.reduce((acc, place) => {
+    const placeId = mapper.place.get(JSON.stringify(place));
+    if (!placeId) {
+      payload.logger.error(
+        `Skip: Place '${place.slug}' for tenant '${place.apiKey}' not found`
+      );
+      return acc;
+    }
+    acc.push(placeId);
+    return acc;
+  }, [] as Array<number>);
+}
+
+/**
+ * Lookup a stock media id by filename.
+ *
+ * @param payload - The payload instance.
+ * @param filename - The filename to lookup.
+ */
+export function lookupStockMedia(
+  payload: Payload,
+  filename: string
+): number | undefined {
+  const stockMediaId = mapper.stockMedia.get(filename);
+  if (!stockMediaId) {
+    payload.logger.error(`Skip: Stock image '${filename}' not found`);
+  }
+  return stockMediaId;
 }
 
 /**

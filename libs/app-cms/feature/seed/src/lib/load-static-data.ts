@@ -10,9 +10,11 @@ import type {
 } from './seed-types';
 import { generateCategories } from './utils/generate-categories';
 import { generatePages } from './utils/generate-pages';
+import { generatePlaces } from './utils/generate-places';
 import { generatePosts } from './utils/generate-posts';
 import { generateTags } from './utils/generate-tags';
 import { generateTenants } from './utils/generate-tenants';
+import { generateTours } from './utils/generate-tours';
 import { generateUsers } from './utils/generate-users';
 
 /**
@@ -31,7 +33,9 @@ export const defaultSeedRules: Prettify<
   },
   tenantPosts: { min: 5, max: 10 },
   tenantPages: { min: 4, max: 6 },
-  tenantTags: { min: 4, max: 6 }
+  tenantTags: { min: 4, max: 6 },
+  tenantTours: { min: 2, max: 4 },
+  tenantPlaces: { min: 3, max: 6 }
 } as const;
 
 /**
@@ -150,15 +154,30 @@ export const loadStaticData = (args: {
     users
   );
 
+  // Generate places
+  const places = generatePlaces(
+    seedRules.tenantPlaces ?? defaultSeedRules.tenantPlaces,
+    tenants
+  );
+
+  // Generate tours
+  const tours = generateTours(
+    seedRules.tenantTours ?? defaultSeedRules.tenantTours,
+    tenants
+  );
+
   // Combine all data to the final seed object
   const seedData: SeedData = {
     categories,
     faq: [], // faq is not generated
     media: [], // media is generated from proper files
     pages,
+    places,
     posts,
+    stockMedia: [], // shared library ships with the static seed files only
     tags,
     tenants,
+    tours,
     users
   };
 

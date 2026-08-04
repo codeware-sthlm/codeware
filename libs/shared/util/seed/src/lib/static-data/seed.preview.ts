@@ -3,7 +3,7 @@
 import { capitalize } from '@codeware/shared/util/pure';
 
 import { faqData } from './faq-data';
-import { readMediaFiles } from './read-media-files';
+import { readMediaFiles, readStockMediaFiles } from './read-media-files';
 
 const tenantSlug = {
   bamse: 'bamse',
@@ -27,6 +27,12 @@ const tenantApiKeys = Object.values(tenant).map((tenant) => tenant.apiKey);
  */
 export const seedData = (remoteDataUrl: string | undefined) => {
   const mediaFiles = readMediaFiles(remoteDataUrl);
+  const stockFiles = Object.fromEntries(
+    readStockMediaFiles(remoteDataUrl).map(({ filePath, filename }) => [
+      filename,
+      filePath
+    ])
+  );
   if (mediaFiles.length === 0) {
     console.error('No media files found for seeding.');
   }
@@ -351,6 +357,149 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         tenant: { lookupApiKey: tenant.bamse.apiKey }
       }
     ],
+    stockMedia: [
+      {
+        alt: 'A vineyard hut among green vines above a wide plain',
+        subject: 'vineyard hut',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-hut-1.jpg',
+        filePath: stockFiles['stock-hut-1.jpg']
+      },
+      {
+        alt: 'A stone vineyard hut on a slope under soft overcast light',
+        subject: 'vineyard hut',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-hut-2.jpg',
+        filePath: stockFiles['stock-hut-2.jpg']
+      },
+      {
+        alt: 'A river loop below vineyard slopes, village on the bend',
+        subject: 'river valley',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-rivervalley-1.jpg',
+        filePath: stockFiles['stock-rivervalley-1.jpg']
+      },
+      {
+        alt: 'A river loop seen over a dry stone wall from the vineyards',
+        subject: 'river valley',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-rivervalley-2.jpg',
+        filePath: stockFiles['stock-rivervalley-2.jpg']
+      },
+      {
+        alt: 'Rolling vineyard country framed by vine leaves',
+        subject: 'rolling hills',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-rollinghills-2.jpg',
+        filePath: stockFiles['stock-rollinghills-2.jpg']
+      },
+      {
+        alt: 'Steep terraced vineyards above a valley town',
+        subject: 'terraces',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-terraces-1.jpg',
+        filePath: stockFiles['stock-terraces-1.jpg']
+      },
+      {
+        alt: 'Terraced vineyard slopes under a pale overcast sky',
+        subject: 'terraces',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-terraces-2.jpg',
+        filePath: stockFiles['stock-terraces-2.jpg']
+      },
+      {
+        alt: 'Layered vineyard terraces rising up a valley side',
+        subject: 'terraces',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-terraces-3.jpg',
+        filePath: stockFiles['stock-terraces-3.jpg']
+      },
+      {
+        alt: 'A wine village with a church spire below green slopes',
+        subject: 'village',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-village-1.jpg',
+        filePath: stockFiles['stock-village-1.jpg']
+      },
+      {
+        alt: 'Red tiled roofs of a wine village seen through vine leaves',
+        subject: 'village',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-village-2.jpg',
+        filePath: stockFiles['stock-village-2.jpg']
+      },
+      {
+        alt: 'A village church spire above the vineyards',
+        subject: 'village',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-village-3.jpg',
+        filePath: stockFiles['stock-village-3.jpg']
+      },
+      {
+        alt: 'Trellised vine rows running toward distant hills',
+        subject: 'vine rows',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-vinerows-1.jpg',
+        filePath: stockFiles['stock-vinerows-1.jpg']
+      },
+      {
+        alt: 'Vine rows behind a dry stone wall on a hillside',
+        subject: 'vine rows',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-vinerows-2.jpg',
+        filePath: stockFiles['stock-vinerows-2.jpg']
+      }
+    ],
+    places: [
+      {
+        name: 'Mos Eisley Cantina',
+        kind: 'restaurant',
+        url: 'https://example.com/mos-eisley-cantina',
+        note: 'Loud, cheap and open late.',
+        tenant: { lookupApiKey: tenant.starWars.apiKey }
+      },
+      {
+        name: 'Lars Homestead',
+        kind: 'activity',
+        url: 'https://example.com/lars-homestead',
+        note: 'Moisture farm on the edge of the dune sea.',
+        tenant: { lookupApiKey: tenant.starWars.apiKey }
+      },
+      {
+        name: 'Golden City Design Halls',
+        kind: 'activity',
+        url: 'https://example.com/design-halls',
+        note: 'Guided afternoons only, no photography.',
+        tenant: { lookupApiKey: tenant.marvel.apiKey }
+      },
+      {
+        name: 'Border Tribe Camp',
+        kind: 'hotel',
+        url: 'https://example.com/border-tribe-camp',
+        note: 'Canvas and high grazing country.',
+        tenant: { lookupApiKey: tenant.marvel.apiKey }
+      },
+      {
+        name: 'Stugbyn vid tjärnen',
+        kind: 'hotel',
+        url: 'https://example.com/stugbyn',
+        note: 'Stugor med plats för hela familjen.',
+        tenant: { lookupApiKey: tenant.bamse.apiKey }
+      }
+    ],
     posts: [
       {
         title: 'The Rise and Fall of the Empire',
@@ -529,6 +678,147 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         locale: 'sv',
         supportedLocales: ['sv'],
         apiKey: tenant.bamse.apiKey
+      }
+    ],
+    tours: [
+      {
+        title: 'Tatooine Twin Sunset Tour',
+        slug: 'tatooine-twin-sunset-tour',
+        summary:
+          'Five days in the dune sea, ending each evening with two suns going down at once.',
+        destination: 'Mos Eisley, Tatooine',
+        duration: '5 days',
+        price: 1900,
+        currency: 'EUR',
+        departureDate: '2027-05-10',
+        bookingDeadline: '2027-03-10',
+        heroImage: 'stock-rollinghills-2.jpg',
+        intent: 'booking' as const,
+        included: [
+          'All ground transfers',
+          'Four nights, full board',
+          'Local guide'
+        ],
+        notIncluded: ['Flights', 'Personal insurance'],
+        itinerary: [
+          {
+            places: ['Mos Eisley Cantina'],
+            title: 'Arrival & cantina dinner',
+            description: 'Landing at the spaceport and a first meal in town.'
+          },
+          {
+            places: ['Lars Homestead'],
+            title: 'The dune sea',
+            description:
+              'Skiff across the sand with a stop at the old homestead.'
+          },
+          {
+            title: 'Jundland Wastes',
+            description:
+              'Rock formations, moisture farms and a very careful guide.'
+          },
+          {
+            title: 'Podracing canyon',
+            description:
+              'The Boonta Eve course, walked at a safe and human pace.'
+          },
+          {
+            title: 'Departure',
+            description: 'One last sunset, then the ride out.'
+          }
+        ],
+        content:
+          "## What's included\nAll ground transfers, four nights, full board and a guide who knows which caves to avoid.\n\n## Good to know\nDaytime temperatures are extreme. Travel is scheduled around them.\n",
+        tenant: { lookupApiKey: tenant.starWars.apiKey }
+      },
+      {
+        title: 'Wakanda Highlands Trek',
+        slug: 'wakanda-highlands-trek',
+        summary:
+          'Six days across the terraces and the border tribe lands, ending in the golden city.',
+        destination: 'Wakanda',
+        duration: '6 days',
+        price: 2600,
+        currency: 'EUR',
+        departureDate: '2027-09-06',
+        bookingDeadline: '2027-07-06',
+        heroImage: 'stock-terraces-3.jpg',
+        intent: 'booking' as const,
+        included: [
+          'Five nights, all meals',
+          'Permits',
+          'Local guide throughout'
+        ],
+        notIncluded: ['Flights', 'Personal insurance'],
+        itinerary: [
+          {
+            title: 'Arrival',
+            description:
+              'Transfer from the border and an evening with our hosts.'
+          },
+          {
+            title: 'The terraces',
+            description:
+              'Walking the farmed slopes with the families who work them.'
+          },
+          {
+            title: 'River day',
+            description: 'Down to the falls, with time to swim.'
+          },
+          {
+            places: ['Border Tribe Camp'],
+            title: 'Border lands',
+            description: 'High grazing country and a night under canvas.'
+          },
+          {
+            places: ['Golden City Design Halls'],
+            title: 'The golden city',
+            description:
+              'Into the capital, with a guided afternoon in the design halls.'
+          },
+          {
+            title: 'Departure',
+            description: 'A slow morning before the flight home.'
+          }
+        ],
+        content:
+          "## What's included\nFive nights, all meals, permits and a local guide throughout.\n\n## Good to know\nPhotography is restricted in parts of the capital. Your guide will say where.\n",
+        tenant: { lookupApiKey: tenant.marvel.apiKey }
+      },
+      {
+        title: 'Skogsvandring i Bamses dalar',
+        slug: 'skogsvandring-i-bamses-dalar',
+        summary:
+          'Tre dagar i skogen för hela familjen, med dunderhonung till frukost.',
+        destination: 'Höga skogen, Sverige',
+        duration: '3 dagar',
+        price: 4200,
+        currency: 'SEK',
+        departureDate: '2027-07-19',
+        bookingDeadline: '2027-05-19',
+        heroImage: 'stock-hut-2.jpg',
+        intent: 'booking' as const,
+        included: ['Två nätter i stuga', 'Alla måltider', 'Guide'],
+        notIncluded: ['Resa till och från stugbyn'],
+        itinerary: [
+          {
+            places: ['Stugbyn vid tjärnen'],
+            title: 'Ankomst och lägereld',
+            description:
+              'Incheckning i stugbyn och korvgrillning när det mörknar.'
+          },
+          {
+            title: 'Vandring till berget',
+            description: 'En lugn dagsvandring med matsäck och bad i tjärnen.'
+          },
+          {
+            title: 'Hemfärd',
+            description: 'Frukost, avslutande lek och hemresa.'
+          }
+        ],
+        content:
+          '## Det här ingår\nTvå nätter i stuga, alla måltider och en guide som tycker om barn.\n\n## Bra att veta\nPassar barn från fyra år. Ta med stövlar.\n',
+        tenant: { lookupApiKey: tenant.bamse.apiKey }
       }
     ],
     users: [

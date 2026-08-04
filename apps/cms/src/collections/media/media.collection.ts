@@ -12,20 +12,16 @@ import type {
   CollectionConfig,
   Condition,
   FieldHook,
-  GenerateImageName,
   TypeWithID
 } from 'payload';
 
 import { userOnlyAccess } from '../../security/user-only-access';
 
 import { externalOrApiKeyAccess } from './access/external-or-api-key-access';
+import { imageUploadConfig } from './image-upload';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-
-/** Custom image name */
-const imageName: GenerateImageName = ({ extension, originalName, sizeName }) =>
-  `${originalName}-${sizeName}.${extension}`;
 
 const isImageOrVideo: Condition<TypeWithID, Media> = (_, siblingData) =>
   !!siblingData.mimeType && siblingData.mimeType.match(/image|video/) !== null;
@@ -153,51 +149,9 @@ const media: CollectionConfig = {
   },
   indexes: [{ fields: ['filename', 'prefix'], unique: true }],
   upload: {
+    ...imageUploadConfig,
     mimeTypes: getMimeTypes(),
     filenameCompoundIndex: ['filename', 'prefix'],
-    // Uploaded image is converted to a backward compatible format known by all browsers.
-    // This image should be used as the default image in a `<picture />` element.
-    formatOptions: { format: 'jpeg' },
-    resizeOptions: { width: 1600 },
-    imageSizes: [
-      {
-        name: 'thumbnail',
-        width: 300,
-        height: 300,
-        formatOptions: { format: 'webp' },
-        generateImageName: imageName
-      },
-      {
-        name: 'small',
-        width: 600,
-        formatOptions: { format: 'webp' },
-        generateImageName: imageName
-      },
-      {
-        name: 'medium',
-        width: 900,
-        formatOptions: { format: 'webp' },
-        generateImageName: imageName
-      },
-      {
-        name: 'large',
-        width: 1400,
-        formatOptions: { format: 'webp' },
-        generateImageName: imageName
-      },
-      {
-        name: 'meta',
-        width: 1200,
-        height: 630,
-        crop: 'center',
-        fit: 'inside',
-        formatOptions: { format: 'webp' },
-        generateImageName: imageName
-      }
-    ],
-    adminThumbnail: 'thumbnail',
-    displayPreview: true,
-    focalPoint: true,
     // Local storage will be disabled when S3 storage is configured.
     // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload.
     staticDir: path.resolve(dirname, '../../../public/media')

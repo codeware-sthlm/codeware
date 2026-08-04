@@ -21,7 +21,7 @@ import type {
 } from '@codeware/shared/util/payload-types';
 import type { FieldValues } from '@payloadcms/plugin-form-builder/types';
 import { useCallback, useState } from 'react';
-import { FieldErrors, useForm } from 'react-hook-form';
+import { FieldErrors, type RegisterOptions, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { Button } from '../form-items/Button';
@@ -38,7 +38,13 @@ import { usePayload } from '../providers/PayloadProvider';
 import { RichText } from './RichText';
 
 // Assume form has the proper type but validate it before render anyway
-type Props = FormBlockProps;
+type Props = FormBlockProps & {
+  /**
+   * Called after a submission is accepted, before any confirmation is shown.
+   * Lets a host close the surface the form sits in (a sheet, a dialog).
+   */
+  onSuccess?: () => void;
+};
 
 /**
  * Render Payload form block data, with the configured form fields.
@@ -46,7 +52,8 @@ type Props = FormBlockProps;
 export const FormBlock: React.FC<Props> = ({
   enableIntro,
   form: formFromProps,
-  introContent
+  introContent,
+  onSuccess
 }) => {
   const formBuilder =
     typeof formFromProps === 'object' ? formFromProps : ({} as FormType);
@@ -113,6 +120,7 @@ export const FormBlock: React.FC<Props> = ({
 
           // Successfully submitted form
           form.reset();
+          onSuccess?.();
 
           // Act on the type of confirmation
           let confirmed = false;
@@ -169,7 +177,7 @@ export const FormBlock: React.FC<Props> = ({
 
       invokeSubmit();
     },
-    [confirmationType, form, formId, navigate, redirect, submitForm]
+    [confirmationType, form, formId, navigate, onSuccess, redirect, submitForm]
   );
 
   const onError = (errors: FieldErrors) => {
@@ -192,7 +200,7 @@ export const FormBlock: React.FC<Props> = ({
           className="my-6 mr-1 mb-1 last:mb-0"
         >
           {/* Grid columns must be in sync with forms plugin, width field */}
-          <Grid columns={6} className="gap-y-4">
+          <Grid columns={6} className="gap-x-4 gap-y-4">
             {/* Loop through form builder field definitions */}
             {formBuilder?.fields?.map((fieldDef, index) => {
               // Handle message separately since it's not a form field.
@@ -209,12 +217,25 @@ export const FormBlock: React.FC<Props> = ({
                   )
                 );
               }
+              // Number fields carry an optional range from the form builder
+              const rules: RegisterOptions = {
+                required: fieldDef.required ?? false
+              };
+              if (fieldDef.blockType === 'number') {
+                if (typeof fieldDef.min === 'number') {
+                  rules.min = fieldDef.min;
+                }
+                if (typeof fieldDef.max === 'number') {
+                  rules.max = fieldDef.max;
+                }
+              }
+
               return (
                 <ColSpan columns={fieldDef.width} key={index}>
                   <FormField
                     control={form.control}
                     name={fieldDef.name}
-                    rules={{ required: fieldDef.required ?? false }}
+                    rules={rules}
                     render={({ field }) => {
                       return (
                         <FormItem>
@@ -247,6 +268,8 @@ export const FormBlock: React.FC<Props> = ({
                               type="number"
                               label={fieldDef.label}
                               placeholder={fieldDef.placeholder}
+                              min={fieldDef.min ?? undefined}
+                              max={fieldDef.max ?? undefined}
                               {...field}
                             />
                           )}

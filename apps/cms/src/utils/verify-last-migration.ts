@@ -16,10 +16,14 @@ const SEEDED_COLLECTIONS = [
   'media',
   'navigation',
   'pages',
+  'places',
+  'platform-labels',
   'posts',
   'site-settings',
+  'stock-media',
   'tags',
   'tenants',
+  'tours',
   'users'
 ] as const;
 

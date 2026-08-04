@@ -31,5 +31,23 @@
   },
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "tailwindCSS.experimental.configFile": {
+    "apps/cms/src/app/(payload)/custom.css": "apps/cms/src/app/(payload)/**",
+    "apps/cms/src/app/(site)/spotlight.css": "apps/cms/src/app/(site)/**",
+    "apps/cms/src/app/(frontend)/globals.css": "apps/cms/src/app/(frontend)/**",
+    "apps/web/app/tailwind.css": ["apps/web/**", "libs/**"],
+    "apps/storybook/.storybook/preview.css": "apps/storybook/**"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ],
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "ngClass",
+    ".*ClassName"
+  ]
 }

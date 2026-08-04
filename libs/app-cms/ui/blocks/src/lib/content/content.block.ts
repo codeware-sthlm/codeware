@@ -28,6 +28,7 @@ const richTextBlocks: Record<BlockSlug, boolean> = {
   posts: false,
   'reusable-content': false,
   showcase: false,
+  tours: false,
   video: false
 };
 
@@ -51,6 +52,7 @@ const inlineBlocks: Record<BlockSlug, boolean> = {
   'pill-list': false,
   posts: false,
   showcase: false,
+  tours: false,
   video: false
 };
 

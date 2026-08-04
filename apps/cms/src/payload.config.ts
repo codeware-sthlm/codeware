@@ -21,6 +21,7 @@ import {
   showcaseBlock,
   socialMediaBlock,
   spacingBlock,
+  toursBlock,
   videoBlock
 } from '@codeware/app-cms/ui/blocks';
 import { defaultLexical } from '@codeware/app-cms/ui/fields';
@@ -43,11 +44,15 @@ import faq from './collections/faq/faq.collection';
 import media from './collections/media/media.collection';
 import navigation from './collections/navigation/navigation.collection';
 import pages from './collections/pages/pages.collection';
+import places from './collections/places/places.collection';
+import platformLabels from './collections/platform-labels/platform-labels.collection';
 import posts from './collections/posts/posts.collection';
 import reusableContent from './collections/reusable-content/reusable-content.collection';
 import siteSettings from './collections/site-settings/site-settings.collection';
+import stockMedia from './collections/stock-media/stock-media.collection';
 import tags from './collections/tags/tags.collection';
 import tenants from './collections/tenants/tenants.collection';
+import tours from './collections/tours/tours.collection';
 import users from './collections/users/users.collection';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
@@ -108,16 +113,18 @@ export default buildConfig({
         { label: 'Tablet', name: 'tablet', width: 768, height: 1024 },
         { label: 'Desktop', name: 'desktop', width: 1440, height: 900 }
       ],
-      collections: ['pages', 'posts'],
+      collections: ['pages', 'posts', 'tours'],
       url: ({ data, collectionConfig, locale }) => {
         // Live preview is not enabled in host mode
         if (env.APP_MODE.type === 'host') {
           return null;
         }
-        const sitePath =
-          collectionConfig?.slug === 'posts'
-            ? `/posts/${data.slug}?locale=${locale.code}`
-            : `/${data.slug}?locale=${locale.code}`;
+        // Pages live at the root, other collections below their own slug
+        const prefix =
+          collectionConfig?.slug === 'pages'
+            ? ''
+            : `/${collectionConfig?.slug}`;
+        const sitePath = `${prefix}/${data.slug}?locale=${locale.code}`;
         return `/api/preview?redirect=${encodeURIComponent(sitePath)}`;
       }
     }
@@ -142,6 +149,7 @@ export default buildConfig({
     showcaseBlock,
     socialMediaBlock,
     spacingBlock,
+    toursBlock,
     videoBlock
   ],
   collections: [
@@ -150,11 +158,15 @@ export default buildConfig({
     media,
     navigation,
     pages,
+    places,
+    platformLabels,
     posts,
     reusableContent,
     siteSettings,
+    stockMedia,
     tags,
     tenants,
+    tours,
     users
   ],
   cors:

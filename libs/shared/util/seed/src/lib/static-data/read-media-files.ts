@@ -20,36 +20,65 @@ const remoteMediaFiles = [
 ] as const;
 
 /**
- * Reads media files either from a remote URL
- * or from the local 'media' directory.
+ * Stock image file names expected to be available remotely for seeding.
+ *
+ * The shared platform library — atmospheric wine-country landscapes offered to
+ * every tenant. Keep in sync with the files in the 'stock-media' directory.
  */
-export const readMediaFiles = (
+const remoteStockMediaFiles = [
+  'stock-hut-1.jpg',
+  'stock-hut-2.jpg',
+  'stock-rivervalley-1.jpg',
+  'stock-rivervalley-2.jpg',
+  'stock-rollinghills-2.jpg',
+  'stock-terraces-1.jpg',
+  'stock-terraces-2.jpg',
+  'stock-terraces-3.jpg',
+  'stock-village-1.jpg',
+  'stock-village-2.jpg',
+  'stock-village-3.jpg',
+  'stock-vinerows-1.jpg',
+  'stock-vinerows-2.jpg'
+] as const;
+
+/** Read files from a remote url, or from a local directory as fallback. */
+const readFiles = (
+  directory: string,
+  remoteFiles: readonly string[],
   remoteDataUrl: string | undefined
 ): { filePath: string; filename: string }[] => {
   if (remoteDataUrl) {
-    // Construct remote media file URLs
-    return remoteMediaFiles.map((filename) => {
-      return {
-        filePath: path.join(remoteDataUrl, filename),
-        filename
-      };
-    });
+    return remoteFiles.map((filename) => ({
+      filePath: path.join(remoteDataUrl, filename),
+      filename
+    }));
   }
 
-  // Fallback: Read local media files from the 'media' directory
   const filename = fileURLToPath(import.meta.url);
   const dirname = path.dirname(filename);
 
-  return readdirSync(path.resolve(dirname, 'media'), {
+  return readdirSync(path.resolve(dirname, directory), {
     encoding: 'utf-8',
     recursive: false,
     withFileTypes: true
   })
     .filter((file) => file.isFile())
-    .map(({ name, parentPath }) => {
-      return {
-        filePath: path.resolve(parentPath, name),
-        filename: name
-      };
-    });
+    .map(({ name, parentPath }) => ({
+      filePath: path.resolve(parentPath, name),
+      filename: name
+    }));
 };
+
+/**
+ * Reads the shared stock image library either from a remote URL
+ * or from the local 'stock-media' directory.
+ */
+export const readStockMediaFiles = (remoteDataUrl: string | undefined) =>
+  readFiles('stock-media', remoteStockMediaFiles, remoteDataUrl);
+
+/**
+ * Reads media files either from a remote URL
+ * or from the local 'media' directory.
+ */
+export const readMediaFiles = (remoteDataUrl: string | undefined) =>
+  readFiles('media', remoteMediaFiles, remoteDataUrl);

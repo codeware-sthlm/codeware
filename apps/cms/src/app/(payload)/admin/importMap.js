@@ -40,6 +40,7 @@ import { default as default_6e6a399bf3ac570a97610e1e79572564 } from '@codeware/a
 import { default as default_5c18d3b3aea5f17616430e623e9ed650 } from '@codeware/apps/cms/components/FooterLinkArrayRowLabel';
 import { default as default_771cb2e65e9273cda2ffcd43d25ab990 } from '@codeware/apps/cms/components/TenantIconNameCell';
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
+import { default as default_c09482d250ab6d202838d64026b532c8 } from '@codeware/apps/cms/components/TourItineraryRowLabel';
 import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
 import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/apps/cms/components/TenantsArrayRowLabel';
 import { default as default_176fd26d15967a8046e38df612c30d49 } from '@codeware/apps/cms/components/admin/AdminNavWrapper';
@@ -146,6 +147,8 @@ export const importMap = {
     default_771cb2e65e9273cda2ffcd43d25ab990,
   '@payloadcms/plugin-multi-tenant/client#WatchTenantCollection':
     WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
+  '@codeware/apps/cms/components/TourItineraryRowLabel#default':
+    default_c09482d250ab6d202838d64026b532c8,
   '@codeware/apps/cms/components/TenantsArrayField#default':
     default_4a3552dc4f000a1797b4eb36166f8ff8,
   '@codeware/apps/cms/components/TenantsArrayRowLabel#default':

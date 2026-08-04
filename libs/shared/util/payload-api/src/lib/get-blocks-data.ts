@@ -2,7 +2,48 @@ import type { Page } from '@codeware/shared/util/payload-types';
 import type { BlocksData } from '@codeware/shared/util/payload-utils';
 
 import { findPosts } from './find-posts';
+import { findTours } from './find-tours';
 import type { RequestBaseOptions } from './utils/types';
+
+type LayoutBlock = NonNullable<Page['layout']>[number];
+
+/**
+ * Resolve every listing block of one type into documents keyed by block id.
+ *
+ * Blocks without an id are skipped — the key is what pairs the fetched
+ * documents with the block at render time.
+ */
+async function resolveListingBlocks<
+  TType extends LayoutBlock['blockType'],
+  TDoc
+>(
+  layout: Page['layout'] | null | undefined,
+  blockType: TType,
+  fetchDocs: (
+    block: Extract<LayoutBlock, { blockType: TType }>
+  ) => Promise<Array<TDoc>>
+): Promise<Record<string, Array<TDoc>> | undefined> {
+  const blocks = (layout ?? []).filter(
+    (block): block is Extract<LayoutBlock, { blockType: TType }> =>
+      block.blockType === blockType
+  );
+
+  if (!blocks.length) {
+    return undefined;
+  }
+
+  const docsByBlock: Record<string, Array<TDoc>> = {};
+  await Promise.all(
+    blocks.map(async (block) => {
+      if (!block.id) {
+        return;
+      }
+      docsByBlock[block.id] = await fetchDocs(block);
+    })
+  );
+
+  return docsByBlock;
+}
 
 /**
  * Fetch all data required by the blocks in a page layout.
@@ -19,23 +60,17 @@ export const getBlocksData = async (
   layout: Page['layout'] | null | undefined,
   options: RequestBaseOptions
 ): Promise<BlocksData> => {
-  const blocksData: BlocksData = {};
+  const [posts, tours] = await Promise.all([
+    resolveListingBlocks(layout, 'posts', ({ limit }) =>
+      findPosts({ ...options, limit })
+    ),
+    resolveListingBlocks(layout, 'tours', ({ limit }) =>
+      findTours({ ...options, limit })
+    )
+  ]);
 
-  const postsBlocks = layout?.filter((b) => b.blockType === 'posts') ?? [];
-
-  if (postsBlocks.length) {
-    const postsByBlock: NonNullable<BlocksData['posts']> = {};
-    blocksData.posts = postsByBlock;
-    await Promise.all(
-      postsBlocks.map(async (block) => {
-        if (!block.id) {
-          return;
-        }
-        const posts = await findPosts({ ...options, limit: block.limit });
-        postsByBlock[block.id] = posts;
-      })
-    );
-  }
-
-  return blocksData;
+  return {
+    ...(posts && { posts }),
+    ...(tours && { tours })
+  };
 };

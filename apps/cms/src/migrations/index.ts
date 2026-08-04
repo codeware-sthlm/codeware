@@ -37,6 +37,8 @@ import * as migration_20260629_055419_cod_392 from './20260629_055419_cod_392';
 import * as migration_20260712_222119_cod_331 from './20260712_222119_cod_331';
 import * as migration_20260727_175953_cod_414 from './20260727_175953_cod_414';
 import * as migration_20260803_104714_cod_328 from './20260803_104714_cod_328';
+import * as migration_20260809_085018_cod_376 from './20260809_085018_cod_376';
+import * as migration_20260809_085500_cod_376_platform_labels from './20260809_085500_cod_376_platform_labels';
 
 export const migrations = [
   {
@@ -233,5 +235,15 @@ export const migrations = [
     up: migration_20260803_104714_cod_328.up,
     down: migration_20260803_104714_cod_328.down,
     name: '20260803_104714_cod_328'
+  },
+  {
+    up: migration_20260809_085018_cod_376.up,
+    down: migration_20260809_085018_cod_376.down,
+    name: '20260809_085018_cod_376'
+  },
+  {
+    up: migration_20260809_085500_cod_376_platform_labels.up,
+    down: migration_20260809_085500_cod_376_platform_labels.down,
+    name: '20260809_085500_cod_376_platform_labels'
   }
 ];

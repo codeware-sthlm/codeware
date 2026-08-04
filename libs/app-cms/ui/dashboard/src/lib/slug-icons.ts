@@ -7,10 +7,14 @@ import {
   DocumentTextIcon,
   FolderIcon,
   InboxIcon,
+  MapIcon,
+  MapPinIcon,
   PhotoIcon,
   QuestionMarkCircleIcon,
   RectangleGroupIcon,
+  RectangleStackIcon,
   SquaresPlusIcon,
+  SwatchIcon,
   TagIcon,
   UserGroupIcon,
   UsersIcon
@@ -24,13 +28,18 @@ const SLUG_ICON: Record<CollectionSlug, IconComponent> = {
   forms: ClipboardDocumentListIcon,
   'form-submissions': InboxIcon,
   pages: DocumentIcon,
+  places: MapPinIcon,
+  'platform-labels': SwatchIcon,
   posts: DocumentTextIcon,
   media: PhotoIcon,
   navigation: Bars3Icon,
   'reusable-content': SquaresPlusIcon,
   'site-settings': Cog6ToothIcon,
+  'stock-media': RectangleStackIcon,
+
   tags: TagIcon,
   tenants: UserGroupIcon,
+  tours: MapIcon,
   users: UsersIcon
 };
 

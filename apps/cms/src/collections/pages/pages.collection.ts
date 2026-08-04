@@ -30,6 +30,7 @@ const blocks: Record<BlockSlug, boolean> = {
   showcase: true,
   'social-media': true,
   spacing: true,
+  tours: true,
   // Unsupported blocks
   video: false
 };
@@ -115,7 +116,7 @@ const pages: CollectionConfig<'pages'> = {
             }
           ]
         },
-        seoTab
+        seoTab()
       ]
     },
     slugField({ sourceField: 'name' })

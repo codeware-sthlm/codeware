@@ -3,7 +3,7 @@
 import { capitalize } from '@codeware/shared/util/pure';
 
 import { faqData } from './faq-data';
-import { readMediaFiles } from './read-media-files';
+import { readMediaFiles, readStockMediaFiles } from './read-media-files';
 
 const tenantSlug = {
   moon: 'moon',
@@ -29,6 +29,12 @@ export type TenantSlug = keyof typeof tenantSlug;
  */
 export const seedData = (remoteDataUrl: string | undefined) => {
   const mediaFiles = readMediaFiles(remoteDataUrl);
+  const stockFiles = Object.fromEntries(
+    readStockMediaFiles(remoteDataUrl).map(({ filePath, filename }) => [
+      filename,
+      filePath
+    ])
+  );
   if (mediaFiles.length === 0) {
     console.warn('No media files found for seeding.');
   }
@@ -321,6 +327,163 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         }
       }
     ],
+    stockMedia: [
+      {
+        alt: 'A vineyard hut among green vines above a wide plain',
+        subject: 'vineyard hut',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-hut-1.jpg',
+        filePath: stockFiles['stock-hut-1.jpg']
+      },
+      {
+        alt: 'A stone vineyard hut on a slope under soft overcast light',
+        subject: 'vineyard hut',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-hut-2.jpg',
+        filePath: stockFiles['stock-hut-2.jpg']
+      },
+      {
+        alt: 'A river loop below vineyard slopes, village on the bend',
+        subject: 'river valley',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-rivervalley-1.jpg',
+        filePath: stockFiles['stock-rivervalley-1.jpg']
+      },
+      {
+        alt: 'A river loop seen over a dry stone wall from the vineyards',
+        subject: 'river valley',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-rivervalley-2.jpg',
+        filePath: stockFiles['stock-rivervalley-2.jpg']
+      },
+      {
+        alt: 'Rolling vineyard country framed by vine leaves',
+        subject: 'rolling hills',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-rollinghills-2.jpg',
+        filePath: stockFiles['stock-rollinghills-2.jpg']
+      },
+      {
+        alt: 'Steep terraced vineyards above a valley town',
+        subject: 'terraces',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-terraces-1.jpg',
+        filePath: stockFiles['stock-terraces-1.jpg']
+      },
+      {
+        alt: 'Terraced vineyard slopes under a pale overcast sky',
+        subject: 'terraces',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-terraces-2.jpg',
+        filePath: stockFiles['stock-terraces-2.jpg']
+      },
+      {
+        alt: 'Layered vineyard terraces rising up a valley side',
+        subject: 'terraces',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-terraces-3.jpg',
+        filePath: stockFiles['stock-terraces-3.jpg']
+      },
+      {
+        alt: 'A wine village with a church spire below green slopes',
+        subject: 'village',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-village-1.jpg',
+        filePath: stockFiles['stock-village-1.jpg']
+      },
+      {
+        alt: 'Red tiled roofs of a wine village seen through vine leaves',
+        subject: 'village',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-village-2.jpg',
+        filePath: stockFiles['stock-village-2.jpg']
+      },
+      {
+        alt: 'A village church spire above the vineyards',
+        subject: 'village',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-village-3.jpg',
+        filePath: stockFiles['stock-village-3.jpg']
+      },
+      {
+        alt: 'Trellised vine rows running toward distant hills',
+        subject: 'vine rows',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-vinerows-1.jpg',
+        filePath: stockFiles['stock-vinerows-1.jpg']
+      },
+      {
+        alt: 'Vine rows behind a dry stone wall on a hillside',
+        subject: 'vine rows',
+        credit: 'FLUX 1.1 pro ultra via Replicate',
+        licence: 'AI generated — commercial use permitted',
+        filename: 'stock-vinerows-2.jpg',
+        filePath: stockFiles['stock-vinerows-2.jpg']
+      }
+    ],
+    places: [
+      {
+        name: 'Tranquility Base Camp',
+        kind: 'hotel',
+        url: 'https://example.com/tranquility-base-camp',
+        note: 'Eight cabins around a shared observation dome.',
+        tenant: { lookupApiKey: tenants.moon.apiKey }
+      },
+      {
+        name: 'Hypatia Rille Station',
+        kind: 'activity',
+        url: 'https://example.com/hypatia-rille',
+        note: 'Field geology outpost on the eastern rille.',
+        tenant: { lookupApiKey: tenants.moon.apiKey }
+      },
+      {
+        name: 'Shackleton Ice Lab',
+        kind: 'activity',
+        url: 'https://example.com/shackleton-ice-lab',
+        note: 'Working survey lab on the crater floor.',
+        tenant: { lookupApiKey: tenants.moon.apiKey }
+      },
+      {
+        name: 'Cerro Paranal Lodge',
+        kind: 'hotel',
+        url: 'https://example.com/paranal-lodge',
+        note: 'Blackout rooms and a terrace facing south.',
+        tenant: { lookupApiKey: tenants.star.apiKey }
+      },
+      {
+        name: 'Atacama Array',
+        kind: 'activity',
+        url: 'https://example.com/atacama-array',
+        note: 'Professional array on the plateau, daytime visits only.',
+        tenant: { lookupApiKey: tenants.star.apiKey }
+      },
+      {
+        name: 'Abisko Fjällstation',
+        kind: 'hotel',
+        url: 'https://example.com/abisko',
+        note: 'Basläger med utsikt över Torneträsk.',
+        tenant: { lookupApiKey: tenants.sun.apiKey }
+      },
+      {
+        name: 'Solobservatoriet',
+        kind: 'activity',
+        url: 'https://example.com/solobservatoriet',
+        note: 'Observation i vitt ljus och H-alfa.',
+        tenant: { lookupApiKey: tenants.sun.apiKey }
+      }
+    ],
     posts: [
       {
         title: 'Supergiant Stars',
@@ -497,6 +660,222 @@ export const seedData = (remoteDataUrl: string | undefined) => {
         locale: 'sv',
         supportedLocales: ['sv'],
         apiKey: tenants.sun.apiKey
+      }
+    ],
+    tours: [
+      {
+        title: 'Sea of Tranquility Expedition',
+        slug: 'sea-of-tranquility-expedition',
+        summary:
+          'Seven days along the Apollo 11 landing site, from the first bootprint to the far side sunrise.',
+        destination: 'Mare Tranquillitatis, Moon',
+        duration: '7 days',
+        price: 2400,
+        currency: 'EUR',
+        departureDate: '2027-04-12',
+        bookingDeadline: '2027-02-12',
+        heroImage: 'stock-rivervalley-1.jpg',
+        intent: 'booking' as const,
+        included: [
+          'All transfers from the orbital station',
+          'Seven nights at base camp, full board',
+          'Suit rental',
+          'Certified guide throughout'
+        ],
+        notIncluded: ['Orbital transfer from Earth', 'Personal insurance'],
+        itinerary: [
+          {
+            places: ['Tranquility Base Camp'],
+            title: 'Arrival & welcome dinner',
+            description:
+              'Landing at the base camp, gear check and a first look at the mare through the observation dome.'
+          },
+          {
+            title: 'The landing site',
+            description:
+              'A slow walk to the Apollo 11 site, keeping the safe distance the preservation rules require.'
+          },
+          {
+            places: ['Hypatia Rille Station'],
+            title: 'Regolith and rilles',
+            description:
+              'Field geology along Hypatia Rille with a guide who has spent a decade mapping it.'
+          },
+          {
+            title: 'Earthrise',
+            description:
+              'An early start for the full Earth over the eastern rim, followed by a long breakfast.'
+          },
+          {
+            title: 'Free day',
+            description:
+              'Rest, read, or join the optional traverse to the neighbouring crater field.'
+          },
+          {
+            title: 'Far side crossing',
+            description:
+              'The quiet side, radio silence and the darkest sky any of us will ever stand under.'
+          },
+          {
+            title: 'Departure',
+            description: 'Final briefing, group photo and the ride home.'
+          }
+        ],
+        content:
+          "## What's included\nAll transfers from the orbital station, seven nights at base camp, full board, suit rental and a certified guide throughout.\n\n## Good to know\nGroups are capped at eight travellers. A basic fitness check is required no later than four weeks before departure.\n",
+        tenant: { lookupApiKey: tenants.moon.apiKey }
+      },
+      {
+        title: 'Lunar South Pole Ice Walk',
+        slug: 'lunar-south-pole-ice-walk',
+        summary:
+          'Four days in permanent shadow, hunting water ice with the team that found it.',
+        destination: 'Shackleton Crater, Moon',
+        duration: '4 days',
+        price: 1800,
+        currency: 'EUR',
+        departureNote: 'Summer 2027 — dates to be confirmed',
+        heroImage: 'stock-terraces-1.jpg',
+        intent: 'interest' as const,
+        included: [
+          'Four nights, all meals',
+          'Thermal suit rental',
+          'Lab access with the survey team'
+        ],
+        notIncluded: ['Orbital transfer from Earth', 'Personal insurance'],
+        itinerary: [
+          {
+            title: 'Into the shadow',
+            description:
+              'Descent to the crater floor and an introduction to cold-trap science.'
+          },
+          {
+            places: ['Shackleton Ice Lab'],
+            title: 'Sampling day',
+            description:
+              'Hands-on coring alongside the survey team, with lab time in the afternoon.'
+          },
+          {
+            title: 'Peak of eternal light',
+            description:
+              'Up to the rim where the sun never quite sets, and the solar array that powers it all.'
+          },
+          {
+            title: 'Departure',
+            description: 'A last look down into the dark, then home.'
+          }
+        ],
+        content:
+          "## What's included\nFour nights, all meals, thermal suit rental and every instrument you will get your hands on.\n\n## Good to know\nTemperatures on the crater floor stay below -150°C. The walking is easy but the cold is not.\n",
+        tenant: { lookupApiKey: tenants.moon.apiKey }
+      },
+      {
+        title: 'Atacama Dark Sky Week',
+        slug: 'atacama-dark-sky-week',
+        summary:
+          'Six nights under the clearest sky on Earth, with a telescope of your own every night.',
+        destination: 'Atacama Desert, Chile',
+        duration: '6 days',
+        price: 2100,
+        currency: 'EUR',
+        departureDate: '2027-03-08',
+        bookingDeadline: '2027-01-08',
+        heroImage: 'stock-village-1.jpg',
+        intent: 'booking' as const,
+        included: [
+          'Six nights in the valley',
+          'Breakfasts and dinners',
+          'Telescope hire',
+          'Nightly guiding'
+        ],
+        notIncluded: ['Flights to Calama', 'Lunches'],
+        itinerary: [
+          {
+            places: ['Cerro Paranal Lodge'],
+            title: 'Arrival in San Pedro',
+            description:
+              'Settling in at altitude, an early night before the first observing session.'
+          },
+          {
+            title: 'First light',
+            description:
+              'Learning the instrument, then the Magellanic Clouds until the small hours.'
+          },
+          {
+            title: 'Deep sky',
+            description:
+              'Globular clusters and a guided tour of the southern Milky Way.'
+          },
+          {
+            places: ['Atacama Array'],
+            title: 'Observatory visit',
+            description:
+              'A daytime visit to the professional array on the plateau above the valley.'
+          },
+          {
+            title: 'Astrophotography',
+            description:
+              'Stacking, tracking and processing, with your own frames from the week.'
+          },
+          {
+            title: 'Departure',
+            description: 'Late breakfast and transfer to Calama.'
+          }
+        ],
+        content:
+          "## What's included\nSix nights in the valley, all breakfasts and dinners, telescope hire and nightly guiding.\n\n## Good to know\nThe site sits at 2,400 metres. Take the first day slowly.\n",
+        tenant: { lookupApiKey: tenants.star.apiKey }
+      },
+      {
+        title: 'Solförmörkelsejakten',
+        slug: 'solformorkelsejakten',
+        summary:
+          'Fem dagar längs totalitetsstråket, med de bästa platserna bokade i förväg.',
+        destination: 'Kiruna, Sverige',
+        duration: '5 dagar',
+        price: 1600,
+        currency: 'SEK',
+        departureDate: '2027-08-16',
+        bookingDeadline: '2027-06-16',
+        heroImage: 'stock-vinerows-2.jpg',
+        intent: 'booking' as const,
+        included: [
+          'Fyra nätter med frukost',
+          'Solfilter',
+          'Transfer till observationsplatsen'
+        ],
+        notIncluded: ['Flyg till Kiruna', 'Luncher och middagar'],
+        itinerary: [
+          {
+            places: ['Abisko Fjällstation'],
+            title: 'Ankomst och genomgång',
+            description:
+              'Incheckning, utdelning av solfilter och en genomgång av veckans väderprognoser.'
+          },
+          {
+            places: ['Solobservatoriet'],
+            title: 'Solfläckar på dagtid',
+            description:
+              'Observation i vitt ljus och H-alfa från terrassen, om molnen tillåter.'
+          },
+          {
+            title: 'Förmörkelsedagen',
+            description:
+              'Tidig avfärd till observationsplatsen. Totaliteten varar i två minuter och tolv sekunder.'
+          },
+          {
+            title: 'Norrsken',
+            description:
+              'Kvällstur norrut när solaktiviteten ger utdelning även efter mörkrets inbrott.'
+          },
+          {
+            title: 'Hemresa',
+            description: 'Frukost, bildvisning och transfer till flygplatsen.'
+          }
+        ],
+        content:
+          '## Det här ingår\nFyra nätter, alla frukostar, solfilter och transfer till observationsplatsen.\n\n## Bra att veta\nGruppen är begränsad till tolv resenärer. Klä dig varmt, det blir kallt i skuggan.\n',
+        tenant: { lookupApiKey: tenants.sun.apiKey }
       }
     ],
     users: [

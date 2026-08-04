@@ -32,9 +32,12 @@ export const loadInfisicalData = async (args: {
       faq: [],
       media: [],
       pages: [],
+      places: [],
+      stockMedia: [],
       posts: [],
       tags: [],
       tenants: [],
+      tours: [],
       users: []
     };
 

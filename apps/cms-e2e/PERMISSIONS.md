@@ -66,15 +66,30 @@ Only system users can create, update, or delete tenants. Read is restricted to t
 - **`users.role` field**: create/update restricted to system users only. Tenant admins cannot escalate privileges.
 - **`tenants[]` array**: tenant admins cannot assign users to tenants they do not administer, nor change roles in those tenants.
 
-### Content collections (pages, posts, categories, navigation, site-settings, tags, media, reusable-content, forms)
+### Content collections (pages, posts, tours, places, categories, navigation, site-settings, tags, media, reusable-content, forms)
 
 - **Read**: any authenticated user or valid tenant API key, scoped to the active tenant.
 - **Create / update / delete**: admin users only, scoped to the active tenant in tenant mode. API keys are denied.
 - **navigation / site-settings**: writes additionally require a system user or tenant admin. Tenant users are denied.
-- **Version history (pages, posts)**: admin users only — versions hold unpublished drafts.
+- **Version history (pages, posts, tours)**: admin users only — versions hold unpublished drafts.
 
 Write scope follows read scope: in tenant mode a user with several memberships can only write inside
 the running deployment's tenant, so they can never reach a document they are not allowed to read.
+
+### Platform-owned collections (stock-media, platform-labels)
+
+Owned by the platform rather than a tenant, and deliberately **not** registered with the
+multi-tenant plugin — every workspace reads the same documents.
+
+- **Read**: any authenticated identity, including a tenant API key. Not tenant scoped, so a foreign
+  key reading them is the designed behaviour rather than a leak.
+- **Create / update / delete**: system users only. Tenant admins are denied.
+- **Static files (stock-media)**: readable without a session. The images are served on public tour
+  pages, so the file has to be reachable even though its document is not.
+
+> These collections have no `tenant` field, so a tenant-scoped access helper does not deny the
+> request — Payload rejects the query with `Cannot find field for path at tenant` and returns a
+> **500**. The positive read assertions in `platform-owned.spec.ts` are what catch that.
 
 ### Form submissions
 
@@ -163,6 +178,21 @@ Password for every seed user: **`dev`** (blank in seed data, defaulted to `dev` 
 > authenticated users. The plugin AND's this with `{ tenant: in userTenantIds }`. Multi-tenant users
 > (e.g. `multiAdmin` with moon+star+sun) therefore only receive moon content — server-enforced,
 > independent of the `payload-tenant` cookie.
+
+### Platform-owned collections (stock-media, platform-labels)
+
+Shared across every workspace, so the API key columns are deliberately `✓` for reads — unlike
+content, a foreign key is _supposed_ to see these.
+
+| Scenario                                     | System user | Tenant admin | Tenant user | Any API key | Unauthenticated |
+| -------------------------------------------- | ----------- | ------------ | ----------- | ----------- | --------------- |
+| [P-01] Read a platform-owned collection      | ✓           | ✓            | ✓           | ✓ [P-04]    | ✗ [P-06]        |
+| [P-02] Create / update / delete as an editor | —           | ✗            | ✗           | ✗ [P-05]    | ✗               |
+| [P-03] Maintain labels as a system user      | ✓           | ✗            | ✗           | ✗           | ✗               |
+| [P-06] Fetch a stock media **file**          | ✓           | ✓            | ✓           | ✓           | ✓               |
+
+> **[P-03] uniqueness:** a label name is unique _within its type_, not globally — the same word can
+> serve two vocabularies. Both halves of that are asserted.
 
 ### Tenant API keys
 

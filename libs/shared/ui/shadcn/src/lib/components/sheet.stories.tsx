@@ -49,6 +49,30 @@ export const Demo: StoryObj = {
   )
 };
 
+/** Local extension: the `size` prop caps the width from `sm` upward. */
+export const Sizes: StoryObj = {
+  render: () => (
+    <div className="flex flex-wrap gap-3">
+      {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
+        <Sheet key={size}>
+          <SheetTrigger asChild>
+            <Button variant="outline">size=&quot;{size}&quot;</Button>
+          </SheetTrigger>
+          <SheetContent side="right" size={size}>
+            <SheetHeader>
+              <SheetTitle>Sheet size {size}</SheetTitle>
+              <SheetDescription>
+                Below the `sm` breakpoint every size falls back to the same
+                three-quarter width, so the panel stays usable on a phone.
+              </SheetDescription>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
+      ))}
+    </div>
+  )
+};
+
 export const ShadcnLight = a11yStory(Demo, 'shadcn', 'light');
 export const ShadcnDark = a11yStory(Demo, 'shadcn', 'dark');
 export const PayloadAdminLight = a11yStory(Demo, 'payload-admin', 'light');

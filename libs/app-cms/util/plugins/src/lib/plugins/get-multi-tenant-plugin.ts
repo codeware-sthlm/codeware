@@ -45,9 +45,11 @@ export const getMultiTenantPlugin = () =>
       'form-submissions': {},
       media: {},
       pages: {},
+      places: {},
       posts: {},
       'reusable-content': {},
       tags: {},
+      tours: {},
       ...globalCollectionsConfig
     },
     tenantsArrayField: {

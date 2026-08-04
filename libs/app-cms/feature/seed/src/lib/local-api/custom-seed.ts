@@ -1,13 +1,32 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Payload } from 'payload';
 
+import { ensureBookingForm } from './ensure-booking-form';
 import { ensureNavigation } from './ensure-navigation';
 import { ensurePage } from './ensure-page';
+
+/** Resolve a tenant's default locale from its site settings. */
+const getTenantLocale = async (
+  payload: Payload,
+  tenantId: number,
+  transactionID: string | number | undefined
+) => {
+  const { docs } = await payload.find({
+    collection: 'site-settings',
+    where: { tenant: { in: [tenantId] } },
+    depth: 0,
+    limit: 1,
+    req: { transactionID }
+  });
+  return docs[0]?.general.defaultLocale;
+};
 
 /**
  * Custom seed queries for documents that doesn't fit the generic seed data type.
  *
  * - Creates a posts listing page for every tenant and adds it to navigation.
+ * - Creates a tours listing page for tenants that have tours, adds this page to
+ *   navigation, and gives those tours a booking form.
  * - Creates a file area page for tenants that have the 'file-area' tag
  *   and adds this page to navigation.
  *
@@ -36,15 +55,11 @@ export const customSeed = async (
   for (const tenantDoc of allTenants) {
     const tenantId = tenantDoc.id;
 
-    // Get tenant default locale from site settings
-    const { docs: siteSettingsDocs } = await payload.find({
-      collection: 'site-settings',
-      where: { tenant: { in: [tenantId] } },
-      depth: 0,
-      limit: 1,
-      req: { transactionID }
-    });
-    const tenantLocale = siteSettingsDocs[0]?.general.defaultLocale;
+    const tenantLocale = await getTenantLocale(
+      payload,
+      tenantId,
+      transactionID
+    );
 
     const { title, description } = (() => {
       switch (tenantLocale) {
@@ -112,6 +127,141 @@ export const customSeed = async (
     }
   }
 
+  // TOURS LISTING PAGE
+  // Create a tours listing page for tenants that have tours
+
+  const { docs: tourDocs } = await payload.find({
+    collection: 'tours',
+    select: { bookingForm: true, intent: true, tenant: true },
+    where: { tenant: { exists: true } },
+    depth: 0,
+    pagination: false,
+    req: { transactionID }
+  });
+  const tenantIdsWithTours = [
+    ...new Set(tourDocs.map(({ tenant }) => getId(tenant)))
+  ];
+
+  for (const tenantId of tenantIdsWithTours) {
+    const tenantLocale = await getTenantLocale(
+      payload,
+      tenantId,
+      transactionID
+    );
+
+    const { title, description } = (() => {
+      switch (tenantLocale) {
+        case 'sv':
+          return {
+            title: 'Resor',
+            description: 'Guidade resor med små sällskap och stora smaker.'
+          };
+        case 'en':
+        default:
+          return {
+            title: 'Tours',
+            description: 'Guided tours in small groups, with big flavours.'
+          };
+      }
+    })();
+
+    // Check if the page already exists
+    const pageOrId = await ensurePage(
+      payload,
+      {
+        name: title,
+        slug: 'tours',
+        layout: [
+          {
+            blockType: 'tours',
+            title,
+            description,
+            limit: 10
+          }
+        ],
+        tenant: tenantId
+      },
+      { locale: tenantLocale, transactionID }
+    );
+
+    if (typeof pageOrId === 'object') {
+      payload.logger.info(
+        `[SEED] Page '${pageOrId.slug}' on tenant #${tenantId} (custom seed)`
+      );
+    }
+
+    // Add the page to navigation when missing
+    const { items } = await ensureNavigation(
+      payload,
+      {
+        items: [
+          {
+            reference: { relationTo: 'pages', value: getId(pageOrId) },
+            labelSource: 'custom',
+            customLabel: title
+          }
+        ],
+        tenant: tenantId
+      },
+      { locale: tenantLocale, transactionID }
+    );
+    for (const { reference } of items) {
+      const refId = getId(reference.value);
+      payload.logger.info(
+        `[SEED] Navigation to '${reference.relationTo}' #${refId} on tenant #${tenantId} (custom seed)`
+      );
+    }
+
+    // Booking and interest need different wording on the submit button and the
+    // confirmation, so each intent gets its own form
+    const isSwedish = tenantLocale === 'sv';
+    const formTitles = {
+      booking: isSwedish ? 'Bokningsförfrågan' : 'Booking request',
+      interest: isSwedish ? 'Intresseanmälan' : 'Interest request'
+    } as const;
+
+    for (const intent of ['booking', 'interest'] as const) {
+      const tenantTours = tourDocs.filter(
+        (doc) =>
+          getId(doc.tenant) === tenantId &&
+          doc.intent === intent &&
+          !doc.bookingForm
+      );
+
+      if (!tenantTours.length) {
+        continue;
+      }
+
+      const formOrId = await ensureBookingForm(
+        payload,
+        { title: formTitles[intent], tenant: tenantId, intent },
+        { locale: tenantLocale, transactionID }
+      );
+      const formId = getId(formOrId);
+
+      if (typeof formOrId === 'object') {
+        payload.logger.info(
+          `[SEED] Form '${formOrId.title}' on tenant #${tenantId} (custom seed)`
+        );
+      }
+
+      for (const { id } of tenantTours) {
+        await payload.update({
+          collection: 'tours',
+          id,
+          data: { bookingForm: formId },
+          context: { seedAction: true },
+          locale: tenantLocale,
+          req: { transactionID }
+        });
+      }
+
+      payload.logger.info(
+        `[SEED] Form #${formId} assigned to ${tenantTours.length} ${intent} tours on tenant #${tenantId} (custom seed)`
+      );
+    }
+  }
+
   // FILE AREA PAGE
   // Create a file area page for tenants that have the 'file-area' tag
 
@@ -130,15 +280,11 @@ export const customSeed = async (
   for (const { id: tagId, tenant } of docs) {
     const tenantId = getId(tenant);
 
-    // Get tenant default locale from site settings
-    const { docs: siteSettingsDocs } = await payload.find({
-      collection: 'site-settings',
-      where: { tenant: { in: [tenantId] } },
-      depth: 0,
-      limit: 1,
-      req: { transactionID }
-    });
-    const tenantLocale = siteSettingsDocs[0]?.general.defaultLocale;
+    const tenantLocale = await getTenantLocale(
+      payload,
+      tenantId,
+      transactionID
+    );
 
     // Check if the page already exists
     const { docs } = await payload.find({

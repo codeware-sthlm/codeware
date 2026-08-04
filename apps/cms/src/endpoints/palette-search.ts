@@ -1,6 +1,7 @@
 import {
   getPages,
   getPosts,
+  getTours,
   mapToRuntime
 } from '@codeware/app-cms/data-access';
 import { isUser } from '@codeware/app-cms/util/misc';
@@ -76,8 +77,8 @@ async function searchFlat<TSlug extends FlatSlug>(
  * selected via the `payload-tenant` cookie, falling back to the user's
  * assigned tenants.
  *
- * Pages and posts are queried in draft mode so never-published drafts are
- * found (their creation state in the main table may lack tenant/title).
+ * Pages, posts and tours are queried in draft mode so never-published drafts
+ * are found (their creation state in the main table may lack tenant/title).
  */
 export const paletteSearchEndpoint: Endpoint = {
   path: '/palette-search',
@@ -115,22 +116,38 @@ export const paletteSearchEndpoint: Endpoint = {
         sort: '-updatedAt'
       } as const;
 
-      const [pages, posts, media, categories, tags, forms, reusableContent] =
-        await Promise.all([
-          getPages(runtime, {
-            ...versionedOptions,
-            where: searchWhere(['name', 'slug'], query, tenantWhere)
-          }),
-          getPosts(runtime, {
-            ...versionedOptions,
-            where: searchWhere(['title', 'slug'], query, tenantWhere)
-          }),
-          searchFlat(req, 'media', ['alt', 'filename'], query, tenantWhere),
-          searchFlat(req, 'categories', ['name', 'slug'], query, tenantWhere),
-          searchFlat(req, 'tags', ['name', 'slug'], query, tenantWhere),
-          searchFlat(req, 'forms', ['title'], query, tenantWhere),
-          searchFlat(req, 'reusable-content', ['title'], query, tenantWhere)
-        ]);
+      const [
+        pages,
+        posts,
+        tours,
+        media,
+        categories,
+        tags,
+        forms,
+        reusableContent
+      ] = await Promise.all([
+        getPages(runtime, {
+          ...versionedOptions,
+          where: searchWhere(['name', 'slug'], query, tenantWhere)
+        }),
+        getPosts(runtime, {
+          ...versionedOptions,
+          where: searchWhere(['title', 'slug'], query, tenantWhere)
+        }),
+        getTours(runtime, {
+          ...versionedOptions,
+          where: searchWhere(
+            ['title', 'slug', 'destination'],
+            query,
+            tenantWhere
+          )
+        }),
+        searchFlat(req, 'media', ['alt', 'filename'], query, tenantWhere),
+        searchFlat(req, 'categories', ['name', 'slug'], query, tenantWhere),
+        searchFlat(req, 'tags', ['name', 'slug'], query, tenantWhere),
+        searchFlat(req, 'forms', ['title'], query, tenantWhere),
+        searchFlat(req, 'reusable-content', ['title'], query, tenantWhere)
+      ]);
 
       // Fixed collection order; the client groups by collection slug
       const results: Array<PaletteSearchResultItem> = [
@@ -146,6 +163,14 @@ export const paletteSearchEndpoint: Endpoint = {
           id: String(doc.id),
           title: doc.title ?? '',
           collectionSlug: 'posts' as const,
+          status: doc._status ?? undefined,
+          meta: doc.slug ?? undefined,
+          updatedAt: doc.updatedAt
+        })),
+        ...(tours?.docs ?? []).map((doc) => ({
+          id: String(doc.id),
+          title: doc.title ?? '',
+          collectionSlug: 'tours' as const,
           status: doc._status ?? undefined,
           meta: doc.slug ?? undefined,
           updatedAt: doc.updatedAt

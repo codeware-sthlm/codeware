@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Enter/exit animation utilities used by the shadcn overlay components */
+@import 'tw-animate-css';
+
 /* Use Codeware theme */
 @import '../../../../../libs/shared/theme/src/lib/codeware/tailwind-base.css';
 

@@ -111,9 +111,15 @@ const customTranslationsSchema = z.object({
     workspaceAll: z.string()
   }),
   validation: z.object({
+    bookingDeadlineAfterDeparture: z.string(),
+    bookingNeedsDeparture: z.string(),
+    labelNameTaken: z.string(),
+    labelNotFound: z.string(),
+    labelWrongType: z.string(),
     mustBelongToWorkspace: z.string(),
     notSupportedLocale: z.string(),
-    phoneNumber: z.string()
+    phoneNumber: z.string(),
+    urlInvalid: z.string()
   })
 });
 
@@ -232,10 +238,18 @@ You can assign multiple tags to a file.`,
       workspaceAll: 'All workspaces'
     },
     validation: {
+      bookingDeadlineAfterDeparture:
+        'The booking deadline must be on or before the departure date.',
+      bookingNeedsDeparture:
+        'A tour can only be booked once it has a departure date. Use "Register interest" while the date is unconfirmed.',
+      labelNameTaken: 'A "{{type}}" label named "{{name}}" already exists.',
+      labelNotFound: 'The selected label no longer exists.',
+      labelWrongType: 'Expected a "{{expected}}" label but got "{{actual}}".',
       mustBelongToWorkspace: 'User must belong to a workspace.',
       notSupportedLocale: `Selected locale "{{locale}}" is not supported by the current tenant.
 Supported locales: {{locales}}`,
-      phoneNumber: 'Please enter a valid phone number'
+      phoneNumber: 'Please enter a valid phone number',
+      urlInvalid: 'Please enter a valid URL'
     }
   },
   sv: {
@@ -350,10 +364,20 @@ Du kan tilldela flera etiketter till en fil.`,
       workspaceAll: 'Alla arbetsytor'
     },
     validation: {
+      bookingDeadlineAfterDeparture:
+        'Sista bokningsdag måste vara samma dag som eller före avresedatum.',
+      bookingNeedsDeparture:
+        'En resa kan bara bokas när den har ett avresedatum. Använd "Intresseanmälan" så länge datumet inte är fastställt.',
+      labelNameTaken:
+        'Det finns redan en etikett av typen "{{type}}" med namnet "{{name}}".',
+      labelNotFound: 'Den valda etiketten finns inte längre.',
+      labelWrongType:
+        'Förväntade en etikett av typen "{{expected}}" men fick "{{actual}}".',
       mustBelongToWorkspace: 'Användaren måste tillhöra en arbetsyta.',
       notSupportedLocale: `Valt språk "{{locale}}" stöds inte av den aktuella arbetsytan.
 Språk som stöds: {{locales}}`,
-      phoneNumber: 'Ange ett giltigt telefonnummer'
+      phoneNumber: 'Ange ett giltigt telefonnummer',
+      urlInvalid: 'Ange en giltig webbadress'
     }
   }
 };

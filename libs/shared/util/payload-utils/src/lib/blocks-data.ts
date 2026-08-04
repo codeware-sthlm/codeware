@@ -1,4 +1,4 @@
-import type { Post } from '@codeware/shared/util/payload-types';
+import type { Post, Tour } from '@codeware/shared/util/payload-types';
 
 /**
  * Pre-fetched data keyed by block id, for blocks that require server-side data.
@@ -12,10 +12,13 @@ import type { Post } from '@codeware/shared/util/payload-types';
  * use Payload relationship fields (like ReusableContentBlock), where content is
  * resolved automatically by Payload's `depth` option.
  *
- * When adding a new listing block (e.g. `tours`), add its collection type here
- * alongside the block definition and a case in `resolveBlockProps`.
+ * When adding a new listing block, add its collection type here alongside the
+ * block definition and a case in `resolveBlockProps`.
  */
 export type BlocksData = {
   /** Posts data keyed by PostsBlock id */
   posts?: Record<string, Array<Post>>;
+
+  /** Tours data keyed by ToursBlock id */
+  tours?: Record<string, Array<Tour>>;
 };

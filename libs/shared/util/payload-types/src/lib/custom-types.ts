@@ -23,7 +23,9 @@ import type {
   SiteSettingsGeneral,
   SocialMediaBlock,
   Tenant,
-  TenantsArrayField
+  TenantsArrayField,
+  Tour,
+  TourItinerary
 } from './payload-types';
 
 /** Custom Payload API endpoints */
@@ -100,8 +102,12 @@ export type FormSubmissionData = NonNullable<
   NonNullable<FormSubmission['submissionData']>
 >;
 
+/** Tour itinerary day */
+export type TourItineraryDay = NonNullable<TourItinerary>[number];
+
 type PageMetaDefined = NonNullable<Page['meta']>;
 type PostMetaDefined = NonNullable<Post['meta']>;
+type TourMetaDefined = NonNullable<Tour['meta']>;
 
 /** Page meta type */
 export type PageMeta = {
@@ -111,6 +117,11 @@ export type PageMeta = {
 /** Post meta type */
 export type PostMeta = {
   [K in keyof PostMetaDefined]: StripTypes<PostMetaDefined[K], number | null>;
+};
+
+/** Tour meta type */
+export type TourMeta = {
+  [K in keyof TourMetaDefined]: StripTypes<TourMetaDefined[K], number | null>;
 };
 
 /**

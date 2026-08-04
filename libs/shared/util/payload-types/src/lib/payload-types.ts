@@ -43,6 +43,29 @@ export type NavigationArrayItems =
     }[]
   | null;
 /**
+ * The day-by-day agenda. Add one entry per day of the tour, in order.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TourItinerary".
+ */
+export type TourItinerary =
+  | {
+      /**
+       * What happens this day, e.g. "Arrival & welcome dinner".
+       */
+      title: string;
+      /**
+       * Wineries, hotels and stops for this day.
+       */
+      places?: (number | Place)[] | null;
+      /**
+       * Plain text; line breaks are preserved.
+       */
+      description?: string | null;
+      id?: string | null;
+    }[]
+  | null;
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -120,6 +143,7 @@ export interface Config {
     showcase: ShowcaseBlock;
     'social-media': SocialMediaBlock;
     spacing: SpacingBlock;
+    tours: ToursBlock;
     video: VideoBlock;
   };
   collections: {
@@ -128,11 +152,15 @@ export interface Config {
     media: Media;
     navigation: Navigation;
     pages: Page;
+    places: Place;
+    'platform-labels': PlatformLabel;
     posts: Post;
     'reusable-content': ReusableContent;
     'site-settings': SiteSetting;
+    'stock-media': StockMedia;
     tags: Tag;
     tenants: Tenant;
+    tours: Tour;
     users: User;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -162,13 +190,17 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    places: PlacesSelect<false> | PlacesSelect<true>;
+    'platform-labels': PlatformLabelsSelect<false> | PlatformLabelsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'reusable-content':
       | ReusableContentSelect<false>
       | ReusableContentSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'stock-media': StockMediaSelect<false> | StockMediaSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    tours: ToursSelect<false> | ToursSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions':
@@ -328,6 +360,7 @@ export interface Page {
     | ShowcaseBlock
     | SocialMediaBlock
     | SpacingBlock
+    | ToursBlock
   )[];
   meta?: {
     title?: string | null;
@@ -873,6 +906,14 @@ export interface Form {
             width?: number | null;
             defaultValue?: number | null;
             required?: boolean | null;
+            /**
+             * Lowest value a visitor may enter. Leave empty for no limit.
+             */
+            min?: number | null;
+            /**
+             * Highest value a visitor may enter. Leave empty for no limit.
+             */
+            max?: number | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'number';
@@ -1374,6 +1415,21 @@ export interface ShowcaseItemLink {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ToursBlock".
+ */
+export interface ToursBlock {
+  title: string;
+  description?: string | null;
+  /**
+   * Maximum number of tours to display
+   */
+  limit: number;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'tours';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "VideoBlock".
  */
 export interface VideoBlock {
@@ -1412,6 +1468,61 @@ export interface Navigation {
   id: number;
   tenant?: (number | null) | Tenant;
   items?: NavigationArrayItems;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Wineries, hotels and other places your tours visit. Add a place once and reuse it across tours.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "places".
+ */
+export interface Place {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The name of the place, as it should appear in an itinerary.
+   */
+  name: string;
+  /**
+   * What sort of place this is. Maintained under Platform labels.
+   */
+  kind: number | PlatformLabel;
+  /**
+   * Optional link to the place.
+   */
+  url?: string | null;
+  /**
+   * A short line about the place, shown next to it in the itinerary.
+   */
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Shared vocabularies used across all workspaces, such as the kinds a place can be. Editors pick from these; only system users maintain them.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "platform-labels".
+ */
+export interface PlatformLabel {
+  id: number;
+  /**
+   * Which picker this label appears in.
+   */
+  type: 'place-kind' | 'stock-subject';
+  /**
+   * Short and lower case, e.g. "winery", "river valley". Must be unique within its type.
+   */
+  name: string;
+  /**
+   * Shown wherever the label appears. Pick a generic icon if none fits.
+   */
+  icon: string;
+  /**
+   * What this label is for and when to use it. Guidance for whoever maintains the list.
+   */
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1546,6 +1657,200 @@ export interface SiteSettingsFooter {
   showVersion?: boolean | null;
 }
 /**
+ * Shared images provided by the platform, free for any workspace to use. Upload your own photos under Media when you need a specific place.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stock-media".
+ */
+export interface StockMedia {
+  id: number;
+  /**
+   * Alternative text for SEO and accessibility. Describe what the image shows.
+   */
+  alt: string;
+  /**
+   * What the image shows. Maintained under Platform labels.
+   */
+  subject?: (number | null) | PlatformLabel;
+  /**
+   * Photographer or source, where the licence requires attribution.
+   */
+  credit?: string | null;
+  /**
+   * The licence this image is used under, so its terms can be checked later.
+   */
+  licence?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    meta?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Tours are the products you sell. Describe the trip, plan the days and publish when ready.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tours".
+ */
+export interface Tour {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The name of the tour, used in listings and navigation.
+   */
+  title: string;
+  /**
+   * Pick a shared image to set the mood, or upload your own photo of the actual places for an accurate one.
+   */
+  heroImage:
+    | {
+        relationTo: 'stock-media';
+        value: number | StockMedia;
+      }
+    | {
+        relationTo: 'media';
+        value: number | Media;
+      };
+  /**
+   * Short teaser shown on listing cards.
+   */
+  summary: string;
+  /**
+   * Where the tour takes place, e.g. "Tuscany, Italy".
+   */
+  destination: string;
+  /**
+   * How long the tour lasts, e.g. "7 days".
+   */
+  duration?: string | null;
+  /**
+   * Booking commits the customer and you invoice afterwards. Register interest is non-binding — use it when the departure is not confirmed yet.
+   */
+  intent: 'booking' | 'interest';
+  /**
+   * The day the tour departs. Leave empty while the date is unconfirmed.
+   */
+  departureDate?: string | null;
+  /**
+   * The last day customers can sign up. Optional.
+   */
+  bookingDeadline?: string | null;
+  /**
+   * Shown instead of a departure date, e.g. "Autumn 2027 — dates to be confirmed".
+   */
+  departureNote?: string | null;
+  /**
+   * Price per person, excluding currency.
+   */
+  price: number;
+  currency: 'EUR' | 'SEK' | 'USD' | 'GBP';
+  /**
+   * The form customers sign up with. Its submit button and confirmation carry their own wording, so use a form that matches the choice above. Build it under Forms & Messages.
+   */
+  bookingForm?: (number | null) | Form;
+  /**
+   * One line per thing the price covers.
+   */
+  included?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * One line per thing customers pay for themselves.
+   */
+  notIncluded?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  itinerary?: TourItinerary;
+  /**
+   * Everything that does not fit the structure above: preamble, practical info.
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  /**
+   * Used for url paths. Will be automatically generated from title if left empty.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Messages visitors have sent through the forms on your website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1610,6 +1915,14 @@ export interface PayloadLockedDocument {
         value: number | Page;
       } | null)
     | ({
+        relationTo: 'places';
+        value: number | Place;
+      } | null)
+    | ({
+        relationTo: 'platform-labels';
+        value: number | PlatformLabel;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -1622,12 +1935,20 @@ export interface PayloadLockedDocument {
         value: number | SiteSetting;
       } | null)
     | ({
+        relationTo: 'stock-media';
+        value: number | StockMedia;
+      } | null)
+    | ({
         relationTo: 'tags';
         value: number | Tag;
       } | null)
     | ({
         relationTo: 'tenants';
         value: number | Tenant;
+      } | null)
+    | ({
+        relationTo: 'tours';
+        value: number | Tour;
       } | null)
     | ({
         relationTo: 'users';
@@ -1841,6 +2162,31 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "places_select".
+ */
+export interface PlacesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  kind?: T;
+  url?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "platform-labels_select".
+ */
+export interface PlatformLabelsSelect<T extends boolean = true> {
+  type?: T;
+  name?: T;
+  icon?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -1941,6 +2287,82 @@ export interface SiteSettingsFooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stock-media_select".
+ */
+export interface StockMediaSelect<T extends boolean = true> {
+  alt?: T;
+  subject?: T;
+  credit?: T;
+  licence?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        meta?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tags_select".
  */
 export interface TagsSelect<T extends boolean = true> {
@@ -1985,6 +2407,60 @@ export interface TenantsSelect<T extends boolean = true> {
   enableAPIKey?: T;
   apiKey?: T;
   apiKeyIndex?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tours_select".
+ */
+export interface ToursSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  heroImage?: T;
+  summary?: T;
+  destination?: T;
+  duration?: T;
+  intent?: T;
+  departureDate?: T;
+  bookingDeadline?: T;
+  departureNote?: T;
+  price?: T;
+  currency?: T;
+  bookingForm?: T;
+  included?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  notIncluded?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  itinerary?: T | TourItinerarySelect<T>;
+  content?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TourItinerary_select".
+ */
+export interface TourItinerarySelect<T extends boolean = true> {
+  title?: T;
+  places?: T;
+  description?: T;
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2080,6 +2556,8 @@ export interface FormsSelect<T extends boolean = true> {
               width?: T;
               defaultValue?: T;
               required?: T;
+              min?: T;
+              max?: T;
               id?: T;
               blockName?: T;
             };

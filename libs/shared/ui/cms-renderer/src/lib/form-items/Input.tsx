@@ -10,19 +10,32 @@ type Props = ControllerRenderProps<FieldValues, string> & {
   label: string | null | undefined;
   placeholder: string | null | undefined;
   type: HTMLInputTypeAttribute;
+  /** Native constraints, mirroring the react-hook-form rules */
+  min?: number;
+  max?: number;
 };
 
 export const Input: React.FC<Props> = ({
   label,
   type,
   placeholder,
+  min,
+  max,
   ...field
 }) => {
   return (
     <>
-      {label && <FormLabel>{label}</FormLabel>}
+      {/* `text-nowrap` keeps a label like "Number of travellers" on one line
+          when its column has room to grow */}
+      {label && <FormLabel className="text-nowrap">{label}</FormLabel>}
       <FormControl>
-        <BaseInput type={type} placeholder={placeholder ?? ''} {...field} />
+        <BaseInput
+          type={type}
+          placeholder={placeholder ?? ''}
+          min={min}
+          max={max}
+          {...field}
+        />
       </FormControl>
     </>
   );

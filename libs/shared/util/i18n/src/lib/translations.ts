@@ -73,7 +73,29 @@ export type TranslationKey =
   | 'theme.dark'
   | 'theme.light'
   | 'theme.switchTo'
-  | 'theme.system';
+  | 'theme.system'
+  | 'tours.addToCalendar'
+  | 'tours.backToTours'
+  | 'tours.bookBefore'
+  | 'tours.datesToBeConfirmed'
+  | 'tours.bookingLede'
+  | 'tours.bookTour'
+  | 'tours.day'
+  | 'tours.departure'
+  | 'tours.duration'
+  | 'tours.included'
+  | 'tours.itinerary'
+  | 'tours.notIncluded'
+  | 'tours.perPerson'
+  | 'tours.price'
+  | 'tours.interestLede'
+  | 'tours.print'
+  | 'tours.registerInterest'
+  | 'tours.signUpBefore'
+  | 'tours.share'
+  | 'tours.shareCopied'
+  | 'tours.shareFailed'
+  | 'tours.viewItinerary';
 
 const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
   en: {
@@ -154,7 +176,31 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'theme.dark': 'dark',
     'theme.light': 'light',
     'theme.switchTo': 'Switch to {{theme}} theme',
-    'theme.system': 'system preference'
+    'theme.system': 'system preference',
+    'tours.addToCalendar': 'Add to calendar',
+    'tours.backToTours': 'Go back to tours',
+    'tours.bookBefore': 'Book before',
+    'tours.datesToBeConfirmed': 'Dates to be confirmed',
+    'tours.bookingLede':
+      'Send us a request and we will confirm your place. Bookings close {{date}}.',
+    'tours.bookTour': 'Book this tour',
+    'tours.day': 'Day {{day}}',
+    'tours.departure': 'Departure',
+    'tours.duration': 'Duration',
+    'tours.included': "What's included",
+    'tours.itinerary': 'Itinerary',
+    'tours.notIncluded': 'Not included',
+    'tours.perPerson': 'per person',
+    'tours.price': 'Price',
+    'tours.interestLede':
+      'Tell us you are interested and we will be in touch once the departure is confirmed. Nothing is binding.',
+    'tours.print': 'Print this tour',
+    'tours.registerInterest': 'Register interest',
+    'tours.signUpBefore': 'Sign up before',
+    'tours.share': 'Share this tour',
+    'tours.shareCopied': 'Link copied to clipboard',
+    'tours.shareFailed': 'Could not copy the link',
+    'tours.viewItinerary': 'View full itinerary'
   },
   sv: {
     'about.built': 'Byggd',
@@ -233,7 +279,31 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'theme.dark': 'mörkt',
     'theme.light': 'ljust',
     'theme.switchTo': 'Byt till {{theme}} tema',
-    'theme.system': 'systeminställning'
+    'theme.system': 'systeminställning',
+    'tours.addToCalendar': 'Lägg till i kalendern',
+    'tours.backToTours': 'Tillbaka till resor',
+    'tours.bookBefore': 'Boka senast',
+    'tours.datesToBeConfirmed': 'Datum ej fastställt',
+    'tours.bookingLede':
+      'Skicka en förfrågan så bekräftar vi din plats. Bokningen stänger {{date}}.',
+    'tours.bookTour': 'Boka den här resan',
+    'tours.day': 'Dag {{day}}',
+    'tours.departure': 'Avresa',
+    'tours.duration': 'Längd',
+    'tours.included': 'Det här ingår',
+    'tours.itinerary': 'Resplan',
+    'tours.notIncluded': 'Ingår inte',
+    'tours.perPerson': 'per person',
+    'tours.price': 'Pris',
+    'tours.interestLede':
+      'Meddela att du är intresserad så hör vi av oss när avresan är bekräftad. Ingenting är bindande.',
+    'tours.print': 'Skriv ut resan',
+    'tours.registerInterest': 'Intresseanmälan',
+    'tours.signUpBefore': 'Anmälan senast',
+    'tours.share': 'Dela resan',
+    'tours.shareCopied': 'Länken kopierad',
+    'tours.shareFailed': 'Kunde inte kopiera länken',
+    'tours.viewItinerary': 'Visa hela resplanen'
   }
 } as const;
 

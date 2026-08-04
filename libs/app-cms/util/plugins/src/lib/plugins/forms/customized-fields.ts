@@ -93,6 +93,40 @@ export const customizedFields = Object.keys(defaultFields).reduce(
       }
     }
 
+    // Number fields get a range so a form can demand e.g. at least one traveller.
+    // Without it the browser accepts zero and negative values.
+    if (fieldName === 'number') {
+      block.fields.push({
+        type: 'row',
+        fields: [
+          {
+            name: 'min',
+            type: 'number',
+            label: { en: 'Minimum value', sv: 'Minsta värde' },
+            admin: {
+              width: '50%',
+              description: {
+                en: 'Lowest value a visitor may enter. Leave empty for no limit.',
+                sv: 'Lägsta värde en besökare får ange. Lämna tomt för ingen gräns.'
+              }
+            }
+          },
+          {
+            name: 'max',
+            type: 'number',
+            label: { en: 'Maximum value', sv: 'Största värde' },
+            admin: {
+              width: '50%',
+              description: {
+                en: 'Highest value a visitor may enter. Leave empty for no limit.',
+                sv: 'Högsta värde en besökare får ange. Lämna tomt för ingen gräns.'
+              }
+            }
+          }
+        ]
+      });
+    }
+
     // Replace width field based on percentage (number) to a grid based with 12 columns
 
     // The width field can be located as a normal field or as a row field

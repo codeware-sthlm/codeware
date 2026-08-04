@@ -34,13 +34,17 @@ const collectionOrder: CollectionSlug[] = [
   // Your Content
   'pages',
   'posts',
+  'tours',
+  'places',
   'categories',
   'tags',
   'reusable-content',
   // Photos & Files
   'media',
+  'stock-media',
   // Site Setup
   'site-settings',
+  'platform-labels',
   'navigation',
   'faq',
   'tenants',

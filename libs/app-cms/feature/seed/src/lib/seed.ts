@@ -15,10 +15,14 @@ import { ensureFaq } from './local-api/ensure-faq';
 import { ensureMedia } from './local-api/ensure-media';
 import { ensureNavigation } from './local-api/ensure-navigation';
 import { ensurePage } from './local-api/ensure-page';
+import { ensurePlace } from './local-api/ensure-place';
+import { ensurePlatformLabel } from './local-api/ensure-platform-label';
 import { ensurePost } from './local-api/ensure-post';
 import { ensureSiteSetting } from './local-api/ensure-site-setting';
+import { ensureStockMedia } from './local-api/ensure-stock-media';
 import { ensureTag } from './local-api/ensure-tag';
 import { ensureTenant } from './local-api/ensure-tenant';
+import { ensureTour } from './local-api/ensure-tour';
 import { ensureUser } from './local-api/ensure-user';
 import type {
   SeedData,
@@ -27,8 +31,15 @@ import type {
 } from './seed-types';
 import { convertMarkdownToLexical } from './utils/convert-markdown-to-lexical';
 import {
+  labelIcon,
+  splitLabelKey,
+  usedLabelsSorted
+} from './utils/platform-label-icons';
+import {
   lookupCategory,
   lookupPage,
+  lookupPlace,
+  lookupStockMedia,
   lookupTag,
   lookupTenant,
   lookupUser,
@@ -648,6 +659,266 @@ export const seed = async (
           : `[SEED] >> Posts up to date (count: ${postCount})`
       );
       seedError = seedError || postFailed > 0;
+    }
+
+    // PLATFORM LABELS
+
+    // Derived from the data that uses them, so the shared vocabularies cannot
+    // drift away from the documents referencing them. Must run before stock
+    // media and places, which resolve their labels by name.
+    const labelKey = (type: string, name: string) => `${type}:${name}`;
+    const labelIds = new Map<string, number>();
+
+    if (!seedError) {
+      await ensureTransaction();
+
+      const used = [
+        ...new Set(
+          seedData.stockMedia
+            .map(({ subject }) => subject)
+            .filter((name): name is string => Boolean(name))
+            .map((name) => labelKey('stock-subject', name))
+        ),
+        ...new Set(
+          seedData.places.map(({ kind }) => labelKey('place-kind', kind))
+        )
+      ];
+
+      for (const key of usedLabelsSorted(used)) {
+        const [type, name] = splitLabelKey(key);
+        const response = await ensurePlatformLabel(
+          payload,
+          {
+            type,
+            name,
+            icon: labelIcon(type, name),
+            description: null
+          },
+          { transactionID }
+        );
+        labelIds.set(
+          key,
+          typeof response === 'object' ? response.id : Number(response)
+        );
+        if (typeof response === 'object') {
+          payload.logger.info(`[SEED] Platform label '${type}/${name}'`);
+        }
+      }
+
+      const { totalDocs: labelCount } = await payload.count({
+        collection: 'platform-labels',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        `[SEED] >> Platform labels up to date (count: ${labelCount})`
+      );
+    }
+
+    // STOCK MEDIA
+
+    // Platform-owned shared library, seeded once without a tenant.
+    // Must run before tours since hero images reference it.
+    if (!seedError && seedData.stockMedia.length > 0) {
+      await ensureTransaction();
+
+      let stockFailed = 0;
+
+      for (const { subject, ...stock } of seedData.stockMedia) {
+        try {
+          const response = await ensureStockMedia(
+            payload,
+            {
+              ...stock,
+              subject: subject
+                ? labelIds.get(labelKey('stock-subject', subject))
+                : undefined
+            },
+            { transactionID }
+          );
+
+          let stockId: number;
+          if (typeof response === 'object') {
+            payload.logger.info(`[SEED] Stock image '${stock.filename}'`);
+            stockId = response.id;
+          } else {
+            stockId = Number(response);
+          }
+          // Shared across tenants, so keyed by filename alone
+          tempStore.stockMedia(stock.filename, stockId);
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          stockFailed++;
+        }
+      }
+      const { totalDocs: stockCount } = await payload.count({
+        collection: 'stock-media',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        stockFailed
+          ? `[SEED] Problem occurred for ${stockFailed}/${seedData.stockMedia.length} stock images (count: ${stockCount})`
+          : `[SEED] >> Stock media up to date (count: ${stockCount})`
+      );
+      seedError = seedError || stockFailed > 0;
+    }
+
+    // PLACES
+
+    // Only seed places when no errors occurred.
+    // Must run before tours since itineraries reference them.
+    if (!seedError && seedData.places.length > 0) {
+      await ensureTransaction();
+
+      let placeFailed = 0;
+
+      for (const place of seedData.places) {
+        const [entity] = lookupTenant(payload, [place.tenant]);
+        const kind = labelIds.get(labelKey('place-kind', place.kind));
+
+        // A place is classified or it is not seeded
+        if (!kind) {
+          payload.logger.error(
+            `Skip: Place kind '${place.kind}' not found for '${place.name}'`
+          );
+          placeFailed++;
+          continue;
+        }
+
+        try {
+          const response = await ensurePlace(
+            payload,
+            {
+              kind,
+              name: place.name,
+              note: place.note,
+              url: place.url,
+              tenant: entity.id
+            },
+            { locale: entity.locale, transactionID }
+          );
+
+          let placeId: number;
+          if (typeof response === 'object') {
+            payload.logger.info(
+              `[SEED] Place '${place.name}' on tenant #${entity.id} (${entity.locale})`
+            );
+            placeId = response.id;
+          } else {
+            placeId = Number(response);
+          }
+          // Save place to map to lookup id's later
+          tempStore.place(
+            { apiKey: place.tenant.lookupApiKey, slug: place.name },
+            placeId
+          );
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Place '${place.name}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          placeFailed++;
+        }
+      }
+      const { totalDocs: placeCount } = await payload.count({
+        collection: 'places',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        placeFailed
+          ? `[SEED] Problem occurred for ${placeFailed}/${seedData.places.length} places (count: ${placeCount})`
+          : `[SEED] >> Places up to date (count: ${placeCount})`
+      );
+      seedError = seedError || placeFailed > 0;
+    }
+
+    // TOURS
+
+    // Only seed tours when no errors occurred
+    if (!seedError && seedData.tours.length > 0) {
+      await ensureTransaction();
+
+      let tourFailed = 0;
+
+      for (const tour of seedData.tours) {
+        const [entity] = lookupTenant(payload, [tour.tenant]);
+        const heroImage = lookupStockMedia(payload, tour.heroImage);
+
+        // A tour cannot be published without a header image
+        if (!heroImage) {
+          tourFailed++;
+          continue;
+        }
+
+        try {
+          const response = await ensureTour(
+            payload,
+            {
+              bookingDeadline: tour.bookingDeadline,
+              content: await convertMarkdownToLexical(
+                payload.config,
+                tour.content
+              ),
+              currency: tour.currency,
+              departureDate: tour.departureDate,
+              departureNote: tour.departureNote,
+              destination: tour.destination,
+              intent: tour.intent,
+              duration: tour.duration,
+              heroImage: {
+                relationTo: 'stock-media' as const,
+                value: heroImage
+              },
+              included: tour.included.map((item) => ({ item })),
+              notIncluded: tour.notIncluded.map((item) => ({ item })),
+              itinerary: tour.itinerary.map(({ places, ...day }) => ({
+                ...day,
+                places: lookupPlace(
+                  payload,
+                  (places ?? []).map((name) => ({
+                    apiKey: tour.tenant.lookupApiKey,
+                    slug: name
+                  }))
+                )
+              })),
+              price: tour.price,
+              slug: tour.slug,
+              summary: tour.summary,
+              title: tour.title,
+              tenant: entity.id
+            },
+            { locale: entity.locale, transactionID }
+          );
+
+          if (typeof response === 'object') {
+            payload.logger.info(
+              `[SEED] Tour '${tour.slug}' on tenant #${entity.id} (${entity.locale})`
+            );
+          }
+        } catch (e) {
+          const error = e as Error;
+          payload.logger.error(error.message);
+          if ('data' in error) {
+            payload.logger.error(
+              `Tour '${tour.slug}'\n${JSON.stringify(error.data, null, 2)}`
+            );
+          }
+          tourFailed++;
+        }
+      }
+      const { totalDocs: tourCount } = await payload.count({
+        collection: 'tours',
+        req: { transactionID }
+      });
+      payload.logger.info(
+        tourFailed
+          ? `[SEED] Problem occurred for ${tourFailed}/${seedData.tours.length} tours (count: ${tourCount})`
+          : `[SEED] >> Tours up to date (count: ${tourCount})`
+      );
+      seedError = seedError || tourFailed > 0;
     }
 
     // NAVIGATION

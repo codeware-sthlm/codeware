@@ -7,12 +7,53 @@ import type { PayloadRuntime } from '../payload-runtime.types';
 
 import { getPage } from './get-page';
 import { getPosts } from './get-posts';
+import { getTours } from './get-tours';
 import type { QuerySingleOptions } from './types';
 
 export type PageData = {
   page: Page;
   blocksData: BlocksData;
 };
+
+type LayoutBlock = NonNullable<Page['layout']>[number];
+
+/**
+ * Resolve every listing block of one type into documents keyed by block id.
+ *
+ * Blocks without an id are skipped — the key is what pairs the fetched
+ * documents with the block at render time.
+ */
+async function resolveListingBlocks<
+  TType extends LayoutBlock['blockType'],
+  TDoc
+>(
+  layout: Page['layout'] | undefined,
+  blockType: TType,
+  fetchDocs: (
+    block: Extract<LayoutBlock, { blockType: TType }>
+  ) => Promise<Array<TDoc>>
+): Promise<Record<string, Array<TDoc>> | undefined> {
+  const blocks = (layout ?? []).filter(
+    (block): block is Extract<LayoutBlock, { blockType: TType }> =>
+      block.blockType === blockType
+  );
+
+  if (!blocks.length) {
+    return undefined;
+  }
+
+  const docsByBlock: Record<string, Array<TDoc>> = {};
+  await Promise.all(
+    blocks.map(async (block) => {
+      if (!block.id) {
+        return;
+      }
+      docsByBlock[block.id] = await fetchDocs(block);
+    })
+  );
+
+  return docsByBlock;
+}
 
 /**
  * Fetch a page and all data required by its blocks in one call.
@@ -42,27 +83,27 @@ export async function getPageData(
     return null;
   }
 
-  const blocksData: BlocksData = {};
+  const [posts, tours] = await Promise.all([
+    resolveListingBlocks(page.layout, 'posts', async ({ limit }) => {
+      const result = await getPosts(resolvedRuntime, {
+        limit,
+        sort: '-createdAt' as 'createdAt'
+      });
+      return result?.docs ?? [];
+    }),
+    resolveListingBlocks(page.layout, 'tours', async ({ limit }) => {
+      const result = await getTours(resolvedRuntime, {
+        limit,
+        sort: '-createdAt' as 'createdAt'
+      });
+      return result?.docs ?? [];
+    })
+  ]);
 
-  // Currently only `posts` block requires extra data, but this can be extended in the future as needed.
-  const postsBlocks = page.layout?.filter((b) => b.blockType === 'posts') ?? [];
-
-  if (postsBlocks.length) {
-    const postsByBlock: NonNullable<BlocksData['posts']> = {};
-    blocksData.posts = postsByBlock;
-    await Promise.all(
-      postsBlocks.map(async (block) => {
-        if (!block.id) {
-          return;
-        }
-        const result = await getPosts(resolvedRuntime, {
-          limit: block.limit,
-          sort: '-createdAt' as 'createdAt'
-        });
-        postsByBlock[block.id] = result?.docs ?? [];
-      })
-    );
-  }
+  const blocksData: BlocksData = {
+    ...(posts && { posts }),
+    ...(tours && { tours })
+  };
 
   return { page, blocksData };
 }

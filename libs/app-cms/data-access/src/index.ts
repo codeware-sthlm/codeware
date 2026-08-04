@@ -39,4 +39,8 @@ export { getPreference } from './lib/collections/get-preference';
 
 export { getSiteSettings } from './lib/collections/get-site-settings';
 export { getTenant } from './lib/collections/get-tenant';
+
+export { getTour } from './lib/collections/get-tour';
+export { getTours } from './lib/collections/get-tours';
+
 export { getUser } from './lib/collections/get-user';

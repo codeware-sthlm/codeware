@@ -1,11 +1,15 @@
-import { RenderPost } from '@codeware/shared/ui/cms-renderer';
+import { RenderPost, RenderTour } from '@codeware/shared/ui/cms-renderer';
 import { t } from '@codeware/shared/util/i18n';
 import {
   findBySlug,
   findNavigationDoc,
   getBlocksData
 } from '@codeware/shared/util/payload-api';
-import type { NavigationDoc, Post } from '@codeware/shared/util/payload-types';
+import type {
+  NavigationDoc,
+  Post,
+  Tour
+} from '@codeware/shared/util/payload-types';
 import {
   type BlocksData,
   resolveMeta
@@ -38,10 +42,11 @@ export const meta: MetaFunction<typeof loader> = ({ data, matches }) => {
   const appName = tenantConfig?.appName ?? defaultAppName;
 
   const post = (data as { post: Post | null } | undefined)?.post ?? null;
+  const tour = (data as { tour: Tour | null } | undefined)?.tour ?? null;
   const doc = ensurePayloadDoc(
     (data as { doc: NavigationDoc | null } | undefined)?.doc
   );
-  const meta = resolveMeta(post ?? doc);
+  const meta = resolveMeta(post ?? tour ?? doc);
 
   return [{ title: `${appName} - ${meta?.title ?? 'Page'}` }];
 };
@@ -78,7 +83,26 @@ export async function loader({
       if (!post) {
         throw Response.json({ message: 'Page not found' }, { status: 404 });
       }
-      return json({ doc: null, post, blocksData: {} as BlocksData });
+      return json({
+        doc: null,
+        post,
+        tour: null,
+        blocksData: {} as BlocksData
+      });
+    }
+
+    // Tours are fetched as full documents to support RenderTour
+    if (collection === 'tours') {
+      const tour = await findBySlug('tours', slug, requestOptions);
+      if (!tour) {
+        throw Response.json({ message: 'Page not found' }, { status: 404 });
+      }
+      return json({
+        doc: null,
+        post: null,
+        tour,
+        blocksData: {} as BlocksData
+      });
     }
 
     const doc = await findNavigationDoc(collection, slug, requestOptions);
@@ -91,7 +115,7 @@ export async function loader({
         ? await getBlocksData(doc.layout, requestOptions)
         : {};
 
-    return json({ doc, post: null, blocksData });
+    return json({ doc, post: null, tour: null, blocksData });
   } catch (e) {
     const error = e as Error;
     throw Response.json({ message: error.message }, { status: 404 });
@@ -102,11 +126,13 @@ export default function Document() {
   const data = useLoaderData<typeof loader>();
   const doc = ensurePayloadDoc(data.doc);
   const post = data.post as Post | null;
+  const tour = data.tour as Tour | null;
   const blocksData = data.blocksData as BlocksData;
 
   return (
     <Container className="mt-16 sm:mt-32">
       {post && <RenderPost post={post} />}
+      {tour && <RenderTour tour={tour} />}
       {doc?.collection === 'pages' && (
         <RenderPagesDoc doc={doc} blocksData={blocksData} />
       )}

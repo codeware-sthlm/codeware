@@ -33,6 +33,8 @@ const apiKeyHeader = (apiKey: string) => ({
 const collections = [
   { slug: 'pages', query: '&where[_status][equals]=published' },
   { slug: 'posts', query: '&where[_status][equals]=published' },
+  { slug: 'tours', query: '&where[_status][equals]=published' },
+  { slug: 'places', query: '' },
   { slug: 'media', query: '' },
   { slug: 'categories', query: '' },
   { slug: 'tags', query: '' },
@@ -180,7 +182,7 @@ test.describe('Tenant API key scope', () => {
 
   test('api key cannot read version history [K-04]', async ({ request }) => {
     // Versions hold unpublished drafts, which clients must never reach
-    for (const slug of ['pages', 'posts']) {
+    for (const slug of ['pages', 'posts', 'tours']) {
       const res = await request.get(`/api/${slug}/versions?limit=100`, {
         headers: apiKeyHeader(MOON_API_KEY)
       });

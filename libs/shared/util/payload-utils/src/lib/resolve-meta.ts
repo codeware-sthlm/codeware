@@ -3,18 +3,20 @@ import type {
   Page,
   PageMeta,
   Post,
-  PostMeta
+  PostMeta,
+  Tour,
+  TourMeta
 } from '@codeware/shared/util/payload-types';
 
 /**
- * Resolve the meta for a navigation document, page, or post.
+ * Resolve the meta for a navigation document, page, post, or tour.
  *
- * @param data - The navigation document, page, or post to resolve the meta for.
- * @returns Page or post meta or `null` if the meta data is not found.
+ * @param data - The navigation document, page, post, or tour to resolve the meta for.
+ * @returns Page, post or tour meta or `null` if the meta data is not found.
  */
 export const resolveMeta = (
-  data: NavigationDoc | Page | Post | null | undefined
-): PageMeta | PostMeta | null => {
+  data: NavigationDoc | Page | Post | Tour | null | undefined
+): PageMeta | PostMeta | TourMeta | null => {
   if (!data) {
     return null;
   }
@@ -31,7 +33,7 @@ export const resolveMeta = (
     }
   }
 
-  // Resolve page meta
+  // Resolve page, post or tour meta
   if ('meta' in data) {
     const { description, image, title } = data.meta ?? {};
     return {

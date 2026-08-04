@@ -8,6 +8,9 @@
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/theme.css' layer(theme);
 
+/* Enter/exit animation utilities used by the shadcn overlay components */
+@import 'tw-animate-css';
+
 @import '../../../libs/shared/theme/src/lib/_core/tailwind-setup.css';
 @import './themes.css';
 

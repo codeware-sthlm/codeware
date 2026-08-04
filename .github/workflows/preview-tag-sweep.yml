@@ -1,0 +1,121 @@
+name: Preview tag sweep
+
+# Preview deployments tag every push as `<app>-<version>-preview.<pr>.<n>`.
+# `fly-deployment.yml` drops a PR's lane when the PR closes, but a failed or
+# cancelled destroy job — and anything tagged before that cleanup existed —
+# leaves the lane behind. This sweeps whatever is left.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "List the tags that would be deleted without deleting them"
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # Every Monday at 5am UTC
+    - cron: 0 5 * * 1
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: generate-token
+        with:
+          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v5
+        with:
+          # Delete release tags as the app, the ruleset's bypass actor
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Sweep preview tags
+        env:
+          DRY_RUN: ${{ inputs.dry-run }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          set -euo pipefail
+
+          # Read the remote directly — the checkout above is shallow and carries no tags
+          tags=()
+          while IFS= read -r tag; do
+            tags+=("$tag")
+          done < <(
+            git ls-remote --tags --refs origin 'refs/tags/*-preview.*' |
+              awk '{print $2}' |
+              grep -E '^refs/tags/.+-preview\.[0-9]+\.[0-9]+$' || true
+          )
+
+          if [ ${#tags[@]} -eq 0 ]; then
+            echo "No preview tags found" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          prs=()
+          while IFS= read -r pr; do
+            prs+=("$pr")
+          done < <(
+            printf '%s\n' "${tags[@]}" |
+              sed -E 's/.*-preview\.([0-9]+)\.[0-9]+$/\1/' | sort -un
+          )
+          echo "Found ${#tags[@]} preview tags across ${#prs[@]} PR lanes"
+
+          stale=()
+          for pr in "${prs[@]}"; do
+            # An API hiccup must not be read as "PR is gone" — only a definitive
+            # not-found sweeps a lane whose PR no longer exists
+            if state="$(gh pr view "$pr" --json state --jq .state 2>&1)"; then
+              :
+            elif grep -qiE 'not found|no pull requests found|could not resolve' <<< "$state"; then
+              state=MISSING
+            else
+              echo "::warning::Could not resolve PR #${pr} ($state) — keeping its lane"
+              continue
+            fi
+
+            if [ "$state" = "OPEN" ]; then
+              echo "PR #${pr} is open — keeping its lane"
+              continue
+            fi
+
+            echo "PR #${pr} is ${state} — sweeping its lane"
+            while IFS= read -r tag; do
+              stale+=("$tag")
+            done < <(printf '%s\n' "${tags[@]}" | grep -E -- "-preview\.${pr}\.[0-9]+$")
+          done
+
+          if [ ${#stale[@]} -eq 0 ]; then
+            echo "Nothing to sweep" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          {
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "### 🔍 Preview tag sweep (dry run) — ${#stale[@]} tags"
+            else
+              echo "### 🧹 Preview tag sweep — ${#stale[@]} tags deleted"
+            fi
+            echo ""
+            printf -- '- `%s`\n' "${stale[@]#refs/tags/}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run — leaving ${#stale[@]} tags in place"
+            printf '%s\n' "${stale[@]}"
+            exit 0
+          fi
+
+          # Not atomic: one unexpected ref must not block the rest of the sweep
+          git push --no-verify origin --delete "${stale[@]}"

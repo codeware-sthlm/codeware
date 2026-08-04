@@ -193,7 +193,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          client-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
       # Privileged job (secrets + write token) — keep the default ref, never
@@ -364,7 +364,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          client-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
       - uses: actions/checkout@v5
@@ -560,7 +560,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          client-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
       # workflow_run payload, then pull_request event, then manual dispatch input
@@ -709,7 +709,7 @@ jobs:
       - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
+          client-id: ${{ secrets.CDWR_ACTIONS_BOT_ID }}
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
       - uses: actions/checkout@v5

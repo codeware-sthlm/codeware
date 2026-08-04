@@ -713,6 +713,9 @@ jobs:
           private-key: ${{ secrets.CDWR_ACTIONS_BOT_PRIVATE_KEY }}
 
       - uses: actions/checkout@v5
+        with:
+          # Delete release tags as the app, the ruleset's bypass actor
+          token: ${{ steps.generate-token.outputs.token }}
 
       - uses: pnpm/action-setup@v5
 
@@ -744,6 +747,38 @@ jobs:
           fly-trace-cli: ${{ vars.FLY_TRACE_CLI }}
           fly-console-logs: ${{ steps.flags.outputs.console-logs }}
           token: ${{ steps.generate-token.outputs.token }}
+
+      # Every preview push leaves an app tag behind, `<app>-<version>-preview.<pr>.<n>`.
+      # The lane belongs to this PR alone, so it goes the same way as its apps and
+      # database. Runs even if the destroy above failed — the two are independent.
+      - name: Delete preview tags
+        if: ${{ !cancelled() }}
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "No PR number resolved, nothing to clean up"
+            exit 0
+          fi
+
+          # Read the remote directly — the checkout above is shallow and carries no tags
+          tags=()
+          while IFS= read -r tag; do
+            tags+=("$tag")
+          done < <(
+            git ls-remote --tags --refs origin "refs/tags/*-preview.${PR_NUMBER}.*" |
+              awk '{print $2}' |
+              grep -E "^refs/tags/.+-preview\.${PR_NUMBER}\.[0-9]+$" || true
+          )
+
+          if [ ${#tags[@]} -eq 0 ]; then
+            echo "No preview tags for PR #${PR_NUMBER}"
+            exit 0
+          fi
+
+          printf 'Deleting %s\n' "${tags[@]}"
+          git push --no-verify --atomic origin --delete "${tags[@]}"
 
   summary:
     needs:
@@ -787,11 +822,11 @@ jobs:
             echo "🚪 PR closed - running cleanup" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             if [ "$DESTROY_RESULT" = "success" ]; then
-              echo "✅ Preview apps destroyed successfully" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Preview apps and tags cleaned up successfully" >> $GITHUB_STEP_SUMMARY
             elif [ "$DESTROY_RESULT" = "skipped" ]; then
-              echo "⏭️ No preview apps to destroy" >> $GITHUB_STEP_SUMMARY
+              echo "⏭️ Nothing to clean up" >> $GITHUB_STEP_SUMMARY
             else
-              echo "❌ Preview app cleanup failed or was cancelled" >> $GITHUB_STEP_SUMMARY
+              echo "❌ Preview cleanup failed or was cancelled" >> $GITHUB_STEP_SUMMARY
             fi
             exit 0
           fi

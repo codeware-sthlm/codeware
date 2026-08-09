@@ -44,5 +44,7 @@ export async function fetchFileByURL(
 
   const blob = await res.blob();
 
-  return new File([blob], fileName);
+  // Carry the content type over — `new File(...)` defaults to an empty type,
+  // and an upload collection that restricts `mimeTypes` rejects that
+  return new File([blob], fileName, { type: blob.type });
 }

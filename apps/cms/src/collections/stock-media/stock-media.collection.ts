@@ -99,6 +99,24 @@ const stockMedia: CollectionConfig<'stock-media'> = {
       }
     }),
     {
+      // Stores the S3 key prefix so files land in their own folder rather than
+      // beside the tenant folders at the bucket root.
+      //
+      // Deliberately a real field with a fixed default rather than the storage
+      // plugin's `prefix` option: the plugin only runs when a bucket is
+      // configured, so its field would exist in some environments and not
+      // others and no migration could describe both.
+      name: 'prefix',
+      type: 'text',
+      defaultValue: 'stock-media',
+      admin: { hidden: true },
+      hooks: {
+        // Coerce null → undefined so the S3 delete handler's `{ prefix = '' }`
+        // default applies to rows created before this field existed
+        afterRead: [({ value }) => value ?? undefined]
+      }
+    },
+    {
       name: 'credit',
       type: 'text',
       label: { en: 'Credit', sv: 'Fotograf' },

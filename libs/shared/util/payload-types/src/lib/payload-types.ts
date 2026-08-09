@@ -1672,6 +1672,7 @@ export interface StockMedia {
    * What the image shows. The list is curated by the platform.
    */
   subject?: (number | null) | PlatformLabel;
+  prefix?: string | null;
   /**
    * Photographer or source, where the licence requires attribution.
    */
@@ -2291,6 +2292,7 @@ export interface SiteSettingsFooterSelect<T extends boolean = true> {
 export interface StockMediaSelect<T extends boolean = true> {
   alt?: T;
   subject?: T;
+  prefix?: T;
   credit?: T;
   licence?: T;
   updatedAt?: T;

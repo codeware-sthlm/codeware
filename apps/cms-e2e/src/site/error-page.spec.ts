@@ -6,6 +6,9 @@ import { expect, test } from '../fixtures';
  * renders correctly without providers, styles, or DB access.
  */
 test.describe('maintenance error page', () => {
+  // The route throws on purpose — that 500 is the subject of these tests
+  test.use({ allowedErrors: ['/test/error'] });
+
   test('renders technical difficulties page on unhandled error', async ({
     page
   }) => {

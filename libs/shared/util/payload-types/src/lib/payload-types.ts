@@ -1485,7 +1485,7 @@ export interface Place {
    */
   name: string;
   /**
-   * What sort of place this is. Maintained under Platform labels.
+   * What sort of place this is. The list is curated by the platform.
    */
   kind: number | PlatformLabel;
   /**
@@ -1669,7 +1669,7 @@ export interface StockMedia {
    */
   alt: string;
   /**
-   * What the image shows. Maintained under Platform labels.
+   * What the image shows. The list is curated by the platform.
    */
   subject?: (number | null) | PlatformLabel;
   /**
@@ -1680,7 +1680,6 @@ export interface StockMedia {
    * The licence this image is used under, so its terms can be checked later.
    */
   licence?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -2294,7 +2293,6 @@ export interface StockMediaSelect<T extends boolean = true> {
   subject?: T;
   credit?: T;
   licence?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

@@ -29,7 +29,7 @@ import { Button } from './button';
  * The cap has to be written per side, because upstream sets it with a
  * `data-[side=…]` variant — an attribute selector outranks a plain
  * `sm:max-w-*` passed via `className`, so a caller cannot override it.
- * Below `sm` the width stays upstream's `w-3/4`.
+ * Below `sm` every size is full width, overriding upstream's `w-3/4`.
  */
 const sheetContentVariants = cva('', {
   variants: {

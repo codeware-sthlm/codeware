@@ -6,6 +6,7 @@ import { loadEnv } from '@codeware/app-cms/feature/env-loader';
 import { seed } from '@codeware/app-cms/feature/seed';
 import { sql } from '@payloadcms/db-postgres';
 import type { DrizzleAdapter, PostgresDB } from '@payloadcms/drizzle';
+import type { CollectionSlug } from 'payload';
 import { getMigrations, getPayload } from 'payload';
 
 import config from '../payload.config';
@@ -25,7 +26,7 @@ const SEEDED_COLLECTIONS = [
   'tenants',
   'tours',
   'users'
-] as const;
+] as const satisfies readonly CollectionSlug[];
 
 type SeededCollection = (typeof SEEDED_COLLECTIONS)[number];
 type CountSnapshot = Record<SeededCollection, number>;

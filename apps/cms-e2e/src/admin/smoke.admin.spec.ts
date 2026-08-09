@@ -16,8 +16,10 @@
 
 import {
   globalCollectionSlugs,
+  platformCollectionSlugs,
   tenantCollectionSlugs
 } from '@codeware/app-cms/util/definitions';
+import type { CollectionSlug } from '@codeware/shared/util/payload-types';
 import type { Page } from '@playwright/test';
 
 import { expect, test } from '../fixtures';
@@ -34,7 +36,11 @@ const isGlobal = (slug: string) =>
  * behind for the specs that run after it, so their create view is skipped —
  * the same fields are covered through the edit views below.
  */
-const autosaveCollections = ['pages', 'posts', 'tours'];
+const autosaveCollections = [
+  'pages',
+  'posts',
+  'tours'
+] as const satisfies readonly CollectionSlug[];
 
 /** Tenant collections with a real list view — globals hold a single document */
 const listViews = tenantCollectionSlugs.filter((slug) => !isGlobal(slug));
@@ -45,12 +51,23 @@ const listViews = tenantCollectionSlugs.filter((slug) => !isGlobal(slug));
  * `form-submissions` are created by an api key on the public site, so its
  * create view is not part of the editor's workflow.
  */
+const isAutosave = (slug: string) =>
+  (autosaveCollections as ReadonlyArray<string>).includes(slug);
+
 const createViews = listViews.filter(
-  (slug) => slug !== 'form-submissions' && !autosaveCollections.includes(slug)
+  (slug) => slug !== 'form-submissions' && !isAutosave(slug)
 );
 
 /** Platform-owned collections, visible to system users only */
-const platformViews = ['faq', 'platform-labels', 'stock-media'];
+const platformViews = platformCollectionSlugs;
+
+/** The collections an editor spends most of their time in */
+const coreCollections = [
+  'pages',
+  'posts',
+  'tours',
+  'places'
+] as const satisfies readonly CollectionSlug[];
 
 /** A list view shows a table of documents, or says there are none */
 const listRendered = (page: Page) =>
@@ -136,7 +153,7 @@ test.describe('/admin — smoke', () => {
   test('the first document of each core collection opens', async ({ page }) => {
     await loginAs(page, 'tenantAdmin', { navigate: true });
 
-    for (const slug of ['pages', 'posts', 'tours', 'places']) {
+    for (const slug of coreCollections) {
       await page.goto(await firstDocumentUrl(page, slug));
 
       await expect(

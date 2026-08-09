@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 import { tenantCollectionSlugs } from '@codeware/app-cms/util/definitions';
+import type { CollectionConfig } from 'payload';
 
 /**
  * Invariants across the registered collections.
@@ -19,7 +20,14 @@ const collectionsDir = __dirname;
 /** Access helpers whose `Where` names the `tenant` field */
 const tenantScopedHelpers = ['userOrApiKeyAccess', 'userOnlyAccess'];
 
-const operations = ['create', 'delete', 'read', 'update'];
+const operations = [
+  'create',
+  'delete',
+  'read',
+  'update'
+] as const satisfies ReadonlyArray<
+  keyof NonNullable<CollectionConfig['access']>
+>;
 
 /**
  * Drop comments so prose about a helper is not mistaken for a call.

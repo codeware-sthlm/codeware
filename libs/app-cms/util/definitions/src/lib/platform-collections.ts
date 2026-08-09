@@ -1,0 +1,24 @@
+import type { CollectionSlug } from 'payload';
+
+/**
+ * Collections owned by the platform rather than a tenant.
+ *
+ * Deliberately left out of the multi-tenant plugin: one set of documents is
+ * shared by every workspace and only system users maintain them. They carry no
+ * `tenant` field, so a tenant-scoped access helper cannot be used on them.
+ */
+export const platformCollectionSlugs = [
+  'faq',
+  'platform-labels',
+  'stock-media'
+] as const satisfies readonly CollectionSlug[];
+
+export type PlatformCollectionSlug = (typeof platformCollectionSlugs)[number];
+
+/**
+ * Whether a collection slug is platform owned.
+ *
+ * @see {@link platformCollectionSlugs}
+ */
+export const isPlatformCollectionSlug = (slug: string): boolean =>
+  (platformCollectionSlugs as readonly string[]).includes(slug);

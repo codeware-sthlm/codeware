@@ -10,7 +10,11 @@
  * the matching spec.
  */
 
-import { tenantCollectionSlugs } from '@codeware/app-cms/util/definitions';
+import {
+  platformCollectionSlugs,
+  tenantCollectionSlugs
+} from '@codeware/app-cms/util/definitions';
+import type { CollectionSlug } from '@codeware/shared/util/payload-types';
 
 import { expect, test } from '../fixtures';
 import { loginAs } from '../helpers/login';
@@ -25,13 +29,16 @@ const tenantOwned: ReadonlyArray<string> = tenantCollectionSlugs;
  * Owned by the platform, shared by every workspace, maintained by system users.
  * Covered by `platform-owned.spec.ts`.
  */
-const platformOwned = ['faq', 'platform-labels', 'stock-media'];
+const platformOwned: ReadonlyArray<string> = platformCollectionSlugs;
 
 /**
  * Identities rather than content — they carry their own access model.
  * Covered by `users-management.spec.ts` and `tenants.spec.ts`.
  */
-const identities = ['tenants', 'users'];
+const identities = [
+  'tenants',
+  'users'
+] as const satisfies readonly CollectionSlug[];
 
 const classified = new Set([...tenantOwned, ...platformOwned, ...identities]);
 

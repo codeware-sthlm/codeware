@@ -13,6 +13,11 @@ export {
 } from './lib/global-collections';
 export { type MimeTypeSlug, getMimeTypes } from './lib/mime-types';
 export {
+  type PlatformCollectionSlug,
+  isPlatformCollectionSlug,
+  platformCollectionSlugs
+} from './lib/platform-collections';
+export {
   type TenantCollectionSlug,
   isTenantCollectionSlug,
   tenantCollectionSlugs

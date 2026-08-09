@@ -30,10 +30,6 @@ export const TEST_USERS = {
 
 export type TestUser = keyof typeof TEST_USERS;
 
-// Keep named exports so existing tests that import these directly don't break
-export const ADMIN_EMAIL = TEST_USERS.tenantAdmin.email;
-export const ADMIN_PASSWORD = TEST_USERS.tenantAdmin.password;
-
 type LoginOptions = {
   /**
    * Whether to navigate to /admin after setting cookies.

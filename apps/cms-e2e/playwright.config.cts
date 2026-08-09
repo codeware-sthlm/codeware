@@ -18,14 +18,15 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:3000';
 
 export default defineConfig({
   ...nxE2EPreset(__dirname, { testDir: './src' }),
-  // Admin tests drive the Payload UI and are prone to timing flakiness.
-  // Permission and API tests are deterministic and always run in CI.
-  testIgnore: process.env['CI'] ? ['**/admin/**'] : [],
   globalSetup: require.resolve('./global-setup.cts'),
   globalTeardown: require.resolve('./global-teardown.cts'),
   // Ensure tests run serially to avoid
   fullyParallel: false,
   workers: 1,
+  // The web server runs `next dev`, which compiles each route on first visit.
+  // A generous assertion timeout absorbs that without costing anything on a
+  // green run — only a failing assertion waits this long.
+  expect: { timeout: 15_000 },
   use: {
     baseURL,
     screenshot: 'only-on-failure',

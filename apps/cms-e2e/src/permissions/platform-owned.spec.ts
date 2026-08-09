@@ -13,6 +13,8 @@
  * read assertions below are the regression guard.
  */
 
+import { platformCollectionSlugs } from '@codeware/app-cms/util/definitions';
+
 import { expect, test } from '../fixtures';
 import { loginAs } from '../helpers/login';
 import { withSystemUser } from '../helpers/with-system-user';
@@ -25,7 +27,7 @@ const apiKeyHeader = (apiKey: string) => ({
   Authorization: `tenants API-Key ${apiKey}`
 });
 
-const collections = ['faq', 'platform-labels', 'stock-media'] as const;
+const collections = platformCollectionSlugs;
 
 /** One document id per collection, collected once as the write target */
 const docs: Record<string, number> = {};

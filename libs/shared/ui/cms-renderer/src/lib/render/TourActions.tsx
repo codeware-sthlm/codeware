@@ -66,7 +66,9 @@ export function TourActions({ tour }: Props) {
     link.download = calendarFilename(tour.slug);
     link.click();
 
-    URL.revokeObjectURL(href);
+    // Revoking synchronously can cancel or truncate the download in some
+    // browsers — let the current task finish first
+    setTimeout(() => URL.revokeObjectURL(href), 0);
   };
 
   return (

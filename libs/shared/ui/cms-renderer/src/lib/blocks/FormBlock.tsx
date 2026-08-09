@@ -271,6 +271,15 @@ export const FormBlock: React.FC<Props> = ({
                               min={fieldDef.min ?? undefined}
                               max={fieldDef.max ?? undefined}
                               {...field}
+                              // A number input still reports a string, which
+                              // makes the min/max rules compare text
+                              onChange={(event) =>
+                                field.onChange(
+                                  event.target.value === ''
+                                    ? undefined
+                                    : event.target.valueAsNumber
+                                )
+                              }
                             />
                           )}
                           {fieldDef.blockType === 'radio' && (

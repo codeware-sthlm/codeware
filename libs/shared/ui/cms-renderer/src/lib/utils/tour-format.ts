@@ -5,6 +5,12 @@ import type {
 } from '@codeware/shared/util/payload-types';
 
 /**
+ * `dayOnly` date fields are stored at midnight UTC, so they must be rendered in
+ * UTC — formatting them in local time shows the previous day west of Greenwich.
+ */
+const DAY_ONLY_TIME_ZONE = 'UTC';
+
+/**
  * Resolve the hero image of a tour to a renderable document.
  *
  * `heroImage` is a polymorphic upload — it points at either the shared
@@ -53,7 +59,8 @@ export function formatTourDate(
   return new Date(date).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: DAY_ONLY_TIME_ZONE
   });
 }
 
@@ -75,9 +82,10 @@ export function formatTourDayDate(
     return '';
   }
   const date = new Date(departureDate);
-  date.setDate(date.getDate() + dayIndex);
+  date.setUTCDate(date.getUTCDate() + dayIndex);
   return date.toLocaleDateString(locale, {
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: DAY_ONLY_TIME_ZONE
   });
 }

@@ -62,8 +62,8 @@ export const Sizes: StoryObj = {
             <SheetHeader>
               <SheetTitle>Sheet size {size}</SheetTitle>
               <SheetDescription>
-                Below the `sm` breakpoint every size falls back to the same
-                three-quarter width, so the panel stays usable on a phone.
+                Below the `sm` breakpoint every size goes full width, so the
+                panel stays usable on a phone.
               </SheetDescription>
             </SheetHeader>
           </SheetContent>

@@ -12,7 +12,8 @@ import { ValidationError } from 'payload';
  */
 export const ensureUniqueLabel: CollectionBeforeValidateHook<
   PlatformLabel
-> = async ({ data, originalDoc, req: { payload, t } }) => {
+> = async ({ data, originalDoc, req }) => {
+  const { payload, t } = req;
   const name = data?.name ?? originalDoc?.name;
   const type = data?.type ?? originalDoc?.type;
 
@@ -31,7 +32,10 @@ export const ensureUniqueLabel: CollectionBeforeValidateHook<
       ]
     },
     depth: 0,
-    limit: 1
+    limit: 1,
+    // Without `req` the read runs outside the active transaction and cannot see
+    // labels created earlier in it
+    req
   });
 
   if (matched.totalDocs) {

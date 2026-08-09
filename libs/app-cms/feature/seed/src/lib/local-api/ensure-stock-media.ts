@@ -56,12 +56,11 @@ export async function ensureStockMedia(
     throw new Error(`Stock media file could not be resolved: ${filePath}`);
   }
 
-  // File names should be unique by design
-  const filenameWithoutExtension = filename.replace(/\.[^/.]+$/, '');
-
+  // Matched exactly: `contains` would let 'stock-hut-1' find 'stock-hut-10.jpg'.
+  // Unlike media, stock filenames are never tenant-prefixed on upload.
   const existing = await payload.find({
     collection: 'stock-media',
-    where: { filename: { contains: filenameWithoutExtension } },
+    where: { filename: { equals: filename } },
     depth: 0,
     limit: 1,
     req: { transactionID }

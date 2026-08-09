@@ -48,8 +48,13 @@ const readFiles = (
   remoteDataUrl: string | undefined
 ): { filePath: string; filename: string }[] => {
   if (remoteDataUrl) {
+    // A trailing slash makes the filename resolve as a child rather than
+    // replacing the last segment. `path.join` would collapse `https://` to
+    // `https:/`, which fetch tolerates but every log line then shows.
+    const base = new URL(`${remoteDataUrl.replace(/\/$/, '')}/`);
+
     return remoteFiles.map((filename) => ({
-      filePath: path.join(remoteDataUrl, filename),
+      filePath: new URL(filename, base).href,
       filename
     }));
   }

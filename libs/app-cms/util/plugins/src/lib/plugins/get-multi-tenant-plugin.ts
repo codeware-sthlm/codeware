@@ -1,4 +1,7 @@
-import { globalCollectionSlugs } from '@codeware/app-cms/util/definitions';
+import {
+  globalCollectionSlugs,
+  tenantCollectionSlugs
+} from '@codeware/app-cms/util/definitions';
 import { getUserTenantIDs, hasRole } from '@codeware/app-cms/util/misc';
 import type { Config } from '@codeware/shared/util/payload-types';
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
@@ -7,6 +10,15 @@ import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
 const globalCollectionsConfig = globalCollectionSlugs.reduce(
   (acc, slug) => {
     acc[slug] = { isGlobal: true };
+    return acc;
+  },
+  {} as Parameters<typeof multiTenantPlugin>['0']['collections']
+);
+
+// Every tenant-owned collection takes the plugin's defaults; globals override below
+const tenantCollections = tenantCollectionSlugs.reduce(
+  (acc, slug) => {
+    acc[slug] = {};
     return acc;
   },
   {} as Parameters<typeof multiTenantPlugin>['0']['collections']
@@ -40,16 +52,7 @@ export const getMultiTenantPlugin = () =>
       }
     },
     collections: {
-      categories: {},
-      forms: {},
-      'form-submissions': {},
-      media: {},
-      pages: {},
-      places: {},
-      posts: {},
-      'reusable-content': {},
-      tags: {},
-      tours: {},
+      ...tenantCollections,
       ...globalCollectionsConfig
     },
     tenantsArrayField: {

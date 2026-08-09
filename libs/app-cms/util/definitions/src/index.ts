@@ -12,3 +12,8 @@ export {
   isGlobalCollectionSlug
 } from './lib/global-collections';
 export { type MimeTypeSlug, getMimeTypes } from './lib/mime-types';
+export {
+  type TenantCollectionSlug,
+  isTenantCollectionSlug,
+  tenantCollectionSlugs
+} from './lib/tenant-collections';

@@ -5,7 +5,6 @@ import { tagsSelectField } from '@codeware/app-cms/ui/fields';
 import { adminGroups, getMimeTypes } from '@codeware/app-cms/util/definitions';
 import { getId } from '@codeware/app-cms/util/misc';
 import { Media } from '@codeware/shared/util/payload-types';
-import mimeTypes from 'mime-types';
 import type {
   CollectionBeforeOperationHook,
   CollectionBeforeValidateHook,
@@ -18,6 +17,7 @@ import type {
 import { userOnlyAccess } from '../../security/user-only-access';
 
 import { externalOrApiKeyAccess } from './access/external-or-api-key-access';
+import { ensureMimeType } from './ensure-mime-type';
 import { imageUploadConfig } from './image-upload';
 
 const filename = fileURLToPath(import.meta.url);
@@ -73,25 +73,6 @@ const prefixFilenameWithTenant: CollectionBeforeOperationHook<
   }
 
   return args;
-};
-
-// Extracting mime type during seed has a flaky bewhavior.
-// The mime type is not always available when the file is uploaded.
-const ensureMimeType: CollectionBeforeValidateHook<Media> = ({
-  data,
-  operation
-}) => {
-  if (!data) {
-    return data;
-  }
-  if (data.mimeType) {
-    return data;
-  }
-  if (operation === 'create' || operation === 'update') {
-    // Try to lookup the mime type from the filename
-    data.mimeType = mimeTypes.lookup(data.filename ?? '') || undefined;
-  }
-  return data;
 };
 
 /**

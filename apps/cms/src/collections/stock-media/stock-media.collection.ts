@@ -9,6 +9,7 @@ import { adminGroups, getMimeTypes } from '@codeware/app-cms/util/definitions';
 import { hasRole } from '@codeware/app-cms/util/misc';
 import type { Access, CollectionConfig } from 'payload';
 
+import { ensureMimeType } from '../media/ensure-mime-type';
 import { imageUploadConfig } from '../media/image-upload';
 import { platformLabelField } from '../platform-labels/platform-label.field';
 
@@ -57,6 +58,9 @@ const stockMedia: CollectionConfig<'stock-media'> = {
     create: systemUserAccess,
     update: systemUserAccess,
     delete: systemUserAccess
+  },
+  hooks: {
+    beforeValidate: [ensureMimeType]
   },
   labels: {
     singular: { en: 'Stock image', sv: 'Delad bild' },

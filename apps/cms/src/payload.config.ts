@@ -39,21 +39,7 @@ import { buildConfig } from 'payload';
 import sharp from 'sharp';
 
 import { getAppInfo } from './app-info';
-import categories from './collections/categories/categories.collection';
-import faq from './collections/faq/faq.collection';
-import media from './collections/media/media.collection';
-import navigation from './collections/navigation/navigation.collection';
-import pages from './collections/pages/pages.collection';
-import places from './collections/places/places.collection';
-import platformLabels from './collections/platform-labels/platform-labels.collection';
-import posts from './collections/posts/posts.collection';
-import reusableContent from './collections/reusable-content/reusable-content.collection';
-import siteSettings from './collections/site-settings/site-settings.collection';
-import stockMedia from './collections/stock-media/stock-media.collection';
-import tags from './collections/tags/tags.collection';
-import tenants from './collections/tenants/tenants.collection';
-import tours from './collections/tours/tours.collection';
-import users from './collections/users/users.collection';
+import { collections, users } from './collections';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
@@ -152,23 +138,7 @@ export default buildConfig({
     toursBlock,
     videoBlock
   ],
-  collections: [
-    categories,
-    faq,
-    media,
-    navigation,
-    pages,
-    places,
-    platformLabels,
-    posts,
-    reusableContent,
-    siteSettings,
-    stockMedia,
-    tags,
-    tenants,
-    tours,
-    users
-  ],
+  collections,
   cors:
     env.CORS_URLS === '*'
       ? '*'

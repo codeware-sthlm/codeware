@@ -76,7 +76,7 @@ Only system users can create, update, or delete tenants. Read is restricted to t
 Write scope follows read scope: in tenant mode a user with several memberships can only write inside
 the running deployment's tenant, so they can never reach a document they are not allowed to read.
 
-### Platform-owned collections (stock-media, platform-labels)
+### Platform-owned collections (faq, platform-labels, stock-media)
 
 Owned by the platform rather than a tenant, and deliberately **not** registered with the
 multi-tenant plugin — every workspace reads the same documents.
@@ -179,7 +179,7 @@ Password for every seed user: **`dev`** (blank in seed data, defaulted to `dev` 
 > (e.g. `multiAdmin` with moon+star+sun) therefore only receive moon content — server-enforced,
 > independent of the `payload-tenant` cookie.
 
-### Platform-owned collections (stock-media, platform-labels)
+### Platform-owned collections (faq, platform-labels, stock-media)
 
 Shared across every workspace, so the API key columns are deliberately `✓` for reads — unlike
 content, a foreign key is _supposed_ to see these.

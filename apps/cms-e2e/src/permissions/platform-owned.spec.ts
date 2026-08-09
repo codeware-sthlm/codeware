@@ -2,8 +2,9 @@
  * Platform-owned collections — permission tests
  * Scenarios: [P-01] [P-02] [P-03] [P-04] [P-05] [P-06] from PERMISSIONS.md
  *
- * `stock-media` and `platform-labels` belong to the platform rather than a
- * tenant and are deliberately not registered with the multi-tenant plugin.
+ * `faq`, `platform-labels` and `stock-media` belong to the platform rather
+ * than a tenant and are deliberately not registered with the multi-tenant
+ * plugin.
  * Every workspace reads the same documents; only system users maintain them.
  *
  * That shape is easy to get wrong. A tenant-scoped access helper here makes
@@ -24,7 +25,7 @@ const apiKeyHeader = (apiKey: string) => ({
   Authorization: `tenants API-Key ${apiKey}`
 });
 
-const collections = ['stock-media', 'platform-labels'] as const;
+const collections = ['faq', 'platform-labels', 'stock-media'] as const;
 
 /** One document id per collection, collected once as the write target */
 const docs: Record<string, number> = {};

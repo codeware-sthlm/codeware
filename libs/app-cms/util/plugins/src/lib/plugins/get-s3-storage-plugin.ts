@@ -21,9 +21,11 @@ export const getS3StoragePlugin = (env: Env) => {
         disableLocalStorage: Boolean(s3.bucket)
       },
       'stock-media': {
-        disableLocalStorage: Boolean(s3.bucket),
-        // Platform-owned library, so a single shared folder rather than a tenant one
-        prefix: 'stock-media'
+        // Deliberately no `prefix`: the cloud-storage plugin persists it as a
+        // column, and the plugin only runs when a bucket is configured — so a
+        // prefix makes the schema differ between environments and the
+        // migration cannot describe both. Stock filenames are prefixed instead.
+        disableLocalStorage: Boolean(s3.bucket)
       }
     },
     bucket: s3.bucket,

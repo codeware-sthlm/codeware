@@ -109,7 +109,7 @@ jobs:
       - name: Install Playwright Chromium (for Storybook tests)
         run: pnpm exec playwright install chromium --with-deps
 
-      - run: pnpm nx affected -t lint,test,build -c ci
+      - run: pnpm nx affected -t lint,typecheck,test,build -c ci
 
       # Runs even when the affected command fails — that's the case self-healing
       # exists to analyze, and it pairs with --stop-agents-on-failure=false so

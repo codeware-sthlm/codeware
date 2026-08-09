@@ -49,6 +49,31 @@ describe('buildTourCalendar', () => {
     }
   });
 
+  it('folds by octets, not characters', () => {
+    // The spec counts bytes. A title of non-ascii characters stays under 75
+    // JS string units while going well over 75 octets
+    const swedish = buildTourCalendar(
+      { ...tour, title: 'Solförmörkelsejakten över Öland '.repeat(4) } as Tour,
+      options
+    );
+
+    const encoder = new TextEncoder();
+    for (const line of swedish.split('\r\n')) {
+      expect(encoder.encode(line).length).toBeLessThanOrEqual(75);
+    }
+  });
+
+  it('never splits a character across folded lines', () => {
+    const swedish = buildTourCalendar(
+      { ...tour, title: 'ö'.repeat(120) } as Tour,
+      options
+    );
+
+    // A split surrogate or truncated sequence shows up as a replacement char
+    expect(swedish).not.toContain('\uFFFD');
+    expect(swedish.replace(/\r\n /g, '')).toContain('ö'.repeat(120));
+  });
+
   it('refuses a tour with no confirmed departure', () => {
     expect(() =>
       buildTourCalendar({ ...tour, departureDate: null } as Tour, options)

@@ -38,6 +38,11 @@ function daysBetween(from: Date, to: Date): number {
   );
 }
 
+const encoder = new TextEncoder();
+
+/** Length in UTF-8 bytes, which is what the spec counts */
+const octets = (value: string): number => encoder.encode(value).length;
+
 /**
  * Fold lines to 75 octets, as the spec requires. Long descriptions are common
  * and some parsers reject unfolded lines outright.
@@ -45,16 +50,29 @@ function daysBetween(from: Date, to: Date): number {
  * @see https://datatracker.ietf.org/doc/html/rfc5545#section-3.1
  */
 function fold(line: string): string {
-  if (line.length <= 75) {
+  if (octets(line) <= 75) {
     return line;
   }
-  const parts = [line.slice(0, 75)];
-  let rest = line.slice(75);
-  while (rest.length > 74) {
-    parts.push(` ${rest.slice(0, 74)}`);
-    rest = rest.slice(74);
+
+  const parts: Array<string> = [];
+  let current = '';
+  // A continuation line spends one of its 75 octets on the leading space
+  let limit = 75;
+
+  // Iterating a string yields code points, so a character is never split
+  // across lines — which would corrupt its UTF-8 sequence
+  for (const character of line) {
+    if (octets(current + character) > limit) {
+      parts.push(parts.length ? ` ${current}` : current);
+      current = character;
+      limit = 74;
+    } else {
+      current += character;
+    }
   }
-  parts.push(` ${rest}`);
+
+  parts.push(parts.length ? ` ${current}` : current);
+
   return parts.join('\r\n');
 }
 

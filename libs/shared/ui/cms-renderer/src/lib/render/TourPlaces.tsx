@@ -47,7 +47,7 @@ export function TourPlaces({ places }: Props) {
               <a
                 href={place.url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 title={place.note ?? undefined}
                 className="border-core-border/40 text-core-base hover:border-core-link hover:text-core-link inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors"
               >

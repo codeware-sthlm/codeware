@@ -260,7 +260,7 @@ export const SubmissionsList: React.FC<Props> = ({
             </div>
           </div>
           <div className="list-header__after-header-content">
-            {t('formSubmissions:total', { count: String(totalDocs) })}
+            {t('formSubmissions:total', { count: totalDocs })}
           </div>
         </header>
 

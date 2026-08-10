@@ -38,7 +38,14 @@ export function SubmissionDetail({
             title={field.orphaned ? orphanedLabel : undefined}
           >
             {field.label}
-            {field.orphaned && <span aria-hidden="true"> *</span>}
+            {field.orphaned && (
+              <>
+                {/* `title` is not reliably announced, so the meaning needs a
+                    text node of its own for anyone not hovering a pointer */}
+                <span aria-hidden="true"> *</span>
+                <span className="sr-only"> ({orphanedLabel})</span>
+              </>
+            )}
           </dt>
           {/* Textarea values keep their line breaks; long words must wrap
               rather than widen the sheet */}

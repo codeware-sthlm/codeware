@@ -1,6 +1,6 @@
 import {
-  getForm,
   getFormSubmissions,
+  getForms,
   mapToRuntime
 } from '@codeware/app-cms/data-access';
 import { isUser } from '@codeware/app-cms/util/misc';
@@ -95,7 +95,19 @@ export const formSubmissionsExportEndpoint: Endpoint = {
       const tenantWhere = getTenantWhereFromHeaders(req.headers, req.user);
       const runtime = mapToRuntime(req.payload, req.user);
 
-      const form = await getForm(runtime, formId);
+      // Scoped like the submissions query below: the form supplies the
+      // filename and every column label, so letting it escape the selected
+      // workspace would break the scope this endpoint promises
+      const forms = await getForms(runtime, {
+        where: {
+          and: [
+            { id: { equals: formId } },
+            ...(tenantWhere ? [tenantWhere] : [])
+          ]
+        },
+        limit: 1
+      });
+      const form = forms?.docs?.[0] ?? null;
 
       if (!form) {
         return Response.json(

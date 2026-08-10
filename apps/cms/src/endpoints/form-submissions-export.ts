@@ -11,8 +11,10 @@ import type { Endpoint, PayloadRequest } from 'payload';
 import { getTenantWhereFromHeaders } from '../components/admin/utils/tenant-where';
 
 /**
- * Cap on exported rows. A form with more replies than this needs a background
- * job rather than a request-scoped export.
+ * Cap on exported rows. A form with more replies than this is refused rather
+ * than truncated — a CSV that is quietly missing rows is worse than no CSV,
+ * because nothing about the file says it is incomplete. Beyond this a
+ * background job is the right answer.
  */
 const MAX_ROWS = 5000;
 
@@ -126,7 +128,21 @@ export const formSubmissionsExportEndpoint: Endpoint = {
         limit: MAX_ROWS
       });
 
-      const rows = (submissions?.docs ?? []).map((doc) => ({
+      if (!submissions) {
+        // The query failed; emitting an empty CSV would read as "no messages"
+        throw new Error('submissions query failed');
+      }
+
+      if (submissions.totalDocs > MAX_ROWS) {
+        return Response.json(
+          {
+            error: `This form has ${submissions.totalDocs} submissions, more than the ${MAX_ROWS} this export can return.`
+          },
+          { status: StatusCodes.REQUEST_TOO_LONG }
+        );
+      }
+
+      const rows = submissions.docs.map((doc) => ({
         createdAt: doc.createdAt,
         fields: resolveSubmissionFields(form, doc.submissionData)
       }));

@@ -122,8 +122,13 @@ export const SubmissionsList: React.FC<Props> = ({
           params.set(key, value);
         }
       }
+      // Clearing every filter must land back on the bare path, not `…?`,
+      // so the unfiltered view has one canonical URL
+      const query = params.toString();
       startTransition(() => {
-        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+        router.push(query ? `${pathname}?${query}` : pathname, {
+          scroll: false
+        });
       });
     },
     [pathname, router, searchParams]

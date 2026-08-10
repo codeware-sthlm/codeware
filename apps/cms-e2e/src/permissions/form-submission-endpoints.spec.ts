@@ -51,7 +51,12 @@ test.describe('Form submission admin endpoints', () => {
             { field: 'email', value: 'moon@example.com' },
             // Anyone can post this through a public form; the export must not
             // hand Excel a live formula
-            { field: 'message', value: '=HYPERLINK("http://evil.example","x")' }
+            {
+              field: 'message',
+              value: '=HYPERLINK("http://evil.example","x")'
+            },
+            // Leading whitespace must not slip a formula past the guard
+            { field: 'note', value: ' =1+1' }
           ]
         }
       });
@@ -167,6 +172,8 @@ test.describe('Form submission admin endpoints', () => {
       // Neutralised with a leading apostrophe, never exported as a live formula
       expect(csv).toContain("'=HYPERLINK");
       expect(csv).not.toContain('"=HYPERLINK');
+      expect(csv).toContain("' =1+1");
+      expect(csv).not.toContain('" =1+1');
     } finally {
       await context.close();
     }

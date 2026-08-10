@@ -19,8 +19,28 @@ const MAX_ROWS = 5000;
 /** Excel reads a UTF-8 csv as latin-1 unless it starts with a byte order mark */
 const BOM = '﻿';
 
-/** RFC 4180 field: always quoted, embedded quotes doubled */
-const csvField = (value: string) => `"${value.replace(/"/g, '""')}"`;
+/**
+ * Leading characters a spreadsheet reads as the start of a formula.
+ *
+ * Tab and carriage return are included because leading whitespace is skipped
+ * before the next character is interpreted.
+ */
+const FORMULA_LEAD = /^[=+\-@\t\r]/;
+
+/**
+ * RFC 4180 field: always quoted, embedded quotes doubled.
+ *
+ * Values come from anonymous visitors and this file is built to be opened in
+ * Excel, so anything that looks like a formula is prefixed with an apostrophe
+ * first. Quoting alone is no defence — the reader strips the quotes and still
+ * evaluates `=…`, which is how a submitted `=HYPERLINK(…)` would run on the
+ * editor's machine. Excel treats the apostrophe as "this is text" and does not
+ * display it.
+ */
+const csvField = (value: string) => {
+  const safe = FORMULA_LEAD.test(value) ? `'${value}` : value;
+  return `"${safe.replace(/"/g, '""')}"`;
+};
 
 const csvRow = (values: Array<string>) => values.map(csvField).join(',');
 

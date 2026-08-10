@@ -16,16 +16,22 @@ import { getTenantWhereFromHeaders } from '../components/admin/utils/tenant-wher
  */
 const MAX_ROWS = 5000;
 
-/** Excel reads a UTF-8 csv as latin-1 unless it starts with a byte order mark */
-const BOM = '﻿';
+/**
+ * Excel reads a UTF-8 csv as latin-1 unless it starts with a byte order mark.
+ *
+ * Written as an escape on purpose — the literal character is invisible in an
+ * editor and in review, so it is trivially lost to a stray edit.
+ */
+const BOM = '\ufeff';
 
 /**
- * Leading characters a spreadsheet reads as the start of a formula.
+ * A value a spreadsheet would read as the start of a formula.
  *
- * Tab and carriage return are included because leading whitespace is skipped
- * before the next character is interpreted.
+ * Leading whitespace is skipped before the trigger character: importers differ
+ * in whether they trim a cell before writing it, so `" =1+1"` is treated as
+ * dangerous rather than trusting any one of them to leave the space in place.
  */
-const FORMULA_LEAD = /^[=+\-@\t\r]/;
+const FORMULA_LEAD = /^\s*[=+\-@]/;
 
 /**
  * RFC 4180 field: always quoted, embedded quotes doubled.

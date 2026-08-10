@@ -72,13 +72,58 @@ const SubmissionsListView: React.FC<ListViewServerProps> = async ({
     })
   ]);
 
-  const formDocs = forms?.docs ?? [];
-  const rows = toSubmissionRows(submissions?.docs ?? [], formDocs);
+  const dropdownForms = forms?.docs ?? [];
+  const submissionDocs = submissions?.docs ?? [];
+
+  // The dropdown query is capped, so in a workspace with more forms than that
+  // a row on this page — or the selected filter — can reference a form outside
+  // it. Left alone those rows would render as "Deleted form" and the filter
+  // would show blank, both of which are lies. Fetch exactly the stragglers.
+  const knownIds = new Set(dropdownForms.map((form) => form.id));
+  const neededIds = [
+    ...new Set(
+      [
+        ...submissionDocs.map((doc) =>
+          typeof doc.form === 'number' ? doc.form : doc.form?.id
+        ),
+        formId
+      ].filter(
+        (id): id is number => typeof id === 'number' && !knownIds.has(id)
+      )
+    )
+  ];
+
+  // Scoped like every other query here. Ids taken from the rows are in scope
+  // already, but `formId` comes from the URL — without this, filtering by a
+  // form in another workspace would surface its title in the dropdown.
+  const extraForms = neededIds.length
+    ? ((
+        await getForms(runtime, {
+          where: {
+            and: [
+              { id: { in: neededIds } },
+              ...(tenantWhere ? [tenantWhere] : [])
+            ]
+          },
+          limit: neededIds.length,
+          locale: localeCode
+        })
+      )?.docs ?? [])
+    : [];
+
+  const rows = toSubmissionRows(submissionDocs, [
+    ...dropdownForms,
+    ...extraForms
+  ]);
+
+  // The selected form has to be offered even when it falls outside the capped
+  // list, or the filter renders empty while filtering
+  const selectedExtra = extraForms.filter((form) => form.id === formId);
 
   return (
     <SubmissionsList
       rows={rows}
-      formOptions={formDocs.map((form) => ({
+      formOptions={[...dropdownForms, ...selectedExtra].map((form) => ({
         id: form.id,
         title: form.title
       }))}

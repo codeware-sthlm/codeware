@@ -169,7 +169,10 @@ export const formSubmissionsExportEndpoint: Endpoint = {
         })
       ].join('\r\n');
 
-      const filename = `${toFileSlug(form.title)}-submissions-${new Date().toISOString().slice(0, 10)}.csv`;
+      // The id keeps the name unique: `toFileSlug` drops non-ASCII, so two
+      // differently named forms can slug to the same thing — or to the bare
+      // fallback — and collide when exported on the same day
+      const filename = `${toFileSlug(form.title)}-${form.id}-submissions-${new Date().toISOString().slice(0, 10)}.csv`;
 
       return new Response(`${BOM}${csv}`, {
         status: StatusCodes.OK,

@@ -14,6 +14,22 @@ export type ResolvedSubmissionField = {
 
 type FormField = NonNullable<Form['fields']>[number];
 
+/**
+ * Swap a stored value for the label its option carries.
+ *
+ * Keyed on the presence of `options` rather than a list of block types, so
+ * `select`, `radio` and anything later built the same way are all covered.
+ */
+function toOptionLabel(
+  field: Extract<FormField, { name: string }>,
+  value: string
+): string {
+  if (!('options' in field) || !field.options) {
+    return value;
+  }
+  return field.options.find((option) => option.value === value)?.label ?? value;
+}
+
 /** Blocks that collect a value; `message` is presentational and has no name. */
 const isNamedField = (
   field: FormField
@@ -53,11 +69,7 @@ export function resolveSubmissionFields(
     resolved.push({
       name: field.name,
       label: field.label || field.name,
-      value:
-        field.blockType === 'select'
-          ? (field.options?.find((option) => option.value === value)?.label ??
-            value)
-          : value,
+      value: toOptionLabel(field, value),
       orphaned: false
     });
   }

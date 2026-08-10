@@ -68,6 +68,25 @@ describe('resolveSubmissionFields', () => {
     expect(result[0]?.value).toBe('Sunset tasting');
   });
 
+  it('should resolve a radio value to its option label', () => {
+    const result = resolveSubmissionFields(
+      form([
+        {
+          blockType: 'radio',
+          name: 'contactBy',
+          label: 'Contact me by',
+          options: [
+            { label: 'Email', value: 'email' },
+            { label: 'Phone', value: 'phone' }
+          ]
+        }
+      ]),
+      [{ field: 'contactBy', value: 'phone' }]
+    );
+
+    expect(result[0]?.value).toBe('Phone');
+  });
+
   it('should keep a select value that matches no option', () => {
     const result = resolveSubmissionFields(
       form([

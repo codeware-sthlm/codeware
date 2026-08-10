@@ -26,18 +26,24 @@ type Props = {
 export function MarkReadOnMount({ id }: Props) {
   const router = useRouter();
   const { sdk } = useSubmissionsSdk();
-  // React runs effects twice under StrictMode; the endpoint is idempotent but
-  // there is no reason to send the second request
-  const sent = useRef(false);
+  // Two separate guards. `inFlight` stops StrictMode's second effect run from
+  // duplicating the request; `done` is only set once the server confirms, so a
+  // failed call can still be retried when the effect next runs — `sdk` changes
+  // as the auth token settles, which is exactly when the first attempt is most
+  // likely to have failed.
+  const inFlight = useRef(false);
+  const done = useRef(false);
 
   useEffect(() => {
-    if (sent.current) {
+    if (done.current || inFlight.current) {
       return;
     }
-    sent.current = true;
+    inFlight.current = true;
 
     void markSubmissionsRead(sdk, [id]).then((updated) => {
+      inFlight.current = false;
       if (updated.length) {
+        done.current = true;
         // Refresh so the nav badge and dashboard count follow immediately
         router.refresh();
       }

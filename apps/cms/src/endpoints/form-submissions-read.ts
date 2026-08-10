@@ -79,20 +79,33 @@ export const formSubmissionsReadEndpoint: Endpoint = {
         limit: ids.length
       });
 
-      const allowedIds = (readable?.docs ?? []).map((doc) => doc.id);
+      const docs = readable?.docs ?? [];
+      const allowedIds = docs.map((doc) => doc.id);
       if (!allowedIds.length) {
         return respond([]);
       }
 
-      await req.payload.update({
-        collection: 'form-submissions',
-        where: { id: { in: allowedIds } },
-        data: { readAt: read ? new Date().toISOString() : null },
-        depth: 0,
-        overrideAccess: true,
-        req
-      });
+      // `readAt` means *first* opened, so an already-read submission keeps its
+      // original timestamp — restamping it would quietly turn the field into
+      // "last read". Clearing is unconditional.
+      const idsToWrite = read
+        ? docs.filter((doc) => !doc.readAt).map((doc) => doc.id)
+        : allowedIds;
 
+      if (idsToWrite.length) {
+        await req.payload.update({
+          collection: 'form-submissions',
+          where: { id: { in: idsToWrite } },
+          data: { readAt: read ? new Date().toISOString() : null },
+          depth: 0,
+          overrideAccess: true,
+          req
+        });
+      }
+
+      // Every authorized id is in the requested state now, whether or not this
+      // call was the one that wrote it — the caller asked for a state, not a
+      // write count
       return respond(allowedIds);
     } catch (error) {
       req.payload.logger.error(

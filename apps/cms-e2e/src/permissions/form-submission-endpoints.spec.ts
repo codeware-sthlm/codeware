@@ -93,6 +93,16 @@ test.describe('Form submission admin endpoints', () => {
       const doc = (await check.json()) as FormSubmission;
       expect(doc.readAt).toBeTruthy();
 
+      // `readAt` is when it was *first* opened — marking it again must not
+      // restamp it, or the field silently becomes "last read"
+      await page.request.post('/api/form-submissions-read', {
+        data: { ids: [submissionId], read: true }
+      });
+      const again = await page.request.get(
+        `/api/form-submissions/${submissionId}?depth=0`
+      );
+      expect(((await again.json()) as FormSubmission).readAt).toBe(doc.readAt);
+
       // And clear again
       const undo = await page.request.post('/api/form-submissions-read', {
         data: { ids: [submissionId], read: false }

@@ -1,5 +1,6 @@
 import type {
   I18n,
+  I18nClient,
   NestedKeysStripped,
   TFunction
 } from '@payloadcms/translations';
@@ -53,6 +54,23 @@ const customTranslationsSchema = z.object({
     taskUploadImageSub: z.string(),
     taskWritePost: z.string(),
     taskWritePostSub: z.string()
+  }),
+  formSubmissions: z.object({
+    allForms: z.string(),
+    deletedForm: z.string(),
+    empty: z.string(),
+    emptyTitle: z.string(),
+    exportCsv: z.string(),
+    exportNeedsForm: z.string(),
+    filterByForm: z.string(),
+    markAllRead: z.string(),
+    noValues: z.string(),
+    orphanedField: z.string(),
+    pageOf: z.string(),
+    received: z.string(),
+    total: z.string(),
+    unread: z.string(),
+    unreadOnly: z.string()
   }),
   general: z.object({ clearSelectedColor: z.string() }),
   help: z.object({
@@ -172,11 +190,28 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       taskInviteTeammateSub: 'Give someone access to the CMS',
       taskReadMessages: 'Read new messages',
       taskReadMessagesSub: 'Check form submissions',
-      taskReadMessagesSubCount: '{{count}} form submissions are waiting',
+      taskReadMessagesSubCount: '{{count}} unread messages',
       taskUploadImage: 'Upload an image',
       taskUploadImageSub: 'Put photos or files in the library',
       taskWritePost: 'Write a blog post',
       taskWritePostSub: 'Add a new article to the blog'
+    },
+    formSubmissions: {
+      allForms: 'All forms',
+      deletedForm: 'Deleted form',
+      empty: 'Messages sent through your forms will show up here.',
+      emptyTitle: 'No messages',
+      exportCsv: 'Export CSV',
+      exportNeedsForm: 'Pick a form to export its messages',
+      filterByForm: 'Filter by form',
+      markAllRead: 'Mark page as read',
+      noValues: 'This message has no values.',
+      orphanedField: 'This field is no longer part of the form',
+      pageOf: 'Page {{page}} of {{total}}',
+      received: 'Received {{when}}',
+      total: '{{count}} messages',
+      unread: 'Unread',
+      unreadOnly: 'Unread only'
     },
     general: {
       clearSelectedColor: 'Clear selected color'
@@ -298,11 +333,28 @@ Supported locales: {{locales}}`,
       taskInviteTeammateSub: 'Ge någon åtkomst till CMS:et',
       taskReadMessages: 'Läs nya meddelanden',
       taskReadMessagesSub: 'Kontrollera formulärsvar',
-      taskReadMessagesSubCount: '{{count}} formulärsvar väntar',
+      taskReadMessagesSubCount: '{{count}} olästa meddelanden',
       taskUploadImage: 'Ladda upp en bild',
       taskUploadImageSub: 'Lägg bilder eller filer i biblioteket',
       taskWritePost: 'Skriv ett blogginlägg',
       taskWritePostSub: 'Lägg till en ny artikel på bloggen'
+    },
+    formSubmissions: {
+      allForms: 'Alla formulär',
+      deletedForm: 'Borttaget formulär',
+      empty: 'Meddelanden som skickas via dina formulär visas här.',
+      emptyTitle: 'Inga meddelanden',
+      exportCsv: 'Exportera CSV',
+      exportNeedsForm: 'Välj ett formulär för att exportera dess meddelanden',
+      filterByForm: 'Filtrera på formulär',
+      markAllRead: 'Markera sidan som läst',
+      noValues: 'Det här meddelandet innehåller inga värden.',
+      orphanedField: 'Fältet ingår inte längre i formuläret',
+      pageOf: 'Sida {{page}} av {{total}}',
+      received: 'Mottaget {{when}}',
+      total: '{{count}} meddelanden',
+      unread: 'Oläst',
+      unreadOnly: 'Endast olästa'
     },
     general: {
       clearSelectedColor: 'Ta bort vald färg'
@@ -382,7 +434,14 @@ Språk som stöds: {{locales}}`,
   }
 };
 
-export const customT = (t: I18n['t']) => t as TFunction<TranslationsKeys>;
+/**
+ * Re-type a Payload `t` so our own translation keys resolve.
+ *
+ * Accepts the client variant too, for admin views that render on the server
+ * and only get `i18n` from `ServerProps`.
+ */
+export const customT = (t: I18n['t'] | I18nClient['t']) =>
+  t as TFunction<TranslationsKeys>;
 
 export type TranslationsObject = CustomTranslations & typeof enTranslations;
 export type TranslationsKeys = NestedKeysStripped<TranslationsObject>;

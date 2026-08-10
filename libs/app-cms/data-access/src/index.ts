@@ -12,10 +12,14 @@ export type {
 } from './lib/collections/types';
 
 export { countDocs } from './lib/collections/count-docs';
+export { countUnreadSubmissions } from './lib/collections/count-unread-submissions';
 export { getCollectionCounts } from './lib/collections/get-collection-counts';
 export { getCountableSlugs } from './lib/collections/get-countable-slugs';
 
 export { createFormSubmission } from './lib/collections/create-form-submission';
+export { getForm } from './lib/collections/get-form';
+export { getFormSubmissions } from './lib/collections/get-form-submissions';
+export { getForms } from './lib/collections/get-forms';
 
 export { getCategory } from './lib/collections/get-category';
 export { getCategories } from './lib/collections/get-categories';

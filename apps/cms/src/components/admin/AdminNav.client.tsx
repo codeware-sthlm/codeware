@@ -112,10 +112,13 @@ function WorkspaceTile({
 
 function AdminNavContent({
   initialCounts,
+  unreadCounts,
   tenantIcons,
   tenantSelector
 }: {
   initialCounts: Record<string, number>;
+  /** Per-slug counts of items needing attention, overriding `initialCounts` */
+  unreadCounts: Record<string, number>;
   /** Server-resolved `tenantId → iconConfig` map (see `AdminNavWrapper`). */
   tenantIcons: Record<string, TenantIconConfig | null>;
   /** Server-rendered multi-tenant plugin selector (see `AdminNavWrapper`). */
@@ -332,7 +335,14 @@ function AdminNavContent({
                       language,
                       col.slug
                     );
-                    const count = initialCounts[col.slug];
+                    // Collections with an unread notion badge what needs
+                    // attention and drop the badge once nothing does; the rest
+                    // keep showing how many documents they hold
+                    const unread = unreadCounts[col.slug];
+                    const count =
+                      unread === undefined
+                        ? initialCounts[col.slug]
+                        : unread || undefined;
                     return (
                       <SidebarMenuItem key={col.slug}>
                         <SidebarMenuButton
@@ -424,6 +434,7 @@ function AdminNavContent({
 
 export const AdminNav: React.FC<{
   initialCounts?: Record<string, number>;
+  unreadCounts?: Record<string, number>;
   /** Server-resolved `tenantId → iconConfig` map (see `AdminNavWrapper`). */
   tenantIcons?: Record<string, TenantIconConfig | null>;
   sidebarOpen?: boolean;
@@ -431,6 +442,7 @@ export const AdminNav: React.FC<{
   tenantSelector?: React.ReactNode;
 }> = ({
   initialCounts = {},
+  unreadCounts = {},
   tenantIcons = {},
   sidebarOpen = true,
   tenantSelector
@@ -450,6 +462,7 @@ export const AdminNav: React.FC<{
     >
       <AdminNavContent
         initialCounts={initialCounts}
+        unreadCounts={unreadCounts}
         tenantIcons={tenantIcons}
         tenantSelector={tenantSelector}
       />

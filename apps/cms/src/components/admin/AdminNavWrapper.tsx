@@ -1,5 +1,6 @@
 import {
   type PayloadRuntime,
+  countUnreadSubmissions,
   getCollectionCounts,
   getCountableSlugs,
   mapToRuntime
@@ -79,10 +80,18 @@ const AdminNavWrapper: React.FC<ServerProps> = async (serverProps) => {
     skip: SKIPPED_COUNT_SLUGS
   });
 
-  const [initialCounts, tenantIcons] = await Promise.all([
+  const [initialCounts, unreadSubmissions, tenantIcons] = await Promise.all([
     getCollectionCounts(runtime, slugsToCount, { tenantWhere }),
+    countUnreadSubmissions(runtime, { tenantWhere }),
     getTenantIcons(runtime)
   ]);
+
+  // Messages badge what is still unread rather than how many have ever been
+  // received, so it clears once the editor has been through them
+  const unreadCounts: Record<string, number> =
+    'form-submissions' in initialCounts && unreadSubmissions !== null
+      ? { 'form-submissions': unreadSubmissions }
+      : {};
 
   // Read the shadcn Sidebar's own persisted state cookie server-side so the
   // correct expanded/collapsed layout is present on first paint (no flash).
@@ -92,6 +101,7 @@ const AdminNavWrapper: React.FC<ServerProps> = async (serverProps) => {
   return (
     <AdminNav
       initialCounts={initialCounts}
+      unreadCounts={unreadCounts}
       tenantIcons={tenantIcons}
       sidebarOpen={sidebarOpen}
       tenantSelector={

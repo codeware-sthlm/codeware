@@ -28,9 +28,9 @@ import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c08
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
+import { default as default_ae19db27eee762af26f037dd7af0b736 } from '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client';
 import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client';
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client';
-import { default as default_ae19db27eee762af26f037dd7af0b736 } from '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client';
 import { default as default_8586e6ac5ddd6a3f87ffe1dd472673f5 } from '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client';
 import { default as default_1b21cdd8d72b60f58886e03c7a7a4ebd } from '@codeware/app-cms/ui/blocks/card/CardBlockArrayRowLabel.client';
 import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/app-cms/ui/fields/code/Code.client';
@@ -43,6 +43,9 @@ import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da1
 import { default as default_c09482d250ab6d202838d64026b532c8 } from '@codeware/apps/cms/components/TourItineraryRowLabel';
 import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
 import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/apps/cms/components/TenantsArrayRowLabel';
+import { default as default_aa577ffa11e4f1931cf9142a4eed30a6 } from '@codeware/apps/cms/components/SubmissionCountCell';
+import { default as default_b8bb6bd04eccdbda47b5169ea620714a } from '@codeware/apps/cms/components/admin/submissions/SubmissionDetailView';
+import { default as default_5c99d712bddea7b07fa7fa976465b47c } from '@codeware/apps/cms/components/admin/submissions/SubmissionsListView';
 import { default as default_176fd26d15967a8046e38df612c30d49 } from '@codeware/apps/cms/components/admin/AdminNavWrapper';
 import { default as default_42c5f221d82b17c6d729c2d401f23dbf } from '@codeware/apps/cms/components/Icon.client';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
@@ -123,12 +126,12 @@ export const importMap = {
     MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@payloadcms/plugin-seo/client#PreviewComponent':
     PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
+  '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client#default':
+    default_ae19db27eee762af26f037dd7af0b736,
   '@payloadcms/richtext-lexical/client#LinkFeatureClient':
     LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#BlocksFeatureClient':
     BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client#default':
-    default_ae19db27eee762af26f037dd7af0b736,
   '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client#default':
     default_8586e6ac5ddd6a3f87ffe1dd472673f5,
   '@codeware/app-cms/ui/blocks/card/CardBlockArrayRowLabel.client#default':
@@ -153,6 +156,12 @@ export const importMap = {
     default_4a3552dc4f000a1797b4eb36166f8ff8,
   '@codeware/apps/cms/components/TenantsArrayRowLabel#default':
     default_dec1059b7bb8eb8da3a9f0fc400fffbd,
+  '@codeware/apps/cms/components/SubmissionCountCell#default':
+    default_aa577ffa11e4f1931cf9142a4eed30a6,
+  '@codeware/apps/cms/components/admin/submissions/SubmissionDetailView#default':
+    default_b8bb6bd04eccdbda47b5169ea620714a,
+  '@codeware/apps/cms/components/admin/submissions/SubmissionsListView#default':
+    default_5c99d712bddea7b07fa7fa976465b47c,
   '@codeware/apps/cms/components/admin/AdminNavWrapper#default':
     default_176fd26d15967a8046e38df612c30d49,
   '@codeware/apps/cms/components/Icon.client#default':

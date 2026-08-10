@@ -98,6 +98,12 @@ the required tenant field. **Read** uses `userOrApiKeyAccess`, so a key only see
 submissions. **Delete** is an admin user operation, and **update** is disabled by the form-builder
 plugin.
 
+Two admin-only endpoints back the submissions UI. `form-submissions-read` sets the unread marker;
+because **update** is disabled it writes with `overrideAccess`, and authorizes itself instead — the
+caller must be an admin user, and only ids that came back from a read under their own access and
+workspace scope are written. `form-submissions-export` returns one form's submissions as CSV under
+the caller's own access. Both reject tenant API keys outright.
+
 ### Multi-tenant cookie scoping (`payload-tenant`)
 
 The `payload-tenant` cookie is read on **every API request** for plugin-managed content collections. Setting it to a specific tenant ID restricts all results to that tenant, even for users with multi-tenant access. This applies at the REST API level, not just the admin UI.
@@ -208,6 +214,8 @@ clients present. `moon` is the deployment's own tenant, `star` is a foreign one.
 | [K-04] Read version history             | ✗            | ✗            | ✗               |
 | [F-01] Read a moon form submission      | ✓            | ✗            | ✗               |
 | [F-02] Delete a moon form submission    | ✗            | ✗            | ✗               |
+| [F-03] Mark a form submission read      | ✗            | ✗            | ✗               |
+| [F-04] Export a form's submissions      | ✗            | ✗            | ✗               |
 | Create a form submission (site route)   | ✓            | —            | —               |
 
 ---

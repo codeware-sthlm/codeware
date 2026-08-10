@@ -1,0 +1,79 @@
+import { a11yStory } from '@codeware/shared/util/storybook';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
+import { SubmissionDetail } from './submission-detail';
+
+const meta = {
+  title: 'App CMS/Submissions/SubmissionDetail'
+} satisfies Meta;
+
+export default meta;
+
+const orphanedLabel = 'This field is no longer part of the form';
+
+export const Values: StoryObj = {
+  render: () => (
+    <div className="bg-card border-border w-[34rem] rounded-xl border p-4">
+      <SubmissionDetail
+        emptyLabel="This message has no values."
+        orphanedLabel={orphanedLabel}
+        fields={[
+          {
+            name: 'name',
+            label: 'Your name',
+            value: 'Anna Berg',
+            orphaned: false
+          },
+          {
+            name: 'email',
+            label: 'Email',
+            value: 'anna@example.se',
+            orphaned: false
+          },
+          {
+            name: 'travellers',
+            label: 'Number of travellers',
+            value: '4',
+            orphaned: false
+          },
+          {
+            name: 'message',
+            label: 'Message',
+            value:
+              'We would like to join the sunset tasting.\n\nIs there room for a group of four on the 14th?',
+            orphaned: false
+          },
+          {
+            name: 'newsletter',
+            label: 'Newsletter',
+            value: '',
+            orphaned: false
+          },
+          {
+            name: 'phone',
+            label: 'phone',
+            value: '070-123 45 67',
+            orphaned: true
+          }
+        ]}
+      />
+    </div>
+  )
+};
+
+export const Empty: StoryObj = {
+  render: () => (
+    <div className="bg-card border-border w-[34rem] rounded-xl border p-4">
+      <SubmissionDetail
+        fields={[]}
+        emptyLabel="This message has no values."
+        orphanedLabel={orphanedLabel}
+      />
+    </div>
+  )
+};
+
+export const PayloadAdminLight = a11yStory(Values, 'payload-admin', 'light');
+export const PayloadAdminDark = a11yStory(Values, 'payload-admin', 'dark');
+export const ShadcnLight = a11yStory(Values, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(Values, 'shadcn', 'dark');

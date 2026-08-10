@@ -1,5 +1,6 @@
 import {
   QueryMultipleOptions,
+  countUnreadSubmissions,
   getCollectionCounts,
   getCountableSlugs,
   getPages,
@@ -113,15 +114,31 @@ const AdminDashboardView: React.FC<ServerProps> = async ({
       : DEFAULT_DASHBOARD_TAB;
   };
 
-  const [counts, recentPosts, recentPages, draftPosts, draftPages, activeTab] =
-    await Promise.all([
-      getCollectionCounts(runtime, slugsToCount, { tenantWhere }),
-      getPosts(runtime, listOptions),
-      getPages(runtime, listOptions),
-      getPosts(runtime, draftOptions),
-      getPages(runtime, draftOptions),
-      resolveActiveTab()
-    ]);
+  const [
+    counts,
+    unreadSubmissions,
+    recentPosts,
+    recentPages,
+    draftPosts,
+    draftPages,
+    activeTab
+  ] = await Promise.all([
+    getCollectionCounts(runtime, slugsToCount, { tenantWhere }),
+    countUnreadSubmissions(runtime, { tenantWhere }),
+    getPosts(runtime, listOptions),
+    getPages(runtime, listOptions),
+    getPosts(runtime, draftOptions),
+    getPages(runtime, draftOptions),
+    resolveActiveTab()
+  ]);
+
+  // The messages task counts unread rather than everything ever received, so
+  // the number falls as the editor works through them. Only the task card
+  // switches — the All-content card keeps showing how many the collection holds
+  const taskCounts: Record<string, number> =
+    'form-submissions' in counts && unreadSubmissions !== null
+      ? { 'form-submissions': unreadSubmissions }
+      : {};
 
   const recentDocs = [
     ...(recentPosts?.docs ?? []).map((doc) => toRecentDoc(doc, 'posts')),
@@ -143,6 +160,7 @@ const AdminDashboardView: React.FC<ServerProps> = async ({
     <AdminDashboard
       userName={userName}
       counts={counts}
+      taskCounts={taskCounts}
       recentDocs={recentDocs}
       drafts={drafts}
       initialActiveTab={activeTab}

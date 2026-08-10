@@ -65,9 +65,13 @@ function badgeKey(doc: RecentDoc): TranslationsKeys | undefined {
 export function HomeTab({
   userName,
   counts,
+  taskCounts,
   recentDocs,
   drafts
-}: Pick<DashboardData, 'userName' | 'counts' | 'recentDocs' | 'drafts'>) {
+}: Pick<
+  DashboardData,
+  'userName' | 'counts' | 'taskCounts' | 'recentDocs' | 'drafts'
+>) {
   const { permissions } = useAuth<User>();
   const collectionLabel = useCollectionLabel();
   const { i18n, t } = useTranslation<TranslationsObject, TranslationsKeys>();
@@ -119,7 +123,9 @@ export function HomeTab({
             !task.createSlug ||
             hasCreatePermission(permissions, task.createSlug)
         ).map((task) => {
-          const count = task.countSlug ? counts[task.countSlug] : undefined;
+          const count = task.countSlug
+            ? (taskCounts[task.countSlug] ?? counts[task.countSlug])
+            : undefined;
           const description =
             task.countSubKey && count
               ? t(task.countSubKey, { count })

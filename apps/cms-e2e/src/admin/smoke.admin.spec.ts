@@ -69,9 +69,17 @@ const coreCollections = [
   'places'
 ] as const satisfies readonly CollectionSlug[];
 
-/** A list view shows a table of documents, or says there are none */
+/**
+ * A list view shows a table of documents, or says there are none.
+ *
+ * `form-submissions` replaces Payload's list with its own (COD-432), so its
+ * root carries a test id instead of rendering a table.
+ */
 const listRendered = (page: Page) =>
-  page.getByRole('table').or(page.getByText('No Results.'));
+  page
+    .getByRole('table')
+    .or(page.getByText('No Results.'))
+    .or(page.getByTestId('submissions-list'));
 
 /**
  * Resolve the edit url of an existing document.

@@ -31,6 +31,11 @@ export type DashboardTab = 'home' | 'content';
 export type DashboardData = {
   userName: string;
   counts: Record<string, number>;
+  /**
+   * Per-slug counts that override `counts` on the task cards only, where the
+   * useful number differs from the collection total (unread messages, say).
+   */
+  taskCounts: Record<string, number>;
   recentDocs: RecentDoc[];
   drafts: RecentDoc[];
   /**

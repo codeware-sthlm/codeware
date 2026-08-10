@@ -37,6 +37,7 @@ const TAB_TRIGGER_CLASSES =
 export const AdminDashboard: React.FC<DashboardData> = ({
   userName,
   counts,
+  taskCounts,
   recentDocs,
   drafts,
   initialActiveTab
@@ -80,6 +81,7 @@ export const AdminDashboard: React.FC<DashboardData> = ({
           <HomeTab
             userName={userName}
             counts={counts}
+            taskCounts={taskCounts}
             recentDocs={recentDocs}
             drafts={drafts}
           />

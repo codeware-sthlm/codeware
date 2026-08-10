@@ -47,7 +47,12 @@ test.describe('Form submission admin endpoints', () => {
       const submissionRes = await page.request.post('/api/form-submissions', {
         data: {
           form: formId,
-          submissionData: [{ field: 'email', value: 'moon@example.com' }]
+          submissionData: [
+            { field: 'email', value: 'moon@example.com' },
+            // Anyone can post this through a public form; the export must not
+            // hand Excel a live formula
+            { field: 'message', value: '=HYPERLINK("http://evil.example","x")' }
+          ]
         }
       });
       expect(submissionRes.status(), await submissionRes.text()).toBe(200);
@@ -156,7 +161,12 @@ test.describe('Form submission admin endpoints', () => {
       expect(res.status()).toBe(200);
       expect(res.headers()['content-type']).toContain('text/csv');
       expect(res.headers()['content-disposition']).toContain('attachment');
-      expect(await res.text()).toContain('moon@example.com');
+      const csv = await res.text();
+      expect(csv).toContain('moon@example.com');
+
+      // Neutralised with a leading apostrophe, never exported as a live formula
+      expect(csv).toContain("'=HYPERLINK");
+      expect(csv).not.toContain('"=HYPERLINK');
     } finally {
       await context.close();
     }

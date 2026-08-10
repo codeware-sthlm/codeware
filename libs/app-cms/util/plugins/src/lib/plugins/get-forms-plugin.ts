@@ -4,7 +4,9 @@ import type { Access } from 'payload';
 
 import { customizedFields } from './forms/customized-fields';
 import { ensureTenant } from './forms/ensure-tenant';
+import { formFields } from './forms/form-fields';
 import { submissionCreateAccess } from './forms/submission-create-access';
+import { submissionFields } from './forms/submission-fields';
 import { verifyFormTenant } from './forms/verify-form-tenant';
 
 type Options = {
@@ -40,7 +42,9 @@ export const getFormsPlugin = ({ access }: Options) => {
         update: access.write,
         delete: access.write
       },
+      fields: formFields,
       admin: {
+        defaultColumns: ['title', 'submissions', 'updatedAt'],
         group: adminGroups['forms'],
         description: {
           en: 'Build contact and signup forms to place on your pages.',
@@ -59,11 +63,26 @@ export const getFormsPlugin = ({ access }: Options) => {
         update: () => false,
         delete: access.write
       },
+      fields: submissionFields,
       admin: {
         group: adminGroups['forms'],
         description: {
           en: 'Messages visitors have sent through the forms on your website.',
           sv: 'Meddelanden som besökare har skickat via formulären på din webbplats.'
+        },
+        components: {
+          views: {
+            list: {
+              Component:
+                '@codeware/apps/cms/components/admin/submissions/SubmissionsListView'
+            },
+            edit: {
+              default: {
+                Component:
+                  '@codeware/apps/cms/components/admin/submissions/SubmissionDetailView'
+              }
+            }
+          }
         }
       },
       hooks: {

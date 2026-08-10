@@ -44,6 +44,12 @@
       "@codeware/app-cms/ui/lexical": [
         "./libs/app-cms/ui/lexical/src/index.ts"
       ],
+      "@codeware/app-cms/ui/submissions": [
+        "./libs/app-cms/ui/submissions/src/index.ts"
+      ],
+      "@codeware/app-cms/ui/submissions/*": [
+        "./libs/app-cms/ui/submissions/src/lib/*"
+      ],
       "@codeware/app-cms/ui/tabs": ["./libs/app-cms/ui/tabs/src/index.ts"],
       "@codeware/app-cms/util/access": [
         "./libs/app-cms/util/access/src/index.ts"

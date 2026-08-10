@@ -20,7 +20,11 @@ export type TaskDef = {
    * shown to users with create permission for that collection.
    */
   createSlug?: CollectionSlug;
-  /** Show a live count in the sub text when this collection has items. */
+  /**
+   * Show a live count in the sub text when this collection has items.
+   *
+   * `form-submissions` counts unread only — see `AdminDashboardView`.
+   */
   countSlug?: string;
   countSubKey?: TranslationsKeys;
 };
@@ -57,7 +61,7 @@ export const TASKS: TaskDef[] = [
   {
     labelKey: 'dashboard:taskReadMessages',
     subKey: 'dashboard:taskReadMessagesSub',
-    href: '/admin/collections/form-submissions',
+    href: '/admin/collections/form-submissions?unread=true',
     icon: InboxIcon,
     countSlug: 'form-submissions',
     countSubKey: 'dashboard:taskReadMessagesSubCount'

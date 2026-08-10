@@ -40,6 +40,8 @@ import sharp from 'sharp';
 
 import { getAppInfo } from './app-info';
 import { collections, users } from './collections';
+import { formSubmissionsExportEndpoint } from './endpoints/form-submissions-export';
+import { formSubmissionsReadEndpoint } from './endpoints/form-submissions-read';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
@@ -161,7 +163,13 @@ export default buildConfig({
   }),
   editor: defaultLexical,
   email: getEmailAdapter(env),
-  endpoints: [paletteSearchEndpoint, perfStatsEndpoint, tenantConfigEndpoint],
+  endpoints: [
+    formSubmissionsExportEndpoint,
+    formSubmissionsReadEndpoint,
+    paletteSearchEndpoint,
+    perfStatsEndpoint,
+    tenantConfigEndpoint
+  ],
   plugins: getPlugins(env, {
     access: { read: userOrApiKeyAccess(), write: userOnlyAccess() }
   }),

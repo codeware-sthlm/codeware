@@ -30,6 +30,11 @@ export type QueryMultipleOptions<TSlug extends CollectionSlug> =
     limit?: number;
 
     /**
+     * Page of results to return, 1-based
+     */
+    page?: number;
+
+    /**
      * Custom where clause for filtering
      */
     where?: Where;

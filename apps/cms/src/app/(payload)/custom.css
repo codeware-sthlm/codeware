@@ -17,6 +17,7 @@
 /* Scan classes from libs not resolvable via path aliases */
 @source '../../../../../libs/shared/ui';
 @source '../../../../../libs/app-cms/ui/dashboard';
+@source '../../../../../libs/app-cms/ui/submissions';
 
 /* Use Payload Admin theme — single source of truth for shadcn tokens */
 @import '../../../../../libs/shared/theme/src/lib/payload-admin/tailwind-base.css';

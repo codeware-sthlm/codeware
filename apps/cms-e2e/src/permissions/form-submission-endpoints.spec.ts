@@ -113,6 +113,19 @@ test.describe('Form submission admin endpoints', () => {
         `/api/form-submissions/${submissionId}?depth=0`
       );
       expect(((await recheck.json()) as FormSubmission).readAt).toBeFalsy();
+
+      // A string 'false' arrives from form and query encodings; it must clear
+      // the marker rather than do the opposite of what was asked
+      await page.request.post('/api/form-submissions-read', {
+        data: { ids: [submissionId], read: true }
+      });
+      await page.request.post('/api/form-submissions-read', {
+        data: { ids: [submissionId], read: 'false' }
+      });
+      const coerced = await page.request.get(
+        `/api/form-submissions/${submissionId}?depth=0`
+      );
+      expect(((await coerced.json()) as FormSubmission).readAt).toBeFalsy();
     } finally {
       await context.close();
     }

@@ -16,6 +16,19 @@ import { getTenantWhereFromHeaders } from '../components/admin/utils/tenant-wher
 /** Upper bound on a single call, matching the list view's page size cap */
 const MAX_IDS = 100;
 
+/**
+ * Whether the caller asked to *clear* the marker.
+ *
+ * `read` defaults to true, so only a recognised false counts. Form and query
+ * encodings deliver booleans as strings, and `addDataAndFileToRequest` hands
+ * those through unchanged — a bare `!== false` would read `'false'` as true
+ * and mark submissions read when the caller asked for the opposite, which is
+ * the one direction this must never fail in.
+ */
+function wantsUnread(value: unknown): boolean {
+  return value === false || value === 'false' || value === 0 || value === '0';
+}
+
 /** Coerce the posted ids to the numeric document ids this deployment uses */
 function parseIds(value: unknown): Array<number> {
   if (!Array.isArray(value)) {
@@ -51,7 +64,7 @@ export const formSubmissionsReadEndpoint: Endpoint = {
     await addDataAndFileToRequest(req);
     const body = (req.data ?? {}) as { ids?: unknown; read?: unknown };
     const ids = parseIds(body.ids);
-    const read = body.read !== false;
+    const read = !wantsUnread(body.read);
 
     const respond = (updated: Array<number>) =>
       Response.json(

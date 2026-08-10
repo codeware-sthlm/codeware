@@ -8,6 +8,8 @@ import { Gutter, SetStepNav } from '@payloadcms/ui';
 import type { DocumentViewServerProps, TypedLocale } from 'payload';
 import React from 'react';
 
+import { MarkReadOnMount } from './MarkReadOnMount.client';
+
 /**
  * Read-only document view for a single form submission.
  *
@@ -52,6 +54,10 @@ const SubmissionDetailView: React.FC<DocumentViewServerProps> = async ({
 
   return (
     <div className="collection-default collection-default--form-submissions">
+      {/* Opening a submission is what marks it read; the list does this from
+          its sheet, and this route has to do the same or a direct link leaves
+          the message unread forever */}
+      {!submission.readAt && <MarkReadOnMount id={submission.id} />}
       <SetStepNav
         nav={[
           {

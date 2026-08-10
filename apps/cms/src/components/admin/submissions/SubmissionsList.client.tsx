@@ -24,21 +24,13 @@ import {
   SheetHeader,
   SheetTitle
 } from '@codeware/shared/ui/shadcn/components/sheet';
-import type { Config, User } from '@codeware/shared/util/payload-types';
 import {
   ArrowDownTrayIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   InboxIcon
 } from '@heroicons/react/24/outline';
-import { PayloadSDK } from '@payloadcms/sdk';
-import {
-  Gutter,
-  SetStepNav,
-  useAuth,
-  useConfig,
-  useTranslation
-} from '@payloadcms/ui';
+import { Gutter, SetStepNav, useTranslation } from '@payloadcms/ui';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useMemo, useState, useTransition } from 'react';
 
@@ -46,6 +38,7 @@ import { formatRelativeTime } from '../utils/relative-time';
 
 import { markSubmissionsRead } from './mark-submissions-read';
 import type { SubmissionFormOption, SubmissionListItem } from './types';
+import { useSubmissionsSdk } from './use-submissions-sdk';
 
 type Props = {
   rows: Array<SubmissionListItem>;
@@ -92,22 +85,11 @@ export const SubmissionsList: React.FC<Props> = ({
   collectionLabel
 }) => {
   const { i18n, t } = useTranslation<TranslationsObject, TranslationsKeys>();
-  const { token } = useAuth<User>();
-  const { config } = useConfig();
-  const apiRoute = `${config.serverURL ?? ''}${config.routes.api}`;
+  const { sdk, apiRoute } = useSubmissionsSdk();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-
-  const sdk = useMemo(
-    () =>
-      new PayloadSDK<Config>({
-        baseURL: apiRoute,
-        baseInit: token ? { headers: { Authorization: `JWT ${token}` } } : {}
-      }),
-    [apiRoute, token]
-  );
 
   const [openId, setOpenId] = useState<number | null>(null);
   // Rows already marked read in this session, so the marker clears without

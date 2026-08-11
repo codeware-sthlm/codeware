@@ -47,6 +47,7 @@ import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
 import { tourSignupsAnonymizeEndpoint } from './endpoints/tour-signups-anonymize';
+import { tourSignupsExportEndpoint } from './endpoints/tour-signups-export';
 import { tourSignupsReorderEndpoint } from './endpoints/tour-signups-reorder';
 import { anonymizeTourSignupsTask } from './jobs/anonymize-tour-signups.task';
 import { queryStatsLogger } from './perf/query-stats';
@@ -175,6 +176,7 @@ export default buildConfig({
     perfStatsEndpoint,
     tenantConfigEndpoint,
     tourSignupsAnonymizeEndpoint,
+    tourSignupsExportEndpoint,
     tourSignupsReorderEndpoint
   ],
   jobs: {

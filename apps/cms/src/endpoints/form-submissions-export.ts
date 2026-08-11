@@ -5,6 +5,7 @@ import {
 } from '@codeware/app-cms/data-access';
 import { isUser } from '@codeware/app-cms/util/misc';
 import { resolveSubmissionFields } from '@codeware/shared/util/payload-utils';
+import { CSV_BOM, csvRow, toFileSlug } from '@codeware/shared/util/pure';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import type { Endpoint, PayloadRequest } from 'payload';
 
@@ -17,51 +18,6 @@ import { getTenantWhereFromHeaders } from '../components/admin/utils/tenant-wher
  * background job is the right answer.
  */
 const MAX_ROWS = 5000;
-
-/**
- * Excel reads a UTF-8 csv as latin-1 unless it starts with a byte order mark.
- *
- * Written as an escape on purpose — the literal character is invisible in an
- * editor and in review, so it is trivially lost to a stray edit.
- */
-const BOM = '\ufeff';
-
-/**
- * A value a spreadsheet would read as the start of a formula.
- *
- * Leading whitespace is skipped before the trigger character: importers differ
- * in whether they trim a cell before writing it, so `" =1+1"` is treated as
- * dangerous rather than trusting any one of them to leave the space in place.
- */
-const FORMULA_LEAD = /^\s*[=+\-@]/;
-
-/**
- * RFC 4180 field: always quoted, embedded quotes doubled.
- *
- * Values come from anonymous visitors and this file is built to be opened in
- * Excel, so anything that looks like a formula is prefixed with an apostrophe
- * first. Quoting alone is no defence — the reader strips the quotes and still
- * evaluates `=…`, which is how a submitted `=HYPERLINK(…)` would run on the
- * editor's machine. Excel treats the apostrophe as "this is text" and does not
- * display it.
- */
-const csvField = (value: string) => {
-  const safe = FORMULA_LEAD.test(value) ? `'${value}` : value;
-  return `"${safe.replace(/"/g, '""')}"`;
-};
-
-const csvRow = (values: Array<string>) => values.map(csvField).join(',');
-
-/**
- * Filename-safe slug of the form title, so downloads don't all collide.
- */
-function toFileSlug(title: string): string {
-  const slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return slug || 'form';
-}
 
 /**
  * Export one form's submissions as CSV.
@@ -188,9 +144,9 @@ export const formSubmissionsExportEndpoint: Endpoint = {
       // The id keeps the name unique: `toFileSlug` drops non-ASCII, so two
       // differently named forms can slug to the same thing — or to the bare
       // fallback — and collide when exported on the same day
-      const filename = `${toFileSlug(form.title)}-${form.id}-submissions-${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = `${toFileSlug(form.title, 'form')}-${form.id}-submissions-${new Date().toISOString().slice(0, 10)}.csv`;
 
-      return new Response(`${BOM}${csv}`, {
+      return new Response(`${CSV_BOM}${csv}`, {
         status: StatusCodes.OK,
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',

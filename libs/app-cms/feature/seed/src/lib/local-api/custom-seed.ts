@@ -3,6 +3,7 @@ import type { Payload } from 'payload';
 
 import { ensureNavigation } from './ensure-navigation';
 import { ensurePage } from './ensure-page';
+import { ensureTourSignups } from './ensure-tour-signups';
 
 /** Resolve a tenant's default locale from its site settings. */
 const getTenantLocale = async (
@@ -131,7 +132,7 @@ export const customSeed = async (
 
   const { docs: tourDocs } = await payload.find({
     collection: 'tours',
-    select: { intent: true, tenant: true },
+    select: { intent: true, maxCustomers: true, tenant: true },
     where: { tenant: { exists: true } },
     depth: 0,
     pagination: false,
@@ -208,6 +209,54 @@ export const customSeed = async (
       const refId = getId(reference.value);
       payload.logger.info(
         `[SEED] Navigation to '${reference.relationTo}' #${refId} on tenant #${tenantId} (custom seed)`
+      );
+    }
+  }
+
+  // TOUR CAPACITY AND SIGNUPS
+  // Give tours a maximum and a signup list, so the fill bar, the waiting queue
+  // and the promote button all have something to show in development
+
+  /** Locale per tenant, resolved once — the loop runs per tour */
+  const localeByTenant = new Map<
+    number,
+    Awaited<ReturnType<typeof getTenantLocale>>
+  >();
+
+  for (const tour of tourDocs) {
+    const tenantId = getId(tour.tenant);
+
+    if (!localeByTenant.has(tenantId)) {
+      localeByTenant.set(
+        tenantId,
+        await getTenantLocale(payload, tenantId, transactionID)
+      );
+    }
+    const tenantLocale = localeByTenant.get(tenantId);
+
+    if (!tour.maxCustomers) {
+      await payload.update({
+        collection: 'tours',
+        id: tour.id,
+        data: { maxCustomers: 12 },
+        context: { seedAction: true },
+        // Tours carry localized required fields. Without the tenant's own
+        // locale the update lands on the default one, where those fields are
+        // empty — and validation refuses a tour with no title.
+        locale: tenantLocale,
+        req: { transactionID }
+      });
+    }
+
+    const created = await ensureTourSignups(
+      payload,
+      { tour: tour.id, tenant: tenantId },
+      { transactionID }
+    );
+
+    if (created) {
+      payload.logger.info(
+        `[SEED] ${created} signups on tour #${tour.id} for tenant #${tenantId} (custom seed)`
       );
     }
   }

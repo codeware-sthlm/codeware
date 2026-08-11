@@ -1,3 +1,8 @@
+export {
+  anonymizeSignups,
+  anonymizeTourSignups,
+  sweepExpiredSignups
+} from './lib/anonymize-signups';
 export { assignCapacityStatus } from './lib/assign-capacity-status';
 export {
   decideSignupStatus,

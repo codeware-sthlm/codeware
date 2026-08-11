@@ -38,6 +38,11 @@ const tourSignups: CollectionConfig<'tour-signups'> = {
     description: {
       en: 'Customers who have signed up for a tour. The signup list also lives inside each tour, which is where you normally work with it.',
       sv: 'Kunder som har anmält sig till en resa. Anmälningslistan finns även inuti varje resa, där du normalt arbetar med den.'
+    },
+    components: {
+      beforeListTable: [
+        '@codeware/apps/cms/components/admin/tour-signups/TourFilterField'
+      ]
     }
   },
   access: {

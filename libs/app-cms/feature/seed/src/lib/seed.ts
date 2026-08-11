@@ -1,3 +1,4 @@
+import { convertMarkdownToLexical } from '@codeware/app-cms/util/content-templates';
 import type {
   SeedSource,
   SeedStrategy
@@ -29,7 +30,6 @@ import type {
   SeedEnvironment,
   StaticSeedOptions
 } from './seed-types';
-import { convertMarkdownToLexical } from './utils/convert-markdown-to-lexical';
 import {
   labelIcon,
   splitLabelKey,

@@ -40,6 +40,7 @@ import sharp from 'sharp';
 
 import { getAppInfo } from './app-info';
 import { collections, users } from './collections';
+import { createLegalPageEndpoint } from './endpoints/create-legal-page';
 import { formSubmissionsExportEndpoint } from './endpoints/form-submissions-export';
 import { formSubmissionsReadEndpoint } from './endpoints/form-submissions-read';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
@@ -165,6 +166,7 @@ export default buildConfig({
   editor: defaultLexical,
   email: getEmailAdapter(env),
   endpoints: [
+    createLegalPageEndpoint,
     formSubmissionsExportEndpoint,
     formSubmissionsReadEndpoint,
     paletteSearchEndpoint,

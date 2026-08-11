@@ -1,5 +1,6 @@
 import { PayloadProvider } from '@codeware/shared/ui/cms-renderer';
 import { cdwrCloudSvg } from '@codeware/shared/ui/primitives';
+import type { SignupPolicy } from '@codeware/shared/util/payload-api';
 import type { Decorator, Preview } from '@storybook/react-vite';
 import { useEffect } from 'react';
 
@@ -47,6 +48,12 @@ const withPayload: Decorator = (Story, context) => {
           success: true,
           data: { id: 1, status: 'booked' }
         }),
+        // A story overrides this through `parameters.signupPolicy` to review
+        // the terms checkbox or an unconfigured workspace
+        signupPolicy:
+          context.parameters['signupPolicy'] === undefined
+            ? { privacyUrl: '/privacy', termsUrl: null, retentionDays: 365 }
+            : (context.parameters['signupPolicy'] as SignupPolicy | null),
         setTheme: () => undefined,
         theme,
         resolvedTheme: theme,

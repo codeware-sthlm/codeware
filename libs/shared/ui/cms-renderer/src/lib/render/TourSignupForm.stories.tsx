@@ -59,6 +59,28 @@ export const NoMaximum: Story = {
   }
 };
 
+/**
+ * With a terms page configured the customer has something to accept, and the
+ * form refuses to submit until they do
+ */
+export const WithTerms: Story = {
+  name: 'With terms to accept',
+  args: { tour },
+  parameters: {
+    signupPolicy: {
+      privacyUrl: '/privacy',
+      termsUrl: '/terms',
+      retentionDays: 365
+    }
+  }
+};
+
+export const WithoutPolicy: Story = {
+  name: 'Nothing configured (plain notice)',
+  args: { tour },
+  parameters: { signupPolicy: null }
+};
+
 export const Closed: Story = {
   name: 'Closed for signups',
   args: { tour: { ...tour, signupsClosed: true } as unknown as Tour }

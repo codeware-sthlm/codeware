@@ -17,6 +17,7 @@ import { invalidateIconMap } from '../tenants/hooks/populate-icon.hook';
 
 import { sanitizeSvgHook } from './hooks/sanitize-svg.hook';
 import { footerTab } from './tabs/footer.tab';
+import { tourSignupsTab } from './tabs/tour-signups.tab';
 
 const isSource =
   (
@@ -182,6 +183,7 @@ const siteSettings: CollectionConfig = {
             }
           ]
         },
+        tourSignupsTab,
         footerTab
       ]
     }

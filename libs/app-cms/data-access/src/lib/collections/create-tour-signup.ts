@@ -7,7 +7,10 @@ export type TourSignupInput = Pick<
   TourSignup,
   'tour' | 'name' | 'email' | 'people'
 > &
-  Partial<Pick<TourSignup, 'phone'>>;
+  Partial<Pick<TourSignup, 'phone'>> & {
+    /** Whether the customer ticked the terms box */
+    acceptedTerms?: boolean;
+  };
 
 /**
  * Create a tour signup on behalf of a customer.
@@ -30,13 +33,23 @@ export async function createTourSignup(
   data: TourSignupInput
 ): Promise<TourSignup> {
   const { payload } = runtime;
-  const { email, name, people, phone, tour } = data;
+  const { acceptedTerms, email, name, people, phone, tour } = data;
 
   return await payload.create({
     collection: 'tour-signups',
     // `status` is what the customer is asking for, not what they get:
     // `assignCapacityStatus` replaces it with the answer capacity allows
-    data: { tour, name, email, people, phone, status: 'booked' },
+    data: {
+      tour,
+      name,
+      email,
+      people,
+      phone,
+      status: 'booked',
+      // Timed here rather than from anything the client sent — a record of
+      // acceptance is only worth keeping if the server wrote it
+      termsAcceptedAt: acceptedTerms ? new Date().toISOString() : null
+    },
     overrideAccess: payload.authenticatedUser === null,
     user: payload.authenticatedUser
   });

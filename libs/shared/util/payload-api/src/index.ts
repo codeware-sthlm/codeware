@@ -1,6 +1,10 @@
 export { apiKeyPrefix, authorizationHeader } from './lib/utils/definitions';
 export { resolveFooter } from './lib/utils/resolve-footer';
 export { resolveNavigationTree } from './lib/utils/resolve-navigation-tree';
+export {
+  type SignupPolicy,
+  resolveSignupPolicy
+} from './lib/utils/resolve-signup-policy';
 export type {
   FooterData,
   FooterLink,

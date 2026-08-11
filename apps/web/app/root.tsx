@@ -7,11 +7,13 @@ import {
 import {
   type FooterData,
   type NavigationItem,
+  type SignupPolicy,
   findById,
   getBlocksData,
   getNavigationTree,
   getSiteSettings,
-  resolveFooter
+  resolveFooter,
+  resolveSignupPolicy
 } from '@codeware/shared/util/payload-api';
 import type { Page } from '@codeware/shared/util/payload-types';
 import type { BlocksData } from '@codeware/shared/util/payload-utils';
@@ -69,6 +71,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
     const tenantConfig = context.tenantConfig;
 
     let footer: FooterData | null = null;
+    let signupPolicy: SignupPolicy | null = null;
     let landingPage: Page | null = null;
     let landingPageBlocksData: BlocksData = {};
     let navigationTree: Array<NavigationItem> = [];
@@ -98,6 +101,8 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
       landingPage = response[0];
       navigationTree = response[1];
       footer = resolveFooter(response[2], navigationTree);
+      // What the tour signup form has to disclose about personal data
+      signupPolicy = resolveSignupPolicy(response[2]);
 
       if (landingPage?.layout) {
         landingPageBlocksData = await getBlocksData(
@@ -119,6 +124,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
       footer,
       loaderErrorMessage,
       landingPage,
+      signupPolicy,
       landingPageBlocksData,
       navigationTree,
       requestInfo: {
@@ -212,6 +218,7 @@ export default function App() {
     payloadUrl: loaderData.env.PAYLOAD_URL,
     setTheme: (theme) =>
       console.warn('Theme switcher not implemented yet', theme),
+    signupPolicy: loaderData.signupPolicy,
     submitForm: async (formData) => {
       try {
         // Send to server-side action to use secure API key authentication

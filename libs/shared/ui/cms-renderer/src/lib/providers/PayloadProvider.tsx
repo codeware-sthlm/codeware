@@ -1,5 +1,6 @@
 'use client';
 import { Toaster } from '@codeware/shared/ui/shadcn/components/sonner';
+import type { SignupPolicy } from '@codeware/shared/util/payload-api';
 import type {
   FormSubmission,
   TenantIconConfig
@@ -37,6 +38,11 @@ export type TourSignupData = {
   phone?: string;
   /** People the signup is for — the capacity unit */
   people: number;
+  /**
+   * Whether the customer ticked the terms box. The server stamps the time
+   * itself — a client-sent timestamp would be worth nothing as a record.
+   */
+  acceptedTerms?: boolean;
 };
 
 export type TourSignupResponse =
@@ -158,6 +164,15 @@ export type PayloadValue = {
    * @returns The signup response.
    */
   submitTourSignup: (data: TourSignupData) => Promise<TourSignupResponse>;
+
+  /**
+   * Provide what the tour signup form must disclose about personal data —
+   * the workspace's privacy and terms pages, and how long details are kept.
+   *
+   * Resolve it from site settings with `resolveSignupPolicy`. Omit only when
+   * the app renders no tour signup form at all.
+   */
+  signupPolicy?: SignupPolicy | null;
 
   /**
    * Provide the current theme state.

@@ -13,6 +13,7 @@ import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { Checkbox } from '../form-items/Checkbox';
 import { Input } from '../form-items/Input';
 import { ColSpan } from '../layout/ColSpan';
 import { Grid } from '../layout/Grid';
@@ -26,6 +27,7 @@ type Values = {
   email: string;
   phone: string;
   people: number;
+  acceptedTerms: boolean;
 };
 
 export type TourSignupFormProps = {
@@ -50,12 +52,24 @@ export type TourSignupFormProps = {
  * why the confirmation is read from the response rather than predicted here.
  */
 export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
-  const { locale, submitTourSignup } = usePayload();
+  const { locale, navigate, signupPolicy, submitTourSignup } = usePayload();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<Values>({
-    defaultValues: { name: '', email: '', phone: '', people: 1 }
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      people: 1,
+      acceptedTerms: false
+    }
   });
+
+  // Terms are only presented when the workspace has a page to point at, so
+  // there is nothing to accept — and nothing to require — without one
+  const termsUrl = signupPolicy?.termsUrl ?? null;
+  const privacyUrl = signupPolicy?.privacyUrl ?? null;
+  const retentionDays = signupPolicy?.retentionDays ?? null;
 
   const full = Boolean(tour.signupsFull);
   const seatsLeft = tour.seatsLeft ?? null;
@@ -70,7 +84,8 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
           name: values.name,
           email: values.email,
           phone: values.phone || undefined,
-          people: Number(values.people)
+          people: Number(values.people),
+          acceptedTerms: termsUrl ? values.acceptedTerms : undefined
         });
 
         setIsLoading(false);
@@ -97,7 +112,7 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
 
       void invokeSubmit();
     },
-    [form, locale, onSuccess, submitTourSignup, tour.id]
+    [form, locale, onSuccess, submitTourSignup, termsUrl, tour.id]
   );
 
   if (tour.signupsClosed) {
@@ -224,6 +239,37 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
               />
             </ColSpan>
 
+            {termsUrl && (
+              <ColSpan>
+                <FormField
+                  control={form.control}
+                  name="acceptedTerms"
+                  rules={{
+                    required: t(locale, 'tourSignup.acceptTermsRequired')
+                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <Checkbox
+                        {...field}
+                        label={t(locale, 'tourSignup.acceptTerms')}
+                      />
+                      <a
+                        href={termsUrl}
+                        className="text-core-link text-sm underline"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          navigate(termsUrl);
+                        }}
+                      >
+                        {t(locale, 'tourSignup.termsLink')}
+                      </a>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </ColSpan>
+            )}
+
             <ColSpan>
               <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading
@@ -236,6 +282,32 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
           </Grid>
         </form>
       </Form>
+
+      {/* Said at the moment the details are handed over, not buried in a page
+          the customer has to go looking for */}
+      <p className="text-core-muted text-xs">
+        {t(locale, 'tourSignup.dataNotice')}
+        {retentionDays
+          ? ` ${t(locale, 'tourSignup.dataNoticeRetention', {
+              days: String(retentionDays)
+            })}`
+          : ''}
+        {privacyUrl && (
+          <>
+            {' '}
+            <a
+              href={privacyUrl}
+              className="text-core-link underline"
+              onClick={(event) => {
+                event.preventDefault();
+                navigate(privacyUrl);
+              }}
+            >
+              {t(locale, 'tourSignup.privacyLink')}
+            </a>
+          </>
+        )}
+      </p>
     </div>
   );
 }

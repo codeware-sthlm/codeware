@@ -10,6 +10,7 @@ type Body = {
   email?: string;
   phone?: string;
   people?: number;
+  acceptedTerms?: boolean;
 };
 
 /**
@@ -36,11 +37,18 @@ export async function action({ context, request }: TypedActionFunctionArgs) {
     return json({ message: 'Invalid tour signup body' }, { status: 400 });
   }
 
+  const { acceptedTerms, ...signup } = body;
+
   const requestOptions = getPayloadRequestOptions(
     'POST',
     context,
     request.headers,
-    body
+    {
+      ...signup,
+      // Timed here rather than from anything the browser sent — a record of
+      // acceptance is only worth keeping if a server wrote it
+      termsAcceptedAt: acceptedTerms ? new Date().toISOString() : null
+    }
   );
 
   try {

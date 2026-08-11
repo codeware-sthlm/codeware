@@ -41,6 +41,7 @@ export { getPosts } from './lib/collections/get-posts';
 
 export { getPreference } from './lib/collections/get-preference';
 
+export { getSignupPolicy } from './lib/collections/get-signup-policy';
 export { getSiteSettings } from './lib/collections/get-site-settings';
 export { getTenant } from './lib/collections/get-tenant';
 

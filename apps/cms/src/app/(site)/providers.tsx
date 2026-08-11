@@ -15,7 +15,10 @@ import { useTheme } from 'next-themes';
 
 type ProvidersProps = {
   children: React.ReactNode;
-} & Pick<PayloadValue, 'appInfo' | 'iconConfig' | 'locale' | 'payloadUrl'>;
+} & Pick<
+  PayloadValue,
+  'appInfo' | 'iconConfig' | 'locale' | 'payloadUrl' | 'signupPolicy'
+>;
 
 /**
  * Combines all client-side providers needed for the CMS site.
@@ -26,7 +29,8 @@ export function Providers({
   appInfo,
   iconConfig,
   locale,
-  payloadUrl
+  payloadUrl,
+  signupPolicy
 }: ProvidersProps) {
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
@@ -35,6 +39,7 @@ export function Providers({
         iconConfig={iconConfig}
         locale={locale}
         payloadUrl={payloadUrl}
+        signupPolicy={signupPolicy}
       >
         {children}
       </PayloadProviderInner>
@@ -47,7 +52,8 @@ function PayloadProviderInner({
   appInfo,
   iconConfig,
   locale,
-  payloadUrl
+  payloadUrl,
+  signupPolicy
 }: ProvidersProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -69,6 +75,7 @@ function PayloadProviderInner({
         },
         payloadUrl,
         setTheme: (theme) => setTheme(theme),
+        signupPolicy,
         submitForm: async (data): Promise<FormSubmitResponse> => {
           try {
             const response = await fetch('/api/form-submissions', {

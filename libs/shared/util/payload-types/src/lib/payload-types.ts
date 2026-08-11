@@ -1538,6 +1538,7 @@ export interface SiteSetting {
   id: number;
   tenant?: (number | null) | Tenant;
   general: SiteSettingsGeneral;
+  tourSignups?: SiteSettingsTourSignups;
   footer?: SiteSettingsFooter;
   updatedAt: string;
   createdAt: string;
@@ -1570,6 +1571,26 @@ export interface SiteSettingsGeneral {
    * The default locale for the client. Must be one of the supported locales for the workspace.
    */
   defaultLocale: 'en' | 'sv';
+}
+/**
+ * What customers are told when they sign up for a tour, and how long their details are kept.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsTourSignups".
+ */
+export interface SiteSettingsTourSignups {
+  /**
+   * Linked from the signup form and the confirmation email. No page yet? Create a starter one below.
+   */
+  privacyPage?: (number | null) | Page;
+  /**
+   * When set, customers must accept these terms before they can sign up.
+   */
+  termsPage?: (number | null) | Page;
+  /**
+   * Names, emails and phone numbers are cleared this long after the tour departs. Party sizes and statuses are kept. This number is also what customers are told on the signup form.
+   */
+  retentionDays?: number | null;
 }
 /**
  * Control what the site footer displays.
@@ -2286,6 +2307,7 @@ export interface ReusableContentSelect<T extends boolean = true> {
 export interface SiteSettingsSelect<T extends boolean = true> {
   tenant?: T;
   general?: T | SiteSettingsGeneralSelect<T>;
+  tourSignups?: T | SiteSettingsTourSignupsSelect<T>;
   footer?: T | SiteSettingsFooterSelect<T>;
   updatedAt?: T;
   createdAt?: T;
@@ -2305,6 +2327,15 @@ export interface SiteSettingsGeneralSelect<T extends boolean = true> {
         file?: T;
       };
   defaultLocale?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsTourSignups_select".
+ */
+export interface SiteSettingsTourSignupsSelect<T extends boolean = true> {
+  privacyPage?: T;
+  termsPage?: T;
+  retentionDays?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

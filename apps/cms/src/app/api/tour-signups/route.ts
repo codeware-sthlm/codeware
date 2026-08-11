@@ -9,6 +9,7 @@ type Body = {
   email?: unknown;
   phone?: unknown;
   people?: unknown;
+  acceptedTerms?: unknown;
 };
 
 const asString = (value: unknown): string =>
@@ -56,7 +57,8 @@ export async function POST(request: NextRequest) {
       name,
       email,
       people,
-      phone: asString(body.phone) || null
+      phone: asString(body.phone) || null,
+      acceptedTerms: body.acceptedTerms === true
     });
 
     return NextResponse.json({

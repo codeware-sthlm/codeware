@@ -90,6 +90,12 @@ export type TranslationKey =
   | 'tours.price'
   | 'tours.interestLede'
   | 'tours.print'
+  | 'tourSignup.acceptTerms'
+  | 'tourSignup.acceptTermsRequired'
+  | 'tourSignup.dataNotice'
+  | 'tourSignup.dataNoticeRetention'
+  | 'tourSignup.privacyLink'
+  | 'tourSignup.termsLink'
   | 'tourSignup.email'
   | 'tourSignup.failed'
   | 'tourSignup.full'
@@ -214,6 +220,14 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.interestLede':
       'Tell us you are interested and we will be in touch once the departure is confirmed. Nothing is binding.',
     'tours.print': 'Print this tour',
+    'tourSignup.acceptTerms': 'I accept the terms',
+    'tourSignup.acceptTermsRequired': 'Please accept the terms to sign up',
+    'tourSignup.dataNotice':
+      'We store your name, email, phone number and party size to run this tour.',
+    'tourSignup.dataNoticeRetention':
+      'Your details are cleared {{days}} days after departure.',
+    'tourSignup.privacyLink': 'How we handle your data',
+    'tourSignup.termsLink': 'Read the terms',
     'tourSignup.email': 'Email',
     'tourSignup.failed': 'Your signup could not be sent. Please try again.',
     'tourSignup.full': 'This tour is full',
@@ -339,6 +353,14 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.interestLede':
       'Meddela att du är intresserad så hör vi av oss när avresan är bekräftad. Ingenting är bindande.',
     'tours.print': 'Skriv ut resan',
+    'tourSignup.acceptTerms': 'Jag godkänner villkoren',
+    'tourSignup.acceptTermsRequired': 'Godkänn villkoren för att anmäla dig',
+    'tourSignup.dataNotice':
+      'Vi sparar ditt namn, din e-post, ditt telefonnummer och antal resenärer för att genomföra resan.',
+    'tourSignup.dataNoticeRetention':
+      'Dina uppgifter rensas {{days}} dagar efter avresan.',
+    'tourSignup.privacyLink': 'Så hanterar vi dina uppgifter',
+    'tourSignup.termsLink': 'Läs villkoren',
     'tourSignup.email': 'E-post',
     'tourSignup.failed': 'Anmälan kunde inte skickas. Försök igen.',
     'tourSignup.full': 'Resan är fullbokad',

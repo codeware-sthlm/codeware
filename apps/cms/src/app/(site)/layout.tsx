@@ -1,6 +1,7 @@
 import {
   getFooter,
   getNavigationTree,
+  getSignupPolicy,
   getTenantContext
 } from '@codeware/app-cms/data-access';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
@@ -33,6 +34,9 @@ export default async function RootLayout({
   const navigationTree = await getNavigationTree(runtime);
   const footer = await getFooter(runtime, navigationTree);
 
+  // What a tour signup form has to disclose; the same for every tour
+  const signupPolicy = await getSignupPolicy(runtime);
+
   // Parsed once and shared — `getEnv()` revalidates `process.env` on every call
   const env = getEnv();
 
@@ -50,6 +54,7 @@ export default async function RootLayout({
           iconConfig={runtime.tenantConfig?.icon ?? null}
           locale={runtime.tenantConfig?.locale ?? 'en'}
           payloadUrl={env.APP_MODE.serverURL}
+          signupPolicy={signupPolicy}
         >
           <RenderLayout footer={footer} navigationTree={navigationTree}>
             {children}

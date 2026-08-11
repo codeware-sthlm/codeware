@@ -183,8 +183,8 @@ const siteSettings: CollectionConfig = {
             }
           ]
         },
-        tourSignupsTab,
-        footerTab
+        footerTab,
+        tourSignupsTab
       ]
     }
   ]

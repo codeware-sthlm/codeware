@@ -51,6 +51,17 @@ export const tourSignupsTab: Tab = {
       }
     },
     {
+      // Sits under the two relationships it fills in
+      name: 'legalPageStarters',
+      type: 'ui',
+      admin: {
+        components: {
+          Field:
+            '@codeware/apps/cms/components/admin/tour-signups/LegalPageStarters.client'
+        }
+      }
+    },
+    {
       name: 'retentionDays',
       type: 'number',
       label: {

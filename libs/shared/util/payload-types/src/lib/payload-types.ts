@@ -1580,6 +1580,15 @@ export interface SiteSettingsGeneral {
  */
 export interface SiteSettingsTourSignups {
   /**
+   * Who gets an email when someone signs up for a tour. Leave empty to be told nothing.
+   */
+  notificationRecipients?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Linked from the signup form and the confirmation email. No page yet? Create a starter one below.
    */
   privacyPage?: (number | null) | Page;
@@ -2333,6 +2342,12 @@ export interface SiteSettingsGeneralSelect<T extends boolean = true> {
  * via the `definition` "SiteSettingsTourSignups_select".
  */
 export interface SiteSettingsTourSignupsSelect<T extends boolean = true> {
+  notificationRecipients?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
   privacyPage?: T;
   termsPage?: T;
   retentionDays?: T;

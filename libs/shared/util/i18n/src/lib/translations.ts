@@ -90,6 +90,26 @@ export type TranslationKey =
   | 'tours.price'
   | 'tours.interestLede'
   | 'tours.print'
+  | 'tourSignupEmail.bookedBody'
+  | 'tourSignupEmail.departureLabel'
+  | 'tourSignupEmail.detailsHeading'
+  | 'tourSignupEmail.greeting'
+  | 'tourSignupEmail.notificationBody'
+  | 'tourSignupEmail.notificationHeading'
+  | 'tourSignupEmail.peopleLabel'
+  | 'tourSignupEmail.privacyLink'
+  | 'tourSignupEmail.promotedBody'
+  | 'tourSignupEmail.questions'
+  | 'tourSignupEmail.statusLabel'
+  | 'tourSignupEmail.statusBooked'
+  | 'tourSignupEmail.statusWaiting'
+  | 'tourSignupEmail.subjectBooked'
+  | 'tourSignupEmail.subjectNotification'
+  | 'tourSignupEmail.subjectPromoted'
+  | 'tourSignupEmail.subjectWaiting'
+  | 'tourSignupEmail.termsLink'
+  | 'tourSignupEmail.tourLabel'
+  | 'tourSignupEmail.waitingBody'
   | 'tourSignup.acceptTerms'
   | 'tourSignup.acceptTermsRequired'
   | 'tourSignup.dataNotice'
@@ -220,6 +240,32 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.interestLede':
       'Tell us you are interested and we will be in touch once the departure is confirmed. Nothing is binding.',
     'tours.print': 'Print this tour',
+    'tourSignupEmail.bookedBody':
+      'Your place on {{tour}} is confirmed. We will be in touch closer to departure with the practical details.',
+    'tourSignupEmail.departureLabel': 'Departure',
+    'tourSignupEmail.detailsHeading': 'Your signup',
+    'tourSignupEmail.greeting': 'Hi {{name}},',
+    'tourSignupEmail.notificationBody':
+      '{{name}} signed up for {{tour}} for {{people}} people.',
+    'tourSignupEmail.notificationHeading': 'New signup',
+    'tourSignupEmail.peopleLabel': 'Travellers',
+    'tourSignupEmail.privacyLink': 'How we handle your data',
+    'tourSignupEmail.promotedBody':
+      'A place has opened up on {{tour}} and it is yours. Your signup is now confirmed.',
+    'tourSignupEmail.questions':
+      'Just reply to this email if anything is unclear.',
+    'tourSignupEmail.statusLabel': 'Status',
+    'tourSignupEmail.statusBooked': 'Confirmed',
+    'tourSignupEmail.statusWaiting': 'Waiting list',
+    'tourSignupEmail.subjectBooked': 'Your place on {{tour}} is confirmed',
+    'tourSignupEmail.subjectNotification': 'New signup for {{tour}}',
+    'tourSignupEmail.subjectPromoted': 'A place has opened up on {{tour}}',
+    'tourSignupEmail.subjectWaiting':
+      'You are on the waiting list for {{tour}}',
+    'tourSignupEmail.termsLink': 'Terms',
+    'tourSignupEmail.tourLabel': 'Tour',
+    'tourSignupEmail.waitingBody':
+      '{{tour}} is fully booked, so you are on the waiting list. We will be in touch as soon as a place opens up — nothing is charged and you are free to change your mind.',
     'tourSignup.acceptTerms': 'I accept the terms',
     'tourSignup.acceptTermsRequired': 'Please accept the terms to sign up',
     'tourSignup.dataNotice':
@@ -353,6 +399,30 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.interestLede':
       'Meddela att du är intresserad så hör vi av oss när avresan är bekräftad. Ingenting är bindande.',
     'tours.print': 'Skriv ut resan',
+    'tourSignupEmail.bookedBody':
+      'Din plats på {{tour}} är bekräftad. Vi hör av oss närmare avresan med praktiska detaljer.',
+    'tourSignupEmail.departureLabel': 'Avresa',
+    'tourSignupEmail.detailsHeading': 'Din anmälan',
+    'tourSignupEmail.greeting': 'Hej {{name}},',
+    'tourSignupEmail.notificationBody':
+      '{{name}} har anmält sig till {{tour}} för {{people}} personer.',
+    'tourSignupEmail.notificationHeading': 'Ny anmälan',
+    'tourSignupEmail.peopleLabel': 'Resenärer',
+    'tourSignupEmail.privacyLink': 'Så hanterar vi dina uppgifter',
+    'tourSignupEmail.promotedBody':
+      'En plats har blivit ledig på {{tour}} och den är din. Din anmälan är nu bekräftad.',
+    'tourSignupEmail.questions': 'Svara på det här mejlet om något är oklart.',
+    'tourSignupEmail.statusLabel': 'Status',
+    'tourSignupEmail.statusBooked': 'Bekräftad',
+    'tourSignupEmail.statusWaiting': 'Väntelista',
+    'tourSignupEmail.subjectBooked': 'Din plats på {{tour}} är bekräftad',
+    'tourSignupEmail.subjectNotification': 'Ny anmälan till {{tour}}',
+    'tourSignupEmail.subjectPromoted': 'En plats har blivit ledig på {{tour}}',
+    'tourSignupEmail.subjectWaiting': 'Du står i kön till {{tour}}',
+    'tourSignupEmail.termsLink': 'Villkor',
+    'tourSignupEmail.tourLabel': 'Resa',
+    'tourSignupEmail.waitingBody':
+      '{{tour}} är fullbokad, så du står i kön. Vi hör av oss så snart en plats blir ledig — inget debiteras och du kan ändra dig när du vill.',
     'tourSignup.acceptTerms': 'Jag godkänner villkoren',
     'tourSignup.acceptTermsRequired': 'Godkänn villkoren för att anmäla dig',
     'tourSignup.dataNotice':

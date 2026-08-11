@@ -1848,10 +1848,6 @@ export interface Tour {
    */
   signupsClosed?: boolean | null;
   /**
-   * The form customers sign up with. Its submit button and confirmation carry their own wording, so use a form that matches the choice above. Build it under Forms & Messages.
-   */
-  bookingForm?: (number | null) | Form;
-  /**
    * One line per thing the price covers.
    */
   included?:
@@ -1900,6 +1896,10 @@ export interface Tour {
    * Used for url paths. Will be automatically generated from title if left empty.
    */
   slug: string;
+  seatsTaken?: number | null;
+  seatsWaiting?: number | null;
+  seatsLeft?: number | null;
+  signupsFull?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -2506,7 +2506,6 @@ export interface ToursSelect<T extends boolean = true> {
   currency?: T;
   maxCustomers?: T;
   signupsClosed?: T;
-  bookingForm?: T;
   included?:
     | T
     | {
@@ -2529,6 +2528,10 @@ export interface ToursSelect<T extends boolean = true> {
         description?: T;
       };
   slug?: T;
+  seatsTaken?: T;
+  seatsWaiting?: T;
+  seatsLeft?: T;
+  signupsFull?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

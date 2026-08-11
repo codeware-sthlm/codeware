@@ -16,6 +16,8 @@ export {
   type FormSubmitResponse,
   PayloadProvider,
   type PayloadValue,
+  type TourSignupData,
+  type TourSignupResponse,
   usePayload
 } from './lib/providers/PayloadProvider';
 

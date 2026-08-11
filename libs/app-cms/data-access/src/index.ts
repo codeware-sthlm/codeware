@@ -44,6 +44,10 @@ export { getPreference } from './lib/collections/get-preference';
 export { getSiteSettings } from './lib/collections/get-site-settings';
 export { getTenant } from './lib/collections/get-tenant';
 
+export {
+  type TourSignupInput,
+  createTourSignup
+} from './lib/collections/create-tour-signup';
 export { getTour } from './lib/collections/get-tour';
 export { getTours } from './lib/collections/get-tours';
 export {

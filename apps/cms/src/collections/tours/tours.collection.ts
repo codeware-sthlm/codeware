@@ -13,6 +13,8 @@ import type { CollectionConfig } from 'payload';
 import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
 
+import { populateTourCapacity } from './hooks/populate-capacity.hook';
+
 /**
  * Define which blocks are available for the rich text editor.
  */
@@ -304,19 +306,6 @@ const tours: CollectionConfig<'tours'> = {
               ]
             },
             {
-              name: 'bookingForm',
-              type: 'relationship',
-              relationTo: 'forms',
-              label: { en: 'Sign-up form', sv: 'Anmälningsformulär' },
-              filterOptions: ({ req }) => filterByTenantScope(req, 'forms'),
-              admin: {
-                description: {
-                  en: 'The form customers sign up with. Its submit button and confirmation carry their own wording, so use a form that matches the choice above. Build it under Forms & Messages.',
-                  sv: 'Formuläret kunder anmäler sig med. Dess knapptext och bekräftelse har egen formulering, så välj ett formulär som matchar valet ovan. Bygg det under Formulär & Meddelanden.'
-                }
-              }
-            },
-            {
               name: 'included',
               type: 'array',
               label: { en: "What's included", sv: 'Det här ingår' },
@@ -495,6 +484,32 @@ const tours: CollectionConfig<'tours'> = {
       ]
     },
     slugField({ sourceField: 'title', required: true }),
+    // Capacity as the site needs it: derived on read by `populateTourCapacity`,
+    // never stored. Virtual so no column exists to drift from the signups.
+    {
+      name: 'seatsTaken',
+      type: 'number',
+      virtual: true,
+      admin: { hidden: true }
+    },
+    {
+      name: 'seatsWaiting',
+      type: 'number',
+      virtual: true,
+      admin: { hidden: true }
+    },
+    {
+      name: 'seatsLeft',
+      type: 'number',
+      virtual: true,
+      admin: { hidden: true }
+    },
+    {
+      name: 'signupsFull',
+      type: 'checkbox',
+      virtual: true,
+      admin: { hidden: true }
+    },
     {
       // List-only column: the totals are wanted when scanning tours, and a
       // virtual field would resolve them on every tour read instead
@@ -508,6 +523,9 @@ const tours: CollectionConfig<'tours'> = {
       }
     }
   ],
+  hooks: {
+    afterOperation: [populateTourCapacity]
+  },
   versions: {
     drafts: {
       autosave: {

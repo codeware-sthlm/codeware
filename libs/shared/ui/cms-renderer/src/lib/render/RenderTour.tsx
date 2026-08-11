@@ -20,7 +20,6 @@ import type { Tour } from '@codeware/shared/util/payload-types';
 import { CheckIcon, ListOrderedIcon, MinusIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { FormBlock } from '../blocks/FormBlock';
 import { ImageBlock } from '../blocks/ImageBlock';
 import { RichText } from '../blocks/RichText';
 import { Container } from '../layout/Container';
@@ -34,6 +33,7 @@ import {
 
 import { TourActions } from './TourActions';
 import { TourPlaces } from './TourPlaces';
+import { TourSignupForm } from './TourSignupForm';
 
 type RenderTourProps = {
   /**
@@ -62,7 +62,6 @@ export function RenderTour({ tour }: RenderTourProps) {
 
   const {
     bookingDeadline,
-    bookingForm,
     content,
     currency,
     departureDate,
@@ -80,14 +79,30 @@ export function RenderTour({ tour }: RenderTourProps) {
   } = tour;
 
   const [bookingOpen, setBookingOpen] = useState(false);
-  const hasBookingForm = bookingForm && typeof bookingForm === 'object';
+  // A tour closed to signups has nothing to offer behind the button, so the
+  // call to action goes away rather than opening onto a refusal
+  const canSignUp = !tour.signupsClosed;
 
   // A tour with no confirmed departure can only gather interest, so the call to
   // action and the copy around it change with the intent
   const isBooking = intent === 'booking';
-  const ctaLabel = isBooking
-    ? t(locale, 'tours.bookTour')
-    : t(locale, 'tours.registerInterest');
+  // A full tour can still be joined — as a queue. Saying "book this tour" on a
+  // button that produces a waiting list place would be a small lie, so the
+  // label follows the capacity rather than the intent.
+  const isFull = Boolean(tour.signupsFull);
+  const ctaLabel = isFull
+    ? t(locale, 'tourSignup.joinWaitingList')
+    : isBooking
+      ? t(locale, 'tours.bookTour')
+      : t(locale, 'tours.registerInterest');
+  const seatsLeft = tour.seatsLeft ?? null;
+  // Only worth saying when there is a number behind it and it is running out;
+  // "8 of 20 left" on an empty tour is noise, and no maximum means no count
+  const placesLine = isFull
+    ? t(locale, 'tourSignup.full')
+    : seatsLeft !== null
+      ? t(locale, 'tourSignup.seatsLeft', { count: String(seatsLeft) })
+      : null;
   const ctaLede = isBooking
     ? t(locale, 'tours.bookingLede', {
         date: formatTourDate(bookingDeadline, locale)
@@ -111,22 +126,36 @@ export function RenderTour({ tour }: RenderTourProps) {
     }
   ].filter((fact) => Boolean(fact.value));
 
-  const bookingButton = hasBookingForm && (
+  const bookingButton = canSignUp && (
     <Sheet open={bookingOpen} onOpenChange={setBookingOpen}>
-      <SheetTrigger asChild>
-        <Button className="print:hidden">{ctaLabel}</Button>
-      </SheetTrigger>
+      <div className="flex flex-col items-end gap-1 print:hidden">
+        {placesLine && (
+          <p
+            className={
+              isFull
+                ? 'text-core-headline text-sm font-medium'
+                : 'text-core-muted text-sm'
+            }
+          >
+            {placesLine}
+          </p>
+        )}
+        <SheetTrigger asChild>
+          <Button className="print:hidden">{ctaLabel}</Button>
+        </SheetTrigger>
+      </div>
       <SheetContent side="right" size="md" className="overflow-y-auto">
         <SheetHeader className="p-6">
           <SheetTitle className="text-xl font-semibold">{ctaLabel}</SheetTitle>
-          <SheetDescription>{ctaLede}</SheetDescription>
+          <SheetDescription>
+            {isFull ? t(locale, 'tourSignup.fullLede') : ctaLede}
+          </SheetDescription>
         </SheetHeader>
         <div className="px-6 pb-8">
-          <FormBlock
-            blockType="form"
-            form={bookingForm}
-            // Close the sheet once the submission is accepted; the confirmation
-            // dialog then has the page behind it rather than the open sheet
+          <TourSignupForm
+            tour={tour}
+            // Close the sheet once the signup is accepted; the confirmation
+            // toast then has the page behind it rather than the open sheet
             onSuccess={() => setBookingOpen(false)}
           />
         </div>
@@ -402,7 +431,7 @@ export function RenderTour({ tour }: RenderTourProps) {
               </section>
             )}
 
-            {hasBookingForm && (
+            {canSignUp && (
               <div className="border-core-border/40 mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8 print:hidden">
                 <p className="text-core-muted text-sm">{ctaLede}</p>
                 {bookingButton}

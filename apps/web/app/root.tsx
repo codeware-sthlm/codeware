@@ -237,6 +237,39 @@ export default function App() {
         };
       }
     },
+    submitTourSignup: async (data) => {
+      try {
+        // Send to server-side action to use secure API key authentication
+        const response = await fetch('/tour-signup', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result?.success) {
+          throw new Error(
+            result?.message ?? `Server returned ${response.status}`
+          );
+        }
+
+        // The status is the server's answer, not the client's assumption — a
+        // signup for a full tour comes back queued
+        return {
+          success: true,
+          data: { id: result.id, status: result.status }
+        };
+      } catch (e) {
+        const error = e as Error;
+        return {
+          success: false,
+          data: { error: error?.message ?? 'Unknown error' }
+        };
+      }
+    },
     theme,
     locale: loaderData.requestInfo.userPrefs.locale
   };

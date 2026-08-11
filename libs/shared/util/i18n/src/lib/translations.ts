@@ -90,6 +90,25 @@ export type TranslationKey =
   | 'tours.price'
   | 'tours.interestLede'
   | 'tours.print'
+  | 'tourSignup.email'
+  | 'tourSignup.failed'
+  | 'tourSignup.full'
+  | 'tourSignup.fullLede'
+  | 'tourSignup.joinWaitingList'
+  | 'tourSignup.name'
+  | 'tourSignup.people'
+  | 'tourSignup.peopleHelp'
+  | 'tourSignup.phone'
+  | 'tourSignup.phoneOptional'
+  | 'tourSignup.required'
+  | 'tourSignup.seatsLeft'
+  | 'tourSignup.signupsClosed'
+  | 'tourSignup.submit'
+  | 'tourSignup.submitting'
+  | 'tourSignup.successBooked'
+  | 'tourSignup.successWaiting'
+  | 'tourSignup.title'
+  | 'tourSignup.tooManyPeople'
   | 'tours.registerInterest'
   | 'tours.signUpBefore'
   | 'tours.share'
@@ -195,6 +214,28 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.interestLede':
       'Tell us you are interested and we will be in touch once the departure is confirmed. Nothing is binding.',
     'tours.print': 'Print this tour',
+    'tourSignup.email': 'Email',
+    'tourSignup.failed': 'Your signup could not be sent. Please try again.',
+    'tourSignup.full': 'This tour is full',
+    'tourSignup.fullLede':
+      'Join the waiting list and we will be in touch if a place opens up.',
+    'tourSignup.joinWaitingList': 'Join the waiting list',
+    'tourSignup.name': 'Name',
+    'tourSignup.people': 'Number of travellers',
+    'tourSignup.peopleHelp': 'Including yourself.',
+    'tourSignup.phone': 'Phone',
+    'tourSignup.phoneOptional': 'Optional, but useful on the day of departure.',
+    'tourSignup.required': 'Please fill in this field',
+    'tourSignup.seatsLeft': '{{count}} places left',
+    'tourSignup.signupsClosed': 'Signups for this tour are closed.',
+    'tourSignup.submit': 'Send signup',
+    'tourSignup.submitting': 'Sending…',
+    'tourSignup.successBooked':
+      'Thank you! Your signup is registered and we have sent you a confirmation.',
+    'tourSignup.successWaiting':
+      'Thank you! You are on the waiting list and we will be in touch if a place opens up.',
+    'tourSignup.title': 'Sign up',
+    'tourSignup.tooManyPeople': 'Please enter a number between 1 and {{max}}',
     'tours.registerInterest': 'Register interest',
     'tours.signUpBefore': 'Sign up before',
     'tours.share': 'Share this tour',
@@ -298,6 +339,28 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.interestLede':
       'Meddela att du är intresserad så hör vi av oss när avresan är bekräftad. Ingenting är bindande.',
     'tours.print': 'Skriv ut resan',
+    'tourSignup.email': 'E-post',
+    'tourSignup.failed': 'Anmälan kunde inte skickas. Försök igen.',
+    'tourSignup.full': 'Resan är fullbokad',
+    'tourSignup.fullLede':
+      'Ställ dig i kön så hör vi av oss om en plats blir ledig.',
+    'tourSignup.joinWaitingList': 'Ställ mig i kön',
+    'tourSignup.name': 'Namn',
+    'tourSignup.people': 'Antal resenärer',
+    'tourSignup.peopleHelp': 'Inklusive dig själv.',
+    'tourSignup.phone': 'Telefon',
+    'tourSignup.phoneOptional': 'Valfritt, men bra att ha på avresedagen.',
+    'tourSignup.required': 'Fyll i det här fältet',
+    'tourSignup.seatsLeft': '{{count}} platser kvar',
+    'tourSignup.signupsClosed': 'Anmälan till den här resan är stängd.',
+    'tourSignup.submit': 'Skicka anmälan',
+    'tourSignup.submitting': 'Skickar…',
+    'tourSignup.successBooked':
+      'Tack! Din anmälan är registrerad och vi har skickat en bekräftelse.',
+    'tourSignup.successWaiting':
+      'Tack! Du står i kön och vi hör av oss om en plats blir ledig.',
+    'tourSignup.title': 'Anmäl dig',
+    'tourSignup.tooManyPeople': 'Ange ett antal mellan 1 och {{max}}',
     'tours.registerInterest': 'Intresseanmälan',
     'tours.signUpBefore': 'Anmälan senast',
     'tours.share': 'Dela resan',

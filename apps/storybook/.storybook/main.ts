@@ -16,6 +16,10 @@ const config: StorybookConfig = {
       files: '**/*.@(mdx|stories.@(ts|tsx))'
     },
     {
+      directory: '../../../libs/app-cms/ui/tour-signups/',
+      files: '**/*.@(mdx|stories.@(ts|tsx))'
+    },
+    {
       directory: '../../../libs/shared/ui/',
       files: '**/*.@(mdx|stories.@(ts|tsx))'
     }

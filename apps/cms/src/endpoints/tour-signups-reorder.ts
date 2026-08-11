@@ -1,0 +1,113 @@
+import { getTourSignups, mapToRuntime } from '@codeware/app-cms/data-access';
+import { isUser } from '@codeware/app-cms/util/misc';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
+import {
+  type Endpoint,
+  type PayloadRequest,
+  addDataAndFileToRequest,
+  headersWithCors
+} from 'payload';
+
+/** Upper bound on a single reorder, matching the panel's own load cap */
+const MAX_IDS = 500;
+
+/** Coerce the posted ids to the numeric document ids this deployment uses */
+function parseIds(value: unknown): Array<number> {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const ids = value
+    .map((id) => (typeof id === 'number' ? id : Number(id)))
+    .filter((id) => Number.isInteger(id) && id > 0);
+
+  return [...new Set(ids)].slice(0, MAX_IDS);
+}
+
+/**
+ * Rewrite the order of a tour's waiting list.
+ *
+ * The queue is the guide's to arrange — a customer who called twice may be
+ * offered the next place ahead of someone who signed up earlier — so position
+ * is stored rather than derived from arrival time.
+ *
+ * Authorization mirrors the read-marker endpoint: the caller must be an admin
+ * user, and only ids that come back from a *read* under their own access and
+ * workspace scope are written. Ids for another tour, another workspace, or a
+ * status other than `waiting` are dropped rather than reordered.
+ */
+export const tourSignupsReorderEndpoint: Endpoint = {
+  path: '/tour-signups-reorder',
+  method: 'post',
+  handler: async (req: PayloadRequest): Promise<Response> => {
+    if (!isUser(req.user)) {
+      return Response.json(
+        { error: getReasonPhrase(StatusCodes.FORBIDDEN) },
+        { status: StatusCodes.FORBIDDEN }
+      );
+    }
+
+    await addDataAndFileToRequest(req);
+    const body = (req.data ?? {}) as { ids?: unknown; tour?: unknown };
+    const ids = parseIds(body.ids);
+    const tour = Number(body.tour);
+
+    if (!Number.isInteger(tour) || tour < 1 || !ids.length) {
+      return Response.json(
+        { error: getReasonPhrase(StatusCodes.BAD_REQUEST) },
+        { status: StatusCodes.BAD_REQUEST }
+      );
+    }
+
+    try {
+      const runtime = mapToRuntime(req.payload, req.user);
+
+      // Reading under the caller's own access is what authorizes the writes
+      const readable = await getTourSignups(runtime, {
+        where: {
+          and: [
+            { id: { in: ids } },
+            { tour: { equals: tour } },
+            { status: { equals: 'waiting' } }
+          ]
+        },
+        limit: ids.length
+      });
+
+      const allowed = new Set((readable?.docs ?? []).map((doc) => doc.id));
+
+      // Positions follow the order the client sent, skipping anything it was
+      // not allowed to move, so the surviving rows keep their relative order
+      const ordered = ids.filter((id) => allowed.has(id));
+
+      for (const [index, id] of ordered.entries()) {
+        await req.payload.update({
+          collection: 'tour-signups',
+          id,
+          data: { queuePosition: index + 1 },
+          depth: 0,
+          // The status guard runs on every update; a queued row keeping its
+          // status has nothing to guard, and the position itself is written
+          // here rather than by an editor
+          overrideAccess: true,
+          req
+        });
+      }
+
+      return Response.json(
+        { updated: ordered },
+        {
+          status: StatusCodes.OK,
+          headers: headersWithCors({ headers: new Headers(), req })
+        }
+      );
+    } catch (error) {
+      req.payload.logger.error(
+        `[tourSignupsReorder] Update failed: ${String(error)}`
+      );
+      return Response.json(
+        { error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR) },
+        { status: StatusCodes.INTERNAL_SERVER_ERROR }
+      );
+    }
+  }
+};

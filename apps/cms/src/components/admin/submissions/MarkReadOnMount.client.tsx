@@ -3,8 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
+import { usePayloadSdk } from '../utils/use-payload-sdk';
+
 import { markSubmissionsRead } from './mark-submissions-read';
-import { useSubmissionsSdk } from './use-submissions-sdk';
 
 type Props = {
   /** Submission to mark; the caller only mounts this when it is unread */
@@ -25,7 +26,7 @@ type Props = {
  */
 export function MarkReadOnMount({ id }: Props) {
   const router = useRouter();
-  const { sdk } = useSubmissionsSdk();
+  const { sdk } = usePayloadSdk();
   // Two separate guards. `inFlight` stops StrictMode's second effect run from
   // duplicating the request; `done` is only set once the server confirms, so a
   // failed call can still be retried when the effect next runs — `sdk` changes

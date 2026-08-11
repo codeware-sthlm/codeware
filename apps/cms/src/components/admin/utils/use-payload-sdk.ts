@@ -6,11 +6,11 @@ import { useAuth, useConfig } from '@payloadcms/ui';
 import { useMemo } from 'react';
 
 /**
- * Authenticated Payload SDK for the submissions views, plus the api route it
- * was built from — the CSV export is a plain download link, so it needs the
- * same base without going through the SDK.
+ * Authenticated Payload SDK for a custom admin view, plus the api route it was
+ * built from — a CSV export is a plain download link, so it needs the same
+ * base without going through the SDK.
  */
-export function useSubmissionsSdk(): {
+export function usePayloadSdk(): {
   sdk: PayloadSDK<Config>;
   apiRoute: string;
 } {

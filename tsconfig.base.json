@@ -51,6 +51,12 @@
         "./libs/app-cms/ui/submissions/src/lib/*"
       ],
       "@codeware/app-cms/ui/tabs": ["./libs/app-cms/ui/tabs/src/index.ts"],
+      "@codeware/app-cms/ui/tour-signups": [
+        "./libs/app-cms/ui/tour-signups/src/index.ts"
+      ],
+      "@codeware/app-cms/ui/tour-signups/*": [
+        "./libs/app-cms/ui/tour-signups/src/lib/*"
+      ],
       "@codeware/app-cms/util/access": [
         "./libs/app-cms/util/access/src/index.ts"
       ],

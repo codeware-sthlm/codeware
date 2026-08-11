@@ -46,5 +46,10 @@ export { getTenant } from './lib/collections/get-tenant';
 
 export { getTour } from './lib/collections/get-tour';
 export { getTours } from './lib/collections/get-tours';
+export {
+  type TourSignupTotals,
+  getTourSignupTotals
+} from './lib/collections/get-tour-signup-totals';
+export { getTourSignups } from './lib/collections/get-tour-signups';
 
 export { getUser } from './lib/collections/get-user';

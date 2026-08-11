@@ -45,6 +45,7 @@ import { formSubmissionsReadEndpoint } from './endpoints/form-submissions-read';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
+import { tourSignupsReorderEndpoint } from './endpoints/tour-signups-reorder';
 import { queryStatsLogger } from './perf/query-stats';
 import { userOnlyAccess } from './security/user-only-access';
 import { userOrApiKeyAccess } from './security/user-or-api-key-access';
@@ -168,7 +169,8 @@ export default buildConfig({
     formSubmissionsReadEndpoint,
     paletteSearchEndpoint,
     perfStatsEndpoint,
-    tenantConfigEndpoint
+    tenantConfigEndpoint,
+    tourSignupsReorderEndpoint
   ],
   plugins: getPlugins(env, {
     access: { read: userOrApiKeyAccess(), write: userOnlyAccess() }

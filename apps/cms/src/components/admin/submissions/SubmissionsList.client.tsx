@@ -35,10 +35,10 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useMemo, useState, useTransition } from 'react';
 
 import { formatRelativeTime } from '../utils/relative-time';
+import { usePayloadSdk } from '../utils/use-payload-sdk';
 
 import { markSubmissionsRead } from './mark-submissions-read';
 import type { SubmissionFormOption, SubmissionListItem } from './types';
-import { useSubmissionsSdk } from './use-submissions-sdk';
 
 type Props = {
   rows: Array<SubmissionListItem>;
@@ -85,7 +85,7 @@ export const SubmissionsList: React.FC<Props> = ({
   collectionLabel
 }) => {
   const { i18n, t } = useTranslation<TranslationsObject, TranslationsKeys>();
-  const { sdk, apiRoute } = useSubmissionsSdk();
+  const { sdk, apiRoute } = usePayloadSdk();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

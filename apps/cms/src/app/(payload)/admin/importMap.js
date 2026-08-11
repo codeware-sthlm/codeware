@@ -37,12 +37,13 @@ import { default as default_06af4458abd1296f9d6bccce90425927 } from '@codeware/a
 import { default as default_75fddbc22d1b88f24f1cec1b82919953 } from '@codeware/app-cms/ui/blocks/social-media/SocialMediaBlockArrayRowLabel.client';
 import { default as default_9b432ee5078df3d1199812759fb4bc95 } from '@codeware/apps/cms/components/SvgPreviewField.client';
 import { default as default_6e6a399bf3ac570a97610e1e79572564 } from '@codeware/app-cms/ui/fields/icon-crop/IconCropField.client';
-import { default as default_3a802d78528116e635b248c8017c18d0 } from '@codeware/apps/cms/components/admin/tour-signups/LegalPageStarters.client';
 import { default as default_5c18d3b3aea5f17616430e623e9ed650 } from '@codeware/apps/cms/components/FooterLinkArrayRowLabel';
+import { default as default_3a802d78528116e635b248c8017c18d0 } from '@codeware/apps/cms/components/admin/tour-signups/LegalPageStarters.client';
 import { default as default_771cb2e65e9273cda2ffcd43d25ab990 } from '@codeware/apps/cms/components/TenantIconNameCell';
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
-import { default as default_684605a40f01e98600c1b5e22bd87007 } from '@codeware/apps/cms/components/admin/tour-signups/TourSignupsField';
+import { default as default_bf7300e11b2198b95b954ecadbd3c445 } from '@codeware/apps/cms/components/admin/tour-signups/TourFilterField';
 import { default as default_c09482d250ab6d202838d64026b532c8 } from '@codeware/apps/cms/components/TourItineraryRowLabel';
+import { default as default_684605a40f01e98600c1b5e22bd87007 } from '@codeware/apps/cms/components/admin/tour-signups/TourSignupsField';
 import { default as default_83b1e477403db97f7c64cd4eca1f0fbb } from '@codeware/apps/cms/components/TourSignupsCell';
 import { default as default_4a3552dc4f000a1797b4eb36166f8ff8 } from '@codeware/apps/cms/components/TenantsArrayField';
 import { default as default_dec1059b7bb8eb8da3a9f0fc400fffbd } from '@codeware/apps/cms/components/TenantsArrayRowLabel';
@@ -147,18 +148,20 @@ export const importMap = {
     default_9b432ee5078df3d1199812759fb4bc95,
   '@codeware/app-cms/ui/fields/icon-crop/IconCropField.client#default':
     default_6e6a399bf3ac570a97610e1e79572564,
-  '@codeware/apps/cms/components/admin/tour-signups/LegalPageStarters.client#default':
-    default_3a802d78528116e635b248c8017c18d0,
   '@codeware/apps/cms/components/FooterLinkArrayRowLabel#default':
     default_5c18d3b3aea5f17616430e623e9ed650,
+  '@codeware/apps/cms/components/admin/tour-signups/LegalPageStarters.client#default':
+    default_3a802d78528116e635b248c8017c18d0,
   '@codeware/apps/cms/components/TenantIconNameCell#default':
     default_771cb2e65e9273cda2ffcd43d25ab990,
   '@payloadcms/plugin-multi-tenant/client#WatchTenantCollection':
     WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
-  '@codeware/apps/cms/components/admin/tour-signups/TourSignupsField#default':
-    default_684605a40f01e98600c1b5e22bd87007,
+  '@codeware/apps/cms/components/admin/tour-signups/TourFilterField#default':
+    default_bf7300e11b2198b95b954ecadbd3c445,
   '@codeware/apps/cms/components/TourItineraryRowLabel#default':
     default_c09482d250ab6d202838d64026b532c8,
+  '@codeware/apps/cms/components/admin/tour-signups/TourSignupsField#default':
+    default_684605a40f01e98600c1b5e22bd87007,
   '@codeware/apps/cms/components/TourSignupsCell#default':
     default_83b1e477403db97f7c64cd4eca1f0fbb,
   '@codeware/apps/cms/components/TenantsArrayField#default':

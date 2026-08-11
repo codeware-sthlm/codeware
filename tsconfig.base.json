@@ -72,6 +72,9 @@
       "@codeware/app-cms/util/plugins": [
         "./libs/app-cms/util/plugins/src/index.ts"
       ],
+      "@codeware/app-cms/util/tour-signups": [
+        "./libs/app-cms/util/tour-signups/src/index.ts"
+      ],
       "@codeware/apps/cms/components/*": ["./apps/cms/src/components/*"],
       "@codeware/e2e/utils": ["./e2e/utils/index.ts"],
       "@codeware/shared/feature/infisical": [

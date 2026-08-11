@@ -1,3 +1,4 @@
+export { ensureTenantFromApiKey } from './lib/ensure-tenant-from-api-key';
 export { findTenantFromCookie } from './lib/find-tenant-from-cookie';
 export { getId } from './lib/get-id';
 export { getUserTenantIDs } from './lib/get-user-tenant-ids';

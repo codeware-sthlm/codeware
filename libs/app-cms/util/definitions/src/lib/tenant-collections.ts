@@ -19,6 +19,7 @@ export const tenantCollectionSlugs = [
   'posts',
   'reusable-content',
   'tags',
+  'tour-signups',
   'tours',
   ...globalCollectionSlugs
 ] as const satisfies readonly CollectionSlug[];

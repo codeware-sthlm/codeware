@@ -137,6 +137,8 @@ const customTranslationsSchema = z.object({
     mustBelongToWorkspace: z.string(),
     notSupportedLocale: z.string(),
     phoneNumber: z.string(),
+    signupWouldOverbook: z.string(),
+    tourClosedForSignups: z.string(),
     urlInvalid: z.string()
   })
 });
@@ -284,6 +286,9 @@ You can assign multiple tags to a file.`,
       notSupportedLocale: `Selected locale "{{locale}}" is not supported by the current tenant.
 Supported locales: {{locales}}`,
       phoneNumber: 'Please enter a valid phone number',
+      signupWouldOverbook:
+        'Only {{available}} of {{max}} places are left and this signup needs {{people}}. Cancel a booking or raise the maximum first.',
+      tourClosedForSignups: 'This tour is closed for signups.',
       urlInvalid: 'Please enter a valid URL'
     }
   },
@@ -429,6 +434,9 @@ Du kan tilldela flera etiketter till en fil.`,
       notSupportedLocale: `Valt språk "{{locale}}" stöds inte av den aktuella arbetsytan.
 Språk som stöds: {{locales}}`,
       phoneNumber: 'Ange ett giltigt telefonnummer',
+      signupWouldOverbook:
+        'Endast {{available}} av {{max}} platser återstår och anmälan behöver {{people}}. Avboka någon eller höj maxantalet först.',
+      tourClosedForSignups: 'Resan är stängd för anmälan.',
       urlInvalid: 'Ange en giltig webbadress'
     }
   }

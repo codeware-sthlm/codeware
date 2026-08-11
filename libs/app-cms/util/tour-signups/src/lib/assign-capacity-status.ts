@@ -1,3 +1,4 @@
+import { customT } from '@codeware/app-cms/util/i18n';
 import { getId, isTenant } from '@codeware/app-cms/util/misc';
 import type { TourSignup } from '@codeware/shared/util/payload-types';
 import { APIError, type CollectionBeforeChangeHook } from 'payload';
@@ -55,7 +56,7 @@ export const assignCapacityStatus: CollectionBeforeChangeHook<
   }
 
   if (fromApiKey && tour.signupsClosed) {
-    throw new APIError('Tour is closed for signups', 403);
+    throw new APIError(customT(req.t)('validation:tourClosedForSignups'), 403);
   }
 
   await lockTour(req, tourId);

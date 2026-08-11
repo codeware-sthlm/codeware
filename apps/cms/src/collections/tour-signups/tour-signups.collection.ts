@@ -4,6 +4,7 @@ import { filterByTenantScope } from '@codeware/app-cms/util/filters';
 import { ensureTenantFromApiKey, isUser } from '@codeware/app-cms/util/misc';
 import {
   assignCapacityStatus,
+  guardStatusChange,
   signupCreateAccess,
   stampStatusChange,
   verifyTourTenant
@@ -213,8 +214,8 @@ const tourSignups: CollectionConfig<'tour-signups'> = {
   ],
   hooks: {
     beforeValidate: [ensureTenantFromApiKey<TourSignup>(), verifyTourTenant],
-    // Capacity decides the status before the status change is stamped
-    beforeChange: [assignCapacityStatus, stampStatusChange]
+    // Capacity settles the status before the status change is stamped
+    beforeChange: [assignCapacityStatus, guardStatusChange, stampStatusChange]
   }
 };
 

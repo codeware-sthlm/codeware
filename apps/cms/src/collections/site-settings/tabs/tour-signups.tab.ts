@@ -25,6 +25,30 @@ export const tourSignupsTab: Tab = {
   },
   fields: [
     {
+      name: 'notificationRecipients',
+      type: 'array',
+      label: { en: 'Notify these addresses', sv: 'Meddela dessa adresser' },
+      labels: {
+        singular: { en: 'Address', sv: 'Adress' },
+        plural: { en: 'Addresses', sv: 'Adresser' }
+      },
+      admin: {
+        initCollapsed: false,
+        description: {
+          en: 'Who gets an email when someone signs up for a tour. Leave empty to be told nothing.',
+          sv: 'Vem som får ett mejl när någon anmäler sig till en resa. Lämna tom för att inte bli meddelad.'
+        }
+      },
+      fields: [
+        {
+          name: 'email',
+          type: 'email',
+          label: false,
+          required: true
+        }
+      ]
+    },
+    {
       name: 'privacyPage',
       type: 'relationship',
       relationTo: 'pages',

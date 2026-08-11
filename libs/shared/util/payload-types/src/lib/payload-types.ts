@@ -1840,6 +1840,14 @@ export interface Tour {
   price: number;
   currency: 'EUR' | 'SEK' | 'USD' | 'GBP';
   /**
+   * How many people the tour has room for. Counts people, not signups — a signup for four takes four places. Leave empty for no limit.
+   */
+  maxCustomers?: number | null;
+  /**
+   * Stop taking new signups, including the waiting list. Signups already received are untouched.
+   */
+  signupsClosed?: boolean | null;
+  /**
    * The form customers sign up with. Its submit button and confirmation carry their own wording, so use a form that matches the choice above. Build it under Forms & Messages.
    */
   bookingForm?: (number | null) | Form;
@@ -2496,6 +2504,8 @@ export interface ToursSelect<T extends boolean = true> {
   departureNote?: T;
   price?: T;
   currency?: T;
+  maxCustomers?: T;
+  signupsClosed?: T;
   bookingForm?: T;
   included?:
     | T

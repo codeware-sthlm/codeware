@@ -273,6 +273,37 @@ const tours: CollectionConfig<'tours'> = {
               ]
             },
             {
+              type: 'row',
+              fields: [
+                {
+                  name: 'maxCustomers',
+                  type: 'number',
+                  label: { en: 'Maximum customers', sv: 'Max antal kunder' },
+                  min: 1,
+                  admin: {
+                    width: '50%',
+                    description: {
+                      en: 'How many people the tour has room for. Counts people, not signups — a signup for four takes four places. Leave empty for no limit.',
+                      sv: 'Hur många personer resan har plats för. Räknar personer, inte anmälningar — en anmälan för fyra tar fyra platser. Lämna tom för obegränsat.'
+                    }
+                  }
+                },
+                {
+                  name: 'signupsClosed',
+                  type: 'checkbox',
+                  label: { en: 'Closed for signups', sv: 'Stängd för anmälan' },
+                  defaultValue: false,
+                  admin: {
+                    width: '50%',
+                    description: {
+                      en: 'Stop taking new signups, including the waiting list. Signups already received are untouched.',
+                      sv: 'Sluta ta emot nya anmälningar, även till väntelistan. Redan mottagna anmälningar påverkas inte.'
+                    }
+                  }
+                }
+              ]
+            },
+            {
               name: 'bookingForm',
               type: 'relationship',
               relationTo: 'forms',

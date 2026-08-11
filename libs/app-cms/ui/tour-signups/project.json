@@ -1,0 +1,8 @@
+{
+  "name": "app-cms-ui-tour-signups",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-cms/ui/tour-signups/src",
+  "projectType": "library",
+  "tags": ["scope:app-cms", "type:ui"],
+  "targets": {}
+}

@@ -51,7 +51,7 @@ const tours: CollectionConfig<'tours'> = {
   slug: 'tours',
   admin: {
     group: adminGroups.content,
-    defaultColumns: ['title', 'destination', 'updatedAt', '_status'],
+    defaultColumns: ['title', 'destination', 'signups', 'updatedAt', '_status'],
     useAsTitle: 'title',
     description: {
       en: 'Tours are the products you sell. Describe the trip, plan the days and publish when ready.',
@@ -472,10 +472,41 @@ const tours: CollectionConfig<'tours'> = {
         // Auto-generate is off: it serializes form state, which still holds
         // the itinerary's rendered RowLabel and throws on the circular
         // reference. See `seoTab` for the detail.
-        seoTab({ hasGenerateFn: false })
+        seoTab({ hasGenerateFn: false }),
+        {
+          label: { en: 'Tour signups', sv: 'Anmälningar' },
+          description: {
+            en: 'Who has signed up, and who is waiting. The same signups are listed under Tour signups, where you can search across every tour.',
+            sv: 'Vilka som har anmält sig och vilka som står i kö. Samma anmälningar finns under Reseanmälningar, där du kan söka över alla resor.'
+          },
+          fields: [
+            {
+              name: 'tourSignups',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field:
+                    '@codeware/apps/cms/components/admin/tour-signups/TourSignupsField'
+                }
+              }
+            }
+          ]
+        }
       ]
     },
-    slugField({ sourceField: 'title', required: true })
+    slugField({ sourceField: 'title', required: true }),
+    {
+      // List-only column: the totals are wanted when scanning tours, and a
+      // virtual field would resolve them on every tour read instead
+      name: 'signups',
+      type: 'ui',
+      label: { en: 'Signups', sv: 'Anmälningar' },
+      admin: {
+        components: {
+          Cell: '@codeware/apps/cms/components/TourSignupsCell'
+        }
+      }
+    }
   ],
   versions: {
     drafts: {

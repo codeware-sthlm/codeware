@@ -20,6 +20,7 @@ import { Textarea } from '@codeware/shared/ui/shadcn/components/textarea';
 import {
   ArrowUturnLeftIcon,
   Bars2Icon,
+  TrashIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import {
@@ -263,6 +264,36 @@ export const TourSignupsPanel: React.FC<Props> = ({
             })
           }}
         />
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={busy || !signups.length}
+          onClick={() => {
+            // Irreversible and it removes what a guide may still need on the
+            // day, so it asks first
+            if (!window.confirm(t('tourSignups:anonymizeConfirm'))) {
+              return;
+            }
+            setBusy(true);
+            void sdk
+              .request({
+                method: 'POST',
+                path: '/tour-signups-anonymize',
+                json: { tour: summary.tourId }
+              })
+              .then((response) => {
+                if (!response.ok) {
+                  reportError(t('tourSignups:saveFailed'));
+                  return;
+                }
+                router.refresh();
+              })
+              .finally(() => setBusy(false));
+          }}
+        >
+          <TrashIcon className="size-4" />
+          {t('tourSignups:anonymize')}
+        </Button>
       </div>
 
       {!signups.length && (

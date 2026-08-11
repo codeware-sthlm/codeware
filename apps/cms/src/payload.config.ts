@@ -46,7 +46,9 @@ import { formSubmissionsReadEndpoint } from './endpoints/form-submissions-read';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
+import { tourSignupsAnonymizeEndpoint } from './endpoints/tour-signups-anonymize';
 import { tourSignupsReorderEndpoint } from './endpoints/tour-signups-reorder';
+import { anonymizeTourSignupsTask } from './jobs/anonymize-tour-signups.task';
 import { queryStatsLogger } from './perf/query-stats';
 import { userOnlyAccess } from './security/user-only-access';
 import { userOrApiKeyAccess } from './security/user-or-api-key-access';
@@ -172,8 +174,19 @@ export default buildConfig({
     paletteSearchEndpoint,
     perfStatsEndpoint,
     tenantConfigEndpoint,
+    tourSignupsAnonymizeEndpoint,
     tourSignupsReorderEndpoint
   ],
+  jobs: {
+    tasks: [anonymizeTourSignupsTask],
+    // Scheduling only queues the job; something has to run the queue. Both are
+    // skipped during build, where no long-running process exists to hold a cron
+    autoRun:
+      env.NX_RUN_TARGET === 'build'
+        ? []
+        : [{ cron: '5 3 * * *', queue: 'nightly', limit: 10 }],
+    deleteJobOnComplete: true
+  },
   plugins: getPlugins(env, {
     access: { read: userOrApiKeyAccess(), write: userOnlyAccess() }
   }),

@@ -18,6 +18,7 @@ import {
 } from '@codeware/shared/ui/shadcn/components/sheet';
 import { Textarea } from '@codeware/shared/ui/shadcn/components/textarea';
 import {
+  ArrowDownTrayIcon,
   ArrowUturnLeftIcon,
   Bars2Icon,
   TrashIcon,
@@ -63,7 +64,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
   language
 }) => {
   const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
-  const { sdk } = usePayloadSdk();
+  const { sdk, apiRoute } = usePayloadSdk();
   const router = useRouter();
 
   const [openId, setOpenId] = useState<number | null>(null);
@@ -264,6 +265,15 @@ export const TourSignupsPanel: React.FC<Props> = ({
             })
           }}
         />
+        <Button variant="outline" size="sm" asChild>
+          <a
+            href={`${apiRoute}/tour-signups-export?tour=${summary.tourId}`}
+            download
+          >
+            <ArrowDownTrayIcon className="size-4" />
+            {t('tourSignups:export')}
+          </a>
+        </Button>
         <Button
           variant="outline"
           size="sm"

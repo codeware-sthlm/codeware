@@ -1,7 +1,6 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Payload } from 'payload';
 
-import { ensureBookingForm } from './ensure-booking-form';
 import { ensureNavigation } from './ensure-navigation';
 import { ensurePage } from './ensure-page';
 
@@ -25,8 +24,8 @@ const getTenantLocale = async (
  * Custom seed queries for documents that doesn't fit the generic seed data type.
  *
  * - Creates a posts listing page for every tenant and adds it to navigation.
- * - Creates a tours listing page for tenants that have tours, adds this page to
- *   navigation, and gives those tours a booking form.
+ * - Creates a tours listing page for tenants that have tours and adds this page
+ *   to navigation.
  * - Creates a file area page for tenants that have the 'file-area' tag
  *   and adds this page to navigation.
  *
@@ -132,7 +131,7 @@ export const customSeed = async (
 
   const { docs: tourDocs } = await payload.find({
     collection: 'tours',
-    select: { bookingForm: true, intent: true, tenant: true },
+    select: { intent: true, tenant: true },
     where: { tenant: { exists: true } },
     depth: 0,
     pagination: false,
@@ -209,55 +208,6 @@ export const customSeed = async (
       const refId = getId(reference.value);
       payload.logger.info(
         `[SEED] Navigation to '${reference.relationTo}' #${refId} on tenant #${tenantId} (custom seed)`
-      );
-    }
-
-    // Booking and interest need different wording on the submit button and the
-    // confirmation, so each intent gets its own form
-    const isSwedish = tenantLocale === 'sv';
-    const formTitles = {
-      booking: isSwedish ? 'Bokningsförfrågan' : 'Booking request',
-      interest: isSwedish ? 'Intresseanmälan' : 'Interest request'
-    } as const;
-
-    for (const intent of ['booking', 'interest'] as const) {
-      const tenantTours = tourDocs.filter(
-        (doc) =>
-          getId(doc.tenant) === tenantId &&
-          doc.intent === intent &&
-          !doc.bookingForm
-      );
-
-      if (!tenantTours.length) {
-        continue;
-      }
-
-      const formOrId = await ensureBookingForm(
-        payload,
-        { title: formTitles[intent], tenant: tenantId, intent },
-        { locale: tenantLocale, transactionID }
-      );
-      const formId = getId(formOrId);
-
-      if (typeof formOrId === 'object') {
-        payload.logger.info(
-          `[SEED] Form '${formOrId.title}' on tenant #${tenantId} (custom seed)`
-        );
-      }
-
-      for (const { id } of tenantTours) {
-        await payload.update({
-          collection: 'tours',
-          id,
-          data: { bookingForm: formId },
-          context: { seedAction: true },
-          locale: tenantLocale,
-          req: { transactionID }
-        });
-      }
-
-      payload.logger.info(
-        `[SEED] Form #${formId} assigned to ${tenantTours.length} ${intent} tours on tenant #${tenantId} (custom seed)`
       );
     }
   }

@@ -4,7 +4,10 @@ import {
   PayloadProvider,
   type PayloadValue
 } from '@codeware/shared/ui/cms-renderer';
-import type { FormSubmitResponse } from '@codeware/shared/ui/cms-renderer';
+import type {
+  FormSubmitResponse,
+  TourSignupResponse
+} from '@codeware/shared/ui/cms-renderer';
 import type { FormSubmission } from '@codeware/shared/util/payload-types';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
@@ -92,6 +95,35 @@ function PayloadProviderInner({
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
               } as FormSubmission
+            };
+          } catch (error) {
+            return {
+              success: false,
+              data: {
+                error: error instanceof Error ? error.message : 'Unknown error'
+              }
+            };
+          }
+        },
+        submitTourSignup: async (data): Promise<TourSignupResponse> => {
+          try {
+            const response = await fetch('/api/tour-signups', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+              throw new Error(result.message || 'Tour signup failed');
+            }
+
+            // The status comes from the server: a signup for a full tour lands
+            // on the waiting list, and the form says so rather than guessing
+            return {
+              success: true,
+              data: { id: result.id, status: result.status }
             };
           } catch (error) {
             return {

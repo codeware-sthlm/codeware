@@ -1,5 +1,4 @@
 import type {
-  Form,
   Place,
   PlatformLabel,
   StockMedia,
@@ -74,50 +73,6 @@ const richText = (paragraphs: Array<string>) => ({
     indent: 0
   }
 });
-
-const bookingForm: Form = {
-  id: 1,
-  title: 'Booking request',
-  ...timestamps,
-  submitButtonLabel: 'Send booking request',
-  confirmationType: 'message',
-  confirmationMessage: richText([
-    'Thank you! We will get back to you within two working days to confirm your place.'
-  ]),
-  fields: [
-    {
-      blockType: 'text',
-      name: 'name',
-      label: 'Name',
-      placeholder: 'Your full name',
-      required: true,
-      width: 3
-    },
-    {
-      blockType: 'email',
-      name: 'email',
-      label: 'Email',
-      placeholder: 'you@example.com',
-      required: true,
-      width: 3
-    },
-    {
-      blockType: 'number',
-      name: 'travellers',
-      label: 'Number of travellers',
-      required: true,
-      min: 1,
-      max: 20,
-      width: 3
-    },
-    {
-      blockType: 'textarea',
-      name: 'message',
-      label: 'Anything we should know?',
-      width: 6
-    }
-  ]
-} as unknown as Form;
 
 const place = (
   id: number,
@@ -206,7 +161,10 @@ const tour: Tour = {
     'Walk the Nebbiolo vineyards during harvest, taste straight from the barrel and eat your way through the Langhe hills with a small group and a local guide.',
   heroImage,
   itinerary,
-  bookingForm,
+  maxCustomers: 20,
+  seatsTaken: 12,
+  seatsLeft: 8,
+  signupsFull: false,
   included: [
     { item: 'All transfers from Turin' },
     { item: 'Five nights with breakfast' },
@@ -242,24 +200,12 @@ export const WithoutPlaces: Story = {
   }
 };
 
-/** Interest tours point at their own form, so the submit copy matches */
-const interestForm = {
-  ...bookingForm,
-  id: 2,
-  title: 'Interest request',
-  submitButtonLabel: 'Register my interest',
-  confirmationMessage: richText([
-    'Thank you for your interest! We will be in touch as soon as the departure is confirmed.'
-  ])
-} as unknown as Form;
-
 export const InterestOnly: Story = {
   name: 'Interest only (departure unconfirmed)',
   args: {
     tour: {
       ...tour,
       intent: 'interest',
-      bookingForm: interestForm,
       departureDate: null,
       bookingDeadline: null,
       departureNote: 'Autumn 2027 — dates to be confirmed'
@@ -267,9 +213,33 @@ export const InterestOnly: Story = {
   }
 };
 
-export const WithoutBookingForm: Story = {
-  name: 'Without booking form (no CTA)',
-  args: { tour: { ...tour, bookingForm: null } }
+export const Full: Story = {
+  name: 'Full (waiting list)',
+  args: {
+    tour: {
+      ...tour,
+      seatsTaken: 20,
+      seatsLeft: 0,
+      signupsFull: true
+    } as unknown as Tour
+  }
+};
+
+export const SignupsClosed: Story = {
+  name: 'Closed for signups (no CTA)',
+  args: { tour: { ...tour, signupsClosed: true } as unknown as Tour }
+};
+
+export const NoMaximum: Story = {
+  name: 'No maximum set',
+  args: {
+    tour: {
+      ...tour,
+      maxCustomers: null,
+      seatsLeft: null,
+      signupsFull: false
+    } as unknown as Tour
+  }
 };
 
 export const Minimal: Story = {
@@ -281,8 +251,7 @@ export const Minimal: Story = {
       itinerary: null,
       included: null,
       notIncluded: null,
-      duration: null,
-      bookingForm: null
+      duration: null
     } as unknown as Tour
   }
 };

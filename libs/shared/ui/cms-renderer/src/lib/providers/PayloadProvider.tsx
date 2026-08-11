@@ -29,6 +29,27 @@ export type FormSubmitResponse =
       data: { error: string };
     };
 
+/** What a customer sends to sign up for a tour */
+export type TourSignupData = {
+  tour: number;
+  name: string;
+  email: string;
+  phone?: string;
+  /** People the signup is for — the capacity unit */
+  people: number;
+};
+
+export type TourSignupResponse =
+  | {
+      success: true;
+      /** Decided by the server from the tour's capacity, not by the client */
+      data: { id: number; status: 'booked' | 'waiting' };
+    }
+  | {
+      success: false;
+      data: { error: string };
+    };
+
 export type PayloadValue = {
   /**
    * Provide the running app's build metadata (name, version, sha, deployEnv,
@@ -117,6 +138,26 @@ export type PayloadValue = {
    * @returns The form submission response.
    */
   submitForm: (data: FormSubmitData) => Promise<FormSubmitResponse>;
+
+  /**
+   * Provide a function to handle tour signups server-side, the same way as
+   * `submitForm` — the tenant api key must never reach the browser.
+   *
+   * The response carries the status the server decided: a customer signing up
+   * for a full tour is put on the waiting list, and the form has to say so.
+   *
+   * ```ts
+   * const response = await fetch(`${payloadUrl}/api/tour-signups`, {
+   *   body: JSON.stringify(data),
+   *   headers: { 'Content-Type': 'application/json' },
+   *   method: 'POST'
+   * });
+   * ```
+   *
+   * @param data - The customer's signup details.
+   * @returns The signup response.
+   */
+  submitTourSignup: (data: TourSignupData) => Promise<TourSignupResponse>;
 
   /**
    * Provide the current theme state.

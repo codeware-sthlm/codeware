@@ -41,6 +41,12 @@ const withPayload: Decorator = (Story, context) => {
           success: false,
           data: { error: 'Not implemented in Storybook' }
         }),
+        // Answers as the server would for a tour with room, so the success
+        // path is reviewable; the queued path has its own story
+        submitTourSignup: async () => ({
+          success: true,
+          data: { id: 1, status: 'booked' }
+        }),
         setTheme: () => undefined,
         theme,
         resolvedTheme: theme,

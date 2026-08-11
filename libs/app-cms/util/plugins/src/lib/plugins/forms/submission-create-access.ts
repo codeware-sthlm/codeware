@@ -7,7 +7,7 @@ import type { Access } from 'payload';
  * Submissions are always created on behalf of a tenant API key client, either
  * from the cms site route or from an external client. Any other caller is
  * denied here, rather than left to fail later on the required tenant field —
- * `ensureTenant` only populates it for a tenant identity.
+ * `ensureTenantFromApiKey` only populates it for a tenant identity.
  *
  * Which tenant the submission may reference is enforced by `verifyFormTenant`.
  */

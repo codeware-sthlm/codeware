@@ -16,6 +16,7 @@ import {
   SquaresPlusIcon,
   SwatchIcon,
   TagIcon,
+  TicketIcon,
   UserGroupIcon,
   UsersIcon
 } from '@heroicons/react/24/outline';
@@ -36,9 +37,9 @@ const SLUG_ICON: Record<CollectionSlug, IconComponent> = {
   'reusable-content': SquaresPlusIcon,
   'site-settings': Cog6ToothIcon,
   'stock-media': RectangleStackIcon,
-
   tags: TagIcon,
   tenants: UserGroupIcon,
+  'tour-signups': TicketIcon,
   tours: MapIcon,
   users: UsersIcon
 };

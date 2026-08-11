@@ -1,9 +1,10 @@
 import { adminGroups } from '@codeware/app-cms/util/definitions';
+import { ensureTenantFromApiKey } from '@codeware/app-cms/util/misc';
+import type { FormSubmission } from '@codeware/shared/util/payload-types';
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
 import type { Access } from 'payload';
 
 import { customizedFields } from './forms/customized-fields';
-import { ensureTenant } from './forms/ensure-tenant';
 import { formFields } from './forms/form-fields';
 import { submissionCreateAccess } from './forms/submission-create-access';
 import { submissionFields } from './forms/submission-fields';
@@ -86,7 +87,10 @@ export const getFormsPlugin = ({ access }: Options) => {
         }
       },
       hooks: {
-        beforeValidate: [ensureTenant, verifyFormTenant]
+        beforeValidate: [
+          ensureTenantFromApiKey<FormSubmission>(),
+          verifyFormTenant
+        ]
       }
     },
     redirectRelationships: ['pages']

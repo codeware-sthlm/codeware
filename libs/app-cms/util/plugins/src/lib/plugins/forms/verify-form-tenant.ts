@@ -5,14 +5,15 @@ import { APIError, type CollectionBeforeValidateHook } from 'payload';
 /**
  * Reject a submission that targets another tenant's form.
  *
- * `ensureTenant` stamps the submission with the caller's own tenant, but the
- * form relation is whatever the client sent. Document ids are sequential, so
- * without this check a key could post to a guessed form id and reach the other
- * tenant — their form owns the notification email config, so their recipients
- * would receive attacker supplied content.
+ * `ensureTenantFromApiKey` stamps the submission with the caller's own tenant,
+ * but the form relation is whatever the client sent. Document ids are
+ * sequential, so without this check a key could post to a guessed form id and
+ * reach the other tenant — their form owns the notification email config, so
+ * their recipients would receive attacker supplied content.
  *
- * Runs after `ensureTenant` and compares against the tenant on the data rather
- * than the identity, so it also covers callers that bypass access control.
+ * Runs after `ensureTenantFromApiKey` and compares against the tenant on the
+ * data rather than the identity, so it also covers callers that bypass access
+ * control.
  */
 export const verifyFormTenant: CollectionBeforeValidateHook<
   FormSubmission

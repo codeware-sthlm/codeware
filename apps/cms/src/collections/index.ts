@@ -13,6 +13,7 @@ import siteSettings from './site-settings/site-settings.collection';
 import stockMedia from './stock-media/stock-media.collection';
 import tags from './tags/tags.collection';
 import tenants from './tenants/tenants.collection';
+import tourSignups from './tour-signups/tour-signups.collection';
 import tours from './tours/tours.collection';
 import users from './users/users.collection';
 
@@ -37,6 +38,7 @@ export const collections: Array<CollectionConfig> = [
   stockMedia,
   tags,
   tenants,
+  tourSignups,
   tours,
   users
 ];

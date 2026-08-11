@@ -160,6 +160,7 @@ export interface Config {
     'stock-media': StockMedia;
     tags: Tag;
     tenants: Tenant;
+    'tour-signups': TourSignup;
     tours: Tour;
     users: User;
     forms: Form;
@@ -200,6 +201,7 @@ export interface Config {
     'stock-media': StockMediaSelect<false> | StockMediaSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    'tour-signups': TourSignupsSelect<false> | TourSignupsSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -1736,6 +1738,50 @@ export interface StockMedia {
   };
 }
 /**
+ * Customers who have signed up for a tour. The signup list also lives inside each tour, which is where you normally work with it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tour-signups".
+ */
+export interface TourSignup {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * The tour this signup is for.
+   */
+  tour: number | Tour;
+  name: string;
+  /**
+   * How many people this signup is for. Capacity counts people, not signups.
+   */
+  people: number;
+  email: string;
+  /**
+   * Optional, but worth having on the day of departure.
+   */
+  phone?: string | null;
+  /**
+   * Set when the customer signs up: booked while there is room, waiting list once the tour is full.
+   */
+  status: 'booked' | 'waiting' | 'cancelled';
+  /**
+   * Place in the waiting list. Reorder the queue from the tour instead of editing this.
+   */
+  queuePosition?: number | null;
+  /**
+   * Your own notes on this signup. Never shown to the customer.
+   */
+  notes?: string | null;
+  statusChangedAt?: string | null;
+  /**
+   * When the customer accepted the terms, recorded by the server at signup.
+   */
+  termsAcceptedAt?: string | null;
+  anonymizedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Tours are the products you sell. Describe the trip, plan the days and publish when ready.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1946,6 +1992,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenants';
         value: number | Tenant;
+      } | null)
+    | ({
+        relationTo: 'tour-signups';
+        value: number | TourSignup;
       } | null)
     | ({
         relationTo: 'tours';
@@ -2408,6 +2458,26 @@ export interface TenantsSelect<T extends boolean = true> {
   enableAPIKey?: T;
   apiKey?: T;
   apiKeyIndex?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tour-signups_select".
+ */
+export interface TourSignupsSelect<T extends boolean = true> {
+  tenant?: T;
+  tour?: T;
+  name?: T;
+  people?: T;
+  email?: T;
+  phone?: T;
+  status?: T;
+  queuePosition?: T;
+  notes?: T;
+  statusChangedAt?: T;
+  termsAcceptedAt?: T;
+  anonymizedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

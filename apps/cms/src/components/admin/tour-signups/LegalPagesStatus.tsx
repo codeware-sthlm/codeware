@@ -57,7 +57,11 @@ export const LegalPagesStatus: React.FC<Props> = async ({
   const terms = describe(settings?.tourSignups?.termsPage);
 
   const adminRoute = payload.config.routes?.admin ?? '/admin';
-  const settingsHref = `${adminRoute}/collections/site-settings`;
+  // Site settings is one document per workspace, so the useful link is that
+  // document — the collection route has no list to land on and 404s
+  const settingsHref = settings
+    ? `${adminRoute}/collections/site-settings/${settings.id}`
+    : `${adminRoute}/collections/site-settings`;
 
   const line = (label: string, page: ReturnType<typeof describe>) => (
     <span className="flex items-center gap-1.5">

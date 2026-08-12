@@ -15,10 +15,14 @@ export type TourSignupRowProps = {
   queuePosition?: number | null;
   /** ISO timestamp the customer signed up */
   signedUpAt: string;
-  /** Pre-formatted signup time, e.g. `3 Aug` */
+  /** Pre-formatted signup time, e.g. `3 Aug 14:02` */
   signedUpLabel: string;
+  /** What the signup time means, shown on hover and to a screen reader */
+  signedUpTitle?: string;
   /** Pre-formatted time the status last moved, when it has */
   statusChangedLabel?: string | null;
+  /** What that second time means — the two are easily confused */
+  statusChangedTitle?: string;
   /** Personal data cleared by retention */
   anonymized?: boolean;
   labels: {
@@ -63,7 +67,9 @@ export function TourSignupRow({
   queuePosition,
   signedUpAt,
   signedUpLabel,
+  signedUpTitle,
   statusChangedLabel,
+  statusChangedTitle,
   anonymized = false,
   labels,
   actions,
@@ -109,11 +115,26 @@ export function TourSignupRow({
       </button>
       <div className="flex shrink-0 flex-col items-end gap-1">
         <Badge variant={statusTone[status]}>{labels.status[status]}</Badge>
-        <span className="text-muted-foreground text-xs">
-          <time dateTime={signedUpAt}>
-            {labels.signedUp} {signedUpLabel}
+        {/* Two timestamps that look alike and mean different things, so each
+            says which it is on hover and to a screen reader */}
+        <span className="text-muted-foreground text-xs whitespace-nowrap">
+          <time dateTime={signedUpAt} title={signedUpTitle}>
+            {signedUpTitle && (
+              <span className="sr-only">{signedUpTitle}: </span>
+            )}
+            {signedUpLabel}
           </time>
-          {statusChangedLabel ? ` · ${statusChangedLabel}` : ''}
+          {statusChangedLabel && (
+            <>
+              {' · '}
+              <span title={statusChangedTitle}>
+                {statusChangedTitle && (
+                  <span className="sr-only">{statusChangedTitle}: </span>
+                )}
+                {statusChangedLabel}
+              </span>
+            </>
+          )}
         </span>
       </div>
       {actions}

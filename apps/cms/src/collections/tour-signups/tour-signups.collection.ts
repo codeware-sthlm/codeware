@@ -6,6 +6,7 @@ import {
   assignCapacityStatus,
   guardStatusChange,
   notifySignup,
+  renumberQueueOnChange,
   signupCreateAccess,
   stampStatusChange,
   verifyTourTenant
@@ -191,7 +192,12 @@ const tourSignups: CollectionConfig<'tour-signups'> = {
       admin: {
         readOnly: true,
         disableListColumn: true,
-        date: { pickerAppearance: 'dayAndTime' }
+        // Without an explicit format Payload mixes an en-US pattern with the
+        // admin's language, which reads as neither
+        date: {
+          pickerAppearance: 'dayAndTime',
+          displayFormat: 'yyyy-MM-dd HH:mm'
+        }
       }
     },
     {
@@ -201,7 +207,10 @@ const tourSignups: CollectionConfig<'tour-signups'> = {
       admin: {
         readOnly: true,
         disableListColumn: true,
-        date: { pickerAppearance: 'dayAndTime' },
+        date: {
+          pickerAppearance: 'dayAndTime',
+          displayFormat: 'yyyy-MM-dd HH:mm'
+        },
         description: {
           en: 'When the customer accepted the terms, recorded by the server at signup.',
           sv: 'När kunden godkände villkoren, registrerat av servern vid anmälan.'
@@ -222,7 +231,9 @@ const tourSignups: CollectionConfig<'tour-signups'> = {
     beforeValidate: [ensureTenantFromApiKey<TourSignup>(), verifyTourTenant],
     // Capacity settles the status before the status change is stamped
     beforeChange: [assignCapacityStatus, guardStatusChange, stampStatusChange],
-    afterChange: [notifySignup]
+    // Renumber before notifying, so a promotion mail is sent against a queue
+    // that already reads 1, 2, 3
+    afterChange: [renumberQueueOnChange, notifySignup]
   }
 };
 

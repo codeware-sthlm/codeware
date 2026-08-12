@@ -11,6 +11,15 @@ import type {
 } from '@codeware/app-cms/util/i18n';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@codeware/shared/ui/shadcn/components/dialog';
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -70,6 +79,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
   const [openId, setOpenId] = useState<number | null>(null);
   const [notes, setNotes] = useState<string>('');
   const [busy, setBusy] = useState(false);
+  const [purgeOpen, setPurgeOpen] = useState(false);
 
   /**
    * A refused promotion is the one message here worth interrupting for: the
@@ -82,12 +92,18 @@ export const TourSignupsPanel: React.FC<Props> = ({
     []
   );
 
+  /**
+   * Compact enough for a row, and never ambiguous: a signup list is read
+   * against "when did they sign up, when did that change", which a bare day
+   * and month cannot answer.
+   */
   const dateFormat = useMemo(
     () =>
       new Intl.DateTimeFormat(language, {
         day: 'numeric',
         month: 'short',
-        year: 'numeric'
+        hour: '2-digit',
+        minute: '2-digit'
       }),
     [language]
   );
@@ -192,7 +208,13 @@ export const TourSignupsPanel: React.FC<Props> = ({
     [reportError, router, sdk, summary.tourId, t, waiting]
   );
 
-  const renderRow = (row: TourSignupItem, dragHandle?: React.ReactNode) => (
+  const renderRow = (
+    row: TourSignupItem,
+    dragHandle?: React.ReactNode,
+    // The stored position goes sparse between renumbering writes; what the
+    // guide needs to read is "who is next", so the queue counts from one
+    position?: number
+  ) => (
     <TourSignupRow
       key={row.id}
       name={row.name}
@@ -200,10 +222,12 @@ export const TourSignupsPanel: React.FC<Props> = ({
       phone={row.phone}
       people={row.people}
       status={row.status}
-      queuePosition={row.queuePosition}
+      queuePosition={position ?? row.queuePosition}
       signedUpAt={row.signedUpAt}
       signedUpLabel={formatDate(row.signedUpAt) ?? ''}
+      signedUpTitle={t('tourSignups:signedUp')}
       statusChangedLabel={formatDate(row.statusChangedAt)}
+      statusChangedTitle={t('tourSignups:statusChanged')}
       anonymized={row.anonymized}
       labels={rowLabels}
       dragHandle={dragHandle}
@@ -215,6 +239,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
         <div className="flex shrink-0 items-center gap-1">
           {row.status !== 'booked' && (
             <Button
+              type="button"
               variant="outline"
               size="sm"
               disabled={busy}
@@ -227,6 +252,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
           )}
           {row.status !== 'cancelled' && (
             <Button
+              type="button"
               variant="ghost"
               size="icon"
               disabled={busy}
@@ -265,45 +291,27 @@ export const TourSignupsPanel: React.FC<Props> = ({
             })
           }}
         />
-        <Button variant="outline" size="sm" asChild>
-          <a
-            href={`${apiRoute}/tour-signups-export?tour=${summary.tourId}`}
-            download
+        <div className="flex items-center gap-2">
+          <Button type="button" variant="outline" size="sm" asChild>
+            <a
+              href={`${apiRoute}/tour-signups-export?tour=${summary.tourId}`}
+              download
+            >
+              <ArrowDownTrayIcon className="size-4" />
+              {t('tourSignups:export')}
+            </a>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={busy || !signups.length}
+            onClick={() => setPurgeOpen(true)}
           >
-            <ArrowDownTrayIcon className="size-4" />
-            {t('tourSignups:export')}
-          </a>
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={busy || !signups.length}
-          onClick={() => {
-            // Irreversible and it removes what a guide may still need on the
-            // day, so it asks first
-            if (!window.confirm(t('tourSignups:anonymizeConfirm'))) {
-              return;
-            }
-            setBusy(true);
-            void sdk
-              .request({
-                method: 'POST',
-                path: '/tour-signups-anonymize',
-                json: { tour: summary.tourId }
-              })
-              .then((response) => {
-                if (!response.ok) {
-                  reportError(t('tourSignups:saveFailed'));
-                  return;
-                }
-                router.refresh();
-              })
-              .finally(() => setBusy(false));
-          }}
-        >
-          <TrashIcon className="size-4" />
-          {t('tourSignups:anonymize')}
-        </Button>
+            <TrashIcon className="size-4" />
+            {t('tourSignups:anonymize')}
+          </Button>
+        </div>
       </div>
 
       {!signups.length && (
@@ -336,7 +344,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
                 move(moveFromIndex, moveToIndex)
               }
             >
-              {waiting.map((row) => (
+              {waiting.map((row, index) => (
                 <DraggableSortableItem key={row.id} id={String(row.id)}>
                   {({ attributes, listeners, setNodeRef, transform }) => (
                     <div ref={setNodeRef} style={{ transform }}>
@@ -350,7 +358,8 @@ export const TourSignupsPanel: React.FC<Props> = ({
                           {...listeners}
                         >
                           <Bars2Icon className="size-4" />
-                        </button>
+                        </button>,
+                        index + 1
                       )}
                     </div>
                   )}
@@ -372,6 +381,52 @@ export const TourSignupsPanel: React.FC<Props> = ({
         </section>
       )}
 
+      {/* Irreversible and it removes what a guide may still need on the day,
+          so it asks first — in the admin's own visual language rather than the
+          browser's, which `window.confirm` cannot be styled into */}
+      <Dialog open={purgeOpen} onOpenChange={setPurgeOpen}>
+        <DialogContent className="codeware-admin twp">
+          <DialogHeader>
+            <DialogTitle>{t('tourSignups:anonymize')}</DialogTitle>
+            <DialogDescription>
+              {t('tourSignups:anonymizeConfirm')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                {t('general:cancel')}
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={busy}
+              onClick={() => {
+                setPurgeOpen(false);
+                setBusy(true);
+                void sdk
+                  .request({
+                    method: 'POST',
+                    path: '/tour-signups-anonymize',
+                    json: { tour: summary.tourId }
+                  })
+                  .then((response) => {
+                    if (!response.ok) {
+                      reportError(t('tourSignups:saveFailed'));
+                      return;
+                    }
+                    router.refresh();
+                  })
+                  .finally(() => setBusy(false));
+              }}
+            >
+              {t('tourSignups:anonymize')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Sheet
         open={openRow !== null}
         onOpenChange={(open) => !open && setOpenId(null)}
@@ -380,7 +435,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
             so the Tailwind scope has to be repeated here or nothing applies */}
         <SheetContent
           side="right"
-          size="md"
+          size="lg"
           className="codeware-admin twp overflow-y-auto"
         >
           <SheetHeader className="p-6">
@@ -398,7 +453,11 @@ export const TourSignupsPanel: React.FC<Props> = ({
                 phone={openRow.phone}
                 people={openRow.people}
                 status={openRow.status}
-                queuePosition={openRow.queuePosition}
+                queuePosition={
+                  openRow.status === 'waiting'
+                    ? waiting.findIndex((row) => row.id === openRow.id) + 1
+                    : openRow.queuePosition
+                }
                 signedUpLabel={formatDateTime(openRow.signedUpAt) ?? ''}
                 statusChangedLabel={formatDateTime(openRow.statusChangedAt)}
                 termsAcceptedLabel={formatDateTime(openRow.termsAcceptedAt)}
@@ -425,6 +484,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
                       onChange={(event) => setNotes(event.target.value)}
                     />
                     <Button
+                      type="button"
                       size="sm"
                       disabled={busy || notes === (openRow.notes ?? '')}
                       onClick={() => void save(openRow.id, { notes })}

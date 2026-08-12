@@ -53,7 +53,7 @@ export const TourSignupsCell: React.FC<
     // Payload centres list cell content by default; a fill bar reads as a
     // measure and has to start where every other column's text starts
     <Link
-      className="flex justify-start text-left"
+      className="flex w-full items-center justify-start text-left"
       href={`${adminRoute}/collections/tours/${tourId}`}
       prefetch={false}
     >

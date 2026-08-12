@@ -83,7 +83,7 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
       const invokeSubmit = async () => {
         setIsLoading(true);
 
-        const { success, data } = await submitTourSignup({
+        const response = await submitTourSignup({
           tour: tour.id,
           name: values.name,
           email: values.email,
@@ -94,10 +94,15 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
 
         setIsLoading(false);
 
-        if (!success) {
-          toast.error(t(locale, 'tourSignup.failed'));
+        if (!response.success) {
+          // A refusal carries a reason worth reading — the tour closed while
+          // the form was open, say. Only an unexplained failure is worth
+          // answering with "try again", which is what the generic line says.
+          toast.error(response.data.error || t(locale, 'tourSignup.failed'));
           return;
         }
+
+        const { data } = response;
 
         form.reset();
         onSuccess?.();

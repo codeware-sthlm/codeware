@@ -53,12 +53,22 @@ export async function action({ context, request }: TypedActionFunctionArgs) {
 
   try {
     const response = await post('tour-signups', requestOptions);
-    const doc = (response as { doc?: { id: number; status: string } })?.doc;
+    const doc = (response as { doc?: { id?: number; status?: string } })?.doc;
+
+    // The status decides what the customer is told — booked, or queued. A
+    // response without one is not a success to report: answering `success`
+    // with an undefined status would confirm a place that may not exist.
+    if (!doc?.id || !doc.status) {
+      return json(
+        { success: false, message: 'Unexpected signup response' },
+        { status: 502 }
+      );
+    }
 
     return json({
       success: true,
-      id: doc?.id,
-      status: doc?.status
+      id: doc.id,
+      status: doc.status
     });
   } catch (e) {
     const error = e as Error;

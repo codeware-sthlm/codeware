@@ -67,13 +67,27 @@ export async function POST(request: NextRequest) {
       status: signup.status
     });
   } catch (error) {
+    const status =
+      error &&
+      typeof error === 'object' &&
+      'status' in error &&
+      typeof error.status === 'number'
+        ? error.status
+        : 500;
+
+    // A refused signup is an answer, not a fault: capacity and a closed tour
+    // arrive as 4xx carrying a message already written for the customer, so it
+    // is passed through. Anything else stays generic — an internal message is
+    // not something to hand a visitor — and is logged instead.
+    if (status >= 400 && status < 500) {
+      const message = error instanceof Error ? error.message : 'Signup refused';
+      return NextResponse.json({ error: message, message }, { status });
+    }
+
     console.error('Tour signup error:', error);
 
     return NextResponse.json(
-      {
-        error: 'Failed to submit signup',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to submit signup', message: 'Failed to submit signup' },
       { status: 500 }
     );
   }

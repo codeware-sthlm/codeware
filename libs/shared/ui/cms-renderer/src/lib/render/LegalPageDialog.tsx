@@ -52,6 +52,15 @@ export function LegalPageDialog({
           <iframe
             src={url}
             title={label}
+            // The frame sits on top of a form the customer has just typed
+            // their name, email and phone into, and it is same-origin. No
+            // block renders author-supplied script today, but if one ever did,
+            // a script in here could reach `window.parent` and read all of it.
+            // Withholding `allow-scripts` stops that outright — and without
+            // `allow-same-origin` the document has an opaque origin anyway.
+            // Page content is server-rendered, so it reads fine without JS;
+            // `allow-popups` keeps external links in the terms working.
+            sandbox="allow-popups"
             className="h-full w-full flex-1 border-0"
           />
         )}

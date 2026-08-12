@@ -1,5 +1,6 @@
 import { getTourSignups, mapToRuntime } from '@codeware/app-cms/data-access';
 import { isUser } from '@codeware/app-cms/util/misc';
+import { SKIP_QUEUE_RENUMBER } from '@codeware/app-cms/util/tour-signups';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import {
   type Endpoint,
@@ -85,9 +86,12 @@ export const tourSignupsReorderEndpoint: Endpoint = {
           id,
           data: { queuePosition: index + 1 },
           depth: 0,
-          // The status guard runs on every update; a queued row keeping its
-          // status has nothing to guard, and the position itself is written
-          // here rather than by an editor
+          // The renumber hook would re-sort the queue between these writes and
+          // undo the drag: mid-loop two rows briefly share a position, and the
+          // tie breaks on arrival time — the order the guide just set. The
+          // loop writes a complete 1..n order itself, so there is nothing left
+          // to renumber.
+          context: { [SKIP_QUEUE_RENUMBER]: true },
           overrideAccess: true,
           req
         });

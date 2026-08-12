@@ -1,7 +1,11 @@
 import type { PayloadRequest } from 'payload';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { renumberQueue, renumberQueueOnChange } from './renumber-queue';
+import {
+  SKIP_QUEUE_RENUMBER,
+  renumberQueue,
+  renumberQueueOnChange
+} from './renumber-queue';
 
 const find = vi.fn();
 const update = vi.fn();
@@ -97,10 +101,11 @@ describe('renumberQueueOnChange', () => {
     expect(find).not.toHaveBeenCalled();
   });
 
-  it('does not react to its own writes', async () => {
-    // Without this guard the renumbering would renumber, and not terminate
+  it('does not react to writes that set positions deliberately', async () => {
+    // Guards two callers: this hook's own writes, which would not terminate,
+    // and the reorder endpoint, whose drag it would otherwise undo mid-loop
     await invoke({
-      context: { renumberingQueue: true } as never,
+      context: { [SKIP_QUEUE_RENUMBER]: true } as never,
       doc: { id: 1, tour: 3, status: 'waiting' } as never,
       previousDoc: { id: 1, tour: 3, status: 'waiting' } as never
     });

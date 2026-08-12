@@ -182,6 +182,7 @@ export const EnvSchema = withEnvVars(
 ).transform(
   // Transform environment variables to internal and structured format
   ({
+    APP_NAME,
     CUSTOM_URL,
     SMTP_FROM_ADDRESS,
     SMTP_FROM_NAME,
@@ -215,6 +216,8 @@ export const EnvSchema = withEnvVars(
     ...env
   }) => ({
     ...env,
+    // Pulled out above for the SMTP sender name; the schema still exposes it
+    APP_NAME,
     /**
      * How the cms app is configured and running.
      * Either as cms host (`host`) or tenant-scoped client (`tenant`).
@@ -262,12 +265,16 @@ export const EnvSchema = withEnvVars(
             }
           }
         : // A local mail catcher takes precedence over hosted Ethereal: it is
-          // what a developer has running, and it cannot go stale
-          SMTP_HOST
+          // what a developer has running, and it cannot go stale. Both host and
+          // a usable port are required — a half-configured catcher would take
+          // over from Ethereal and then fail on every send.
+          SMTP_HOST && Number.isFinite(Number(SMTP_PORT))
           ? {
               smtp: {
-                defaultFromAddress: String(SMTP_FROM_ADDRESS),
-                defaultFromName: String(SMTP_FROM_NAME),
+                // Falling back rather than stringifying: `String(undefined)`
+                // would put the literal 'undefined' in the From header
+                defaultFromAddress: SMTP_FROM_ADDRESS || 'no-reply@localhost',
+                defaultFromName: SMTP_FROM_NAME || APP_NAME,
                 host: SMTP_HOST,
                 port: Number(SMTP_PORT)
               }

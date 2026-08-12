@@ -1,3 +1,4 @@
+export { etherealFallbackAdapter } from './lib/ethereal-fallback-adapter';
 export { getEmailAdapter } from './lib/get-email-adapter';
 export {
   type TourSignupMailInput,

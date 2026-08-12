@@ -7,6 +7,7 @@ import { SeedSourceSchema } from './seed-source.schema';
 import { SeedStrategySchema } from './seed-strategy.schema';
 import { SendGridSchema } from './sendgrid.schema';
 import { SentrySchema } from './sentry.schema';
+import { SmtpSchema } from './smtp.schema';
 
 type AppModeCommon = {
   /** Fully qualified URL to the cms app */
@@ -145,6 +146,7 @@ export const EnvSchema = withEnvVars(
     .merge(SendGridSchema.partial())
     // Sentry is optional
     .merge(SentrySchema.partial())
+    .merge(SmtpSchema.partial())
     // SIGNATURE_SECRET is required for non-tenant deployments (CMS host)
     .refine(
       (data) => {
@@ -181,6 +183,10 @@ export const EnvSchema = withEnvVars(
   // Transform environment variables to internal and structured format
   ({
     CUSTOM_URL,
+    SMTP_FROM_ADDRESS,
+    SMTP_FROM_NAME,
+    SMTP_HOST,
+    SMTP_PORT,
     ETHEREAL_FROM_ADDRESS,
     ETHEREAL_FROM_NAME,
     ETHEREAL_HOST,
@@ -255,19 +261,30 @@ export const EnvSchema = withEnvVars(
               defaultFromName: String(SENDGRID_FROM_NAME)
             }
           }
-        : // Transform to ethereal object if ethereal credentials are provided
-          ETHEREAL_USERNAME && ETHEREAL_PASSWORD
+        : // A local mail catcher takes precedence over hosted Ethereal: it is
+          // what a developer has running, and it cannot go stale
+          SMTP_HOST
           ? {
-              ethereal: {
-                defaultFromAddress: String(ETHEREAL_FROM_ADDRESS),
-                defaultFromName: String(ETHEREAL_FROM_NAME),
-                host: String(ETHEREAL_HOST),
-                port: Number(ETHEREAL_PORT),
-                user: ETHEREAL_USERNAME,
-                pass: ETHEREAL_PASSWORD
+              smtp: {
+                defaultFromAddress: String(SMTP_FROM_ADDRESS),
+                defaultFromName: String(SMTP_FROM_NAME),
+                host: SMTP_HOST,
+                port: Number(SMTP_PORT)
               }
             }
-          : undefined,
+          : // Transform to ethereal object if ethereal credentials are provided
+            ETHEREAL_USERNAME && ETHEREAL_PASSWORD
+            ? {
+                ethereal: {
+                  defaultFromAddress: String(ETHEREAL_FROM_ADDRESS),
+                  defaultFromName: String(ETHEREAL_FROM_NAME),
+                  host: String(ETHEREAL_HOST),
+                  port: Number(ETHEREAL_PORT),
+                  user: ETHEREAL_USERNAME,
+                  pass: ETHEREAL_PASSWORD
+                }
+              }
+            : undefined,
     SENTRY:
       SENTRY_DSN && SENTRY_ORG
         ? {

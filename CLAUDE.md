@@ -67,6 +67,28 @@ Ensure Posgres cluster is running.
 nx dx:postgres cms
 ```
 
+#### Dev email
+
+Mail sent in development goes to a local catcher — no account, nothing to expire:
+
+```sh
+# Start Mailpit; inbox on http://localhost:8025, SMTP on 1025
+nx dx:mail cms
+```
+
+Point `apps/cms/.env.local` at it (any `SMTP_HOST` takes precedence over the
+`ETHEREAL_*` variables):
+
+```sh
+SMTP_HOST=localhost
+SMTP_PORT=1025
+SMTP_FROM_ADDRESS=dev@codeware.local
+SMTP_FROM_NAME=Codeware Dev
+```
+
+With neither configured, development falls back to an Ethereal inbox created on
+the first send, and logs a per-message preview link. Nothing is dropped silently.
+
 #### CMS admin components + import map
 
 Payload resolves custom admin components (`admin.components.*` in `payload.config.ts`) through the

@@ -119,6 +119,15 @@ describe('guardStatusChange', () => {
     expect(execute).not.toHaveBeenCalled();
   });
 
+  it('rechecks a booked signup moved to another tour', async () => {
+    // The seats it holds are on the old tour; the new one may have none free
+    booked = [{ id: 1, people: 19 }];
+
+    await expect(
+      invoke({ tour: 2 }, signup({ status: 'booked', people: 3, tour: 1 }))
+    ).rejects.toThrow('validation:signupWouldOverbook');
+  });
+
   it('skips the check when the tour has no maximum', async () => {
     findByID.mockResolvedValue({ id: 1, maxCustomers: null });
 

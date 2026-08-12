@@ -146,7 +146,9 @@ export function RenderTour({ tour }: RenderTourProps) {
       </div>
       <SheetContent side="right" size="md" className="overflow-y-auto">
         <SheetHeader className="p-6">
-          <SheetTitle className="text-xl font-semibold">{ctaLabel}</SheetTitle>
+          <SheetTitle className="text-xl font-semibold">
+            {isFull ? t(locale, 'tourSignup.full') : ctaLabel}
+          </SheetTitle>
           <SheetDescription>
             {isFull ? t(locale, 'tourSignup.fullLede') : ctaLede}
           </SheetDescription>

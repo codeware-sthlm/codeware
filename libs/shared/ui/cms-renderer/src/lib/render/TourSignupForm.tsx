@@ -19,6 +19,8 @@ import { ColSpan } from '../layout/ColSpan';
 import { Grid } from '../layout/Grid';
 import { usePayload } from '../providers/PayloadProvider';
 
+import { LegalPageDialog } from './LegalPageDialog';
+
 /** Largest party a single signup may claim, before a guide gets involved */
 const MAX_PEOPLE = 20;
 
@@ -52,7 +54,7 @@ export type TourSignupFormProps = {
  * why the confirmation is read from the response rather than predicted here.
  */
 export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
-  const { locale, navigate, signupPolicy, submitTourSignup } = usePayload();
+  const { locale, signupPolicy, submitTourSignup } = usePayload();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<Values>({
@@ -125,22 +127,15 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      {full ? (
-        <div>
-          <p className="text-core-headline font-medium">
-            {t(locale, 'tourSignup.full')}
-          </p>
-          <p className="text-core-muted mt-1 text-sm">
-            {t(locale, 'tourSignup.fullLede')}
-          </p>
-        </div>
-      ) : (
-        seatsLeft !== null && (
-          <p className="text-core-muted text-sm">
-            {t(locale, 'tourSignup.seatsLeft', { count: String(seatsLeft) })}
-          </p>
-        )
-      )}
+      {full
+        ? // Stated prominently by whatever hosts the form — a sheet header, a
+          // page heading — so repeating it here would only stutter
+          null
+        : seatsLeft !== null && (
+            <p className="text-core-muted text-sm">
+              {t(locale, 'tourSignup.seatsLeft', { count: String(seatsLeft) })}
+            </p>
+          )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -253,16 +248,11 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
                         {...field}
                         label={t(locale, 'tourSignup.acceptTerms')}
                       />
-                      <a
-                        href={termsUrl}
-                        className="text-core-link text-sm underline"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          navigate(termsUrl);
-                        }}
-                      >
-                        {t(locale, 'tourSignup.termsLink')}
-                      </a>
+                      <LegalPageDialog
+                        url={termsUrl}
+                        label={t(locale, 'tourSignup.termsLink')}
+                        className="text-core-link cursor-pointer text-sm underline"
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -295,16 +285,11 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
         {privacyUrl && (
           <>
             {' '}
-            <a
-              href={privacyUrl}
-              className="text-core-link underline"
-              onClick={(event) => {
-                event.preventDefault();
-                navigate(privacyUrl);
-              }}
-            >
-              {t(locale, 'tourSignup.privacyLink')}
-            </a>
+            <LegalPageDialog
+              url={privacyUrl}
+              label={t(locale, 'tourSignup.privacyLink')}
+              className="text-core-link cursor-pointer underline"
+            />
           </>
         )}
       </p>

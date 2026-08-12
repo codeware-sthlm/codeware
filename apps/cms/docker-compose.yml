@@ -19,6 +19,21 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  # Catches every mail the app sends in development. No account, nothing to
+  # expire — read it at http://localhost:8025
+  mailpit:
+    container_name: mailpit
+    image: axllent/mailpit
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - local
+    volumes:
+      - mailpitdata:/data
+    environment:
+      - MP_DATA_FILE=/data/mailpit.db
+
   cms:
     container_name: cms
     image: cms
@@ -42,3 +57,5 @@ networks:
 volumes:
   pgdata:
     name: cms_pgdata
+  mailpitdata:
+    name: cms_mailpitdata

@@ -78,6 +78,15 @@
       "options": {
         "command": "docker compose -f apps/cms/docker-compose.migrate.yml up --build --abort-on-container-exit --exit-code-from migrate; RESULT=$?; docker compose -f apps/cms/docker-compose.migrate.yml down -v --remove-orphans; exit $RESULT"
       }
+    },
+    "dx:mail": {
+      "metadata": {
+        "description": "Developer experience (DX) - Start a Mailpit inbox in a Docker container"
+      },
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "(docker ps -q -f name=^mailpit-cms$ | grep -q . || docker run --name mailpit-cms --rm -d -p 1025:1025 -p 8025:8025 axllent/mailpit) && echo 'Mailpit inbox: http://localhost:8025 (SMTP on 1025)'"
+      }
     }
   }
 }

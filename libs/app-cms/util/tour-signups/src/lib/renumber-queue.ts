@@ -2,8 +2,12 @@ import { getId } from '@codeware/app-cms/util/misc';
 import type { TourSignup } from '@codeware/shared/util/payload-types';
 import type { CollectionAfterChangeHook, PayloadRequest } from 'payload';
 
-/** Marks the writes this hook makes, so it never reacts to itself */
-const RENUMBERING = 'renumberingQueue';
+/**
+ * Marks writes that already set queue positions deliberately, so the hook does
+ * not undo them. Used by this file's own updates and by the reorder endpoint,
+ * which writes a complete 1..n order in one go.
+ */
+export const SKIP_QUEUE_RENUMBER = 'renumberingQueue';
 
 /**
  * Close the gaps in a tour's waiting list.
@@ -48,7 +52,7 @@ export async function renumberQueue(
       data: { queuePosition: position },
       depth: 0,
       overrideAccess: true,
-      context: { [RENUMBERING]: true },
+      context: { [SKIP_QUEUE_RENUMBER]: true },
       req
     });
   }
@@ -63,7 +67,7 @@ export async function renumberQueue(
 export const renumberQueueOnChange: CollectionAfterChangeHook<
   TourSignup
 > = async ({ context, doc, operation, previousDoc, req }) => {
-  if (context?.[RENUMBERING]) {
+  if (context?.[SKIP_QUEUE_RENUMBER]) {
     return doc;
   }
 

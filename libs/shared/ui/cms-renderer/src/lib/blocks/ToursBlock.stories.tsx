@@ -134,6 +134,24 @@ export const SingleTour: Story = {
   }
 };
 
+/**
+ * A tour with a queue is not sold out, and the card has to keep those two
+ * apart — a visitor decides whether to click from here
+ */
+export const CapacityStates: Story = {
+  name: 'Capacity states',
+  args: {
+    blockType: 'tours',
+    title: 'Guided wine tours',
+    limit: 3,
+    tours: [
+      tours[0],
+      { ...tours[1], signupsQueueOnly: true } as unknown as Tour,
+      { ...tours[2], signupsFull: true } as unknown as Tour
+    ]
+  }
+};
+
 const a11yArgs = {
   blockType: 'tours' as const,
   title: 'Guided wine tours',

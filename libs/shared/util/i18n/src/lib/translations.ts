@@ -78,6 +78,8 @@ export type TranslationKey =
   | 'tours.backToTours'
   | 'tours.bookBefore'
   | 'tours.datesToBeConfirmed'
+  | 'tours.badgeFull'
+  | 'tours.badgeQueue'
   | 'tours.bookingLede'
   | 'tours.bookTour'
   | 'tours.day'
@@ -120,6 +122,8 @@ export type TranslationKey =
   | 'tourSignup.failed'
   | 'tourSignup.full'
   | 'tourSignup.queueOnly'
+  | 'tourSignup.queueOnlyCount'
+  | 'tourSignup.queueOnlyCountOne'
   | 'tourSignup.queueOnlyLede'
   | 'tourSignup.fullLede'
   | 'tourSignup.joinWaitingList'
@@ -130,6 +134,7 @@ export type TranslationKey =
   | 'tourSignup.phoneOptional'
   | 'tourSignup.required'
   | 'tourSignup.seatsLeft'
+  | 'tourSignup.seatsLeftOne'
   | 'tourSignup.signupsClosed'
   | 'tourSignup.submit'
   | 'tourSignup.submitting'
@@ -227,6 +232,8 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.addToCalendar': 'Add to calendar',
     'tours.backToTours': 'Go back to tours',
     'tours.bookBefore': 'Book before',
+    'tours.badgeFull': 'Full',
+    'tours.badgeQueue': 'Waiting list',
     'tours.datesToBeConfirmed': 'Dates to be confirmed',
     'tours.bookingLede':
       'Send us a request and we will confirm your place. Bookings close {{date}}.',
@@ -280,6 +287,10 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tourSignup.failed': 'Your signup could not be sent. Please try again.',
     'tourSignup.full': 'This tour is full',
     'tourSignup.queueOnly': 'Places are offered from the waiting list',
+    'tourSignup.queueOnlyCount':
+      '{{count}} places left — offered to the waiting list first',
+    'tourSignup.queueOnlyCountOne':
+      '1 place left — offered to the waiting list first',
     'tourSignup.queueOnlyLede':
       'Others are already waiting for a place on this tour, so signups join the waiting list in turn. We will be in touch when it is your turn.',
     'tourSignup.fullLede':
@@ -292,6 +303,7 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tourSignup.phoneOptional': 'Optional, but useful on the day of departure.',
     'tourSignup.required': 'Please fill in this field',
     'tourSignup.seatsLeft': '{{count}} places left',
+    'tourSignup.seatsLeftOne': '1 place left',
     'tourSignup.signupsClosed': 'Signups for this tour are closed.',
     'tourSignup.submit': 'Send signup',
     'tourSignup.submitting': 'Sending…',
@@ -389,6 +401,8 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tours.addToCalendar': 'Lägg till i kalendern',
     'tours.backToTours': 'Tillbaka till resor',
     'tours.bookBefore': 'Boka senast',
+    'tours.badgeFull': 'Fullbokad',
+    'tours.badgeQueue': 'Väntelista',
     'tours.datesToBeConfirmed': 'Datum ej fastställt',
     'tours.bookingLede':
       'Skicka en förfrågan så bekräftar vi din plats. Bokningen stänger {{date}}.',
@@ -440,6 +454,10 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tourSignup.failed': 'Anmälan kunde inte skickas. Försök igen.',
     'tourSignup.full': 'Resan är fullbokad',
     'tourSignup.queueOnly': 'Platser erbjuds från väntelistan',
+    'tourSignup.queueOnlyCount':
+      '{{count}} platser kvar — erbjuds först till väntelistan',
+    'tourSignup.queueOnlyCountOne':
+      '1 plats kvar — erbjuds först till väntelistan',
     'tourSignup.queueOnlyLede':
       'Andra väntar redan på plats på den här resan, så anmälningar ställs i kön i tur och ordning. Vi hör av oss när det är din tur.',
     'tourSignup.fullLede':
@@ -452,6 +470,7 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tourSignup.phoneOptional': 'Valfritt, men bra att ha på avresedagen.',
     'tourSignup.required': 'Fyll i det här fältet',
     'tourSignup.seatsLeft': '{{count}} platser kvar',
+    'tourSignup.seatsLeftOne': '1 plats kvar',
     'tourSignup.signupsClosed': 'Anmälan till den här resan är stängd.',
     'tourSignup.submit': 'Skicka anmälan',
     'tourSignup.submitting': 'Skickar…',

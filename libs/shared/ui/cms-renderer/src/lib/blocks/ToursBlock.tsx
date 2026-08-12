@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@codeware/shared/ui/shadcn/components/badge';
 import {
   Card,
   CardContent,
@@ -61,6 +62,13 @@ export function ToursBlock({ title, description, tours }: Props) {
       <div className="mt-12 grid grid-cols-1 gap-6 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
         {tours.map((tour) => {
           const heroImage = resolveTourHero(tour.heroImage);
+          // A tour that will only queue you is worth knowing before clicking
+          // in and filling out a form — and a queue is not the same as sold out
+          const badge = tour.signupsFull
+            ? t(locale, 'tours.badgeFull')
+            : tour.signupsQueueOnly
+              ? t(locale, 'tours.badgeQueue')
+              : null;
 
           return (
             <Card
@@ -76,9 +84,16 @@ export function ToursBlock({ title, description, tours }: Props) {
                 </div>
               )}
               <CardHeader>
-                <p className="text-core-link text-xs font-semibold tracking-[0.14em] uppercase">
-                  {tour.destination}
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-core-link text-xs font-semibold tracking-[0.14em] uppercase">
+                    {tour.destination}
+                  </p>
+                  {badge && (
+                    <Badge variant="secondary" className="shrink-0">
+                      {badge}
+                    </Badge>
+                  )}
+                </div>
                 <CardTitle className="text-card-foreground text-base">
                   <a
                     href={`/tours/${tour.slug}`}

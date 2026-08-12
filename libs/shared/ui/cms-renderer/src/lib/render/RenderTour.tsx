@@ -103,12 +103,23 @@ export function RenderTour({ tour }: RenderTourProps) {
   const seatsLeft = tour.seatsLeft ?? null;
   // Only worth saying when there is a number behind it and it is running out;
   // "8 of 20 left" on an empty tour is noise, and no maximum means no count
+  const places = (
+    key: 'tourSignup.queueOnlyCount' | 'tourSignup.seatsLeft',
+    one: 'tourSignup.queueOnlyCountOne' | 'tourSignup.seatsLeftOne'
+  ) =>
+    seatsLeft === 1
+      ? t(locale, one)
+      : t(locale, key, { count: String(seatsLeft) });
+
+  // A queue is not a sold-out tour, and a visitor deciding whether to bother
+  // deserves to know which it is — so the line carries both facts: seats do
+  // remain, and the people already waiting are offered them first
   const placesLine = isFull
     ? t(locale, 'tourSignup.full')
     : isQueueOnly
-      ? t(locale, 'tourSignup.queueOnly')
+      ? places('tourSignup.queueOnlyCount', 'tourSignup.queueOnlyCountOne')
       : seatsLeft !== null
-        ? t(locale, 'tourSignup.seatsLeft', { count: String(seatsLeft) })
+        ? places('tourSignup.seatsLeft', 'tourSignup.seatsLeftOne')
         : null;
   const ctaLede = isBooking
     ? t(locale, 'tours.bookingLede', {

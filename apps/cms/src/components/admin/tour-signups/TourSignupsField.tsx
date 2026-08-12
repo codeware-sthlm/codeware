@@ -3,6 +3,7 @@ import { customT } from '@codeware/app-cms/util/i18n';
 import type { UIFieldServerComponent } from 'payload';
 import React from 'react';
 
+import { LegalPagesStatus } from './LegalPagesStatus';
 import { toSignupItems } from './to-signup-items';
 import { TourSignupsPanel } from './TourSignupsPanel.client';
 
@@ -55,11 +56,16 @@ const TourSignupsField: UIFieldServerComponent = async ({
     typeof data?.['maxCustomers'] === 'number' ? data['maxCustomers'] : null;
 
   return (
-    <TourSignupsPanel
-      signups={toSignupItems(docs)}
-      summary={{ tourId: id, maxCustomers, booked, waiting }}
-      language={i18n.language}
-    />
+    <>
+      {/* Configured once in Site Settings and then easy to forget, so its
+          state belongs where signups are actually worked on */}
+      <LegalPagesStatus i18n={i18n} payload={payload} user={user} />
+      <TourSignupsPanel
+        signups={toSignupItems(docs)}
+        summary={{ tourId: id, maxCustomers, booked, waiting }}
+        language={i18n.language}
+      />
+    </>
   );
 };
 

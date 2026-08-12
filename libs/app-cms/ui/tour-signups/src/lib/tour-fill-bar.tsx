@@ -52,7 +52,7 @@ export function TourFillBar({
       : 'bg-(--link)';
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full items-center justify-start gap-2 text-left">
       {hasLimit && (
         <div
           className={cn(
@@ -72,8 +72,9 @@ export function TourFillBar({
       )}
       <span
         className={cn(
-          'shrink-0 tabular-nums',
-          size === 'sm' ? 'text-xs' : 'text-sm',
+          // The count is the number the guide actually reads; the bar is
+          // context, so it does not shrink below the table's own text size
+          'shrink-0 text-sm tabular-nums',
           overbooked ? 'font-medium text-(--destructive-subtle)' : undefined
         )}
       >

@@ -6,6 +6,7 @@ import { getId } from '@codeware/app-cms/util/misc';
 import type { SupportedLocale } from '@codeware/shared/util/i18n';
 import { resolveSignupPolicy } from '@codeware/shared/util/payload-api';
 import type { Tour, TourSignup } from '@codeware/shared/util/payload-types';
+import { formatDayOnlyDate } from '@codeware/shared/util/pure';
 import type { CollectionAfterChangeHook, PayloadRequest } from 'payload';
 
 /**
@@ -189,7 +190,13 @@ export const notifySignup: CollectionAfterChangeHook<TourSignup> = async ({
       customer: { name: doc.name, email: doc.email, phone: doc.phone },
       tour: {
         title: tour.title,
-        departureLabel: tour.departureDate ?? tour.departureNote ?? null
+        // Readable in the workspace's own language, not the stored timestamp.
+        // A tour with no confirmed date falls back to whatever the editor
+        // wrote instead, which is already prose.
+        departureLabel:
+          formatDayOnlyDate(tour.departureDate, locale) ||
+          tour.departureNote ||
+          null
       },
       people: doc.people,
       notificationRecipients: (

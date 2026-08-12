@@ -3,10 +3,11 @@ import type {
   StockMedia,
   Tour
 } from '@codeware/shared/util/payload-types';
+import { formatDayOnlyDate } from '@codeware/shared/util/pure';
 
 /**
- * `dayOnly` date fields are stored at midnight UTC, so they must be rendered in
- * UTC — formatting them in local time shows the previous day west of Greenwich.
+ * Itinerary days are counted from the departure, which is stored at midnight
+ * UTC — see `formatDayOnlyDate` for why that has to be honoured on the way out.
  */
 const DAY_ONLY_TIME_ZONE = 'UTC';
 
@@ -56,12 +57,7 @@ export function formatTourDate(
   if (!date) {
     return '';
   }
-  return new Date(date).toLocaleDateString(locale, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    timeZone: DAY_ONLY_TIME_ZONE
-  });
+  return formatDayOnlyDate(date, locale);
 }
 
 /**

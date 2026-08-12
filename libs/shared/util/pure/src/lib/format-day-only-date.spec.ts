@@ -22,9 +22,18 @@ describe('formatDayOnlyDate', () => {
     const original = process.env.TZ;
     process.env.TZ = 'America/Los_Angeles';
 
-    expect(formatDayOnlyDate('2027-04-12T00:00:00.000Z', 'en')).toContain('12');
-
-    process.env.TZ = original;
+    try {
+      expect(formatDayOnlyDate('2027-04-12T00:00:00.000Z', 'en')).toContain(
+        '12'
+      );
+    } finally {
+      // A failure here must not leak the timezone into every later test
+      if (original === undefined) {
+        delete process.env.TZ;
+      } else {
+        process.env.TZ = original;
+      }
+    }
   });
 
   it('answers empty for a date that was never set', () => {

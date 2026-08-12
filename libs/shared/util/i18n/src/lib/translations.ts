@@ -102,6 +102,12 @@ export type TranslationKey =
   | 'tourSignupEmail.privacyLink'
   | 'tourSignupEmail.promotedBody'
   | 'tourSignupEmail.questions'
+  | 'tourSignupEmail.firstInQueueLabel'
+  | 'tourSignupEmail.openTour'
+  | 'tourSignupEmail.seatsFreeLabel'
+  | 'tourSignupEmail.seatsFreedAction'
+  | 'tourSignupEmail.seatsFreedBody'
+  | 'tourSignupEmail.subjectSeatsFreed'
   | 'tourSignupEmail.statusLabel'
   | 'tourSignupEmail.statusBooked'
   | 'tourSignupEmail.statusWaiting'
@@ -263,6 +269,14 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
       'A place has opened up on {{tour}} and it is yours. Your signup is now confirmed.',
     'tourSignupEmail.questions':
       'Just reply to this email if anything is unclear.',
+    'tourSignupEmail.firstInQueueLabel': 'First in the waiting list',
+    'tourSignupEmail.openTour': 'Open the tour',
+    'tourSignupEmail.seatsFreeLabel': 'Places free',
+    'tourSignupEmail.seatsFreedAction':
+      'New signups join the waiting list rather than taking these places, so the tour only fills again when you move someone up.',
+    'tourSignupEmail.seatsFreedBody':
+      '{{count}} places are free on {{tour}}. {{name}} is first in the waiting list, for {{people}}.',
+    'tourSignupEmail.subjectSeatsFreed': 'Places are free on {{tour}}',
     'tourSignupEmail.statusLabel': 'Status',
     'tourSignupEmail.statusBooked': 'Confirmed',
     'tourSignupEmail.statusWaiting': 'Waiting list',
@@ -431,6 +445,14 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tourSignupEmail.promotedBody':
       'En plats har blivit ledig på {{tour}} och den är din. Din anmälan är nu bekräftad.',
     'tourSignupEmail.questions': 'Svara på det här mejlet om något är oklart.',
+    'tourSignupEmail.firstInQueueLabel': 'Först i kön',
+    'tourSignupEmail.openTour': 'Öppna resan',
+    'tourSignupEmail.seatsFreeLabel': 'Lediga platser',
+    'tourSignupEmail.seatsFreedAction':
+      'Nya anmälningar hamnar i kön istället för att ta platserna, så resan fylls igen först när du flyttar upp någon.',
+    'tourSignupEmail.seatsFreedBody':
+      '{{count}} platser är lediga på {{tour}}. {{name}} står först i kön, för {{people}} personer.',
+    'tourSignupEmail.subjectSeatsFreed': 'Lediga platser på {{tour}}',
     'tourSignupEmail.statusLabel': 'Status',
     'tourSignupEmail.statusBooked': 'Bekräftad',
     'tourSignupEmail.statusWaiting': 'Väntelista',

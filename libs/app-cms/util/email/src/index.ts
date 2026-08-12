@@ -9,3 +9,4 @@ export {
   renderCustomerMail
 } from './lib/templates/tour-signup/customer';
 export { renderNotificationMail } from './lib/templates/tour-signup/notification';
+export { renderSeatsFreedMail } from './lib/templates/tour-signup/seats-freed';

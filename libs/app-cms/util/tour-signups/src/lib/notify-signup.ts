@@ -1,9 +1,89 @@
-import { sendTourSignupEmails } from '@codeware/app-cms/util/email';
+import {
+  renderSeatsFreedMail,
+  sendTourSignupEmails
+} from '@codeware/app-cms/util/email';
 import { getId } from '@codeware/app-cms/util/misc';
 import type { SupportedLocale } from '@codeware/shared/util/i18n';
 import { resolveSignupPolicy } from '@codeware/shared/util/payload-api';
-import type { TourSignup } from '@codeware/shared/util/payload-types';
-import type { CollectionAfterChangeHook } from 'payload';
+import type { Tour, TourSignup } from '@codeware/shared/util/payload-types';
+import type { CollectionAfterChangeHook, PayloadRequest } from 'payload';
+
+/**
+ * Mail the guide when a tour holds free seats and a queue at the same time.
+ *
+ * Only sent when both are true: seats without a queue fill themselves from the
+ * site, and a queue without seats is simply a full tour. The pair is the state
+ * that needs a person, and it is invisible unless somebody opens the tour.
+ */
+async function notifySeatsFreed({
+  from,
+  locale,
+  recipients,
+  req,
+  tour,
+  tourId
+}: {
+  from: string;
+  locale: SupportedLocale;
+  recipients: Array<string>;
+  req: PayloadRequest;
+  tour: Tour;
+  tourId: number;
+}): Promise<void> {
+  const { payload } = req;
+
+  if (!recipients.length || !tour.maxCustomers) {
+    return;
+  }
+
+  const { docs: signups } = await payload.find({
+    collection: 'tour-signups',
+    where: {
+      and: [
+        { tour: { equals: tourId } },
+        { status: { in: ['booked', 'waiting'] } }
+      ]
+    },
+    depth: 0,
+    pagination: false,
+    sort: ['queuePosition', 'createdAt'],
+    overrideAccess: true,
+    req
+  });
+
+  const booked = signups
+    .filter((signup) => signup.status === 'booked')
+    .reduce((total, signup) => total + (signup.people ?? 0), 0);
+  const seatsFree = Math.max(tour.maxCustomers - booked, 0);
+  const first = signups.find((signup) => signup.status === 'waiting');
+
+  if (!seatsFree || !first) {
+    return;
+  }
+
+  const serverURL = payload.config.serverURL ?? '';
+  const adminRoute = payload.config.routes?.admin ?? '/admin';
+
+  const mail = renderSeatsFreedMail({
+    locale,
+    tourTitle: tour.title,
+    seatsFree,
+    firstInQueue: first.name,
+    firstInQueuePeople: first.people,
+    tourUrl: serverURL
+      ? `${serverURL}${adminRoute}/collections/tours/${tourId}`
+      : null,
+    from
+  });
+
+  try {
+    await payload.sendEmail({ to: recipients, ...mail });
+  } catch (error) {
+    payload.logger.error(
+      `[notifySignup] Could not send "${mail.subject}": ${String(error)}`
+    );
+  }
+}
 
 /**
  * Tell the customer, and the guide, what happened to a signup.
@@ -13,9 +93,11 @@ import type { CollectionAfterChangeHook } from 'payload';
  * promotion is a mail the guide asked for by pressing the button — the whole
  * reason promotion is manual is that a customer has to be told.
  *
- * Cancellations send nothing. A guide cancelling a drop-off is usually
- * recording something the customer already told them, and mailing "you have
- * been cancelled" back at them would be worse than silence.
+ * Cancellations send nothing to the customer — a guide cancelling a drop-off
+ * is usually recording something the customer already told them, and mailing
+ * "you have been cancelled" back at them would be worse than silence. They do
+ * reach the guide when they free seats on a tour with a queue, because signups
+ * are served in order and nobody but the guide can fill those seats.
  */
 export const notifySignup: CollectionAfterChangeHook<TourSignup> = async ({
   doc,
@@ -28,7 +110,13 @@ export const notifySignup: CollectionAfterChangeHook<TourSignup> = async ({
     previousDoc?.status === 'waiting' &&
     doc.status === 'booked';
 
-  if (operation !== 'create' && !promoted) {
+  // Cancelled, or moved back to the queue: seats this signup held are now free
+  const releasedSeats =
+    operation === 'update' &&
+    previousDoc?.status === 'booked' &&
+    doc.status !== 'booked';
+
+  if (operation !== 'create' && !promoted && !releasedSeats) {
     return doc;
   }
 
@@ -69,6 +157,22 @@ export const notifySignup: CollectionAfterChangeHook<TourSignup> = async ({
     });
 
     if (!tour) {
+      return doc;
+    }
+
+    const recipients = (settings?.tourSignups?.notificationRecipients ?? [])
+      .map((entry) => entry.email)
+      .filter(Boolean);
+
+    if (releasedSeats) {
+      await notifySeatsFreed({
+        from: settings?.general?.appName ?? '',
+        locale,
+        recipients,
+        req,
+        tour,
+        tourId
+      });
       return doc;
     }
 

@@ -53,9 +53,12 @@ export const guardStatusChange: CollectionBeforeChangeHook<
   const maxCustomers = tour?.maxCustomers;
 
   // Nothing to guard against without a maximum, and nothing to recheck when
-  // the row was already booked for this many people
+  // the row was already booked for this many people *on this tour* — moving a
+  // booked signup to another tour is a fresh claim on that tour's seats
   const unchanged =
-    originalDoc.status === 'booked' && people === originalDoc.people;
+    originalDoc.status === 'booked' &&
+    people === originalDoc.people &&
+    tourId === getId(originalDoc.tour);
 
   if (!maxCustomers || unchanged) {
     return { ...data, queuePosition: null };

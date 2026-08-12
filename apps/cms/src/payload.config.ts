@@ -192,6 +192,12 @@ export default buildConfig({
   plugins: getPlugins(env, {
     access: { read: userOrApiKeyAccess(), write: userOnlyAccess() }
   }),
+  // A refused signup is an answer, not a fault: log the message and skip the
+  // stack. The key is `SignupRefusedError`'s own name, so every other
+  // `APIError` still logs in full.
+  loggingLevels: { SignupRefused: 'info' } as Parameters<
+    typeof buildConfig
+  >[0]['loggingLevels'],
   secret: env.PAYLOAD_SECRET_KEY,
   upload: { safeFileNames: true },
   // i18n support

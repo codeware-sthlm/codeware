@@ -1,10 +1,11 @@
 import { customT } from '@codeware/app-cms/util/i18n';
 import { getId, isTenant } from '@codeware/app-cms/util/misc';
 import type { TourSignup } from '@codeware/shared/util/payload-types';
-import { APIError, type CollectionBeforeChangeHook } from 'payload';
+import type { CollectionBeforeChangeHook } from 'payload';
 
 import { lockTour, nextQueuePosition, sumBookedPeople } from './capacity';
 import { decideSignupStatus } from './decide-signup-status';
+import { SignupRefusedError } from './signup-refused-error';
 
 /**
  * Decide the status of a new signup from the tour's capacity.
@@ -56,7 +57,10 @@ export const assignCapacityStatus: CollectionBeforeChangeHook<
   }
 
   if (fromApiKey && tour.signupsClosed) {
-    throw new APIError(customT(req.t)('validation:tourClosedForSignups'), 403);
+    throw new SignupRefusedError(
+      customT(req.t)('validation:tourClosedForSignups'),
+      403
+    );
   }
 
   await lockTour(req, tourId);

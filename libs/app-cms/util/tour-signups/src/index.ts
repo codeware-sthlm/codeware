@@ -11,6 +11,8 @@ export {
 } from './lib/decide-signup-status';
 export { guardStatusChange } from './lib/guard-status-change';
 export { notifySignup } from './lib/notify-signup';
+export { renumberQueue, renumberQueueOnChange } from './lib/renumber-queue';
 export { signupCreateAccess } from './lib/signup-create-access';
+export { SignupRefusedError } from './lib/signup-refused-error';
 export { stampStatusChange } from './lib/stamp-status-change';
 export { verifyTourTenant } from './lib/verify-tour-tenant';

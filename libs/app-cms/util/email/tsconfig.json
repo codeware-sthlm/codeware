@@ -1,6 +1,8 @@
 {
   "extends": "../../../../tsconfig.base.json",
   "compilerOptions": {
+    // Stories render the templates in a frame; the lib itself ships no React
+    "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "importHelpers": true,

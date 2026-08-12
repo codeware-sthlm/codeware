@@ -50,6 +50,9 @@ export const populateTourCapacity: CollectionAfterOperationHook<
     // is a different statement from "plenty left", and the site says so
     doc.seatsLeft = max ? Math.max(max - booked, 0) : null;
     doc.signupsFull = max ? booked >= max : false;
+    // Signups are served in order, so anyone waiting has first claim on the
+    // seats that remain — the site must offer the queue, not those seats
+    doc.signupsQueueOnly = waiting > 0;
   }
 
   return result;

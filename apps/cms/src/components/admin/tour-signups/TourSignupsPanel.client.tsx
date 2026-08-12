@@ -212,6 +212,30 @@ export const TourSignupsPanel: React.FC<Props> = ({
     [reportError, router, sdk, summary.tourId, t, waiting]
   );
 
+  /**
+   * Clear the passenger data on this tour.
+   *
+   * The sdk throws on a non-2xx rather than answering with `ok: false`, so the
+   * catch is the failure path — without it a refused purge would leave the
+   * guide believing the details were gone.
+   */
+  const anonymize = useCallback(async () => {
+    setPurgeOpen(false);
+    setBusy(true);
+    try {
+      await sdk.request({
+        method: 'POST',
+        path: '/tour-signups-anonymize',
+        json: { tour: summary.tourId }
+      });
+      router.refresh();
+    } catch (e) {
+      reportError(e instanceof Error ? e.message : t('tourSignups:saveFailed'));
+    } finally {
+      setBusy(false);
+    }
+  }, [reportError, router, sdk, summary.tourId, t]);
+
   const renderRow = (
     row: TourSignupItem,
     dragHandle?: React.ReactNode,
@@ -418,24 +442,7 @@ export const TourSignupsPanel: React.FC<Props> = ({
               type="button"
               variant="destructive"
               disabled={busy}
-              onClick={() => {
-                setPurgeOpen(false);
-                setBusy(true);
-                void sdk
-                  .request({
-                    method: 'POST',
-                    path: '/tour-signups-anonymize',
-                    json: { tour: summary.tourId }
-                  })
-                  .then((response) => {
-                    if (!response.ok) {
-                      reportError(t('tourSignups:saveFailed'));
-                      return;
-                    }
-                    router.refresh();
-                  })
-                  .finally(() => setBusy(false));
-              }}
+              onClick={() => void anonymize()}
             >
               {t('tourSignups:anonymize')}
             </Button>

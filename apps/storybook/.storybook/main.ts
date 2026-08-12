@@ -20,6 +20,12 @@ const config: StorybookConfig = {
       files: '**/*.@(mdx|stories.@(ts|tsx))'
     },
     {
+      // Email templates preview here too — they are pure render functions, and
+      // the stories frame their markup so the app's styles cannot touch it
+      directory: '../../../libs/app-cms/util/email/',
+      files: '**/*.@(mdx|stories.@(ts|tsx))'
+    },
+    {
       directory: '../../../libs/shared/ui/',
       files: '**/*.@(mdx|stories.@(ts|tsx))'
     }

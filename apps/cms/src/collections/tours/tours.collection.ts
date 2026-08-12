@@ -511,6 +511,14 @@ const tours: CollectionConfig<'tours'> = {
       admin: { hidden: true }
     },
     {
+      // Seats may remain while the queue has first claim on them, and the site
+      // has to offer the queue rather than a place it will not hand over
+      name: 'signupsQueueOnly',
+      type: 'checkbox',
+      virtual: true,
+      admin: { hidden: true }
+    },
+    {
       // List-only column: the totals are wanted when scanning tours, and a
       // virtual field would resolve them on every tour read instead
       name: 'signups',

@@ -3,7 +3,12 @@ import { getId, isTenant } from '@codeware/app-cms/util/misc';
 import type { TourSignup } from '@codeware/shared/util/payload-types';
 import type { CollectionBeforeChangeHook } from 'payload';
 
-import { lockTour, nextQueuePosition, sumBookedPeople } from './capacity';
+import {
+  lockTour,
+  nextQueuePosition,
+  sumBookedPeople,
+  sumWaitingPeople
+} from './capacity';
 import { decideSignupStatus } from './decide-signup-status';
 import { SignupRefusedError } from './signup-refused-error';
 
@@ -15,6 +20,8 @@ import { SignupRefusedError } from './signup-refused-error';
  * `lockTour` serializes them, then the sum decides.
  *
  * A tenant api key never gets to pick a status — whatever it sent is replaced.
+ * Once anyone is waiting the queue is served in order, so a later signup joins
+ * it even when it would fit in the seats that are left.
  * An admin user may create a signup as `cancelled` or `waiting` deliberately
  * (a phone call, a customer who asked to queue), so only `booked` is put
  * through the capacity check for them. Likewise `signupsClosed` closes the tour
@@ -66,11 +73,15 @@ export const assignCapacityStatus: CollectionBeforeChangeHook<
   await lockTour(req, tourId);
 
   const people = data.people ?? 1;
-  const taken = await sumBookedPeople(req, tourId);
+  const [taken, waiting] = await Promise.all([
+    sumBookedPeople(req, tourId),
+    sumWaitingPeople(req, tourId)
+  ]);
   const status = decideSignupStatus({
     maxCustomers: tour.maxCustomers,
     people,
-    taken
+    taken,
+    waiting
   });
 
   return status === 'waiting'

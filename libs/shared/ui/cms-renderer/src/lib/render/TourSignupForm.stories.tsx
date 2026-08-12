@@ -48,6 +48,23 @@ export const Full: Story = {
   }
 };
 
+/**
+ * Seats remain, but people are already waiting for them — the form offers the
+ * queue rather than a place it would not hand over
+ */
+export const QueueOnly: Story = {
+  name: 'Seats left, queue served first',
+  args: {
+    tour: {
+      ...tour,
+      seatsTaken: 16,
+      seatsLeft: 4,
+      signupsFull: false,
+      signupsQueueOnly: true
+    } as unknown as Tour
+  }
+};
+
 export const NoMaximum: Story = {
   name: 'No maximum set',
   args: {

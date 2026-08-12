@@ -70,6 +70,31 @@ async function sumBookedPeople(
 }
 
 /**
+ * People currently on a tour's waiting list.
+ *
+ * Read under the same lock as the booked sum, because it decides the same
+ * thing: once anyone is queued, later signups queue behind them.
+ */
+async function sumWaitingPeople(
+  req: PayloadRequest,
+  tourId: number
+): Promise<number> {
+  const { docs } = await req.payload.find({
+    collection: 'tour-signups',
+    where: {
+      and: [{ tour: { equals: tourId } }, { status: { equals: 'waiting' } }]
+    },
+    depth: 0,
+    pagination: false,
+    select: { people: true },
+    overrideAccess: true,
+    req
+  });
+
+  return docs.reduce((total, doc) => total + (doc.people ?? 0), 0);
+}
+
+/**
  * Next free place at the end of the waiting list.
  *
  * Positions are only ever appended here; the guide reorders them explicitly.
@@ -94,4 +119,4 @@ async function nextQueuePosition(
   return (docs[0]?.queuePosition ?? 0) + 1;
 }
 
-export { lockTour, nextQueuePosition, sumBookedPeople };
+export { lockTour, nextQueuePosition, sumBookedPeople, sumWaitingPeople };

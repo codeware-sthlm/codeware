@@ -119,6 +119,8 @@ export type TranslationKey =
   | 'tourSignup.email'
   | 'tourSignup.failed'
   | 'tourSignup.full'
+  | 'tourSignup.queueOnly'
+  | 'tourSignup.queueOnlyLede'
   | 'tourSignup.fullLede'
   | 'tourSignup.joinWaitingList'
   | 'tourSignup.name'
@@ -277,6 +279,9 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tourSignup.email': 'Email',
     'tourSignup.failed': 'Your signup could not be sent. Please try again.',
     'tourSignup.full': 'This tour is full',
+    'tourSignup.queueOnly': 'Places are offered from the waiting list',
+    'tourSignup.queueOnlyLede':
+      'Others are already waiting for a place on this tour, so signups join the waiting list in turn. We will be in touch when it is your turn.',
     'tourSignup.fullLede':
       'Join the waiting list and we will be in touch if a place opens up.',
     'tourSignup.joinWaitingList': 'Join the waiting list',
@@ -434,6 +439,9 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'tourSignup.email': 'E-post',
     'tourSignup.failed': 'Anmälan kunde inte skickas. Försök igen.',
     'tourSignup.full': 'Resan är fullbokad',
+    'tourSignup.queueOnly': 'Platser erbjuds från väntelistan',
+    'tourSignup.queueOnlyLede':
+      'Andra väntar redan på plats på den här resan, så anmälningar ställs i kön i tur och ordning. Vi hör av oss när det är din tur.',
     'tourSignup.fullLede':
       'Ställ dig i kön så hör vi av oss om en plats blir ledig.',
     'tourSignup.joinWaitingList': 'Ställ mig i kön',

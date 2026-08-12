@@ -90,7 +90,12 @@ export function RenderTour({ tour }: RenderTourProps) {
   // button that produces a waiting list place would be a small lie, so the
   // label follows the capacity rather than the intent.
   const isFull = Boolean(tour.signupsFull);
-  const ctaLabel = isFull
+  // Seats may be left while people are already waiting for them. Offering a
+  // place we would only queue them for would be a lie told at the last moment,
+  // so the queue takes over the call to action well before the tour is full.
+  const isQueueOnly = !isFull && Boolean(tour.signupsQueueOnly);
+  const takesQueue = isFull || isQueueOnly;
+  const ctaLabel = takesQueue
     ? t(locale, 'tourSignup.joinWaitingList')
     : isBooking
       ? t(locale, 'tours.bookTour')
@@ -100,9 +105,11 @@ export function RenderTour({ tour }: RenderTourProps) {
   // "8 of 20 left" on an empty tour is noise, and no maximum means no count
   const placesLine = isFull
     ? t(locale, 'tourSignup.full')
-    : seatsLeft !== null
-      ? t(locale, 'tourSignup.seatsLeft', { count: String(seatsLeft) })
-      : null;
+    : isQueueOnly
+      ? t(locale, 'tourSignup.queueOnly')
+      : seatsLeft !== null
+        ? t(locale, 'tourSignup.seatsLeft', { count: String(seatsLeft) })
+        : null;
   const ctaLede = isBooking
     ? t(locale, 'tours.bookingLede', {
         date: formatTourDate(bookingDeadline, locale)
@@ -132,7 +139,7 @@ export function RenderTour({ tour }: RenderTourProps) {
         {placesLine && (
           <p
             className={
-              isFull
+              takesQueue
                 ? 'text-core-headline text-sm font-medium'
                 : 'text-core-muted text-sm'
             }
@@ -147,10 +154,18 @@ export function RenderTour({ tour }: RenderTourProps) {
       <SheetContent side="right" size="md" className="overflow-y-auto">
         <SheetHeader className="p-6">
           <SheetTitle className="text-xl font-semibold">
-            {isFull ? t(locale, 'tourSignup.full') : ctaLabel}
+            {isFull
+              ? t(locale, 'tourSignup.full')
+              : isQueueOnly
+                ? t(locale, 'tourSignup.queueOnly')
+                : ctaLabel}
           </SheetTitle>
           <SheetDescription>
-            {isFull ? t(locale, 'tourSignup.fullLede') : ctaLede}
+            {isFull
+              ? t(locale, 'tourSignup.fullLede')
+              : isQueueOnly
+                ? t(locale, 'tourSignup.queueOnlyLede')
+                : ctaLede}
           </SheetDescription>
         </SheetHeader>
         <div className="px-6 pb-8">

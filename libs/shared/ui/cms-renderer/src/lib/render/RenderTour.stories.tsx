@@ -225,6 +225,18 @@ export const Full: Story = {
   }
 };
 
+export const QueueOnly: Story = {
+  name: 'Seats left, queue served first',
+  args: {
+    tour: {
+      ...tour,
+      seatsTaken: 16,
+      seatsLeft: 4,
+      signupsQueueOnly: true
+    } as unknown as Tour
+  }
+};
+
 export const SignupsClosed: Story = {
   name: 'Closed for signups (no CTA)',
   args: { tour: { ...tour, signupsClosed: true } as unknown as Tour }

@@ -1552,8 +1552,8 @@ export interface SiteSetting {
   id: number;
   tenant?: (number | null) | Tenant;
   general: SiteSettingsGeneral;
-  tourSignups?: SiteSettingsTourSignups;
   footer?: SiteSettingsFooter;
+  tourSignups?: SiteSettingsTourSignups;
   updatedAt: string;
   createdAt: string;
 }
@@ -1585,35 +1585,6 @@ export interface SiteSettingsGeneral {
    * The default locale for the client. Must be one of the supported locales for the workspace.
    */
   defaultLocale: 'en' | 'sv';
-}
-/**
- * What customers are told when they sign up for a tour, and how long their details are kept.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SiteSettingsTourSignups".
- */
-export interface SiteSettingsTourSignups {
-  /**
-   * Who gets an email when someone signs up for a tour. Leave empty to be told nothing.
-   */
-  notificationRecipients?:
-    | {
-        email: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Linked from the signup form and the confirmation email. No page yet? Create a starter one below.
-   */
-  privacyPage?: (number | null) | Page;
-  /**
-   * When set, customers must accept these terms before they can sign up.
-   */
-  termsPage?: (number | null) | Page;
-  /**
-   * Names, emails and phone numbers are cleared this long after the tour departs. Party sizes and statuses are kept. This number is also what customers are told on the signup form.
-   */
-  retentionDays?: number | null;
 }
 /**
  * Control what the site footer displays.
@@ -1701,6 +1672,35 @@ export interface SiteSettingsFooter {
    * Display the running release, e.g. web@1.4.0+ab12cd3.
    */
   showVersion?: boolean | null;
+}
+/**
+ * What customers are told when they sign up for a tour, and how long their details are kept.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsTourSignups".
+ */
+export interface SiteSettingsTourSignups {
+  /**
+   * Who gets an email when someone signs up for a tour. Leave empty to be told nothing.
+   */
+  notificationRecipients?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Linked from the signup form and the confirmation email. No page yet? Create a starter one below.
+   */
+  privacyPage?: (number | null) | Page;
+  /**
+   * When set, customers must accept these terms before they can sign up.
+   */
+  termsPage?: (number | null) | Page;
+  /**
+   * Names, emails and phone numbers are cleared this long after the tour departs. Party sizes and statuses are kept. This number is also what customers are told on the signup form.
+   */
+  retentionDays?: number | null;
 }
 /**
  * Shared images provided by the platform, free for any workspace to use. Upload your own photos under Media when you need a specific place.
@@ -1944,6 +1944,7 @@ export interface Tour {
   seatsWaiting?: number | null;
   seatsLeft?: number | null;
   signupsFull?: boolean | null;
+  signupsQueueOnly?: boolean | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -2431,8 +2432,8 @@ export interface ReusableContentSelect<T extends boolean = true> {
 export interface SiteSettingsSelect<T extends boolean = true> {
   tenant?: T;
   general?: T | SiteSettingsGeneralSelect<T>;
-  tourSignups?: T | SiteSettingsTourSignupsSelect<T>;
   footer?: T | SiteSettingsFooterSelect<T>;
+  tourSignups?: T | SiteSettingsTourSignupsSelect<T>;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2451,21 +2452,6 @@ export interface SiteSettingsGeneralSelect<T extends boolean = true> {
         file?: T;
       };
   defaultLocale?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SiteSettingsTourSignups_select".
- */
-export interface SiteSettingsTourSignupsSelect<T extends boolean = true> {
-  notificationRecipients?:
-    | T
-    | {
-        email?: T;
-        id?: T;
-      };
-  privacyPage?: T;
-  termsPage?: T;
-  retentionDays?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2504,6 +2490,21 @@ export interface SiteSettingsFooterSelect<T extends boolean = true> {
   showCopyright?: T;
   copyright?: T;
   showVersion?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsTourSignups_select".
+ */
+export interface SiteSettingsTourSignupsSelect<T extends boolean = true> {
+  notificationRecipients?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
+  privacyPage?: T;
+  termsPage?: T;
+  retentionDays?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2693,6 +2694,7 @@ export interface ToursSelect<T extends boolean = true> {
   seatsWaiting?: T;
   seatsLeft?: T;
   signupsFull?: T;
+  signupsQueueOnly?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

@@ -73,7 +73,9 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
   const privacyUrl = signupPolicy?.privacyUrl ?? null;
   const retentionDays = signupPolicy?.retentionDays ?? null;
 
-  const full = Boolean(tour.signupsFull);
+  // Seats left do not mean a place is on offer: once anyone is waiting, the
+  // queue is served in order and this form joins it
+  const full = Boolean(tour.signupsFull) || Boolean(tour.signupsQueueOnly);
   const seatsLeft = tour.seatsLeft ?? null;
 
   const onSubmit = useCallback(

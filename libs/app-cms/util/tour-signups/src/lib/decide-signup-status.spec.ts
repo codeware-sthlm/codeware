@@ -45,6 +45,34 @@ describe('decideSignupStatus', () => {
   });
 });
 
+describe('decideSignupStatus with a queue', () => {
+  it('queues a signup that would fit, once anyone is waiting', () => {
+    // The case this rule exists for: a single traveller fitting the last seat
+    // ahead of a party that has been waiting for two
+    expect(
+      decideSignupStatus({ maxCustomers: 20, people: 1, taken: 19, waiting: 2 })
+    ).toBe('waiting');
+  });
+
+  it('books normally while the queue is empty', () => {
+    expect(
+      decideSignupStatus({ maxCustomers: 20, people: 1, taken: 19, waiting: 0 })
+    ).toBe('booked');
+  });
+
+  it('ignores a queue on a tour with no maximum', () => {
+    // Nothing can queue on an unlimited tour, so nothing can block a signup
+    expect(
+      decideSignupStatus({
+        maxCustomers: null,
+        people: 4,
+        taken: 99,
+        waiting: 3
+      })
+    ).toBe('booked');
+  });
+});
+
 describe('fitsCapacity', () => {
   it('accepts a promotion that fits', () => {
     expect(fitsCapacity({ maxCustomers: 20, people: 3, taken: 17 })).toBe(true);
@@ -54,5 +82,13 @@ describe('fitsCapacity', () => {
     expect(fitsCapacity({ maxCustomers: 20, people: 4, taken: 17 })).toBe(
       false
     );
+  });
+
+  it('lets a guide promote even though others are waiting', () => {
+    // Promotion is the guide's call about the queue, so the queue must not
+    // block it the way it blocks a new signup
+    expect(
+      fitsCapacity({ maxCustomers: 20, people: 3, taken: 17, waiting: 5 })
+    ).toBe(true);
   });
 });

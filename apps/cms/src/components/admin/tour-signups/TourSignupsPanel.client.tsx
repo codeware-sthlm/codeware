@@ -142,6 +142,10 @@ export const TourSignupsPanel: React.FC<Props> = ({
   );
   const cancelled = signups.filter((row) => row.status === 'cancelled');
 
+  const seatsFree = summary.maxCustomers
+    ? Math.max(summary.maxCustomers - summary.booked, 0)
+    : 0;
+
   const openRow = useMemo(
     () => signups.find((row) => row.id === openId) ?? null,
     [signups, openId]
@@ -313,6 +317,18 @@ export const TourSignupsPanel: React.FC<Props> = ({
           </Button>
         </div>
       </div>
+
+      {/* Signups now queue behind anyone already waiting, so a tour can hold
+          free seats and a queue at the same time — and only a promotion fills
+          them. That is worth saying out loud rather than leaving to arithmetic. */}
+      {seatsFree > 0 && waiting.length > 0 && (
+        <p className="border-border bg-muted/40 rounded-lg border px-3 py-2 text-sm">
+          {t('tourSignups:seatsFreeWithQueue', {
+            count: seatsFree,
+            name: waiting[0].name
+          })}
+        </p>
+      )}
 
       {!signups.length && (
         <p className="text-muted-foreground text-sm">

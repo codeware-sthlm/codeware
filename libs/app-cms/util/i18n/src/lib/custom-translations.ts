@@ -181,6 +181,13 @@ const customTranslationsSchema = z.object({
   validation: z.object({
     bookingDeadlineAfterDeparture: z.string(),
     bookingNeedsDeparture: z.string(),
+    domainDuplicate: z.string(),
+    domainMalformed: z.string(),
+    domainNoPathOrPort: z.string(),
+    domainNoScheme: z.string(),
+    domainNoWildcard: z.string(),
+    domainOnePrimary: z.string(),
+    domainTaken: z.string(),
     labelNameTaken: z.string(),
     labelNotFound: z.string(),
     labelWrongType: z.string(),
@@ -383,6 +390,17 @@ You can assign multiple tags to a file.`,
         'The booking deadline must be on or before the departure date.',
       bookingNeedsDeparture:
         'A tour can only be booked once it has a departure date. Use "Register interest" while the date is unconfirmed.',
+      domainDuplicate: '"{{hostname}}" is listed more than once.',
+      domainMalformed: '"{{hostname}}" is not a valid domain name.',
+      domainNoPathOrPort:
+        'Enter the domain on its own — no path, port or query string.',
+      domainNoScheme: 'Enter the domain on its own, without "https://".',
+      domainNoWildcard:
+        'Wildcard domains are not supported. Add each subdomain separately.',
+      domainOnePrimary:
+        'Only one domain per app can be the primary one. "{{app}}" has several.',
+      domainTaken:
+        '"{{hostname}}" already belongs to the workspace "{{tenant}}".',
       labelNameTaken: 'A "{{type}}" label named "{{name}}" already exists.',
       labelNotFound: 'The selected label no longer exists.',
       labelWrongType: 'Expected a "{{expected}}" label but got "{{actual}}".',
@@ -583,6 +601,16 @@ Du kan tilldela flera etiketter till en fil.`,
         'Sista bokningsdag måste vara samma dag som eller före avresedatum.',
       bookingNeedsDeparture:
         'En resa kan bara bokas när den har ett avresedatum. Använd "Intresseanmälan" så länge datumet inte är fastställt.',
+      domainDuplicate: '"{{hostname}}" förekommer flera gånger.',
+      domainMalformed: '"{{hostname}}" är inte ett giltigt domännamn.',
+      domainNoPathOrPort:
+        'Ange enbart domänen — utan sökväg, port eller frågesträng.',
+      domainNoScheme: 'Ange enbart domänen, utan "https://".',
+      domainNoWildcard:
+        'Wildcard-domäner stöds inte. Lägg till varje underdomän för sig.',
+      domainOnePrimary:
+        'Bara en domän per app kan vara den primära. "{{app}}" har flera.',
+      domainTaken: '"{{hostname}}" tillhör redan arbetsytan "{{tenant}}".',
       labelNameTaken:
         'Det finns redan en etikett av typen "{{type}}" med namnet "{{name}}".',
       labelNotFound: 'Den valda etiketten finns inte längre.',

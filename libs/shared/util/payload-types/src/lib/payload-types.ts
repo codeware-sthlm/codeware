@@ -417,6 +417,34 @@ export interface Tenant {
    * Select the locales your web client should support. Multiple locales will enable the language selector in the admin UI.
    */
   supportedLocales: ('en' | 'sv')[];
+  /**
+   * Domains this workspace is reachable on, in addition to its .fly.dev address — which keeps working and stays useful for support. Add the domain here first, then create the DNS records shown after saving.
+   */
+  domains?:
+    | {
+        /**
+         * The domain on its own — no https://, no path.
+         */
+        hostname: string;
+        /**
+         * The Fly app that serves this domain. The certificate is attached to it.
+         */
+        app: string;
+        /**
+         * The address the app presents as its own, in links and emails. One per app.
+         */
+        isPrimary?: boolean | null;
+        /**
+         * Read from Fly when the domain is checked. Nothing here is edited by hand.
+         */
+        certificate?: {
+          isConfigured?: boolean | null;
+          status?: string | null;
+          checkedAt?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
   relations?: {
     relatedUsers?: {
       docs?: (number | User)[];
@@ -2613,6 +2641,21 @@ export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   supportedLocales?: T;
+  domains?:
+    | T
+    | {
+        hostname?: T;
+        app?: T;
+        isPrimary?: T;
+        certificate?:
+          | T
+          | {
+              isConfigured?: T;
+              status?: T;
+              checkedAt?: T;
+            };
+        id?: T;
+      };
   relations?:
     | T
     | {

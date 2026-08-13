@@ -3,7 +3,13 @@ export {
   applyCertificateState,
   toCertificateState
 } from './lib/certificate-state';
+export {
+  type DomainSecret,
+  type DomainSecretsReport,
+  findDomainSecrets
+} from './lib/find-domain-secrets';
 export { getFlyApi } from './lib/get-fly-api';
+export { matchesDomain } from './lib/match-domain-secret';
 export { guardDomainConflicts } from './lib/guard-domain-conflicts';
 export { normalizeDomains } from './lib/normalize-domains';
 export {

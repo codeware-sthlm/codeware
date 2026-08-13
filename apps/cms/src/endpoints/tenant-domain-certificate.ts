@@ -1,7 +1,9 @@
 import type { HostnameCheck } from '@cdwr/fly-node/api';
 import {
   type CertificateState,
+  type DomainSecretsReport,
   applyCertificateState,
+  findDomainSecrets,
   getFlyApi,
   parseHostname,
   toCertificateState
@@ -26,6 +28,8 @@ type Result = {
   certificate: CertificateState | null;
   /** Live dns resolution, only available straight after a request */
   check: HostnameCheck | null;
+  /** Where Infisical mentions this domain, so a certificate is not mistaken for a working site */
+  secrets: DomainSecretsReport | null;
 };
 
 const fail = (status: StatusCodes, message?: string) =>
@@ -109,13 +113,27 @@ export const tenantDomainCertificateEndpoint: Endpoint = {
     try {
       if (action === 'request') {
         const { certificate, check } = await fly.certs.add(app, hostname);
-        result = { certificate: toCertificateState(certificate), check };
+        result = {
+          certificate: toCertificateState(certificate),
+          check,
+          secrets: null
+        };
       } else if (action === 'check') {
-        const certificate = await fly.certs.get(app, hostname);
-        result = { certificate: toCertificateState(certificate), check: null };
+        // Both halves in one answer: a certificate says Fly will serve TLS for
+        // the domain, the secrets say whether anything is configured to serve
+        // *content* on it. Reporting only the first calls a broken site done.
+        const [certificate, secrets] = await Promise.all([
+          fly.certs.get(app, hostname),
+          findDomainSecrets(hostname)
+        ]);
+        result = {
+          certificate: toCertificateState(certificate),
+          check: null,
+          secrets
+        };
       } else {
         await fly.certs.remove(app, hostname);
-        result = { certificate: null, check: null };
+        result = { certificate: null, check: null, secrets: null };
       }
     } catch (error) {
       req.payload.logger.error(

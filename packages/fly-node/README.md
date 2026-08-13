@@ -54,6 +54,7 @@ It's built with a configuration-first approach, meaning that you provide a `fly.
     - [Add application secrets](#add-application-secrets)
     - [Remove application secrets](#remove-application-secrets)
     - [List secrets](#list-secrets)
+- [Without the CLI: `FlyApi`](#without-the-cli-flyapi)
 
 ## Installation
 
@@ -509,3 +510,50 @@ const secrets = await fly.secrets.list();
 const secrets = await fly.secrets.list({ app: 'foo-app' });
 const secrets = await fly.secrets.list({ config: 'apps/foo-app/fly.toml' });
 ```
+
+## Without the CLI: `FlyApi`
+
+`Fly` drives the `flyctl` binary. That is the right tool in CI — it builds and
+deploys, and a runner has the binary installed — but it cannot run inside an
+application server: there is no binary in the image, and the interactive paths
+need a pty.
+
+`FlyApi` talks to Fly's GraphQL API instead. No binary, no subprocess, usable
+from a running app. It is deliberately a small subset rather than a second
+implementation of the CLI — certificates today, because a custom domain has to
+be requested, checked and shown to a customer while they wait.
+
+```ts
+import { FlyApi } from '@cdwr/fly-node';
+
+const fly = new FlyApi({ token: process.env.FLY_API_TOKEN });
+
+// Request a certificate. Safe to call again — Fly returns the existing one.
+const { certificate, check } = await fly.certs.add('my-app', 'tours.example.com');
+
+if (!certificate.isConfigured) {
+  // What the customer has to create, and what Fly resolves right now
+  console.log(FlyApi.dnsInstructions(certificate));
+  console.log(check?.dnsConfigured, check?.cnameRecords);
+}
+
+// Re-read issuance state — the call behind a "check" button
+await fly.certs.get('my-app', 'tours.example.com');
+
+await fly.certs.list('my-app');
+await fly.certs.remove('my-app', 'tours.example.com');
+```
+
+Notes worth knowing:
+
+- **Field names are Fly's own** (`isConfigured`, not `configured`), so results
+  can be read against Fly's schema without translating. Where the CLI covers
+  the same ground the shared fields agree.
+- **Requesting before DNS exists is normal.** The certificate stays pending
+  until the records resolve; the validation fields are what you show meanwhile.
+- **`rateLimitedUntil`** is set when Let's Encrypt has throttled further
+  attempts. It is the one failure correcting DNS will not fix, and retrying
+  makes it worse.
+- **`list` does not resolve DNS.** `check` is only returned by `add`, because
+  resolving across every certificate on an app would turn one query into a
+  lookup per domain.

@@ -120,13 +120,46 @@ describe('FlyApi', () => {
   });
 
   it('answers null for a hostname the app has no certificate for', async () => {
+    // Fly reports this as a NOT_FOUND *error* alongside a null field, not as a
+    // plain null — asserting the shape it never sends is how a mocked test
+    // passes while the real call throws
     fetchMock.mockReturnValue(
-      respond({ data: { app: { certificate: null } } })
+      respond({
+        data: { app: { certificate: null } },
+        errors: [
+          {
+            message: 'Could not find AppCertificate',
+            extensions: { code: 'NOT_FOUND' }
+          }
+        ]
+      })
     );
 
     await expect(
       api().certs.get('cdwr-web-moon', 'unknown.example.com')
     ).resolves.toBeNull();
+  });
+
+  it('still throws when only some errors are NOT_FOUND', async () => {
+    fetchMock.mockReturnValue(
+      respond({
+        data: { app: null },
+        errors: [
+          {
+            message: 'Could not find AppCertificate',
+            extensions: { code: 'NOT_FOUND' }
+          },
+          {
+            message: 'You must be authenticated',
+            extensions: { code: 'UNAUTHORIZED' }
+          }
+        ]
+      })
+    );
+
+    await expect(
+      api().certs.get('cdwr-web-moon', 'unknown.example.com')
+    ).rejects.toThrow('authenticated');
   });
 
   it('lists certificates, and an app with none', async () => {

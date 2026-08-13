@@ -59,6 +59,17 @@ export const tourSignupsReorderEndpoint: Endpoint = {
       );
     }
 
+    // A reorder is one decision, so it lands whole or not at all. Without a
+    // transaction each write commits on its own, and a failure halfway leaves
+    // the queue in an order nobody chose — the loop below only produces a
+    // complete 1..n sequence if every write survives.
+    const transactionID =
+      (await req.payload.db.beginTransaction()) ?? undefined;
+
+    if (transactionID) {
+      req.transactionID = transactionID;
+    }
+
     try {
       const runtime = mapToRuntime(req.payload, req.user);
 
@@ -97,6 +108,10 @@ export const tourSignupsReorderEndpoint: Endpoint = {
         });
       }
 
+      if (transactionID) {
+        await req.payload.db.commitTransaction(transactionID);
+      }
+
       return Response.json(
         { updated: ordered },
         {
@@ -105,6 +120,10 @@ export const tourSignupsReorderEndpoint: Endpoint = {
         }
       );
     } catch (error) {
+      if (transactionID) {
+        await req.payload.db.rollbackTransaction(transactionID);
+      }
+
       req.payload.logger.error(
         `[tourSignupsReorder] Update failed: ${String(error)}`
       );

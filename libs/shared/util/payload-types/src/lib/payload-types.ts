@@ -434,13 +434,15 @@ export interface Tenant {
          * The address the app presents as its own, in links and emails. One per app.
          */
         isPrimary?: boolean | null;
-        /**
-         * Read from Fly when the domain is checked. Nothing here is edited by hand.
-         */
         certificate?: {
           isConfigured?: boolean | null;
+          isApex?: boolean | null;
           status?: string | null;
           checkedAt?: string | null;
+          dnsValidationHostname?: string | null;
+          dnsValidationTarget?: string | null;
+          dnsValidationInstructions?: string | null;
+          rateLimitedUntil?: string | null;
         };
         id?: string | null;
       }[]
@@ -2651,8 +2653,13 @@ export interface TenantsSelect<T extends boolean = true> {
           | T
           | {
               isConfigured?: T;
+              isApex?: T;
               status?: T;
               checkedAt?: T;
+              dnsValidationHostname?: T;
+              dnsValidationTarget?: T;
+              dnsValidationInstructions?: T;
+              rateLimitedUntil?: T;
             };
         id?: T;
       };

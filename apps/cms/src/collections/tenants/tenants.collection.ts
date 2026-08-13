@@ -172,51 +172,36 @@ const tenants: CollectionConfig = {
           }
         },
         {
+          // What Fly last said about this domain. Field names are Fly's own, so
+          // a stored value can be read straight against its schema.
+          //
+          // Hidden rather than rendered: eight read-only inputs per row would
+          // bury the two fields that are actually filled in. The panel below
+          // the array presents the same data as something to act on.
           type: 'group',
           name: 'certificate',
-          label: { en: 'Certificate', sv: 'Certifikat' },
-          admin: {
-            description: {
-              en: 'Read from Fly when the domain is checked. Nothing here is edited by hand.',
-              sv: 'Hämtas från Fly när domänen kontrolleras. Inget här redigeras för hand.'
-            }
-          },
+          admin: { hidden: true },
           fields: [
-            {
-              type: 'row',
-              fields: [
-                {
-                  // Fly's own field name, so what is stored can be read straight
-                  // against its schema. The label carries the human meaning.
-                  name: 'isConfigured',
-                  type: 'checkbox',
-                  label: {
-                    en: 'Issued and serving',
-                    sv: 'Utfärdat och aktivt'
-                  },
-                  admin: { width: '30%', readOnly: true }
-                },
-                {
-                  name: 'status',
-                  type: 'text',
-                  label: { en: 'Reported status', sv: 'Rapporterad status' },
-                  admin: { width: '40%', readOnly: true }
-                },
-                {
-                  name: 'checkedAt',
-                  type: 'date',
-                  label: { en: 'Last checked', sv: 'Senast kontrollerad' },
-                  admin: {
-                    width: '30%',
-                    readOnly: true,
-                    date: { pickerAppearance: 'dayAndTime' }
-                  }
-                }
-              ]
-            }
+            { name: 'isConfigured', type: 'checkbox' },
+            { name: 'isApex', type: 'checkbox' },
+            { name: 'status', type: 'text' },
+            { name: 'checkedAt', type: 'date' },
+            { name: 'dnsValidationHostname', type: 'text' },
+            { name: 'dnsValidationTarget', type: 'text' },
+            { name: 'dnsValidationInstructions', type: 'textarea' },
+            { name: 'rateLimitedUntil', type: 'date' }
           ]
         }
       ]
+    },
+    {
+      name: 'domainsPanel',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@codeware/apps/cms/components/admin/domains/DomainsField'
+        }
+      }
     },
     {
       type: 'group',

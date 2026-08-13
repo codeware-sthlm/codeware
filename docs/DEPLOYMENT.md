@@ -235,6 +235,7 @@ Infisical is the single source of truth for both secrets and tenant configuratio
 
 - App-level secrets: `/apps/<app-name>/*`
 - Tenant-app secrets: `/tenants/<tenant-id>/apps/<app-name>/*`
+- Third-party credentials: `/integrations/<provider>/*`
 - Tenant discovery: System scans `/tenants/` folder structure to determine which tenants use which apps
 - Dynamic CORS: CMS automatically fetches tenant app URLs tagged with `cors` at boot for CORS configuration
 
@@ -294,6 +295,21 @@ Secrets are loaded at two distinct stages, each serving different purposes:
   - Can be rotated without redeployment (app restart required)
   - Requires Infisical credentials set as Fly.io secrets
 - **Use when**: Secrets need frequent rotation or shouldn't be bundled in the deployment
+
+**On-Demand Integration Credentials** (read when an operation needs them)
+
+- **Location**: `/integrations/<provider>/`
+- **Purpose**: Credentials for a third-party provider the platform acts through
+- **Fetched by**: Application when the feature runs, using `getIntegrationCredentials()`
+- **Examples**: `/integrations/fly/API_TOKEN` — an org-scoped Fly token used to
+  request and check TLS certificates for tenant custom domains
+- **Characteristics**:
+  - Never injected into `process.env`, so the token cannot leak through a child
+    process, a crash dump or an env listing
+  - Cached in memory for five minutes; a rotated token is picked up on expiry
+  - A missing folder disables the feature it powers rather than failing boot
+- **Use when**: The credential is platform-wide, powerful, and only needed by one
+  feature — not on every request
 
 **Key Limitation**: Deployment-time secrets are static until next deployment. Runtime secrets add startup latency but enable rotation without redeployment.
 

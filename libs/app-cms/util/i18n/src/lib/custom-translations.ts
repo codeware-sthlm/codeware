@@ -61,6 +61,7 @@ const customTranslationsSchema = z.object({
     apexNote: z.string(),
     check: z.string(),
     checkedAt: z.string(),
+    corsMissing: z.string(),
     dnsLede: z.string(),
     heading: z.string(),
     notRequested: z.string(),
@@ -69,7 +70,10 @@ const customTranslationsSchema = z.object({
     rateLimited: z.string(),
     remove: z.string(),
     request: z.string(),
-    saveFirst: z.string()
+    saveFirst: z.string(),
+    secretCorsTag: z.string(),
+    secretsMissing: z.string(),
+    secretsUnavailable: z.string()
   }),
   formSubmissions: z.object({
     allForms: z.string(),
@@ -278,6 +282,8 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'This is the domain itself rather than a subdomain, so it needs A and AAAA records — a CNAME is not allowed here.',
       check: 'Check now',
       checkedAt: 'Checked {{when}}',
+      corsMissing:
+        'No secret for this domain is tagged “cors”, so the CMS will refuse requests coming from it.',
       dnsLede: 'Create this record where the domain’s DNS is managed:',
       heading: 'Certificates',
       notRequested: 'No certificate yet',
@@ -287,7 +293,12 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'Let’s Encrypt has paused new attempts for this domain until {{when}}. Retrying before then only extends the pause.',
       remove: 'Remove certificate',
       request: 'Request certificate',
-      saveFirst: 'Save the workspace to request a certificate for this domain.'
+      saveFirst: 'Save the workspace to request a certificate for this domain.',
+      secretCorsTag: 'accepted as an origin',
+      secretsMissing:
+        'Nothing in Infisical points at this domain. A certificate alone does not make the site answer on it — add the url where the app’s deployment secrets live.',
+      secretsUnavailable:
+        'Infisical could not be read, so it is unknown whether the deployment secrets point at this domain.'
     },
     formSubmissions: {
       allForms: 'All forms',
@@ -507,6 +518,8 @@ Supported locales: {{locales}}`,
         'Det här är själva domänen och inte en underdomän, så den behöver A- och AAAA-poster — CNAME är inte tillåtet här.',
       check: 'Kontrollera nu',
       checkedAt: 'Kontrollerad {{when}}',
+      corsMissing:
+        'Ingen hemlighet för domänen är taggad ”cors”, så CMS:et avvisar anrop som kommer därifrån.',
       dnsLede: 'Skapa den här posten där domänens DNS hanteras:',
       heading: 'Certifikat',
       notRequested: 'Inget certifikat ännu',
@@ -516,7 +529,12 @@ Supported locales: {{locales}}`,
         'Let’s Encrypt har pausat nya försök för domänen till {{when}}. Att försöka igen dessförinnan förlänger bara pausen.',
       remove: 'Ta bort certifikat',
       request: 'Begär certifikat',
-      saveFirst: 'Spara arbetsytan för att begära ett certifikat för domänen.'
+      saveFirst: 'Spara arbetsytan för att begära ett certifikat för domänen.',
+      secretCorsTag: 'godkänd som ursprung',
+      secretsMissing:
+        'Inget i Infisical pekar på den här domänen. Ett certifikat räcker inte för att sajten ska svara på den — lägg till adressen där appens driftsättningshemligheter finns.',
+      secretsUnavailable:
+        'Infisical kunde inte läsas, så det är okänt om driftsättningshemligheterna pekar på domänen.'
     },
     formSubmissions: {
       allForms: 'Alla formulär',

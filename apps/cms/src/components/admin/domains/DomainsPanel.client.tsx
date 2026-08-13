@@ -2,6 +2,7 @@
 
 import type {
   CertificateState,
+  DomainSecretsReport,
   TenantDomain
 } from '@codeware/app-cms/feature/domains';
 import type {
@@ -38,6 +39,8 @@ type Row = {
   hostname: string;
   app: string;
   certificate: Stored | null;
+  /** Where Infisical mentions the domain; only known after a check */
+  secrets: DomainSecretsReport | null;
   /** The endpoint acts on stored rows, so an unsaved one has nothing to act on */
   saved: boolean;
 };
@@ -80,6 +83,10 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
   const [fresh, setFresh] = useState<Record<string, CertificateState | null>>(
     {}
   );
+  /** Infisical reports are never stored — they describe another system's state */
+  const [secrets, setSecrets] = useState<
+    Record<string, DomainSecretsReport | null>
+  >({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,6 +119,7 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
 
         const body = (await response.json()) as {
           certificate?: CertificateState | null;
+          secrets?: DomainSecretsReport | null;
           error?: string;
         };
 
@@ -125,6 +133,12 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
         setFresh((current) => ({
           ...current,
           [hostname]: body.certificate ?? null
+        }));
+        setSecrets((current) => ({
+          ...current,
+          // A request or a removal says nothing about Infisical, so an earlier
+          // report stays rather than being replaced with a false "none found"
+          [hostname]: body.secrets ?? current[hostname] ?? null
         }));
       } catch {
         setError(t('domains:actionFailed'));
@@ -160,9 +174,10 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
           app,
           certificate:
             hostname in fresh ? fresh[hostname] : (certificate ?? null),
+          secrets: secrets[hostname] ?? null,
           saved: savedHostnames.has(hostname)
         })),
-    [domains, fresh, savedHostnames]
+    [domains, fresh, savedHostnames, secrets]
   );
 
   if (!rows.length) {
@@ -255,6 +270,8 @@ const DomainRow: React.FC<RowProps> = ({
         <DnsRecords certificate={certificate} t={t} />
       )}
 
+      {row.secrets && <SecretsReport report={row.secrets} t={t} />}
+
       {!row.saved ? (
         <p className="text-muted-foreground">{t('domains:saveFirst')}</p>
       ) : (
@@ -331,6 +348,51 @@ const Status: React.FC<{
           this panel could invent */}
       {requested ? (status ?? t('domains:pending')) : t('domains:notRequested')}
     </span>
+  );
+};
+
+/**
+ * What Infisical says about the domain, which the certificate cannot answer.
+ *
+ * A valid certificate only means Fly will terminate TLS for the hostname. The
+ * app still has to be told to serve that url, and the cms still has to accept
+ * it as an origin — both edited by hand in Infisical. Without this, a fully
+ * issued certificate reads as "done" while the site returns nothing.
+ */
+const SecretsReport: React.FC<{
+  report: DomainSecretsReport;
+  t: Translate;
+}> = ({ report, t }) => {
+  if (report.unavailable) {
+    return (
+      <p className="text-muted-foreground">{t('domains:secretsUnavailable')}</p>
+    );
+  }
+
+  if (!report.secrets.length) {
+    return (
+      <p className="text-(--destructive-subtle)">
+        {t('domains:secretsMissing')}
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {report.secrets.map(({ path, key, isCorsTagged }) => (
+        <span key={`${path}|${key}`} className="text-muted-foreground text-xs">
+          <span className="font-mono">
+            {path}/{key}
+          </span>
+          {isCorsTagged && ` · ${t('domains:secretCorsTag')}`}
+        </span>
+      ))}
+      {!report.hasCors && (
+        <p className="text-(--destructive-subtle)">
+          {t('domains:corsMissing')}
+        </p>
+      )}
+    </div>
   );
 };
 

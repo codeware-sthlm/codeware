@@ -128,16 +128,21 @@ export type PayloadValue = {
    * Provide a function to handle form submissions server-side.
    * This will allow for secure authentication requests via api key tokens.
    *
-   * Required to implement the fetch request logic for form submissions.
+   * Post to a route on **your own origin** and let that route talk to Payload
+   * with the api key. Two things depend on it: the tenant api key must never
+   * reach the browser, and no browser request may go cross-origin to the cms —
+   * the api is not reachable from other origins by design.
+   *
    * ```ts
-   * const response = await fetch(`${payloadUrl}/api/form-submissions`, {
+   * // In the browser: same-origin only, no credentials of any kind
+   * const response = await fetch('/form-submission', {
    *   body: JSON.stringify(postBody),
-   *   headers: {
-   *     Authorization: `<api key prefix and token>`,
-   *     'Content-Type': 'application/json'
-   *   },
+   *   headers: { 'Content-Type': 'application/json' },
    *   method: 'POST'
    * });
+   *
+   * // In that route, on the server: the api key stays here
+   * await post('form-submissions', getPayloadRequestOptions(...));
    * ```
    *
    * @param data - The form submission data.
@@ -152,8 +157,11 @@ export type PayloadValue = {
    * The response carries the status the server decided: a customer signing up
    * for a full tour is put on the waiting list, and the form has to say so.
    *
+   * Same shape as `submitForm`: post to your own origin, and let that route
+   * reach the cms.
+   *
    * ```ts
-   * const response = await fetch(`${payloadUrl}/api/tour-signups`, {
+   * const response = await fetch('/tour-signup', {
    *   body: JSON.stringify(data),
    *   headers: { 'Content-Type': 'application/json' },
    *   method: 'POST'

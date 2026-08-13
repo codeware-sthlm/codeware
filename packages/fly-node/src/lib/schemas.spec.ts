@@ -7,6 +7,10 @@ import {
 
 import { AppsCreateTransformedResponseSchema } from './schemas/apps-create.schema';
 import { AppsListTransformedResponseSchema } from './schemas/apps-list.schema';
+import {
+  CertificateApiResponseSchema,
+  CertificateListApiResponseSchema
+} from './schemas/certificate.schema';
 import { CertsListWithAppTransformedResponseSchema } from './schemas/certs-list-with-app.schema';
 import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema';
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
@@ -44,6 +48,20 @@ SchemaRegistry.register('fly/certs-list', CertsListTransformedResponseSchema, {
   name: 'CertsListTransformedResponseSchema',
   tags: ['fly']
 });
+// Captured from the GraphQL api against a real issued certificate, with the
+// identifying values replaced — the shape is what the schema is proven against
+SchemaRegistry.register('fly-api/certificate', CertificateApiResponseSchema, {
+  name: 'CertificateApiResponseSchema',
+  tags: ['fly-api']
+});
+SchemaRegistry.register(
+  'fly-api/certificate-list',
+  CertificateListApiResponseSchema,
+  {
+    name: 'CertificateListApiResponseSchema',
+    tags: ['fly-api']
+  }
+);
 SchemaRegistry.register('fly/config-show', ConfigShowResponseSchema, {
   name: 'ConfigShowResponseSchema',
   tags: ['fly']
@@ -106,7 +124,8 @@ createSchemaTests({
   schemaDir: join(__dirname, 'schemas'),
   description: 'fly-node schema validation',
   groups: [
-    { name: 'Fly Api', tags: ['fly'] },
+    { name: 'Fly CLI', tags: ['fly'] },
+    { name: 'Fly GraphQL', tags: ['fly-api'] },
     { name: 'Lib Custom', tags: ['lib'] }
   ],
   snapshots: true

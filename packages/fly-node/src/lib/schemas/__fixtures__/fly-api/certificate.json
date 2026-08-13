@@ -1,0 +1,21 @@
+{
+  "id": "cert_anonymised",
+  "hostname": "tours.example.com",
+  "isConfigured": true,
+  "isApex": false,
+  "isWildcard": false,
+  "isAcmeDnsConfigured": false,
+  "isAcmeAlpnConfigured": true,
+  "isAcmeHttpConfigured": false,
+  "certificateAuthority": "lets_encrypt",
+  "certificateRequestedAt": "2026-07-09T00:28:19Z",
+  "createdAt": "2025-01-14T21:03:47Z",
+  "domain": "example.com",
+  "dnsProvider": "loopia",
+  "dnsValidationHostname": "_acme-challenge.tours.example.com",
+  "dnsValidationTarget": "tours.example.com.flydns.net",
+  "dnsValidationInstructions": "CNAME _acme-challenge.tours.example.com => tours.example.com.nrmljd.flydns.net.",
+  "clientStatus": "Ready",
+  "rateLimitedUntil": null,
+  "source": "fly"
+}

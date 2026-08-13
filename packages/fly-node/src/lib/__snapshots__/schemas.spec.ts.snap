@@ -69,6 +69,56 @@ exports[`fly-node schema validation > validates all schemas against fixtures > A
 ]
 `;
 
+exports[`fly-node schema validation > validates all schemas against fixtures > CertificateApiResponseSchema transformed shape 1`] = `
+{
+  "certificateAuthority": "lets_encrypt",
+  "certificateRequestedAt": "2026-07-09T00:28:19Z",
+  "clientStatus": "Ready",
+  "createdAt": "2025-01-14T21:03:47Z",
+  "dnsProvider": "loopia",
+  "dnsValidationHostname": "_acme-challenge.tours.example.com",
+  "dnsValidationInstructions": "CNAME _acme-challenge.tours.example.com => tours.example.com.nrmljd.flydns.net.",
+  "dnsValidationTarget": "tours.example.com.flydns.net",
+  "domain": "example.com",
+  "hostname": "tours.example.com",
+  "id": "cert_anonymised",
+  "isAcmeAlpnConfigured": true,
+  "isAcmeDnsConfigured": false,
+  "isAcmeHttpConfigured": false,
+  "isApex": false,
+  "isConfigured": true,
+  "isWildcard": false,
+  "rateLimitedUntil": null,
+  "source": "fly",
+}
+`;
+
+exports[`fly-node schema validation > validates all schemas against fixtures > CertificateListApiResponseSchema transformed shape 1`] = `
+[
+  {
+    "certificateAuthority": "lets_encrypt",
+    "certificateRequestedAt": "2026-07-09T00:28:19Z",
+    "clientStatus": "Ready",
+    "createdAt": "2025-01-14T21:03:47Z",
+    "dnsProvider": "loopia",
+    "dnsValidationHostname": "_acme-challenge.tours.example.com",
+    "dnsValidationInstructions": "CNAME _acme-challenge.tours.example.com => tours.example.com.nrmljd.flydns.net.",
+    "dnsValidationTarget": "tours.example.com.flydns.net",
+    "domain": "example.com",
+    "hostname": "tours.example.com",
+    "id": "cert_anonymised",
+    "isAcmeAlpnConfigured": true,
+    "isAcmeDnsConfigured": false,
+    "isAcmeHttpConfigured": false,
+    "isApex": false,
+    "isConfigured": true,
+    "isWildcard": false,
+    "rateLimitedUntil": null,
+    "source": "fly",
+  },
+]
+`;
+
 exports[`fly-node schema validation > validates all schemas against fixtures > CertsListTransformedResponseSchema transformed shape 1`] = `
 [
   {

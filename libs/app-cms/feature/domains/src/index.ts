@@ -1,4 +1,8 @@
 export {
+  type AdoptableDomains,
+  adoptableDomains
+} from './lib/adoptable-domains';
+export {
   type CertificateState,
   applyCertificateState,
   toCertificateState

@@ -1,6 +1,35 @@
 import nx from '@nx/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 
+/**
+ * Restricts fly-node to its api half.
+ *
+ * The cms image has no flyctl binary and no native pty, so importing the root
+ * barrel breaks its build with a resolution error that says nothing about why.
+ * Spread into the config of every project that reaches for fly-node from an
+ * application runtime — module boundaries work per project and cannot name a
+ * subpath, and a project-level config only sees project-relative globs.
+ */
+export const flyNodeApiOnly = [
+  {
+    files: ['**/*.ts?(x)'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@cdwr/fly-node',
+              message:
+                "Use '@cdwr/fly-node/api'. The root barrel pulls in the flyctl wrapper and its native pty dependency, which this runtime does not have."
+            }
+          ]
+        }
+      ]
+    }
+  }
+];
+
 export default [
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
@@ -43,6 +72,7 @@ export default [
               onlyDependOnLibsWithTags: [
                 'scope:app-cms',
                 'scope:cms',
+                'scope:fly-node',
                 'scope:shared',
                 'domain:signature'
               ]
@@ -59,6 +89,7 @@ export default [
               sourceTag: 'scope:app-cms',
               onlyDependOnLibsWithTags: [
                 'scope:app-cms',
+                'scope:fly-node',
                 'scope:shared',
                 'type:ui',
                 'type:util'

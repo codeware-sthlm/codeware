@@ -523,8 +523,12 @@ from a running app. It is deliberately a small subset rather than a second
 implementation of the CLI — certificates today, because a custom domain has to
 be requested, checked and shown to a customer while they wait.
 
+It has its own entry point, `@cdwr/fly-node/api`. Import from there rather than
+the root barrel when the CLI half cannot come along: the root barrel reaches a
+native pty module, which a slim application image does not have.
+
 ```ts
-import { FlyApi } from '@cdwr/fly-node';
+import { FlyApi } from '@cdwr/fly-node/api';
 
 const fly = new FlyApi({ token: process.env.FLY_API_TOKEN });
 
@@ -557,3 +561,6 @@ Notes worth knowing:
 - **`list` does not resolve DNS.** `check` is only returned by `add`, because
   resolving across every certificate on an app would turn one query into a
   lookup per domain.
+- **A hostname with no certificate is not an error.** Fly reports it as a
+  `NOT_FOUND` GraphQL error; `certs.get` translates that to `null`. Anything else
+  rejects with a `FlyApiError` carrying the codes Fly sent.

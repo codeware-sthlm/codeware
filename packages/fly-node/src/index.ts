@@ -1,9 +1,7 @@
-export * from './lib/fly-api.class';
+// The api half is also its own entry point (`@cdwr/fly-node/api`), for
+// consumers that cannot take the CLI's native dependencies
+export * from './api';
 export * from './lib/fly.class';
-export type {
-  Certificate,
-  DnsInstructions
-} from './lib/schemas/certificate.schema';
 export type {
   BuildResponse,
   Config,

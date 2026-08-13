@@ -8,6 +8,7 @@
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "options": {
+        "additionalEntryPoints": ["packages/fly-node/src/api.ts"],
         "assets": ["packages/fly-node/*.md"],
         "format": ["cjs", "esm"]
       }

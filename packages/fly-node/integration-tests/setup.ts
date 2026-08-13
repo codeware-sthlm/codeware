@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import isCI from 'is-ci';
 import { z } from 'zod';
 
+import { FlyApi } from '../src/lib/fly-api.class';
 import { Fly } from '../src/lib/fly.class';
 
 const coerceBoolean = z.preprocess(
@@ -18,6 +19,7 @@ const IntegrationTestEnvSchema = z.object({
   FLY_TEST_ORG: z.string().min(1),
   FLY_TEST_TRACE_CLI: coerceBoolean.optional(),
   FLY_TEST_POSTGRES: z.string().optional(),
+  FLY_TEST_CERT_HOSTNAME: z.string().optional(),
   FLY_CLI_VERSION: z.string().optional().default('latest')
 });
 
@@ -90,6 +92,29 @@ export const createFly = (
     }
   });
 };
+
+/**
+ * Create a GraphQL api client for tests.
+ *
+ * The api client takes its token directly — there is no CLI to read a config
+ * file, which is the whole reason it exists.
+ *
+ * @returns FlyApi client instance
+ */
+export const createFlyApi = (): FlyApi =>
+  new FlyApi({ token: env.FLY_TEST_API_TOKEN });
+
+/**
+ * A hostname the maintainer is willing to have a certificate attached to,
+ * transiently, during a test run.
+ *
+ * Opt-in on purpose: requesting a certificate writes state into a real Fly
+ * organisation, so the add/remove cycle stays skipped until someone names a
+ * hostname they are happy to use. It never validates — nothing is issued and
+ * no DNS is required — and the test removes it again.
+ */
+export const testCertHostname = (): string | undefined =>
+  env.FLY_TEST_CERT_HOSTNAME;
 
 /**
  * Create and deploy a minimal test app with Dockerfile and fly.toml

@@ -23,6 +23,31 @@ export type FlyApiConfig = {
 type GraphQLError = { message: string; extensions?: { code?: string } };
 
 /**
+ * A rejection from Fly, carrying the codes it sent.
+ *
+ * The codes matter: `NOT_FOUND` for a hostname with no certificate is an
+ * answer, while everything else is a fault. Callers should not have to match
+ * on message text to tell them apart.
+ */
+export class FlyApiError extends Error {
+  readonly errors: Array<GraphQLError>;
+
+  constructor(message: string, errors: Array<GraphQLError>) {
+    super(message);
+    this.name = 'FlyApiError';
+    this.errors = errors;
+  }
+
+  /** Whether every error is Fly saying the thing simply does not exist */
+  get isNotFound(): boolean {
+    return (
+      this.errors.length > 0 &&
+      this.errors.every((error) => error.extensions?.code === 'NOT_FOUND')
+    );
+  }
+}
+
+/**
  * Fly over its GraphQL API, with no `flyctl` in sight.
  *
  * The `Fly` class in this package drives the CLI, which is the right tool in
@@ -110,18 +135,29 @@ export class FlyApi {
      *
      * This is the call behind a "check" button: it re-reads issuance state from
      * Fly rather than trusting anything stored locally.
+     *
+     * Fly reports an absent certificate as a `NOT_FOUND` *error* rather than a
+     * null field, so that case is translated here — asking about a domain
+     * nobody has added yet is an ordinary question with an ordinary answer.
      */
     get: async (app: string, hostname: string): Promise<Certificate | null> => {
-      const data = await this.request<{
-        app: { certificate: unknown } | null;
-      }>(
-        `query AppCertificate($appName: String!, $hostname: String!) {
-          app(name: $appName) {
-            certificate(hostname: $hostname) { ${CERTIFICATE_FIELDS} }
-          }
-        }`,
-        { appName: app, hostname }
-      );
+      let data: { app: { certificate: unknown } | null };
+
+      try {
+        data = await this.request<{ app: { certificate: unknown } | null }>(
+          `query AppCertificate($appName: String!, $hostname: String!) {
+            app(name: $appName) {
+              certificate(hostname: $hostname) { ${CERTIFICATE_FIELDS} }
+            }
+          }`,
+          { appName: app, hostname }
+        );
+      } catch (error) {
+        if (error instanceof FlyApiError && error.isNotFound) {
+          return null;
+        }
+        throw error;
+      }
 
       const certificate = data.app?.certificate;
 
@@ -225,10 +261,11 @@ export class FlyApi {
     };
 
     if (body.errors?.length) {
-      throw new Error(
+      throw new FlyApiError(
         `[fly-api] ${operation} failed: ${body.errors
           .map((error) => error.message)
-          .join('; ')}`
+          .join('; ')}`,
+        body.errors
       );
     }
 

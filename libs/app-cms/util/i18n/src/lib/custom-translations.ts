@@ -55,6 +55,22 @@ const customTranslationsSchema = z.object({
     taskWritePost: z.string(),
     taskWritePostSub: z.string()
   }),
+  domains: z.object({
+    actionFailed: z.string(),
+    active: z.string(),
+    apexNote: z.string(),
+    check: z.string(),
+    checkedAt: z.string(),
+    dnsLede: z.string(),
+    heading: z.string(),
+    notRequested: z.string(),
+    paused: z.string(),
+    pending: z.string(),
+    rateLimited: z.string(),
+    remove: z.string(),
+    request: z.string(),
+    saveFirst: z.string()
+  }),
   formSubmissions: z.object({
     allForms: z.string(),
     deletedForm: z.string(),
@@ -254,6 +270,24 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       taskUploadImageSub: 'Put photos or files in the library',
       taskWritePost: 'Write a blog post',
       taskWritePostSub: 'Add a new article to the blog'
+    },
+    domains: {
+      actionFailed: 'Fly could not be reached. Try again in a moment.',
+      active: 'Active',
+      apexNote:
+        'This is the domain itself rather than a subdomain, so it needs A and AAAA records — a CNAME is not allowed here.',
+      check: 'Check now',
+      checkedAt: 'Checked {{when}}',
+      dnsLede: 'Create this record where the domain’s DNS is managed:',
+      heading: 'Certificates',
+      notRequested: 'No certificate yet',
+      paused: 'Paused',
+      pending: 'Waiting for DNS',
+      rateLimited:
+        'Let’s Encrypt has paused new attempts for this domain until {{when}}. Retrying before then only extends the pause.',
+      remove: 'Remove certificate',
+      request: 'Request certificate',
+      saveFirst: 'Save the workspace to request a certificate for this domain.'
     },
     formSubmissions: {
       allForms: 'All forms',
@@ -465,6 +499,24 @@ Supported locales: {{locales}}`,
       taskUploadImageSub: 'Lägg bilder eller filer i biblioteket',
       taskWritePost: 'Skriv ett blogginlägg',
       taskWritePostSub: 'Lägg till en ny artikel på bloggen'
+    },
+    domains: {
+      actionFailed: 'Fly gick inte att nå. Försök igen om en stund.',
+      active: 'Aktivt',
+      apexNote:
+        'Det här är själva domänen och inte en underdomän, så den behöver A- och AAAA-poster — CNAME är inte tillåtet här.',
+      check: 'Kontrollera nu',
+      checkedAt: 'Kontrollerad {{when}}',
+      dnsLede: 'Skapa den här posten där domänens DNS hanteras:',
+      heading: 'Certifikat',
+      notRequested: 'Inget certifikat ännu',
+      paused: 'Pausat',
+      pending: 'Väntar på DNS',
+      rateLimited:
+        'Let’s Encrypt har pausat nya försök för domänen till {{when}}. Att försöka igen dessförinnan förlänger bara pausen.',
+      remove: 'Ta bort certifikat',
+      request: 'Begär certifikat',
+      saveFirst: 'Spara arbetsytan för att begära ett certifikat för domänen.'
     },
     formSubmissions: {
       allForms: 'Alla formulär',

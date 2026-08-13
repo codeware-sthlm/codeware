@@ -1,3 +1,5 @@
+import type { CertificateState } from './certificate-state';
+
 /**
  * One custom domain row on a tenant.
  *
@@ -14,7 +16,17 @@ export type TenantDomain = {
   app?: string | null;
   /** Whether the app should present itself as this domain */
   isPrimary?: boolean | null;
+  /** What Fly last said, stamped by the certificate endpoint */
+  certificate?: Stored<CertificateState> | null;
 };
+
+/**
+ * A shape as it comes back out of the database rather than as it went in.
+ *
+ * Payload widens every stored field to nullable-optional, so a type that only
+ * describes what is written cannot receive what is read.
+ */
+type Stored<T> = { [K in keyof T]?: T[K] | null };
 
 /**
  * A tenant document, as far as the domain hooks are concerned.

@@ -1,3 +1,8 @@
+export {
+  type CertificateState,
+  applyCertificateState,
+  toCertificateState
+} from './lib/certificate-state';
 export { getFlyApi } from './lib/get-fly-api';
 export { guardDomainConflicts } from './lib/guard-domain-conflicts';
 export { normalizeDomains } from './lib/normalize-domains';

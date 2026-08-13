@@ -16,6 +16,7 @@
     "skipDefaultLibCheck": true,
     "paths": {
       "@cdwr/fly-node": ["./packages/fly-node/src/index.ts"],
+      "@cdwr/fly-node/api": ["./packages/fly-node/src/api.ts"],
       "@codeware/app-cms/data-access": [
         "./libs/app-cms/data-access/src/index.ts"
       ],

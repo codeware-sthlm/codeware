@@ -37,6 +37,11 @@
       "types": "./src/index.d.ts",
       "import": "./index.js",
       "require": "./index.cjs"
+    },
+    "./api": {
+      "types": "./src/api.d.ts",
+      "import": "./api.js",
+      "require": "./api.cjs"
     }
   },
   "types": "./src/index.d.ts",

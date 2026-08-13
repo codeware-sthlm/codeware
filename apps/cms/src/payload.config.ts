@@ -54,6 +54,7 @@ import { anonymizeTourSignupsTask } from './jobs/anonymize-tour-signups.task';
 import { queryStatsLogger } from './perf/query-stats';
 import { userOnlyAccess } from './security/user-only-access';
 import { userOrApiKeyAccess } from './security/user-or-api-key-access';
+import { adoptTenantDomains } from './utils/adopt-tenant-domains';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -274,6 +275,12 @@ export default buildConfig({
     }
 
     payload.logger.info(`Using ${payload.db.name} database adapter`);
+
+    // Before anything generates a link or answers an origin: the workspace's
+    // custom domains live in the database, so they cannot be known when the
+    // config above is built
+    await adoptTenantDomains(payload);
+
     if (env.EMAIL?.ethereal) {
       payload.logger.info('Using Ethereal email adapter');
       payload.logger.info(`[ethereal] Inbox: https://ethereal.email/messages`);

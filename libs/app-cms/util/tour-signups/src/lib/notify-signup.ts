@@ -101,11 +101,17 @@ async function notifySeatsFreed({
  * are served in order and nobody but the guide can fill those seats.
  */
 export const notifySignup: CollectionAfterChangeHook<TourSignup> = async ({
+  context,
   doc,
   operation,
   previousDoc,
   req
 }) => {
+  // Seed data is not a real signup — nobody should be mailed about it
+  if (context?.['seedAction']) {
+    return doc;
+  }
+
   const promoted =
     operation === 'update' &&
     previousDoc?.status === 'waiting' &&

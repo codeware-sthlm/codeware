@@ -14,7 +14,7 @@ const hint =
 
 export const Default: StoryObj = {
   render: () => (
-    <div className="flex w-160 flex-col gap-4">
+    <div className="flex w-full max-w-160 flex-col gap-4">
       <RestartCard
         apps={['cdwr-cms-pr-477-demo']}
         hint={hint}

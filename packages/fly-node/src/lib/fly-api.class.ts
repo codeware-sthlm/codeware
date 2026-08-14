@@ -6,15 +6,24 @@ import {
   type HostnameCheck,
   HostnameCheckApiResponseSchema
 } from './schemas/certificate.schema';
+import {
+  type Machine,
+  MachineListApiResponseSchema
+} from './schemas/machine.schema';
 
 /** Fly's GraphQL endpoint */
 const FLY_API_URL = 'https://api.fly.io/graphql';
+
+/** Fly's Machines REST endpoint, which GraphQL has no equivalent for */
+const FLY_MACHINES_URL = 'https://api.machines.dev/v1';
 
 export type FlyApiConfig = {
   /** Fly API token. An org-scoped token can manage certificates for its apps */
   token: string;
   /** Override the endpoint, for tests or a private Fly instance */
   apiUrl?: string;
+  /** Override the machines endpoint, for tests or a private Fly instance */
+  machinesUrl?: string;
   /** Called with a one-line description of every request; defaults to silence */
   log?: (message: string) => void;
 };
@@ -48,7 +57,7 @@ export class FlyApiError extends Error {
 }
 
 /**
- * Fly over its GraphQL API, with no `flyctl` in sight.
+ * Fly over its HTTP APIs, with no `flyctl` in sight.
  *
  * The `Fly` class in this package drives the CLI, which is the right tool in
  * CI: it can build and deploy, and a runner has the binary. It cannot run
@@ -57,17 +66,24 @@ export class FlyApiError extends Error {
  *
  * This class exists for the operations an application needs to perform on
  * itself at runtime. It is deliberately a small subset rather than a second
- * implementation of the whole CLI: certificates today, because a custom domain
- * has to be requested, checked and shown to a customer while they wait.
+ * implementation of the whole CLI: certificates, because a custom domain has to
+ * be requested, checked and shown to a customer while they wait, and machine
+ * restarts, because a setting read at boot needs a boot to take effect.
  *
- * Where both can do the same thing the returned shapes agree, so a caller can
- * move between them. Where they differ, the API gives *more*: issuance state
- * and the DNS records to create come back as fields rather than as text a
- * human was meant to read.
+ * Fly splits those across two APIs and so does this class — certificates over
+ * GraphQL, machines over the REST Machines API. One token authenticates both.
+ * The split is Fly's; it is not hidden here, because the two have different
+ * hosts and different failure shapes.
+ *
+ * Where this and the CLI can do the same thing the returned shapes agree, so a
+ * caller can move between them. Where they differ, the API gives *more*:
+ * issuance state and the DNS records to create come back as fields rather than
+ * as text a human was meant to read.
  */
 export class FlyApi {
   private readonly token: string;
   private readonly apiUrl: string;
+  private readonly machinesUrl: string;
   private readonly log: (message: string) => void;
 
   constructor(config: FlyApiConfig) {
@@ -77,6 +93,7 @@ export class FlyApi {
 
     this.token = config.token;
     this.apiUrl = config.apiUrl ?? FLY_API_URL;
+    this.machinesUrl = config.machinesUrl ?? FLY_MACHINES_URL;
     this.log = config.log ?? (() => undefined);
   }
 
@@ -203,6 +220,62 @@ export class FlyApi {
   };
 
   /**
+   * Operate an app's machines.
+   *
+   * Over Fly's REST Machines API rather than GraphQL, which has no current
+   * equivalent — the GraphQL mutations date from the Nomad platform and no
+   * longer apply.
+   */
+  machines = {
+    /** Every machine on an app */
+    list: async (app: string): Promise<Array<Machine>> => {
+      const data = await this.machinesRequest<Array<unknown>>(
+        'GET',
+        `/apps/${encodeURIComponent(app)}/machines`
+      );
+
+      return MachineListApiResponseSchema.parse(data ?? []);
+    },
+
+    /**
+     * Restart an app's machines.
+     *
+     * One at a time on purpose: a settings change that only takes effect at
+     * boot should not cost the app its availability to apply. Restarting them
+     * together would drop every machine at once, while sequentially leaves the
+     * others serving. The trade is that a large app takes longer.
+     *
+     * A machine that fails to restart stops the run rather than being skipped —
+     * a half-restarted app is running two configurations at the same time, and
+     * silently returning "some of them" invites calling that done.
+     *
+     * @param app - Fly app name
+     * @param machineId - Restart only this machine, instead of all of them
+     * @returns Ids of the machines that were restarted, in the order they were
+     */
+    restart: async (
+      app: string,
+      machineId?: string
+    ): Promise<Array<string>> => {
+      const ids = machineId
+        ? [machineId]
+        : (await this.machines.list(app)).map((machine) => machine.id);
+
+      const restarted: Array<string> = [];
+
+      for (const id of ids) {
+        await this.machinesRequest(
+          'POST',
+          `/apps/${encodeURIComponent(app)}/machines/${encodeURIComponent(id)}/restart`
+        );
+        restarted.push(id);
+      }
+
+      return restarted;
+    }
+  };
+
+  /**
    * The DNS records a customer must create for a certificate to validate.
    *
    * Pulled out of the certificate rather than fetched, so a caller that
@@ -274,6 +347,52 @@ export class FlyApi {
     }
 
     return body.data;
+  }
+
+  /**
+   * @private
+   * One call to the Machines REST API.
+   *
+   * Unlike GraphQL this one reports failure through the status code, and puts
+   * its reason in an `error` field. Worth reading rather than reporting the
+   * status alone: "machine not found" and "unauthorized" are different problems
+   * with different fixes.
+   */
+  private async machinesRequest<T>(
+    method: 'GET' | 'POST',
+    path: string
+  ): Promise<T | null> {
+    this.log(`[fly-api] ${method} ${path}`);
+
+    let response: Response;
+
+    try {
+      response = await fetch(`${this.machinesUrl}${path}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      throw new Error(
+        `[fly-api] ${method} ${path} could not reach Fly: ${error}`
+      );
+    }
+
+    // Read the body first: an error body is the useful half of a failure, and
+    // it is gone once the response is discarded
+    const body = (await response.json().catch(() => null)) as
+      | (T & { error?: string })
+      | null;
+
+    if (!response.ok) {
+      throw new Error(
+        `[fly-api] ${method} ${path} failed: ${response.status} ${body?.error ?? response.statusText}`
+      );
+    }
+
+    return body;
   }
 }
 

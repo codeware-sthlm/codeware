@@ -20,3 +20,8 @@ export {
   type HostnameCheck,
   HostnameCheckApiResponseSchema
 } from './lib/schemas/certificate.schema';
+export {
+  type Machine,
+  MachineApiResponseSchema,
+  MachineListApiResponseSchema
+} from './lib/schemas/machine.schema';

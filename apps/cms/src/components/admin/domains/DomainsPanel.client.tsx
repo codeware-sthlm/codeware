@@ -56,6 +56,9 @@ const wasRequested = (certificate: Stored | null) =>
 /** Distinguishes a machine restart from a per-hostname action in `busy` */
 const restartKey = (app: string) => `restart:${app}`;
 
+/** Identifies a row by the pair both endpoints act on */
+const domainKey = (hostname: string, app: string) => `${hostname}|${app}`;
+
 /**
  * Certificate state and dns instructions for a workspace's custom domains.
  *
@@ -192,18 +195,26 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
   );
 
   /**
-   * Hostnames the server already has, which is what makes a row actionable.
+   * Hostname and app pairs the server already has, which is what makes a row
+   * actionable.
    *
    * Read from the document as loaded/last saved rather than the live form
-   * state — an in-progress edit to a new row's hostname should not make it
-   * look actionable before it exists anywhere but this form.
+   * state — an in-progress edit should not make a row look actionable before
+   * it exists anywhere but this form. The pair is what matters, not the
+   * hostname alone: both endpoints act on the stored app, so an edited but
+   * unsaved app would act on something other than what the row shows.
    */
-  const savedHostnames = useMemo(
+  const savedDomains = useMemo(
     () =>
       new Set(
         ((data?.['domains'] as Array<TenantDomain> | undefined) ?? [])
-          .map((domain) => domain.hostname)
-          .filter((hostname): hostname is string => Boolean(hostname))
+          .filter(
+            (
+              domain
+            ): domain is TenantDomain & { hostname: string; app: string } =>
+              Boolean(domain.hostname && domain.app)
+          )
+          .map((domain) => domainKey(domain.hostname, domain.app))
       ),
     [data]
   );
@@ -223,9 +234,9 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
           certificate:
             hostname in fresh ? fresh[hostname] : (certificate ?? null),
           secrets: secrets[hostname] ?? null,
-          saved: savedHostnames.has(hostname)
+          saved: savedDomains.has(domainKey(hostname, app))
         })),
-    [domains, fresh, savedHostnames, secrets]
+    [domains, fresh, savedDomains, secrets]
   );
 
   /**
@@ -240,7 +251,7 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
       Array.from(
         new Set(
           rows
-            .filter((row) => row.certificate?.isConfigured)
+            .filter((row) => row.saved && row.certificate?.isConfigured)
             .map((row) => row.app)
         )
       ),

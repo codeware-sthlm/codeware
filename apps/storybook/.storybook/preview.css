@@ -3,7 +3,9 @@
 @layer theme, base, components, utilities;
 
 @source '../../../libs/app-cms/ui/dashboard/src';
+@source '../../../libs/app-cms/ui/domains/src';
 @source '../../../libs/app-cms/ui/submissions/src';
+@source '../../../libs/app-cms/ui/tour-signups/src';
 @source '../../../libs/shared/ui';
 
 @import 'tailwindcss/preflight.css' layer(base);

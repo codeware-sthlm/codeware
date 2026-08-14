@@ -47,9 +47,14 @@ const dns = {
     'CNAME _acme-challenge.pr-test.codeware.se ⇒ pr-test.codeware.se.w0608qd.flydns.net.'
 };
 
-const Frame = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex w-160 flex-col gap-4">{children}</div>
-);
+/** The card takes its width from the panel, so the frame only caps it */
+const Frame = ({
+  children,
+  width = 'w-full max-w-160'
+}: {
+  children: React.ReactNode;
+  width?: string;
+}) => <div className={`flex flex-col gap-4 ${width}`}>{children}</div>;
 
 /** Every state a domain moves through, top to bottom */
 export const Lifecycle: StoryObj = {
@@ -184,6 +189,41 @@ export const Working: StoryObj = {
   )
 };
 
+/**
+ * A narrow field with names too long for one line — where the header, the
+ * actions and the dns record each have to wrap or break
+ */
+export const Narrow: StoryObj = {
+  render: () => (
+    <Frame width="w-72">
+      <DomainCard
+        {...base}
+        hostname="gallerier-och-utstallningar.kulturhuset-vasterbotten.se"
+        app="cdwr-web-kulturhuset-vasterbotten-prod"
+        status="pending"
+        statusDetail="Awaiting configuration"
+        checkedLabel="Checked 14 Aug 22:42"
+        dns={{
+          name: '_acme-challenge.gallerier-och-utstallningar.kulturhuset-vasterbotten.se',
+          target:
+            'gallerier-och-utstallningar.kulturhuset-vasterbotten.se.w0608qd.flydns.net.'
+        }}
+        secrets={{
+          secrets: [
+            {
+              path: '/tenants/kulturhuset-vasterbotten/apps/web',
+              key: 'CUSTOM_URL',
+              isCorsTagged: true
+            }
+          ],
+          hasCors: true,
+          unavailable: false
+        }}
+      />
+    </Frame>
+  )
+};
+
 export const PayloadAdminLight = a11yStory(Lifecycle, 'payload-admin', 'light');
 export const PayloadAdminDark = a11yStory(Lifecycle, 'payload-admin', 'dark');
 export const AttentionAdminLight = a11yStory(
@@ -196,5 +236,7 @@ export const AttentionAdminDark = a11yStory(
   'payload-admin',
   'dark'
 );
+export const NarrowAdminLight = a11yStory(Narrow, 'payload-admin', 'light');
+export const NarrowAdminDark = a11yStory(Narrow, 'payload-admin', 'dark');
 export const ShadcnLight = a11yStory(Lifecycle, 'shadcn', 'light');
 export const ShadcnDark = a11yStory(Lifecycle, 'shadcn', 'dark');

@@ -19,7 +19,8 @@ import {
   ShieldCheckIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
-import { useDocumentInfo, useField, useTranslation } from '@payloadcms/ui';
+import { useDocumentInfo, useFormFields, useTranslation } from '@payloadcms/ui';
+import { getDataByPath } from 'payload/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { usePayloadSdk } from '../utils/use-payload-sdk';
@@ -67,11 +68,25 @@ const wasRequested = (certificate: Stored | null) =>
  */
 export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
   const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
-  const { id } = useDocumentInfo();
+  const { id, data } = useDocumentInfo();
   const { sdk } = usePayloadSdk();
-  const { value: domains, initialValue } = useField<Array<TenantDomain>>({
-    path: 'domains'
-  });
+  const fields = useFormFields(([formFields]) => formFields);
+
+  /**
+   * The live `domains` array, reconstructed from the form's flattened field
+   * state rather than read with `useField`.
+   *
+   * Payload stores an array field's own `value` as its row *count*, not its
+   * data — the rows live at `domains.0.hostname` etc, and `forceFullValue`
+   * (which would return the real array) is an internal `buildFormState`
+   * option the client never gets to set. `getDataByPath` is the same
+   * reconstruction Payload's own `getData()` uses internally, and is the
+   * documented way to read a full array/blocks value from field state.
+   */
+  const domains = useMemo(
+    () => getDataByPath<Array<TenantDomain>>(fields, 'domains') ?? [],
+    [fields]
+  );
 
   /**
    * Answers received since the page loaded.
@@ -149,20 +164,26 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
     [id, sdk, t]
   );
 
-  /** Hostnames the server already has, which is what makes a row actionable */
+  /**
+   * Hostnames the server already has, which is what makes a row actionable.
+   *
+   * Read from the document as loaded/last saved rather than the live form
+   * state — an in-progress edit to a new row's hostname should not make it
+   * look actionable before it exists anywhere but this form.
+   */
   const savedHostnames = useMemo(
     () =>
       new Set(
-        (initialValue ?? [])
+        ((data?.['domains'] as Array<TenantDomain> | undefined) ?? [])
           .map((domain) => domain.hostname)
           .filter((hostname): hostname is string => Boolean(hostname))
       ),
-    [initialValue]
+    [data]
   );
 
   const rows: Array<Row> = useMemo(
     () =>
-      (domains ?? [])
+      domains
         .filter(
           (
             domain

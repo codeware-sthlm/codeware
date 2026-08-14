@@ -40,6 +40,10 @@ export const getEmailAdapter = (env: Env) => {
     return nodemailerAdapter({
       defaultFromAddress,
       defaultFromName,
+      // A catcher is only running when someone started it; a send still
+      // fails loudly (and is already caught where it's sent) if it's not,
+      // so nothing is gained by also failing the connection check on boot
+      skipVerify: true,
       transport: nodemailer.createTransport({
         host,
         port,

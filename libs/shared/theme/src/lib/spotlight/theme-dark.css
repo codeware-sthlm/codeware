@@ -41,6 +41,8 @@
   --destructive-foreground: oklch(1 0 0);
   /* text on tinted destructive surfaces (badge/button/alert soft variants) */
   --destructive-subtle: var(--color-red-400);
+  /* text on tinted success surfaces (badge/alert soft variants) */
+  --success-subtle: var(--color-green-400);
   --border: theme('colors.zinc.700 / 0.4');
   --input: theme('colors.zinc.700 / 0.4');
   --ring: var(--primary);

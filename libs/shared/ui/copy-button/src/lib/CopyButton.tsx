@@ -5,6 +5,8 @@ import { useState } from 'react';
 interface CopyButtonProps {
   code: string;
   className?: string;
+  /** Accessible name, when "code" is not what is being copied */
+  label?: string;
 }
 
 /**
@@ -15,7 +17,11 @@ interface CopyButtonProps {
  * @param props - The component props.
  * @returns A React component that renders a copy button.
  */
-export const CopyButton = ({ code, className = '' }: CopyButtonProps) => {
+export const CopyButton = ({
+  code,
+  className = '',
+  label = 'Copy code'
+}: CopyButtonProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -26,9 +32,12 @@ export const CopyButton = ({ code, className = '' }: CopyButtonProps) => {
 
   return (
     <button
+      // Without this it submits any form it is rendered inside — in the
+      // Payload admin that saves the document on a copy
+      type="button"
       onClick={handleCopy}
       className={`absolute top-2 right-2 rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 ${className}`}
-      aria-label="Copy code"
+      aria-label={label}
     >
       <div className="relative h-4 w-4">
         {(copied && (

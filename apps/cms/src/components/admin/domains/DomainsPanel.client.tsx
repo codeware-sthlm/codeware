@@ -5,32 +5,22 @@ import type {
   DomainSecretsReport,
   TenantDomain
 } from '@codeware/app-cms/feature/domains';
+import {
+  type DomainAction,
+  DomainCard,
+  type DomainCertificateStatus,
+  RestartCard
+} from '@codeware/app-cms/ui/domains';
 import type {
   TranslationsKeys,
   TranslationsObject
 } from '@codeware/app-cms/util/i18n';
-import { CopyButton } from '@codeware/shared/ui/copy-button';
-import { Button } from '@codeware/shared/ui/shadcn/components/button';
-import {
-  ArrowPathIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  ExclamationTriangleIcon,
-  ShieldCheckIcon,
-  TrashIcon
-} from '@heroicons/react/24/outline';
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { useDocumentInfo, useFormFields, useTranslation } from '@payloadcms/ui';
 import { getDataByPath } from 'payload/shared';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { usePayloadSdk } from '../utils/use-payload-sdk';
-
-type Action = 'request' | 'check' | 'remove';
-
-type Translate = (
-  key: TranslationsKeys,
-  vars?: Record<string, unknown>
-) => string;
 
 /** A stored certificate, as it reads back out of the database */
 type Stored = NonNullable<TenantDomain['certificate']>;
@@ -53,6 +43,22 @@ const isRateLimited = (until: string | null | undefined) =>
 const wasRequested = (certificate: Stored | null) =>
   Boolean(certificate?.status);
 
+const certificateStatus = (
+  certificate: Stored | null
+): DomainCertificateStatus => {
+  if (!wasRequested(certificate)) {
+    return 'not-requested';
+  }
+  if (certificate?.isConfigured) {
+    return 'active';
+  }
+  return isRateLimited(certificate?.rateLimitedUntil) ? 'paused' : 'pending';
+};
+
+/** Keys `busy` per button, so only the one that was pressed spins */
+const actionKey = (hostname: string, action: DomainAction) =>
+  `${hostname}:${action}`;
+
 /** Distinguishes a machine restart from a per-hostname action in `busy` */
 const restartKey = (app: string) => `restart:${app}`;
 
@@ -71,6 +77,10 @@ const domainKey = (hostname: string, app: string) => `${hostname}|${app}`;
  * page load. The workspace view then keeps working when Fly does not, every
  * call is something a person asked for, and `checked …` says how old the answer
  * is instead of implying it is live.
+ *
+ * The cards themselves live in `@codeware/app-cms/ui/domains`, where every
+ * state can be seen at once in Storybook. This owns the form state, the calls
+ * and the translations, and hands them down as plain props.
  */
 export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
   const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
@@ -128,8 +138,8 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
   );
 
   const run = useCallback(
-    async (hostname: string, action: Action) => {
-      setBusy(hostname);
+    async (hostname: string, action: DomainAction) => {
+      setBusy(actionKey(hostname, action));
       setError(null);
       try {
         const response = await sdk.request({
@@ -239,13 +249,7 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
     [domains, fresh, savedDomains, secrets]
   );
 
-  /**
-   * Distinct Fly apps with at least one active certificate.
-   *
-   * Grouped by app rather than one button per domain row — several domains
-   * can share an app, and two buttons for the same restart would read as two
-   * different actions.
-   */
+  /** Distinct Fly apps with at least one active certificate */
   const restartableApps = useMemo(
     () =>
       Array.from(
@@ -258,6 +262,27 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
     [rows]
   );
 
+  const labels = useMemo(
+    () => ({
+      active: t('domains:active'),
+      pending: t('domains:pending'),
+      notRequested: t('domains:notRequested'),
+      paused: t('domains:paused'),
+      saveFirst: t('domains:saveFirst'),
+      request: t('domains:request'),
+      check: t('domains:check'),
+      remove: t('domains:remove'),
+      copyRecord: t('domains:copyRecord'),
+      dnsLede: t('domains:dnsLede'),
+      apexNote: t('domains:apexNote'),
+      secretCorsTag: t('domains:secretCorsTag'),
+      secretsMissing: t('domains:secretsMissing'),
+      secretsUnavailable: t('domains:secretsUnavailable'),
+      corsMissing: t('domains:corsMissing')
+    }),
+    [t]
+  );
+
   if (!rows.length) {
     return null;
   }
@@ -265,271 +290,73 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
   return (
     // Payload's own fields carry their spacing in the admin stylesheet; a
     // custom ui field brings none, so it has to reserve its own room
-    <div className="codeware-admin twp mt-2 mb-6 flex flex-col gap-3">
+    <div className="codeware-admin twp mt-2 mb-6 flex flex-col gap-4">
       <h4 className="flex items-center gap-2 text-sm font-medium">
         <ShieldCheckIcon className="size-4" />
         {t('domains:heading')}
       </h4>
 
-      {rows.map((row) => (
-        <DomainRow
-          key={row.hostname}
-          row={row}
-          busy={busy === row.hostname}
-          disabled={busy !== null}
-          formatDate={formatDate}
-          onAction={(action) => void run(row.hostname, action)}
-          t={t}
-        />
-      ))}
+      {rows.map((row) => {
+        const { certificate } = row;
 
-      {restartableApps.length > 0 && (
-        <div className="border-border flex flex-col gap-2 rounded-lg border px-3 py-2 text-sm">
-          <p className="text-muted-foreground">{t('domains:restartHint')}</p>
-          {restartableApps.map((app) => (
-            <div
-              key={app}
-              className="flex flex-wrap items-center justify-between gap-2"
-            >
-              <span className="font-medium">{app}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={busy !== null}
-                onClick={() => void runRestart(app)}
-              >
-                <ArrowPathIcon
-                  className={
-                    busy === restartKey(app) ? 'size-4 animate-spin' : 'size-4'
+        return (
+          <DomainCard
+            key={row.hostname}
+            hostname={row.hostname}
+            app={row.app}
+            status={certificateStatus(certificate)}
+            statusDetail={certificate?.status ?? null}
+            checkedLabel={
+              certificate?.checkedAt
+                ? t('domains:checkedAt', {
+                    when: formatDate(certificate.checkedAt)
+                  })
+                : null
+            }
+            pausedMessage={
+              certificate?.rateLimitedUntil
+                ? t('domains:rateLimited', {
+                    when: formatDate(certificate.rateLimitedUntil)
+                  })
+                : null
+            }
+            dns={
+              certificate
+                ? {
+                    name: certificate.dnsValidationHostname,
+                    target: certificate.dnsValidationTarget,
+                    instructions: certificate.dnsValidationInstructions,
+                    isApex: certificate.isApex ?? false
                   }
-                />
-                {t('domains:restart')}
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+                : null
+            }
+            secrets={row.secrets}
+            saved={row.saved}
+            runningAction={
+              (['request', 'check', 'remove'] as const).find(
+                (action) => busy === actionKey(row.hostname, action)
+              ) ?? null
+            }
+            disabled={busy !== null}
+            labels={labels}
+            onAction={(action) => void run(row.hostname, action)}
+          />
+        );
+      })}
+
+      <RestartCard
+        apps={restartableApps}
+        hint={t('domains:restartHint')}
+        restartLabel={t('domains:restart')}
+        runningApp={restartableApps.find((app) => busy === restartKey(app))}
+        disabled={busy !== null}
+        onRestart={(app) => void runRestart(app)}
+      />
 
       {error && (
         <p role="alert" className="text-sm text-(--destructive-subtle)">
           {error}
         </p>
-      )}
-    </div>
-  );
-};
-
-type RowProps = {
-  row: Row;
-  busy: boolean;
-  disabled: boolean;
-  formatDate: (iso: string) => string;
-  onAction: (action: Action) => void;
-  t: Translate;
-};
-
-const DomainRow: React.FC<RowProps> = ({
-  row,
-  busy,
-  disabled,
-  formatDate,
-  onAction,
-  t
-}) => {
-  const { certificate } = row;
-  const requested = wasRequested(certificate);
-  const active = Boolean(certificate?.isConfigured);
-  const paused = isRateLimited(certificate?.rateLimitedUntil);
-
-  return (
-    <div className="border-border flex flex-col gap-2 rounded-lg border px-3 py-2 text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="flex items-center gap-2">
-          <span className="font-medium">{row.hostname}</span>
-          <span className="text-muted-foreground">{row.app}</span>
-        </span>
-        <Status
-          active={active}
-          paused={paused}
-          requested={requested}
-          status={certificate?.status ?? null}
-          t={t}
-        />
-      </div>
-
-      {certificate?.checkedAt && (
-        <span className="text-muted-foreground text-xs">
-          {t('domains:checkedAt', { when: formatDate(certificate.checkedAt) })}
-        </span>
-      )}
-
-      {paused && certificate?.rateLimitedUntil && (
-        <p className="text-(--destructive-subtle)">
-          {t('domains:rateLimited', {
-            when: formatDate(certificate.rateLimitedUntil)
-          })}
-        </p>
-      )}
-
-      {requested && !active && certificate && (
-        <DnsRecords certificate={certificate} t={t} />
-      )}
-
-      {row.secrets && <SecretsReport report={row.secrets} t={t} />}
-
-      {!row.saved ? (
-        <p className="text-muted-foreground">{t('domains:saveFirst')}</p>
-      ) : (
-        <div className="flex flex-wrap items-center gap-2">
-          {!requested ? (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={disabled}
-              onClick={() => onAction('request')}
-            >
-              <ShieldCheckIcon className="size-4" />
-              {t('domains:request')}
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={disabled}
-                onClick={() => onAction('check')}
-              >
-                <ArrowPathIcon
-                  className={busy ? 'size-4 animate-spin' : 'size-4'}
-                />
-                {t('domains:check')}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={disabled}
-                onClick={() => onAction('remove')}
-              >
-                <TrashIcon className="size-4" />
-                {t('domains:remove')}
-              </Button>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const Status: React.FC<{
-  active: boolean;
-  paused: boolean;
-  requested: boolean;
-  status: string | null;
-  t: Translate;
-}> = ({ active, paused, requested, status, t }) => {
-  if (active) {
-    return (
-      <span className="flex items-center gap-1.5">
-        <CheckCircleIcon className="size-4" />
-        {t('domains:active')}
-      </span>
-    );
-  }
-
-  if (paused) {
-    return (
-      <span className="flex items-center gap-1.5 text-(--destructive-subtle)">
-        <ExclamationTriangleIcon className="size-4" />
-        {t('domains:paused')}
-      </span>
-    );
-  }
-
-  return (
-    <span className="text-muted-foreground flex items-center gap-1.5">
-      <ClockIcon className="size-4" />
-      {/* Fly's own summary when there is one — more specific than anything
-          this panel could invent */}
-      {requested ? (status ?? t('domains:pending')) : t('domains:notRequested')}
-    </span>
-  );
-};
-
-/**
- * What Infisical says about the domain, which the certificate cannot answer.
- *
- * A valid certificate only means Fly will terminate TLS for the hostname. The
- * app still has to be told to serve that url, and the cms still has to accept
- * it as an origin — both edited by hand in Infisical. Without this, a fully
- * issued certificate reads as "done" while the site returns nothing.
- */
-const SecretsReport: React.FC<{
-  report: DomainSecretsReport;
-  t: Translate;
-}> = ({ report, t }) => {
-  if (report.unavailable) {
-    return (
-      <p className="text-muted-foreground">{t('domains:secretsUnavailable')}</p>
-    );
-  }
-
-  if (!report.secrets.length) {
-    return (
-      <p className="text-(--destructive-subtle)">
-        {t('domains:secretsMissing')}
-      </p>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-1">
-      {report.secrets.map(({ path, key, isCorsTagged }) => (
-        <span key={`${path}|${key}`} className="text-muted-foreground text-xs">
-          <span className="font-mono">
-            {path}/{key}
-          </span>
-          {isCorsTagged && ` · ${t('domains:secretCorsTag')}`}
-        </span>
-      ))}
-      {!report.hasCors && (
-        <p className="text-(--destructive-subtle)">
-          {t('domains:corsMissing')}
-        </p>
-      )}
-    </div>
-  );
-};
-
-const DnsRecords: React.FC<{ certificate: Stored; t: Translate }> = ({
-  certificate,
-  t
-}) => {
-  const name = certificate.dnsValidationHostname;
-  const target = certificate.dnsValidationTarget;
-
-  return (
-    <div className="bg-muted/40 flex flex-col gap-2 rounded-md px-3 py-2">
-      <p className="text-muted-foreground">{t('domains:dnsLede')}</p>
-
-      {name && target && (
-        <div className="relative pr-10">
-          <div className="font-mono text-xs break-all">
-            <div>CNAME {name}</div>
-            <div className="text-muted-foreground">→ {target}</div>
-          </div>
-          <CopyButton code={target} />
-        </div>
-      )}
-
-      {certificate.dnsValidationInstructions && (
-        <p className="whitespace-pre-line">
-          {certificate.dnsValidationInstructions}
-        </p>
-      )}
-
-      {certificate.isApex && (
-        <p className="text-muted-foreground">{t('domains:apexNote')}</p>
       )}
     </div>
   );

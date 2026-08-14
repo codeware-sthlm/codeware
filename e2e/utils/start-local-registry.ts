@@ -39,7 +39,8 @@ module.exports = async () => {
   // Only the publishable packages. The `apps` release group (cms, web) has no
   // `nx-release-publish` target, so an unscoped `releasePublish` errors with
   // "projects were matched for publishing but do not have the nx-release-publish
-  // target specified".
+  // target specified". That group also sets `updateDependents: never`, or an app
+  // depending on a package here would be pulled back in past this filter.
   const projects = ['nx-payload', 'create-nx-payload', 'nx-ai', 'fly-node'];
 
   await releaseVersion({

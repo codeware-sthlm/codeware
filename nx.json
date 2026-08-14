@@ -134,6 +134,9 @@
       "apps": {
         "projects": ["cms", "web"],
         "projectsRelationship": "independent",
+        "version": {
+          "updateDependents": "never"
+        },
         "releaseTag": {
           "pattern": "{projectName}-{version}",
           "checkAllBranchesWhen": true

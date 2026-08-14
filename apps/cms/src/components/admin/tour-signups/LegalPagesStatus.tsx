@@ -1,5 +1,6 @@
 import { mapToRuntime } from '@codeware/app-cms/data-access';
 import { customT } from '@codeware/app-cms/util/i18n';
+import { hasNoAdminRoles } from '@codeware/app-cms/util/misc';
 import type { Page } from '@codeware/shared/util/payload-types';
 import type { I18nClient } from '@payloadcms/translations';
 import Link from 'next/link';
@@ -62,6 +63,10 @@ export const LegalPagesStatus: React.FC<Props> = async ({
   const settingsHref = settings
     ? `${adminRoute}/collections/site-settings/${settings.id}`
     : `${adminRoute}/collections/site-settings`;
+  // Same rule the collection itself uses to hide from the nav
+  // (`site-settings.collection.ts`): a plain tenant user can read this
+  // document but never save it, so a link here would only lead to a dead end
+  const canEditSettings = !hasNoAdminRoles(user ?? null);
 
   const line = (label: string, page: ReturnType<typeof describe>) => (
     <span className="flex items-center gap-1.5">
@@ -87,9 +92,11 @@ export const LegalPagesStatus: React.FC<Props> = async ({
     <div className="codeware-admin twp border-border text-muted-foreground mb-6 flex flex-wrap items-center gap-x-6 gap-y-1 rounded-lg border px-3 py-2 text-sm">
       {line(t('tourSignups:privacyPage'), privacy)}
       {line(t('tourSignups:termsPage'), terms)}
-      <Link className="underline" href={settingsHref} prefetch={false}>
-        {t('tourSignups:legalSettingsLink')}
-      </Link>
+      {canEditSettings && (
+        <Link className="underline" href={settingsHref} prefetch={false}>
+          {t('tourSignups:legalSettingsLink')}
+        </Link>
+      )}
     </div>
   );
 };

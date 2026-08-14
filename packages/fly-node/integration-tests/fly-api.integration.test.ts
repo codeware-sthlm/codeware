@@ -135,6 +135,36 @@ describe.skipIf(!testCertHostname())('FlyApi certs add/remove', () => {
 });
 
 /**
+ * The machines half, which is a different api on a different host.
+ *
+ * Read-only: the test app is created without a deployment, so it has no
+ * machines to restart. What this proves is the part mocks cannot — that the
+ * same token authenticates against `api.machines.dev`, and that Fly's real
+ * response parses.
+ */
+describe('FlyApi machines', () => {
+  it('lists machines for an app that has none', async () => {
+    await expect(api.machines.list(app)).resolves.toEqual([]);
+  });
+
+  it('restarts nothing when there is nothing to restart', async () => {
+    await expect(api.machines.restart(app)).resolves.toEqual([]);
+  });
+
+  it('rejects an unknown app rather than answering emptily', async () => {
+    await expect(
+      api.machines.list(`does-not-exist-${Date.now()}`)
+    ).rejects.toThrow();
+  });
+
+  it('refuses a bad token', async () => {
+    const wrong = new FlyApi({ token: 'fly_not_a_real_token' });
+
+    await expect(wrong.machines.list(app)).rejects.toThrow();
+  });
+});
+
+/**
  * Does Fly's schema still match what we parse?
  *
  * Introspection rather than a captured payload: a fixture proves the shape of

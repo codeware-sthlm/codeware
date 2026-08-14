@@ -227,3 +227,137 @@ describe('FlyApi', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+
+/** Fly's REST answers, which fail by status rather than in the body */
+const machine = (id: string, state = 'started') => ({
+  id,
+  name: `machine-${id}`,
+  state,
+  region: 'arn'
+});
+
+const restRespond = (body: unknown, ok = true, status = 200) =>
+  Promise.resolve({
+    ok,
+    status,
+    statusText: ok ? 'OK' : 'Not Found',
+    json: () => Promise.resolve(body)
+  } as Response);
+
+const machinesApi = () =>
+  new FlyApi({
+    token: 'fly_token',
+    machinesUrl: 'https://machines.test/v1'
+  });
+
+describe('FlyApi machines', () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('lists machines from the rest api, not graphql', async () => {
+    // GraphQL has no current equivalent — its machine mutations are Nomad-era
+    fetchMock.mockReturnValue(restRespond([machine('a'), machine('b')]));
+
+    await expect(machinesApi().machines.list('cdwr-web-moon')).resolves.toEqual(
+      [machine('a'), machine('b')]
+    );
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      'https://machines.test/v1/apps/cdwr-web-moon/machines'
+    );
+  });
+
+  it('authenticates with the same bearer token', async () => {
+    fetchMock.mockReturnValue(restRespond([]));
+
+    await machinesApi().machines.list('cdwr-web-moon');
+
+    expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe(
+      'Bearer fly_token'
+    );
+  });
+
+  it('tolerates a machine shape it does not fully recognise', async () => {
+    fetchMock.mockReturnValue(restRespond([{ id: 'a' }]));
+
+    await expect(
+      machinesApi().machines.list('cdwr-web-moon')
+    ).resolves.toHaveLength(1);
+  });
+
+  it('restarts every machine, one at a time', async () => {
+    // Together would drop the whole app to apply a setting read at boot
+    fetchMock
+      .mockReturnValueOnce(restRespond([machine('a'), machine('b')]))
+      .mockReturnValue(restRespond({ ok: true }));
+
+    await expect(
+      machinesApi().machines.restart('cdwr-web-moon')
+    ).resolves.toEqual(['a', 'b']);
+
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      'https://machines.test/v1/apps/cdwr-web-moon/machines/a/restart'
+    );
+    expect(fetchMock.mock.calls[2][0]).toBe(
+      'https://machines.test/v1/apps/cdwr-web-moon/machines/b/restart'
+    );
+  });
+
+  it('restarts one machine without listing them all', async () => {
+    fetchMock.mockReturnValue(restRespond({ ok: true }));
+
+    await expect(
+      machinesApi().machines.restart('cdwr-web-moon', 'a')
+    ).resolves.toEqual(['a']);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops at a machine that will not restart', async () => {
+    // Continuing would leave the app running two configurations at once
+    fetchMock
+      .mockReturnValueOnce(restRespond([machine('a'), machine('b')]))
+      .mockReturnValueOnce(
+        restRespond({ error: 'machine not found' }, false, 404)
+      );
+
+    await expect(
+      machinesApi().machines.restart('cdwr-web-moon')
+    ).rejects.toThrow('machine not found');
+  });
+
+  it('reports the reason a rest call failed, not just its status', async () => {
+    fetchMock.mockReturnValue(
+      restRespond({ error: 'You are not authorized' }, false, 401)
+    );
+
+    await expect(machinesApi().machines.list('gone')).rejects.toThrow(
+      'You are not authorized'
+    );
+  });
+
+  it('falls back to the status when there is no reason', async () => {
+    fetchMock.mockReturnValue(restRespond(null, false, 404));
+
+    await expect(machinesApi().machines.list('gone')).rejects.toThrow('404');
+  });
+
+  it('restarts nothing on an app with no machines', async () => {
+    fetchMock.mockReturnValue(restRespond([]));
+
+    await expect(
+      machinesApi().machines.restart('cdwr-web-moon')
+    ).resolves.toEqual([]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('separates an unreachable Fly from a rejection', async () => {
+    fetchMock.mockRejectedValue(new Error('ECONNREFUSED'));
+
+    await expect(machinesApi().machines.list('cdwr-web-moon')).rejects.toThrow(
+      'could not reach Fly'
+    );
+  });
+});

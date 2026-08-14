@@ -55,6 +55,8 @@ It's built with a configuration-first approach, meaning that you provide a `fly.
     - [Remove application secrets](#remove-application-secrets)
     - [List secrets](#list-secrets)
 - [Without the CLI: `FlyApi`](#without-the-cli-flyapi)
+  - [Manage certificates](#manage-certificates)
+  - [Restart machines](#restart-machines)
 
 ## Installation
 
@@ -518,14 +520,21 @@ deploys, and a runner has the binary installed — but it cannot run inside an
 application server: there is no binary in the image, and the interactive paths
 need a pty.
 
-`FlyApi` talks to Fly's GraphQL API instead. No binary, no subprocess, usable
-from a running app. It is deliberately a small subset rather than a second
-implementation of the CLI — certificates today, because a custom domain has to
-be requested, checked and shown to a customer while they wait.
+`FlyApi` talks to Fly over its HTTP APIs instead. No binary, no subprocess,
+usable from a running app. It is deliberately a small subset rather than a
+second implementation of the CLI — certificates, because a custom domain has
+to be requested, checked and shown to a customer while they wait, and machine
+restarts, because a setting read at boot needs a boot to take effect.
 
 It has its own entry point, `@cdwr/fly-node/api`. Import from there rather than
 the root barrel when the CLI half cannot come along: the root barrel reaches a
 native pty module, which a slim application image does not have.
+
+Fly splits the two operations across two APIs and so does `FlyApi` —
+certificates over GraphQL, machines over the REST Machines API. One token
+authenticates both.
+
+### Manage certificates
 
 ```ts
 import { FlyApi } from '@cdwr/fly-node/api';
@@ -564,3 +573,33 @@ Notes worth knowing:
 - **A hostname with no certificate is not an error.** Fly reports it as a
   `NOT_FOUND` GraphQL error; `certs.get` translates that to `null`. Anything else
   rejects with a `FlyApiError` carrying the codes Fly sent.
+
+### Restart machines
+
+```ts
+import { FlyApi } from '@cdwr/fly-node/api';
+
+const fly = new FlyApi({ token: process.env.FLY_API_TOKEN });
+
+await fly.machines.list('my-app');
+
+// Restart every machine on the app, one at a time
+await fly.machines.restart('my-app');
+
+// Or just one
+await fly.machines.restart('my-app', 'e286000a123456');
+```
+
+Notes worth knowing:
+
+- **Restarts are sequential, not parallel.** A setting that only takes effect
+  at boot should not cost the app its availability to apply — restarting
+  together would drop every machine at once. The trade is that a large app
+  takes longer.
+- **A failed restart stops the run.** It does not skip ahead to the next
+  machine: a half-restarted app is running two configurations at once, and
+  silently returning "some of them" invites calling that done.
+- **This is the REST Machines API, not GraphQL.** Fly's GraphQL machine
+  mutations are Nomad-era and no longer apply, so this half of `FlyApi` has its
+  own request helper with its own failure shape — a non-2xx status and an
+  `error` field in the body, rather than GraphQL's 200-with-an-`errors`-array.

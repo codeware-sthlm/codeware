@@ -70,6 +70,8 @@ const customTranslationsSchema = z.object({
     rateLimited: z.string(),
     remove: z.string(),
     request: z.string(),
+    restart: z.string(),
+    restartHint: z.string(),
     saveFirst: z.string(),
     secretCorsTag: z.string(),
     secretsMissing: z.string(),
@@ -293,6 +295,9 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'Let’s Encrypt has paused new attempts for this domain until {{when}}. Retrying before then only extends the pause.',
       remove: 'Remove certificate',
       request: 'Request certificate',
+      restart: 'Restart app',
+      restartHint:
+        'A newly validated domain only takes effect after the app restarts.',
       saveFirst: 'Save the workspace to request a certificate for this domain.',
       secretCorsTag: 'accepted as an origin',
       secretsMissing:
@@ -529,6 +534,9 @@ Supported locales: {{locales}}`,
         'Let’s Encrypt har pausat nya försök för domänen till {{when}}. Att försöka igen dessförinnan förlänger bara pausen.',
       remove: 'Ta bort certifikat',
       request: 'Begär certifikat',
+      restart: 'Starta om app',
+      restartHint:
+        'En nyligen validerad domän börjar gälla först efter att appen har startats om.',
       saveFirst: 'Spara arbetsytan för att begära ett certifikat för domänen.',
       secretCorsTag: 'godkänd som ursprung',
       secretsMissing:

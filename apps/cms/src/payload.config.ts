@@ -47,6 +47,7 @@ import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
 import { tenantDomainCertificateEndpoint } from './endpoints/tenant-domain-certificate';
+import { tenantMachineRestartEndpoint } from './endpoints/tenant-machine-restart';
 import { tourSignupsAnonymizeEndpoint } from './endpoints/tour-signups-anonymize';
 import { tourSignupsExportEndpoint } from './endpoints/tour-signups-export';
 import { tourSignupsReorderEndpoint } from './endpoints/tour-signups-reorder';
@@ -178,6 +179,7 @@ export default buildConfig({
     perfStatsEndpoint,
     tenantConfigEndpoint,
     tenantDomainCertificateEndpoint,
+    tenantMachineRestartEndpoint,
     tourSignupsAnonymizeEndpoint,
     tourSignupsExportEndpoint,
     tourSignupsReorderEndpoint

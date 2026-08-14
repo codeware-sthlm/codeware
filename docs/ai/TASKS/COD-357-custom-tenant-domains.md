@@ -20,18 +20,24 @@ Done and committed:
 | `8273f92b`                       | Boot adoption in `onInit`                                         |
 | `f0dbecab`                       | `FlyApi.machines` — list and sequential restart over the REST api |
 
-Remaining:
+Implemented, not yet committed:
 
-1. **Restart button in the domains panel.** One button per distinct Fly app that has at
-   least one active certificate — _not_ one per domain row, since several domains can
-   share an app and two buttons for one restart reads as two different actions. Needs a
-   new endpoint action (or endpoint) calling `fly.machines.restart(app)`, system-user
-   only like `tenant-domain-certificate`. Copy: a newly validated domain only takes
-   effect after the app restarts.
-2. **README section** for the machines half of `FlyApi`, under the existing
-   "Without the CLI: `FlyApi`" heading in `packages/fly-node/README.md`.
+- **Restart button in the domains panel.** `apps/cms/src/endpoints/tenant-machine-restart.ts`
+  — system-user only like `tenant-domain-certificate`, takes `{ tenant, app }`, accepts
+  `app` only when it matches one already on the tenant's own domain rows (same
+  "written down against a specific app" guard, since the Fly token is org-scoped).
+  Registered in `payload.config.ts`. `DomainsPanel.client.tsx` renders one button per
+  distinct Fly app with at least one `certificate.isConfigured` domain — not per domain
+  row — with copy (`domains:restartHint`) explaining a newly validated domain only takes
+  effect after the app restarts. New i18n keys `restart` / `restartHint` in
+  `custom-translations.ts` (en + sv).
+- **README section.** `packages/fly-node/README.md` — "Without the CLI: `FlyApi`" split
+  into "Manage certificates" and "Restart machines" subsections, TOC updated.
 
-Then: PR, and ask the user to run `nx verify cms` (interactive).
+`nx affected -t lint typecheck` and `nx run cms:build` pass. No endpoint test added —
+`apps/cms/src/endpoints` has no existing spec precedent to follow.
+
+Then: commit, PR, and ask the user to run `nx verify cms` (interactive).
 
 ## Decisions that are expensive to re-derive
 

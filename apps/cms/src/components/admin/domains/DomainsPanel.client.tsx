@@ -53,6 +53,9 @@ const isRateLimited = (until: string | null | undefined) =>
 const wasRequested = (certificate: Stored | null) =>
   Boolean(certificate?.status);
 
+/** Distinguishes a machine restart from a per-hostname action in `busy` */
+const restartKey = (app: string) => `restart:${app}`;
+
 /**
  * Certificate state and dns instructions for a workspace's custom domains.
  *
@@ -164,6 +167,30 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
     [id, sdk, t]
   );
 
+  const runRestart = useCallback(
+    async (app: string) => {
+      setBusy(restartKey(app));
+      setError(null);
+      try {
+        const response = await sdk.request({
+          method: 'POST',
+          path: '/tenant-machine-restart',
+          json: { tenant: id, app }
+        });
+
+        if (!response.ok) {
+          const body = (await response.json()) as { error?: string };
+          setError(body.error || t('domains:actionFailed'));
+        }
+      } catch {
+        setError(t('domains:actionFailed'));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [id, sdk, t]
+  );
+
   /**
    * Hostnames the server already has, which is what makes a row actionable.
    *
@@ -201,6 +228,25 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
     [domains, fresh, savedHostnames, secrets]
   );
 
+  /**
+   * Distinct Fly apps with at least one active certificate.
+   *
+   * Grouped by app rather than one button per domain row — several domains
+   * can share an app, and two buttons for the same restart would read as two
+   * different actions.
+   */
+  const restartableApps = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          rows
+            .filter((row) => row.certificate?.isConfigured)
+            .map((row) => row.app)
+        )
+      ),
+    [rows]
+  );
+
   if (!rows.length) {
     return null;
   }
@@ -225,6 +271,33 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
           t={t}
         />
       ))}
+
+      {restartableApps.length > 0 && (
+        <div className="border-border flex flex-col gap-2 rounded-lg border px-3 py-2 text-sm">
+          <p className="text-muted-foreground">{t('domains:restartHint')}</p>
+          {restartableApps.map((app) => (
+            <div
+              key={app}
+              className="flex flex-wrap items-center justify-between gap-2"
+            >
+              <span className="font-medium">{app}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={busy !== null}
+                onClick={() => void runRestart(app)}
+              >
+                <ArrowPathIcon
+                  className={
+                    busy === restartKey(app) ? 'size-4 animate-spin' : 'size-4'
+                  }
+                />
+                {t('domains:restart')}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {error && (
         <p role="alert" className="text-sm text-(--destructive-subtle)">

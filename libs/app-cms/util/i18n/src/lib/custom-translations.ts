@@ -61,6 +61,7 @@ const customTranslationsSchema = z.object({
     apexNote: z.string(),
     check: z.string(),
     checkedAt: z.string(),
+    copyRecord: z.string(),
     corsMissing: z.string(),
     dnsLede: z.string(),
     heading: z.string(),
@@ -284,6 +285,7 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'This is the domain itself rather than a subdomain, so it needs A and AAAA records — a CNAME is not allowed here.',
       check: 'Check now',
       checkedAt: 'Checked {{when}}',
+      copyRecord: 'Copy the DNS target',
       corsMissing:
         'No secret for this domain is tagged “cors”, so the CMS will refuse requests coming from it.',
       dnsLede: 'Create this record where the domain’s DNS is managed:',
@@ -523,6 +525,7 @@ Supported locales: {{locales}}`,
         'Det här är själva domänen och inte en underdomän, så den behöver A- och AAAA-poster — CNAME är inte tillåtet här.',
       check: 'Kontrollera nu',
       checkedAt: 'Kontrollerad {{when}}',
+      copyRecord: 'Kopiera DNS-målet',
       corsMissing:
         'Ingen hemlighet för domänen är taggad ”cors”, så CMS:et avvisar anrop som kommer därifrån.',
       dnsLede: 'Skapa den här posten där domänens DNS hanteras:',

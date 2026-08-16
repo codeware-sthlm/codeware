@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import dotenv from 'dotenv';
@@ -7,6 +7,17 @@ import { z } from 'zod';
 
 import { FlyApi } from '../src/lib/fly-api.class';
 import { Fly } from '../src/lib/fly.class';
+
+/**
+ * The flyctl version CI installs, and what a local install is compared
+ * against — see `verified-version.json` for why this lives in the package
+ * rather than in an env var.
+ */
+const VERIFIED_FLY_CLI_VERSION = (
+  JSON.parse(
+    readFileSync(join(__dirname, '../verified-version.json'), 'utf-8')
+  ) as { flyctl: string }
+).flyctl;
 
 const coerceBoolean = z.preprocess(
   (val) =>
@@ -19,8 +30,7 @@ const IntegrationTestEnvSchema = z.object({
   FLY_TEST_ORG: z.string().min(1),
   FLY_TEST_TRACE_CLI: coerceBoolean.optional(),
   FLY_TEST_POSTGRES: z.string().optional(),
-  FLY_TEST_CERT_HOSTNAME: z.string().optional(),
-  FLY_CLI_VERSION: z.string().optional().default('latest')
+  FLY_TEST_CERT_HOSTNAME: z.string().optional()
 });
 
 console.log('🔧 Setting up Fly-Node integration tests...');
@@ -44,7 +54,7 @@ if (!envValidation.success) {
 Required:
   - FLY_TEST_API_TOKEN
   - FLY_TEST_ORG
-Optional: FLY_TEST_POSTGRES, FLY_CLI_VERSION
+Optional: FLY_TEST_POSTGRES, FLY_TEST_CERT_HOSTNAME
 Errors:
 ${JSON.stringify(envValidation.error.flatten().fieldErrors, null, 2)}
 `
@@ -53,6 +63,20 @@ ${JSON.stringify(envValidation.error.flatten().fieldErrors, null, 2)}
 }
 
 const env = envValidation.data;
+
+if (!isCI) {
+  // CI pins its install to the same file, so the comparison is only
+  // informative locally — a mismatch there would just be CI agreeing with
+  // itself
+  const { version: installed } = await new Fly().cli.version();
+
+  if (installed !== VERIFIED_FLY_CLI_VERSION) {
+    console.warn(
+      `⚠️  Installed flyctl is ${installed}, tests were last verified against ${VERIFIED_FLY_CLI_VERSION}. ` +
+        'A failure below may be about that gap rather than this package.'
+    );
+  }
+}
 
 // Track created apps for cleanup
 const createdApps: string[] = [];

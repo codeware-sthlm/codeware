@@ -57,11 +57,16 @@ jobs:
         if: github.event_name != 'merge_group'
         run: pnpm exec playwright install --with-deps
 
+      - name: Read Fly CLI version
+        if: github.event_name != 'merge_group'
+        id: fly-cli-version
+        run: echo "version=$(jq -r .flyctl packages/fly-node/verified-version.json)" >> "$GITHUB_OUTPUT"
+
       - name: Install Fly CLI
         if: github.event_name != 'merge_group'
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
-          version: ${{ vars.FLY_CLI_VERSION }}
+          version: ${{ steps.fly-cli-version.outputs.version }}
 
       - name: Analyze affected projects
         uses: nrwl/nx-set-shas@v5

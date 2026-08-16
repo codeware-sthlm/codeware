@@ -45,7 +45,19 @@ export const CertificateApiResponseSchema = z.object({
    * cannot fix by correcting DNS, and retrying only makes it worse.
    */
   rateLimitedUntil: z.string().nullish(),
-  source: z.string().nullish()
+  source: z.string().nullish(),
+  /**
+   * Fly's own prose for a failed issuance attempt — what the dashboard shows,
+   * unlike `HostnameCheck.errors`, which is SCREAMING_SNAKE_CASE codes
+   */
+  validationErrors: z
+    .array(
+      z.object({
+        message: z.string(),
+        timestamp: z.string()
+      })
+    )
+    .nullish()
 });
 
 export type Certificate = z.infer<typeof CertificateApiResponseSchema>;

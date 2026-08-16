@@ -7,6 +7,7 @@ export {
   applyCertificateState,
   toCertificateState
 } from './lib/certificate-state';
+export { describeCertificateIssues } from './lib/certificate-issues';
 export {
   type DomainSecret,
   type DomainSecretsReport,

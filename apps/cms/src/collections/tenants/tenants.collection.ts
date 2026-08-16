@@ -189,7 +189,8 @@ const tenants: CollectionConfig = {
             { name: 'dnsValidationHostname', type: 'text' },
             { name: 'dnsValidationTarget', type: 'text' },
             { name: 'dnsValidationInstructions', type: 'textarea' },
-            { name: 'rateLimitedUntil', type: 'date' }
+            { name: 'rateLimitedUntil', type: 'date' },
+            { name: 'validationErrors', type: 'text', hasMany: true }
           ]
         }
       ]

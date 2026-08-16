@@ -497,6 +497,10 @@ const CERTIFICATE_FIELDS = `
   clientStatus
   rateLimitedUntil
   source
+  validationErrors {
+    message
+    timestamp
+  }
 `;
 
 /**

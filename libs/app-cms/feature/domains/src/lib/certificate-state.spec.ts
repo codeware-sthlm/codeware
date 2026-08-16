@@ -27,8 +27,36 @@ describe('toCertificateState', () => {
       dnsValidationHostname: '_acme-challenge.tours.example.com',
       dnsValidationTarget: 'tours.example.com.abc.flydns.net',
       dnsValidationInstructions: 'Add a CNAME record …',
-      rateLimitedUntil: null
+      rateLimitedUntil: null,
+      validationErrors: null
     });
+  });
+
+  it('carries Fly’s own prose for a failed issuance attempt', () => {
+    const state = toCertificateState(
+      certificate({
+        validationErrors: [
+          {
+            message: 'No AAAA records were found for your domain',
+            timestamp: '2026-08-14T09:00:00Z'
+          },
+          { message: 'DNS not configured', timestamp: '2026-08-14T09:30:00Z' }
+        ]
+      }),
+      now
+    );
+
+    expect(state.validationErrors).toEqual([
+      'No AAAA records were found for your domain',
+      'DNS not configured'
+    ]);
+  });
+
+  it('reads no validation errors as none, not an empty list', () => {
+    expect(
+      toCertificateState(certificate({ validationErrors: [] }), now)
+        .validationErrors
+    ).toBeNull();
   });
 
   it('records an issued certificate as serving', () => {

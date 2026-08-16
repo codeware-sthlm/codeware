@@ -20,8 +20,17 @@ const labels: DomainCardProps['labels'] = {
   remove: 'Remove certificate',
   copyRecord: 'Copy DNS target',
   dnsLede: 'Create this record where the domain’s DNS is managed:',
+  dnsNameHint:
+    'Record names are written in full — a registrar that appends the domain itself only wants the part before it.',
+  dnsOwnershipLede:
+    'Only needed if the app has no IPv6 address, or if traffic reaches it through a CDN or proxy:',
+  issuesHeading: 'Fly found this when it last checked the domain:',
+  dnsTrafficLede:
+    'Point the domain at the app, where the domain’s DNS is managed. Without this record the domain answers nowhere, certificate or not:',
+  dnsValidationLede:
+    'Optional, and only worth adding to have the certificate issued before the domain points here:',
   apexNote:
-    'This is the domain itself rather than a subdomain, so it needs A and AAAA records — a CNAME is not allowed here.',
+    'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.',
   secretCorsTag: 'accepted as an origin',
   secretsMissing:
     'Nothing in Infisical points at this domain. A certificate alone does not make the site answer on it — add the url where the app’s deployment secrets live.',
@@ -105,6 +114,43 @@ export const Lifecycle: StoryObj = {
   )
 };
 
+/**
+ * After a check: Fly's own validation issues, and the ownership record that
+ * answers them when it cannot read the app's address off the domain
+ */
+export const CheckedWithIssues: StoryObj = {
+  render: () => (
+    <Frame>
+      <DomainCard
+        {...base}
+        status="pending"
+        statusDetail="Awaiting configuration"
+        checkedLabel="Checked 15 Aug 00:40"
+        dns={dns}
+        check={{
+          issues: ['No AAAA records were found for your domain'],
+          ownershipRecord: 'app-w0608qd'
+        }}
+      />
+      <DomainCard
+        {...base}
+        status="pending"
+        statusDetail="Awaiting configuration"
+        checkedLabel="Checked 15 Aug 00:40"
+        dns={dns}
+        check={{
+          issues: [
+            'No AAAA records were found for your domain',
+            'The CNAME record points at an app that does not serve this hostname'
+          ],
+          ownershipRecord: 'app-w0608qd'
+        }}
+        secrets={{ secrets: [], hasCors: false, unavailable: false }}
+      />
+    </Frame>
+  )
+};
+
 /** The states that need saying out loud rather than just waiting */
 export const NeedsAttention: StoryObj = {
   render: () => (
@@ -147,7 +193,7 @@ export const NeedsAttention: StoryObj = {
   )
 };
 
-/** An apex domain cannot use a CNAME, so Fly's own wording carries it */
+/** An apex domain cannot use a CNAME, so the note stands in for the record */
 export const ApexDomain: StoryObj = {
   render: () => (
     <Frame>
@@ -238,5 +284,15 @@ export const AttentionAdminDark = a11yStory(
 );
 export const NarrowAdminLight = a11yStory(Narrow, 'payload-admin', 'light');
 export const NarrowAdminDark = a11yStory(Narrow, 'payload-admin', 'dark');
+export const IssuesAdminLight = a11yStory(
+  CheckedWithIssues,
+  'payload-admin',
+  'light'
+);
+export const IssuesAdminDark = a11yStory(
+  CheckedWithIssues,
+  'payload-admin',
+  'dark'
+);
 export const ShadcnLight = a11yStory(Lifecycle, 'shadcn', 'light');
 export const ShadcnDark = a11yStory(Lifecycle, 'shadcn', 'dark');

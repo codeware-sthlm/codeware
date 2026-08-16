@@ -1,5 +1,6 @@
 'use client';
 
+import type { HostnameCheck } from '@cdwr/fly-node/api';
 import type {
   CertificateState,
   DomainSecretsReport,
@@ -32,6 +33,8 @@ type Row = {
   certificate: Stored | null;
   /** Where Infisical mentions the domain; only known after a check */
   secrets: DomainSecretsReport | null;
+  /** What Fly resolved for the domain; live, so only known after a check */
+  check: HostnameCheck | null;
   /** The endpoint acts on stored rows, so an unsaved one has nothing to act on */
   saved: boolean;
 };
@@ -118,6 +121,10 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
   const [secrets, setSecrets] = useState<
     Record<string, DomainSecretsReport | null>
   >({});
+  /** Neither are Fly's resolution results, which are live by definition */
+  const [checks, setChecks] = useState<Record<string, HostnameCheck | null>>(
+    {}
+  );
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -150,6 +157,7 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
 
         const body = (await response.json()) as {
           certificate?: CertificateState | null;
+          check?: HostnameCheck | null;
           secrets?: DomainSecretsReport | null;
           error?: string;
         };
@@ -170,6 +178,13 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
           // A request or a removal says nothing about Infisical, so an earlier
           // report stays rather than being replaced with a false "none found"
           [hostname]: body.secrets ?? current[hostname] ?? null
+        }));
+        // Unlike the secrets report, every action answers this one: a request
+        // and a check both resolve the domain, and a removal makes whatever
+        // was resolved before irrelevant
+        setChecks((current) => ({
+          ...current,
+          [hostname]: body.check ?? null
         }));
       } catch {
         setError(t('domains:actionFailed'));
@@ -244,9 +259,10 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
           certificate:
             hostname in fresh ? fresh[hostname] : (certificate ?? null),
           secrets: secrets[hostname] ?? null,
+          check: checks[hostname] ?? null,
           saved: savedDomains.has(domainKey(hostname, app))
         })),
-    [domains, fresh, savedDomains, secrets]
+    [checks, domains, fresh, savedDomains, secrets]
   );
 
   /** Distinct Fly apps with at least one active certificate */
@@ -274,6 +290,11 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
       remove: t('domains:remove'),
       copyRecord: t('domains:copyRecord'),
       dnsLede: t('domains:dnsLede'),
+      dnsNameHint: t('domains:dnsNameHint'),
+      dnsOwnershipLede: t('domains:dnsOwnershipLede'),
+      dnsTrafficLede: t('domains:dnsTrafficLede'),
+      dnsValidationLede: t('domains:dnsValidationLede'),
+      issuesHeading: t('domains:issuesHeading'),
       apexNote: t('domains:apexNote'),
       secretCorsTag: t('domains:secretCorsTag'),
       secretsMissing: t('domains:secretsMissing'),
@@ -327,6 +348,14 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
                     target: certificate.dnsValidationTarget,
                     instructions: certificate.dnsValidationInstructions,
                     isApex: certificate.isApex ?? false
+                  }
+                : null
+            }
+            check={
+              row.check
+                ? {
+                    issues: row.check.errors,
+                    ownershipRecord: row.check.dnsVerificationRecord
                   }
                 : null
             }

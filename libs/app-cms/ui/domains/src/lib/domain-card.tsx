@@ -34,8 +34,20 @@ export type DomainCardProps = {
   checkedLabel?: string | null;
   /** Pre-composed sentence naming when the rate limit lifts */
   pausedMessage?: string | null;
-  /** The record to create at the registrar, until the certificate is active */
-  dns?: DnsRecordProps['record'] | null;
+  /** The records to create at the registrar, until the certificate is active */
+  dns?: DnsRecordProps['validation'] | null;
+  /**
+   * What Fly resolved the last time it was asked, and what it objected to.
+   *
+   * Only known after a check — it is live resolution rather than stored state,
+   * so an untouched card has nothing to say here.
+   */
+  check?: {
+    /** Fly's own validation issues, already phrased for the domain's owner */
+    issues?: Array<string> | null;
+    /** Value for the `_fly-ownership` TXT record */
+    ownershipRecord?: string | null;
+  } | null;
   /** What Infisical says; unknown until a check has asked */
   secrets?: SecretsReportProps['report'] | null;
   /** A row the server does not have yet cannot be acted on */
@@ -55,6 +67,11 @@ export type DomainCardProps = {
     remove: string;
     copyRecord: string;
     dnsLede: string;
+    dnsNameHint: string;
+    dnsOwnershipLede: string;
+    dnsTrafficLede: string;
+    dnsValidationLede: string;
+    issuesHeading: string;
     apexNote: string;
     secretCorsTag: string;
     secretsMissing: string;
@@ -84,6 +101,7 @@ export function DomainCard({
   checkedLabel,
   pausedMessage,
   dns,
+  check,
   secrets,
   saved,
   runningAction,
@@ -114,14 +132,36 @@ export function DomainCard({
         <p className="text-(--destructive-subtle)">{pausedMessage}</p>
       )}
 
-      {/* An active certificate has nothing left to validate, so the record it
-          was validated with is only noise from here on */}
+      {/* What Fly is unhappy about, in its own words, above the records that
+          answer it */}
+      {requested && !active && check?.issues?.length ? (
+        <div className="flex flex-col gap-1">
+          <p className="text-(--destructive-subtle)">{labels.issuesHeading}</p>
+          <ul className="text-muted-foreground list-disc pl-5">
+            {check.issues.map((issue) => (
+              <li key={issue}>{issue}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {/* An active certificate is answering on every record already, so
+          repeating them is only noise from here on */}
       {requested && !active && dns && (
         <DnsRecord
-          record={dns}
-          lede={labels.dnsLede}
-          apexNote={labels.apexNote}
-          copyLabel={labels.copyRecord}
+          hostname={hostname}
+          app={app}
+          validation={dns}
+          ownershipRecord={check?.ownershipRecord}
+          labels={{
+            trafficLede: labels.dnsTrafficLede,
+            validationLede: labels.dnsValidationLede,
+            ownershipLede: labels.dnsOwnershipLede,
+            instructionsLede: labels.dnsLede,
+            apexNote: labels.apexNote,
+            nameHint: labels.dnsNameHint,
+            copyRecord: labels.copyRecord
+          }}
         />
       )}
 

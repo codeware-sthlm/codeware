@@ -85,6 +85,11 @@ describe('FlyApi certs', () => {
 describe.skipIf(!testCertHostname())('FlyApi certs add/remove', () => {
   const hostname = testCertHostname() as string;
 
+  beforeAll(async () => {
+    // Start clean: if a previous run failed mid-cycle, the hostname may still be attached to the app
+    await api.certs.remove(app, hostname).catch(() => undefined);
+  });
+
   afterAll(async () => {
     // Leave nothing behind even if an assertion failed mid-cycle
     await api.certs.remove(app, hostname).catch(() => undefined);
@@ -118,6 +123,18 @@ describe.skipIf(!testCertHostname())('FlyApi certs add/remove', () => {
     const second = await api.certs.add(app, hostname);
 
     expect(second.certificate.id).toBe(first.certificate.id);
+  });
+
+  it('resolves dns for the hostname and reports what Fly objects to', async () => {
+    await api.certs.add(app, hostname);
+
+    const result = await api.certs.check(app, hostname);
+
+    expect(() => HostnameCheckApiResponseSchema.parse(result)).not.toThrow();
+    // DNS does not point here, so Fly has something to say about it — this is
+    // the query that was first written against `AppCertificate.check`
+    // (a plain boolean in the real schema, not the object this asserts on)
+    expect(result?.dnsConfigured).toBe(false);
   });
 
   it('reads the certificate back and then removes it', async () => {

@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import process from 'process';
 
 import { spawn, spawnPty } from '@codeware/shared/util/misc';
@@ -23,9 +23,11 @@ import type { Config } from './types';
 
 vi.mock('console');
 vi.mock('fs', async () => ({
-  // Only mock `existsSync` function
+  // Only mock `existsSync`, `mkdirSync` and `writeFileSync`
   ...(await vi.importActual('fs')),
-  existsSync: vi.fn().mockReturnValue(true)
+  existsSync: vi.fn().mockReturnValue(true),
+  mkdirSync: vi.fn(),
+  writeFileSync: vi.fn()
 }));
 vi.mock('os');
 vi.mock('@codeware/shared/util/misc', async () => ({
@@ -68,6 +70,8 @@ describe('Fly', () => {
   const mockSpawn = vi.mocked(spawn);
   const mockSpawnPty = vi.mocked(spawnPty);
   const mockExistsSync = vi.mocked(existsSync);
+  const mockMkdirSync = vi.mocked(mkdirSync);
+  const mockWriteFileSync = vi.mocked(writeFileSync);
 
   /**
    * Assert that `spawn` was called with the given arguments.
@@ -974,6 +978,73 @@ describe('Fly', () => {
         'fly.remote.toml',
         '--yes'
       ]);
+    });
+
+    it('should request json output for a .json config path', async () => {
+      // flyctl stopped inferring the output format from the path's
+      // extension — this is what makes a `.json` path still work
+      const fly = new Fly(mockFlyConfig);
+      await fly.config.save({
+        app: mockDefs.testApp,
+        config: 'fly.remote.json'
+      });
+
+      assertSpawn('exact', [
+        'config',
+        'save',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        'fly.remote.json',
+        '--json',
+        '--yes'
+      ]);
+    });
+
+    it('should request yaml output for a .yaml config path', async () => {
+      const fly = new Fly(mockFlyConfig);
+      await fly.config.save({
+        app: mockDefs.testApp,
+        config: 'fly.remote.yaml'
+      });
+
+      assertSpawn('exact', [
+        'config',
+        'save',
+        '--app',
+        mockDefs.testApp,
+        '--config',
+        'fly.remote.yaml',
+        '--yaml',
+        '--yes'
+      ]);
+    });
+
+    it('seeds a parseable file before saving, since flyctl refuses to write to a path that is not already there', async () => {
+      mockExistsSync.mockReturnValue(false);
+
+      const fly = new Fly(mockFlyConfig);
+      await fly.config.save({
+        app: mockDefs.testApp,
+        config: 'new/fly.remote.json'
+      });
+
+      expect(mockMkdirSync).toHaveBeenCalledWith('new', { recursive: true });
+      expect(mockWriteFileSync).toHaveBeenCalledWith(
+        'new/fly.remote.json',
+        '{}'
+      );
+    });
+
+    it('does not overwrite a config that is already there', async () => {
+      const fly = new Fly(mockFlyConfig);
+      await fly.config.save({
+        app: mockDefs.testApp,
+        config: 'fly.remote.toml'
+      });
+
+      expect(mockMkdirSync).not.toHaveBeenCalled();
+      expect(mockWriteFileSync).not.toHaveBeenCalled();
     });
   });
 

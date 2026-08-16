@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { cwd } from 'process';
 
@@ -307,7 +307,10 @@ export class Fly {
    */
   config = {
     /**
-     * Save an application's remote configuration locally as TOML file.
+     * Save an application's remote configuration locally.
+     *
+     * TOML by default; name the path `.json` or `.yaml`/`.yml` for either of
+     * those instead.
      *
      * @param options - Options for saving an application's configuration
      * @throws An error if the configuration cannot be saved
@@ -1470,9 +1473,25 @@ ${JSON.stringify(response, null, 2)}`);
    * @private
    * Save remote config to a local file
    *
+   * Two things flyctl expects that a first-time caller would not: the output
+   * format is no longer sniffed from the path's extension — `--json`/`--yaml`
+   * has to be passed, TOML being what is left over when neither is — and the
+   * destination must already exist as a parseable file of that format, or
+   * `flyctl` refuses to write to it at all, mistaking "does not exist yet"
+   * for "path is wrong". A fresh, empty seed of the right shape satisfies
+   * that read without affecting what gets written back over it.
+   *
    * @throws An error if the config cannot be saved
    */
   private async saveConfig(options: SaveConfigOptions): Promise<void> {
+    const isJson = options.config.endsWith('.json');
+    const isYaml = /\.ya?ml$/.test(options.config);
+
+    if (!existsSync(options.config)) {
+      mkdirSync(dirname(options.config), { recursive: true });
+      writeFileSync(options.config, isJson ? '{}' : '');
+    }
+
     const args = [
       'config',
       'save',
@@ -1480,6 +1499,7 @@ ${JSON.stringify(response, null, 2)}`);
       options.app,
       '--config',
       options.config,
+      ...(isJson ? ['--json'] : isYaml ? ['--yaml'] : []),
       '--yes'
     ];
 

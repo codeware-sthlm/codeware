@@ -215,10 +215,14 @@ jobs:
       - name: Build build action
         run: pnpm nx build fly-build-action
 
+      - name: Read Fly CLI version
+        id: fly-cli-version
+        run: echo "version=$(jq -r .flyctl packages/fly-node/verified-version.json)" >> "$GITHUB_OUTPUT"
+
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
-          version: ${{ vars.FLY_CLI_VERSION }}
+          version: ${{ steps.fly-cli-version.outputs.version }}
 
       - name: Resolve flags
         id: flags
@@ -385,10 +389,14 @@ jobs:
       - name: Build deployment action
         run: pnpm nx build fly-deployment-action
 
+      - name: Read Fly CLI version
+        id: fly-cli-version
+        run: echo "version=$(jq -r .flyctl packages/fly-node/verified-version.json)" >> "$GITHUB_OUTPUT"
+
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
-          version: ${{ vars.FLY_CLI_VERSION }}
+          version: ${{ steps.fly-cli-version.outputs.version }}
 
       - name: Resolve flags
         id: flags
@@ -729,10 +737,14 @@ jobs:
       - name: Build destroy action
         run: pnpm nx build fly-destroy-action
 
+      - name: Read Fly CLI version
+        id: fly-cli-version
+        run: echo "version=$(jq -r .flyctl packages/fly-node/verified-version.json)" >> "$GITHUB_OUTPUT"
+
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
-          version: ${{ vars.FLY_CLI_VERSION }}
+          version: ${{ steps.fly-cli-version.outputs.version }}
 
       - name: Resolve flags
         id: flags

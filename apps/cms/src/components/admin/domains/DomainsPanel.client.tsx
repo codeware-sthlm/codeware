@@ -6,6 +6,7 @@ import type {
   DomainSecretsReport,
   TenantDomain
 } from '@codeware/app-cms/feature/domains';
+import { describeCertificateIssues } from '@codeware/app-cms/feature/domains';
 import {
   type DomainAction,
   DomainCard,
@@ -319,6 +320,9 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
 
       {rows.map((row) => {
         const { certificate } = row;
+        // Certificate-level prose survives a reload; a live check's codes do
+        // not, so this can have something to say even before one is run
+        const issues = describeCertificateIssues(certificate, row.check);
 
         return (
           <DomainCard
@@ -352,10 +356,10 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
                 : null
             }
             check={
-              row.check
+              issues.length || row.check?.dnsVerificationRecord
                 ? {
-                    issues: row.check.errors,
-                    ownershipRecord: row.check.dnsVerificationRecord
+                    issues,
+                    ownershipRecord: row.check?.dnsVerificationRecord ?? null
                   }
                 : null
             }

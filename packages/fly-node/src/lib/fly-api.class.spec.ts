@@ -132,6 +132,37 @@ describe('FlyApi', () => {
     ).rejects.toThrow('already exists');
   });
 
+  it('carries Fly’s own prose for a failed validation attempt', async () => {
+    // Unlike a `HostnameCheck`'s errors, which are bare codes, this is what
+    // Fly's own dashboard shows
+    fetchMock.mockReturnValue(
+      respond({
+        data: {
+          app: {
+            certificate: {
+              ...certificate,
+              validationErrors: [
+                {
+                  message: 'No AAAA records were found for your domain',
+                  timestamp: '2026-08-14T10:00:00Z'
+                }
+              ]
+            }
+          }
+        }
+      })
+    );
+
+    const result = await api().certs.get('cdwr-web-moon', 'tours.example.com');
+
+    expect(result?.validationErrors).toEqual([
+      {
+        message: 'No AAAA records were found for your domain',
+        timestamp: '2026-08-14T10:00:00Z'
+      }
+    ]);
+  });
+
   it('surfaces a rate limit, which correcting dns cannot fix', async () => {
     fetchMock.mockReturnValue(
       respond({

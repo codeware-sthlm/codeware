@@ -12,6 +12,8 @@ export type CertificateState = {
   dnsValidationTarget: string | null;
   dnsValidationInstructions: string | null;
   rateLimitedUntil: string | null;
+  /** Fly's own prose for a failed issuance attempt, oldest first */
+  validationErrors: Array<string> | null;
 };
 
 /**
@@ -45,7 +47,8 @@ export const toCertificateState = (
       dnsValidationHostname: null,
       dnsValidationTarget: null,
       dnsValidationInstructions: null,
-      rateLimitedUntil: null
+      rateLimitedUntil: null,
+      validationErrors: null
     };
   }
 
@@ -59,7 +62,10 @@ export const toCertificateState = (
     dnsValidationHostname: dns.hostname ?? null,
     dnsValidationTarget: dns.target ?? null,
     dnsValidationInstructions: dns.instructions ?? null,
-    rateLimitedUntil: certificate.rateLimitedUntil ?? null
+    rateLimitedUntil: certificate.rateLimitedUntil ?? null,
+    validationErrors: certificate.validationErrors?.length
+      ? certificate.validationErrors.map((error) => error.message)
+      : null
   };
 };
 

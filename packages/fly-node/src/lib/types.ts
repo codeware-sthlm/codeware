@@ -323,7 +323,7 @@ export type ShowConfigOptions =
     };
 
 /**
- * Options for saving an application's configuration as TOML file
+ * Options for saving an application's configuration to a local file
  */
 export type SaveConfigOptions = {
   /**
@@ -332,7 +332,11 @@ export type SaveConfigOptions = {
   app: string;
 
   /**
-   * Path to save the TOML configuration file to.
+   * Path to save the configuration file to.
+   *
+   * The format is read from this path's extension — `.json` and `.yaml`/
+   * `.yml` request that output from flyctl explicitly, anything else saves
+   * as TOML.
    */
   config: string;
 };

@@ -176,7 +176,8 @@ describe('Fly CLI Compatibility & Schema Validation', () => {
       });
 
       it('config.save executes without errors and saves the config correctly', async () => {
-        // json file type trigger output as JSON
+        // The `.json` extension is what makes `saveConfig` pass `--json` to
+        // flyctl, which no longer infers the output format from the path itself
         const remoteConfigFile = join(testAppDir, 'fly.remote.json');
         await expect(
           fly.config.save({

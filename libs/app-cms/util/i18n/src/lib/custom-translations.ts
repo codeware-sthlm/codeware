@@ -64,7 +64,12 @@ const customTranslationsSchema = z.object({
     copyRecord: z.string(),
     corsMissing: z.string(),
     dnsLede: z.string(),
+    dnsNameHint: z.string(),
+    dnsOwnershipLede: z.string(),
+    dnsTrafficLede: z.string(),
+    dnsValidationLede: z.string(),
     heading: z.string(),
+    issuesHeading: z.string(),
     notRequested: z.string(),
     paused: z.string(),
     pending: z.string(),
@@ -282,14 +287,23 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       actionFailed: 'Fly could not be reached. Try again in a moment.',
       active: 'Active',
       apexNote:
-        'This is the domain itself rather than a subdomain, so it needs A and AAAA records — a CNAME is not allowed here.',
+        'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.',
       check: 'Check now',
       checkedAt: 'Checked {{when}}',
       copyRecord: 'Copy the DNS target',
       corsMissing:
         'No secret for this domain is tagged “cors”, so the CMS will refuse requests coming from it.',
       dnsLede: 'Create this record where the domain’s DNS is managed:',
+      dnsNameHint:
+        'Record names are written in full — a registrar that appends the domain itself only wants the part before it.',
+      dnsOwnershipLede:
+        'Only needed if the app has no IPv6 address, or if traffic reaches it through a CDN or proxy:',
+      dnsTrafficLede:
+        'Point the domain at the app, where the domain’s DNS is managed. Without this record the domain answers nowhere, certificate or not:',
+      dnsValidationLede:
+        'Optional, and only worth adding to have the certificate issued before the domain points here:',
       heading: 'Certificates',
+      issuesHeading: 'Fly found this when it last checked the domain:',
       notRequested: 'No certificate yet',
       paused: 'Paused',
       pending: 'Waiting for DNS',
@@ -522,14 +536,23 @@ Supported locales: {{locales}}`,
       actionFailed: 'Fly gick inte att nå. Försök igen om en stund.',
       active: 'Aktivt',
       apexNote:
-        'Det här är själva domänen och inte en underdomän, så den behöver A- och AAAA-poster — CNAME är inte tillåtet här.',
+        'Det här är själva domänen och inte en underdomän, så CNAME är inte tillåtet — den behöver A- och AAAA-poster som pekar på appens IP-adresser.',
       check: 'Kontrollera nu',
       checkedAt: 'Kontrollerad {{when}}',
       copyRecord: 'Kopiera DNS-målet',
       corsMissing:
         'Ingen hemlighet för domänen är taggad ”cors”, så CMS:et avvisar anrop som kommer därifrån.',
       dnsLede: 'Skapa den här posten där domänens DNS hanteras:',
+      dnsNameHint:
+        'Postnamnen skrivs fullständigt — hos en registrar som lägger till domänen själv anges bara delen före den.',
+      dnsOwnershipLede:
+        'Behövs bara om appen saknar IPv6-adress, eller om trafiken når den via ett CDN eller en proxy:',
+      dnsTrafficLede:
+        'Peka domänen mot appen, där domänens DNS hanteras. Utan den här posten svarar domänen ingenstans, certifikat eller inte:',
+      dnsValidationLede:
+        'Valfri, och behövs bara för att få certifikatet utfärdat innan domänen pekar hit:',
       heading: 'Certifikat',
+      issuesHeading: 'Det här hittade Fly vid den senaste kontrollen:',
       notRequested: 'Inget certifikat ännu',
       paused: 'Pausat',
       pending: 'Väntar på DNS',

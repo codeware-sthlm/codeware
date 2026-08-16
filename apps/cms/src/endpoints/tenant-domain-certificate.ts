@@ -26,7 +26,7 @@ type Body = { tenant?: unknown; hostname?: unknown; action?: unknown };
 
 type Result = {
   certificate: CertificateState | null;
-  /** Live dns resolution, only available straight after a request */
+  /** Live dns resolution, and whatever Fly objects to about it */
   check: HostnameCheck | null;
   /** Where Infisical mentions this domain, so a certificate is not mistaken for a working site */
   secrets: DomainSecretsReport | null;
@@ -122,13 +122,14 @@ export const tenantDomainCertificateEndpoint: Endpoint = {
         // Both halves in one answer: a certificate says Fly will serve TLS for
         // the domain, the secrets say whether anything is configured to serve
         // *content* on it. Reporting only the first calls a broken site done.
-        const [certificate, secrets] = await Promise.all([
+        const [certificate, check, secrets] = await Promise.all([
           fly.certs.get(app, hostname),
+          fly.certs.check(app, hostname),
           findDomainSecrets(hostname)
         ]);
         result = {
           certificate: toCertificateState(certificate),
-          check: null,
+          check,
           secrets
         };
       } else {

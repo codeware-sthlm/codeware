@@ -100,6 +100,38 @@ describe('FlyApi', () => {
     ]);
   });
 
+  it('re-reads the certificate when Fly refuses a hostname it already has', async () => {
+    // Fly's own mutation is not idempotent — a second request for the same
+    // hostname on the same app is an error, not a no-op
+    fetchMock
+      .mockReturnValueOnce(
+        respond({
+          errors: [{ message: 'Hostname already exists on app' }]
+        })
+      )
+      .mockReturnValueOnce(respond({ data: { app: { certificate } } }));
+
+    const result = await api().certs.add('cdwr-web-moon', 'tours.example.com');
+
+    expect(result.certificate.hostname).toBe('tours.example.com');
+    expect(result.check).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('still throws when the existing certificate cannot be re-read', async () => {
+    fetchMock
+      .mockReturnValueOnce(
+        respond({
+          errors: [{ message: 'Hostname already exists on app' }]
+        })
+      )
+      .mockReturnValueOnce(respond({ data: { app: { certificate: null } } }));
+
+    await expect(
+      api().certs.add('cdwr-web-moon', 'tours.example.com')
+    ).rejects.toThrow('already exists');
+  });
+
   it('surfaces a rate limit, which correcting dns cannot fix', async () => {
     fetchMock.mockReturnValue(
       respond({
@@ -137,6 +169,55 @@ describe('FlyApi', () => {
 
     await expect(
       api().certs.get('cdwr-web-moon', 'unknown.example.com')
+    ).resolves.toBeNull();
+  });
+
+  it('reports the validation issues Fly raises against a domain', async () => {
+    // `checkCertificate` is a mutation despite reading rather than writing —
+    // `HostnameCheck` is only ever returned by it and by `addCertificate`,
+    // never as a plain field a query can select
+    fetchMock.mockReturnValue(
+      respond({
+        data: {
+          checkCertificate: {
+            check: {
+              ...check,
+              dnsVerificationRecord: 'app-w0608qd',
+              errors: ['No AAAA records were found for your domain']
+            }
+          }
+        }
+      })
+    );
+
+    const result = await api().certs.check(
+      'cdwr-web-moon',
+      'tours.example.com'
+    );
+
+    expect(result?.errors).toEqual([
+      'No AAAA records were found for your domain'
+    ]);
+    // The value for the `_fly-ownership` TXT record, which is how a domain
+    // behind a proxy proves itself
+    expect(result?.dnsVerificationRecord).toBe('app-w0608qd');
+  });
+
+  it('answers null for a check on a hostname with no certificate', async () => {
+    fetchMock.mockReturnValue(
+      respond({
+        data: { checkCertificate: null },
+        errors: [
+          {
+            message: 'Could not find AppCertificate',
+            extensions: { code: 'NOT_FOUND' }
+          }
+        ]
+      })
+    );
+
+    await expect(
+      api().certs.check('cdwr-web-moon', 'unknown.example.com')
     ).resolves.toBeNull();
   });
 

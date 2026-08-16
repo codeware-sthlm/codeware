@@ -54,6 +54,21 @@ export class FlyApiError extends Error {
       this.errors.every((error) => error.extensions?.code === 'NOT_FOUND')
     );
   }
+
+  /**
+   * Whether every error is Fly refusing a hostname that already has a
+   * certificate on the app.
+   *
+   * No `extensions.code` comes with this one — Fly's own dashboard and
+   * `flyctl` hit the same message, and both work around it the same way this
+   * class does, by re-reading rather than retrying the mutation.
+   */
+  get isAlreadyExists(): boolean {
+    return (
+      this.errors.length > 0 &&
+      this.errors.every((error) => /already exists/i.test(error.message))
+    );
+  }
 }
 
 /**
@@ -108,8 +123,10 @@ export class FlyApi {
     /**
      * Request a certificate for a hostname.
      *
-     * Safe to call when one already exists: Fly returns the existing
-     * certificate rather than erroring, which keeps callers idempotent.
+     * Safe to call when one already exists: Fly's own mutation is not
+     * idempotent — a hostname it already has a certificate for on this app is
+     * a fault, not a no-op, so this re-reads the existing certificate itself
+     * rather than surfacing that as an error a caller has to know to expect.
      *
      * Requesting before DNS is in place is normal and expected — the
      * certificate stays pending until the records resolve, and the returned
@@ -123,28 +140,42 @@ export class FlyApi {
       app: string,
       hostname: string
     ): Promise<{ certificate: Certificate; check: HostnameCheck | null }> => {
-      const data = await this.request<{
-        addCertificate: { certificate: unknown; check: unknown };
-      }>(
-        `mutation AddCertificate($appId: ID!, $hostname: String!) {
-          addCertificate(appId: $appId, hostname: $hostname) {
-            certificate { ${CERTIFICATE_FIELDS} }
-            check { ${HOSTNAME_CHECK_FIELDS} }
-          }
-        }`,
-        { appId: app, hostname }
-      );
+      try {
+        const data = await this.request<{
+          addCertificate: { certificate: unknown; check: unknown };
+        }>(
+          `mutation AddCertificate($appId: ID!, $hostname: String!) {
+            addCertificate(appId: $appId, hostname: $hostname) {
+              certificate { ${CERTIFICATE_FIELDS} }
+              check { ${HOSTNAME_CHECK_FIELDS} }
+            }
+          }`,
+          { appId: app, hostname }
+        );
 
-      return {
-        certificate: CertificateApiResponseSchema.parse(
-          data.addCertificate.certificate
-        ),
-        // Live resolution, and it comes back with the mutation for free — the
-        // customer has usually just edited DNS and wants to know if it took
-        check: data.addCertificate.check
-          ? HostnameCheckApiResponseSchema.parse(data.addCertificate.check)
-          : null
-      };
+        return {
+          certificate: CertificateApiResponseSchema.parse(
+            data.addCertificate.certificate
+          ),
+          // Live resolution, and it comes back with the mutation for free —
+          // the customer has usually just edited DNS and wants to know if it
+          // took
+          check: data.addCertificate.check
+            ? HostnameCheckApiResponseSchema.parse(data.addCertificate.check)
+            : null
+        };
+      } catch (error) {
+        if (error instanceof FlyApiError && error.isAlreadyExists) {
+          const certificate = await this.certs.get(app, hostname);
+          // Fly said a certificate is there; if a read right after cannot
+          // find it, something stranger than a race is going on, and the
+          // original error says more about it than a fabricated one would
+          if (certificate) {
+            return { certificate, check: null };
+          }
+        }
+        throw error;
+      }
     },
 
     /**
@@ -181,6 +212,51 @@ export class FlyApi {
       return certificate
         ? CertificateApiResponseSchema.parse(certificate)
         : null;
+    },
+
+    /**
+     * What Fly resolves for a hostname right now, and what it objects to.
+     *
+     * A mutation on Fly's side despite reading rather than writing anything —
+     * `AppCertificate.check` is a plain boolean flag, and `HostnameCheck` is
+     * only ever returned by `addCertificate` and this, `checkCertificate`.
+     * Separate from `get` rather than folded into it: triggering a live dns
+     * resolution on every read would cost a caller that only wants issuance
+     * state. Pair the two when a person has just edited their records and
+     * wants to know whether it took.
+     *
+     * `errors` is the useful half — it is what Fly's own dashboard prints as
+     * "validation issues", already phrased for whoever owns the domain.
+     *
+     * @returns `null` when the app has no certificate for that hostname
+     */
+    check: async (
+      app: string,
+      hostname: string
+    ): Promise<HostnameCheck | null> => {
+      let data: { checkCertificate: { check: unknown } | null };
+
+      try {
+        data = await this.request<{
+          checkCertificate: { check: unknown } | null;
+        }>(
+          `mutation CheckCertificate($appId: ID!, $hostname: String!) {
+            checkCertificate(input: { appId: $appId, hostname: $hostname }) {
+              check { ${HOSTNAME_CHECK_FIELDS} }
+            }
+          }`,
+          { appId: app, hostname }
+        );
+      } catch (error) {
+        if (error instanceof FlyApiError && error.isNotFound) {
+          return null;
+        }
+        throw error;
+      }
+
+      const check = data.checkCertificate?.check;
+
+      return check ? HostnameCheckApiResponseSchema.parse(check) : null;
     },
 
     /** Every certificate on an app */
@@ -426,9 +502,9 @@ const CERTIFICATE_FIELDS = `
 /**
  * Live DNS resolution for a hostname.
  *
- * Deliberately absent from `list`: `AppCertificate.check` resolves DNS on
- * demand, so selecting it across every certificate on an app would turn one
- * query into a lookup per domain.
+ * Deliberately absent from `list`: resolving it is a live dns lookup per
+ * hostname (see `certs.check`), so selecting it across every certificate on
+ * an app would turn one query into a lookup per domain.
  */
 const HOSTNAME_CHECK_FIELDS = `
   aRecords

@@ -43,9 +43,21 @@ type Row = {
 const isRateLimited = (until: string | null | undefined) =>
   Boolean(until && new Date(until).getTime() > Date.now());
 
-/** A certificate exists once Fly has told us something about one */
+/**
+ * A certificate exists once Fly has told us something about one.
+ *
+ * Checked against several fields that only come back once a certificate
+ * does, rather than trusting `status` alone — a single field coming back
+ * empty would misclassify a real certificate as not-requested and hide its
+ * check/remove actions, silently rather than with an error.
+ */
 const wasRequested = (certificate: Stored | null) =>
-  Boolean(certificate?.status);
+  Boolean(
+    certificate?.status ||
+    certificate?.isConfigured ||
+    certificate?.rateLimitedUntil ||
+    certificate?.dnsValidationHostname
+  );
 
 const certificateStatus = (
   certificate: Stored | null

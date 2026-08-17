@@ -368,10 +368,16 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
                 : null
             }
             check={
-              issues.length || row.check?.dnsVerificationRecord
+              row.check || issues.length
                 ? {
                     issues,
-                    ownershipRecord: row.check?.dnsVerificationRecord ?? null
+                    ownershipRecord: row.check?.dnsVerificationRecord ?? null,
+                    confirmed: row.check
+                      ? {
+                          traffic: Boolean(row.check.dnsConfigured),
+                          validation: Boolean(row.check.acmeDnsConfigured)
+                        }
+                      : null
                   }
                 : null
             }

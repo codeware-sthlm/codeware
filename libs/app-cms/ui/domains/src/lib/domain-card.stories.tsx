@@ -24,7 +24,8 @@ const labels: DomainCardProps['labels'] = {
     'Record names are written in full — a registrar that appends the domain itself only wants the part before it.',
   dnsOwnershipLede:
     'Only needed if the app has no IPv6 address, or if traffic reaches it through a CDN or proxy:',
-  issuesHeading: 'Fly found this when it last checked the domain:',
+  issuesHeading:
+    'Fly’s own diagnosis from its last check — it doesn’t have to match the records suggested below:',
   dnsTrafficLede:
     'Point the domain at the app, where the domain’s DNS is managed. Without this record the domain answers nowhere, certificate or not:',
   dnsValidationLede:
@@ -115,8 +116,11 @@ export const Lifecycle: StoryObj = {
 };
 
 /**
- * After a check: Fly's own validation issues, and the ownership record that
- * answers them when it cannot read the app's address off the domain
+ * After a check: Fly's own diagnosis, boxed apart from the suggestion below
+ * it, plus the ownership record that answers it when Fly cannot read the
+ * app's address off the domain. The first card is exactly the case that
+ * looks contradictory without the framing — Fly complains about AAAA, the
+ * suggestion below is a CNAME — and the box is what explains why that's fine.
  */
 export const CheckedWithIssues: StoryObj = {
   render: () => (
@@ -146,6 +150,30 @@ export const CheckedWithIssues: StoryObj = {
           ownershipRecord: 'app-w0608qd'
         }}
         secrets={{ secrets: [], hasCors: false, unavailable: false }}
+      />
+      {/* The traffic record resolves; the ACME challenge one has not been
+          created yet — a checkmark tells them apart without another read */}
+      <DomainCard
+        {...base}
+        status="pending"
+        statusDetail="Awaiting configuration"
+        checkedLabel="Checked 15 Aug 00:40"
+        dns={dns}
+        check={{
+          issues: ['DNS not configured for certificate validation'],
+          confirmed: { traffic: true, validation: false }
+        }}
+        secrets={{
+          secrets: [
+            {
+              path: '/tenants/demo/apps/cms',
+              key: 'CUSTOM_URL',
+              isCorsTagged: true
+            }
+          ],
+          hasCors: true,
+          unavailable: false
+        }}
       />
     </Frame>
   )

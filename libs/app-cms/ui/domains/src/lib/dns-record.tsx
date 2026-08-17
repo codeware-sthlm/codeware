@@ -1,4 +1,5 @@
 import { CopyButton } from '@codeware/shared/ui/copy-button';
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export type DnsRecordProps = {
   /** The domain the records are created for */
@@ -23,6 +24,17 @@ export type DnsRecordProps = {
    * app's address off the domain itself — no IPv6, or a proxy in front.
    */
   ownershipRecord?: string | null;
+  /**
+   * What Fly's last check found already in place, when one has been run.
+   *
+   * A record can be exactly what was suggested and still be unconfirmed —
+   * this only reflects what Fly itself has seen, not whether the copy above
+   * was followed.
+   */
+  confirmed?: {
+    traffic?: boolean | null;
+    validation?: boolean | null;
+  } | null;
   labels: {
     trafficLede: string;
     validationLede: string;
@@ -50,6 +62,7 @@ export function DnsRecord({
   app,
   validation,
   ownershipRecord,
+  confirmed,
   labels
 }: DnsRecordProps) {
   const { name, target, instructions, isApex } = validation;
@@ -68,6 +81,7 @@ export function DnsRecord({
             name={hostname}
             target={`${app}.fly.dev`}
             copyLabel={labels.copyRecord}
+            confirmed={confirmed?.traffic ?? false}
           />
         )}
       </section>
@@ -79,6 +93,7 @@ export function DnsRecord({
             name={name ?? ''}
             target={target ?? ''}
             copyLabel={labels.copyRecord}
+            confirmed={confirmed?.validation ?? false}
           />
         </section>
       ) : (
@@ -114,15 +129,21 @@ function Record({
   type = 'CNAME',
   name,
   target,
-  copyLabel
+  copyLabel,
+  confirmed
 }: {
   type?: 'CNAME' | 'TXT';
   name: string;
   target: string;
   copyLabel: string;
+  /** Whether Fly's last check actually found this one in place */
+  confirmed?: boolean;
 }) {
   return (
-    <div className="relative pr-12">
+    <div className="relative flex items-start gap-1.5 pr-12">
+      {confirmed && (
+        <CheckCircleIcon className="mt-0.5 size-4 shrink-0 text-(--success-subtle)" />
+      )}
       <div className="font-mono text-xs break-all">
         <div>
           {type} {name}

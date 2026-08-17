@@ -303,7 +303,8 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       dnsValidationLede:
         'Optional, and only worth adding to have the certificate issued before the domain points here:',
       heading: 'Certificates',
-      issuesHeading: 'Fly found this when it last checked the domain:',
+      issuesHeading:
+        'Fly’s own diagnosis from its last check — it doesn’t have to match the records suggested below:',
       notRequested: 'No certificate yet',
       paused: 'Paused',
       pending: 'Waiting for DNS',
@@ -552,7 +553,8 @@ Supported locales: {{locales}}`,
       dnsValidationLede:
         'Valfri, och behövs bara för att få certifikatet utfärdat innan domänen pekar hit:',
       heading: 'Certifikat',
-      issuesHeading: 'Det här hittade Fly vid den senaste kontrollen:',
+      issuesHeading:
+        'Flys egen diagnos från senaste kontrollen — den behöver inte stämma överens med posterna som föreslås nedan:',
       notRequested: 'Inget certifikat ännu',
       paused: 'Pausat',
       pending: 'Väntar på DNS',

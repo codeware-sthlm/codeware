@@ -6,7 +6,38 @@ more importantly, a rule for which config goes where.
 
 ## Status
 
-Not started. Plan written on Opus; steps below are sized for Sonnet.
+Done and committed:
+
+| Commit     | What                                                                                                                                |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `9626312f` | Step 1: `domainsField()` factory extracted into `feature/domains`, not `ui/fields` as originally planned — see deviation note below |
+| `0686e034` | Step 2: `platform-settings` collection, `ensureSingleRow` hook, registered and typed                                                |
+
+Deviations from the written plan:
+
+- **Factory lives in `libs/app-cms/feature/domains`, not `libs/app-cms/ui/fields`.** The
+  `hostname` field's `validateHostname` validator is `type:feature`; `type:ui` libs may only
+  depend on `type:ui`/`type:util` per `eslint.config.mjs`'s `depConstraints`. Exported from
+  the existing `@codeware/app-cms/feature/domains` barrel instead — `tenants.collection.ts`
+  already imported from there for the other domain hooks.
+- **`nx run cms:gen` ran as part of step 2, not deferred to step 3.** `CollectionSlug` and
+  `Record<CollectionSlug, …>` (in `slug-icons.ts`) resolve through Payload's `GeneratedTypes`
+  module augmentation, so `platformCollectionSlugs` and the collection's own
+  `CollectionConfig<'platform-settings'>` typing could not compile until types were
+  regenerated. `generate:types` only introspects the config, not the database, so it's safe
+  ahead of the migration. `slug-icons.ts` needed a `platform-settings: Cog6ToothIcon` entry
+  as a result — its `Record` is exhaustive over the generated slug union.
+- Regenerating types also picked up `validationErrors` on `Tenant`/`TenantsSelect`, a field
+  already in the domains array that the committed `payload-types.ts` had never reflected —
+  pre-existing drift, not something this branch introduced.
+
+Not yet addressed, carried from step 1: `guardDomainConflicts` (in `feature/domains`) checks
+for a hostname reused elsewhere only against `collection: 'tenants'`. Once
+`platform-settings` has its own `domains` array, the same hostname in both places would go
+uncaught. Decide in step 6 (or earlier if it blocks step 4's spec) whether the check should
+widen to both collections.
+
+Next: step 3, migration.
 
 ## Where this plan departs from the ticket
 

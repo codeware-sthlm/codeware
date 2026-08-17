@@ -7,6 +7,7 @@ import navigation from './navigation/navigation.collection';
 import pages from './pages/pages.collection';
 import places from './places/places.collection';
 import platformLabels from './platform-labels/platform-labels.collection';
+import platformSettings from './platform-settings/platform-settings.collection';
 import posts from './posts/posts.collection';
 import reusableContent from './reusable-content/reusable-content.collection';
 import siteSettings from './site-settings/site-settings.collection';
@@ -32,6 +33,7 @@ export const collections: Array<CollectionConfig> = [
   pages,
   places,
   platformLabels,
+  platformSettings,
   posts,
   reusableContent,
   siteSettings,

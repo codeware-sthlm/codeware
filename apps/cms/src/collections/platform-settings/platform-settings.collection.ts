@@ -1,0 +1,66 @@
+import { domainsField } from '@codeware/app-cms/feature/domains';
+import {
+  authenticatedAccess,
+  systemUserAccess
+} from '@codeware/app-cms/util/access';
+import { adminGroups } from '@codeware/app-cms/util/definitions';
+import { hasRole } from '@codeware/app-cms/util/misc';
+import type { CollectionConfig } from 'payload';
+
+import { ensureSingleRow } from './hooks/ensure-single-row';
+
+/**
+ * Platform settings collection.
+ *
+ * One row, for non-secret configuration the platform itself needs — as
+ * opposed to a workspace. Kept apart from Infisical/env because this class of
+ * value has no reason to be a secret, benefits from Payload's validation and
+ * version history, and is edited far more often than a deployment's env is
+ * redeployed.
+ *
+ * Platform-owned, so deliberately not registered with the multi-tenant plugin,
+ * and kept to a single document by `ensureSingleRow` rather than Payload's
+ * `isGlobal` — that flag belongs to the plugin's per-tenant globals, and this
+ * collection carries no `tenant` field for the plugin to key on.
+ */
+const platformSettings: CollectionConfig<'platform-settings'> = {
+  slug: 'platform-settings',
+  admin: {
+    group: adminGroups.settings,
+    description: {
+      en: "Non-secret configuration the platform needs once its database is reachable — such as the host application's own custom domain.",
+      sv: 'Icke-hemlig konfiguration som plattformen behöver när dess databas är nåbar — till exempel värdapplikationens egen anpassade domän.'
+    },
+    // Editors meet these effects without ever seeing the collection
+    hidden: ({ user }) => !hasRole(user, 'system-user')
+  },
+  access: {
+    read: authenticatedAccess,
+    create: systemUserAccess,
+    update: systemUserAccess,
+    delete: systemUserAccess
+  },
+  labels: {
+    singular: { en: 'Platform Settings', sv: 'Plattformsinställningar' },
+    plural: { en: 'Platform Settings', sv: 'Plattformsinställningar' }
+  },
+  hooks: {
+    beforeValidate: [ensureSingleRow]
+  },
+  fields: [
+    domainsField({
+      override: {
+        admin: {
+          disableListColumn: true,
+          description: {
+            en: 'Domains the host application is reachable on, in addition to its .fly.dev address — which keeps working and stays useful for support. Add the domain here first, then create the DNS records shown after saving. Takes effect after a restart.',
+            sv: 'Domäner som värdapplikationen nås på, utöver dess .fly.dev-adress — som fortsätter fungera och är bra att ha vid support. Lägg till domänen här först och skapa sedan DNS-posterna som visas efter att du sparat. Börjar gälla efter en omstart.'
+          },
+          initCollapsed: true
+        }
+      }
+    })
+  ]
+};
+
+export default platformSettings;

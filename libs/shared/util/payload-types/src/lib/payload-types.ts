@@ -154,6 +154,7 @@ export interface Config {
     pages: Page;
     places: Place;
     'platform-labels': PlatformLabel;
+    'platform-settings': PlatformSetting;
     posts: Post;
     'reusable-content': ReusableContent;
     'site-settings': SiteSetting;
@@ -194,6 +195,9 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     places: PlacesSelect<false> | PlacesSelect<true>;
     'platform-labels': PlatformLabelsSelect<false> | PlatformLabelsSelect<true>;
+    'platform-settings':
+      | PlatformSettingsSelect<false>
+      | PlatformSettingsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'reusable-content':
       | ReusableContentSelect<false>
@@ -443,6 +447,7 @@ export interface Tenant {
           dnsValidationTarget?: string | null;
           dnsValidationInstructions?: string | null;
           rateLimitedUntil?: string | null;
+          validationErrors?: string[] | null;
         };
         id?: string | null;
       }[]
@@ -1573,6 +1578,48 @@ export interface PlatformLabel {
   createdAt: string;
 }
 /**
+ * Non-secret configuration the platform needs once its database is reachable — such as the host application's own custom domain.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "platform-settings".
+ */
+export interface PlatformSetting {
+  id: number;
+  /**
+   * Domains the host application is reachable on, in addition to its .fly.dev address — which keeps working and stays useful for support. Add the domain here first, then create the DNS records shown after saving. Takes effect after a restart.
+   */
+  domains?:
+    | {
+        /**
+         * The domain on its own — no https://, no path.
+         */
+        hostname: string;
+        /**
+         * The Fly app that serves this domain. The certificate is attached to it.
+         */
+        app: string;
+        /**
+         * The address the app presents as its own, in links and emails. One per app.
+         */
+        isPrimary?: boolean | null;
+        certificate?: {
+          isConfigured?: boolean | null;
+          isApex?: boolean | null;
+          status?: string | null;
+          checkedAt?: string | null;
+          dnsValidationHostname?: string | null;
+          dnsValidationTarget?: string | null;
+          dnsValidationInstructions?: string | null;
+          rateLimitedUntil?: string | null;
+          validationErrors?: string[] | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Configure the application name, landing page, and optional tenant brand mark.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2154,6 +2201,10 @@ export interface PayloadLockedDocument {
         value: number | PlatformLabel;
       } | null)
     | ({
+        relationTo: 'platform-settings';
+        value: number | PlatformSetting;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -2422,6 +2473,35 @@ export interface PlatformLabelsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "platform-settings_select".
+ */
+export interface PlatformSettingsSelect<T extends boolean = true> {
+  domains?:
+    | T
+    | {
+        hostname?: T;
+        app?: T;
+        isPrimary?: T;
+        certificate?:
+          | T
+          | {
+              isConfigured?: T;
+              isApex?: T;
+              status?: T;
+              checkedAt?: T;
+              dnsValidationHostname?: T;
+              dnsValidationTarget?: T;
+              dnsValidationInstructions?: T;
+              rateLimitedUntil?: T;
+              validationErrors?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -2660,6 +2740,7 @@ export interface TenantsSelect<T extends boolean = true> {
               dnsValidationTarget?: T;
               dnsValidationInstructions?: T;
               rateLimitedUntil?: T;
+              validationErrors?: T;
             };
         id?: T;
       };

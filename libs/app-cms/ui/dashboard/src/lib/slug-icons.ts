@@ -31,6 +31,7 @@ const SLUG_ICON: Record<CollectionSlug, IconComponent> = {
   pages: DocumentIcon,
   places: MapPinIcon,
   'platform-labels': SwatchIcon,
+  'platform-settings': Cog6ToothIcon,
   posts: DocumentTextIcon,
   media: PhotoIcon,
   navigation: Bars3Icon,

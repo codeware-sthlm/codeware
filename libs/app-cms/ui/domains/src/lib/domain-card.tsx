@@ -47,6 +47,8 @@ export type DomainCardProps = {
     issues?: Array<string> | null;
     /** Value for the `_fly-ownership` TXT record */
     ownershipRecord?: string | null;
+    /** What Fly's last check found already in place */
+    confirmed?: DnsRecordProps['confirmed'];
   } | null;
   /** What Infisical says; unknown until a check has asked */
   secrets?: SecretsReportProps['report'] | null;
@@ -132,12 +134,16 @@ export function DomainCard({
         <p className="text-(--destructive-subtle)">{pausedMessage}</p>
       )}
 
-      {/* What Fly is unhappy about, in its own words, above the records that
-          answer it */}
+      {/* Fly's own diagnosis, set apart in its own box so it never reads as
+          part of the suggestion below it — the two describe the problem
+          differently (missing AAAA vs. a CNAME to create) without disagreeing */}
       {requested && !active && check?.issues?.length ? (
-        <div className="flex flex-col gap-1">
-          <p className="text-(--destructive-subtle)">{labels.issuesHeading}</p>
-          <ul className="text-muted-foreground list-disc pl-5">
+        <div className="flex flex-col gap-1.5 rounded-md border border-(--destructive)/30 bg-(--destructive)/10 px-3.5 py-3">
+          <p className="flex items-center gap-1.5 font-medium text-(--destructive-subtle)">
+            <ExclamationTriangleIcon className="size-4 shrink-0" />
+            {labels.issuesHeading}
+          </p>
+          <ul className="list-disc pl-5 text-(--destructive-subtle)">
             {check.issues.map((issue) => (
               <li key={issue}>{issue}</li>
             ))}
@@ -153,6 +159,7 @@ export function DomainCard({
           app={app}
           validation={dns}
           ownershipRecord={check?.ownershipRecord}
+          confirmed={check?.confirmed}
           labels={{
             trafficLede: labels.dnsTrafficLede,
             validationLede: labels.dnsValidationLede,

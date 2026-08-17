@@ -1,10 +1,22 @@
 import { customT } from '@codeware/app-cms/util/i18n';
-import { APIError, type CollectionBeforeChangeHook } from 'payload';
+import {
+  APIError,
+  type CollectionBeforeChangeHook,
+  type CollectionSlug
+} from 'payload';
 
 import type { TenantDomain, TenantWithDomains } from './tenant-domain';
 
-/** Every collection with a `domains` field of this shape */
-const DOMAIN_OWNING_COLLECTIONS = ['tenants', 'platform-settings'] as const;
+/**
+ * Every collection with a `domains` field of this shape.
+ *
+ * Typed against `CollectionSlug` so a rename of either collection is a
+ * compile error here, not a query that silently stops matching anything.
+ */
+const DOMAIN_OWNING_COLLECTIONS = [
+  'tenants',
+  'platform-settings'
+] as const satisfies readonly CollectionSlug[];
 
 /** Rows that name both a hostname and the app serving it */
 const complete = (domains: Array<TenantDomain>) =>
@@ -40,6 +52,16 @@ const complete = (domains: Array<TenantDomain>) =>
 export const guardDomainConflicts: CollectionBeforeChangeHook<
   TenantWithDomains
 > = async ({ collection, data, originalDoc, req }) => {
+  // Payload's hook types do not restrict which collection a
+  // `CollectionBeforeChangeHook` may be registered on, so this is the only
+  // thing that would catch it being wired up somewhere without a compatible
+  // `domains` field
+  if (!DOMAIN_OWNING_COLLECTIONS.some((slug) => slug === collection.slug)) {
+    throw new Error(
+      `guardDomainConflicts is not registered for '${collection.slug}'`
+    );
+  }
+
   const domains = complete(data?.domains ?? []);
 
   if (!domains.length) {
@@ -71,22 +93,46 @@ export const guardDomainConflicts: CollectionBeforeChangeHook<
   }
 
   const selfId = originalDoc?.id ?? data?.id;
+  const where = { 'domains.hostname': { in: [...seen] } };
 
   // One query per collection, each covering every hostname at once - a
   // document with a dozen domains should not cost a dozen round trips on
-  // each save
-  for (const slug of DOMAIN_OWNING_COLLECTIONS) {
-    const { docs } = await req.payload.find({
-      collection: slug,
-      where: { 'domains.hostname': { in: [...seen] } },
+  // each save. Two literal `collection` values rather than a loop over
+  // `DOMAIN_OWNING_COLLECTIONS`: Payload's `find` only returns a precisely
+  // typed `docs` array when `TSlug` is a single literal, not a union - looping
+  // over the union falls back to an index-signature type that hides real
+  // shape mismatches instead of catching them.
+  const [{ docs: tenantDocs }, { docs: platformDocs }] = await Promise.all([
+    req.payload.find({
+      collection: 'tenants',
+      where,
       depth: 0,
       limit: 100,
       pagination: false,
       overrideAccess: true,
       req
-    });
+    }),
+    req.payload.find({
+      collection: 'platform-settings',
+      where,
+      depth: 0,
+      limit: 100,
+      pagination: false,
+      overrideAccess: true,
+      req
+    })
+  ]);
 
-    for (const other of docs as Array<TenantWithDomains>) {
+  /**
+   * `Tenant` and `PlatformSetting` are each structurally compatible with
+   * `TenantWithDomains` - that is the type's documented purpose - so passing
+   * either real, generated doc array here needs no cast.
+   */
+  const checkClaims = (
+    slug: (typeof DOMAIN_OWNING_COLLECTIONS)[number],
+    docs: ReadonlyArray<TenantWithDomains>
+  ) => {
+    for (const other of docs) {
       // A document always matches its own stored rows on update, and only
       // ever against its own collection - ids are not unique across tables
       if (
@@ -113,7 +159,10 @@ export const guardDomainConflicts: CollectionBeforeChangeHook<
         );
       }
     }
-  }
+  };
+
+  checkClaims('tenants', tenantDocs);
+  checkClaims('platform-settings', platformDocs);
 
   return data;
 };

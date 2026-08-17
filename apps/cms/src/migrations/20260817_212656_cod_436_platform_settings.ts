@@ -54,11 +54,10 @@ export async function down({
    ALTER TABLE "payload"."platform_settings_domains" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "payload"."platform_settings" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "payload"."platform_settings_texts" DISABLE ROW LEVEL SECURITY;
+  DROP INDEX "payload"."payload_locked_documents_rels_platform_settings_id_idx";
+  ALTER TABLE "payload"."payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_platform_settings_fk";
+  ALTER TABLE "payload"."payload_locked_documents_rels" DROP COLUMN "platform_settings_id";
   DROP TABLE "payload"."platform_settings_domains" CASCADE;
   DROP TABLE "payload"."platform_settings" CASCADE;
-  DROP TABLE "payload"."platform_settings_texts" CASCADE;
-  ALTER TABLE "payload"."payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_platform_settings_fk";
-  
-  DROP INDEX "payload"."payload_locked_documents_rels_platform_settings_id_idx";
-  ALTER TABLE "payload"."payload_locked_documents_rels" DROP COLUMN "platform_settings_id";`);
+  DROP TABLE "payload"."platform_settings_texts" CASCADE;`);
 }

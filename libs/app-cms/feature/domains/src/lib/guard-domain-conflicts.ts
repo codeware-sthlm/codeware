@@ -3,6 +3,9 @@ import { APIError, type CollectionBeforeChangeHook } from 'payload';
 
 import type { TenantDomain, TenantWithDomains } from './tenant-domain';
 
+/** Every collection with a `domains` field of this shape */
+const DOMAIN_OWNING_COLLECTIONS = ['tenants', 'platform-settings'] as const;
+
 /** Rows that name both a hostname and the app serving it */
 const complete = (domains: Array<TenantDomain>) =>
   domains.filter(
@@ -16,22 +19,27 @@ const complete = (domains: Array<TenantDomain>) =>
  * Three conflicts, all of which would otherwise surface much later and much
  * worse:
  *
- * - **The same hostname twice on one tenant.** Both rows would race to own the
- *   certificate, and the panel would show two different states for one domain.
- * - **A hostname another workspace already claims.** Fly refuses the second
- *   certificate anyway, but with wording about an app name that means nothing
- *   to whoever is filling in this form. Worse, on a shared organisation the
- *   first workspace's traffic is what would move.
+ * - **The same hostname twice on one document.** Both rows would race to own
+ *   the certificate, and the panel would show two different states for one
+ *   domain.
+ * - **A hostname another document already claims** — a different tenant, or
+ *   the platform's own settings. Fly refuses the second certificate anyway,
+ *   but with wording about an app name that means nothing to whoever is
+ *   filling in this form. Worse, on a shared organisation the first
+ *   document's traffic is what would move.
  * - **Two primaries for one app.** The primary decides the url the app calls
  *   itself, and there is no sensible tiebreak — leaving it ambiguous means the
  *   answer changes with row order.
+ *
+ * Registered on every collection in `DOMAIN_OWNING_COLLECTIONS`, so a clash is
+ * caught whichever side it was added from.
  *
  * Nothing here checks DNS or issuance. Those are questions for Fly, asked from
  * the panel, and a domain is expected to sit unvalidated for a while.
  */
 export const guardDomainConflicts: CollectionBeforeChangeHook<
   TenantWithDomains
-> = async ({ data, originalDoc, req }) => {
+> = async ({ collection, data, originalDoc, req }) => {
   const domains = complete(data?.domains ?? []);
 
   if (!domains.length) {
@@ -62,38 +70,48 @@ export const guardDomainConflicts: CollectionBeforeChangeHook<
     primariesByApp.set(app, count);
   }
 
-  // One query for every hostname at once - a tenant with a dozen domains
-  // should not cost a dozen round trips on each save
-  const { docs } = await req.payload.find({
-    collection: 'tenants',
-    where: { 'domains.hostname': { in: [...seen] } },
-    depth: 0,
-    limit: 100,
-    pagination: false,
-    overrideAccess: true,
-    req
-  });
-
   const selfId = originalDoc?.id ?? data?.id;
 
-  for (const other of docs as Array<TenantWithDomains>) {
-    // A tenant always matches its own stored rows on update
-    if (selfId !== undefined && String(other.id) === String(selfId)) {
-      continue;
-    }
+  // One query per collection, each covering every hostname at once - a
+  // document with a dozen domains should not cost a dozen round trips on
+  // each save
+  for (const slug of DOMAIN_OWNING_COLLECTIONS) {
+    const { docs } = await req.payload.find({
+      collection: slug,
+      where: { 'domains.hostname': { in: [...seen] } },
+      depth: 0,
+      limit: 100,
+      pagination: false,
+      overrideAccess: true,
+      req
+    });
 
-    const clash = (other.domains ?? []).find(
-      ({ hostname }) => hostname && seen.has(hostname)
-    );
+    for (const other of docs as Array<TenantWithDomains>) {
+      // A document always matches its own stored rows on update, and only
+      // ever against its own collection - ids are not unique across tables
+      if (
+        slug === collection.slug &&
+        selfId !== undefined &&
+        String(other.id) === String(selfId)
+      ) {
+        continue;
+      }
 
-    if (clash?.hostname) {
-      throw new APIError(
-        t('validation:domainTaken', {
-          hostname: clash.hostname,
-          tenant: other.name ?? String(other.id)
-        }),
-        400
+      const clash = (other.domains ?? []).find(
+        ({ hostname }) => hostname && seen.has(hostname)
       );
+
+      if (clash?.hostname) {
+        const owner =
+          slug === 'tenants'
+            ? `${t('domains:ownerWorkspace')} "${other.name ?? String(other.id)}"`
+            : t('domains:ownerPlatform');
+
+        throw new APIError(
+          t('validation:domainTaken', { hostname: clash.hostname, owner }),
+          400
+        );
+      }
     }
   }
 

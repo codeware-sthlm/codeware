@@ -5,10 +5,20 @@ import type { TenantWithDomains } from './tenant-domain';
 
 type HookArgs = Parameters<typeof guardDomainConflicts>[0];
 
-/** Tenants the cross-tenant lookup finds */
-let claimed: Array<TenantWithDomains> = [];
+/** What each collection's cross-claim lookup finds, keyed by slug */
+let claimed: Record<
+  'tenants' | 'platform-settings',
+  Array<TenantWithDomains>
+> = {
+  tenants: [],
+  'platform-settings': []
+};
 
-const find = vi.fn(async () => ({ docs: claimed }));
+const find = vi.fn(
+  async ({ collection }: { collection: 'tenants' | 'platform-settings' }) => ({
+    docs: claimed[collection]
+  })
+);
 
 const req = () =>
   ({
@@ -19,11 +29,15 @@ const req = () =>
 
 const invoke = (
   data: Partial<TenantWithDomains>,
-  originalDoc?: Partial<TenantWithDomains>
+  options: {
+    originalDoc?: Partial<TenantWithDomains>;
+    collection?: 'tenants' | 'platform-settings';
+  } = {}
 ): Promise<unknown> =>
   guardDomainConflicts({
+    collection: { slug: options.collection ?? 'tenants' },
     data,
-    originalDoc,
+    originalDoc: options.originalDoc,
     req: req()
   } as unknown as HookArgs) as Promise<unknown>;
 
@@ -32,7 +46,7 @@ const moon = { id: 1, name: 'Moon' };
 describe('guardDomainConflicts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    claimed = [];
+    claimed = { tenants: [], 'platform-settings': [] };
   });
 
   it('accepts distinct domains', async () => {
@@ -84,7 +98,7 @@ describe('guardDomainConflicts', () => {
   });
 
   it('refuses a hostname another workspace already claims', async () => {
-    claimed = [
+    claimed.tenants = [
       { id: 2, name: 'Titan', domains: [{ hostname: 'tours.example.com' }] }
     ];
 
@@ -98,7 +112,7 @@ describe('guardDomainConflicts', () => {
 
   it('does not treat a tenant own stored rows as a conflict', async () => {
     // Every update matches itself, which would make a domain unsavable twice
-    claimed = [
+    claimed.tenants = [
       { id: 1, name: 'Moon', domains: [{ hostname: 'tours.example.com' }] }
     ];
 
@@ -108,25 +122,25 @@ describe('guardDomainConflicts', () => {
           ...moon,
           domains: [{ hostname: 'tours.example.com', app: 'cdwr-web-moon' }]
         },
-        moon
+        { originalDoc: moon }
       )
     ).resolves.toBeDefined();
   });
 
   it('compares ids across the string and number forms payload uses', async () => {
-    claimed = [
+    claimed.tenants = [
       { id: '1', name: 'Moon', domains: [{ hostname: 'tours.example.com' }] }
     ];
 
     await expect(
       invoke(
         { domains: [{ hostname: 'tours.example.com', app: 'cdwr-web-moon' }] },
-        { id: 1, name: 'Moon' }
+        { originalDoc: { id: 1, name: 'Moon' } }
       )
     ).resolves.toBeDefined();
   });
 
-  it('asks for every hostname in one query', async () => {
+  it('queries every domain-owning collection once, covering every hostname at once', async () => {
     await invoke({
       ...moon,
       domains: [
@@ -135,9 +149,18 @@ describe('guardDomainConflicts', () => {
       ]
     });
 
-    expect(find).toHaveBeenCalledTimes(1);
+    expect(find).toHaveBeenCalledTimes(2);
     expect(find).toHaveBeenCalledWith(
       expect.objectContaining({
+        collection: 'tenants',
+        where: {
+          'domains.hostname': { in: ['a.example.com', 'b.example.com'] }
+        }
+      })
+    );
+    expect(find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'platform-settings',
         where: {
           'domains.hostname': { in: ['a.example.com', 'b.example.com'] }
         }
@@ -163,5 +186,54 @@ describe('guardDomainConflicts', () => {
     expect(find).toHaveBeenCalledWith(
       expect.objectContaining({ overrideAccess: true })
     );
+  });
+
+  describe('across collections', () => {
+    it('refuses a tenant claiming a hostname the platform already uses', async () => {
+      claimed['platform-settings'] = [
+        { id: 1, domains: [{ hostname: 'cms.example.com' }] }
+      ];
+
+      await expect(
+        invoke({
+          ...moon,
+          domains: [{ hostname: 'cms.example.com', app: 'cdwr-cms' }]
+        })
+      ).rejects.toThrow('validation:domainTaken');
+    });
+
+    it('refuses the platform claiming a hostname a tenant already uses', async () => {
+      claimed.tenants = [
+        { id: 1, name: 'Moon', domains: [{ hostname: 'tours.example.com' }] }
+      ];
+
+      await expect(
+        invoke(
+          {
+            id: 1,
+            domains: [{ hostname: 'tours.example.com', app: 'cdwr-cms' }]
+          },
+          { collection: 'platform-settings' }
+        )
+      ).rejects.toThrow('validation:domainTaken');
+    });
+
+    it('does not exclude a tenant by an id that only matches the platform row', async () => {
+      // Ids are not unique across tables — a tenant #1 must not be treated as
+      // "self" when the document being saved is platform-settings #1
+      claimed.tenants = [
+        { id: 1, name: 'Moon', domains: [{ hostname: 'shared.example.com' }] }
+      ];
+
+      await expect(
+        invoke(
+          {
+            id: 1,
+            domains: [{ hostname: 'shared.example.com', app: 'cdwr-cms' }]
+          },
+          { collection: 'platform-settings', originalDoc: { id: 1 } }
+        )
+      ).rejects.toThrow('validation:domainTaken');
+    });
   });
 });

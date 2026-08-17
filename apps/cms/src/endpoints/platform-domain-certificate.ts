@@ -1,0 +1,151 @@
+import type { HostnameCheck } from '@cdwr/fly-node/api';
+import {
+  type CertificateState,
+  type DomainSecretsReport,
+  applyCertificateState,
+  findDomainSecrets,
+  getFlyApi,
+  parseHostname,
+  toCertificateState
+} from '@codeware/app-cms/feature/domains';
+import { hasRole } from '@codeware/app-cms/util/misc';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
+import {
+  type Endpoint,
+  type PayloadRequest,
+  addDataAndFileToRequest,
+  headersWithCors
+} from 'payload';
+
+/** What the panel may ask for */
+const ACTIONS = ['request', 'check', 'remove'] as const;
+
+type Action = (typeof ACTIONS)[number];
+
+type Body = { hostname?: unknown; action?: unknown };
+
+type Result = {
+  certificate: CertificateState | null;
+  /** Live dns resolution, and whatever Fly objects to about it */
+  check: HostnameCheck | null;
+  /** Where Infisical mentions this domain, so a certificate is not mistaken for a working site */
+  secrets: DomainSecretsReport | null;
+};
+
+const fail = (status: StatusCodes, message?: string) =>
+  Response.json({ error: message ?? getReasonPhrase(status) }, { status });
+
+/**
+ * Request, re-read or withdraw the TLS certificate for the host cms's own
+ * custom domain.
+ *
+ * The platform-settings sibling of `tenantDomainCertificateEndpoint` — same
+ * reasoning, same guard, but reading and writing `platform-settings` instead
+ * of a tenant row. Kept as its own endpoint rather than a branch inside the
+ * tenant one: the two collections' lookup shapes differ enough (a tenant id
+ * from the request vs. the platform's one row) that sharing would mean
+ * threading a discriminator through every step, for a handler this size.
+ */
+export const platformDomainCertificateEndpoint: Endpoint = {
+  path: '/platform-domain-certificate',
+  method: 'post',
+  handler: async (req: PayloadRequest): Promise<Response> => {
+    if (!hasRole(req.user ?? null, 'system-user')) {
+      return fail(StatusCodes.FORBIDDEN);
+    }
+
+    await addDataAndFileToRequest(req);
+    const body = (req.data ?? {}) as Body;
+
+    const action = String(body.action) as Action;
+    const parsed = parseHostname(String(body.hostname ?? ''));
+
+    if (!ACTIONS.includes(action) || !parsed.valid) {
+      return fail(StatusCodes.BAD_REQUEST);
+    }
+
+    const { hostname } = parsed;
+
+    const { docs } = await req.payload.find({
+      collection: 'platform-settings',
+      depth: 0,
+      limit: 1,
+      pagination: false,
+      overrideAccess: false,
+      user: req.user,
+      req
+    });
+
+    const settings = docs[0];
+    const domains = settings?.domains ?? [];
+    const domain = domains.find((entry) => entry.hostname === hostname);
+
+    // An unlisted hostname is not this platform's to act on
+    if (!settings || !domain?.app) {
+      return fail(StatusCodes.NOT_FOUND);
+    }
+
+    const fly = await getFlyApi();
+
+    if (!fly) {
+      return fail(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'No Fly credentials are configured for this platform.'
+      );
+    }
+
+    const app = domain.app;
+    let result: Result;
+
+    try {
+      if (action === 'request') {
+        const { certificate, check } = await fly.certs.add(app, hostname);
+        result = {
+          certificate: toCertificateState(certificate),
+          check,
+          secrets: null
+        };
+      } else if (action === 'check') {
+        const [certificate, check, secrets] = await Promise.all([
+          fly.certs.get(app, hostname),
+          fly.certs.check(app, hostname),
+          findDomainSecrets(hostname)
+        ]);
+        result = {
+          certificate: toCertificateState(certificate),
+          check,
+          secrets
+        };
+      } else {
+        await fly.certs.remove(app, hostname);
+        result = { certificate: null, check: null, secrets: null };
+      }
+    } catch (error) {
+      req.payload.logger.error(
+        `[platformDomainCertificate] ${action} failed for ${hostname} on ${app}: ${String(error)}`
+      );
+      return fail(
+        StatusCodes.BAD_GATEWAY,
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+
+    await req.payload.update({
+      collection: 'platform-settings',
+      id: settings.id,
+      data: {
+        domains: applyCertificateState(domains, hostname, result.certificate)
+      },
+      depth: 0,
+      // The caller is authorized above, and by the read that found this row.
+      // The write itself is the platform recording its own answer, not an edit.
+      overrideAccess: true,
+      req
+    });
+
+    return Response.json(result, {
+      status: StatusCodes.OK,
+      headers: headersWithCors({ headers: new Headers(), req })
+    });
+  }
+};

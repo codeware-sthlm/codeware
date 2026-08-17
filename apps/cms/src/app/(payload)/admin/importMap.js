@@ -29,6 +29,7 @@ import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c08
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client';
 import { default as default_ae19db27eee762af26f037dd7af0b736 } from '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client';
+import { default as default_3ecb273768f8dd5ef812cc5c5d6c2630 } from '@codeware/apps/cms/components/admin/domains/PlatformDomainsField';
 import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client';
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client';
 import { default as default_8586e6ac5ddd6a3f87ffe1dd472673f5 } from '@codeware/app-cms/ui/fields/color-picker/ColorPickerField.client';
@@ -133,6 +134,8 @@ export const importMap = {
     PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   '@codeware/app-cms/ui/fields/icon-picker/IconPickerField.client#default':
     default_ae19db27eee762af26f037dd7af0b736,
+  '@codeware/apps/cms/components/admin/domains/PlatformDomainsField#default':
+    default_3ecb273768f8dd5ef812cc5c5d6c2630,
   '@payloadcms/richtext-lexical/client#LinkFeatureClient':
     LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   '@payloadcms/richtext-lexical/client#BlocksFeatureClient':

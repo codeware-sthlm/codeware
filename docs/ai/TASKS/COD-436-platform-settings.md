@@ -13,6 +13,7 @@ Done and committed:
 | `9626312f` | Step 1: `domainsField()` factory extracted into `feature/domains`, not `ui/fields` as originally planned — see deviation note below |
 | `0686e034` | Step 2: `platform-settings` collection, `ensureSingleRow` hook, registered and typed                                                |
 | `fb4554c8` | Step 3: migration `20260817_212656_cod_436_platform_settings`, applied to local dev db                                              |
+| `05abdb5d` | Steps 4+5: `adoptPlatformDomains` boot read + `DISABLE_DOMAIN_ADOPTION` flag, built together                                        |
 
 Deviations from the written plan:
 
@@ -31,17 +32,40 @@ Deviations from the written plan:
 - Regenerating types also picked up `validationErrors` on `Tenant`/`TenantsSelect`, a field
   already in the domains array that the committed `payload-types.ts` had never reflected —
   pre-existing drift, not something this branch introduced.
+- `migrate:create <name>` (positional arg, not `--name`) named the file correctly on the
+  first try — no manual rename needed, unlike the COD-357-era `--name` quirk noted below.
+- **Steps 4 and 5 built together, not sequentially.** Step 5's plan text ("Honour it in
+  both `adoptTenantDomains` and `adopt-platform-domains.ts`, replacing the
+  `!process.env['CUSTOM_URL']` check") only makes sense once `DISABLE_DOMAIN_ADOPTION`
+  exists — writing step 4 first against the old `CUSTOM_URL` check would mean throwaway
+  code. `DISABLE_DOMAIN_ADOPTION` (`coerceBoolean(false)`, next to `DISABLE_DB_PUSH`) landed
+  in the same commit as both `adopt*Domains` functions. `CUSTOM_URL` itself is untouched —
+  still feeding `APP_MODE.serverURL`'s fallback chain, per step 7's sequencing. The flag only
+  gates `serverURL`, matching the old `CUSTOM_URL` check's scope exactly; `cors`/`csrf` still
+  accept an adopted origin regardless — a deliberate carry-over, not an oversight (an issued
+  certificate means the origin really is being served, whatever the identity override says).
+- **`adoptPlatformDomains` has no spec, by explicit user decision.** Importing anything from
+  `@codeware/app-cms/feature/domains`'s barrel — even the payload-free `adoptableDomains` —
+  pulls in `guardDomainConflicts`, which imports `payload` as a value; jest can't parse
+  Payload's ESM build, so any spec importing the function fails before a test runs. This is
+  the same wall `adoptTenantDomains` already lived behind — its own spec never imports the
+  function, only pins Payload source assumptions. Offered a narrow-subpath fix (mirroring
+  `@cdwr/fly-node/api`); declined. Verification is `nx verify cms` plus manual admin checks.
+  Both functions now carry a comment explaining the gap.
+- **Flagged, not fixed: `feature/domains` has outgrown clean separation of concerns.** It
+  mixes pure utilities (`adoptableDomains`), Payload-coupled hooks (`guardDomainConflicts`),
+  a UI field factory (`domainsField`, added in step 1), and external API integration
+  (`getFlyApi`, `findDomainSecrets`). That mixing caused both the step-1 module-boundary
+  problem and the step-4 jest wall above. No refactor in this ticket — noted for a future
+  one. `domainsField` and `validateHostname` are the two most likely candidates to move.
+  Saved to memory (`feedback_feature_lib_soc`) since it's a standing preference, not just
+  this ticket's problem.
 
-Not yet addressed, carried from step 1: `guardDomainConflicts` (in `feature/domains`) checks
-for a hostname reused elsewhere only against `collection: 'tenants'`. Once
-`platform-settings` has its own `domains` array, the same hostname in both places would go
-uncaught. Decide in step 6 (or earlier if it blocks step 4's spec) whether the check should
-widen to both collections.
+Still open from step 1: `guardDomainConflicts` checks for a hostname reused elsewhere only
+against `collection: 'tenants'`. Now that `platform-settings` has its own `domains` array,
+the same hostname in both places goes uncaught. Decide in step 6.
 
-`migrate:create <name>` (positional arg, not `--name`) named the file correctly on the first
-try — no manual rename needed, unlike the COD-357-era `--name` quirk noted below.
-
-Next: step 4, boot read.
+Next: step 6, admin affordances (certificate + restart endpoints for host mode).
 
 ## Where this plan departs from the ticket
 

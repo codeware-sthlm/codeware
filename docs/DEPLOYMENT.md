@@ -12,6 +12,7 @@ This document explains the deployment architecture and configuration for the Cod
   - [Fly Configuration Files](#fly-configuration-files)
   - [Tenant Configuration (Infisical)](#tenant-configuration-infisical)
   - [Secret Loading: Deployment vs Runtime](#secret-loading-deployment-vs-runtime)
+  - [Non-Secret Platform Configuration](#non-secret-platform-configuration)
   - [Signature Secret Rollover](#signature-secret-rollover)
   - [Tenant API Key Rotation](#tenant-api-key-rotation)
   - [Sentry](#sentry)
@@ -275,7 +276,9 @@ Secrets are loaded at two distinct stages, each serving different purposes:
 - **Location**: `/tenants/<tenant-id>/apps/<app-name>/` (recursive)
 - **Purpose**: Configuration that determines how apps are deployed
 - **Fetched by**: Pre-deploy action during CI/CD workflow
-- **Examples**: `CUSTOM_URL`, `PAYLOAD_API_KEY`, tenant-specific build configuration
+- **Examples**: `CUSTOM_URL` (being retired, see
+  [Non-Secret Platform Configuration](#non-secret-platform-configuration)),
+  `PAYLOAD_API_KEY`, tenant-specific build configuration
 - **Characteristics**:
   - Baked into Fly.io app configuration as env vars or secrets
   - Static after deployment (requires redeployment to change)
@@ -320,6 +323,41 @@ Secrets can be resolved to either an environment variable or a hidden secret in 
 Secrets in Infisical are handled as **secrets by default**.
 
 To make a secret visible as **environment variable**, add metadata key `env` set to `true`.
+
+### Non-Secret Platform Configuration
+
+Not everything the CMS needs to know belongs in Infisical. The boundary:
+
+- **Secrets** — `PAYLOAD_SECRET_KEY`, S3 and SendGrid credentials, the Fly token, Sentry
+  DSN. A database is the wrong home: they end up in backups, in the admin UI, and in
+  whatever a system user can read.
+- **Config needed to reach or identify the deployment** — `DATABASE_URL`, `TENANT_ID`,
+  `DEPLOY_ENV`. Config the app needs before it has a database cannot live in the database.
+- **Everything else platform-wide** — non-secret, needed only after the database is up,
+  and genuinely worth editing with a form — lives in the CMS's `platform-settings`
+  collection instead, where it gets field validation and version history. The host cms's
+  own custom domain is the first example: it lives in `platform-settings.domains`, the
+  same shape as a tenant's `domains` field, with certificate state managed from the same
+  admin panel.
+
+Config that decides which url a deployment serves is boot-read from the database
+(`onInit`), never baked into the build, since the database is what the config is being
+built to reach. `DISABLE_DOMAIN_ADOPTION` is the break-glass escape hatch: set it and the
+app serves on its plain Fly url regardless of what any domain row says, so a bad row in
+the database can never be what keeps a deployment unreachable. It replaces carrying an
+override hostname in an env var — the fallback address is already known (`FLY_URL`), so
+the lever only needs to be a boolean.
+
+`CUSTOM_URL` is being retired in favor of this pattern (tenant `domains`, or
+`platform-settings.domains` for the host cms) and is not expected to be set on new
+deployments, but it may still be present on already-deployed apps until each is
+individually migrated to a database-stored domain and its Infisical value removed.
+
+Not every non-secret value has moved, or should. `MAINTENANCE_MODE` stays in env
+deliberately: it is read in `apps/cms/src/proxy.ts` middleware and has to keep working
+when the database is unreachable — including when the database is why the app is in
+maintenance mode in the first place. Config for outages must not depend on the thing that
+is out.
 
 ### Signature Secret Rollover
 

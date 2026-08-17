@@ -14,6 +14,8 @@ Done and committed:
 | `0686e034` | Step 2: `platform-settings` collection, `ensureSingleRow` hook, registered and typed                                                |
 | `fb4554c8` | Step 3: migration `20260817_212656_cod_436_platform_settings`, applied to local dev db                                              |
 | `05abdb5d` | Steps 4+5: `adoptPlatformDomains` boot read + `DISABLE_DOMAIN_ADOPTION` flag, built together                                        |
+| `1128398a` | Step 6: `platform-domain-certificate` / `platform-machine-restart` endpoints, `PlatformDomainsField` panel                          |
+| `1fcd8ff9` | Step 6 follow-up: `guardDomainConflicts` widened across both domain-owning collections, wired onto `platform-settings`              |
 
 Deviations from the written plan:
 
@@ -60,12 +62,35 @@ Deviations from the written plan:
   one. `domainsField` and `validateHostname` are the two most likely candidates to move.
   Saved to memory (`feedback_feature_lib_soc`) since it's a standing preference, not just
   this ticket's problem.
+- **Certificate and restart got their own endpoints, not a branch inside the tenant ones.**
+  `platform-domain-certificate.ts` / `platform-machine-restart.ts` mirror
+  `tenant-domain-certificate.ts` / `tenant-machine-restart.ts` closely — same guard, same
+  response shape — rather than threading a collection discriminator through the existing,
+  already-shipped (COD-357) tenant endpoints. Lower risk to a working production path, at
+  the cost of near-duplicate control flow; consistent with how `adoptPlatformDomains` already
+  mirrors `adoptTenantDomains` rather than sharing a body. `DomainsPanel` itself needed only
+  one new prop (`subject: 'tenant' | 'platform'`) to pick which pair of paths to call —
+  `useDocumentInfo()`'s `id` is already collection-agnostic, so the same panel component
+  renders correctly on `platform-settings` with no other change.
+- **Caught before it shipped: `overrideAccess` defaults to `true` in Payload's Local API**,
+  not `false`. The new endpoints' first draft read `platform-settings` with no explicit
+  `overrideAccess`, silently bypassing access control — unlike the tenant endpoints' explicit
+  `overrideAccess: false`. Fixed to match; every read in the new endpoints is now explicit
+  about which way it goes, matching the sibling files' existing style.
+- **Fixed rather than deferred: `guardDomainConflicts` had no reach into `platform-settings`
+  at all, in either direction.** It's now collection-aware via `collection.slug` from its own
+  hook args, checks `['tenants', 'platform-settings']` for a hostname clash, and self-exclusion
+  is scoped to matching both the id _and_ the collection — ids are not unique across tables,
+  so a tenant #1 must never be treated as "self" when saving platform-settings #1. This was
+  worse than "the cross-collection case is uncaught": `platform-settings.domains` had _no_
+  hooks at all before this — not even `normalizeDomains` or the within-document duplicate/
+  two-primaries checks — which directly contradicts the ticket's own pitch for the collection
+  ("gives that class of config field validation"). Now attached to `platform-settings` too.
+  `domainTaken`'s message changed from `'…the workspace "{{tenant}}"'` to a collection-neutral
+  `'…{{owner}}'`, with two new short i18n keys (`domains:ownerWorkspace` / `ownerPlatform`)
+  building the phrase in code rather than nesting a translation call inside another.
 
-Still open from step 1: `guardDomainConflicts` checks for a hostname reused elsewhere only
-against `collection: 'tenants'`. Now that `platform-settings` has its own `domains` array,
-the same hostname in both places goes uncaught. Decide in step 6.
-
-Next: step 6, admin affordances (certificate + restart endpoints for host mode).
+Next: step 7, retiring `CUSTOM_URL`.
 
 ## Where this plan departs from the ticket
 

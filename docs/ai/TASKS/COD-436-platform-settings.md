@@ -16,6 +16,8 @@ Done and committed:
 | `05abdb5d` | Steps 4+5: `adoptPlatformDomains` boot read + `DISABLE_DOMAIN_ADOPTION` flag, built together                                        |
 | `1128398a` | Step 6: `platform-domain-certificate` / `platform-machine-restart` endpoints, `PlatformDomainsField` panel                          |
 | `1fcd8ff9` | Step 6 follow-up: `guardDomainConflicts` widened across both domain-owning collections, wired onto `platform-settings`              |
+| `bca346c8` | Type-safety fixup: removed the `docs as Array<TenantWithDomains>` cast — see deviation note below                                   |
+| `ede5b8d2` | Step 7 (docs half only): `DEPLOYMENT.md` boundary rule + `DISABLE_DOMAIN_ADOPTION` documented                                       |
 
 Deviations from the written plan:
 
@@ -89,8 +91,40 @@ Deviations from the written plan:
   `domainTaken`'s message changed from `'…the workspace "{{tenant}}"'` to a collection-neutral
   `'…{{owner}}'`, with two new short i18n keys (`domains:ownerWorkspace` / `ownerPlatform`)
   building the phrase in code rather than nesting a translation call inside another.
+- **`guardDomainConflicts` rewritten to drop its one remaining `as` cast, on request.** Looping
+  `req.payload.find({ collection: slug, ... })` over `DOMAIN_OWNING_COLLECTIONS` (a union of two
+  literals) made Payload's generic `find` fall back to an index-signature type for `docs`,
+  silently hiding real shape mismatches behind property-access errors that only a cast could
+  suppress. Replaced with two explicitly-literal-typed calls (`'tenants'`, `'platform-settings'`,
+  run via `Promise.all` — free parallelism, not why it was done) feeding a shared `checkClaims`
+  helper typed `ReadonlyArray<TenantWithDomains>`; `Tenant`/`PlatformSetting` are structurally
+  compatible with that type by design, so no cast is needed to pass them in. Also added a
+  runtime guard: Payload's hook types don't restrict which collection a
+  `CollectionBeforeChangeHook` may be attached to, so `DOMAIN_OWNING_COLLECTIONS` (now typed
+  `satisfies readonly CollectionSlug[]`, catching a rename at compile time) doubles as a real
+  check that the hook is wired up somewhere it actually knows how to handle.
+- **Step 7 stopped short of the live cutover.** The plan's own text says the `CUSTOM_URL`
+  removal is "last, and only once step 4 is deployed and verified" — nothing has deployed yet,
+  this is still a local branch. Removing `CUSTOM_URL` from `EnvSchema`/`APP_MODE.serverURL`'s
+  fallback now would break `_default` and `demo` in production the moment it merges, since
+  Infisical still sets it for both. Did the safe, code-only half: `docs/DEPLOYMENT.md` now
+  documents the boundary rule, `DISABLE_DOMAIN_ADOPTION`, and `CUSTOM_URL`'s retirement —
+  worded as in-progress, not already done. The five-secret Infisical cutover (see "What
+  Infisical actually holds" above) and the `EnvSchema`/fallback-chain removal are a manual
+  follow-up for once this branch is live and the `_default` cutover has been verified working.
 
-Next: step 7, retiring `CUSTOM_URL`.
+## Handoff
+
+Branch is ready for PR. Everything code-side is committed and passes lint, typecheck (`nx
+affected -t lint typecheck` — 29 projects, clean) and `nx run cms:build` (production build,
+clean). `nx test cms` (11 tests) and `app-cms-feature-domains` (13 tests, all new) pass.
+
+Two things need you directly, both interactive/slow by convention on this project:
+
+- `nx verify cms` and `nx test-migrate cms` — ask for these before merging.
+- After merge and deploy: the step 7 live cutover above (five Infisical values, in the order
+  listed under "What Infisical actually holds"), then the `CUSTOM_URL` code removal as a
+  follow-up PR once `_default` is confirmed serving from `platform-settings` correctly.
 
 ## Where this plan departs from the ticket
 

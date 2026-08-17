@@ -1,7 +1,7 @@
 import {
+  domainsField,
   guardDomainConflicts,
-  normalizeDomains,
-  validateHostname
+  normalizeDomains
 } from '@codeware/app-cms/feature/domains';
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { systemUserAccess } from '@codeware/app-cms/util/access';
@@ -113,88 +113,7 @@ const tenants: CollectionConfig = {
       hasMany: true,
       required: true
     },
-    {
-      name: 'domains',
-      type: 'array',
-      label: { en: 'Custom domains', sv: 'Egna domäner' },
-      admin: {
-        disableListColumn: true,
-        description: {
-          en: 'Domains this workspace is reachable on, in addition to its .fly.dev address — which keeps working and stays useful for support. Add the domain here first, then create the DNS records shown after saving.',
-          sv: 'Domäner som arbetsytan nås på, utöver dess .fly.dev-adress — som fortsätter fungera och är bra att ha vid support. Lägg till domänen här först och skapa sedan DNS-posterna som visas efter att du sparat.'
-        },
-        initCollapsed: true
-      },
-      fields: [
-        {
-          type: 'row',
-          fields: [
-            {
-              name: 'hostname',
-              type: 'text',
-              label: { en: 'Domain', sv: 'Domän' },
-              required: true,
-              validate: validateHostname,
-              admin: {
-                width: '60%',
-                placeholder: 'tours.example.com',
-                description: {
-                  en: 'The domain on its own — no https://, no path.',
-                  sv: 'Enbart domänen — utan https:// och utan sökväg.'
-                }
-              }
-            },
-            {
-              name: 'app',
-              type: 'text',
-              label: { en: 'Fly app', sv: 'Fly-app' },
-              required: true,
-              admin: {
-                width: '40%',
-                placeholder: 'cdwr-web-moon',
-                description: {
-                  en: 'The Fly app that serves this domain. The certificate is attached to it.',
-                  sv: 'Fly-appen som servar domänen. Certifikatet kopplas till den.'
-                }
-              }
-            }
-          ]
-        },
-        {
-          name: 'isPrimary',
-          type: 'checkbox',
-          label: { en: 'Primary domain', sv: 'Primär domän' },
-          admin: {
-            description: {
-              en: 'The address the app presents as its own, in links and emails. One per app.',
-              sv: 'Adressen appen anger som sin egen, i länkar och e-post. En per app.'
-            }
-          }
-        },
-        {
-          // What Fly last said about this domain. Field names are Fly's own, so
-          // a stored value can be read straight against its schema.
-          //
-          // Hidden rather than rendered: eight read-only inputs per row would
-          // bury the two fields that are actually filled in. The panel below
-          // the array presents the same data as something to act on.
-          type: 'group',
-          name: 'certificate',
-          admin: { hidden: true },
-          fields: [
-            { name: 'isConfigured', type: 'checkbox' },
-            { name: 'isApex', type: 'checkbox' },
-            { name: 'status', type: 'text' },
-            { name: 'checkedAt', type: 'date' },
-            { name: 'dnsValidationHostname', type: 'text' },
-            { name: 'dnsValidationTarget', type: 'text' },
-            { name: 'dnsValidationInstructions', type: 'textarea' },
-            { name: 'rateLimitedUntil', type: 'date' },
-            { name: 'validationErrors', type: 'text', hasMany: true }
-          ]
-        }
-      ]
-    },
+    domainsField(),
     {
       name: 'domainsPanel',
       type: 'ui',

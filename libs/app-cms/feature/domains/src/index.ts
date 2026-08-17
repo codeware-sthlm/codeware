@@ -8,6 +8,7 @@ export {
   toCertificateState
 } from './lib/certificate-state';
 export { describeCertificateIssues } from './lib/certificate-issues';
+export { domainsField } from './lib/domains-field';
 export {
   type DomainSecret,
   type DomainSecretsReport,

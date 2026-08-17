@@ -97,12 +97,28 @@ const domainKey = (hostname: string, app: string) => `${hostname}|${app}`;
  * The cards themselves live in `@codeware/app-cms/ui/domains`, where every
  * state can be seen at once in Storybook. This owns the form state, the calls
  * and the translations, and hands them down as plain props.
+ *
+ * `subject` picks which pair of endpoints to call and, for `'tenant'`, which
+ * document's id rides along — `platform-settings` is a singleton, so a
+ * `'platform'` call needs none.
  */
-export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
+export const DomainsPanel: React.FC<{
+  language: string;
+  subject: 'tenant' | 'platform';
+}> = ({ language, subject }) => {
   const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
   const { id, data } = useDocumentInfo();
   const { sdk } = usePayloadSdk();
   const fields = useFormFields(([formFields]) => formFields);
+
+  const certificatePath =
+    subject === 'tenant'
+      ? '/tenant-domain-certificate'
+      : '/platform-domain-certificate';
+  const restartPath =
+    subject === 'tenant'
+      ? '/tenant-machine-restart'
+      : '/platform-machine-restart';
 
   /**
    * The live `domains` array, reconstructed from the form's flattened field
@@ -164,8 +180,11 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
       try {
         const response = await sdk.request({
           method: 'POST',
-          path: '/tenant-domain-certificate',
-          json: { tenant: id, hostname, action }
+          path: certificatePath,
+          json:
+            subject === 'tenant'
+              ? { tenant: id, hostname, action }
+              : { hostname, action }
         });
 
         const body = (await response.json()) as {
@@ -205,7 +224,7 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
         setBusy(null);
       }
     },
-    [id, sdk, t]
+    [certificatePath, id, sdk, subject, t]
   );
 
   const runRestart = useCallback(
@@ -215,8 +234,8 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
       try {
         const response = await sdk.request({
           method: 'POST',
-          path: '/tenant-machine-restart',
-          json: { tenant: id, app }
+          path: restartPath,
+          json: subject === 'tenant' ? { tenant: id, app } : { app }
         });
 
         if (!response.ok) {
@@ -229,7 +248,7 @@ export const DomainsPanel: React.FC<{ language: string }> = ({ language }) => {
         setBusy(null);
       }
     },
-    [id, sdk, t]
+    [id, restartPath, sdk, subject, t]
   );
 
   /**

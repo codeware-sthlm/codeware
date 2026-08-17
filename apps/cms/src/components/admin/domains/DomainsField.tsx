@@ -10,7 +10,7 @@ import { DomainsPanel } from './DomainsPanel.client';
  * is already on the form, so there is nothing to fetch and nothing to wait for.
  */
 const DomainsField: UIFieldServerComponent = ({ i18n }) => (
-  <DomainsPanel language={i18n.language} />
+  <DomainsPanel language={i18n.language} subject="tenant" />
 );
 
 export default DomainsField;

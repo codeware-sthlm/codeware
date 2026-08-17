@@ -59,7 +59,17 @@ const platformSettings: CollectionConfig<'platform-settings'> = {
           initCollapsed: true
         }
       }
-    })
+    }),
+    {
+      name: 'domainsPanel',
+      type: 'ui',
+      admin: {
+        components: {
+          Field:
+            '@codeware/apps/cms/components/admin/domains/PlatformDomainsField'
+        }
+      }
+    }
   ]
 };
 

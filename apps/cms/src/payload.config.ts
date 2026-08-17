@@ -45,6 +45,8 @@ import { formSubmissionsExportEndpoint } from './endpoints/form-submissions-expo
 import { formSubmissionsReadEndpoint } from './endpoints/form-submissions-read';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
 import { perfStatsEndpoint } from './endpoints/perf-stats';
+import { platformDomainCertificateEndpoint } from './endpoints/platform-domain-certificate';
+import { platformMachineRestartEndpoint } from './endpoints/platform-machine-restart';
 import { tenantConfigEndpoint } from './endpoints/tenant-config';
 import { tenantDomainCertificateEndpoint } from './endpoints/tenant-domain-certificate';
 import { tenantMachineRestartEndpoint } from './endpoints/tenant-machine-restart';
@@ -178,6 +180,8 @@ export default buildConfig({
     formSubmissionsReadEndpoint,
     paletteSearchEndpoint,
     perfStatsEndpoint,
+    platformDomainCertificateEndpoint,
+    platformMachineRestartEndpoint,
     tenantConfigEndpoint,
     tenantDomainCertificateEndpoint,
     tenantMachineRestartEndpoint,

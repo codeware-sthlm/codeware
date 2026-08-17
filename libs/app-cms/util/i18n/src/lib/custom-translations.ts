@@ -316,7 +316,7 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       restart: 'Restart app',
       restartHint:
         'A newly validated domain only takes effect after the app restarts.',
-      saveFirst: 'Save the workspace to request a certificate for this domain.',
+      saveFirst: 'Save to request a certificate for this domain.',
       secretCorsTag: 'accepted as an origin',
       secretsMissing:
         'Nothing in Infisical points at this domain. A certificate alone does not make the site answer on it — add the url where the app’s deployment secrets live.',
@@ -568,7 +568,7 @@ Supported locales: {{locales}}`,
       restart: 'Starta om app',
       restartHint:
         'En nyligen validerad domän börjar gälla först efter att appen har startats om.',
-      saveFirst: 'Spara arbetsytan för att begära ett certifikat för domänen.',
+      saveFirst: 'Spara för att begära ett certifikat för domänen.',
       secretCorsTag: 'godkänd som ursprung',
       secretsMissing:
         'Inget i Infisical pekar på den här domänen. Ett certifikat räcker inte för att sajten ska svara på den — lägg till adressen där appens driftsättningshemligheter finns.',

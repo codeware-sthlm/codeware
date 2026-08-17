@@ -12,6 +12,7 @@ Done and committed:
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `9626312f` | Step 1: `domainsField()` factory extracted into `feature/domains`, not `ui/fields` as originally planned — see deviation note below |
 | `0686e034` | Step 2: `platform-settings` collection, `ensureSingleRow` hook, registered and typed                                                |
+| `fb4554c8` | Step 3: migration `20260817_212656_cod_436_platform_settings`, applied to local dev db                                              |
 
 Deviations from the written plan:
 
@@ -37,7 +38,10 @@ for a hostname reused elsewhere only against `collection: 'tenants'`. Once
 uncaught. Decide in step 6 (or earlier if it blocks step 4's spec) whether the check should
 widen to both collections.
 
-Next: step 3, migration.
+`migrate:create <name>` (positional arg, not `--name`) named the file correctly on the first
+try — no manual rename needed, unlike the COD-357-era `--name` quirk noted below.
+
+Next: step 4, boot read.
 
 ## Where this plan departs from the ticket
 

@@ -18,6 +18,7 @@ Done and committed:
 | `1fcd8ff9` | Step 6 follow-up: `guardDomainConflicts` widened across both domain-owning collections, wired onto `platform-settings`              |
 | `bca346c8` | Type-safety fixup: removed the `docs as Array<TenantWithDomains>` cast — see deviation note below                                   |
 | `ede5b8d2` | Step 7 (docs half only): `DEPLOYMENT.md` boundary rule + `DISABLE_DOMAIN_ADOPTION` documented                                       |
+| `23d5e089` | Fix: reordered the migration's down statements — see finding below, found by `nx verify cms`                                        |
 
 Deviations from the written plan:
 
@@ -113,15 +114,39 @@ Deviations from the written plan:
   Infisical actually holds" above) and the `EnvSchema`/fallback-chain removal are a manual
   follow-up for once this branch is live and the `_default` cutover has been verified working.
 
+**`nx verify cms` caught a real bug in the migration's `down`, and it is not ours alone.**
+`DROP TABLE "payload"."platform_settings" CASCADE` auto-drops the FK constraint on
+`payload_locked_documents_rels` that references it — Postgres CASCADE reaches across tables,
+not just within one. The generated migration then tried to `DROP CONSTRAINT` that same FK
+_after_ the CASCADE had already removed it, so the down failed with "constraint … does not
+exist." Fixed by reordering: drop the `payload_locked_documents_rels` index, constraint and
+column _before_ dropping the `platform_settings` tables, mirroring the up migration's order
+in reverse. Verified locally with a real down → up round-trip (schema and FK confirmed
+restored via `psql`) before asking for `nx verify cms` again.
+
+This is a **pre-existing bug in Payload/Drizzle's migration codegen**, not something
+introduced here — the identical ordering exists in the already-shipped
+`20260809_085018_cod_376.ts` (`platform_labels`'s FK on the same
+`payload_locked_documents_rels` table, same CASCADE-then-explicit-drop pattern). It never
+surfaced there because `verify-last-migration.ts` only exercises the _most recent_ migration;
+`cod_436` was simply the first one since to land as "last" while someone ran `verify`. Worth
+a small follow-up ticket to check whether other already-shipped migrations facing new
+platform/global collections have the same latent issue — not fixed here, since editing an
+already-deployed migration is a different risk profile than editing this branch's own,
+never-deployed one.
+
 ## Handoff
 
 Branch is ready for PR. Everything code-side is committed and passes lint, typecheck (`nx
 affected -t lint typecheck` — 29 projects, clean) and `nx run cms:build` (production build,
 clean). `nx test cms` (11 tests) and `app-cms-feature-domains` (13 tests, all new) pass.
+`nx verify cms` found the migration bug above; after the fix, a manual down/up round-trip
+locally confirmed the schema restores correctly.
 
-Two things need you directly, both interactive/slow by convention on this project:
+Two things still need you directly, both interactive/slow by convention on this project:
 
-- `nx verify cms` and `nx test-migrate cms` — ask for these before merging.
+- Re-run `nx verify cms` to confirm the fix in CI-equivalent conditions, and `nx test-migrate
+cms` — ask for both before merging.
 - After merge and deploy: the step 7 live cutover above (five Infisical values, in the order
   listed under "What Infisical actually holds"), then the `CUSTOM_URL` code removal as a
   follow-up PR once `_default` is confirmed serving from `platform-settings` correctly.

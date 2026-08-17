@@ -10,6 +10,7 @@ import type { CollectionSlug } from 'payload';
 export const platformCollectionSlugs = [
   'faq',
   'platform-labels',
+  'platform-settings',
   'stock-media'
 ] as const satisfies readonly CollectionSlug[];
 

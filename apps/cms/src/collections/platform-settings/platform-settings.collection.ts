@@ -1,4 +1,8 @@
-import { domainsField } from '@codeware/app-cms/feature/domains';
+import {
+  domainsField,
+  guardDomainConflicts,
+  normalizeDomains
+} from '@codeware/app-cms/feature/domains';
 import {
   authenticatedAccess,
   systemUserAccess
@@ -45,7 +49,8 @@ const platformSettings: CollectionConfig<'platform-settings'> = {
     plural: { en: 'Platform Settings', sv: 'Plattformsinställningar' }
   },
   hooks: {
-    beforeValidate: [ensureSingleRow]
+    beforeValidate: [normalizeDomains, ensureSingleRow],
+    beforeChange: [guardDomainConflicts]
   },
   fields: [
     domainsField({

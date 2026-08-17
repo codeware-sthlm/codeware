@@ -71,6 +71,8 @@ const customTranslationsSchema = z.object({
     heading: z.string(),
     issuesHeading: z.string(),
     notRequested: z.string(),
+    ownerPlatform: z.string(),
+    ownerWorkspace: z.string(),
     paused: z.string(),
     pending: z.string(),
     rateLimited: z.string(),
@@ -307,6 +309,8 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       issuesHeading:
         'Fly’s own diagnosis from its last check — it doesn’t have to match the records suggested below:',
       notRequested: 'No certificate yet',
+      ownerPlatform: 'the platform',
+      ownerWorkspace: 'the workspace',
       paused: 'Paused',
       pending: 'Waiting for DNS',
       rateLimited:
@@ -467,8 +471,7 @@ You can assign multiple tags to a file.`,
         'Wildcard domains are not supported. Add each subdomain separately.',
       domainOnePrimary:
         'Only one domain per app can be the primary one. "{{app}}" has several.',
-      domainTaken:
-        '"{{hostname}}" already belongs to the workspace "{{tenant}}".',
+      domainTaken: '"{{hostname}}" already belongs to {{owner}}.',
       labelNameTaken: 'A "{{type}}" label named "{{name}}" already exists.',
       labelNotFound: 'The selected label no longer exists.',
       labelWrongType: 'Expected a "{{expected}}" label but got "{{actual}}".',
@@ -559,6 +562,8 @@ Supported locales: {{locales}}`,
       issuesHeading:
         'Flys egen diagnos från senaste kontrollen — den behöver inte stämma överens med posterna som föreslås nedan:',
       notRequested: 'Inget certifikat ännu',
+      ownerPlatform: 'plattformen',
+      ownerWorkspace: 'arbetsytan',
       paused: 'Pausat',
       pending: 'Väntar på DNS',
       rateLimited:
@@ -719,7 +724,7 @@ Du kan tilldela flera etiketter till en fil.`,
         'Wildcard-domäner stöds inte. Lägg till varje underdomän för sig.',
       domainOnePrimary:
         'Bara en domän per app kan vara den primära. "{{app}}" har flera.',
-      domainTaken: '"{{hostname}}" tillhör redan arbetsytan "{{tenant}}".',
+      domainTaken: '"{{hostname}}" tillhör redan {{owner}}.',
       labelNameTaken:
         'Det finns redan en etikett av typen "{{type}}" med namnet "{{name}}".',
       labelNotFound: 'Den valda etiketten finns inte längre.',

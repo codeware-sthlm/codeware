@@ -137,19 +137,19 @@ never-deployed one.
 
 ## Handoff
 
-Branch is ready for PR. Everything code-side is committed and passes lint, typecheck (`nx
-affected -t lint typecheck` — 29 projects, clean) and `nx run cms:build` (production build,
-clean). `nx test cms` (11 tests) and `app-cms-feature-domains` (13 tests, all new) pass.
-`nx verify cms` found the migration bug above; after the fix, a manual down/up round-trip
-locally confirmed the schema restores correctly.
+Branch is up for PR #478. All checks green: lint, typecheck (`nx affected -t lint typecheck`
+— 29 projects), `nx run cms:build` (production build), `nx test cms` (11) and
+`app-cms-feature-domains` (13, all new) — plus, run by the user directly, `nx verify cms`
+(the migration ordering bug above, fixed and re-verified) and `nx test-migrate cms`, both
+now passing.
 
-Two things still need you directly, both interactive/slow by convention on this project:
+Only remaining work is deliberately outside this PR:
 
-- Re-run `nx verify cms` to confirm the fix in CI-equivalent conditions, and `nx test-migrate
-cms` — ask for both before merging.
 - After merge and deploy: the step 7 live cutover above (five Infisical values, in the order
   listed under "What Infisical actually holds"), then the `CUSTOM_URL` code removal as a
   follow-up PR once `_default` is confirmed serving from `platform-settings` correctly.
+- A small follow-up ticket to check whether other already-shipped migrations have the same
+  latent down-migration ordering bug as `20260809_085018_cod_376.ts`.
 
 ## Where this plan departs from the ticket
 

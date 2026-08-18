@@ -35,6 +35,15 @@ export type DnsRecordProps = {
     traffic?: boolean | null;
     validation?: boolean | null;
   } | null;
+  /**
+   * The certificate is issued and Fly's last check found nothing wrong.
+   *
+   * The records themselves stay needed forever — removing one still breaks
+   * the domain, certificate or not — only the *voice* changes: instructional
+   * ledes read as unfinished work under a green status, so a settled block
+   * says what the records are for instead of what to do with them.
+   */
+  settled?: boolean;
   labels: {
     trafficLede: string;
     validationLede: string;
@@ -43,6 +52,8 @@ export type DnsRecordProps = {
     instructionsLede: string;
     apexNote: string;
     nameHint: string;
+    /** The one line a settled block shows instead of the instructional ledes */
+    settledLede: string;
     /** Accessible name for the copy button */
     copyRecord: string;
   };
@@ -63,6 +74,7 @@ export function DnsRecord({
   validation,
   ownershipRecord,
   confirmed,
+  settled = false,
   labels
 }: DnsRecordProps) {
   const { name, target, instructions, isApex } = validation;
@@ -70,8 +82,12 @@ export function DnsRecord({
 
   return (
     <div className="bg-muted/40 flex flex-col gap-3 rounded-md px-3.5 py-3">
+      {settled && <p className="text-muted-foreground">{labels.settledLede}</p>}
+
       <section className="flex flex-col gap-1.5">
-        <p className="text-muted-foreground">{labels.trafficLede}</p>
+        {!settled && (
+          <p className="text-muted-foreground">{labels.trafficLede}</p>
+        )}
         {isApex ? (
           // An apex needs addresses rather than a name, and Fly spells the
           // current ones out below
@@ -88,7 +104,9 @@ export function DnsRecord({
 
       {hasChallenge ? (
         <section className="flex flex-col gap-1.5">
-          <p className="text-muted-foreground">{labels.validationLede}</p>
+          {!settled && (
+            <p className="text-muted-foreground">{labels.validationLede}</p>
+          )}
           <Record
             name={name ?? ''}
             target={target ?? ''}
@@ -101,7 +119,9 @@ export function DnsRecord({
           // Fly falls back to prose when the record is not a plain CNAME, and
           // what it describes there is not always the challenge
           <section className="flex flex-col gap-1.5">
-            <p className="text-muted-foreground">{labels.instructionsLede}</p>
+            {!settled && (
+              <p className="text-muted-foreground">{labels.instructionsLede}</p>
+            )}
             <p className="whitespace-pre-line">{instructions}</p>
           </section>
         )
@@ -119,7 +139,9 @@ export function DnsRecord({
         </section>
       )}
 
-      <p className="text-muted-foreground text-xs">{labels.nameHint}</p>
+      {!settled && (
+        <p className="text-muted-foreground text-xs">{labels.nameHint}</p>
+      )}
     </div>
   );
 }

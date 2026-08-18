@@ -18,6 +18,7 @@ import { ensureNavigation } from './local-api/ensure-navigation';
 import { ensurePage } from './local-api/ensure-page';
 import { ensurePlace } from './local-api/ensure-place';
 import { ensurePlatformLabel } from './local-api/ensure-platform-label';
+import { ensurePlatformSettings } from './local-api/ensure-platform-settings';
 import { ensurePost } from './local-api/ensure-post';
 import { ensureSiteSetting } from './local-api/ensure-site-setting';
 import { ensureStockMedia } from './local-api/ensure-stock-media';
@@ -712,6 +713,22 @@ export const seed = async (
       payload.logger.info(
         `[SEED] >> Platform labels up to date (count: ${labelCount})`
       );
+    }
+
+    // PLATFORM SETTINGS
+
+    // Platform-owned singleton. Nothing to fill in yet — an admin edits it
+    // from the collection once there is something to configure.
+    if (!seedError) {
+      await ensureTransaction();
+
+      const response = await ensurePlatformSettings(payload, {
+        transactionID
+      });
+
+      if (typeof response === 'object') {
+        payload.logger.info('[SEED] Platform settings created');
+      }
     }
 
     // STOCK MEDIA

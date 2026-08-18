@@ -50,13 +50,6 @@ export const EnvSchema = withEnvVars(
         .string({ description: 'Tenant API key for site deployments' })
         .optional(),
 
-      // Custom URL
-      CUSTOM_URL: z
-        .string({ description: 'Custom domain URL for the application' })
-        .url()
-        .or(z.literal(''))
-        .optional(),
-
       // Applied by Next.js
       NODE_ENV: z
         .enum(['development', 'production', 'test'])
@@ -186,7 +179,6 @@ export const EnvSchema = withEnvVars(
   // Transform environment variables to internal and structured format
   ({
     APP_NAME,
-    CUSTOM_URL,
     SMTP_FROM_ADDRESS,
     SMTP_FROM_NAME,
     SMTP_HOST,
@@ -221,9 +213,6 @@ export const EnvSchema = withEnvVars(
     ...env,
     // Pulled out above for the SMTP sender name; the schema still exposes it
     APP_NAME,
-    // Pulled out above to compute APP_MODE.serverURL; also gates whether a
-    // boot-read domain may override it — see adoptTenantDomains/adoptPlatformDomains
-    CUSTOM_URL,
     /**
      * How the cms app is configured and running.
      * Either as cms host (`host`) or tenant-scoped client (`tenant`).
@@ -231,13 +220,13 @@ export const EnvSchema = withEnvVars(
     APP_MODE: TENANT_ID
       ? ({
           type: 'tenant',
-          serverURL: CUSTOM_URL || FLY_URL || PAYLOAD_URL,
+          serverURL: FLY_URL || PAYLOAD_URL,
           apiKey: PAYLOAD_API_KEY ?? '', // guarded by related refine above
           tenantId: TENANT_ID
         } satisfies AppModeTenant)
       : ({
           type: 'host',
-          serverURL: CUSTOM_URL || FLY_URL || PAYLOAD_URL,
+          serverURL: FLY_URL || PAYLOAD_URL,
           signatureSecrets: [
             SIGNATURE_SECRET ?? '', // guarded by related refine above
             ...(SIGNATURE_SECRET_PREVIOUS ? [SIGNATURE_SECRET_PREVIOUS] : [])

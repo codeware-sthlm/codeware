@@ -276,9 +276,7 @@ Secrets are loaded at two distinct stages, each serving different purposes:
 - **Location**: `/tenants/<tenant-id>/apps/<app-name>/` (recursive)
 - **Purpose**: Configuration that determines how apps are deployed
 - **Fetched by**: Pre-deploy action during CI/CD workflow
-- **Examples**: `CUSTOM_URL` (being retired, see
-  [Non-Secret Platform Configuration](#non-secret-platform-configuration)),
-  `PAYLOAD_API_KEY`, tenant-specific build configuration
+- **Examples**: `PAYLOAD_API_KEY`, tenant-specific build configuration
 - **Characteristics**:
   - Baked into Fly.io app configuration as env vars or secrets
   - Static after deployment (requires redeployment to change)
@@ -351,10 +349,10 @@ being served, whatever the identity override says. It replaces carrying an overr
 hostname in an env var — the fallback address is already known (`FLY_URL`), so the lever
 only needs to be a boolean.
 
-`CUSTOM_URL` is being retired in favor of this pattern (tenant `domains`, or
-`platform-settings.domains` for the host cms) and is not expected to be set on new
-deployments, but it may still be present on already-deployed apps until each is
-individually migrated to a database-stored domain and its Infisical value removed.
+`CUSTOM_URL` (the old override this pattern replaces — tenant `domains`, or
+`platform-settings.domains` for the host cms) is no longer read anywhere in the
+codebase. Any lingering `CUSTOM_URL` value in Infisical is now dead configuration
+and should be removed.
 
 Not every non-secret value has moved, or should. `MAINTENANCE_MODE` stays in env
 deliberately: it is read in `apps/cms/src/proxy.ts` middleware and has to keep working

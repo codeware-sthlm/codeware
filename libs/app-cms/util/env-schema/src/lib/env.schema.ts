@@ -117,7 +117,7 @@ export const EnvSchema = withEnvVars(
         'Disable database schema push in development'
       ),
       DISABLE_DOMAIN_ADOPTION: coerceBoolean(false).describe(
-        'Skip applying database-stored custom domains at boot, and serve on the Fly url instead — the break-glass escape hatch when a stored domain stops working'
+        "Skip taking a database-stored domain as the app's own url at boot — cors/csrf still accept it as an origin — the break-glass escape hatch when a stored domain stops working"
       ),
       NX_TASK_TARGET_TARGET: z
         .enum(

@@ -19,6 +19,7 @@ Done and committed:
 | `bca346c8` | Type-safety fixup: removed the `docs as Array<TenantWithDomains>` cast — see deviation note below                                   |
 | `ede5b8d2` | Step 7 (docs half only): `DEPLOYMENT.md` boundary rule + `DISABLE_DOMAIN_ADOPTION` documented                                       |
 | `23d5e089` | Fix: reordered the migration's down statements — see finding below, found by `nx verify cms`                                        |
+| `3e23fbce` | Fix: seed the `platform-settings` singleton — found by `cms-e2e` CI, see finding below                                              |
 
 Deviations from the written plan:
 
@@ -135,13 +136,33 @@ platform/global collections have the same latent issue — not fixed here, since
 already-deployed migration is a different risk profile than editing this branch's own,
 never-deployed one.
 
+**`cms-e2e` CI caught a second real gap: `platform-settings` was never seeded.**
+`permissions/platform-owned.spec.ts` runs the same generic read/write/anonymous permission
+checks over every slug in `platformCollectionSlugs` — automatically covering
+`platform-settings` once it was added there in step 2, exactly as anticipated — but its
+`beforeAll` asserts a document already exists for each slug, and nothing created one for
+`platform-settings`. `faq`/`platform-labels`/`stock-media` all get baseline rows from the seed
+pipeline; `platform-settings` didn't, since a settings singleton isn't naturally "seed data"
+the way a shared vocabulary is. Added `ensurePlatformSettings` (mirrors `ensurePlatformLabel`'s
+platform-owned, no-tenant shape) and wired it into `seed.ts` right after the platform labels
+step — an empty `{}` document, since there's nothing to seed but the row's existence; an admin
+fills in a domain from the admin once one exists. Verified locally against real Postgres:
+confirmed zero rows beforehand, ran `nx seed cms --skip-nx-cache` (a first attempt without
+`--skip-nx-cache` silently no-opped from a stale Nx cache — not a code bug, just needed
+`--skip-nx-cache` for a task Nx doesn't know depends on the DB's current data), confirmed one
+row after, then a second run to confirm it's idempotent (still exactly one row).
+
+The same CI run's other failure — `dashboard.admin.spec.ts`'s "collection cards" test — is
+unrelated: it reported "1 flaky" (failed once on an SSR hydration-timing mismatch, passed on
+retry), not a hard failure, and has no connection to `platform-settings`. Left alone.
+
 ## Handoff
 
 Branch is up for PR #478. All checks green: lint, typecheck (`nx affected -t lint typecheck`
 — 29 projects), `nx run cms:build` (production build), `nx test cms` (11) and
 `app-cms-feature-domains` (13, all new) — plus, run by the user directly, `nx verify cms`
 (the migration ordering bug above, fixed and re-verified) and `nx test-migrate cms`, both
-now passing.
+passing. CI's `cms-e2e` job then caught the missing seed data (above), fixed and pushed.
 
 Only remaining work is deliberately outside this PR:
 

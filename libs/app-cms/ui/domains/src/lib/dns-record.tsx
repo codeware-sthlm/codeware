@@ -36,7 +36,9 @@ export type DnsRecordProps = {
     validation?: boolean | null;
   } | null;
   /**
-   * The certificate is issued and Fly's last check found nothing wrong.
+   * The certificate is issued, with no known outstanding issue — true both
+   * once a check has run clean and before any check has run at all, not
+   * only when a check has actively confirmed the domain.
    *
    * The records themselves stay needed forever — removing one still breaks
    * the domain, certificate or not — only the *voice* changes: instructional

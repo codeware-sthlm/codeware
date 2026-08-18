@@ -113,8 +113,9 @@ export function DomainCard({
 }: DomainCardProps) {
   const requested = status !== 'not-requested';
   const active = status === 'active';
-  // Issued and Fly's last check found nothing wrong — the genuinely finished
-  // state, as opposed to an active certificate Fly still objects to
+  // Issued, with no known outstanding issue — true both when a check ran
+  // clean and when none has run yet (a fresh page load has no `check` at
+  // all), as opposed to an active certificate Fly is still objecting to
   const settled = active && !check?.issues?.length;
 
   return (

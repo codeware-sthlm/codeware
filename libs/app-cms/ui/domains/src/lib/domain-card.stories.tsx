@@ -31,14 +31,7 @@ const labels: DomainCardProps['labels'] = {
   dnsValidationLede:
     'Optional, and only worth adding to have the certificate issued before the domain points here:',
   apexNote:
-    'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.',
-  secretCorsTag: 'accepted as an origin',
-  secretsMissing:
-    'Nothing in Infisical points at this domain. A certificate alone does not make the site answer on it — add the url where the app’s deployment secrets live.',
-  secretsUnavailable:
-    'Infisical could not be read, so it is unknown whether the deployment secrets point at this domain.',
-  corsMissing:
-    'No secret for this domain is tagged “cors”, so the CMS will refuse requests coming from it.'
+    'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.'
 };
 
 const base = {
@@ -77,39 +70,12 @@ export const Lifecycle: StoryObj = {
         statusDetail="Awaiting configuration"
         checkedLabel="Checked 14 Aug 22:42"
         dns={dns}
-        secrets={{
-          secrets: [
-            {
-              path: '/tenants/demo/apps/cms',
-              key: 'CUSTOM_URL',
-              isCorsTagged: true
-            }
-          ],
-          hasCors: true,
-          unavailable: false
-        }}
       />
       <DomainCard
         {...base}
         status="active"
         checkedLabel="Checked 14 Aug 22:44"
         dns={dns}
-        secrets={{
-          secrets: [
-            {
-              path: '/tenants/demo/apps/cms',
-              key: 'CUSTOM_URL',
-              isCorsTagged: true
-            },
-            {
-              path: '/tenants/demo/apps/web',
-              key: 'PUBLIC_URL',
-              isCorsTagged: false
-            }
-          ],
-          hasCors: true,
-          unavailable: false
-        }}
       />
     </Frame>
   )
@@ -149,7 +115,6 @@ export const CheckedWithIssues: StoryObj = {
           ],
           ownershipRecord: 'app-w0608qd'
         }}
-        secrets={{ secrets: [], hasCors: false, unavailable: false }}
       />
       {/* The traffic record resolves; the ACME challenge one has not been
           created yet — a checkmark tells them apart without another read */}
@@ -162,17 +127,6 @@ export const CheckedWithIssues: StoryObj = {
         check={{
           issues: ['DNS not configured for certificate validation'],
           confirmed: { traffic: true, validation: false }
-        }}
-        secrets={{
-          secrets: [
-            {
-              path: '/tenants/demo/apps/cms',
-              key: 'CUSTOM_URL',
-              isCorsTagged: true
-            }
-          ],
-          hasCors: true,
-          unavailable: false
         }}
       />
     </Frame>
@@ -193,29 +147,8 @@ export const NeedsAttention: StoryObj = {
         {...base}
         status="active"
         checkedLabel="Checked 14 Aug 22:42"
-        secrets={{ secrets: [], hasCors: false, unavailable: false }}
       />
-      <DomainCard
-        {...base}
-        status="active"
-        checkedLabel="Checked 14 Aug 22:42"
-        secrets={{
-          secrets: [
-            {
-              path: '/tenants/demo/apps/web',
-              key: 'PUBLIC_URL',
-              isCorsTagged: false
-            }
-          ],
-          hasCors: false,
-          unavailable: false
-        }}
-      />
-      <DomainCard
-        {...base}
-        status="pending"
-        secrets={{ secrets: [], hasCors: false, unavailable: true }}
-      />
+      <DomainCard {...base} status="pending" />
       <DomainCard {...base} status="not-requested" saved={false} />
     </Frame>
   )
@@ -281,17 +214,6 @@ export const Narrow: StoryObj = {
           name: '_acme-challenge.gallerier-och-utstallningar.kulturhuset-vasterbotten.se',
           target:
             'gallerier-och-utstallningar.kulturhuset-vasterbotten.se.w0608qd.flydns.net.'
-        }}
-        secrets={{
-          secrets: [
-            {
-              path: '/tenants/kulturhuset-vasterbotten/apps/web',
-              key: 'CUSTOM_URL',
-              isCorsTagged: true
-            }
-          ],
-          hasCors: true,
-          unavailable: false
         }}
       />
     </Frame>

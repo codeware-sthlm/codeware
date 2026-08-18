@@ -9,7 +9,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { DnsRecord, type DnsRecordProps } from './dns-record';
-import { SecretsReport, type SecretsReportProps } from './secrets-report';
 
 /** What a domain's certificate is doing, as the card needs to tell it apart */
 export type DomainCertificateStatus =
@@ -50,8 +49,6 @@ export type DomainCardProps = {
     /** What Fly's last check found already in place */
     confirmed?: DnsRecordProps['confirmed'];
   } | null;
-  /** What Infisical says; unknown until a check has asked */
-  secrets?: SecretsReportProps['report'] | null;
   /** A row the server does not have yet cannot be acted on */
   saved: boolean;
   /** The action running on this row, which is the one that spins */
@@ -75,10 +72,6 @@ export type DomainCardProps = {
     dnsValidationLede: string;
     issuesHeading: string;
     apexNote: string;
-    secretCorsTag: string;
-    secretsMissing: string;
-    secretsUnavailable: string;
-    corsMissing: string;
   };
   onAction: (action: DomainAction) => void;
 };
@@ -89,8 +82,7 @@ export type DomainCardProps = {
  * A custom domain needs two halves, and neither side can finish alone: the
  * platform asks Fly for a certificate, and whoever owns the domain creates the
  * dns records that let it validate. The card drives the first half and spells
- * out the second — which record to create, whether Fly can see it yet, and
- * whether the deployment secrets point here at all.
+ * out the second — which record to create and whether Fly can see it yet.
  *
  * Presentational and hook-free: every label arrives translated and every date
  * pre-formatted, so the same card renders in the admin and in Storybook.
@@ -104,7 +96,6 @@ export function DomainCard({
   pausedMessage,
   dns,
   check,
-  secrets,
   saved,
   runningAction,
   disabled = false,
@@ -168,18 +159,6 @@ export function DomainCard({
             apexNote: labels.apexNote,
             nameHint: labels.dnsNameHint,
             copyRecord: labels.copyRecord
-          }}
-        />
-      )}
-
-      {secrets && (
-        <SecretsReport
-          report={secrets}
-          labels={{
-            corsTag: labels.secretCorsTag,
-            missing: labels.secretsMissing,
-            unavailable: labels.secretsUnavailable,
-            corsMissing: labels.corsMissing
           }}
         />
       )}

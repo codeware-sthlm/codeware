@@ -62,7 +62,6 @@ const customTranslationsSchema = z.object({
     check: z.string(),
     checkedAt: z.string(),
     copyRecord: z.string(),
-    corsMissing: z.string(),
     dnsLede: z.string(),
     dnsNameHint: z.string(),
     dnsOwnershipLede: z.string(),
@@ -80,10 +79,7 @@ const customTranslationsSchema = z.object({
     request: z.string(),
     restart: z.string(),
     restartHint: z.string(),
-    saveFirst: z.string(),
-    secretCorsTag: z.string(),
-    secretsMissing: z.string(),
-    secretsUnavailable: z.string()
+    saveFirst: z.string()
   }),
   formSubmissions: z.object({
     allForms: z.string(),
@@ -294,8 +290,6 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       check: 'Check now',
       checkedAt: 'Checked {{when}}',
       copyRecord: 'Copy the DNS target',
-      corsMissing:
-        'No secret for this domain is tagged “cors”, so the CMS will refuse requests coming from it.',
       dnsLede: 'Create this record where the domain’s DNS is managed:',
       dnsNameHint:
         'Record names are written in full — a registrar that appends the domain itself only wants the part before it.',
@@ -320,12 +314,7 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       restart: 'Restart app',
       restartHint:
         'A newly validated domain only takes effect after the app restarts.',
-      saveFirst: 'Save to request a certificate for this domain.',
-      secretCorsTag: 'accepted as an origin',
-      secretsMissing:
-        'Nothing in Infisical points at this domain. A certificate alone does not make the site answer on it — add the url where the app’s deployment secrets live.',
-      secretsUnavailable:
-        'Infisical could not be read, so it is unknown whether the deployment secrets point at this domain.'
+      saveFirst: 'Save to request a certificate for this domain.'
     },
     formSubmissions: {
       allForms: 'All forms',
@@ -547,8 +536,6 @@ Supported locales: {{locales}}`,
       check: 'Kontrollera nu',
       checkedAt: 'Kontrollerad {{when}}',
       copyRecord: 'Kopiera DNS-målet',
-      corsMissing:
-        'Ingen hemlighet för domänen är taggad ”cors”, så CMS:et avvisar anrop som kommer därifrån.',
       dnsLede: 'Skapa den här posten där domänens DNS hanteras:',
       dnsNameHint:
         'Postnamnen skrivs fullständigt — hos en registrar som lägger till domänen själv anges bara delen före den.',
@@ -573,12 +560,7 @@ Supported locales: {{locales}}`,
       restart: 'Starta om app',
       restartHint:
         'En nyligen validerad domän börjar gälla först efter att appen har startats om.',
-      saveFirst: 'Spara för att begära ett certifikat för domänen.',
-      secretCorsTag: 'godkänd som ursprung',
-      secretsMissing:
-        'Inget i Infisical pekar på den här domänen. Ett certifikat räcker inte för att sajten ska svara på den — lägg till adressen där appens driftsättningshemligheter finns.',
-      secretsUnavailable:
-        'Infisical kunde inte läsas, så det är okänt om driftsättningshemligheterna pekar på domänen.'
+      saveFirst: 'Spara för att begära ett certifikat för domänen.'
     },
     formSubmissions: {
       allForms: 'Alla formulär',

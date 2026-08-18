@@ -1,9 +1,7 @@
 import type { HostnameCheck } from '@cdwr/fly-node/api';
 import {
   type CertificateState,
-  type DomainSecretsReport,
   applyCertificateState,
-  findDomainSecrets,
   getFlyApi,
   parseHostname,
   toCertificateState
@@ -28,8 +26,6 @@ type Result = {
   certificate: CertificateState | null;
   /** Live dns resolution, and whatever Fly objects to about it */
   check: HostnameCheck | null;
-  /** Where Infisical mentions this domain, so a certificate is not mistaken for a working site */
-  secrets: DomainSecretsReport | null;
 };
 
 const fail = (status: StatusCodes, message?: string) =>
@@ -100,25 +96,16 @@ export const platformDomainCertificateEndpoint: Endpoint = {
     try {
       if (action === 'request') {
         const { certificate, check } = await fly.certs.add(app, hostname);
-        result = {
-          certificate: toCertificateState(certificate),
-          check,
-          secrets: null
-        };
+        result = { certificate: toCertificateState(certificate), check };
       } else if (action === 'check') {
-        const [certificate, check, secrets] = await Promise.all([
+        const [certificate, check] = await Promise.all([
           fly.certs.get(app, hostname),
-          fly.certs.check(app, hostname),
-          findDomainSecrets(hostname)
+          fly.certs.check(app, hostname)
         ]);
-        result = {
-          certificate: toCertificateState(certificate),
-          check,
-          secrets
-        };
+        result = { certificate: toCertificateState(certificate), check };
       } else {
         await fly.certs.remove(app, hostname);
-        result = { certificate: null, check: null, secrets: null };
+        result = { certificate: null, check: null };
       }
     } catch (error) {
       req.payload.logger.error(

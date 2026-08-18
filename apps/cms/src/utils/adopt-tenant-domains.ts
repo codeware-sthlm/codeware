@@ -29,9 +29,9 @@ import { resolveScopedTenant } from '../security/resolve-scoped-tenant';
  * `guardDomainConflicts`, which imports `payload` as a value, and jest can't
  * parse Payload's ESM build.
  *
- * Nothing here is destructive. Existing origins are kept, `DISABLE_DOMAIN_ADOPTION`
- * still wins if it is set, and a workspace with no validated domain leaves the
- * deployment exactly as it was.
+ * Nothing here is destructive. Existing origins are kept, `CUSTOM_URL` or
+ * `DISABLE_DOMAIN_ADOPTION` still win if either is set, and a workspace with
+ * no validated domain leaves the deployment exactly as it was.
  */
 export const adoptTenantDomains = async (payload: Payload): Promise<void> => {
   const { config } = payload;
@@ -50,10 +50,13 @@ export const adoptTenantDomains = async (payload: Payload): Promise<void> => {
       return;
     }
 
-    // The break-glass escape hatch for a deployment stuck on a domain the
-    // database points at incorrectly: flip the flag, the app comes back on
-    // its Fly url, and the row can be fixed from there
-    if (primary && !env.DISABLE_DOMAIN_ADOPTION) {
+    // Two escape hatches gate the same line: CUSTOM_URL is the deployment's
+    // own manual override (still set on some legacy deployments) and must
+    // keep outranking a database row exactly as it always has; the break-glass
+    // DISABLE_DOMAIN_ADOPTION flag replaces it once CUSTOM_URL retires. Either
+    // one means the app comes back on its known-good url and the row can be
+    // fixed from there
+    if (primary && !env.CUSTOM_URL && !env.DISABLE_DOMAIN_ADOPTION) {
       config.serverURL = primary;
       payload.logger.info(`[domains] Serving as ${primary}`);
     }

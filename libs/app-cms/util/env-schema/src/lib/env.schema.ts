@@ -221,6 +221,9 @@ export const EnvSchema = withEnvVars(
     ...env,
     // Pulled out above for the SMTP sender name; the schema still exposes it
     APP_NAME,
+    // Pulled out above to compute APP_MODE.serverURL; also gates whether a
+    // boot-read domain may override it — see adoptTenantDomains/adoptPlatformDomains
+    CUSTOM_URL,
     /**
      * How the cms app is configured and running.
      * Either as cms host (`host`) or tenant-scoped client (`tenant`).

@@ -12,11 +12,11 @@ Follow-up to [COD-357](https://linear.app/codeware/issue/COD-357), from live tes
 
 ## Status
 
-Planned. No code written.
+Step 1 done. Rest planned.
 
 | Step | What                                          | State   |
 | ---- | --------------------------------------------- | ------- |
-| 1    | Stop trusting stored prose on an issued cert  | Planned |
+| 1    | Stop trusting stored prose on an issued cert  | Done    |
 | 2    | `DnsRecord` gains a settled voice             | Planned |
 | 3    | `DomainCard` shows both blocks once requested | Planned |
 | 4    | Translations + panel wiring                   | Planned |

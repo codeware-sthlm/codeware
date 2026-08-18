@@ -38,4 +38,31 @@ describe('describeCertificateIssues', () => {
       describeCertificateIssues(null, { errors: ['RATE_LIMITED'] })
     ).toEqual(['Rate limited']);
   });
+
+  it('ignores stored prose on an issued certificate, even if present', () => {
+    // validationErrors is a log of past failed attempts with no timestamps —
+    // an issued certificate outgrew whatever it says, so only a live check
+    // may speak about it
+    const issues = describeCertificateIssues(
+      {
+        isConfigured: true,
+        validationErrors: ['No AAAA records were found for your domain']
+      },
+      { errors: ['DNS_NOT_CONFIGURED'] }
+    );
+
+    expect(issues).toEqual(['DNS not configured']);
+  });
+
+  it('reports nothing for an issued certificate with no live check', () => {
+    expect(
+      describeCertificateIssues(
+        {
+          isConfigured: true,
+          validationErrors: ['No AAAA records were found for your domain']
+        },
+        null
+      )
+    ).toEqual([]);
+  });
 });

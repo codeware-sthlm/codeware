@@ -133,6 +133,31 @@ export const CheckedWithIssues: StoryObj = {
           confirmed: { traffic: true, validation: false }
         }}
       />
+      {/* Active, but Fly still has something to say — the challenge record is
+          commonly removed once issued, so this is a normal end state, not a
+          fault. The box reads neutral rather than red, and the dns block
+          below keeps its setup voice since something here is still unconfirmed */}
+      <DomainCard
+        {...base}
+        status="active"
+        checkedLabel="Checked 15 Aug 00:41"
+        dns={dns}
+        check={{
+          issues: [
+            'No TXT record was found at _acme-challenge for your domain'
+          ],
+          confirmed: { traffic: true, validation: false }
+        }}
+      />
+      {/* Active and clean: no issues box, and the dns block switches to its
+          settled voice — the pair above and below is what a reviewer compares */}
+      <DomainCard
+        {...base}
+        status="active"
+        checkedLabel="Checked 15 Aug 00:41"
+        dns={dns}
+        check={{ confirmed: { traffic: true, validation: true } }}
+      />
     </Frame>
   )
 };

@@ -12,20 +12,21 @@ Follow-up to [COD-357](https://linear.app/codeware/issue/COD-357), from live tes
 
 ## Status
 
-Steps 1–4 done. Step 5's label/lookup wiring landed alongside them (steps 2–4 don't
-typecheck independently — the `labels` object is exhaustive, so each caller needs its match
-before anything is green again); only step 5's new demonstration story cards are still open.
+Done, on the COD-440 branch, not merged. Steps 2–4 landed as one commit — they don't
+typecheck independently of each other, since `DomainCardProps['labels']` is exhaustive and
+every caller needs its match before anything is green again.
 
-| Step | What                                          | State   |
-| ---- | --------------------------------------------- | ------- |
-| 1    | Stop trusting stored prose on an issued cert  | Done    |
-| 2    | `DnsRecord` gains a settled voice             | Done    |
-| 3    | `DomainCard` shows both blocks once requested | Done    |
-| 4    | Translations + panel wiring                   | Done    |
-| 5    | Stories, checks, commit                       | Partial |
+| Step | What                                          | State |
+| ---- | --------------------------------------------- | ----- |
+| 1    | Stop trusting stored prose on an issued cert  | Done  |
+| 2    | `DnsRecord` gains a settled voice             | Done  |
+| 3    | `DomainCard` shows both blocks once requested | Done  |
+| 4    | Translations + panel wiring                   | Done  |
+| 5    | Stories, checks, commit                       | Done  |
 
 `nx affected -t lint typecheck`, `nx run cms:build`, `cms` tests (11) and
-`app-cms-feature-domains` tests (68) all pass.
+`app-cms-feature-domains` tests (68) all pass. Manual admin/Storybook verification (see "What
+to verify") is still open — needs a preview deploy, same as COD-441's.
 
 ## The bug
 

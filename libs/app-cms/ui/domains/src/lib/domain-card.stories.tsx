@@ -26,10 +26,14 @@ const labels: DomainCardProps['labels'] = {
     'Only needed if the app has no IPv6 address, or if traffic reaches it through a CDN or proxy:',
   issuesHeading:
     'Fly’s own diagnosis from its last check — it doesn’t have to match the records suggested below:',
+  issuesActiveHeading:
+    'The certificate is issued, and Fly’s last check still had this to say about the domain:',
   dnsTrafficLede:
     'Point the domain at the app, where the domain’s DNS is managed. Without this record the domain answers nowhere, certificate or not:',
   dnsValidationLede:
     'Optional, and only worth adding to have the certificate issued before the domain points here:',
+  dnsSettledLede:
+    'These are the records the domain runs on. They stay needed — remove one and the domain stops answering, certificate or not:',
   apexNote:
     'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.'
 };

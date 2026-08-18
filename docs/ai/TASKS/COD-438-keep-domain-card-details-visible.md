@@ -12,15 +12,20 @@ Follow-up to [COD-357](https://linear.app/codeware/issue/COD-357), from live tes
 
 ## Status
 
-Step 1 done. Rest planned.
+Steps 1–4 done. Step 5's label/lookup wiring landed alongside them (steps 2–4 don't
+typecheck independently — the `labels` object is exhaustive, so each caller needs its match
+before anything is green again); only step 5's new demonstration story cards are still open.
 
 | Step | What                                          | State   |
 | ---- | --------------------------------------------- | ------- |
 | 1    | Stop trusting stored prose on an issued cert  | Done    |
-| 2    | `DnsRecord` gains a settled voice             | Planned |
-| 3    | `DomainCard` shows both blocks once requested | Planned |
-| 4    | Translations + panel wiring                   | Planned |
-| 5    | Stories, checks, commit                       | Planned |
+| 2    | `DnsRecord` gains a settled voice             | Done    |
+| 3    | `DomainCard` shows both blocks once requested | Done    |
+| 4    | Translations + panel wiring                   | Done    |
+| 5    | Stories, checks, commit                       | Partial |
+
+`nx affected -t lint typecheck`, `nx run cms:build`, `cms` tests (11) and
+`app-cms-feature-domains` tests (68) all pass.
 
 ## The bug
 

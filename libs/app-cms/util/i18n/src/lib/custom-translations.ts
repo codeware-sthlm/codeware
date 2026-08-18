@@ -65,9 +65,11 @@ const customTranslationsSchema = z.object({
     dnsLede: z.string(),
     dnsNameHint: z.string(),
     dnsOwnershipLede: z.string(),
+    dnsSettledLede: z.string(),
     dnsTrafficLede: z.string(),
     dnsValidationLede: z.string(),
     heading: z.string(),
+    issuesActiveHeading: z.string(),
     issuesHeading: z.string(),
     notRequested: z.string(),
     ownerPlatform: z.string(),
@@ -295,11 +297,15 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'Record names are written in full — a registrar that appends the domain itself only wants the part before it.',
       dnsOwnershipLede:
         'Only needed if the app has no IPv6 address, or if traffic reaches it through a CDN or proxy:',
+      dnsSettledLede:
+        'These are the records the domain runs on. They stay needed — remove one and the domain stops answering, certificate or not:',
       dnsTrafficLede:
         'Point the domain at the app, where the domain’s DNS is managed. Without this record the domain answers nowhere, certificate or not:',
       dnsValidationLede:
         'Optional, and only worth adding to have the certificate issued before the domain points here:',
       heading: 'Certificates',
+      issuesActiveHeading:
+        'The certificate is issued, and Fly’s last check still had this to say about the domain:',
       issuesHeading:
         'Fly’s own diagnosis from its last check — it doesn’t have to match the records suggested below:',
       notRequested: 'No certificate yet',
@@ -541,11 +547,15 @@ Supported locales: {{locales}}`,
         'Postnamnen skrivs fullständigt — hos en registrar som lägger till domänen själv anges bara delen före den.',
       dnsOwnershipLede:
         'Behövs bara om appen saknar IPv6-adress, eller om trafiken når den via ett CDN eller en proxy:',
+      dnsSettledLede:
+        'Det här är posterna domänen vilar på. De behövs fortsatt — tas någon bort slutar domänen svara, certifikat eller inte:',
       dnsTrafficLede:
         'Peka domänen mot appen, där domänens DNS hanteras. Utan den här posten svarar domänen ingenstans, certifikat eller inte:',
       dnsValidationLede:
         'Valfri, och behövs bara för att få certifikatet utfärdat innan domänen pekar hit:',
       heading: 'Certifikat',
+      issuesActiveHeading:
+        'Certifikatet är utfärdat, men Flys senaste kontroll hade ändå det här att säga om domänen:',
       issuesHeading:
         'Flys egen diagnos från senaste kontrollen — den behöver inte stämma överens med posterna som föreslås nedan:',
       notRequested: 'Inget certifikat ännu',

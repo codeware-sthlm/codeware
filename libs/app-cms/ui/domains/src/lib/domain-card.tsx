@@ -71,7 +71,11 @@ export type DomainCardProps = {
     dnsTrafficLede: string;
     dnsValidationLede: string;
     issuesHeading: string;
+    /** Heading for the same box, once the certificate is issued and answering */
+    issuesActiveHeading: string;
     apexNote: string;
+    /** The dns block's lede once the certificate is issued and clean */
+    dnsSettledLede: string;
   };
   onAction: (action: DomainAction) => void;
 };
@@ -104,6 +108,9 @@ export function DomainCard({
 }: DomainCardProps) {
   const requested = status !== 'not-requested';
   const active = status === 'active';
+  // Issued and Fly's last check found nothing wrong — the genuinely finished
+  // state, as opposed to an active certificate Fly still objects to
+  const settled = active && !check?.issues?.length;
 
   return (
     <div className="border-border flex flex-col gap-3 rounded-lg border px-4 py-3.5 text-sm">
@@ -127,14 +134,35 @@ export function DomainCard({
 
       {/* Fly's own diagnosis, set apart in its own box so it never reads as
           part of the suggestion below it — the two describe the problem
-          differently (missing AAAA vs. a CNAME to create) without disagreeing */}
-      {requested && !active && check?.issues?.length ? (
-        <div className="flex flex-col gap-1.5 rounded-md border border-(--destructive)/30 bg-(--destructive)/10 px-3.5 py-3">
-          <p className="flex items-center gap-1.5 font-medium text-(--destructive-subtle)">
+          differently (missing AAAA vs. a CNAME to create) without disagreeing.
+          Neutral once active: nothing a live check reports on an already-
+          issued certificate is fatal by definition, so it must not read as
+          an error the way it does before the domain is answering */}
+      {requested && check?.issues?.length ? (
+        <div
+          className={
+            active
+              ? 'border-border bg-muted/40 flex flex-col gap-1.5 rounded-md border px-3.5 py-3'
+              : 'flex flex-col gap-1.5 rounded-md border border-(--destructive)/30 bg-(--destructive)/10 px-3.5 py-3'
+          }
+        >
+          <p
+            className={
+              active
+                ? 'text-muted-foreground flex items-center gap-1.5 font-medium'
+                : 'flex items-center gap-1.5 font-medium text-(--destructive-subtle)'
+            }
+          >
             <ExclamationTriangleIcon className="size-4 shrink-0" />
-            {labels.issuesHeading}
+            {active ? labels.issuesActiveHeading : labels.issuesHeading}
           </p>
-          <ul className="flex flex-col gap-1 text-(--destructive-subtle)">
+          <ul
+            className={
+              active
+                ? 'text-muted-foreground flex flex-col gap-1'
+                : 'flex flex-col gap-1 text-(--destructive-subtle)'
+            }
+          >
             {check.issues.map((issue) => (
               <li key={issue}>{issue}</li>
             ))}
@@ -142,15 +170,18 @@ export function DomainCard({
         </div>
       ) : null}
 
-      {/* An active certificate is answering on every record already, so
-          repeating them is only noise from here on */}
-      {requested && !active && dns && (
+      {/* Stays visible for the life of the domain, not just until the
+          certificate validates — the records are still what the domain
+          runs on, and hiding them on an active cert would hide the exact
+          case (green, but still not loading) this block exists to catch */}
+      {requested && dns && (
         <DnsRecord
           hostname={hostname}
           app={app}
           validation={dns}
           ownershipRecord={check?.ownershipRecord}
           confirmed={check?.confirmed}
+          settled={settled}
           labels={{
             trafficLede: labels.dnsTrafficLede,
             validationLede: labels.dnsValidationLede,
@@ -158,6 +189,7 @@ export function DomainCard({
             instructionsLede: labels.dnsLede,
             apexNote: labels.apexNote,
             nameHint: labels.dnsNameHint,
+            settledLede: labels.dnsSettledLede,
             copyRecord: labels.copyRecord
           }}
         />

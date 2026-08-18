@@ -309,8 +309,10 @@ export const DomainsPanel: React.FC<{
       dnsLede: t('domains:dnsLede'),
       dnsNameHint: t('domains:dnsNameHint'),
       dnsOwnershipLede: t('domains:dnsOwnershipLede'),
+      dnsSettledLede: t('domains:dnsSettledLede'),
       dnsTrafficLede: t('domains:dnsTrafficLede'),
       dnsValidationLede: t('domains:dnsValidationLede'),
+      issuesActiveHeading: t('domains:issuesActiveHeading'),
       issuesHeading: t('domains:issuesHeading'),
       apexNote: t('domains:apexNote')
     }),

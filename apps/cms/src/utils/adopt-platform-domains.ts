@@ -47,13 +47,10 @@ export const adoptPlatformDomains = async (payload: Payload): Promise<void> => {
       return;
     }
 
-    // Two escape hatches gate the same line: CUSTOM_URL is the deployment's
-    // own manual override (still set on some legacy deployments) and must
-    // keep outranking a database row exactly as it always has; the break-glass
-    // DISABLE_DOMAIN_ADOPTION flag replaces it once CUSTOM_URL retires. Either
-    // one means the app comes back on its known-good url and the row can be
-    // fixed from there
-    if (primary && !env.CUSTOM_URL && !env.DISABLE_DOMAIN_ADOPTION) {
+    // The break-glass DISABLE_DOMAIN_ADOPTION flag is the escape hatch: set
+    // it and the app comes back on its known-good Fly url, and the row can
+    // be fixed from there
+    if (primary && !env.DISABLE_DOMAIN_ADOPTION) {
       config.serverURL = primary;
       payload.logger.info(`[platform-domains] Serving as ${primary}`);
     }

@@ -36,8 +36,12 @@ const humanize = (code: string): string =>
  * made, but only as SCREAMING_SNAKE_CASE codes with no prose counterpart.
  *
  * The prose wins whenever there is any, since it is Fly's own words rather
- * than a guess at what a code means. The codes are humanized rather than
- * shown raw only because nothing better exists yet for that earlier state.
+ * than a guess at what a code means — but only *before* the certificate is
+ * issued. `validationErrors` is a log of failed attempts, oldest first, and
+ * Payload's stored row keeps no timestamps to age it out — a domain that was
+ * briefly misconfigured before it validated would otherwise show that prose
+ * forever. Once `isConfigured` is true, only a live check has standing to
+ * speak about the domain's current state.
  *
  * @param certificate - Stored state, which is where validation prose lives.
  * Loosely typed rather than `Pick<CertificateState, ...>` because Payload's
@@ -45,10 +49,16 @@ const humanize = (code: string): string =>
  * @param check - A live dns check, only present right after one was run
  */
 export const describeCertificateIssues = (
-  certificate: { validationErrors?: Array<string> | null } | null | undefined,
+  certificate:
+    | {
+        isConfigured?: boolean | null;
+        validationErrors?: Array<string> | null;
+      }
+    | null
+    | undefined,
   check: Pick<HostnameCheck, 'errors'> | null | undefined
 ): Array<string> => {
-  if (certificate?.validationErrors?.length) {
+  if (!certificate?.isConfigured && certificate?.validationErrors?.length) {
     return certificate.validationErrors;
   }
 

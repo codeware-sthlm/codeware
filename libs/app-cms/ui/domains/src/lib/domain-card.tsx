@@ -134,7 +134,7 @@ export function DomainCard({
             <ExclamationTriangleIcon className="size-4 shrink-0" />
             {labels.issuesHeading}
           </p>
-          <ul className="list-disc pl-5 text-(--destructive-subtle)">
+          <ul className="flex flex-col gap-1 text-(--destructive-subtle)">
             {check.issues.map((issue) => (
               <li key={issue}>{issue}</li>
             ))}

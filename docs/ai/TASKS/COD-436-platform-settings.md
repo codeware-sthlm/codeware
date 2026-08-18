@@ -20,6 +20,7 @@ Done and committed:
 | `ede5b8d2` | Step 7 (docs half only): `DEPLOYMENT.md` boundary rule + `DISABLE_DOMAIN_ADOPTION` documented                                       |
 | `23d5e089` | Fix: reordered the migration's down statements — see finding below, found by `nx verify cms`                                        |
 | `3e23fbce` | Fix: seed the `platform-settings` singleton — found by `cms-e2e` CI, see finding below                                              |
+| `f6989369` | Fix: `CUSTOM_URL` restored as a boot-adoption override — found by Copilot's PR review, see finding below                            |
 
 Deviations from the written plan:
 
@@ -155,6 +156,37 @@ row after, then a second run to confirm it's idempotent (still exactly one row).
 The same CI run's other failure — `dashboard.admin.spec.ts`'s "collection cards" test — is
 unrelated: it reported "1 flaky" (failed once on an SSR hydration-timing mismatch, passed on
 retry), not a hard failure, and has no connection to `platform-settings`. Left alone.
+
+**Copilot's PR review flagged three things; two were false positives, one was a real
+regression against this plan's own stated design.** Checked each against the installed
+source rather than trusting the phrasing:
+
+- _`ensureSingleRow`'s `pagination: false` + `totalDocs` (2 comments)._ Read the installed
+  `@payloadcms/drizzle` source directly
+  (`node_modules/@payloadcms/drizzle/dist/find/findMany.js`): with `pagination: false`,
+  `totalDocs` becomes `rawDocs.length`, and `limit: 1` already caps that fetch at 1. The hook
+  only checks truthiness (some row vs. none), which that combination reports correctly in
+  every case — it cannot report zero when a row exists. The "add `overrideAccess: true`"
+  half of the suggestion also describes behavior that's already the default (Payload's Local
+  API defaults `overrideAccess` to `true` when omitted — the same fact this branch's own
+  step-6 work caught the _opposite_ mistake of, in the platform-domain endpoints). No fix
+  needed; both are pattern-matching false positives for this specific usage.
+- _`DISABLE_DOMAIN_ADOPTION` vs. `CUSTOM_URL` — real._ Step 4/5's own plan text said
+  `CUSTOM_URL` "should keep outranking" a database row, and the commit's own note claimed
+  `CUSTOM_URL` was "untouched — still feeding `APP_MODE.serverURL`'s fallback chain." That
+  was true only for the _build-time_ base value. The _boot-time_ override in
+  `adoptTenantDomains`/`adoptPlatformDomains` used to be gated by
+  `!process.env['CUSTOM_URL']`; replacing that with `!env.DISABLE_DOMAIN_ADOPTION` silently
+  dropped `CUSTOM_URL`'s gating role from that line. In production this was invisible only by
+  coincidence — `demo`'s `CUSTOM_URL` happens to match its adopted domain, and `_default` has
+  no `platform-settings` row yet — but it meant a manually-set `CUSTOM_URL` could be silently
+  overridden by a bad database row the moment one existed, defeating its own purpose as a
+  deployment-level override. Fixed by re-exposing `CUSTOM_URL` on `Env` (same pattern already
+  used for `FLY_URL` — pulled out for a computed value, re-exposed because downstream code
+  needs the raw value too) and gating both `adopt*Domains` functions on
+  `!env.CUSTOM_URL && !env.DISABLE_DOMAIN_ADOPTION`. No live-import spec exists for either
+  function (declined earlier in this branch, see above), so this is covered by `nx verify
+cms` and manual admin checks only, same as the rest of that gap.
 
 ## Handoff
 

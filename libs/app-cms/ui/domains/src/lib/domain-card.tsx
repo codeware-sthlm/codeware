@@ -1,3 +1,8 @@
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle
+} from '@codeware/shared/ui/shadcn/components/alert';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import {
   ArrowPathIcon,
@@ -139,35 +144,19 @@ export function DomainCard({
           issued certificate is fatal by definition, so it must not read as
           an error the way it does before the domain is answering */}
       {requested && check?.issues?.length ? (
-        <div
-          className={
-            active
-              ? 'border-border bg-muted/40 flex flex-col gap-1.5 rounded-md border px-3.5 py-3'
-              : 'flex flex-col gap-1.5 rounded-md border border-(--destructive)/30 bg-(--destructive)/10 px-3.5 py-3'
-          }
-        >
-          <p
-            className={
-              active
-                ? 'text-muted-foreground flex items-center gap-1.5 font-medium'
-                : 'flex items-center gap-1.5 font-medium text-(--destructive-subtle)'
-            }
-          >
-            <ExclamationTriangleIcon className="size-4 shrink-0" />
+        <Alert variant={active ? 'default' : 'destructive'}>
+          <ExclamationTriangleIcon />
+          <AlertTitle>
             {active ? labels.issuesActiveHeading : labels.issuesHeading}
-          </p>
-          <ul
-            className={
-              active
-                ? 'text-muted-foreground flex flex-col gap-1'
-                : 'flex flex-col gap-1 text-(--destructive-subtle)'
-            }
-          >
-            {check.issues.map((issue) => (
-              <li key={issue}>{issue}</li>
-            ))}
-          </ul>
-        </div>
+          </AlertTitle>
+          <AlertDescription>
+            <ul className="flex flex-col gap-1">
+              {check.issues.map((issue) => (
+                <li key={issue}>{issue}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {/* Stays visible for the life of the domain, not just until the

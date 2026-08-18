@@ -343,10 +343,13 @@ Not everything the CMS needs to know belongs in Infisical. The boundary:
 Config that decides which url a deployment serves is boot-read from the database
 (`onInit`), never baked into the build, since the database is what the config is being
 built to reach. `DISABLE_DOMAIN_ADOPTION` is the break-glass escape hatch: set it and the
-app serves on its plain Fly url regardless of what any domain row says, so a bad row in
-the database can never be what keeps a deployment unreachable. It replaces carrying an
-override hostname in an env var — the fallback address is already known (`FLY_URL`), so
-the lever only needs to be a boolean.
+app stops taking a database-stored domain as its own identity, falling back to its plain
+Fly url instead — so a bad row can never be what keeps a deployment unreachable at the
+address it generates links for. It does not stop the api answering that domain: cors and
+csrf still extend to include it, since an issued certificate means the origin really is
+being served, whatever the identity override says. It replaces carrying an override
+hostname in an env var — the fallback address is already known (`FLY_URL`), so the lever
+only needs to be a boolean.
 
 `CUSTOM_URL` is being retired in favor of this pattern (tenant `domains`, or
 `platform-settings.domains` for the host cms) and is not expected to be set on new

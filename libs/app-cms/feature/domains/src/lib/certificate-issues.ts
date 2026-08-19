@@ -43,6 +43,13 @@ const humanize = (code: string): string =>
  * forever. Once `isConfigured` is true, only a live check has standing to
  * speak about the domain's current state.
  *
+ * A live check can also name a problem it isn't actually blocked on: Fly
+ * reports an ownership-verification code without always offering the TXT
+ * record (`dnsVerificationRecord`) that would satisfy it, even on a domain
+ * that is issued and serving — Fly's own dashboard does not show it either
+ * in that state. An ownership code with no record to act on is dropped
+ * rather than shown as if there were something to do about it.
+ *
  * @param certificate - Stored state, which is where validation prose lives.
  * Loosely typed rather than `Pick<CertificateState, ...>` because Payload's
  * generated row type makes every stored field optional, not just nullable
@@ -56,11 +63,18 @@ export const describeCertificateIssues = (
       }
     | null
     | undefined,
-  check: Pick<HostnameCheck, 'errors'> | null | undefined
+  check:
+    | Pick<HostnameCheck, 'errors' | 'dnsVerificationRecord'>
+    | null
+    | undefined
 ): Array<string> => {
   if (!certificate?.isConfigured && certificate?.validationErrors?.length) {
     return certificate.validationErrors;
   }
 
-  return (check?.errors ?? []).map(humanize);
+  const hasOwnershipRecord = Boolean(check?.dnsVerificationRecord);
+
+  return (check?.errors ?? [])
+    .filter((code) => hasOwnershipRecord || !/ownership/i.test(code))
+    .map(humanize);
 };

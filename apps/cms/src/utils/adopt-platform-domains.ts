@@ -48,7 +48,7 @@ export const adoptPlatformDomains = async (payload: Payload): Promise<void> => {
     // on the domain they expected to have been adopted
     if (!origins.length) {
       payload.logger.warn(
-        `[platform-domains] No adoptable domain for ${env.APP_NAME}, serving as ${config.serverURL} — platform settings needs a hostname on this app with a configured certificate`
+        `[platform-domains] No adoptable domain for ${env.APP_NAME}, serving as ${config.serverURL} — the platform settings row needs a hostname on this app with a configured certificate`
       );
       return;
     }

@@ -280,6 +280,21 @@ export function DomainCard({
                   />
                   {labels.check}
                 </Button>
+                {/* Its own button rather than part of a check: three dns
+                    queries and an SOA lookup are slow, and the answer only
+                    matters once something already looks wrong */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={disabled}
+                  onClick={() => onAction('resolvers')}
+                >
+                  <ActionIcon
+                    idle={GlobeAltIcon}
+                    running={runningAction === 'resolvers'}
+                  />
+                  {labels.compareResolvers}
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"

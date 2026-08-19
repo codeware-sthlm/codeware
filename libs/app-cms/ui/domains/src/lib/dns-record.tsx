@@ -83,6 +83,9 @@ export function DnsRecord({
   const hasChallenge = Boolean(name && target);
 
   return (
+    /* Deliberately not a `Card`: this is a surface nested inside one, and
+       `bg-card` on both would flatten the nesting the muted tint exists to
+       show. shadcn has no inset-panel primitive to reach for instead. */
     <div className="bg-muted/40 flex flex-col gap-3 rounded-md px-3.5 py-3">
       {settled && <p className="text-muted-foreground">{labels.settledLede}</p>}
 

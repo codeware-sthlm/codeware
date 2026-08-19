@@ -399,9 +399,13 @@ function AdminNavContent({
                 // Payload's logOut skips the request entirely when the client
                 // has no user and swallows failures otherwise, so it cannot be
                 // relied on to clear the cookie. Let it do its bookkeeping,
-                // then leave through the route that always does.
-                await logOut();
-                window.location.href = FORCE_LOGOUT_PATH;
+                // then leave through the route that always does — in a finally,
+                // so the way out does not depend on how logOut ended.
+                try {
+                  await logOut();
+                } finally {
+                  window.location.href = FORCE_LOGOUT_PATH;
+                }
               }}
               variant="ghost"
               size="icon-sm"

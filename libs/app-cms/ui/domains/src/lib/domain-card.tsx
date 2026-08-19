@@ -4,23 +4,21 @@ import {
   AlertTitle
 } from '@codeware/shared/ui/shadcn/components/alert';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
+import { Card, CardContent } from '@codeware/shared/ui/shadcn/components/card';
 import {
   ArrowPathIcon,
-  CheckCircleIcon,
-  ClockIcon,
   ExclamationTriangleIcon,
   ShieldCheckIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
 
 import { DnsRecord, type DnsRecordProps } from './dns-record';
+import {
+  type DomainCertificateStatus,
+  DomainStatusBadge
+} from './domain-status-badge';
 
-/** What a domain's certificate is doing, as the card needs to tell it apart */
-export type DomainCertificateStatus =
-  | 'not-requested'
-  | 'pending'
-  | 'active'
-  | 'paused';
+export type { DomainCertificateStatus };
 
 export type DomainAction = 'request' | 'check' | 'remove';
 
@@ -119,120 +117,129 @@ export function DomainCard({
   const settled = active && !check?.issues?.length;
 
   return (
-    <div className="border-border flex flex-col gap-3 rounded-lg border px-4 py-3.5 text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-        <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="font-medium">{hostname}</span>
-          <span className="text-muted-foreground text-xs">{app}</span>
-        </span>
-        <Status status={status} detail={statusDetail} labels={labels} />
-      </div>
+    <Card className="border-border gap-0 border py-0 shadow-xs ring-0">
+      <CardContent className="flex flex-col gap-3 px-4 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+          <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="font-medium">{hostname}</span>
+            <span className="text-muted-foreground text-xs">{app}</span>
+          </span>
+          <DomainStatusBadge
+            status={status}
+            detail={statusDetail}
+            labels={labels}
+          />
+        </div>
 
-      {checkedLabel && (
-        <span className="text-muted-foreground -mt-2 text-xs">
-          {checkedLabel}
-        </span>
-      )}
+        {checkedLabel && (
+          <span className="text-muted-foreground -mt-2 text-xs">
+            {checkedLabel}
+          </span>
+        )}
 
-      {status === 'paused' && pausedMessage && (
-        <p className="text-(--destructive-subtle)">{pausedMessage}</p>
-      )}
+        {status === 'paused' && pausedMessage && (
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon />
+            <AlertDescription>{pausedMessage}</AlertDescription>
+          </Alert>
+        )}
 
-      {/* Fly's own diagnosis, set apart in its own box so it never reads as
+        {/* Fly's own diagnosis, set apart in its own box so it never reads as
           part of the suggestion below it — the two describe the problem
           differently (missing AAAA vs. a CNAME to create) without disagreeing.
           Neutral once active: nothing a live check reports on an already-
           issued certificate is fatal by definition, so it must not read as
           an error the way it does before the domain is answering */}
-      {requested && check?.issues?.length ? (
-        <Alert variant={active ? 'default' : 'destructive'}>
-          <ExclamationTriangleIcon />
-          <AlertTitle>
-            {active ? labels.issuesActiveHeading : labels.issuesHeading}
-          </AlertTitle>
-          <AlertDescription>
-            <ul className="flex flex-col gap-1">
-              {check.issues.map((issue) => (
-                <li key={issue}>{issue}</li>
-              ))}
-            </ul>
-          </AlertDescription>
-        </Alert>
-      ) : null}
+        {requested && check?.issues?.length ? (
+          <Alert variant={active ? 'default' : 'destructive'}>
+            <ExclamationTriangleIcon />
+            <AlertTitle>
+              {active ? labels.issuesActiveHeading : labels.issuesHeading}
+            </AlertTitle>
+            <AlertDescription>
+              <ul className="flex flex-col gap-1">
+                {check.issues.map((issue) => (
+                  <li key={issue}>{issue}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        ) : null}
 
-      {/* Stays visible for the life of the domain, not just until the
+        {/* Stays visible for the life of the domain, not just until the
           certificate validates — the records are still what the domain
           runs on, and hiding them on an active cert would hide the exact
           case (green, but still not loading) this block exists to catch */}
-      {requested && dns && (
-        <DnsRecord
-          hostname={hostname}
-          app={app}
-          validation={dns}
-          ownershipRecord={check?.ownershipRecord}
-          confirmed={check?.confirmed}
-          settled={settled}
-          labels={{
-            trafficLede: labels.dnsTrafficLede,
-            validationLede: labels.dnsValidationLede,
-            ownershipLede: labels.dnsOwnershipLede,
-            instructionsLede: labels.dnsLede,
-            apexNote: labels.apexNote,
-            nameHint: labels.dnsNameHint,
-            settledLede: labels.dnsSettledLede,
-            copyRecord: labels.copyRecord
-          }}
-        />
-      )}
+        {requested && dns && (
+          <DnsRecord
+            hostname={hostname}
+            app={app}
+            validation={dns}
+            ownershipRecord={check?.ownershipRecord}
+            confirmed={check?.confirmed}
+            settled={settled}
+            labels={{
+              trafficLede: labels.dnsTrafficLede,
+              validationLede: labels.dnsValidationLede,
+              ownershipLede: labels.dnsOwnershipLede,
+              instructionsLede: labels.dnsLede,
+              apexNote: labels.apexNote,
+              nameHint: labels.dnsNameHint,
+              settledLede: labels.dnsSettledLede,
+              copyRecord: labels.copyRecord
+            }}
+          />
+        )}
 
-      {saved ? (
-        <div className="flex flex-wrap items-center gap-2 pt-0.5">
-          {!requested ? (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={disabled}
-              onClick={() => onAction('request')}
-            >
-              <ActionIcon
-                idle={ShieldCheckIcon}
-                running={runningAction === 'request'}
-              />
-              {labels.request}
-            </Button>
-          ) : (
-            <>
+        {saved ? (
+          <div className="flex flex-wrap items-center gap-2 pt-0.5">
+            {!requested ? (
               <Button
                 variant="outline"
                 size="sm"
                 disabled={disabled}
-                onClick={() => onAction('check')}
+                onClick={() => onAction('request')}
               >
                 <ActionIcon
-                  idle={ArrowPathIcon}
-                  running={runningAction === 'check'}
+                  idle={ShieldCheckIcon}
+                  running={runningAction === 'request'}
                 />
-                {labels.check}
+                {labels.request}
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={disabled}
-                onClick={() => onAction('remove')}
-              >
-                <ActionIcon
-                  idle={TrashIcon}
-                  running={runningAction === 'remove'}
-                />
-                {labels.remove}
-              </Button>
-            </>
-          )}
-        </div>
-      ) : (
-        <p className="text-muted-foreground">{labels.saveFirst}</p>
-      )}
-    </div>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={disabled}
+                  onClick={() => onAction('check')}
+                >
+                  <ActionIcon
+                    idle={ArrowPathIcon}
+                    running={runningAction === 'check'}
+                  />
+                  {labels.check}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={disabled}
+                  onClick={() => onAction('remove')}
+                >
+                  <ActionIcon
+                    idle={TrashIcon}
+                    running={runningAction === 'remove'}
+                  />
+                  {labels.remove}
+                </Button>
+              </>
+            )}
+          </div>
+        ) : (
+          <p className="text-muted-foreground">{labels.saveFirst}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -255,43 +262,5 @@ function ActionIcon({
     <ArrowPathIcon className="size-4 animate-spin" />
   ) : (
     <Idle className="size-4" />
-  );
-}
-
-function Status({
-  status,
-  detail,
-  labels
-}: {
-  status: DomainCertificateStatus;
-  detail?: string | null;
-  labels: Pick<
-    DomainCardProps['labels'],
-    'active' | 'paused' | 'pending' | 'notRequested'
-  >;
-}) {
-  if (status === 'active') {
-    return (
-      <span className="flex items-center gap-1.5 font-medium text-(--success-subtle)">
-        <CheckCircleIcon className="size-4" />
-        {labels.active}
-      </span>
-    );
-  }
-
-  if (status === 'paused') {
-    return (
-      <span className="flex items-center gap-1.5 text-(--destructive-subtle)">
-        <ExclamationTriangleIcon className="size-4" />
-        {labels.paused}
-      </span>
-    );
-  }
-
-  return (
-    <span className="text-muted-foreground flex items-center gap-1.5">
-      <ClockIcon className="size-4" />
-      {status === 'pending' ? (detail ?? labels.pending) : labels.notRequested}
-    </span>
   );
 }

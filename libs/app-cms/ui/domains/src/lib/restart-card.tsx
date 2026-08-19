@@ -1,4 +1,5 @@
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
+import { Card, CardContent } from '@codeware/shared/ui/shadcn/components/card';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export type RestartCardProps = {
@@ -32,27 +33,31 @@ export function RestartCard({
   }
 
   return (
-    <div className="border-border flex flex-col gap-2.5 rounded-lg border px-4 py-3.5 text-sm">
-      <p className="text-muted-foreground">{hint}</p>
-      {apps.map((app) => (
-        <div
-          key={app}
-          className="flex flex-wrap items-center justify-between gap-2"
-        >
-          <span className="font-medium">{app}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={disabled}
-            onClick={() => onRestart(app)}
+    <Card className="border-border gap-0 border py-0 shadow-xs ring-0">
+      <CardContent className="flex flex-col gap-2.5 px-4 py-3.5">
+        <p className="text-muted-foreground">{hint}</p>
+        {apps.map((app) => (
+          <div
+            key={app}
+            className="flex flex-wrap items-center justify-between gap-2"
           >
-            <ArrowPathIcon
-              className={runningApp === app ? 'size-4 animate-spin' : 'size-4'}
-            />
-            {restartLabel}
-          </Button>
-        </div>
-      ))}
-    </div>
+            <span className="font-medium">{app}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={disabled}
+              onClick={() => onRestart(app)}
+            >
+              <ArrowPathIcon
+                className={
+                  runningApp === app ? 'size-4 animate-spin' : 'size-4'
+                }
+              />
+              {restartLabel}
+            </Button>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }

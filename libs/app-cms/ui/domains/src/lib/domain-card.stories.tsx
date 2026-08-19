@@ -37,7 +37,15 @@ const labels: DomainCardProps['labels'] = {
   apexNote:
     'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.',
   issuedHeading: 'Issued certificates',
-  issuedBy: 'Issued by'
+  issuedBy: 'Issued by',
+  compareResolvers: 'Compare resolvers',
+  resolversHeading: 'What the public resolvers see',
+  resolversAgree:
+    'Every resolver agrees. If the domain still will not load for you, the stale answer is on your own side — your router, your ISP or this machine.',
+  resolversDisagree:
+    'The resolvers do not agree yet, which is what a record still spreading looks like.',
+  resolversNoAnswer: 'no record yet',
+  resolversUnreachable: 'could not be reached'
 };
 
 const base = {

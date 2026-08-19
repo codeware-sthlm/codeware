@@ -13,6 +13,13 @@ export { getFlyApi } from './lib/get-fly-api';
 export { guardDomainConflicts } from './lib/guard-domain-conflicts';
 export { normalizeDomains } from './lib/normalize-domains';
 export {
+  PUBLIC_RESOLVERS,
+  type ResolverAnswer,
+  type ResolverComparison,
+  normaliseRecords,
+  resolversAgree
+} from './lib/resolver-comparison';
+export {
   type HostnameProblem,
   type HostnameResult,
   parseHostname

@@ -41,6 +41,7 @@ import sharp from 'sharp';
 import { getAppInfo } from './app-info';
 import { collections, users } from './collections';
 import { createLegalPageEndpoint } from './endpoints/create-legal-page';
+import { domainDnsComparisonEndpoint } from './endpoints/domain-dns-comparison';
 import { formSubmissionsExportEndpoint } from './endpoints/form-submissions-export';
 import { formSubmissionsReadEndpoint } from './endpoints/form-submissions-read';
 import { paletteSearchEndpoint } from './endpoints/palette-search';
@@ -179,6 +180,7 @@ export default buildConfig({
   email: getEmailAdapter(env),
   endpoints: [
     createLegalPageEndpoint,
+    domainDnsComparisonEndpoint,
     formSubmissionsExportEndpoint,
     formSubmissionsReadEndpoint,
     paletteSearchEndpoint,

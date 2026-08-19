@@ -48,6 +48,8 @@ import { usePathname } from 'next/navigation';
 import type { ClientCollectionConfig } from 'payload';
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { FORCE_LOGOUT_PATH } from '../../utils/force-logout';
+
 import { paletteShortcutLabel } from './palette/palette-shortcut-label';
 import { usePalette } from './palette/PaletteProvider.client';
 import { localize } from './utils/localize';
@@ -114,7 +116,8 @@ function AdminNavContent({
   initialCounts,
   unreadCounts,
   tenantIcons,
-  tenantSelector
+  tenantSelector,
+  mismatchNotice
 }: {
   initialCounts: Record<string, number>;
   /** Per-slug counts of items needing attention, overriding `initialCounts` */
@@ -123,6 +126,8 @@ function AdminNavContent({
   tenantIcons: Record<string, TenantIconConfig | null>;
   /** Server-rendered multi-tenant plugin selector (see `AdminNavWrapper`). */
   tenantSelector?: React.ReactNode;
+  /** Server-rendered warning for a refused session (see `AdminNavWrapper`). */
+  mismatchNotice?: React.ReactNode;
 }) {
   const { user, logOut } = useAuth<User>();
   const { navOpen, setNavOpen } = useNav();
@@ -228,6 +233,11 @@ function AdminNavContent({
       >
         {/* ── Header: brand row, workspace switcher, filter ── */}
         <SidebarHeader className="gap-4 p-3.5">
+          {/* Only rendered when this host is one the deployment refuses
+           * cookies from — the state where the rest of the nav quietly
+           * degrades to what an unauthenticated visitor would see. */}
+          {mismatchNotice}
+
           {/* Expanded: selected-workspace identity + subtle collapse toggle.
            * Collapsed rail: only the identity tile, clicking it expands. */}
           <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
@@ -385,7 +395,14 @@ function AdminNavContent({
               </div>
             </Link>
             <Button
-              onClick={() => logOut()}
+              onClick={async () => {
+                // Payload's logOut skips the request entirely when the client
+                // has no user and swallows failures otherwise, so it cannot be
+                // relied on to clear the cookie. Let it do its bookkeeping,
+                // then leave through the route that always does.
+                await logOut();
+                window.location.href = FORCE_LOGOUT_PATH;
+              }}
               variant="ghost"
               size="icon-sm"
               className="text-muted-foreground ml-auto shrink-0 group-data-[collapsible=icon]:hidden"
@@ -440,12 +457,15 @@ export const AdminNav: React.FC<{
   sidebarOpen?: boolean;
   /** Server-rendered multi-tenant plugin selector (see `AdminNavWrapper`). */
   tenantSelector?: React.ReactNode;
+  /** Server-rendered warning for a refused session (see `AdminNavWrapper`). */
+  mismatchNotice?: React.ReactNode;
 }> = ({
   initialCounts = {},
   unreadCounts = {},
   tenantIcons = {},
   sidebarOpen = true,
-  tenantSelector
+  tenantSelector,
+  mismatchNotice
 }) => {
   return (
     <SidebarProvider
@@ -465,6 +485,7 @@ export const AdminNav: React.FC<{
         unreadCounts={unreadCounts}
         tenantIcons={tenantIcons}
         tenantSelector={tenantSelector}
+        mismatchNotice={mismatchNotice}
       />
     </SidebarProvider>
   );

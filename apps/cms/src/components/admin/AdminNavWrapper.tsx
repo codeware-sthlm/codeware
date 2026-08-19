@@ -12,6 +12,7 @@ import type { CollectionSlug, ServerProps } from 'payload';
 import React from 'react';
 
 import { AdminNav } from './AdminNav.client';
+import DomainMismatchNotice from './DomainMismatchNotice';
 import { getTenantWhere } from './utils/tenant-where';
 
 const SKIPPED_COUNT_SLUGS: Set<CollectionSlug> = new Set([
@@ -104,6 +105,7 @@ const AdminNavWrapper: React.FC<ServerProps> = async (serverProps) => {
       unreadCounts={unreadCounts}
       tenantIcons={tenantIcons}
       sidebarOpen={sidebarOpen}
+      mismatchNotice={<DomainMismatchNotice {...serverProps} />}
       tenantSelector={
         <TenantSelector
           {...serverProps}

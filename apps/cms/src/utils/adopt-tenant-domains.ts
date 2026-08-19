@@ -46,8 +46,20 @@ export const adoptTenantDomains = async (payload: Payload): Promise<void> => {
 
     const { primary, origins } = adoptableDomains(tenant.domains, env.APP_NAME);
 
+    // Said out loud rather than returned quietly. The app still works on its
+    // Fly url in this state, so nothing looks wrong until someone reaches it
+    // on the domain they expected to have been adopted
     if (!origins.length) {
+      payload.logger.warn(
+        `[domains] No adoptable domain for ${env.APP_NAME}, serving as ${config.serverURL} — the workspace needs a hostname on this app with a configured certificate`
+      );
       return;
+    }
+
+    if (!primary) {
+      payload.logger.warn(
+        `[domains] No domain marked primary, serving as ${config.serverURL}`
+      );
     }
 
     // The break-glass DISABLE_DOMAIN_ADOPTION flag is the escape hatch: set
@@ -64,7 +76,11 @@ export const adoptTenantDomains = async (payload: Payload): Promise<void> => {
       config.cors = [...new Set([...config.cors, ...origins])];
     }
 
-    config.csrf = [...new Set([...(config.csrf ?? []), ...origins])];
+    // The Fly url stays on the list beside the adopted domain — it is how
+    // support reaches an app whose custom domain is what went wrong
+    config.csrf = [
+      ...new Set([...(config.csrf ?? []), env.FLY_URL, ...origins])
+    ].filter(Boolean);
 
     payload.logger.info(`[domains] Accepting ${origins.join(', ')}`);
   } catch (error) {

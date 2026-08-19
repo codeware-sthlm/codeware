@@ -57,6 +57,28 @@ export const CertificateApiResponseSchema = z.object({
         timestamp: z.string()
       })
     )
+    .nullish(),
+  /**
+   * The certificates actually issued for this hostname, once any have been.
+   *
+   * A connection rather than a list because that is how Fly models it. Two
+   * nodes is the normal count — one RSA and one ECDSA — sharing an expiry,
+   * which is why a caller usually wants the expiry rather than the rows.
+   */
+  issued: z
+    .object({
+      nodes: z
+        .array(
+          z.object({
+            id: z.string().nullish(),
+            /** Key type, e.g. `RSA` or `ECDSA` */
+            type: z.string().nullish(),
+            hostname: z.string().nullish(),
+            expiresAt: z.string().nullish()
+          })
+        )
+        .nullish()
+    })
     .nullish()
 });
 

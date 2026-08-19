@@ -10,7 +10,8 @@ import {
   type DomainAction,
   DomainCard,
   type DomainCertificateStatus,
-  RestartCard
+  RestartCard,
+  isExpiringSoon
 } from '@codeware/app-cms/ui/domains';
 import type {
   TranslationsKeys,
@@ -166,6 +167,17 @@ export const DomainsPanel: React.FC<{
     [dateFormat]
   );
 
+  /** Expiry reads as a date rather than a timestamp — the hour is noise here */
+  const expiryFormat = useMemo(
+    () =>
+      new Intl.DateTimeFormat(language, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }),
+    [language]
+  );
+
   const run = useCallback(
     async (hostname: string, action: DomainAction) => {
       setBusy(actionKey(hostname, action));
@@ -312,6 +324,8 @@ export const DomainsPanel: React.FC<{
       dnsSettledLede: t('domains:dnsSettledLede'),
       dnsTrafficLede: t('domains:dnsTrafficLede'),
       dnsValidationLede: t('domains:dnsValidationLede'),
+      issuedBy: t('domains:issuedBy'),
+      issuedHeading: t('domains:issuedHeading'),
       issuesActiveHeading: t('domains:issuesActiveHeading'),
       issuesHeading: t('domains:issuesHeading'),
       apexNote: t('domains:apexNote')
@@ -359,6 +373,19 @@ export const DomainsPanel: React.FC<{
                   })
                 : null
             }
+            issued={(certificate?.issuedCertificates ?? [])
+              .filter(
+                (
+                  entry
+                ): entry is { type: string; expiresAt: string; id?: unknown } =>
+                  Boolean(entry?.type) && Boolean(entry?.expiresAt)
+              )
+              .map((entry) => ({
+                type: entry.type,
+                expiresLabel: expiryFormat.format(new Date(entry.expiresAt)),
+                expiringSoon: isExpiringSoon(entry.expiresAt)
+              }))}
+            certificateAuthority={certificate?.certificateAuthority ?? null}
             dns={
               certificate
                 ? {

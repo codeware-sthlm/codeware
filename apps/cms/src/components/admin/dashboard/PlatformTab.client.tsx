@@ -65,6 +65,8 @@ export function PlatformTab({ data }: { data: PlatformData }) {
         return t('platform:summaryIssues', { count: domains.count });
       case 'not-requested':
         return t('platform:summaryNotRequested', { count: domains.count });
+      case 'expiring':
+        return t('platform:summaryExpiring', { count: domains.count });
       case 'pending':
         return t('platform:summaryPending', { count: domains.count });
     }

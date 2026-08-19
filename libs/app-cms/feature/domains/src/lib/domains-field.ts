@@ -101,7 +101,19 @@ export const domainsField = ({ override }: Props = {}): ArrayField => {
             { name: 'dnsValidationTarget', type: 'text' },
             { name: 'dnsValidationInstructions', type: 'textarea' },
             { name: 'rateLimitedUntil', type: 'date' },
-            { name: 'validationErrors', type: 'text', hasMany: true }
+            { name: 'validationErrors', type: 'text', hasMany: true },
+            { name: 'certificateAuthority', type: 'text' },
+            {
+              // Stored rather than fetched on demand, for the same reason as
+              // everything else here: the panel renders without calling Fly,
+              // so an expiry only held in a response would vanish on reload
+              name: 'issuedCertificates',
+              type: 'array',
+              fields: [
+                { name: 'type', type: 'text' },
+                { name: 'expiresAt', type: 'date' }
+              ]
+            }
           ]
         }
       ]

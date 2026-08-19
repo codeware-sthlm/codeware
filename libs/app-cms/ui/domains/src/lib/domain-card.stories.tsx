@@ -35,7 +35,9 @@ const labels: DomainCardProps['labels'] = {
   dnsSettledLede:
     'These are the records the domain runs on. They stay needed — remove one and the domain stops answering, certificate or not:',
   apexNote:
-    'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.'
+    'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.',
+  issuedHeading: 'Issued certificates',
+  issuedBy: 'Issued by'
 };
 
 const base = {

@@ -24,9 +24,20 @@ export type TenantDomain = {
  * A shape as it comes back out of the database rather than as it went in.
  *
  * Payload widens every stored field to nullable-optional, so a type that only
- * describes what is written cannot receive what is read.
+ * describes what is written cannot receive what is read — and it does so at
+ * every level, which is why an array of objects has to be widened element by
+ * element rather than treated as one opaque value. Arrays of primitives
+ * (`validationErrors`) keep their element type, since there is nothing inside
+ * to widen.
  */
-type Stored<T> = { [K in keyof T]?: T[K] | null };
+type Stored<T> = { [K in keyof T]?: StoredValue<NonNullable<T[K]>> };
+
+type StoredValue<V> =
+  V extends Array<infer E>
+    ? E extends object
+      ? Array<{ [K in keyof E]?: E[K] | null }> | null
+      : V | null
+    : V | null;
 
 /**
  * A tenant document, as far as the domain hooks are concerned.

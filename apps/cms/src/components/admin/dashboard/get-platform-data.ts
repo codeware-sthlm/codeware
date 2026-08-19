@@ -13,6 +13,7 @@ type StoredCertificate = {
   rateLimitedUntil?: string | null;
   dnsValidationHostname?: string | null;
   validationErrors?: Array<string> | null;
+  issuedCertificates?: Array<{ expiresAt?: string | null } | null> | null;
 };
 
 type StoredDomain = {
@@ -38,6 +39,23 @@ const wasRequested = (certificate: StoredCertificate | null) =>
 
 const isRateLimited = (until: string | null | undefined) =>
   Boolean(until && new Date(until).getTime() > Date.now());
+
+/**
+ * The soonest expiry across a domain's issued certificates.
+ *
+ * Fly issues an RSA and an ECDSA certificate per hostname and renews them
+ * together, so these normally agree — taking the earliest means a pair that
+ * has drifted apart is judged by whichever half lapses first.
+ */
+const earliestExpiry = (
+  certificate: StoredCertificate | null
+): string | null => {
+  const dates = (certificate?.issuedCertificates ?? [])
+    .map((entry) => entry?.expiresAt)
+    .filter((value): value is string => Boolean(value))
+    .sort();
+  return dates.at(0) ?? null;
+};
 
 const certificateStatus = (
   certificate: StoredCertificate | null
@@ -77,6 +95,7 @@ const toItems = (
         checkedLabel: certificate?.checkedAt
           ? formatChecked(certificate.checkedAt)
           : null,
+        expiresAt: earliestExpiry(certificate),
         href,
         owner
       };

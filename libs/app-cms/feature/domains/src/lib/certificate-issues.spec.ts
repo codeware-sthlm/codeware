@@ -65,4 +65,25 @@ describe('describeCertificateIssues', () => {
       )
     ).toEqual([]);
   });
+
+  it('drops an ownership code Fly did not offer a record for', () => {
+    // Fly can report OWNERSHIP_VERIFICATION_REQUIRED without offering the
+    // TXT record that would satisfy it, even on an issued, serving domain —
+    // its own dashboard does not show this either in that state
+    const issues = describeCertificateIssues(null, {
+      errors: ['DNS_NOT_CONFIGURED', 'OWNERSHIP_VERIFICATION_REQUIRED'],
+      dnsVerificationRecord: null
+    });
+
+    expect(issues).toEqual(['DNS not configured']);
+  });
+
+  it('keeps an ownership code once Fly actually offers the record', () => {
+    const issues = describeCertificateIssues(null, {
+      errors: ['OWNERSHIP_VERIFICATION_REQUIRED'],
+      dnsVerificationRecord: 'app-w0608qd'
+    });
+
+    expect(issues).toEqual(['Ownership verification required']);
+  });
 });

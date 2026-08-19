@@ -28,8 +28,58 @@ describe('toCertificateState', () => {
       dnsValidationTarget: 'tours.example.com.abc.flydns.net',
       dnsValidationInstructions: 'Add a CNAME record …',
       rateLimitedUntil: null,
-      validationErrors: null
+      validationErrors: null,
+      certificateAuthority: null,
+      issuedCertificates: null
     });
+  });
+
+  it('carries the issued certificates and who signed them', () => {
+    const state = toCertificateState(
+      certificate({
+        isConfigured: true,
+        certificateAuthority: 'lets_encrypt',
+        issued: {
+          nodes: [
+            { type: 'RSA', expiresAt: '2026-11-15T00:28:19Z' },
+            { type: 'ECDSA', expiresAt: '2026-11-15T00:28:19Z' }
+          ]
+        }
+      }),
+      now
+    );
+
+    expect(state.certificateAuthority).toBe('lets_encrypt');
+    expect(state.issuedCertificates).toEqual([
+      { type: 'RSA', expiresAt: '2026-11-15T00:28:19Z' },
+      { type: 'ECDSA', expiresAt: '2026-11-15T00:28:19Z' }
+    ]);
+  });
+
+  it('drops an issued row missing the half that carries the meaning', () => {
+    const state = toCertificateState(
+      certificate({
+        issued: {
+          nodes: [
+            { type: 'RSA', expiresAt: null },
+            { type: null, expiresAt: '2026-11-15T00:28:19Z' },
+            { type: 'ECDSA', expiresAt: '2026-11-15T00:28:19Z' }
+          ]
+        }
+      }),
+      now
+    );
+
+    expect(state.issuedCertificates).toEqual([
+      { type: 'ECDSA', expiresAt: '2026-11-15T00:28:19Z' }
+    ]);
+  });
+
+  it('reads no issued certificates as none, not an empty list', () => {
+    expect(
+      toCertificateState(certificate({ issued: { nodes: [] } }), now)
+        .issuedCertificates
+    ).toBeNull();
   });
 
   it('carries Fly’s own prose for a failed issuance attempt', () => {

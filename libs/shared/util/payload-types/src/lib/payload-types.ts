@@ -448,6 +448,14 @@ export interface Tenant {
           dnsValidationInstructions?: string | null;
           rateLimitedUntil?: string | null;
           validationErrors?: string[] | null;
+          certificateAuthority?: string | null;
+          issuedCertificates?:
+            | {
+                type?: string | null;
+                expiresAt?: string | null;
+                id?: string | null;
+              }[]
+            | null;
         };
         id?: string | null;
       }[]
@@ -1612,6 +1620,14 @@ export interface PlatformSetting {
           dnsValidationInstructions?: string | null;
           rateLimitedUntil?: string | null;
           validationErrors?: string[] | null;
+          certificateAuthority?: string | null;
+          issuedCertificates?:
+            | {
+                type?: string | null;
+                expiresAt?: string | null;
+                id?: string | null;
+              }[]
+            | null;
         };
         id?: string | null;
       }[]
@@ -2494,6 +2510,14 @@ export interface PlatformSettingsSelect<T extends boolean = true> {
               dnsValidationInstructions?: T;
               rateLimitedUntil?: T;
               validationErrors?: T;
+              certificateAuthority?: T;
+              issuedCertificates?:
+                | T
+                | {
+                    type?: T;
+                    expiresAt?: T;
+                    id?: T;
+                  };
             };
         id?: T;
       };
@@ -2741,6 +2765,14 @@ export interface TenantsSelect<T extends boolean = true> {
               dnsValidationInstructions?: T;
               rateLimitedUntil?: T;
               validationErrors?: T;
+              certificateAuthority?: T;
+              issuedCertificates?:
+                | T
+                | {
+                    type?: T;
+                    expiresAt?: T;
+                    id?: T;
+                  };
             };
         id?: T;
       };

@@ -4,6 +4,7 @@ import {
   type DomainCertificateStatus,
   DomainStatusBadge
 } from './domain-status-badge';
+import { isExpiringSoon } from './expiry';
 
 /**
  * Anchor-compatible component slot so the host app can inject its router link.
@@ -36,6 +37,8 @@ export type DomainStatusItem = {
   hasIssues: boolean;
   /** Pre-formatted "Checked 14 Aug 22:42"; null when none has ever run */
   checkedLabel?: string | null;
+  /** ISO expiry of the issued certificate, when one has been recorded */
+  expiresAt?: string | null;
   /** Admin url of the document that owns this domain */
   href: string;
   /** Who owns it — the workspace name, or the platform */
@@ -49,6 +52,7 @@ export type DomainsVerdict =
   | { tone: 'error'; kind: 'paused'; count: number }
   | { tone: 'error'; kind: 'issues'; count: number }
   | { tone: 'warning'; kind: 'not-requested'; count: number }
+  | { tone: 'warning'; kind: 'expiring'; count: number }
   | { tone: 'warning'; kind: 'pending'; count: number };
 
 /**
@@ -61,9 +65,12 @@ export type DomainsVerdict =
  *
  * Returns the count of domains in the worst state rather than a total, since
  * that is the number the detail line quotes.
+ *
+ * @param now - Injectable clock, so the expiry window is testable
  */
 export const summarizeDomains = (
-  items: Array<DomainStatusItem>
+  items: Array<DomainStatusItem>,
+  now: Date = new Date()
 ): DomainsVerdict => {
   if (!items.length) {
     return { tone: 'neutral', kind: 'none', count: 0 };
@@ -85,6 +92,11 @@ export const summarizeDomains = (
   const notRequested = count((item) => item.status === 'not-requested');
   if (notRequested) {
     return { tone: 'warning', kind: 'not-requested', count: notRequested };
+  }
+
+  const expiring = count((item) => isExpiringSoon(item.expiresAt, now));
+  if (expiring) {
+    return { tone: 'warning', kind: 'expiring', count: expiring };
   }
 
   const pending = count((item) => item.status === 'pending');

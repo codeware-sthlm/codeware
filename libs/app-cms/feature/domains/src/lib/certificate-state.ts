@@ -14,6 +14,16 @@ export type CertificateState = {
   rateLimitedUntil: string | null;
   /** Fly's own prose for a failed issuance attempt, oldest first */
   validationErrors: Array<string> | null;
+  /** Who signed it, e.g. `lets_encrypt` */
+  certificateAuthority: string | null;
+  /**
+   * The certificates Fly has actually issued, once any exist.
+   *
+   * Normally two rows sharing one expiry — Fly issues an RSA and an ECDSA
+   * certificate per hostname — which is why the expiry, not the row count, is
+   * the part worth reading.
+   */
+  issuedCertificates: Array<{ type: string; expiresAt: string }> | null;
 };
 
 /**
@@ -48,11 +58,20 @@ export const toCertificateState = (
       dnsValidationTarget: null,
       dnsValidationInstructions: null,
       rateLimitedUntil: null,
-      validationErrors: null
+      validationErrors: null,
+      certificateAuthority: null,
+      issuedCertificates: null
     };
   }
 
   const dns = FlyApi.dnsInstructions(certificate);
+
+  const issued = (certificate.issued?.nodes ?? [])
+    .filter(
+      (node): node is { type: string; expiresAt: string } =>
+        Boolean(node.type) && Boolean(node.expiresAt)
+    )
+    .map(({ type, expiresAt }) => ({ type, expiresAt }));
 
   return {
     isConfigured: certificate.isConfigured,
@@ -65,7 +84,15 @@ export const toCertificateState = (
     rateLimitedUntil: certificate.rateLimitedUntil ?? null,
     validationErrors: certificate.validationErrors?.length
       ? certificate.validationErrors.map((error) => error.message)
-      : null
+      : null,
+    certificateAuthority: certificate.certificateAuthority ?? null,
+    // Both halves have to be there to be worth a row: a type with no expiry
+    // says nothing the status line does not already say.
+    //
+    // Normalised to null when nothing survives, matching `validationErrors` —
+    // a stored empty array and a stored null would render identically while
+    // reading as different states to anything that checks them.
+    issuedCertificates: issued.length ? issued : null
   };
 };
 

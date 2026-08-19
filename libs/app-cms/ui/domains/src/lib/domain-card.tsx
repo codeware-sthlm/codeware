@@ -17,6 +17,10 @@ import {
   type DomainCertificateStatus,
   DomainStatusBadge
 } from './domain-status-badge';
+import {
+  type IssuedCertificate,
+  IssuedCertificates
+} from './issued-certificates';
 
 export type { DomainCertificateStatus };
 
@@ -38,6 +42,15 @@ export type DomainCardProps = {
   pausedMessage?: string | null;
   /** The records to create at the registrar, until the certificate is active */
   dns?: DnsRecordProps['validation'] | null;
+  /**
+   * What Fly has issued, once it has issued anything.
+   *
+   * Empty for every certificate stored before this was recorded, which is why
+   * the block renders on having rows rather than on the status being active.
+   */
+  issued?: Array<IssuedCertificate> | null;
+  /** Who signed them, e.g. `lets_encrypt` */
+  certificateAuthority?: string | null;
   /**
    * What Fly resolved the last time it was asked, and what it objected to.
    *
@@ -79,6 +92,9 @@ export type DomainCardProps = {
     apexNote: string;
     /** The dns block's lede once the certificate is issued and clean */
     dnsSettledLede: string;
+    issuedHeading: string;
+    /** Prefixes the certificate authority, e.g. "issued by" */
+    issuedBy: string;
   };
   onAction: (action: DomainAction) => void;
 };
@@ -102,6 +118,8 @@ export function DomainCard({
   checkedLabel,
   pausedMessage,
   dns,
+  issued,
+  certificateAuthority,
   check,
   saved,
   runningAction,
@@ -164,6 +182,17 @@ export function DomainCard({
               </ul>
             </AlertDescription>
           </Alert>
+        ) : null}
+
+        {issued?.length ? (
+          <IssuedCertificates
+            certificates={issued}
+            authority={certificateAuthority}
+            labels={{
+              heading: labels.issuedHeading,
+              issuedBy: labels.issuedBy
+            }}
+          />
         ) : null}
 
         {/* Stays visible for the life of the domain, not just until the

@@ -45,6 +45,7 @@ import * as migration_20260812_212841_cod_435 from './20260812_212841_cod_435';
 import * as migration_20260813_224231_cod_357 from './20260813_224231_cod_357';
 import * as migration_20260816_222224_cod_357_2 from './20260816_222224_cod_357_2';
 import * as migration_20260817_212656_cod_436_platform_settings from './20260817_212656_cod_436_platform_settings';
+import * as migration_20260819_212439_cod_439_issued_certificates from './20260819_212439_cod_439_issued_certificates';
 
 export const migrations = [
   {
@@ -281,5 +282,10 @@ export const migrations = [
     up: migration_20260817_212656_cod_436_platform_settings.up,
     down: migration_20260817_212656_cod_436_platform_settings.down,
     name: '20260817_212656_cod_436_platform_settings'
+  },
+  {
+    up: migration_20260819_212439_cod_439_issued_certificates.up,
+    down: migration_20260819_212439_cod_439_issued_certificates.down,
+    name: '20260819_212439_cod_439_issued_certificates'
   }
 ];

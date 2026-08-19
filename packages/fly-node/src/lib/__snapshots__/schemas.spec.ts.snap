@@ -88,6 +88,22 @@ exports[`fly-node schema validation > validates all schemas against fixtures > C
   "isApex": false,
   "isConfigured": true,
   "isWildcard": false,
+  "issued": {
+    "nodes": [
+      {
+        "expiresAt": "2026-11-15T00:28:19Z",
+        "hostname": "tours.example.com",
+        "id": "cert_issued_rsa_anonymised",
+        "type": "RSA",
+      },
+      {
+        "expiresAt": "2026-11-15T00:28:19Z",
+        "hostname": "tours.example.com",
+        "id": "cert_issued_ecdsa_anonymised",
+        "type": "ECDSA",
+      },
+    ],
+  },
   "rateLimitedUntil": null,
   "source": "fly",
 }

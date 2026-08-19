@@ -501,6 +501,16 @@ const CERTIFICATE_FIELDS = `
     message
     timestamp
   }
+  # Fly issues one certificate per key type (RSA and ECDSA), so a hostname
+  # with a single expiry date still comes back as two rows
+  issued(first: 10) {
+    nodes {
+      id
+      type
+      hostname
+      expiresAt
+    }
+  }
 `;
 
 /**

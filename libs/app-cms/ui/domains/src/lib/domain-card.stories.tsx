@@ -259,6 +259,83 @@ export const Narrow: StoryObj = {
   )
 };
 
+/**
+ * A settled domain carrying everything it can carry.
+ *
+ * The two issued rows share an expiry — Fly renews the RSA and ECDSA pair
+ * together — which is why they are rows rather than a table.
+ */
+export const Settled: StoryObj = {
+  render: () => (
+    <Frame>
+      <DomainCard
+        {...base}
+        status="active"
+        checkedLabel="Checked 14 Aug 22:42"
+        dns={dns}
+        certificateAuthority="lets_encrypt"
+        issued={[
+          { type: 'RSA', expiresLabel: '15 November 2026' },
+          { type: 'ECDSA', expiresLabel: '15 November 2026' }
+        ]}
+      />
+      {/* Renewal has quietly stopped working — the one case the expiry is
+          worth printing for */}
+      <DomainCard
+        {...base}
+        status="active"
+        checkedLabel="Checked 14 Aug 22:42"
+        dns={dns}
+        certificateAuthority="lets_encrypt"
+        issued={[
+          { type: 'RSA', expiresLabel: '28 August 2026', expiringSoon: true },
+          { type: 'ECDSA', expiresLabel: '28 August 2026', expiringSoon: true }
+        ]}
+      />
+    </Frame>
+  )
+};
+
+/** Green everywhere, and still not loading — what the comparison is for */
+export const ResolversCompared: StoryObj = {
+  render: () => (
+    <Frame>
+      <DomainCard
+        {...base}
+        status="active"
+        checkedLabel="Checked 14 Aug 22:42"
+        dns={dns}
+        resolvers={{
+          agree: true,
+          answers: [
+            { resolver: 'Cloudflare', records: ['cdwr-cms-demo.fly.dev'] },
+            { resolver: 'Google', records: ['cdwr-cms-demo.fly.dev'] },
+            { resolver: 'Quad9', records: ['cdwr-cms-demo.fly.dev'] }
+          ],
+          negativeCacheNote:
+            'This zone tells resolvers to remember a “does not exist” answer for up to 3600 seconds, so a record created recently can stay invisible that long.'
+        }}
+      />
+      <DomainCard
+        {...base}
+        status="pending"
+        statusDetail="Awaiting configuration"
+        checkedLabel="Checked 14 Aug 22:42"
+        dns={dns}
+        resolvers={{
+          agree: false,
+          answers: [
+            { resolver: 'Cloudflare', records: ['cdwr-cms-demo.fly.dev'] },
+            { resolver: 'Google', records: [] },
+            { resolver: 'Quad9', records: [], error: 'ETIMEOUT' }
+          ],
+          negativeCacheNote: null
+        }}
+      />
+    </Frame>
+  )
+};
+
 export const PayloadAdminLight = a11yStory(Lifecycle, 'payload-admin', 'light');
 export const PayloadAdminDark = a11yStory(Lifecycle, 'payload-admin', 'dark');
 export const AttentionAdminLight = a11yStory(
@@ -280,6 +357,18 @@ export const IssuesAdminLight = a11yStory(
 );
 export const IssuesAdminDark = a11yStory(
   CheckedWithIssues,
+  'payload-admin',
+  'dark'
+);
+export const SettledAdminLight = a11yStory(Settled, 'payload-admin', 'light');
+export const SettledAdminDark = a11yStory(Settled, 'payload-admin', 'dark');
+export const ResolversAdminLight = a11yStory(
+  ResolversCompared,
+  'payload-admin',
+  'light'
+);
+export const ResolversAdminDark = a11yStory(
+  ResolversCompared,
   'payload-admin',
   'dark'
 );

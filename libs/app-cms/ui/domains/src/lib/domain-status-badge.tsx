@@ -34,9 +34,13 @@ export type DomainStatusBadgeProps = {
  * `StatusBadge`: here the colour *is* the signal — the whole point of the
  * domains surfaces is spotting the one row that is not green.
  *
- * `destructive` comes from the shadcn variant; the success tint is applied as
+ * `destructive` comes from the shadcn variant; the success tone is applied as
  * classes over `outline`, following `status-badge.tsx`, so the shadcn lib keeps
  * no local patch to preserve across registry updates.
+ *
+ * The success badge is tinted on its border only, not its background: green-700
+ * on a 10%-green fill measures 4.33:1 at 12px, just under the 4.5:1 axe
+ * requires. On the card's own background the same green clears it.
  */
 export function DomainStatusBadge({
   status,
@@ -47,7 +51,7 @@ export function DomainStatusBadge({
     return (
       <Badge
         variant="outline"
-        className="border-(--success-subtle)/30 bg-(--success-subtle)/10 text-(--success-subtle)"
+        className="border-(--success-subtle)/30 text-(--success-subtle)"
       >
         <CheckCircleIcon />
         {labels.active}

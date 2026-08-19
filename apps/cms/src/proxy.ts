@@ -1,8 +1,25 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
+import { FORCE_LOGOUT_PATH, SESSION_COOKIES } from './utils/force-logout';
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Force logout — drops the session cookies and lands on the login screen.
+  //
+  // Runs before Payload's auth, so it cannot 401 the way Payload's own logout
+  // does when the session is already being refused. Reachable by url alone,
+  // which is what makes it something support can hand to a locked-out user.
+  if (pathname === FORCE_LOGOUT_PATH) {
+    const response = NextResponse.redirect(
+      new URL('/admin/login', request.url)
+    );
+    for (const cookie of SESSION_COOKIES) {
+      response.cookies.delete(cookie);
+    }
+    return response;
+  }
 
   // Maintenance mode — serve maintenance page for all routes except the health
   // endpoint (so Fly health checks pass) and the maintenance page itself

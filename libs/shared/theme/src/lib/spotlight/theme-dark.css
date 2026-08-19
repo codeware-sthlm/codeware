@@ -43,6 +43,8 @@
   --destructive-subtle: var(--color-red-400);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-400);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-400);
   --border: theme('colors.zinc.700 / 0.4');
   --input: theme('colors.zinc.700 / 0.4');
   --ring: var(--primary);

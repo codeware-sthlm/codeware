@@ -35,6 +35,8 @@
   --destructive-subtle: var(--color-red-700);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-700);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-700);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);

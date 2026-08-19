@@ -38,6 +38,8 @@
   --destructive-subtle: var(--color-red-700);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-700);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-700);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -120,6 +122,8 @@
   --destructive-subtle: var(--color-red-400);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-400);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-400);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -179,6 +183,8 @@
   --destructive-subtle: var(--color-red-700);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-700);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-700);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
@@ -264,6 +270,8 @@
   --destructive-subtle: var(--color-red-400);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-400);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-400);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
@@ -350,6 +358,8 @@
   --destructive-subtle: var(--color-red-700);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-700);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-700);
   --border: var(--color-zinc-100);
   /* Form controls need a boundary you can actually see. zinc-100 on a white
   background is ~1.07:1 — the field edge disappears. Kept a step darker than
@@ -437,6 +447,8 @@
   --destructive-subtle: var(--color-red-400);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-400);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-400);
   --border: theme('colors.zinc.700 / 0.4');
   --input: theme('colors.zinc.700 / 0.4');
   --ring: var(--primary);
@@ -523,6 +535,8 @@
   --destructive-subtle: var(--color-red-700);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-700);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-700);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
@@ -605,6 +619,8 @@
   --destructive-subtle: var(--color-red-400);
   /* text on tinted success surfaces (badge/alert soft variants) */
   --success-subtle: var(--color-green-400);
+  /* text on tinted warning surfaces (badge/alert soft variants) */
+  --warning-subtle: var(--color-amber-400);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);

@@ -16,6 +16,7 @@ import React from 'react';
 
 import { AllContentTab } from './AllContentTab.client';
 import { HomeTab } from './HomeTab.client';
+import { PlatformTab } from './PlatformTab.client';
 import { useActiveTab } from './use-active-tab';
 
 /*
@@ -28,8 +29,8 @@ const TAB_TRIGGER_CLASSES =
   'text-muted-foreground hover:text-foreground -mb-px h-auto flex-none rounded-none border-0 border-b-2 border-transparent px-0 py-3.5 text-sm font-semibold transition-colors after:hidden data-active:border-(--link) data-active:text-foreground dark:data-active:border-(--link) dark:group-data-[variant=line]/tabs-list:data-active:border-(--link)';
 
 /**
- * Custom admin dashboard: the tabbed shell hosting the Home and All-content
- * tabs.
+ * Custom admin dashboard: the tabbed shell hosting the Home, All-content and
+ * Platform tabs.
  *
  * Presentational container — tab behavior and each tab's data handling live
  * in dedicated hooks and tab components.
@@ -40,7 +41,8 @@ export const AdminDashboard: React.FC<DashboardData> = ({
   taskCounts,
   recentDocs,
   drafts,
-  initialActiveTab
+  initialActiveTab,
+  platform
 }) => {
   const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
   const { activeTab, changeTab } = useActiveTab(initialActiveTab);
@@ -72,6 +74,14 @@ export const AdminDashboard: React.FC<DashboardData> = ({
           <TabsTrigger value="content" className={TAB_TRIGGER_CLASSES}>
             {t('dashboard:tabAllContent')}
           </TabsTrigger>
+          {/* Present only for whoever runs the platform. The same `platform`
+              value decides this and whether the data was fetched at all, so
+              the two cannot drift into a tab with nothing behind it. */}
+          {platform && (
+            <TabsTrigger value="platform" className={TAB_TRIGGER_CLASSES}>
+              {t('dashboard:tabPlatform')}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent
@@ -92,6 +102,14 @@ export const AdminDashboard: React.FC<DashboardData> = ({
         >
           <AllContentTab counts={counts} />
         </TabsContent>
+        {platform && (
+          <TabsContent
+            value="platform"
+            className="mt-0 flex-1 overflow-y-auto px-7.5 pt-7 pb-10"
+          >
+            <PlatformTab data={platform} />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

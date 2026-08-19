@@ -75,7 +75,10 @@
 @layer base {
   .twp,
   /* shadcn dialog must have preflight to render correctly */
-  div[role='dialog'][data-slot='dialog-content'] {
+  div[role='dialog'][data-slot='dialog-content'],
+  /* ...and so must a sheet, which portals out of the `.twp` scope too. Without
+     it the close button keeps the browser's default `buttonface` grey. */
+  div[role='dialog'][data-slot='sheet-content'] {
     @import 'tailwindcss/preflight.css';
   }
   /*
@@ -87,9 +90,24 @@
    * near-black, so reassert the theme defaults with the *same* selector
    * construction (equal specificity, later order wins).
    */
-  :is(.twp, div[role='dialog'][data-slot='dialog-content']) *,
-  :is(.twp, div[role='dialog'][data-slot='dialog-content']) ::before,
-  :is(.twp, div[role='dialog'][data-slot='dialog-content']) ::after {
+  :is(
+      .twp,
+      div[role='dialog'][data-slot='dialog-content'],
+      div[role='dialog'][data-slot='sheet-content']
+    )
+    *,
+  :is(
+      .twp,
+      div[role='dialog'][data-slot='dialog-content'],
+      div[role='dialog'][data-slot='sheet-content']
+    )
+    ::before,
+  :is(
+      .twp,
+      div[role='dialog'][data-slot='dialog-content'],
+      div[role='dialog'][data-slot='sheet-content']
+    )
+    ::after {
     @apply border-border outline-ring/50;
   }
   .no-twp {

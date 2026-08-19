@@ -8,7 +8,9 @@ import {
   getPreference,
   mapToRuntime
 } from '@codeware/app-cms/data-access';
+import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import type { RecentDoc } from '@codeware/app-cms/ui/dashboard';
+import { hasRole } from '@codeware/app-cms/util/misc';
 import type { SupportedLocale } from '@codeware/shared/util/i18n';
 import type {
   CollectionSlug,
@@ -18,6 +20,7 @@ import type {
 import type { ServerProps, Where } from 'payload';
 import React from 'react';
 
+import { formatRelativeTime } from '../utils/relative-time';
 import { getTenantWhere } from '../utils/tenant-where';
 
 import { AdminDashboard } from './AdminDashboard.client';
@@ -27,6 +30,7 @@ import {
   type DashboardPreferences,
   isDashboardTab
 } from './dashboard-preferences';
+import { getPlatformData } from './get-platform-data';
 import { PANEL_MAX_LIMIT } from './panel-limits';
 
 const SKIPPED_COUNT_SLUGS: Set<CollectionSlug> = new Set([
@@ -68,6 +72,11 @@ const AdminDashboardView: React.FC<ServerProps> = async ({
 }) => {
   const runtime = mapToRuntime(payload, user);
   const tenantWhere = await getTenantWhere(user);
+
+  // The platform tab is system-only, and one fact decides both whether it is
+  // rendered and whether its data is fetched — two checks could drift into a
+  // visible but empty tab, or a fetch nobody sees
+  const canSeePlatform = hasRole(user ?? null, 'system-user');
   const draftsWhere: Where = {
     and: [
       ...(tenantWhere ? [tenantWhere] : []),
@@ -109,9 +118,15 @@ const AdminDashboardView: React.FC<ServerProps> = async ({
       runtime,
       DASHBOARD_PREFERENCES_KEY
     );
-    return isDashboardTab(preferences?.activeTab)
-      ? preferences.activeTab
-      : DEFAULT_DASHBOARD_TAB;
+    const stored = preferences?.activeTab;
+    if (!isDashboardTab(stored)) {
+      return DEFAULT_DASHBOARD_TAB;
+    }
+    // A user demoted since they last chose the platform tab would otherwise be
+    // handed a value no trigger matches, which renders a blank pane in silence
+    return stored === 'platform' && !canSeePlatform
+      ? DEFAULT_DASHBOARD_TAB
+      : stored;
   };
 
   const [
@@ -121,7 +136,8 @@ const AdminDashboardView: React.FC<ServerProps> = async ({
     recentPages,
     draftPosts,
     draftPages,
-    activeTab
+    activeTab,
+    platform
   ] = await Promise.all([
     getCollectionCounts(runtime, slugsToCount, { tenantWhere }),
     countUnreadSubmissions(runtime, { tenantWhere }),
@@ -129,7 +145,14 @@ const AdminDashboardView: React.FC<ServerProps> = async ({
     getPages(runtime, listOptions),
     getPosts(runtime, draftOptions),
     getPages(runtime, draftOptions),
-    resolveActiveTab()
+    resolveActiveTab(),
+    // `getEnv()` revalidates the whole environment on every call, so it is
+    // parsed once here and handed down rather than read per widget
+    canSeePlatform
+      ? getPlatformData(payload, user, getEnv(), (checkedAt) =>
+          formatRelativeTime(checkedAt, locale?.code ?? 'en')
+        )
+      : null
   ]);
 
   // The messages task counts unread rather than everything ever received, so
@@ -164,6 +187,7 @@ const AdminDashboardView: React.FC<ServerProps> = async ({
       recentDocs={recentDocs}
       drafts={drafts}
       initialActiveTab={activeTab}
+      platform={platform}
     />
   );
 };

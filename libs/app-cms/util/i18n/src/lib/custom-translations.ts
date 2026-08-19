@@ -62,6 +62,7 @@ const customTranslationsSchema = z.object({
     apexNote: z.string(),
     check: z.string(),
     checkedAt: z.string(),
+    compareResolvers: z.string(),
     copyRecord: z.string(),
     dnsLede: z.string(),
     dnsNameHint: z.string(),
@@ -88,6 +89,12 @@ const customTranslationsSchema = z.object({
     rateLimited: z.string(),
     remove: z.string(),
     request: z.string(),
+    resolversAgree: z.string(),
+    resolversDisagree: z.string(),
+    resolversHeading: z.string(),
+    resolversNegativeCache: z.string(),
+    resolversNoAnswer: z.string(),
+    resolversUnreachable: z.string(),
     restart: z.string(),
     restartHint: z.string(),
     saveFirst: z.string()
@@ -332,6 +339,7 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'This is the domain itself rather than a subdomain, so a CNAME is not allowed — it needs A and AAAA records pointing at the app’s IP addresses.',
       check: 'Check now',
       checkedAt: 'Checked {{when}}',
+      compareResolvers: 'Compare resolvers',
       copyRecord: 'Copy the DNS target',
       dnsLede: 'Create this record where the domain’s DNS is managed:',
       dnsNameHint:
@@ -366,6 +374,15 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       rateLimited:
         'Let’s Encrypt has paused new attempts for this domain until {{when}}. Retrying before then only extends the pause.',
       remove: 'Remove certificate',
+      resolversAgree:
+        'Every resolver agrees. If the domain still will not load for you, the stale answer is on your own side — your router, your ISP or this machine, not the record.',
+      resolversDisagree:
+        'The resolvers do not agree yet, which is what a record still spreading looks like. Give it time rather than changing anything.',
+      resolversHeading: 'What the public resolvers see',
+      resolversNegativeCache:
+        'This zone tells resolvers to remember a “does not exist” answer for up to {{seconds}} seconds, so a record created recently can stay invisible that long.',
+      resolversNoAnswer: 'no record yet',
+      resolversUnreachable: 'could not be reached',
       request: 'Request certificate',
       restart: 'Restart app',
       restartHint:
@@ -629,6 +646,7 @@ Supported locales: {{locales}}`,
         'Det här är själva domänen och inte en underdomän, så CNAME är inte tillåtet — den behöver A- och AAAA-poster som pekar på appens IP-adresser.',
       check: 'Kontrollera nu',
       checkedAt: 'Kontrollerad {{when}}',
+      compareResolvers: 'Jämför DNS-servrar',
       copyRecord: 'Kopiera DNS-målet',
       dnsLede: 'Skapa den här posten där domänens DNS hanteras:',
       dnsNameHint:
@@ -663,6 +681,15 @@ Supported locales: {{locales}}`,
       rateLimited:
         'Let’s Encrypt har pausat nya försök för domänen till {{when}}. Att försöka igen dessförinnan förlänger bara pausen.',
       remove: 'Ta bort certifikat',
+      resolversAgree:
+        'Alla DNS-servrar är överens. Om domänen ändå inte laddas för dig sitter det gamla svaret på din egen sida — din router, din operatör eller den här datorn, inte posten.',
+      resolversDisagree:
+        'DNS-servrarna är inte överens ännu, vilket är precis hur en post som fortfarande sprids ser ut. Vänta hellre än att ändra något.',
+      resolversHeading: 'Vad de publika DNS-servrarna ser',
+      resolversNegativeCache:
+        'Zonen ber DNS-servrar minnas ett ”finns inte”-svar i upp till {{seconds}} sekunder, så en nyss skapad post kan vara osynlig så länge.',
+      resolversNoAnswer: 'ingen post ännu',
+      resolversUnreachable: 'gick inte att nå',
       request: 'Begär certifikat',
       restart: 'Starta om app',
       restartHint:

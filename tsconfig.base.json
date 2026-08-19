@@ -23,6 +23,9 @@
       "@codeware/app-cms/feature/domains": [
         "./libs/app-cms/feature/domains/src/index.ts"
       ],
+      "@codeware/app-cms/feature/domains/server": [
+        "./libs/app-cms/feature/domains/src/server.ts"
+      ],
       "@codeware/app-cms/feature/env-loader": [
         "./libs/app-cms/feature/env-loader/src/index.ts"
       ],

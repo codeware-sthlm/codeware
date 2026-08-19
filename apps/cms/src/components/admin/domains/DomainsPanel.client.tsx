@@ -3,6 +3,7 @@
 import type { HostnameCheck } from '@cdwr/fly-node/api';
 import type {
   CertificateState,
+  ResolverComparison,
   TenantDomain
 } from '@codeware/app-cms/feature/domains';
 import { describeCertificateIssues } from '@codeware/app-cms/feature/domains';
@@ -148,6 +149,10 @@ export const DomainsPanel: React.FC<{
   const [checks, setChecks] = useState<Record<string, HostnameCheck | null>>(
     {}
   );
+  /** Public-resolver answers, only ever present for a row someone asked about */
+  const [resolvers, setResolvers] = useState<
+    Record<string, ResolverComparison | null>
+  >({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -176,6 +181,40 @@ export const DomainsPanel: React.FC<{
         year: 'numeric'
       }),
     [language]
+  );
+
+  /**
+   * Ask the public resolvers what they see for one domain.
+   *
+   * Separate from `run`: it calls a different endpoint, answers far more
+   * slowly, and its result is neither stored nor part of the certificate
+   * state the other actions all write back.
+   */
+  const runResolvers = useCallback(
+    async (hostname: string, isApex: boolean) => {
+      setBusy(actionKey(hostname, 'resolvers'));
+      setError(null);
+      try {
+        const response = await sdk.request({
+          method: 'POST',
+          path: '/domain-dns-comparison',
+          json: { hostname, isApex }
+        });
+        const body = (await response.json()) as ResolverComparison & {
+          error?: string;
+        };
+        if (!response.ok) {
+          setError(body.error || t('domains:actionFailed'));
+          return;
+        }
+        setResolvers((current) => ({ ...current, [hostname]: body }));
+      } catch {
+        setError(t('domains:actionFailed'));
+      } finally {
+        setBusy(null);
+      }
+    },
+    [sdk, t]
   );
 
   const run = useCallback(
@@ -324,10 +363,16 @@ export const DomainsPanel: React.FC<{
       dnsSettledLede: t('domains:dnsSettledLede'),
       dnsTrafficLede: t('domains:dnsTrafficLede'),
       dnsValidationLede: t('domains:dnsValidationLede'),
+      compareResolvers: t('domains:compareResolvers'),
       issuedBy: t('domains:issuedBy'),
       issuedHeading: t('domains:issuedHeading'),
       issuesActiveHeading: t('domains:issuesActiveHeading'),
       issuesHeading: t('domains:issuesHeading'),
+      resolversAgree: t('domains:resolversAgree'),
+      resolversDisagree: t('domains:resolversDisagree'),
+      resolversHeading: t('domains:resolversHeading'),
+      resolversNoAnswer: t('domains:resolversNoAnswer'),
+      resolversUnreachable: t('domains:resolversUnreachable'),
       apexNote: t('domains:apexNote')
     }),
     [t]
@@ -418,7 +463,27 @@ export const DomainsPanel: React.FC<{
             }
             disabled={busy !== null}
             labels={labels}
-            onAction={(action) => void run(row.hostname, action)}
+            resolvers={(() => {
+              const comparison = resolvers[row.hostname];
+              if (!comparison) {
+                return null;
+              }
+              return {
+                answers: comparison.answers,
+                agree: comparison.agree,
+                negativeCacheNote:
+                  comparison.negativeCacheTtl === null
+                    ? null
+                    : t('domains:resolversNegativeCache', {
+                        seconds: comparison.negativeCacheTtl
+                      })
+              };
+            })()}
+            onAction={(action) =>
+              action === 'resolvers'
+                ? void runResolvers(row.hostname, Boolean(certificate?.isApex))
+                : void run(row.hostname, action)
+            }
           />
         );
       })}

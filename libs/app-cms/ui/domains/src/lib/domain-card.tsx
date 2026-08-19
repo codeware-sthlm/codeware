@@ -8,6 +8,7 @@ import { Card, CardContent } from '@codeware/shared/ui/shadcn/components/card';
 import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
+  GlobeAltIcon,
   ShieldCheckIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
@@ -21,10 +22,11 @@ import {
   type IssuedCertificate,
   IssuedCertificates
 } from './issued-certificates';
+import { ResolverReport, type ResolverReportProps } from './resolver-report';
 
 export type { DomainCertificateStatus };
 
-export type DomainAction = 'request' | 'check' | 'remove';
+export type DomainAction = 'request' | 'check' | 'remove' | 'resolvers';
 
 export type DomainCardProps = {
   hostname: string;
@@ -51,6 +53,13 @@ export type DomainCardProps = {
   issued?: Array<IssuedCertificate> | null;
   /** Who signed them, e.g. `lets_encrypt` */
   certificateAuthority?: string | null;
+  /**
+   * What the public resolvers said, once someone has asked.
+   *
+   * Live and slow, so it is never fetched with the rest of the card — an
+   * untouched card has nothing here, and that is the normal state.
+   */
+  resolvers?: Omit<ResolverReportProps, 'labels'> | null;
   /**
    * What Fly resolved the last time it was asked, and what it objected to.
    *
@@ -95,6 +104,12 @@ export type DomainCardProps = {
     issuedHeading: string;
     /** Prefixes the certificate authority, e.g. "issued by" */
     issuedBy: string;
+    compareResolvers: string;
+    resolversHeading: string;
+    resolversAgree: string;
+    resolversDisagree: string;
+    resolversNoAnswer: string;
+    resolversUnreachable: string;
   };
   onAction: (action: DomainAction) => void;
 };
@@ -120,6 +135,7 @@ export function DomainCard({
   dns,
   issued,
   certificateAuthority,
+  resolvers,
   check,
   saved,
   runningAction,
@@ -183,6 +199,21 @@ export function DomainCard({
             </AlertDescription>
           </Alert>
         ) : null}
+
+        {resolvers && (
+          <ResolverReport
+            answers={resolvers.answers}
+            agree={resolvers.agree}
+            negativeCacheNote={resolvers.negativeCacheNote}
+            labels={{
+              heading: labels.resolversHeading,
+              agreeLede: labels.resolversAgree,
+              disagreeLede: labels.resolversDisagree,
+              noAnswer: labels.resolversNoAnswer,
+              unreachable: labels.resolversUnreachable
+            }}
+          />
+        )}
 
         {issued?.length ? (
           <IssuedCertificates

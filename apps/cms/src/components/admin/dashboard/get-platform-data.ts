@@ -83,6 +83,37 @@ const toItems = (
     });
 
 /**
+ * How the platform authenticates to Infisical, read straight from the process
+ * environment.
+ *
+ * Deliberately not from `getEnv()`: the `INFISICAL_*` variables belong to
+ * `libs/shared/feature/infisical`, which resolves them itself and is used well
+ * outside this app. Mirrors that lib's own `ClientSchema` — a project id, plus
+ * either a machine identity or a service token.
+ */
+const infisicalAuth = (): 'universal-auth' | 'service-token' | null => {
+  if (!process.env['INFISICAL_PROJECT_ID']) {
+    return null;
+  }
+  if (process.env['INFISICAL_SERVICE_TOKEN']) {
+    return 'service-token';
+  }
+  return process.env['INFISICAL_CLIENT_ID'] &&
+    process.env['INFISICAL_CLIENT_SECRET']
+    ? 'universal-auth'
+    : null;
+};
+
+/**
+ * An S3 field that was actually supplied.
+ *
+ * The env transform stringifies each one unconditionally, so a missing var
+ * arrives as the literal `'undefined'` rather than as nothing.
+ */
+const usableS3Value = (value: string | undefined): string | null =>
+  value && value !== 'undefined' ? value : null;
+
+/**
  * Every custom domain on the platform, plus how it is configured to run.
  *
  * Reads only what the last check stored. Nothing here calls Fly: the dashboard
@@ -156,17 +187,22 @@ export const getPlatformData = async (
         env.EMAIL && 'smtp' in env.EMAIL
           ? (env.EMAIL.smtp?.host ?? null)
           : null,
-      sentry: Boolean(env.SENTRY),
-      // Mirrors `getS3StoragePlugin`'s own gate, which is the bucket rather
+      // `env.SENTRY` only exists when both DSN and org are set, so the org
+      // being present is exactly the configured signal — no separate boolean
+      sentryOrg: env.SENTRY?.org ?? null,
+      // Keyed on the bucket, mirroring `getS3StoragePlugin`'s own gate rather
       // than the access key the env transform keys on. Reporting "set up" off
       // a stray access key would put a green tick on storage the plugin has
       // left disabled — the exact false reassurance this widget exists to
       // prevent. The literal 'undefined' guard is not paranoia: the transform
       // builds `bucket` with `String(S3_BUCKET)`, and every S3 var is
       // individually optional with no refinement tying them together.
-      storage: Boolean(
-        env.S3_STORAGE?.bucket && env.S3_STORAGE.bucket !== 'undefined'
-      )
+      storageBucket: usableS3Value(env.S3_STORAGE?.bucket),
+      storageEndpoint: usableS3Value(env.S3_STORAGE?.endpoint),
+      infisicalAuth: infisicalAuth(),
+      // Region and auth mode only. The project id is not a credential, but it
+      // is an identifier with no diagnostic value here, so it stays out
+      infisicalSite: process.env['INFISICAL_SITE'] ?? 'us'
     },
     build: {
       version: appInfo.version,

@@ -87,11 +87,12 @@ export function PlatformTab({ data }: { data: PlatformData }) {
     }
   })();
 
-  const configuredCount = [
-    Boolean(data.integrations.email),
-    data.integrations.sentry,
-    data.integrations.storage
-  ].filter(Boolean).length;
+  const configured = [
+    data.integrations.email,
+    data.integrations.sentryOrg,
+    data.integrations.storageBucket,
+    data.integrations.infisicalAuth
+  ];
 
   const rowLabels = {
     active: t('domains:active'),
@@ -113,11 +114,28 @@ export function PlatformTab({ data }: { data: PlatformData }) {
     },
     {
       label: t('platform:labelSentry'),
-      value: data.integrations.sentry ? 'sentry' : null
+      value: data.integrations.sentryOrg
     },
     {
+      // Bucket first: "where do uploads land" is the question, and the
+      // endpoint only matters for telling one provider from another
       label: t('platform:labelStorage'),
-      value: data.integrations.storage ? 's3' : null
+      value: data.integrations.storageBucket
+        ? [data.integrations.storageBucket, data.integrations.storageEndpoint]
+            .filter(Boolean)
+            .join(' · ')
+        : null
+    },
+    {
+      // Last, but the one the others depend on — Fly's certificate token is
+      // read from here, so this row explains a domains panel that cannot
+      // reach Fly at all
+      label: t('platform:labelInfisical'),
+      value: data.integrations.infisicalAuth
+        ? [data.integrations.infisicalSite, data.integrations.infisicalAuth]
+            .filter(Boolean)
+            .join(' · ')
+        : null
     }
   ];
 
@@ -141,7 +159,10 @@ export function PlatformTab({ data }: { data: PlatformData }) {
           icon={PuzzlePieceIcon}
           tone={integrations.tone}
           title={t('platform:integrationsTitle')}
-          metric={t('platform:integrationsMetric', { count: configuredCount })}
+          metric={t('platform:integrationsMetric', {
+            count: configured.filter(Boolean).length,
+            total: configured.length
+          })}
           detail={integrationsDetail}
           openLabel={t('platform:integrationsOpen')}
           onOpen={() => setOpenSheet('integrations')}

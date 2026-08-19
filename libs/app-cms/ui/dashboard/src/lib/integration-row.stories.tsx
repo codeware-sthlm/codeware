@@ -20,10 +20,15 @@ export const Rows: StoryObj = {
       />
       <IntegrationRow
         label="Error tracking"
-        value="sentry"
+        value="codeware"
         notConfiguredLabel="Not set up"
       />
       <IntegrationRow label="File storage" notConfiguredLabel="Not set up" />
+      <IntegrationRow
+        label="Secrets"
+        value="us · universal-auth"
+        notConfiguredLabel="Not set up"
+      />
     </div>
   )
 };
@@ -40,9 +45,10 @@ export const LocalCatcher: StoryObj = {
       <IntegrationRow label="Error tracking" notConfiguredLabel="Not set up" />
       <IntegrationRow
         label="File storage"
-        value="s3"
+        value="cdwr-media · fly.storage.tigris.dev"
         notConfiguredLabel="Not set up"
       />
+      <IntegrationRow label="Secrets" notConfiguredLabel="Not set up" />
     </div>
   )
 };

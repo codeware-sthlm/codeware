@@ -14,8 +14,29 @@ export type IntegrationFacts = {
   email: 'sendgrid' | 'smtp' | 'ethereal' | null;
   /** Host for the `smtp` transport, which is how a local catcher shows up */
   emailHost?: string | null;
-  sentry: boolean;
-  storage: boolean;
+  /**
+   * The Sentry org errors are reported to, or null when Sentry is off.
+   *
+   * The org slug rather than a boolean: "error tracking: sentry" restates the
+   * label, while the org answers the question someone opens the sheet with —
+   * *which* project is receiving them. Never the DSN.
+   */
+  sentryOrg: string | null;
+  /** The bucket uploads land in, or null when storage is not configured */
+  storageBucket: string | null;
+  /** Endpoint host for the bucket, which names a non-AWS provider */
+  storageEndpoint?: string | null;
+  /**
+   * How the platform authenticates to Infisical, or null when it cannot.
+   *
+   * Worth its own row rather than folding into the others: Infisical is the
+   * gateway the rest reach through — the Fly token that issues certificates
+   * lives inside it — so "not set up" here explains failures that look like
+   * they belong to a different integration entirely.
+   */
+  infisicalAuth: 'universal-auth' | 'service-token' | null;
+  /** Which Infisical region, `eu` or `us` */
+  infisicalSite?: string | null;
 };
 
 export type IntegrationsVerdict =
@@ -56,7 +77,11 @@ export const summarizeIntegrations = (
     return { tone: 'error', kind: 'email-not-delivered' };
   }
 
-  const missing = [facts.sentry, facts.storage].filter((on) => !on).length;
+  const missing = [
+    facts.sentryOrg,
+    facts.storageBucket,
+    facts.infisicalAuth
+  ].filter((value) => !value).length;
   if (missing) {
     return { tone: 'warning', kind: 'incomplete', count: missing };
   }

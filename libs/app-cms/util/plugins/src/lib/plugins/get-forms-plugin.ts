@@ -4,6 +4,7 @@ import type { FormSubmission } from '@codeware/shared/util/payload-types';
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
 import type { Access } from 'payload';
 
+import { applyDefaultSender } from './forms/apply-default-sender';
 import { customizedFields } from './forms/customized-fields';
 import { formFields } from './forms/form-fields';
 import { submissionCreateAccess } from './forms/submission-create-access';
@@ -27,6 +28,7 @@ type Options = {
 
 export const getFormsPlugin = ({ access }: Options) => {
   return formBuilderPlugin({
+    beforeEmail: applyDefaultSender,
     fields: {
       ...customizedFields,
       // Disable unsupported form fields

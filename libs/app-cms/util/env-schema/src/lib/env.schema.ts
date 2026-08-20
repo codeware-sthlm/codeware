@@ -255,8 +255,12 @@ export const EnvSchema = withEnvVars(
         ? {
             sendgrid: {
               apiKey: SENDGRID_API_KEY,
-              defaultFromAddress: String(SENDGRID_FROM_ADDRESS),
-              defaultFromName: String(SENDGRID_FROM_NAME)
+              // Falling back rather than stringifying: the address is optional
+              // in the schema, and `String(undefined)` would put the literal
+              // 'undefined' in the From header instead of leaving it empty for
+              // the sender fallback to notice
+              defaultFromAddress: SENDGRID_FROM_ADDRESS || '',
+              defaultFromName: SENDGRID_FROM_NAME || APP_NAME
             }
           }
         : // A local mail catcher takes precedence over hosted Ethereal: it is

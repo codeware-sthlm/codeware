@@ -73,6 +73,33 @@ export const Empty: StoryObj = {
   )
 };
 
+export const NotificationFailed: StoryObj = {
+  render: () => (
+    <div className="bg-card border-border w-[34rem] rounded-xl border p-4">
+      <SubmissionDetail
+        emptyLabel="This message has no values."
+        orphanedLabel={orphanedLabel}
+        notificationFailed
+        notificationFailedMessage="The notification email for this message could not be delivered."
+        fields={[
+          {
+            name: 'name',
+            label: 'Your name',
+            value: 'Erik Holm',
+            orphaned: false
+          },
+          {
+            name: 'email',
+            label: 'Email',
+            value: 'erik@example.se',
+            orphaned: false
+          }
+        ]}
+      />
+    </div>
+  )
+};
+
 export const PayloadAdminLight = a11yStory(Values, 'payload-admin', 'light');
 export const PayloadAdminDark = a11yStory(Values, 'payload-admin', 'dark');
 export const ShadcnLight = a11yStory(Values, 'shadcn', 'light');

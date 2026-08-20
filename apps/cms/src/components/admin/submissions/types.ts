@@ -9,6 +9,8 @@ export type SubmissionListItem = {
   /** ISO timestamp the submission was received */
   receivedAt: string;
   read: boolean;
+  /** The notification email for this submission failed to send */
+  notificationFailed: boolean;
   /** Values in the parent form's field order, labelled by it */
   fields: Array<ResolvedSubmissionField>;
 };

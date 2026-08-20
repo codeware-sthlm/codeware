@@ -89,6 +89,10 @@ const SubmissionDetailView: React.FC<DocumentViewServerProps> = async ({
             fields={fields}
             emptyLabel={t('formSubmissions:noValues')}
             orphanedLabel={t('formSubmissions:orphanedField')}
+            notificationFailed={submission.notificationStatus === 'failed'}
+            notificationFailedMessage={t(
+              'formSubmissions:notificationFailedDetail'
+            )}
           />
         </div>
       </Gutter>

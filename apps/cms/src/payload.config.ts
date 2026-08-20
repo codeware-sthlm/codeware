@@ -28,7 +28,10 @@ import { defaultLexical } from '@codeware/app-cms/ui/fields';
 import { getEmailAdapter } from '@codeware/app-cms/util/email';
 import { customTranslations } from '@codeware/app-cms/util/i18n';
 import { isTenant, isUser } from '@codeware/app-cms/util/misc';
-import { getPlugins } from '@codeware/app-cms/util/plugins';
+import {
+  getPlugins,
+  withSubmissionDeliveryTracking
+} from '@codeware/app-cms/util/plugins';
 import type { Tenant } from '@codeware/shared/util/payload-types';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
@@ -65,6 +68,8 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 const env = getEnv();
+
+const emailAdapter = getEmailAdapter(env);
 
 export default buildConfig({
   serverURL: env.APP_MODE.serverURL,
@@ -177,7 +182,7 @@ export default buildConfig({
     ...(env.DEPLOY_ENV === 'development' ? { logger: queryStatsLogger } : {})
   }),
   editor: defaultLexical,
-  email: getEmailAdapter(env),
+  email: emailAdapter && withSubmissionDeliveryTracking(emailAdapter),
   endpoints: [
     createLegalPageEndpoint,
     domainDnsComparisonEndpoint,

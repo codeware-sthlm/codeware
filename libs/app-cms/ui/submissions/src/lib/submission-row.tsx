@@ -12,6 +12,10 @@ export type SubmissionRowProps = {
   read: boolean;
   /** Badge text on an unread row */
   unreadLabel: string;
+  /** The submission's notification email failed to send */
+  notificationFailed?: boolean;
+  /** Badge text when `notificationFailed` is set */
+  notificationFailedLabel?: string;
   onClick?: () => void;
 };
 
@@ -28,6 +32,8 @@ export function SubmissionRow({
   receivedAt,
   read,
   unreadLabel,
+  notificationFailed,
+  notificationFailedLabel,
   onClick
 }: SubmissionRowProps) {
   return (
@@ -58,6 +64,9 @@ export function SubmissionRow({
         </span>
       </span>
       {!read && <Badge variant="secondary">{unreadLabel}</Badge>}
+      {notificationFailed && (
+        <Badge variant="destructive">{notificationFailedLabel}</Badge>
+      )}
       <time
         dateTime={receivedAt}
         className="text-muted-foreground shrink-0 text-sm"

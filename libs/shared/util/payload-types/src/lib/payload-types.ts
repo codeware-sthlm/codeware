@@ -2060,6 +2060,7 @@ export interface FormSubmission {
       }[]
     | null;
   readAt?: string | null;
+  notificationStatus?: ('sent' | 'failed') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3085,6 +3086,7 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
         id?: T;
       };
   readAt?: T;
+  notificationStatus?: T;
   updatedAt?: T;
   createdAt?: T;
 }

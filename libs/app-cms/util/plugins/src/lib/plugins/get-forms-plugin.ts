@@ -5,6 +5,7 @@ import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
 import type { Access } from 'payload';
 
 import { applyDefaultSender } from './forms/apply-default-sender';
+import { attachSubmissionId } from './forms/attach-submission-id';
 import { customizedFields } from './forms/customized-fields';
 import { formFields } from './forms/form-fields';
 import { submissionCreateAccess } from './forms/submission-create-access';
@@ -28,7 +29,8 @@ type Options = {
 
 export const getFormsPlugin = ({ access }: Options) => {
   return formBuilderPlugin({
-    beforeEmail: applyDefaultSender,
+    beforeEmail: async (emails, params) =>
+      attachSubmissionId(await applyDefaultSender(emails, params), params),
     fields: {
       ...customizedFields,
       // Disable unsupported form fields

@@ -44,6 +44,16 @@ export const List: StoryObj = {
         read={false}
         unreadLabel="Unread"
       />
+      <SubmissionRow
+        formTitle="Contact"
+        preview="Erik Holm · erik@example.se · Hej!"
+        receivedLabel="2 weeks ago"
+        receivedAt="2026-07-27T10:00:00.000Z"
+        read
+        unreadLabel="Unread"
+        notificationFailed
+        notificationFailedLabel="Not delivered"
+      />
     </div>
   )
 };

@@ -17,10 +17,27 @@ const readAt: Field = {
 };
 
 /**
+ * Whether the submission's notification email was actually delivered.
+ *
+ * Null on a submission that predates this field, and on one whose form has
+ * no notification emails configured at all — neither is a failure.
+ *
+ * Hidden from the admin form for the same reason as `readAt`: submissions are
+ * immutable, and this is set by `withSubmissionDeliveryTracking`, wrapped
+ * around the email adapter, never by hand.
+ */
+const notificationStatus: Field = {
+  name: 'notificationStatus',
+  type: 'select',
+  options: ['sent', 'failed'],
+  admin: { hidden: true }
+};
+
+/**
  * Extend the plugin's submission fields with our own.
  */
 export const submissionFields = ({
   defaultFields
 }: {
   defaultFields: Field[];
-}): Field[] => [...defaultFields, readAt];
+}): Field[] => [...defaultFields, readAt, notificationStatus];

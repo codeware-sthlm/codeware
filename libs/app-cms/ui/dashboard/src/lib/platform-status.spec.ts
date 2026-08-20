@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   type BuildFacts,
   type IntegrationFacts,
+  type MailDeliveryFacts,
   summarizeBuild,
-  summarizeIntegrations
+  summarizeIntegrations,
+  summarizeMailDelivery
 } from './platform-status';
 
 const facts = (
@@ -88,6 +90,39 @@ const build = (overrides: Partial<BuildFacts> = {}): BuildFacts => ({
   deployEnv: 'production',
   appMode: 'host',
   ...overrides
+});
+
+const mailDelivery = (
+  overrides: Partial<MailDeliveryFacts> = {}
+): MailDeliveryFacts => ({
+  total: 12,
+  failed: 0,
+  failures: [],
+  ...overrides
+});
+
+describe('summarizeMailDelivery', () => {
+  it('is green when every notification in the window delivered', () => {
+    expect(summarizeMailDelivery(mailDelivery())).toEqual({
+      tone: 'ok',
+      kind: 'all-delivered'
+    });
+  });
+
+  it('is red when any notification failed, whatever the total', () => {
+    expect(
+      summarizeMailDelivery(mailDelivery({ total: 12, failed: 3 }))
+    ).toEqual({ tone: 'error', kind: 'failures', count: 3 });
+  });
+
+  it('stays quiet when nothing has been sent in the window', () => {
+    // Not green: nothing to report either way, so it should not read as a
+    // pass the way "all delivered" does
+    expect(summarizeMailDelivery(mailDelivery({ total: 0 }))).toEqual({
+      tone: 'neutral',
+      kind: 'no-sends'
+    });
+  });
 });
 
 describe('summarizeBuild', () => {

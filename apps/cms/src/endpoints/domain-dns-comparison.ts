@@ -52,9 +52,12 @@ export const domainDnsComparisonEndpoint: Endpoint = {
     let comparison: ResolverComparison;
 
     try {
+      // Strict, because the body is `unknown`: `Boolean('false')` is true, and
+      // a wrong answer here silently swaps CNAME for A and reports on a record
+      // the domain was never asked about
       comparison = await compareResolvers(
         parsed.hostname,
-        Boolean(body.isApex)
+        body.isApex === true
       );
     } catch (error) {
       // Every per-resolver failure is already reported inside the comparison,

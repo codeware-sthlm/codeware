@@ -76,8 +76,7 @@ Mail sent in development goes to a local catcher — no account, nothing to expi
 nx dx:mail cms
 ```
 
-Point `apps/cms/.env.local` at it (any `SMTP_HOST` takes precedence over the
-`ETHEREAL_*` variables):
+Point `apps/cms/.env.local` at it:
 
 ```sh
 SMTP_HOST=localhost
@@ -86,8 +85,11 @@ SMTP_FROM_ADDRESS=dev@codeware.local
 SMTP_FROM_NAME=Codeware Dev
 ```
 
-With neither configured, development falls back to an Ethereal inbox created on
-the first send, and logs a per-message preview link. Nothing is dropped silently.
+`SMTP_HOST`/`SMTP_PORT` take any relay, not just a credential-less local
+catcher — set `SMTP_USERNAME`/`SMTP_PASSWORD` too for an authenticated one
+such as Mailtrap. With nothing configured at all, development falls back to
+a disposable Ethereal inbox created on the first send, and logs a per-message
+preview link. Nothing is dropped silently.
 
 #### CMS admin components + import map
 

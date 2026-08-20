@@ -300,14 +300,13 @@ export default buildConfig({
     await adoptPlatformDomains(payload);
     await adoptTenantDomains(payload);
 
-    if (env.EMAIL?.ethereal) {
-      payload.logger.info('Using Ethereal email adapter');
-      payload.logger.info(`[ethereal] Inbox: https://ethereal.email/messages`);
-      payload.logger.info(`[ethereal] Username: ${env.EMAIL.ethereal.user}`);
-      payload.logger.info(`[ethereal] Password: ${env.EMAIL.ethereal.pass}`);
-    }
     if (env.EMAIL?.sendgrid) {
       payload.logger.info('Using SendGrid email adapter');
+    }
+    if (env.EMAIL?.smtp) {
+      payload.logger.info(
+        `Using SMTP email adapter (${env.EMAIL.smtp.host}${env.EMAIL.smtp.user ? ', authenticated' : ''})`
+      );
     }
     if (!env.EMAIL) {
       payload.logger.info('Email is disabled');

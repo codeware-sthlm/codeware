@@ -1,7 +1,6 @@
 import type { Env } from '@codeware/app-cms/util/env-schema';
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
 import nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import nodemailerSendgrid from 'nodemailer-sendgrid';
 import type { EmailAdapter } from 'payload';
 
@@ -13,10 +12,9 @@ import { withDeliveryReporting } from './with-delivery-reporting';
  *
  * Order of preference: SendGrid where it is configured (deployments), then
  * any SMTP relay — Mailpit with no credentials, the development default, or
- * an authenticated one such as Mailtrap — then Ethereal credentials if
- * someone still keeps a set. In development, nothing configured falls back
- * to an Ethereal inbox created on the first send, so mail is never silently
- * dropped while working.
+ * an authenticated one such as Mailtrap. In development, nothing configured
+ * falls back to an Ethereal inbox created on the first send, so mail is
+ * never silently dropped while working.
  *
  * Every branch is wrapped with {@link withDeliveryReporting} in one place, so
  * a transport failure is always logged and reported rather than only ever
@@ -62,7 +60,8 @@ export const getEmailAdapter = (env: Env) => {
           host,
           port,
           ...(hasAuth
-            ? // Real TLS negotiation, same as the Ethereal branch below
+            ? // Real TLS negotiation — nodemailer's own defaults negotiate
+              // STARTTLS, which an authenticated relay needs to accept auth at all
               { auth: { user, pass } }
             : // A catcher accepts anything; requiring TLS would only break it
               { secure: false, ignoreTLS: true })

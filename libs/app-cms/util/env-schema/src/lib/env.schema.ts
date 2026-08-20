@@ -1,7 +1,6 @@
 import { coerceBoolean, withEnvVars } from '@codeware/shared/util/zod';
 import { z } from 'zod';
 
-import { EtherealSchema } from './ethereal.schema';
 import { S3StorageSchema } from './s3-storage.schema';
 import { SeedSourceSchema } from './seed-source.schema';
 import { SeedStrategySchema } from './seed-strategy.schema';
@@ -136,8 +135,6 @@ export const EnvSchema = withEnvVars(
     })
     // S3 storage is optional
     .merge(S3StorageSchema.partial())
-    // Ethereal is optional
-    .merge(EtherealSchema.partial())
     // SendGrid is optional
     .merge(SendGridSchema.partial())
     // Sentry is optional
@@ -185,12 +182,6 @@ export const EnvSchema = withEnvVars(
     SMTP_PORT,
     SMTP_USERNAME,
     SMTP_PASSWORD,
-    ETHEREAL_FROM_ADDRESS,
-    ETHEREAL_FROM_NAME,
-    ETHEREAL_HOST,
-    ETHEREAL_PASSWORD,
-    ETHEREAL_PORT,
-    ETHEREAL_USERNAME,
     FLY_URL,
     NX_TASK_TARGET_TARGET,
     PAYLOAD_API_KEY,
@@ -265,10 +256,10 @@ export const EnvSchema = withEnvVars(
               defaultFromName: SENDGRID_FROM_NAME || APP_NAME
             }
           }
-        : // A local mail catcher takes precedence over hosted Ethereal: it is
-          // what a developer has running, and it cannot go stale. Both host and
-          // a usable port are required — a half-configured catcher would take
-          // over from Ethereal and then fail on every send.
+        : // A local mail catcher takes precedence over nothing being
+          // configured at all. Both host and a usable port are required — a
+          // half-configured catcher would fail on every send instead of
+          // falling through to the development-only on-demand fallback below.
           SMTP_HOST && Number.isFinite(Number(SMTP_PORT))
           ? {
               smtp: {
@@ -286,19 +277,7 @@ export const EnvSchema = withEnvVars(
                   : {})
               }
             }
-          : // Transform to ethereal object if ethereal credentials are provided
-            ETHEREAL_USERNAME && ETHEREAL_PASSWORD
-            ? {
-                ethereal: {
-                  defaultFromAddress: String(ETHEREAL_FROM_ADDRESS),
-                  defaultFromName: String(ETHEREAL_FROM_NAME),
-                  host: String(ETHEREAL_HOST),
-                  port: Number(ETHEREAL_PORT),
-                  user: ETHEREAL_USERNAME,
-                  pass: ETHEREAL_PASSWORD
-                }
-              }
-            : undefined,
+          : undefined,
     SENTRY:
       SENTRY_DSN && SENTRY_ORG
         ? {

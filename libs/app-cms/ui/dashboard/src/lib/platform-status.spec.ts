@@ -35,15 +35,6 @@ describe('summarizeIntegrations', () => {
     });
   });
 
-  it('treats production mail into Ethereal as an error, not a warning', () => {
-    // A send that "succeeds" into a throwaway inbox looks healthy from every
-    // other angle, which is exactly why it has to shout here
-    expect(summarizeIntegrations(facts({ email: 'ethereal' }))).toEqual({
-      tone: 'error',
-      kind: 'email-not-delivered'
-    });
-  });
-
   it('catches production smtp pointed at a local catcher', () => {
     expect(
       summarizeIntegrations(facts({ email: 'smtp', emailHost: 'localhost' }))
@@ -77,7 +68,12 @@ describe('summarizeIntegrations', () => {
     // stopped meaning anything
     expect(
       summarizeIntegrations(
-        facts({ deployEnv: 'preview', email: 'ethereal', storageBucket: null })
+        facts({
+          deployEnv: 'preview',
+          email: 'smtp',
+          emailHost: 'localhost',
+          storageBucket: null
+        })
       )
     ).toEqual({ tone: 'neutral', kind: 'not-production' });
   });

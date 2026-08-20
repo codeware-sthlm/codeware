@@ -3,12 +3,12 @@ import { z } from 'zod';
 /**
  * Any SMTP relay — a local catcher, a hosted sandbox, or a real one.
  *
- * Deliberately generic rather than named after a provider: `SENDGRID_*` and
- * `ETHEREAL_*` lock a deployment to whichever service happens to be behind
- * them, so swapping providers means renaming variables everywhere they're
- * read. Auth is optional because Mailpit (`nx dx:mail cms`), the development
- * default, needs none — a hosted catcher such as Mailtrap, or a real relay,
- * supplies both.
+ * Deliberately generic rather than named after a provider: `SENDGRID_*` locks
+ * a deployment to whichever service happens to be behind it, so swapping
+ * providers means renaming variables everywhere they're read. Auth is
+ * optional because Mailpit (`nx dx:mail cms`), the development default,
+ * needs none — a hosted catcher such as Mailtrap, or a real relay, supplies
+ * both.
  */
 export const SmtpSchema = z.object({
   SMTP_FROM_ADDRESS: z

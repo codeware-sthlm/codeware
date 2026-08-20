@@ -11,7 +11,7 @@
 export type IntegrationFacts = {
   deployEnv: string;
   /** Which transport `env.EMAIL` resolved to, or null when none did */
-  email: 'sendgrid' | 'smtp' | 'ethereal' | null;
+  email: 'sendgrid' | 'smtp' | null;
   /** Host for the `smtp` transport, which is how a local catcher shows up */
   emailHost?: string | null;
   /**
@@ -71,9 +71,9 @@ export const summarizeIntegrations = (
     return { tone: 'error', kind: 'email-missing' };
   }
 
-  // Mail that resolves somewhere nobody reads is worse than mail that fails:
-  // a send that "succeeds" into Ethereal looks healthy from every angle
-  if (facts.email === 'ethereal' || isCatcher(facts.emailHost)) {
+  // Mail that resolves to a local catcher is worse than mail that fails: a
+  // send that "succeeds" against Mailpit looks healthy from every angle
+  if (isCatcher(facts.emailHost)) {
     return { tone: 'error', kind: 'email-not-delivered' };
   }
 

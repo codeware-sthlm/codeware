@@ -183,6 +183,8 @@ export const EnvSchema = withEnvVars(
     SMTP_FROM_NAME,
     SMTP_HOST,
     SMTP_PORT,
+    SMTP_USERNAME,
+    SMTP_PASSWORD,
     ETHEREAL_FROM_ADDRESS,
     ETHEREAL_FROM_NAME,
     ETHEREAL_HOST,
@@ -275,7 +277,13 @@ export const EnvSchema = withEnvVars(
                 defaultFromAddress: SMTP_FROM_ADDRESS || 'no-reply@localhost',
                 defaultFromName: SMTP_FROM_NAME || APP_NAME,
                 host: SMTP_HOST,
-                port: Number(SMTP_PORT)
+                port: Number(SMTP_PORT),
+                // Both or neither: a lone username or password is a typo, not
+                // a half-authenticated relay, so it is left for the adapter to
+                // treat as no credentials rather than guessed at here
+                ...(SMTP_USERNAME && SMTP_PASSWORD
+                  ? { user: SMTP_USERNAME, pass: SMTP_PASSWORD }
+                  : {})
               }
             }
           : // Transform to ethereal object if ethereal credentials are provided

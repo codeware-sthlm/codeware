@@ -27,6 +27,11 @@ export const attachSubmissionId: BeforeEmail = (emails, params) => {
 
   return emails.map((email) => ({
     ...email,
-    headers: { [SUBMISSION_ID_HEADER]: String(submissionId) }
+    // Merged rather than replaced: nothing sets headers ahead of this today,
+    // but a second `beforeEmail` that did would otherwise be dropped silently
+    headers: {
+      ...(email as { headers?: Record<string, string> }).headers,
+      [SUBMISSION_ID_HEADER]: String(submissionId)
+    }
   }));
 };

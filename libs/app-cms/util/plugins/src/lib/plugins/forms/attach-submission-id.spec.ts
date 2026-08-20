@@ -31,6 +31,18 @@ describe('attachSubmissionId', () => {
     expect(result[1].headers).toEqual({ [SUBMISSION_ID_HEADER]: '7' });
   });
 
+  it('keeps headers another beforeEmail already set', () => {
+    const params = { doc: { id: 42 } } as unknown as Args[1];
+    const withHeader = { ...email, headers: { 'x-existing': 'keep me' } };
+
+    const [result] = attachSubmissionId([withHeader], params);
+
+    expect(result.headers).toEqual({
+      'x-existing': 'keep me',
+      [SUBMISSION_ID_HEADER]: '42'
+    });
+  });
+
   it('leaves the emails alone when the plugin hands no doc at all', () => {
     const params = {} as unknown as Args[1];
     expect(attachSubmissionId([email], params)).toEqual([email]);

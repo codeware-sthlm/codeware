@@ -1,6 +1,7 @@
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Payload } from 'payload';
 
+import { ensureForm } from './ensure-form';
 import { ensureNavigation } from './ensure-navigation';
 import { ensurePage } from './ensure-page';
 import { ensureTourSignups } from './ensure-tour-signups';
@@ -29,6 +30,7 @@ const getTenantLocale = async (
  *   to navigation.
  * - Creates a file area page for tenants that have the 'file-area' tag
  *   and adds this page to navigation.
+ * - Creates a contact form for every tenant and puts it on their home page.
  *
  * Runs without transaction to be able to use existing collection documents.
  * Everything else should be prepared before running this seed.
@@ -357,5 +359,82 @@ export const customSeed = async (
         `[SEED] Navigation to '${reference.relationTo}' #${refId} on tenant #${tenantId} (custom seed)`
       );
     }
+  }
+
+  // CONTACT FORM ON THE HOME PAGE
+  // Give every tenant a form that actually sends mail, on the first page the
+  // site serves — a broken mail setup then shows up by using the site, which
+  // is the one place it is noticed without reading logs
+
+  for (const tenantDoc of allTenants) {
+    const tenantId = tenantDoc.id;
+
+    const tenantLocale = await getTenantLocale(
+      payload,
+      tenantId,
+      transactionID
+    );
+
+    const formOrId = await ensureForm(
+      payload,
+      { title: 'Contact', tenant: tenantId },
+      { locale: tenantLocale, transactionID }
+    );
+
+    if (typeof formOrId === 'object') {
+      payload.logger.info(
+        `[SEED] Form '${formOrId.title}' on tenant #${tenantId} (custom seed)`
+      );
+    }
+
+    const { docs: homePages } = await payload.find({
+      collection: 'pages',
+      where: {
+        and: [{ slug: { equals: 'home' } }, { tenant: { in: [tenantId] } }]
+      },
+      depth: 0,
+      limit: 1,
+      locale: tenantLocale,
+      req: { transactionID }
+    });
+
+    const homePage = homePages.at(0);
+    if (!homePage) {
+      continue;
+    }
+
+    // Idempotent on the block rather than the page: the home page is seeded
+    // elsewhere and already exists, so only the missing block is added — and
+    // an editor who removes it again is not overruled on the next seed run
+    const layout = homePage.layout ?? [];
+    if (layout.some((block) => block.blockType === 'form')) {
+      continue;
+    }
+
+    await payload.update({
+      collection: 'pages',
+      id: homePage.id,
+      data: {
+        layout: [
+          ...layout,
+          {
+            blockType: 'form',
+            form: getId(formOrId),
+            enableIntro: false
+          }
+        ],
+        // Pages are draft-enabled, so an update with no status would park the
+        // block in a draft the site never serves
+        _status: 'published'
+      },
+      // The home page carries localized fields; without the tenant's own
+      // locale the update lands on the default one, where they are empty
+      locale: tenantLocale,
+      req: { transactionID }
+    });
+
+    payload.logger.info(
+      `[SEED] Contact form on home page #${homePage.id} for tenant #${tenantId} (custom seed)`
+    );
   }
 };

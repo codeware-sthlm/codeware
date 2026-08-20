@@ -22,8 +22,14 @@ export type CertificateState = {
    * Normally two rows sharing one expiry — Fly issues an RSA and an ECDSA
    * certificate per hostname — which is why the expiry, not the row count, is
    * the part worth reading.
+   *
+   * Always an array, never null, unlike `validationErrors` beside it. Payload's
+   * write transform reads an `array` field with `typeof value === 'object' &&
+   * '$push' in value`, and `typeof null` is `'object'` — so a null here throws
+   * `Cannot use 'in' operator to search for '$push' in null` before anything is
+   * written. Its `group` branch guards against null; the array branch does not.
    */
-  issuedCertificates: Array<{ type: string; expiresAt: string }> | null;
+  issuedCertificates: Array<{ type: string; expiresAt: string }>;
 };
 
 /**
@@ -60,7 +66,7 @@ export const toCertificateState = (
       rateLimitedUntil: null,
       validationErrors: null,
       certificateAuthority: null,
-      issuedCertificates: null
+      issuedCertificates: []
     };
   }
 
@@ -87,12 +93,8 @@ export const toCertificateState = (
       : null,
     certificateAuthority: certificate.certificateAuthority ?? null,
     // Both halves have to be there to be worth a row: a type with no expiry
-    // says nothing the status line does not already say.
-    //
-    // Normalised to null when nothing survives, matching `validationErrors` —
-    // a stored empty array and a stored null would render identically while
-    // reading as different states to anything that checks them.
-    issuedCertificates: issued.length ? issued : null
+    // says nothing the status line does not already say
+    issuedCertificates: issued
   };
 };
 

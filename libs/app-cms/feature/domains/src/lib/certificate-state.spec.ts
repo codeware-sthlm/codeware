@@ -30,7 +30,7 @@ describe('toCertificateState', () => {
       rateLimitedUntil: null,
       validationErrors: null,
       certificateAuthority: null,
-      issuedCertificates: null
+      issuedCertificates: []
     });
   });
 
@@ -75,11 +75,18 @@ describe('toCertificateState', () => {
     ]);
   });
 
-  it('reads no issued certificates as none, not an empty list', () => {
-    expect(
-      toCertificateState(certificate({ issued: { nodes: [] } }), now)
-        .issuedCertificates
-    ).toBeNull();
+  it('never writes null for the issued rows, which Payload cannot store', () => {
+    // Payload's array write transform does `'$push' in value` without a null
+    // check, and `typeof null` is `'object'` — a null here throws before the
+    // update reaches the database. Empty has to be an empty array.
+    for (const value of [
+      certificate({ issued: { nodes: [] } }),
+      certificate({ issued: null }),
+      certificate()
+    ]) {
+      expect(toCertificateState(value, now).issuedCertificates).toEqual([]);
+    }
+    expect(toCertificateState(null, now).issuedCertificates).toEqual([]);
   });
 
   it('carries Fly’s own prose for a failed issuance attempt', () => {

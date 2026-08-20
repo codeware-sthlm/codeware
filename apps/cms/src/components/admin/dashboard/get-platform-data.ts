@@ -260,13 +260,7 @@ export const getPlatformData = async (
     domains,
     integrations: {
       deployEnv: env.DEPLOY_ENV,
-      email: env.EMAIL
-        ? 'sendgrid' in env.EMAIL
-          ? 'sendgrid'
-          : 'smtp' in env.EMAIL
-            ? 'smtp'
-            : 'ethereal'
-        : null,
+      email: env.EMAIL ? ('sendgrid' in env.EMAIL ? 'sendgrid' : 'smtp') : null,
       emailHost:
         env.EMAIL && 'smtp' in env.EMAIL
           ? (env.EMAIL.smtp?.host ?? null)

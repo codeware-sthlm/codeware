@@ -3,7 +3,16 @@ import type { Form } from '@codeware/shared/util/payload-types';
 import type { Payload, TypedLocale } from 'payload';
 
 export type FormData = Pick<Form, 'tenant'> & {
+  /** Stable lookup key — not localized, so it stays the same per tenant */
   title: string;
+  /** Label on the single email field */
+  emailLabel: string;
+  emailPlaceholder: string;
+  submitLabel: string;
+  /** Shown in the dialog after a successful send */
+  confirmation: string;
+  /** Subject of the notification sent to the workspace */
+  subject: string;
 };
 
 /** Minimal Lexical value wrapping a single paragraph of text */
@@ -27,9 +36,11 @@ const paragraph = (text: string) => ({
 /**
  * Ensure a contact form exists for the given tenant.
  *
- * Seeded so every environment has one form that actually sends mail, which is
- * what makes a broken mail setup visible by using the site rather than by
- * reading logs.
+ * One email field and nothing else: this sits at the foot of the home page as
+ * a closing invitation, where anything longer than a single input stops being
+ * an invitation and starts being paperwork. It also means every environment
+ * has a form that really sends mail, so a broken mail setup shows up by using
+ * the site instead of by reading logs.
  *
  * `emailFrom` and `emailTo` are deliberately left empty. The plugin falls back
  * to the configured default sender for both, so the form needs no per-tenant
@@ -47,7 +58,15 @@ export async function ensureForm(
   options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<Form | number> {
   const { locale, transactionID } = options;
-  const { title, tenant } = data;
+  const {
+    confirmation,
+    emailLabel,
+    emailPlaceholder,
+    subject,
+    submitLabel,
+    title,
+    tenant
+  } = data;
 
   const forms = await payload.find({
     collection: 'forms',
@@ -73,35 +92,22 @@ export async function ensureForm(
       tenant,
       fields: [
         {
-          blockType: 'text',
-          name: 'name',
-          label: 'Name',
-          width: 3,
-          required: true
-        },
-        {
           blockType: 'email',
           name: 'email',
-          label: 'Email',
-          width: 3,
-          required: true
-        },
-        {
-          blockType: 'textarea',
-          name: 'message',
-          label: 'Message',
+          label: emailLabel,
+          placeholder: emailPlaceholder,
           width: 6,
           required: true
         }
       ],
-      submitButtonLabel: 'Send message',
+      submitButtonLabel: submitLabel,
       confirmationType: 'message',
-      confirmationMessage: paragraph('Thanks! We will get back to you.'),
+      confirmationMessage: paragraph(confirmation),
       emails: [
         {
-          subject: `New message from {{name}}`,
+          subject,
           // The plugin expands `{{*:table}}` into every submitted field, so
-          // the notification keeps working when the form gains a field
+          // the notification keeps working if the form ever gains one
           message: paragraph('{{*:table}}')
         }
       ]

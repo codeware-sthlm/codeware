@@ -1,3 +1,4 @@
+import { convertMarkdownToLexical } from '@codeware/app-cms/util/content-templates';
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Payload } from 'payload';
 
@@ -375,9 +376,40 @@ export const customSeed = async (
       transactionID
     );
 
+    // The closing invitation, in the tenant's own language. Deliberately warm
+    // and short — it follows the callout as the last thing on the page, and a
+    // wall of text there would undo the callout's own ending
+    const copy = (() => {
+      switch (tenantLocale) {
+        case 'sv':
+          return {
+            emailLabel: 'Din e-post',
+            emailPlaceholder: 'du@exempel.se',
+            submitLabel: 'Hör av dig',
+            confirmation: 'Tack! Vi hör av oss inom kort.',
+            subject: 'Nytt meddelande från {{email}}',
+            intro: `## Nyfiken? Hör av dig.
+
+Ett fält, inget mer. Lämna din e-post så tar vi det därifrån.`
+          };
+        case 'en':
+        default:
+          return {
+            emailLabel: 'Your email',
+            emailPlaceholder: 'you@example.com',
+            submitLabel: 'Reach out',
+            confirmation: `Thanks! We will get back to you shortly.`,
+            subject: 'New message from {{email}}',
+            intro: `## Curious? Reach out.
+
+One field, nothing more. Leave your email and we will take it from there.`
+          };
+      }
+    })();
+
     const formOrId = await ensureForm(
       payload,
-      { title: 'Contact', tenant: tenantId },
+      { title: 'Contact', tenant: tenantId, ...copy },
       { locale: tenantLocale, transactionID }
     );
 
@@ -420,7 +452,11 @@ export const customSeed = async (
           {
             blockType: 'form',
             form: getId(formOrId),
-            enableIntro: false
+            enableIntro: true,
+            introContent: await convertMarkdownToLexical(
+              payload.config,
+              copy.intro
+            )
           }
         ],
         // Pages are draft-enabled, so an update with no status would park the

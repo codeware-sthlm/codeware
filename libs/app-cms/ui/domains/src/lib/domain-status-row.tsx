@@ -56,12 +56,51 @@ export type DomainsVerdict =
   | { tone: 'warning'; kind: 'pending'; count: number };
 
 /**
- * Reduce every domain to the one thing worth saying about all of them.
+ * The states worth reporting, worst first.
  *
- * Worst wins, and the order is by how much it costs to ignore: a rate limit
- * blocks issuance for hours, an active certificate Fly still objects to is
- * serving traffic it may stop serving, a domain nobody ever requested one for
- * has no tls at all, and a pending one is usually just young.
+ * One table, because two orderings would drift: the widget quotes the worst
+ * state it finds here, and the sheet sorts by the same ranking — so the first
+ * row a reader sees is always the one the widget is talking about. Ranked by
+ * what it costs to ignore: a rate limit blocks issuance for hours, an active
+ * certificate Fly still objects to is serving traffic it may stop serving, a
+ * domain nobody requested one for has no tls at all, an expiring one has a
+ * deadline, and a pending one is usually just young.
+ */
+const STATES = [
+  {
+    kind: 'paused',
+    tone: 'error',
+    match: (item: DomainStatusItem) => item.status === 'paused'
+  },
+  {
+    kind: 'issues',
+    tone: 'error',
+    match: (item: DomainStatusItem) => item.hasIssues
+  },
+  {
+    kind: 'not-requested',
+    tone: 'warning',
+    match: (item: DomainStatusItem) => item.status === 'not-requested'
+  },
+  {
+    kind: 'expiring',
+    tone: 'warning',
+    match: (item: DomainStatusItem, now: Date) =>
+      isExpiringSoon(item.expiresAt, now)
+  },
+  {
+    kind: 'pending',
+    tone: 'warning',
+    match: (item: DomainStatusItem) => item.status === 'pending'
+  }
+] as const satisfies ReadonlyArray<{
+  kind: DomainsVerdict['kind'];
+  tone: DomainsVerdict['tone'];
+  match: (item: DomainStatusItem, now: Date) => boolean;
+}>;
+
+/**
+ * Reduce every domain to the one thing worth saying about all of them.
  *
  * Returns the count of domains in the worst state rather than a total, since
  * that is the number the detail line quotes.
@@ -76,55 +115,35 @@ export const summarizeDomains = (
     return { tone: 'neutral', kind: 'none', count: 0 };
   }
 
-  const count = (predicate: (item: DomainStatusItem) => boolean) =>
-    items.filter(predicate).length;
-
-  const paused = count((item) => item.status === 'paused');
-  if (paused) {
-    return { tone: 'error', kind: 'paused', count: paused };
-  }
-
-  const issues = count((item) => item.hasIssues);
-  if (issues) {
-    return { tone: 'error', kind: 'issues', count: issues };
-  }
-
-  const notRequested = count((item) => item.status === 'not-requested');
-  if (notRequested) {
-    return { tone: 'warning', kind: 'not-requested', count: notRequested };
-  }
-
-  const expiring = count((item) => isExpiringSoon(item.expiresAt, now));
-  if (expiring) {
-    return { tone: 'warning', kind: 'expiring', count: expiring };
-  }
-
-  const pending = count((item) => item.status === 'pending');
-  if (pending) {
-    return { tone: 'warning', kind: 'pending', count: pending };
+  for (const { kind, tone, match } of STATES) {
+    const count = items.filter((item) => match(item, now)).length;
+    if (count) {
+      return { tone, kind, count } as DomainsVerdict;
+    }
   }
 
   return { tone: 'ok', kind: 'all-active', count: items.length };
 };
 
-/** How badly a domain needs looking at, so the worst sorts to the top */
-const SEVERITY: Record<DomainCertificateStatus, number> = {
-  paused: 0,
-  'not-requested': 1,
-  pending: 2,
-  active: 3
+/** Where a domain sits in {@link STATES}; healthy sorts last */
+const severity = (item: DomainStatusItem, now: Date) => {
+  const index = STATES.findIndex(({ match }) => match(item, now));
+  return index === -1 ? STATES.length : index;
 };
 
 /**
  * Order the sheet so the reason the widget is not green is the first row.
  *
- * An active certificate with outstanding issues outranks its plain status —
- * it is the case that looks fine everywhere else and is not.
+ * Shares {@link STATES} with `summarizeDomains` rather than keeping its own
+ * ranking — an independent order let an active-but-objected-to domain sort
+ * above a rate-limited one, and ignored expiry entirely, so the sheet could
+ * open on a row that had nothing to do with what the widget said.
  */
 export const byWorstFirst = (a: DomainStatusItem, b: DomainStatusItem) => {
-  const rank = (item: DomainStatusItem) =>
-    item.hasIssues ? -1 : SEVERITY[item.status];
-  return rank(a) - rank(b) || a.hostname.localeCompare(b.hostname);
+  const now = new Date();
+  return (
+    severity(a, now) - severity(b, now) || a.hostname.localeCompare(b.hostname)
+  );
 };
 
 export type DomainStatusRowProps = {

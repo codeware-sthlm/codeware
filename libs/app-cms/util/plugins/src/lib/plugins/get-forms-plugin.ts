@@ -8,6 +8,7 @@ import { applyDefaultSender } from './forms/apply-default-sender';
 import { attachSubmissionId } from './forms/attach-submission-id';
 import { customizedFields } from './forms/customized-fields';
 import { formFields } from './forms/form-fields';
+import { recordDeliveryStatus } from './forms/record-delivery-status';
 import { submissionCreateAccess } from './forms/submission-create-access';
 import { submissionFields } from './forms/submission-fields';
 import { verifyFormTenant } from './forms/verify-form-tenant';
@@ -94,7 +95,10 @@ export const getFormsPlugin = ({ access }: Options) => {
         beforeValidate: [
           ensureTenantFromApiKey<FormSubmission>(),
           verifyFormTenant
-        ]
+        ],
+        // The plugin appends these behind its own send hook, so this runs
+        // once every notification for the submission has settled
+        afterChange: [recordDeliveryStatus]
       }
     },
     redirectRelationships: ['pages']

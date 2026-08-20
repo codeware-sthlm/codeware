@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
 /**
- * A plain SMTP host with no credentials — a local mail catcher.
+ * Any SMTP relay — a local catcher, a hosted sandbox, or a real one.
  *
- * Mailpit (`nx dx:mail cms`) is what this is for in development: it never
- * expires, needs no account, and keeps every message in one inbox the whole
- * team can reason about. Kept separate from the Ethereal variables because
- * those carry credentials that go stale.
+ * Deliberately generic rather than named after a provider: `SENDGRID_*` and
+ * `ETHEREAL_*` lock a deployment to whichever service happens to be behind
+ * them, so swapping providers means renaming variables everywhere they're
+ * read. Auth is optional because Mailpit (`nx dx:mail cms`), the development
+ * default, needs none — a hosted catcher such as Mailtrap, or a real relay,
+ * supplies both.
  */
 export const SmtpSchema = z.object({
   SMTP_FROM_ADDRESS: z
@@ -16,7 +18,9 @@ export const SmtpSchema = z.object({
     .or(z.literal('')),
   SMTP_FROM_NAME: z.string({ description: 'Default from name' }).optional(),
   SMTP_HOST: z.string({ description: 'SMTP host' }),
-  SMTP_PORT: z.number({ coerce: true, description: 'SMTP port' })
+  SMTP_PORT: z.number({ coerce: true, description: 'SMTP port' }),
+  SMTP_USERNAME: z.string({ description: 'SMTP username' }).optional(),
+  SMTP_PASSWORD: z.string({ description: 'SMTP password' }).optional()
 });
 
 export type Smtp = z.infer<typeof SmtpSchema>;

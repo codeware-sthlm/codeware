@@ -11,11 +11,12 @@ import { withDeliveryReporting } from './with-delivery-reporting';
 /**
  * Get the email adapter, or undefined when email is disabled.
  *
- * Order of preference: SendGrid where it is configured (deployments), then a
- * plain SMTP host — a local catcher such as Mailpit, which is the development
- * default — then Ethereal credentials if someone still keeps a set. In
- * development, nothing configured falls back to an Ethereal inbox created on
- * the first send, so mail is never silently dropped while working.
+ * Order of preference: SendGrid where it is configured (deployments), then
+ * any SMTP relay — Mailpit with no credentials, the development default, or
+ * an authenticated one such as Mailtrap — then Ethereal credentials if
+ * someone still keeps a set. In development, nothing configured falls back
+ * to an Ethereal inbox created on the first send, so mail is never silently
+ * dropped while working.
  *
  * Every branch is wrapped with {@link withDeliveryReporting} in one place, so
  * a transport failure is always logged and reported rather than only ever
@@ -40,44 +41,32 @@ export const getEmailAdapter = (env: Env) => {
       });
     }
 
-    // Then a plain SMTP host: a local catcher has no credentials to go stale,
-    // which is what makes it the one worth reaching for daily
+    // Then any other SMTP relay — a local catcher with no credentials to go
+    // stale (Mailpit), or a hosted sandbox / real relay with a username and
+    // password (Mailtrap, say)
     if (env.EMAIL?.smtp) {
-      const { defaultFromAddress, defaultFromName, host, port } =
+      const { defaultFromAddress, defaultFromName, host, port, user, pass } =
         env.EMAIL.smtp;
+      const hasAuth = Boolean(user && pass);
 
       return nodemailerAdapter({
         defaultFromAddress,
         defaultFromName,
-        // A catcher is only running when someone started it; a send still
-        // fails loudly (and is already caught where it's sent) if it's not,
-        // so nothing is gained by also failing the connection check on boot
-        skipVerify: true,
+        // A credential-less catcher is only running when someone started it;
+        // a send still fails loudly (and is already caught where it's sent)
+        // if it's not, so nothing is gained by also failing the connection
+        // check on boot. An authenticated relay is a real remote service —
+        // wrong credentials are worth catching immediately instead.
+        skipVerify: !hasAuth,
         transport: nodemailer.createTransport({
           host,
           port,
-          // A catcher accepts anything; requiring TLS would only break it
-          secure: false,
-          ignoreTLS: true
+          ...(hasAuth
+            ? // Real TLS negotiation, same as the Ethereal branch below
+              { auth: { user, pass } }
+            : // A catcher accepts anything; requiring TLS would only break it
+              { secure: false, ignoreTLS: true })
         })
-      });
-    }
-
-    // Then check if ethereal is configured
-    if (env.EMAIL?.ethereal) {
-      const { defaultFromAddress, defaultFromName, host, port, user, pass } =
-        env.EMAIL.ethereal;
-
-      const smptConfig: SMTPTransport.Options = {
-        host,
-        port,
-        auth: { user, pass }
-      };
-
-      return nodemailerAdapter({
-        defaultFromAddress,
-        defaultFromName,
-        transport: nodemailer.createTransport(smptConfig)
       });
     }
 

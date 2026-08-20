@@ -4,39 +4,52 @@ export type IntegrationRowProps = {
   /** What the integration is for, e.g. "Email" */
   label: string;
   /**
-   * The resolved transport, e.g. `sendgrid` or `smtp · localhost`.
+   * Which provider answers for it, e.g. `sentry` or `smtp`.
    *
-   * Never a credential — the transport name and host are the whole of what
-   * this is allowed to show. A sheet reaches further than the env file these
-   * values came from.
+   * Doubles as the configured signal — no provider means nothing is wired up,
+   * and the row says so instead.
+   */
+  provider?: string | null;
+  /**
+   * Which instance of that provider, e.g. an org slug or a bucket.
+   *
+   * Never a credential — an identifier and a host at most. A sheet reaches
+   * further than the env file these values came from.
    */
   value?: string | null;
-  /** Shown in place of the value when nothing is configured */
+  /** Shown in place of the provider when nothing is configured */
   notConfiguredLabel: string;
 };
 
 /**
  * One integration and what it resolved to at start-up.
  *
- * Two lines rather than a label/value pair on one: the values are transport
- * identifiers that read as code, and squeezing them to the right of a label
- * left them looking like an afterthought next to the domain rows they sit
- * alongside.
+ * The badge says *what* answers, the line beneath says *which* — a split worth
+ * making because the second half is often a bucket plus an endpoint url, which
+ * has no chance of sharing a line with its own label.
  */
 export function IntegrationRow({
   label,
+  provider,
   value,
   notConfiguredLabel
 }: IntegrationRowProps) {
   return (
-    <div className="border-border flex items-center justify-between gap-3 border-b py-3 last:border-b-0">
-      <span className="text-foreground text-sm font-medium">{label}</span>
-      {value ? (
-        <span className="text-muted-foreground font-mono text-sm break-all">
+    <div className="border-border flex flex-col gap-1 border-b py-3 last:border-b-0">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-foreground text-sm font-medium">{label}</span>
+        {provider ? (
+          <Badge variant="outline" className="font-mono">
+            {provider}
+          </Badge>
+        ) : (
+          <Badge variant="destructive">{notConfiguredLabel}</Badge>
+        )}
+      </div>
+      {provider && value && (
+        <span className="text-muted-foreground font-mono text-xs break-all">
           {value}
         </span>
-      ) : (
-        <Badge variant="destructive">{notConfiguredLabel}</Badge>
       )}
     </div>
   );

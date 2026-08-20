@@ -1,6 +1,7 @@
 import { a11yStory } from '@codeware/shared/util/storybook';
 import {
   CubeIcon,
+  EnvelopeIcon,
   PuzzlePieceIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
@@ -91,6 +92,13 @@ export const HealthyPanel: StoryObj = {
         onOpen={() => undefined}
       />
       <StatusWidget
+        icon={EnvelopeIcon}
+        tone="ok"
+        title="Mail delivery"
+        metric="12 notifications this week"
+        detail="All notifications delivered"
+      />
+      <StatusWidget
         icon={CubeIcon}
         tone="neutral"
         title="Environment & build"
@@ -121,6 +129,15 @@ export const SomethingWrong: StoryObj = {
         metric="2 of 3 set up"
         detail="Email is going to a test inbox, not to the people it is addressed to"
         openLabel="Show every integration"
+        onOpen={() => undefined}
+      />
+      <StatusWidget
+        icon={EnvelopeIcon}
+        tone="error"
+        title="Mail delivery"
+        metric="14 notifications this week"
+        detail="3 failed to send"
+        openLabel="Show every failure"
         onOpen={() => undefined}
       />
       <StatusWidget
@@ -160,6 +177,13 @@ export const UnevenContent: StoryObj = {
         detail="Email is going to a test inbox, not to the people it is addressed to"
         openLabel="Show every integration"
         onOpen={() => undefined}
+      />
+      <StatusWidget
+        icon={EnvelopeIcon}
+        tone="neutral"
+        title="Mail delivery"
+        metric="0 notifications this week"
+        detail="No notifications sent this week"
       />
       <StatusWidget
         icon={CubeIcon}

@@ -295,6 +295,10 @@ export const SubmissionsList: React.FC<Props> = ({
                     )}
                     read={isRead(row)}
                     unreadLabel={t('formSubmissions:unread')}
+                    notificationFailed={row.notificationFailed}
+                    notificationFailedLabel={t(
+                      'formSubmissions:notificationFailed'
+                    )}
                     onClick={() => openSubmission(row)}
                   />
                 </li>
@@ -361,6 +365,10 @@ export const SubmissionsList: React.FC<Props> = ({
                       fields={openRow.fields}
                       emptyLabel={t('formSubmissions:noValues')}
                       orphanedLabel={t('formSubmissions:orphanedField')}
+                      notificationFailed={openRow.notificationFailed}
+                      notificationFailedMessage={t(
+                        'formSubmissions:notificationFailedDetail'
+                      )}
                     />
                   </div>
                 </>

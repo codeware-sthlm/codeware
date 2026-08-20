@@ -33,6 +33,7 @@ export function toSubmissionRows(
       formTitle: form?.title ?? null,
       receivedAt: submission.createdAt,
       read: Boolean(submission.readAt),
+      notificationFailed: submission.notificationStatus === 'failed',
       fields: resolveSubmissionFields(form, submission.submissionData)
     };
   });

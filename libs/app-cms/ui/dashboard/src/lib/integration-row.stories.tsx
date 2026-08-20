@@ -9,24 +9,31 @@ const meta = {
 
 export default meta;
 
-/** The sheet's list, at the density it renders inside a `SheetContent` */
-export const Rows: StoryObj = {
+/** The sheet's list, at the width a `size="lg"` SheetContent gives it */
+export const Production: StoryObj = {
   render: () => (
-    <div className="flex w-full max-w-md flex-col">
+    <div className="flex w-full max-w-2xl flex-col">
       <IntegrationRow
         label="Email"
-        value="sendgrid"
+        provider="sendgrid"
         notConfiguredLabel="Not set up"
       />
       <IntegrationRow
         label="Error tracking"
-        value="codeware"
+        provider="sentry"
+        value="codewaresthlm"
         notConfiguredLabel="Not set up"
       />
-      <IntegrationRow label="File storage" notConfiguredLabel="Not set up" />
+      <IntegrationRow
+        label="File storage"
+        provider="s3"
+        value="media-preview · https://tiuqdqnfadzjngucaatb.supabase.co/storage/v1/s3"
+        notConfiguredLabel="Not set up"
+      />
       <IntegrationRow
         label="Secrets"
-        value="us · universal-auth"
+        provider="infisical"
+        value="eu · universal-auth"
         notConfiguredLabel="Not set up"
       />
     </div>
@@ -36,24 +43,30 @@ export const Rows: StoryObj = {
 /** Development, where a local catcher is the correct answer rather than a fault */
 export const LocalCatcher: StoryObj = {
   render: () => (
-    <div className="flex w-full max-w-md flex-col">
+    <div className="flex w-full max-w-2xl flex-col">
       <IntegrationRow
         label="Email"
-        value="smtp · localhost"
+        provider="smtp"
+        value="localhost"
         notConfiguredLabel="Not set up"
       />
       <IntegrationRow label="Error tracking" notConfiguredLabel="Not set up" />
+      <IntegrationRow label="File storage" notConfiguredLabel="Not set up" />
       <IntegrationRow
-        label="File storage"
-        value="cdwr-media · fly.storage.tigris.dev"
+        label="Secrets"
+        provider="infisical"
+        value="eu · universal-auth"
         notConfiguredLabel="Not set up"
       />
-      <IntegrationRow label="Secrets" notConfiguredLabel="Not set up" />
     </div>
   )
 };
 
-export const PayloadAdminLight = a11yStory(Rows, 'payload-admin', 'light');
-export const PayloadAdminDark = a11yStory(Rows, 'payload-admin', 'dark');
-export const ShadcnLight = a11yStory(Rows, 'shadcn', 'light');
-export const ShadcnDark = a11yStory(Rows, 'shadcn', 'dark');
+export const PayloadAdminLight = a11yStory(
+  Production,
+  'payload-admin',
+  'light'
+);
+export const PayloadAdminDark = a11yStory(Production, 'payload-admin', 'dark');
+export const ShadcnLight = a11yStory(Production, 'shadcn', 'light');
+export const ShadcnDark = a11yStory(Production, 'shadcn', 'dark');

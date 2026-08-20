@@ -23,8 +23,10 @@ export const isExpiringSoon = (
     return false;
   }
   const remaining = new Date(expiresAt).getTime() - now.getTime();
+  // Inclusive: the copy promises "within two weeks", and a certificate landing
+  // exactly on the boundary is the one case a strict `<` would stay quiet about
   return (
     Number.isFinite(remaining) &&
-    remaining < EXPIRY_WARNING_DAYS * 24 * 60 * 60 * 1000
+    remaining <= EXPIRY_WARNING_DAYS * 24 * 60 * 60 * 1000
   );
 };

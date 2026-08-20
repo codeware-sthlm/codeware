@@ -108,36 +108,35 @@ export function PlatformTab({ data }: { data: PlatformData }) {
   const integrationRows = [
     {
       label: t('platform:labelEmail'),
-      value: data.integrations.email
-        ? [data.integrations.email, data.integrations.emailHost]
-            .filter(Boolean)
-            .join(' · ')
-        : null
+      provider: data.integrations.email,
+      value: data.integrations.emailHost
     },
     {
       label: t('platform:labelSentry'),
+      provider: data.integrations.sentryOrg ? 'sentry' : null,
       value: data.integrations.sentryOrg
     },
     {
       // Bucket first: "where do uploads land" is the question, and the
       // endpoint only matters for telling one provider from another
       label: t('platform:labelStorage'),
-      value: data.integrations.storageBucket
-        ? [data.integrations.storageBucket, data.integrations.storageEndpoint]
-            .filter(Boolean)
-            .join(' · ')
-        : null
+      provider: data.integrations.storageBucket ? 's3' : null,
+      value: [
+        data.integrations.storageBucket,
+        data.integrations.storageEndpoint
+      ]
+        .filter(Boolean)
+        .join(' · ')
     },
     {
       // Last, but the one the others depend on — Fly's certificate token is
       // read from here, so this row explains a domains panel that cannot
       // reach Fly at all
       label: t('platform:labelInfisical'),
-      value: data.integrations.infisicalAuth
-        ? [data.integrations.infisicalSite, data.integrations.infisicalAuth]
-            .filter(Boolean)
-            .join(' · ')
-        : null
+      provider: data.integrations.infisicalAuth ? 'infisical' : null,
+      value: [data.integrations.infisicalSite, data.integrations.infisicalAuth]
+        .filter(Boolean)
+        .join(' · ')
     }
   ];
 
@@ -194,7 +193,7 @@ export function PlatformTab({ data }: { data: PlatformData }) {
         open={openSheet === 'domains'}
         onOpenChange={(open) => !open && setOpenSheet(null)}
       >
-        <SheetContent size="md" className="codeware-admin twp gap-0">
+        <SheetContent size="lg" className="codeware-admin twp gap-0">
           <SheetHeader>
             <SheetTitle>{t('platform:domainsTitle')}</SheetTitle>
             <SheetDescription>{t('platform:domainsSheetSub')}</SheetDescription>
@@ -216,7 +215,7 @@ export function PlatformTab({ data }: { data: PlatformData }) {
         open={openSheet === 'integrations'}
         onOpenChange={(open) => !open && setOpenSheet(null)}
       >
-        <SheetContent size="md" className="codeware-admin twp gap-0">
+        <SheetContent size="lg" className="codeware-admin twp gap-0">
           <SheetHeader>
             <SheetTitle>{t('platform:integrationsTitle')}</SheetTitle>
             <SheetDescription>
@@ -228,6 +227,7 @@ export function PlatformTab({ data }: { data: PlatformData }) {
               <IntegrationRow
                 key={row.label}
                 label={row.label}
+                provider={row.provider}
                 value={row.value}
                 notConfiguredLabel={t('platform:notConfigured')}
               />

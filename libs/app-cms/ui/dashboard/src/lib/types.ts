@@ -2,7 +2,11 @@ import type { DomainStatusItem } from '@codeware/app-cms/ui/domains';
 import type { CollectionSlug } from '@codeware/shared/util/payload-types';
 import type React from 'react';
 
-import type { BuildFacts, IntegrationFacts } from './platform-status';
+import type {
+  BuildFacts,
+  IntegrationFacts,
+  MailDeliveryFacts
+} from './platform-status';
 
 /** Heroicons-compatible SVG icon component. */
 export type IconComponent = React.FC<React.ComponentPropsWithoutRef<'svg'>>;
@@ -41,6 +45,7 @@ export type PlatformData = {
   /** Every custom domain, across all workspaces and the platform itself */
   domains: Array<DomainStatusItem>;
   integrations: IntegrationFacts;
+  mailDelivery: MailDeliveryFacts;
   build: BuildFacts;
 };
 

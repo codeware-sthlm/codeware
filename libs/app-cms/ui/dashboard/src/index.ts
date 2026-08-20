@@ -4,6 +4,7 @@ export * from './lib/empty-state';
 export * from './lib/getting-started-card';
 export * from './lib/integration-row';
 export * from './lib/limit-toggle';
+export * from './lib/mail-failure-row';
 export * from './lib/palette-row';
 export * from './lib/platform-status';
 export * from './lib/slug-icons';

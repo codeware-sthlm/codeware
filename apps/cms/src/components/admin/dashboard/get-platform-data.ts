@@ -1,4 +1,7 @@
-import type { PlatformData } from '@codeware/app-cms/ui/dashboard';
+import type {
+  MailDeliveryFailure,
+  PlatformData
+} from '@codeware/app-cms/ui/dashboard';
 import type { DomainStatusItem } from '@codeware/app-cms/ui/domains';
 import type { Env } from '@codeware/app-cms/util/env-schema';
 import type { BasePayload, TypedUser } from 'payload';
@@ -133,6 +136,37 @@ const usableS3Value = (value: string | undefined): string | null =>
   value && value !== 'undefined' ? value : null;
 
 /**
+ * How far back the mail delivery widget looks.
+ *
+ * Long enough that a real, ongoing misconfiguration stays visible for a
+ * normal working week; short enough that a single resolved incident ages out
+ * on its own instead of colouring the dashboard forever.
+ */
+const MAIL_DELIVERY_WINDOW_DAYS = 7;
+
+/** Minimal shape read off a `depth: 1` form-submissions query */
+type FailedSubmission = {
+  id: number;
+  form: number | { title?: string | null } | null;
+  tenant?: (number | null) | { name?: string | null; id: number };
+  createdAt: string;
+};
+
+const toMailFailure = (submission: FailedSubmission): MailDeliveryFailure => ({
+  id: submission.id,
+  formTitle:
+    submission.form && typeof submission.form === 'object'
+      ? (submission.form.title ?? null)
+      : null,
+  owner:
+    submission.tenant && typeof submission.tenant === 'object'
+      ? (submission.tenant.name ?? String(submission.tenant.id))
+      : String(submission.tenant ?? ''),
+  receivedAt: submission.createdAt,
+  href: `/admin/collections/form-submissions/${submission.id}`
+});
+
+/**
  * Every custom domain on the platform, plus how it is configured to run.
  *
  * Reads only what the last check stored. Nothing here calls Fly: the dashboard
@@ -150,7 +184,11 @@ export const getPlatformData = async (
   env: Env,
   formatChecked: (checkedAt: string) => string
 ): Promise<PlatformData> => {
-  const [tenants, settings] = await Promise.all([
+  const since = new Date(
+    Date.now() - MAIL_DELIVERY_WINDOW_DAYS * 24 * 60 * 60 * 1000
+  ).toISOString();
+
+  const [tenants, settings, delivered, failed] = await Promise.all([
     payload.find({
       collection: 'tenants',
       depth: 0,
@@ -163,6 +201,33 @@ export const getPlatformData = async (
       collection: 'platform-settings',
       depth: 0,
       limit: 1,
+      overrideAccess: false,
+      user
+    }),
+    payload.count({
+      collection: 'form-submissions',
+      where: {
+        and: [
+          { createdAt: { greater_than_equal: since } },
+          { notificationStatus: { exists: true } }
+        ]
+      },
+      overrideAccess: false,
+      user
+    }),
+    // Depth 1 populates `form` and `tenant` in one pass — every field
+    // `MailFailureRow` needs, so no per-row lookup on top of this query
+    payload.find({
+      collection: 'form-submissions',
+      where: {
+        and: [
+          { createdAt: { greater_than_equal: since } },
+          { notificationStatus: { equals: 'failed' } }
+        ]
+      },
+      depth: 1,
+      limit: 50,
+      sort: '-createdAt',
       overrideAccess: false,
       user
     })
@@ -222,6 +287,11 @@ export const getPlatformData = async (
       // Region and auth mode only. The project id is not a credential, but it
       // is an identifier with no diagnostic value here, so it stays out
       infisicalSite: process.env['INFISICAL_SITE'] ?? 'us'
+    },
+    mailDelivery: {
+      total: delivered.totalDocs,
+      failed: failed.totalDocs,
+      failures: failed.docs.map(toMailFailure)
     },
     build: {
       version: appInfo.version,

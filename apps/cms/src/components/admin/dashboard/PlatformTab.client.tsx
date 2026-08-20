@@ -2,10 +2,12 @@
 
 import {
   IntegrationRow,
+  MailFailureRow,
   type PlatformData,
   StatusWidget,
   summarizeBuild,
-  summarizeIntegrations
+  summarizeIntegrations,
+  summarizeMailDelivery
 } from '@codeware/app-cms/ui/dashboard';
 import {
   DomainStatusRow,
@@ -25,6 +27,7 @@ import {
 } from '@codeware/shared/ui/shadcn/components/sheet';
 import {
   CubeIcon,
+  EnvelopeIcon,
   PuzzlePieceIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
@@ -32,8 +35,10 @@ import { useTranslation } from '@payloadcms/ui';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { formatRelativeTime } from '../utils/relative-time';
+
 /** Which detail sheet is open, if any */
-type OpenSheet = 'domains' | 'integrations' | null;
+type OpenSheet = 'domains' | 'integrations' | 'mailDelivery' | null;
 
 /**
  * Dashboard Platform tab: cross-tenant status for whoever runs the platform.
@@ -46,11 +51,12 @@ type OpenSheet = 'domains' | 'integrations' | null;
  * the platform itself, ignoring the workspace selector entirely.
  */
 export function PlatformTab({ data }: { data: PlatformData }) {
-  const { t } = useTranslation<TranslationsObject, TranslationsKeys>();
+  const { i18n, t } = useTranslation<TranslationsObject, TranslationsKeys>();
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
 
   const domains = summarizeDomains(data.domains);
   const integrations = summarizeIntegrations(data.integrations);
+  const mailDelivery = summarizeMailDelivery(data.mailDelivery);
   const build = summarizeBuild(data.build);
 
   const domainsDetail = (() => {
@@ -86,6 +92,19 @@ export function PlatformTab({ data }: { data: PlatformData }) {
         });
       case 'all-configured':
         return t('platform:integrationsAllConfigured');
+    }
+  })();
+
+  const mailDeliveryDetail = (() => {
+    switch (mailDelivery.kind) {
+      case 'failures':
+        return t('platform:mailDeliveryFailures', {
+          count: mailDelivery.count
+        });
+      case 'all-delivered':
+        return t('platform:mailDeliveryAllDelivered');
+      case 'no-sends':
+        return t('platform:mailDeliveryNoSends');
     }
   })();
 
@@ -169,6 +188,21 @@ export function PlatformTab({ data }: { data: PlatformData }) {
           onOpen={() => setOpenSheet('integrations')}
         />
         <StatusWidget
+          icon={EnvelopeIcon}
+          tone={mailDelivery.tone}
+          title={t('platform:mailDeliveryTitle')}
+          metric={t('platform:mailDeliveryMetric', {
+            count: data.mailDelivery.total
+          })}
+          detail={mailDeliveryDetail}
+          openLabel={t('platform:mailDeliveryOpen')}
+          onOpen={
+            data.mailDelivery.failures.length
+              ? () => setOpenSheet('mailDelivery')
+              : undefined
+          }
+        />
+        <StatusWidget
           icon={CubeIcon}
           tone={build.tone}
           title={t('platform:buildTitle')}
@@ -230,6 +264,38 @@ export function PlatformTab({ data }: { data: PlatformData }) {
                 provider={row.provider}
                 value={row.value}
                 notConfiguredLabel={t('platform:notConfigured')}
+              />
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet
+        open={openSheet === 'mailDelivery'}
+        onOpenChange={(open) => !open && setOpenSheet(null)}
+      >
+        <SheetContent size="lg" className="codeware-admin twp gap-0">
+          <SheetHeader>
+            <SheetTitle>{t('platform:mailDeliveryTitle')}</SheetTitle>
+            <SheetDescription>
+              {t('platform:mailDeliverySheetSub')}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex flex-col gap-0.5 overflow-y-auto px-2 pb-4">
+            {data.mailDelivery.failures.map((failure) => (
+              <MailFailureRow
+                key={failure.id}
+                formTitle={
+                  failure.formTitle ?? t('formSubmissions:deletedForm')
+                }
+                owner={failure.owner}
+                receivedAt={failure.receivedAt}
+                receivedLabel={formatRelativeTime(
+                  failure.receivedAt,
+                  i18n.language
+                )}
+                href={failure.href}
+                linkComponent={Link}
               />
             ))}
           </div>

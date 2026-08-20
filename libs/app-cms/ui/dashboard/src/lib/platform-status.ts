@@ -89,6 +89,66 @@ export const summarizeIntegrations = (
   return { tone: 'ok', kind: 'all-configured' };
 };
 
+/**
+ * A form submission whose notification email never went out.
+ *
+ * Everything here comes from what the submission itself stored — the
+ * overview never re-sends anything, it only reports what already happened.
+ */
+export type MailDeliveryFailure = {
+  id: number;
+  /** Parent form title, or null when the form is gone */
+  formTitle: string | null;
+  /** Which workspace the submission belongs to */
+  owner: string;
+  /** ISO timestamp the submission was received */
+  receivedAt: string;
+  /** Admin url of the submission */
+  href: string;
+};
+
+/**
+ * How form notification mail has been landing lately.
+ *
+ * Scoped to a recent window rather than all time: submissions are immutable,
+ * so a `notificationStatus` never clears itself once set, and an unwindowed
+ * count would leave a single failure from months ago colouring this widget
+ * red forever — exactly the alarm fatigue the rest of this panel is designed
+ * to avoid.
+ */
+export type MailDeliveryFacts = {
+  /** Notification sends with a known outcome, in the window */
+  total: number;
+  /** How many of those failed to deliver */
+  failed: number;
+  /** The failures themselves, most recent first */
+  failures: Array<MailDeliveryFailure>;
+};
+
+export type MailDeliveryVerdict =
+  | { tone: 'error'; kind: 'failures'; count: number }
+  | { tone: 'ok'; kind: 'all-delivered' }
+  | { tone: 'neutral'; kind: 'no-sends' };
+
+/**
+ * What the mail delivery widget says, before it is put into words.
+ *
+ * Never gated to production, unlike {@link summarizeIntegrations}: a form
+ * that silently drops its notification is just as real a problem on a demo
+ * or a preview deploy — COD-288 was found on exactly one of those.
+ */
+export const summarizeMailDelivery = (
+  facts: MailDeliveryFacts
+): MailDeliveryVerdict => {
+  if (facts.failed) {
+    return { tone: 'error', kind: 'failures', count: facts.failed };
+  }
+  if (!facts.total) {
+    return { tone: 'neutral', kind: 'no-sends' };
+  }
+  return { tone: 'ok', kind: 'all-delivered' };
+};
+
 /** What the running build is, as the widget needs it */
 export type BuildFacts = {
   version: string;

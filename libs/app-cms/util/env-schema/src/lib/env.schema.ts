@@ -269,12 +269,13 @@ export const EnvSchema = withEnvVars(
                 defaultFromName: SMTP_FROM_NAME || APP_NAME,
                 host: SMTP_HOST,
                 port: Number(SMTP_PORT),
-                // Both or neither: a lone username or password is a typo, not
-                // a half-authenticated relay, so it is left for the adapter to
-                // treat as no credentials rather than guessed at here
-                ...(SMTP_USERNAME && SMTP_PASSWORD
-                  ? { user: SMTP_USERNAME, pass: SMTP_PASSWORD }
-                  : {})
+                // Authenticating still needs both — the adapter checks that —
+                // but a lone one is passed through rather than dropped, so the
+                // boot log can name the half-configured pair. Dropping it here
+                // would leave a typo looking exactly like a catcher, and the
+                // relay would then reject every send for no visible reason.
+                user: SMTP_USERNAME,
+                pass: SMTP_PASSWORD
               }
             }
           : undefined,

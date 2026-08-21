@@ -61,9 +61,11 @@ export const getEmailAdapter = (env: Env) => {
         transport: nodemailer.createTransport({
           host,
           port,
-          // Implicit TLS is port 465 only, which nothing here uses; every
-          // relay and catcher we talk to is plain-then-STARTTLS on 587/1025
-          secure: false,
+          // Nodemailer's own convention: 465 is implicit TLS (SMTPS), and
+          // every other port starts plain and upgrades through STARTTLS.
+          // Derived rather than fixed, so `SMTP_*` really does take any relay
+          // instead of only the ports we happen to use.
+          secure: port === 465,
           // TLS is only skipped for a catcher, which typically offers none.
           // A real relay negotiates STARTTLS through nodemailer's defaults —
           // whether or not credentials were supplied, since an unauthenticated

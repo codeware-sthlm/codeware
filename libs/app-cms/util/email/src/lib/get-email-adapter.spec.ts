@@ -69,6 +69,24 @@ describe('getEmailAdapter — SMTP transport', () => {
     expect(transportOptions()).not.toHaveProperty('auth');
   });
 
+  it('uses implicit TLS on 465, the SMTPS port', () => {
+    getEmailAdapter(
+      env({ host: 'smtp.example.com', port: 465, user: 'u', pass: 'p' })
+    );
+
+    // Hard-coding `secure: false` would silently break every SMTPS relay
+    expect(transportOptions()).toMatchObject({ port: 465, secure: true });
+  });
+
+  it('starts plain on every other port, upgrading via STARTTLS', () => {
+    getEmailAdapter(
+      env({ host: 'smtp.example.com', port: 2525, user: 'u', pass: 'p' })
+    );
+
+    expect(transportOptions()).toMatchObject({ port: 2525, secure: false });
+    expect(transportOptions()).not.toHaveProperty('ignoreTLS');
+  });
+
   it('treats a half-configured credential pair as no credentials', () => {
     getEmailAdapter(env({ host: 'relay.example.com', port: 587, user: 'u' }));
 

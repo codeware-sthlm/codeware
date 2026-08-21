@@ -320,7 +320,15 @@ export default buildConfig({
       );
     }
     if (!env.EMAIL) {
-      payload.logger.info('Email is disabled');
+      // Nothing configured does not mean nothing sends: in development
+      // `getEmailAdapter` still hands back an on-demand Ethereal inbox, so
+      // ask the resolved adapter what it is rather than re-deriving that rule
+      // here, where the two would drift apart
+      payload.logger.info(
+        payload.email?.name === 'ethereal-fallback'
+          ? 'No email configured — using an on-demand Ethereal inbox, a preview link is logged per message'
+          : 'Email is disabled'
+      );
     }
 
     payload.logger.info('Payload is ready');

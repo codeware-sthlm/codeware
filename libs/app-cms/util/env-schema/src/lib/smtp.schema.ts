@@ -18,7 +18,10 @@ export const SmtpSchema = z.object({
     .or(z.literal('')),
   SMTP_FROM_NAME: z.string({ description: 'Default from name' }).optional(),
   SMTP_HOST: z.string({ description: 'SMTP host' }),
-  SMTP_PORT: z.number({ coerce: true, description: 'SMTP port' }),
+  SMTP_PORT: z.number({
+    coerce: true,
+    description: 'SMTP port — 465 for implicit TLS, otherwise STARTTLS'
+  }),
   SMTP_USERNAME: z.string({ description: 'SMTP username' }).optional(),
   SMTP_PASSWORD: z.string({ description: 'SMTP password' }).optional()
 });

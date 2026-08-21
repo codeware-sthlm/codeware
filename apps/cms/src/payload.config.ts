@@ -311,7 +311,7 @@ export default buildConfig({
       // so say which half is missing while the cause is still obvious
       if (Boolean(user) !== Boolean(pass)) {
         payload.logger.warn(
-          `[email] Only SMTP_${user ? 'USERNAME' : 'PASSWORD'} is set — both are needed to authenticate, so ${host} is being used unauthenticated`
+          `[email] Only SMTP_${user ? 'USERNAME' : 'PASSWORD'} is set — both are needed to authenticate, so mail to ${host} is being sent unauthenticated and will likely be rejected`
         );
       }
 

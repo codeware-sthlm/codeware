@@ -1,4 +1,5 @@
 import type { Env } from '@codeware/app-cms/util/env-schema';
+import { isCatcherHost } from '@codeware/shared/util/pure';
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
 import nodemailer from 'nodemailer';
 import nodemailerSendgrid from 'nodemailer-sendgrid';
@@ -46,6 +47,7 @@ export const getEmailAdapter = (env: Env) => {
       const { defaultFromAddress, defaultFromName, host, port, user, pass } =
         env.EMAIL.smtp;
       const hasAuth = Boolean(user && pass);
+      const isCatcher = isCatcherHost(host);
 
       return nodemailerAdapter({
         defaultFromAddress,
@@ -59,12 +61,15 @@ export const getEmailAdapter = (env: Env) => {
         transport: nodemailer.createTransport({
           host,
           port,
-          ...(hasAuth
-            ? // Real TLS negotiation — nodemailer's own defaults negotiate
-              // STARTTLS, which an authenticated relay needs to accept auth at all
-              { auth: { user, pass } }
-            : // A catcher accepts anything; requiring TLS would only break it
-              { secure: false, ignoreTLS: true })
+          // Implicit TLS is port 465 only, which nothing here uses; every
+          // relay and catcher we talk to is plain-then-STARTTLS on 587/1025
+          secure: false,
+          // TLS is only skipped for a catcher, which typically offers none.
+          // A real relay negotiates STARTTLS through nodemailer's defaults —
+          // whether or not credentials were supplied, since an unauthenticated
+          // relay still deserves an encrypted hop.
+          ...(isCatcher ? { ignoreTLS: true } : {}),
+          ...(hasAuth ? { auth: { user, pass } } : {})
         })
       });
     }

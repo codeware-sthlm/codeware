@@ -1,3 +1,5 @@
+import { isCatcherHost } from '@codeware/shared/util/pure';
+
 /**
  * How the platform's integrations resolved at boot.
  *
@@ -46,12 +48,6 @@ export type IntegrationsVerdict =
   | { tone: 'ok'; kind: 'all-configured' }
   | { tone: 'neutral'; kind: 'not-production' };
 
-/** Hosts that mean "a developer's mail catcher", not a relay to the internet */
-const CATCHER_HOSTS = new Set(['localhost', '127.0.0.1', '::1', 'mailpit']);
-
-const isCatcher = (host: string | null | undefined) =>
-  Boolean(host && CATCHER_HOSTS.has(host.toLowerCase()));
-
 /**
  * What the integrations widget says, before it is put into words.
  *
@@ -73,7 +69,7 @@ export const summarizeIntegrations = (
 
   // Mail that resolves to a local catcher is worse than mail that fails: a
   // send that "succeeds" against Mailpit looks healthy from every angle
-  if (isCatcher(facts.emailHost)) {
+  if (isCatcherHost(facts.emailHost)) {
     return { tone: 'error', kind: 'email-not-delivered' };
   }
 

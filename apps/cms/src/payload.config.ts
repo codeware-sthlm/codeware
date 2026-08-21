@@ -304,8 +304,19 @@ export default buildConfig({
       payload.logger.info('Using SendGrid email adapter');
     }
     if (env.EMAIL?.smtp) {
+      const { host, pass, user } = env.EMAIL.smtp;
+
+      // A half-configured pair connects unauthenticated and every send is
+      // then rejected by the relay — true but baffling from the error alone,
+      // so say which half is missing while the cause is still obvious
+      if (Boolean(user) !== Boolean(pass)) {
+        payload.logger.warn(
+          `[email] Only SMTP_${user ? 'USERNAME' : 'PASSWORD'} is set — both are needed to authenticate, so ${host} is being used unauthenticated`
+        );
+      }
+
       payload.logger.info(
-        `Using SMTP email adapter (${env.EMAIL.smtp.host}${env.EMAIL.smtp.user ? ', authenticated' : ''})`
+        `Using SMTP email adapter (${host}${user && pass ? ', authenticated' : ''})`
       );
     }
     if (!env.EMAIL) {

@@ -1040,6 +1040,12 @@ export const seed = async (
                 tagline: tenant.description,
                 variant: 'standard'
               },
+              // Same demo address as the footer contact — the seeded contact
+              // form leaves its own `emailTo` empty on purpose, to exercise
+              // this exact fallback
+              forms: {
+                notificationRecipients: [{ email: `hello@${tenant.slug}.dev` }]
+              },
               general: {
                 appName: `${tenant.name} App`,
                 icon: {

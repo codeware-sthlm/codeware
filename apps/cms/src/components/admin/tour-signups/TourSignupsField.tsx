@@ -59,7 +59,12 @@ const TourSignupsField: UIFieldServerComponent = async ({
     <>
       {/* Configured once in Site Settings and then easy to forget, so its
           state belongs where signups are actually worked on */}
-      <LegalPagesStatus i18n={i18n} payload={payload} user={user} />
+      <LegalPagesStatus
+        i18n={i18n}
+        payload={payload}
+        tenant={data?.['tenant']}
+        user={user}
+      />
       <TourSignupsPanel
         signups={toSignupItems(docs)}
         summary={{ tourId: id, maxCustomers, booked, waiting }}

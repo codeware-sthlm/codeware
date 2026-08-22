@@ -44,3 +44,30 @@ export async function getTenantWhere(
 ): Promise<Where | undefined> {
   return getTenantWhereFromHeaders(await headers(), user);
 }
+
+/**
+ * A single, unambiguous tenant to fall back on when the document being
+ * viewed doesn't name one yet (a brand new, unsaved document).
+ *
+ * `getTenantWhere` can resolve to several tenants at once (`{ in: [...] }`,
+ * for a user assigned to more than one with none selected) — fine for
+ * scoping a list, useless for picking one tenant's settings to show. Returns
+ * null rather than guessing among them: showing the wrong one is worse than
+ * showing nothing.
+ */
+export async function getSingleTenantId(
+  user: TypedUser | null | undefined
+): Promise<number | null> {
+  const headersList = await headers();
+  const selectedTenant = getTenantFromCookie(headersList, 'number');
+  if (selectedTenant) {
+    return Number(selectedTenant);
+  }
+
+  if (hasRole(user ?? null, 'system-user')) {
+    return null;
+  }
+
+  const userTenantIds = getUserTenantIDs(user ?? null);
+  return userTenantIds.length === 1 ? userTenantIds[0] : null;
+}

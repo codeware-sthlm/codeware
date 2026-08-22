@@ -1,5 +1,7 @@
 import type { Field } from 'payload';
 
+import { messageEditor } from './message-editor';
+
 /**
  * List-only column linking a form to the submissions it has received.
  *
@@ -37,6 +39,27 @@ const notificationRecipientHint: Field = {
 };
 
 /**
+ * Restrict the plugin's own `emails.message` field to the lexical features
+ * its email serializer can actually render.
+ *
+ * Mutates the field in place — the same pattern `customized-fields.ts` uses
+ * to patch a nested plugin field, since the plugin builds it once and hands
+ * back the same object graph rather than something worth copying.
+ */
+const restrictMessageEditor = (emailsField: Field): void => {
+  if (emailsField.type !== 'array') {
+    return;
+  }
+
+  const messageField = emailsField.fields.find(
+    (field) => 'name' in field && field.name === 'message'
+  );
+  if (messageField?.type === 'richText') {
+    messageField.editor = messageEditor;
+  }
+};
+
+/**
  * Extend the plugin's form fields with our own.
  */
 export const formFields = ({
@@ -51,6 +74,7 @@ export const formFields = ({
   );
   if (emailsIndex >= 0) {
     fields.splice(emailsIndex, 0, notificationRecipientHint);
+    restrictMessageEditor(defaultFields[emailsIndex]);
   }
 
   return fields;

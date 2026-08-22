@@ -11,6 +11,13 @@
       "options": {
         "command": "next dev --turbopack",
         "cwd": "apps/cms"
+      },
+      "configurations": {
+        "host": {
+          "env": {
+            "TENANT_ID": ""
+          }
+        }
       }
     },
     "dev-fresh": {

@@ -289,6 +289,12 @@ export function PlatformTab({ data }: { data: PlatformData }) {
                   failure.formTitle ?? t('formSubmissions:deletedForm')
                 }
                 owner={failure.owner}
+                reason={failure.reason}
+                reasonLabel={
+                  failure.reason === 'failed'
+                    ? t('formSubmissions:notificationFailed')
+                    : t('formSubmissions:notificationNoRecipient')
+                }
                 receivedAt={failure.receivedAt}
                 receivedLabel={formatRelativeTime(
                   failure.receivedAt,

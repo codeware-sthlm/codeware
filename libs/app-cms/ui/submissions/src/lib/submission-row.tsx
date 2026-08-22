@@ -12,10 +12,14 @@ export type SubmissionRowProps = {
   read: boolean;
   /** Badge text on an unread row */
   unreadLabel: string;
-  /** The submission's notification email failed to send */
-  notificationFailed?: boolean;
-  /** Badge text when `notificationFailed` is set */
-  notificationFailedLabel?: string;
+  /**
+   * The submission's notification email did not go as expected — undelivered
+   * by the transport, or misconfigured with nowhere to go. Undefined when
+   * nothing was expected or it went fine.
+   */
+  notificationIssue?: 'failed' | 'no-recipient';
+  /** Badge text when `notificationIssue` is set */
+  notificationIssueLabel?: string;
   onClick?: () => void;
 };
 
@@ -32,8 +36,8 @@ export function SubmissionRow({
   receivedAt,
   read,
   unreadLabel,
-  notificationFailed,
-  notificationFailedLabel,
+  notificationIssue,
+  notificationIssueLabel,
   onClick
 }: SubmissionRowProps) {
   return (
@@ -64,8 +68,8 @@ export function SubmissionRow({
         </span>
       </span>
       {!read && <Badge variant="secondary">{unreadLabel}</Badge>}
-      {notificationFailed && (
-        <Badge variant="destructive">{notificationFailedLabel}</Badge>
+      {notificationIssue && (
+        <Badge variant="destructive">{notificationIssueLabel}</Badge>
       )}
       <time
         dateTime={receivedAt}

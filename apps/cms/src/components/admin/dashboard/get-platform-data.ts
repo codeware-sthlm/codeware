@@ -144,12 +144,21 @@ const usableS3Value = (value: string | undefined): string | null =>
  */
 const MAIL_DELIVERY_WINDOW_DAYS = 7;
 
+/** Notification outcomes the mail delivery widget counts as a failure */
+const FAILURE_STATUSES = ['failed', 'no-recipient'] as const;
+
 /** Minimal shape read off a `depth: 1` form-submissions query */
 type FailedSubmission = {
   id: number;
   form: number | { title?: string | null } | null;
   tenant?: (number | null) | { name?: string | null; id: number };
   createdAt: string;
+  notificationStatus?:
+    | 'not-configured'
+    | 'no-recipient'
+    | 'sent'
+    | 'failed'
+    | null;
 };
 
 const toMailFailure = (submission: FailedSubmission): MailDeliveryFailure => ({
@@ -163,7 +172,11 @@ const toMailFailure = (submission: FailedSubmission): MailDeliveryFailure => ({
       ? (submission.tenant.name ?? String(submission.tenant.id))
       : String(submission.tenant ?? ''),
   receivedAt: submission.createdAt,
-  href: `/admin/collections/form-submissions/${submission.id}`
+  href: `/admin/collections/form-submissions/${submission.id}`,
+  // The query already scopes this to FAILURE_STATUSES; the fallback only
+  // covers the type not proving that at compile time
+  reason:
+    submission.notificationStatus === 'no-recipient' ? 'no-recipient' : 'failed'
 });
 
 /**
@@ -209,7 +222,10 @@ export const getPlatformData = async (
       where: {
         and: [
           { createdAt: { greater_than_equal: since } },
-          { notificationStatus: { exists: true } }
+          // Excludes `not-configured`: a form with no notification set up
+          // was never a send to begin with, and counting it would dilute
+          // the denominator every quiet form otherwise inflates
+          { notificationStatus: { in: ['sent', ...FAILURE_STATUSES] } }
         ]
       },
       overrideAccess: false,
@@ -222,7 +238,7 @@ export const getPlatformData = async (
       where: {
         and: [
           { createdAt: { greater_than_equal: since } },
-          { notificationStatus: { equals: 'failed' } }
+          { notificationStatus: { in: FAILURE_STATUSES } }
         ]
       },
       depth: 1,

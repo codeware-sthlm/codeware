@@ -99,6 +99,11 @@ const customTranslationsSchema = z.object({
     restartHint: z.string(),
     saveFirst: z.string()
   }),
+  forms: z.object({
+    notificationRecipient: z.string(),
+    notificationRecipientMissing: z.string(),
+    notificationSettingsLink: z.string()
+  }),
   formSubmissions: z.object({
     allForms: z.string(),
     deletedForm: z.string(),
@@ -111,6 +116,8 @@ const customTranslationsSchema = z.object({
     noValues: z.string(),
     notificationFailed: z.string(),
     notificationFailedDetail: z.string(),
+    notificationNoRecipient: z.string(),
+    notificationNoRecipientDetail: z.string(),
     orphanedField: z.string(),
     pageOf: z.string(),
     received: z.string(),
@@ -272,6 +279,7 @@ const customTranslationsSchema = z.object({
     domainNoWildcard: z.string(),
     domainOnePrimary: z.string(),
     domainTaken: z.string(),
+    formNeedsRecipient: z.string(),
     labelNameTaken: z.string(),
     labelNotFound: z.string(),
     labelWrongType: z.string(),
@@ -398,6 +406,13 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'A newly validated domain only takes effect after the app restarts.',
       saveFirst: 'Save to request a certificate for this domain.'
     },
+    forms: {
+      notificationRecipient:
+        'An email left without "Email To" will go to: {{recipients}}',
+      notificationRecipientMissing:
+        'An email left without "Email To" has nowhere to go — this workspace has no generic recipient set.',
+      notificationSettingsLink: 'Set a generic recipient in Site Settings'
+    },
     formSubmissions: {
       allForms: 'All forms',
       deletedForm: 'Deleted form',
@@ -411,6 +426,9 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       notificationFailed: 'Not delivered',
       notificationFailedDetail:
         'The notification email for this message could not be delivered.',
+      notificationNoRecipient: 'No recipient',
+      notificationNoRecipientDetail:
+        "This message's notification email had no recipient to send to — check the form's or workspace's notification settings.",
       orphanedField: 'This field is no longer part of the form',
       pageOf: 'Page {{page}} of {{total}}',
       received: 'Received {{when}}',
@@ -591,6 +609,8 @@ You can assign multiple tags to a file.`,
       domainOnePrimary:
         'Only one domain per app can be the primary one. "{{app}}" has several.',
       domainTaken: '"{{hostname}}" already belongs to {{owner}}.',
+      formNeedsRecipient:
+        'One of the notification emails has no "Email To", and this workspace has no generic recipient set. Add one here, or set a generic recipient in Site Settings → Forms.',
       labelNameTaken: 'A "{{type}}" label named "{{name}}" already exists.',
       labelNotFound: 'The selected label no longer exists.',
       labelWrongType: 'Expected a "{{expected}}" label but got "{{actual}}".',
@@ -716,6 +736,14 @@ Supported locales: {{locales}}`,
         'En nyligen validerad domän börjar gälla först efter att appen har startats om.',
       saveFirst: 'Spara för att begära ett certifikat för domänen.'
     },
+    forms: {
+      notificationRecipient:
+        'Ett mejl utan "E-post till" går till: {{recipients}}',
+      notificationRecipientMissing:
+        'Ett mejl utan "E-post till" har ingenstans att ta vägen — arbetsytan saknar en allmän mottagare.',
+      notificationSettingsLink:
+        'Ange en allmän mottagare i Webbplatsinställningar'
+    },
     formSubmissions: {
       allForms: 'Alla formulär',
       deletedForm: 'Borttaget formulär',
@@ -729,6 +757,9 @@ Supported locales: {{locales}}`,
       notificationFailed: 'Ej levererat',
       notificationFailedDetail:
         'Meddelandets e-postavisering kunde inte levereras.',
+      notificationNoRecipient: 'Ingen mottagare',
+      notificationNoRecipientDetail:
+        'Meddelandets e-postavisering saknade en mottagare att skickas till — kontrollera formulärets eller arbetsytans aviseringsinställningar.',
       orphanedField: 'Fältet ingår inte längre i formuläret',
       pageOf: 'Sida {{page}} av {{total}}',
       received: 'Mottaget {{when}}',
@@ -909,6 +940,8 @@ Du kan tilldela flera etiketter till en fil.`,
       domainOnePrimary:
         'Bara en domän per app kan vara den primära. "{{app}}" har flera.',
       domainTaken: '"{{hostname}}" tillhör redan {{owner}}.',
+      formNeedsRecipient:
+        'Ett av notismejlen saknar "E-post till", och arbetsytan har ingen allmän mottagare inställd. Ange en här, eller ange en allmän mottagare i Webbplatsinställningar → Formulär.',
       labelNameTaken:
         'Det finns redan en etikett av typen "{{type}}" med namnet "{{name}}".',
       labelNotFound: 'Den valda etiketten finns inte längre.',

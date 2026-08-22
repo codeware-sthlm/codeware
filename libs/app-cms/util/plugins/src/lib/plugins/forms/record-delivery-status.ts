@@ -1,3 +1,4 @@
+import { getId } from '@codeware/app-cms/util/misc';
 import type { FormSubmission } from '@codeware/shared/util/payload-types';
 import type { CollectionAfterChangeHook } from 'payload';
 
@@ -24,10 +25,13 @@ export const recordDeliveryStatus: CollectionAfterChangeHook<
     return doc;
   }
 
-  const notificationStatus = takeOutcome(doc.id);
+  const outcome = takeOutcome(doc.id);
+  const notificationStatus = outcome ?? (await notConfigured(doc, req));
+
   if (!notificationStatus) {
-    // No send was attempted — a form with no notification emails configured
-    // is a normal arrangement, not a failure, and stays null
+    // The form has notification emails, but `beforeEmail` never ran (or
+    // never left an outcome) — leave it null and log rather than record
+    // something that did not happen
     return doc;
   }
 
@@ -50,4 +54,30 @@ export const recordDeliveryStatus: CollectionAfterChangeHook<
   }
 
   return doc;
+};
+
+/**
+ * Whether the submission's form has no notification emails configured at
+ * all — the one case `beforeEmail` never runs for, so no outcome was ever
+ * going to be waiting.
+ */
+const notConfigured = async (
+  doc: FormSubmission,
+  req: Parameters<CollectionAfterChangeHook<FormSubmission>>[0]['req']
+): Promise<'not-configured' | null> => {
+  const formId = getId(doc.form);
+  if (!formId) {
+    return null;
+  }
+
+  const form = await req.payload.findByID({
+    collection: 'forms',
+    id: formId,
+    depth: 0,
+    overrideAccess: true,
+    disableErrors: true,
+    req
+  });
+
+  return form && !form.emails?.length ? 'not-configured' : null;
 };

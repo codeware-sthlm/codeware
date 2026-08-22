@@ -38,6 +38,10 @@ import { formatRelativeTime } from '../utils/relative-time';
 import { usePayloadSdk } from '../utils/use-payload-sdk';
 
 import { markSubmissionsRead } from './mark-submissions-read';
+import {
+  notificationIssueLabel,
+  notificationIssueMessage
+} from './notification-issue';
 import type { SubmissionFormOption, SubmissionListItem } from './types';
 
 type Props = {
@@ -295,10 +299,12 @@ export const SubmissionsList: React.FC<Props> = ({
                     )}
                     read={isRead(row)}
                     unreadLabel={t('formSubmissions:unread')}
-                    notificationFailed={row.notificationFailed}
-                    notificationFailedLabel={t(
-                      'formSubmissions:notificationFailed'
-                    )}
+                    notificationIssue={row.notificationIssue}
+                    notificationIssueLabel={
+                      row.notificationIssue
+                        ? notificationIssueLabel(t, row.notificationIssue)
+                        : undefined
+                    }
                     onClick={() => openSubmission(row)}
                   />
                 </li>
@@ -365,10 +371,15 @@ export const SubmissionsList: React.FC<Props> = ({
                       fields={openRow.fields}
                       emptyLabel={t('formSubmissions:noValues')}
                       orphanedLabel={t('formSubmissions:orphanedField')}
-                      notificationFailed={openRow.notificationFailed}
-                      notificationFailedMessage={t(
-                        'formSubmissions:notificationFailedDetail'
-                      )}
+                      notificationIssue={openRow.notificationIssue}
+                      notificationIssueMessage={
+                        openRow.notificationIssue
+                          ? notificationIssueMessage(
+                              t,
+                              openRow.notificationIssue
+                            )
+                          : undefined
+                      }
                     />
                   </div>
                 </>

@@ -18,10 +18,12 @@ import { FormNotificationRecipient } from './FormNotificationRecipient.client';
  * Scoped by the *form's own* tenant, not the admin's currently selected
  * workspace: a system-user who opens a form without having switched their
  * nav to its tenant has no tenant cookie set, and `getTenantWhere` answers
- * that with an unscoped query — which would show whichever tenant's site
- * settings happen to sort first, not the one this form actually belongs to.
- * Falls back to the session-based lookup only for a brand new, unsaved form
- * that has no tenant yet.
+ * that with `undefined` rather than the form's actual tenant. Falls back to
+ * the session-based lookup only for a brand new, unsaved form that has no
+ * tenant yet — but when even that comes back empty, there is no reliable
+ * scope to query with, and an unscoped `where: {}` would show whichever
+ * tenant's site settings happen to sort first: actively wrong, not merely
+ * empty. Rendering nothing is the honest answer in that case.
  */
 const FormNotificationRecipientField: UIFieldServerComponent = async ({
   data,
@@ -33,9 +35,13 @@ const FormNotificationRecipientField: UIFieldServerComponent = async ({
     ? { tenant: { equals: formTenantId } }
     : await getTenantWhere(user);
 
+  if (!tenantWhere) {
+    return null;
+  }
+
   const { docs } = await payload.find({
     collection: 'site-settings',
-    where: tenantWhere ?? {},
+    where: tenantWhere,
     depth: 0,
     limit: 1,
     overrideAccess: false,

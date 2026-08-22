@@ -32,6 +32,9 @@ export const recordDeliveryStatus: CollectionAfterChangeHook<
     // The form has notification emails, but `beforeEmail` never ran (or
     // never left an outcome) — leave it null and log rather than record
     // something that did not happen
+    req.payload.logger.warn(
+      `[email] No notification outcome recorded for form submission ${doc.id} — its form has notification emails, so one was expected`
+    );
     return doc;
   }
 

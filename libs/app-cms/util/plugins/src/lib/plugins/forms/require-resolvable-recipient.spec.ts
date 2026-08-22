@@ -105,6 +105,20 @@ describe('requireResolvableRecipient', () => {
     ).rejects.toThrow('validation:formNeedsRecipient');
   });
 
+  it('allows an update that explicitly clears an unaddressed email', async () => {
+    // `emails: null` is the caller clearing the field, not omitting it — the
+    // original's unaddressed email must not still be judged against
+    const data = { emails: null };
+
+    await expect(
+      invoke(data, {
+        operation: 'update',
+        originalDoc: { tenant: 1, emails: [email(undefined)] }
+      })
+    ).resolves.toEqual(data);
+    expect(find).not.toHaveBeenCalled();
+  });
+
   it('leaves a missing tenant to its own required validation', async () => {
     const data = { emails: [email(undefined)] };
 

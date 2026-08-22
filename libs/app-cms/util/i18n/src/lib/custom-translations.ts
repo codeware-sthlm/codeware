@@ -410,7 +410,7 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
       notificationRecipient:
         'An email left without "Email To" will go to: {{recipients}}',
       notificationRecipientMissing:
-        'An email left without "Email To" has nowhere to go — this workspace has no generic recipient set.',
+        'An email left without "Email To" has nowhere to go — this workspace has no generic recipient set. Remove this notification email if none is wanted.',
       notificationSettingsLink: 'Set a generic recipient in Site Settings'
     },
     formSubmissions: {
@@ -428,7 +428,7 @@ export const customTranslations: Record<'en' | 'sv', CustomTranslations> = {
         'The notification email for this message could not be delivered.',
       notificationNoRecipient: 'No recipient',
       notificationNoRecipientDetail:
-        "This message's notification email had no recipient to send to — check the form's or workspace's notification settings.",
+        "This message's notification email had no recipient to send to — check the form's or workspace's notification settings, or remove the notification email from the form if none is wanted.",
       orphanedField: 'This field is no longer part of the form',
       pageOf: 'Page {{page}} of {{total}}',
       received: 'Received {{when}}',
@@ -610,7 +610,7 @@ You can assign multiple tags to a file.`,
         'Only one domain per app can be the primary one. "{{app}}" has several.',
       domainTaken: '"{{hostname}}" already belongs to {{owner}}.',
       formNeedsRecipient:
-        'One of the notification emails has no "Email To", and this workspace has no generic recipient set. Add one here, or set a generic recipient in Site Settings → Forms.',
+        'One of the notification emails has no "Email To", and this workspace has no generic recipient set. Add one here, set a generic recipient in Site Settings → Forms, or remove this notification email if none is wanted.',
       labelNameTaken: 'A "{{type}}" label named "{{name}}" already exists.',
       labelNotFound: 'The selected label no longer exists.',
       labelWrongType: 'Expected a "{{expected}}" label but got "{{actual}}".',
@@ -740,7 +740,7 @@ Supported locales: {{locales}}`,
       notificationRecipient:
         'Ett mejl utan "E-post till" går till: {{recipients}}',
       notificationRecipientMissing:
-        'Ett mejl utan "E-post till" har ingenstans att ta vägen — arbetsytan saknar en allmän mottagare.',
+        'Ett mejl utan "E-post till" har ingenstans att ta vägen — arbetsytan saknar en allmän mottagare. Ta bort notismejlet om inget behövs.',
       notificationSettingsLink:
         'Ange en allmän mottagare i Webbplatsinställningar'
     },
@@ -759,7 +759,7 @@ Supported locales: {{locales}}`,
         'Meddelandets e-postavisering kunde inte levereras.',
       notificationNoRecipient: 'Ingen mottagare',
       notificationNoRecipientDetail:
-        'Meddelandets e-postavisering saknade en mottagare att skickas till — kontrollera formulärets eller arbetsytans aviseringsinställningar.',
+        'Meddelandets e-postavisering saknade en mottagare att skickas till — kontrollera formulärets eller arbetsytans aviseringsinställningar, eller ta bort notismejlet från formuläret om inget behövs.',
       orphanedField: 'Fältet ingår inte längre i formuläret',
       pageOf: 'Sida {{page}} av {{total}}',
       received: 'Mottaget {{when}}',
@@ -941,7 +941,7 @@ Du kan tilldela flera etiketter till en fil.`,
         'Bara en domän per app kan vara den primära. "{{app}}" har flera.',
       domainTaken: '"{{hostname}}" tillhör redan {{owner}}.',
       formNeedsRecipient:
-        'Ett av notismejlen saknar "E-post till", och arbetsytan har ingen allmän mottagare inställd. Ange en här, eller ange en allmän mottagare i Webbplatsinställningar → Formulär.',
+        'Ett av notismejlen saknar "E-post till", och arbetsytan har ingen allmän mottagare inställd. Ange en här, ange en allmän mottagare i Webbplatsinställningar → Formulär, eller ta bort det här notismejlet om inget behövs.',
       labelNameTaken:
         'Det finns redan en etikett av typen "{{type}}" med namnet "{{name}}".',
       labelNotFound: 'Den valda etiketten finns inte längre.',

@@ -42,10 +42,13 @@ const paragraph = (text: string) => ({
  * has a form that really sends mail, so a broken mail setup shows up by using
  * the site instead of by reading logs.
  *
- * `emailFrom` and `emailTo` are deliberately left empty. The plugin falls back
- * to the configured default sender for both, so the form needs no per-tenant
+ * `emailFrom` and `emailTo` are deliberately left empty. `emailFrom` falls
+ * back to the configured default sender, so the form needs no per-tenant
  * address and follows whatever transport the environment resolved — Mailpit
- * locally, Mailtrap on preview, SendGrid in production.
+ * locally, Mailtrap on preview, SendGrid in production. `emailTo` falls back
+ * to the tenant's generic recipient in site settings instead — seeded
+ * alongside this form (see `ensureSiteSetting`'s `forms.notificationRecipients`)
+ * so the two exercise that exact fallback rather than fighting it.
  *
  * @param payload - Payload instance
  * @param data - Form data

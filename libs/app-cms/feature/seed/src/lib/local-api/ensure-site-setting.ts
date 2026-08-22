@@ -4,13 +4,13 @@ import type { Payload, TypedLocale } from 'payload';
 
 export type SiteSettingData = Pick<
   SiteSetting,
-  'footer' | 'general' | 'tenant'
+  'footer' | 'forms' | 'general' | 'tenant'
 >;
 
 /**
  * Ensure that a site setting exist with the given tenant.
  *
- * Update general and footer setting values when missing.
+ * Update general, footer and forms setting values when missing.
  *
  * @param payload - Payload instance
  * @param data - Site setting data
@@ -23,7 +23,12 @@ export async function ensureSiteSetting(
   options: { locale: TypedLocale; transactionID: string | number | undefined }
 ): Promise<SiteSetting | number> {
   const { locale, transactionID } = options;
-  const { footer: footerFromProps, general: generalFromProps, tenant } = data;
+  const {
+    footer: footerFromProps,
+    forms: formsFromProps,
+    general: generalFromProps,
+    tenant
+  } = data;
 
   if (!tenant) {
     throw new Error('Tenant is required');
@@ -41,13 +46,22 @@ export async function ensureSiteSetting(
   });
 
   if (siteSettings.totalDocs) {
-    const { footer, general, id } = siteSettings.docs[0];
+    const { footer, forms, general, id } = siteSettings.docs[0];
 
     // Footer columns have database defaults, so a footer left untouched still
     // has values — seeded content is what tells the two apart
     const hasFooterContent = !!footer?.tagline || !!footer?.contact?.length;
+    // Without this, the seeded contact form's own empty `emailTo` — deliberate,
+    // to exercise the fallback chain — has nowhere to fall back to, and
+    // `requireResolvableRecipient` refuses to save it
+    const hasFormsContent = !!forms?.notificationRecipients?.length;
 
-    if (general.appName && general.landingPage && hasFooterContent) {
+    if (
+      general.appName &&
+      general.landingPage &&
+      hasFooterContent &&
+      hasFormsContent
+    ) {
       return id;
     }
 
@@ -64,6 +78,12 @@ export async function ensureSiteSetting(
           showVersion: footer?.showVersion ?? footerFromProps?.showVersion,
           tagline: footer?.tagline ?? footerFromProps?.tagline,
           variant: footer?.variant ?? footerFromProps?.variant
+        },
+        forms: {
+          ...forms,
+          notificationRecipients: forms?.notificationRecipients?.length
+            ? forms.notificationRecipients
+            : formsFromProps?.notificationRecipients
         },
         general: {
           ...general,
@@ -84,6 +104,7 @@ export async function ensureSiteSetting(
     collection: 'site-settings',
     data: {
       footer: footerFromProps,
+      forms: formsFromProps,
       general: generalFromProps,
       tenant
     },

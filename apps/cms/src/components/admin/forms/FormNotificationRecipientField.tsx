@@ -1,4 +1,4 @@
-import { hasNoAdminRoles } from '@codeware/app-cms/util/misc';
+import { getId, hasNoAdminRoles } from '@codeware/app-cms/util/misc';
 import type { UIFieldServerComponent } from 'payload';
 import React from 'react';
 
@@ -14,12 +14,24 @@ import { FormNotificationRecipient } from './FormNotificationRecipient.client';
  * The tenant setting lives in a separate document (site settings), so a page
  * load is the right granularity for reading it: no client fetch, no new
  * endpoint. Only the decision of when to surface it needs to be reactive.
+ *
+ * Scoped by the *form's own* tenant, not the admin's currently selected
+ * workspace: a system-user who opens a form without having switched their
+ * nav to its tenant has no tenant cookie set, and `getTenantWhere` answers
+ * that with an unscoped query — which would show whichever tenant's site
+ * settings happen to sort first, not the one this form actually belongs to.
+ * Falls back to the session-based lookup only for a brand new, unsaved form
+ * that has no tenant yet.
  */
 const FormNotificationRecipientField: UIFieldServerComponent = async ({
+  data,
   payload,
   user
 }) => {
-  const tenantWhere = await getTenantWhere(user);
+  const formTenantId = getId(data?.['tenant']);
+  const tenantWhere = formTenantId
+    ? { tenant: { equals: formTenantId } }
+    : await getTenantWhere(user);
 
   const { docs } = await payload.find({
     collection: 'site-settings',

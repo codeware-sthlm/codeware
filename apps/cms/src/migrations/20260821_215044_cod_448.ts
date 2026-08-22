@@ -23,6 +23,7 @@ export async function down({
 }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    DROP TABLE "payload"."site_settings_forms_notification_recipients" CASCADE;
+  UPDATE "payload"."form_submissions" SET "notification_status" = NULL WHERE "notification_status" IN ('not-configured', 'no-recipient');
   ALTER TABLE "payload"."form_submissions" ALTER COLUMN "notification_status" SET DATA TYPE text;
   DROP TYPE "payload"."enum_form_submissions_notification_status";
   CREATE TYPE "payload"."enum_form_submissions_notification_status" AS ENUM('sent', 'failed');

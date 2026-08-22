@@ -1,17 +1,22 @@
-import { mapToRuntime } from '@codeware/app-cms/data-access';
+import {
+  getSiteSettingsForTenant,
+  mapToRuntime
+} from '@codeware/app-cms/data-access';
 import { customT } from '@codeware/app-cms/util/i18n';
-import { hasNoAdminRoles } from '@codeware/app-cms/util/misc';
-import type { Page } from '@codeware/shared/util/payload-types';
+import { getId, hasNoAdminRoles } from '@codeware/app-cms/util/misc';
+import type { Page, Tour } from '@codeware/shared/util/payload-types';
 import type { I18nClient } from '@payloadcms/translations';
 import Link from 'next/link';
 import type { Payload, TypedUser } from 'payload';
 import React from 'react';
 
-import { getTenantWhere } from '../utils/tenant-where';
+import { getSingleTenantId } from '../utils/tenant-where';
 
 type Props = {
   i18n: I18nClient;
   payload: Payload;
+  /** The tour's own tenant, when it has one saved yet */
+  tenant: Tour['tenant'];
   user: TypedUser | null | undefined;
 };
 
@@ -33,27 +38,34 @@ const describe = (
  * signups — the settings themselves live elsewhere, and a privacy page that
  * was never published is invisible from here otherwise. It is the one part of
  * the signup flow that is configured once and then easy to forget.
+ *
+ * Scoped by the *tour's own* tenant, not the admin's currently selected
+ * workspace: a system-user who opens a tour without having switched their
+ * nav to its tenant has no tenant cookie set, and the session alone can't
+ * say which tenant's settings apply. Falls back to a single unambiguous
+ * tenant only when the tour has none yet, and renders nothing when even
+ * that is ambiguous, rather than guess.
  */
 export const LegalPagesStatus: React.FC<Props> = async ({
   i18n,
   payload,
+  tenant,
   user
 }) => {
   const t = customT(i18n.t);
-  const runtime = mapToRuntime(payload, user ?? null);
-  const tenantWhere = await getTenantWhere(user);
 
-  const { docs } = await runtime.payload.find({
-    collection: 'site-settings',
-    where: tenantWhere ?? {},
-    depth: 1,
-    limit: 1,
-    overrideAccess: false,
-    user: user ?? undefined,
-    disableErrors: true
+  const tourTenantId = getId(tenant);
+  const tenantId = tourTenantId || (await getSingleTenantId(user));
+
+  if (!tenantId) {
+    return null;
+  }
+
+  const runtime = mapToRuntime(payload, user ?? null);
+  const settings = await getSiteSettingsForTenant(runtime, tenantId, {
+    depth: 1
   });
 
-  const settings = docs[0];
   const privacy = describe(settings?.tourSignups?.privacyPage);
   const terms = describe(settings?.tourSignups?.termsPage);
 

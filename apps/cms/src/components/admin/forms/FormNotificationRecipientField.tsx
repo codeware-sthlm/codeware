@@ -1,8 +1,12 @@
+import {
+  getSiteSettingsForTenant,
+  mapToRuntime
+} from '@codeware/app-cms/data-access';
 import { getId, hasNoAdminRoles } from '@codeware/app-cms/util/misc';
 import type { UIFieldServerComponent } from 'payload';
 import React from 'react';
 
-import { getTenantWhere } from '../utils/tenant-where';
+import { getSingleTenantId } from '../utils/tenant-where';
 
 import { FormNotificationRecipient } from './FormNotificationRecipient.client';
 
@@ -17,13 +21,10 @@ import { FormNotificationRecipient } from './FormNotificationRecipient.client';
  *
  * Scoped by the *form's own* tenant, not the admin's currently selected
  * workspace: a system-user who opens a form without having switched their
- * nav to its tenant has no tenant cookie set, and `getTenantWhere` answers
- * that with `undefined` rather than the form's actual tenant. Falls back to
- * the session-based lookup only for a brand new, unsaved form that has no
- * tenant yet — but when even that comes back empty, there is no reliable
- * scope to query with, and an unscoped `where: {}` would show whichever
- * tenant's site settings happen to sort first: actively wrong, not merely
- * empty. Rendering nothing is the honest answer in that case.
+ * nav to its tenant has no tenant cookie set, and the session alone can't
+ * say which tenant's settings apply. Falls back to a single unambiguous
+ * tenant only for a brand new, unsaved form that has no tenant yet — and
+ * renders nothing when even that is ambiguous, rather than guess.
  */
 const FormNotificationRecipientField: UIFieldServerComponent = async ({
   data,
@@ -31,25 +32,15 @@ const FormNotificationRecipientField: UIFieldServerComponent = async ({
   user
 }) => {
   const formTenantId = getId(data?.['tenant']);
-  const tenantWhere = formTenantId
-    ? { tenant: { equals: formTenantId } }
-    : await getTenantWhere(user);
+  const tenantId = formTenantId || (await getSingleTenantId(user));
 
-  if (!tenantWhere) {
+  if (!tenantId) {
     return null;
   }
 
-  const { docs } = await payload.find({
-    collection: 'site-settings',
-    where: tenantWhere,
-    depth: 0,
-    limit: 1,
-    overrideAccess: false,
-    user: user ?? undefined,
-    disableErrors: true
-  });
+  const runtime = mapToRuntime(payload, user ?? null);
+  const settings = await getSiteSettingsForTenant(runtime, tenantId);
 
-  const settings = docs[0];
   const recipients = (settings?.forms?.notificationRecipients ?? [])
     .map((entry) => entry.email)
     .filter(Boolean);

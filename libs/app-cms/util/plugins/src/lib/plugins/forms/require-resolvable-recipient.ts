@@ -27,7 +27,13 @@ export const requireResolvableRecipient: CollectionBeforeValidateHook<
     return data;
   }
 
-  const emails = data?.emails ?? originalDoc?.emails ?? [];
+  // `data.emails` is `undefined` when the update omits the field (fall back
+  // to the saved value) but `null` when it explicitly clears it — clearing
+  // is exactly the "no notifications for this form" case, and treating it
+  // the same as omitted would judge the update against a stale array and
+  // could block a save that removes the last unaddressed email on purpose
+  const emails =
+    (data?.emails !== undefined ? data.emails : originalDoc?.emails) ?? [];
   const hasUnaddressedEmail = emails.some((email) => !email.emailTo);
 
   if (!hasUnaddressedEmail) {

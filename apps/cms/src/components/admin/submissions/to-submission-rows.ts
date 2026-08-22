@@ -1,6 +1,7 @@
 import type { Form, FormSubmission } from '@codeware/shared/util/payload-types';
 import { resolveSubmissionFields } from '@codeware/shared/util/payload-utils';
 
+import { toNotificationIssue } from './notification-issue';
 import type { SubmissionListItem } from './types';
 
 /**
@@ -33,7 +34,7 @@ export function toSubmissionRows(
       formTitle: form?.title ?? null,
       receivedAt: submission.createdAt,
       read: Boolean(submission.readAt),
-      notificationFailed: submission.notificationStatus === 'failed',
+      notificationIssue: toNotificationIssue(submission.notificationStatus),
       fields: resolveSubmissionFields(form, submission.submissionData)
     };
   });

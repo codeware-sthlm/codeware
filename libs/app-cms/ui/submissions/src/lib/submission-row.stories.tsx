@@ -51,8 +51,18 @@ export const List: StoryObj = {
         receivedAt="2026-07-27T10:00:00.000Z"
         read
         unreadLabel="Unread"
-        notificationFailed
-        notificationFailedLabel="Not delivered"
+        notificationIssue="failed"
+        notificationIssueLabel="Not delivered"
+      />
+      <SubmissionRow
+        formTitle="Newsletter signup"
+        preview="lena@example.se"
+        receivedLabel="3 weeks ago"
+        receivedAt="2026-07-20T10:00:00.000Z"
+        read
+        unreadLabel="Unread"
+        notificationIssue="no-recipient"
+        notificationIssueLabel="No recipient"
       />
     </div>
   )

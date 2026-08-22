@@ -4,11 +4,13 @@ import type { FormSubmission } from '@codeware/shared/util/payload-types';
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder';
 import type { Access } from 'payload';
 
+import { applyDefaultRecipient } from './forms/apply-default-recipient';
 import { applyDefaultSender } from './forms/apply-default-sender';
 import { attachSubmissionId } from './forms/attach-submission-id';
 import { customizedFields } from './forms/customized-fields';
 import { formFields } from './forms/form-fields';
 import { recordDeliveryStatus } from './forms/record-delivery-status';
+import { requireResolvableRecipient } from './forms/require-resolvable-recipient';
 import { submissionCreateAccess } from './forms/submission-create-access';
 import { submissionFields } from './forms/submission-fields';
 import { verifyFormTenant } from './forms/verify-form-tenant';
@@ -31,7 +33,13 @@ type Options = {
 export const getFormsPlugin = ({ access }: Options) => {
   return formBuilderPlugin({
     beforeEmail: async (emails, params) =>
-      attachSubmissionId(await applyDefaultSender(emails, params), params),
+      attachSubmissionId(
+        await applyDefaultRecipient(
+          await applyDefaultSender(emails, params),
+          params
+        ),
+        params
+      ),
     fields: {
       ...customizedFields,
       // Disable unsupported form fields
@@ -56,6 +64,9 @@ export const getFormsPlugin = ({ access }: Options) => {
           en: 'Build contact and signup forms to place on your pages.',
           sv: 'Bygg kontakt- och anmälningsformulär att placera på dina sidor.'
         }
+      },
+      hooks: {
+        beforeValidate: [requireResolvableRecipient]
       }
     },
     formSubmissionOverrides: {

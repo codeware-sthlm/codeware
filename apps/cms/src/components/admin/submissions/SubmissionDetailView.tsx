@@ -9,6 +9,10 @@ import type { DocumentViewServerProps, TypedLocale } from 'payload';
 import React from 'react';
 
 import { MarkReadOnMount } from './MarkReadOnMount.client';
+import {
+  notificationIssueMessage,
+  toNotificationIssue
+} from './notification-issue';
 
 /**
  * Read-only document view for a single form submission.
@@ -46,6 +50,7 @@ const SubmissionDetailView: React.FC<DocumentViewServerProps> = async ({
 
   const fields = resolveSubmissionFields(form, submission.submissionData);
   const title = form?.title ?? t('formSubmissions:deletedForm');
+  const notificationIssue = toNotificationIssue(submission.notificationStatus);
 
   const collectionLabel = getTranslation(
     collectionConfig?.labels?.plural ?? slug,
@@ -89,10 +94,12 @@ const SubmissionDetailView: React.FC<DocumentViewServerProps> = async ({
             fields={fields}
             emptyLabel={t('formSubmissions:noValues')}
             orphanedLabel={t('formSubmissions:orphanedField')}
-            notificationFailed={submission.notificationStatus === 'failed'}
-            notificationFailedMessage={t(
-              'formSubmissions:notificationFailedDetail'
-            )}
+            notificationIssue={notificationIssue}
+            notificationIssueMessage={
+              notificationIssue
+                ? notificationIssueMessage(t, notificationIssue)
+                : undefined
+            }
           />
         </div>
       </Gutter>

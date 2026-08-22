@@ -19,10 +19,39 @@ const submissions: Field = {
 };
 
 /**
+ * States the tenant's generic notification recipient, or warns there is
+ * none, whenever a notification email is left unaddressed.
+ *
+ * Sits directly above the plugin's own `emails` array — the editor is
+ * already looking there when deciding whether to fill in "Email To".
+ */
+const notificationRecipientHint: Field = {
+  name: 'notificationRecipientHint',
+  type: 'ui',
+  admin: {
+    components: {
+      Field:
+        '@codeware/apps/cms/components/admin/forms/FormNotificationRecipientField'
+    }
+  }
+};
+
+/**
  * Extend the plugin's form fields with our own.
  */
 export const formFields = ({
   defaultFields
 }: {
   defaultFields: Field[];
-}): Field[] => [...defaultFields, submissions];
+}): Field[] => {
+  const fields = [...defaultFields, submissions];
+
+  const emailsIndex = defaultFields.findIndex(
+    (field) => 'name' in field && field.name === 'emails'
+  );
+  if (emailsIndex >= 0) {
+    fields.splice(emailsIndex, 0, notificationRecipientHint);
+  }
+
+  return fields;
+};

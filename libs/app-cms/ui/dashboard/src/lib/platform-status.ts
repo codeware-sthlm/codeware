@@ -101,6 +101,11 @@ export type MailDeliveryFailure = {
   receivedAt: string;
   /** Admin url of the submission */
   href: string;
+  /**
+   * Why the notification counts as a failure — an outage the transport
+   * rejected, or a misconfiguration that left it nowhere to go.
+   */
+  reason: 'failed' | 'no-recipient';
 };
 
 /**
@@ -113,9 +118,13 @@ export type MailDeliveryFailure = {
  * to avoid.
  */
 export type MailDeliveryFacts = {
-  /** Notification sends with a known outcome, in the window */
+  /**
+   * Notification sends with a known outcome, in the window — excludes
+   * `not-configured`, since a form with no notification set up was never a
+   * send to begin with, and counting it would dilute the denominator
+   */
   total: number;
-  /** How many of those failed to deliver */
+  /** How many of those failed to deliver, or had nowhere to go */
   failed: number;
   /** The failures themselves, most recent first */
   failures: Array<MailDeliveryFailure>;

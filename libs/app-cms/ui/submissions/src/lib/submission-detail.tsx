@@ -11,10 +11,14 @@ export type SubmissionDetailProps = {
   emptyLabel: string;
   /** Tooltip explaining a value whose form field no longer exists */
   orphanedLabel: string;
-  /** The submission's notification email failed to send */
-  notificationFailed?: boolean;
-  /** Shown in the alert when `notificationFailed` is set */
-  notificationFailedMessage?: string;
+  /**
+   * The submission's notification email did not go as expected — undelivered
+   * by the transport, or misconfigured with nowhere to go. Undefined when
+   * nothing was expected or it went fine.
+   */
+  notificationIssue?: 'failed' | 'no-recipient';
+  /** Shown in the alert when `notificationIssue` is set */
+  notificationIssueMessage?: string;
 };
 
 /**
@@ -30,13 +34,13 @@ export function SubmissionDetail({
   fields,
   emptyLabel,
   orphanedLabel,
-  notificationFailed,
-  notificationFailedMessage
+  notificationIssue,
+  notificationIssueMessage
 }: SubmissionDetailProps) {
-  const notice = notificationFailed && (
+  const notice = notificationIssue && (
     <Alert variant="destructive">
       <ExclamationTriangleIcon />
-      <AlertDescription>{notificationFailedMessage}</AlertDescription>
+      <AlertDescription>{notificationIssueMessage}</AlertDescription>
     </Alert>
   );
 

@@ -1,5 +1,7 @@
 import type { ResolvedSubmissionField } from '@codeware/shared/util/payload-utils';
 
+import type { NotificationIssue } from './notification-issue';
+
 /** One submission, flattened for display. */
 export type SubmissionListItem = {
   id: number;
@@ -9,8 +11,8 @@ export type SubmissionListItem = {
   /** ISO timestamp the submission was received */
   receivedAt: string;
   read: boolean;
-  /** The notification email for this submission failed to send */
-  notificationFailed: boolean;
+  /** What went wrong with this submission's notification email, if anything */
+  notificationIssue?: NotificationIssue;
   /** Values in the parent form's field order, labelled by it */
   fields: Array<ResolvedSubmissionField>;
 };

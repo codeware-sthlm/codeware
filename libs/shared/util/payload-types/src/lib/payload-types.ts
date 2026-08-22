@@ -1647,6 +1647,7 @@ export interface SiteSetting {
   general: SiteSettingsGeneral;
   footer?: SiteSettingsFooter;
   tourSignups?: SiteSettingsTourSignups;
+  forms?: SiteSettingsForms;
   updatedAt: string;
   createdAt: string;
 }
@@ -1794,6 +1795,23 @@ export interface SiteSettingsTourSignups {
    * Names, emails and phone numbers are cleared this long after the tour departs. Party sizes and statuses are kept. This number is also what customers are told on the signup form.
    */
   retentionDays?: number | null;
+}
+/**
+ * Where form notification emails go when a form does not name its own recipient.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsForms".
+ */
+export interface SiteSettingsForms {
+  /**
+   * Used by any form whose own "Email To" is empty. Leave empty and such a form cannot be saved.
+   */
+  notificationRecipients?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
 }
 /**
  * Shared images provided by the platform, free for any workspace to use. Upload your own photos under Media when you need a specific place.
@@ -2060,7 +2078,9 @@ export interface FormSubmission {
       }[]
     | null;
   readAt?: string | null;
-  notificationStatus?: ('sent' | 'failed') | null;
+  notificationStatus?:
+    | ('not-configured' | 'no-recipient' | 'sent' | 'failed')
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2569,6 +2589,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   general?: T | SiteSettingsGeneralSelect<T>;
   footer?: T | SiteSettingsFooterSelect<T>;
   tourSignups?: T | SiteSettingsTourSignupsSelect<T>;
+  forms?: T | SiteSettingsFormsSelect<T>;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2640,6 +2661,18 @@ export interface SiteSettingsTourSignupsSelect<T extends boolean = true> {
   privacyPage?: T;
   termsPage?: T;
   retentionDays?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SiteSettingsForms_select".
+ */
+export interface SiteSettingsFormsSelect<T extends boolean = true> {
+  notificationRecipients?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

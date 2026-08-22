@@ -1,3 +1,6 @@
+import { Badge } from '@codeware/shared/ui/shadcn/components/badge';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+
 import type { LinkComponent } from './types';
 
 export type MailFailureRowProps = {
@@ -5,6 +8,13 @@ export type MailFailureRowProps = {
   formTitle: string;
   /** Which workspace the submission belongs to */
   owner: string;
+  /**
+   * Why this counts as a failure — an outage the transport rejected, or a
+   * misconfiguration that left it nowhere to go. Drives the badge's tone.
+   */
+  reason: 'failed' | 'no-recipient';
+  /** Pre-translated text for the badge */
+  reasonLabel: string;
   /** Pre-formatted relative time, e.g. `2 hours ago` */
   receivedLabel: string;
   /** ISO timestamp behind `receivedLabel`, for the `<time>` element */
@@ -18,12 +28,17 @@ export type MailFailureRowProps = {
  * One undelivered form submission, linking straight to it.
  *
  * Mirrors `DomainStatusRow`'s layout — a title and a muted subline on the
- * left, a fact on the right — so the two sheets this dashboard opens read as
- * one family rather than two different tables.
+ * left, a badge on the right — so the two sheets this dashboard opens read as
+ * one family rather than two different tables. `failed` reads as an outage
+ * (destructive, matching `DomainStatusBadge`'s `paused`); `no-recipient` is a
+ * settings problem the admin can fix themselves, tinted like the same
+ * component's `pending` rather than alarmed like an outage.
  */
 export function MailFailureRow({
   formTitle,
   owner,
+  reason,
+  reasonLabel,
   receivedLabel,
   receivedAt,
   href,
@@ -38,12 +53,25 @@ export function MailFailureRow({
         <p className="truncate text-sm font-medium">{formTitle}</p>
         <p className="text-muted-foreground truncate text-xs">{owner}</p>
       </div>
-      <time
-        dateTime={receivedAt}
-        className="text-muted-foreground shrink-0 text-xs"
-      >
-        {receivedLabel}
-      </time>
+      <div className="flex shrink-0 items-center gap-2">
+        {reason === 'failed' ? (
+          <Badge variant="destructive">
+            <ExclamationTriangleIcon />
+            {reasonLabel}
+          </Badge>
+        ) : (
+          <Badge
+            variant="outline"
+            className="border-(--warning-subtle)/30 text-(--warning-subtle)"
+          >
+            <ExclamationTriangleIcon />
+            {reasonLabel}
+          </Badge>
+        )}
+        <time dateTime={receivedAt} className="text-muted-foreground text-xs">
+          {receivedLabel}
+        </time>
+      </div>
     </LinkComp>
   );
 }

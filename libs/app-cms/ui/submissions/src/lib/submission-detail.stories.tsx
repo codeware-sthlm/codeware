@@ -79,8 +79,8 @@ export const NotificationFailed: StoryObj = {
       <SubmissionDetail
         emptyLabel="This message has no values."
         orphanedLabel={orphanedLabel}
-        notificationFailed
-        notificationFailedMessage="The notification email for this message could not be delivered."
+        notificationIssue="failed"
+        notificationIssueMessage="The notification email for this message could not be delivered."
         fields={[
           {
             name: 'name',
@@ -92,6 +92,27 @@ export const NotificationFailed: StoryObj = {
             name: 'email',
             label: 'Email',
             value: 'erik@example.se',
+            orphaned: false
+          }
+        ]}
+      />
+    </div>
+  )
+};
+
+export const NotificationNoRecipient: StoryObj = {
+  render: () => (
+    <div className="bg-card border-border w-[34rem] rounded-xl border p-4">
+      <SubmissionDetail
+        emptyLabel="This message has no values."
+        orphanedLabel={orphanedLabel}
+        notificationIssue="no-recipient"
+        notificationIssueMessage="This message's notification email had no recipient to send to — check the form's or workspace's notification settings."
+        fields={[
+          {
+            name: 'email',
+            label: 'Email',
+            value: 'lena@example.se',
             orphaned: false
           }
         ]}

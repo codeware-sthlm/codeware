@@ -1,5 +1,18 @@
-/** What a notification send resolved to, before it is written down */
-export type DeliveryOutcome = 'sent' | 'failed';
+/**
+ * What a notification send resolved to, before it is written down.
+ *
+ * `not-configured` never reaches this module — a form with no notification
+ * emails never calls `beforeEmail` at all, so `recordDeliveryStatus` decides
+ * that case itself when it finds no outcome waiting.
+ */
+export type DeliveryOutcome = 'no-recipient' | 'sent' | 'failed';
+
+/** Worse outcomes win when a submission fires more than one notification email */
+const severity: Record<DeliveryOutcome, number> = {
+  sent: 0,
+  'no-recipient': 1,
+  failed: 2
+};
 
 /**
  * Send outcomes waiting to be written to their submission.
@@ -15,9 +28,20 @@ export type DeliveryOutcome = 'sent' | 'failed';
  */
 const outcomes = new Map<number, DeliveryOutcome>();
 
-/** Called by the adapter wrap, once per notification send */
+/**
+ * Called by the adapter wrap or `applyDefaultRecipient`, once per
+ * notification email.
+ *
+ * A submission can fire more than one notification email (a form can list
+ * several), so a later `sent` must not overwrite an earlier `failed` or
+ * `no-recipient` — the worse outcome is the one that describes the
+ * submission as a whole.
+ */
 export const recordOutcome = (id: number, outcome: DeliveryOutcome): void => {
-  outcomes.set(id, outcome);
+  const current = outcomes.get(id);
+  if (!current || severity[outcome] > severity[current]) {
+    outcomes.set(id, outcome);
+  }
 };
 
 /**

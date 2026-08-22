@@ -4,6 +4,7 @@ import type {
   TranslationsKeys,
   TranslationsObject
 } from '@codeware/app-cms/util/i18n';
+import { isBlank } from '@codeware/shared/util/pure';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useFormFields, useTranslation } from '@payloadcms/ui';
 import Link from 'next/link';
@@ -38,7 +39,8 @@ export const FormNotificationRecipient: React.FC<Props> = ({
 
   const missingRecipient = useFormFields(([fields]) =>
     Object.entries(fields).some(
-      ([path, field]) => EMAIL_TO_PATH.test(path) && !field?.value
+      ([path, field]) =>
+        EMAIL_TO_PATH.test(path) && isBlank(field?.value as string | undefined)
     )
   );
 

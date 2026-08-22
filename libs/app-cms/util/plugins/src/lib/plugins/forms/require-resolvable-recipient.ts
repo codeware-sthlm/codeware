@@ -1,6 +1,7 @@
 import { customT } from '@codeware/app-cms/util/i18n';
 import { getId } from '@codeware/app-cms/util/misc';
 import type { Form } from '@codeware/shared/util/payload-types';
+import { isBlank } from '@codeware/shared/util/pure';
 import { APIError, type CollectionBeforeValidateHook } from 'payload';
 
 /**
@@ -34,7 +35,7 @@ export const requireResolvableRecipient: CollectionBeforeValidateHook<
   // could block a save that removes the last unaddressed email on purpose
   const emails =
     (data?.emails !== undefined ? data.emails : originalDoc?.emails) ?? [];
-  const hasUnaddressedEmail = emails.some((email) => !email.emailTo);
+  const hasUnaddressedEmail = emails.some((email) => isBlank(email.emailTo));
 
   if (!hasUnaddressedEmail) {
     return data;

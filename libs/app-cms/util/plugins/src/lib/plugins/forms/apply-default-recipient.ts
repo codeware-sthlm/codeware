@@ -1,4 +1,5 @@
 import { getId } from '@codeware/app-cms/util/misc';
+import { isBlank } from '@codeware/shared/util/pure';
 import type {
   BeforeEmail,
   FormattedEmail
@@ -54,7 +55,9 @@ export const applyDefaultRecipient: BeforeEmail = async (emails, params) => {
   }
 
   const formEmails = form.emails ?? [];
-  const needsTenantRecipients = formEmails.some((entry) => !entry.emailTo);
+  const needsTenantRecipients = formEmails.some((entry) =>
+    isBlank(entry.emailTo)
+  );
 
   let tenantRecipients: string | null = null;
   const tenantId = getId(form.tenant);
@@ -81,7 +84,7 @@ export const applyDefaultRecipient: BeforeEmail = async (emails, params) => {
   const kept: Array<FormattedEmail> = [];
 
   emails.forEach((email, index) => {
-    if (formEmails[index]?.emailTo) {
+    if (!isBlank(formEmails[index]?.emailTo)) {
       kept.push(email);
       return;
     }

@@ -101,6 +101,23 @@ describe('applyDefaultRecipient', () => {
     expect(logger.error).toHaveBeenCalled();
   });
 
+  it('treats a whitespace-only emailTo the same as none at all', async () => {
+    findByID.mockResolvedValue({
+      id: 1,
+      tenant: 5,
+      emails: [{ emailTo: '   ' }]
+    });
+    find.mockResolvedValue({
+      docs: [
+        { forms: { notificationRecipients: [{ email: 'admin@codeware.se' }] } }
+      ]
+    });
+
+    const result = await invoke([email]);
+
+    expect(result).toEqual([{ ...email, to: 'admin@codeware.se' }]);
+  });
+
   it('drops the message when the tenant has no site settings at all', async () => {
     findByID.mockResolvedValue({
       id: 1,

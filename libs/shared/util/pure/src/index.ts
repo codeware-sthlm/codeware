@@ -6,6 +6,7 @@ export * from './lib/format-day-only-date';
 export * from './lib/format-release-name';
 export * from './lib/get-active-keys';
 export * from './lib/get-sentry-sample-rate';
+export * from './lib/is-blank';
 export * from './lib/is-catcher-host';
 export * from './lib/is-object';
 export * from './lib/is-regex-pattern';

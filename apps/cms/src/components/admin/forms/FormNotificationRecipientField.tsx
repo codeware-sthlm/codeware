@@ -47,7 +47,8 @@ const FormNotificationRecipientField: UIFieldServerComponent = async ({
 
   const adminRoute = payload.config.routes?.admin ?? '/admin';
   // Site settings is one document per workspace, so the useful link is that
-  // document — the collection route has no list to land on and 404s
+  // document when it exists; the collection route falls back to Payload's
+  // own list view (with a "create" action) for the rare tenant that has none
   const settingsHref = settings
     ? `${adminRoute}/collections/site-settings/${settings.id}`
     : `${adminRoute}/collections/site-settings`;

@@ -74,6 +74,13 @@ describe('requireResolvableRecipient', () => {
     await expect(invoke(data)).rejects.toThrow('validation:formNeedsRecipient');
   });
 
+  it('treats a whitespace-only emailTo as unaddressed', async () => {
+    find.mockResolvedValue({ docs: [{}] });
+    const data = { tenant: 1, emails: [email('   ')] };
+
+    await expect(invoke(data)).rejects.toThrow('validation:formNeedsRecipient');
+  });
+
   it('refuses when the tenant has no site settings at all', async () => {
     find.mockResolvedValue({ docs: [] });
     const data = { tenant: 1, emails: [email(undefined)] };

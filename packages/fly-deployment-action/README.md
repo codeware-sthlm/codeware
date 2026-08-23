@@ -23,9 +23,6 @@ This action will manage deployments to [Fly.io](https://fly.io) of your [Nx](htt
 
 Fits perfectly with [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme) for multi-tenant setups.
 
-> [!NOTE] Architecture, multi-tenant setup, and configuration
-> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md)
-
 ## Required Application Setup
 
 Each deployable app requires:
@@ -49,9 +46,6 @@ During deployment, the action uses this priority order:
 > To disable deployment for an app, remove or rename its Fly configuration file (e.g., rename to `fly.local.toml` for manual deployments).
 
 Applications without a `github.json` file will be skipped during deployment.
-
-> [!NOTE] github.json schema, field descriptions, and examples
-> **See:** [Per-App Configuration in DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md#per-app-configuration-githubjson)
 
 ## Usage
 

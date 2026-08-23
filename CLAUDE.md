@@ -186,7 +186,7 @@ e2e/         # End-to-end tests
 
 ### Publishable Packages (`packages/`)
 
-Only these four are published to npm (see `docs/COD-405-packages-strategy.md`):
+Only these four are published to npm:
 
 | Package                   | Purpose                                                               |
 | ------------------------- | --------------------------------------------------------------------- |

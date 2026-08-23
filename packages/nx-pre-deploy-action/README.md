@@ -27,11 +27,6 @@ This action performs pre-deployment analysis for applications in an Nx workspace
 
 This action is intended to be used before the [Fly Build Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-build-action#readme) and [Fly Deployment Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-deployment-action#readme).
 
-> [!NOTE] Deployment architecture and configuration overview
-> How this action fits in the workflow.
->
-> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md)
-
 ## Features
 
 ### Environment Detection
@@ -67,9 +62,6 @@ Optionally fetches tenant secrets from Infisical to enable multi-tenant deployme
 - Each application is deployed once per tenant with isolated configuration when available
 
 Returned in `app-tenant` output.
-
-> [!NOTE] Deployment flow diagrams and architecture
-> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md#deployment-flow)
 
 ## Usage
 
@@ -262,10 +254,6 @@ Use Infisical's **secret metadata** to control whether values are treated as env
 - **Secret** (encrypted, hidden): Don't set the metadata, or set `env` to something else
 
 **Secure by default:** Everything is treated as a secret unless explicitly marked as an environment variable.
-
-> [!NOTE] Understanding deployment-time vs runtime secret loading
->
-> **See:** [Secret Loading: Deployment vs Runtime](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md#secret-loading-deployment-vs-runtime)
 
 ### 3. Deploy rules
 

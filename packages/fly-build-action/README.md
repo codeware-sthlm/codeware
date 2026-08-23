@@ -23,9 +23,6 @@ Builds Docker images for the specified Nx applications and pushes them to the Fl
 
 Separating build from deploy enables inserting steps in between — for example creating a Sentry release or running smoke tests against the built image.
 
-> [!NOTE] Architecture, multi-tenant setup, and configuration
-> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md)
-
 ## Required Application Setup
 
 Each buildable app requires a Dockerfile and one of:

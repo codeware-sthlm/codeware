@@ -21,9 +21,6 @@
 
 Tears down Fly.io applications that were created for a pull request's preview environment. Runs automatically when a PR is closed, cleaning up all preview apps associated with that PR (including multi-tenant deployments).
 
-> [!NOTE] Architecture and configuration
-> **See:** [DEPLOYMENT.md](https://github.com/codeware-sthlm/codeware/blob/main/docs/DEPLOYMENT.md)
-
 ## Usage
 
 ```yaml

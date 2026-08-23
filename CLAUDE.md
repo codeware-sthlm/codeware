@@ -180,9 +180,9 @@ e2e/         # End-to-end tests
 
 ### Applications
 
-**`apps/cms`** — Payload CMS v3 admin UI built with Next.js 15. Manages content for the multi-tenant platform. Uses PostgreSQL, S3 storage, Lexical rich text, and Sentry for error tracking.
+**`apps/cms`** — the platform itself: Payload CMS v3 on Next.js 16, serving the admin UI and the tenant-facing site from one app (`(payload)` and `(site)` route groups). **This is the preferred client for a tenant** — deployed in tenant mode it serves that tenant's site with its admin pages scoped to it. Uses PostgreSQL, S3 storage, Lexical rich text, and Sentry for error tracking.
 
-**`apps/web`** — Customer-facing web app using Remix v2 + Hono. The Hono server wraps the Remix app for a unified Node.js server. Deployed to Fly.io.
+**`apps/web`** — a technical showcase, not the default client. A Remix v2 + Hono app (Hono wraps Remix for a unified Node server) proving a second React framework can consume the headless API and render the same content through the shared `cms-renderer` components. Reach for `apps/cms` when serving a real tenant.
 
 ### Publishable Packages (`packages/`)
 
@@ -201,9 +201,8 @@ repo's own workflows via `uses: ./packages/<name>`): the GitHub Action packages
 `pr-comment-action`, `nx-pre-deploy-action`, `nx-migrate-action`. A GitHub Action is not
 consumable from npm, so these carry `private: true` and are excluded from `nx release`.
 
-> The former `@cdwr/core` was split into focused `libs/shared/util/*` libs (COD-410); it is no
-> longer a package. Do not add a package that depends on an unpublished `@codeware/*` lib — a
-> published package may only depend on other published packages or code it fully bundles.
+> Do not add a package that depends on an unpublished `@codeware/*` lib — a published package
+> may only depend on other published packages or code it fully bundles.
 
 ### Internal Libraries (`libs/`)
 
@@ -232,9 +231,14 @@ consumable from npm, so these carry `private: true` and are excluded from `nx re
 
 TypeScript path aliases are defined in `tsconfig.base.json`:
 
-- `@codeware/*` → internal libs
-- `@cdwr/*` → publishable packages
+- `@codeware/*` → internal libs, never published
+- `@cdwr/*` → publishable packages, matching the npm scope
 - `@payload-config` → `apps/cms/src/payload.config.ts`
+
+Two prefixes is deliberate, not legacy. The scope at an import site says whether you are reaching
+for a published package or for workspace-internal source, which is exactly what the
+published-dependency rule above rests on. Collapsing them onto `@cdwr` would read tidier and lose
+that signal.
 
 ### Multi-Tenant Architecture
 

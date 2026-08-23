@@ -342,7 +342,7 @@ Now Payload will run migrations automatically when starting in production mode.
 
 Just use the plugin sibling to get started from scratch.
 
-See [`create-nx-payload`](https://github.com/codeware-sthlm/cdwr/tree/master/packages/create-nx-payload/README.md) for more details.
+See [`create-nx-payload`](https://github.com/codeware-sthlm/cdwr/tree/main/packages/create-nx-payload/README.md) for more details.
 
 ## Plugin Generators
 

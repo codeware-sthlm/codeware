@@ -19,7 +19,7 @@
 
 ## Description
 
-Builds Docker images for the specified Nx applications and pushes them to the Fly registry without deploying. The resulting image references are passed to the [Fly Deployment Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-deployment-action#readme) to skip rebuilding during deployment.
+Builds Docker images for the specified Nx applications and pushes them to the Fly registry without deploying. The resulting image references are passed to the [Fly Deployment Action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/fly-deployment-action#readme) to skip rebuilding during deployment.
 
 Separating build from deploy enables inserting steps in between — for example creating a Sentry release or running smoke tests against the built image.
 
@@ -32,7 +32,7 @@ Each buildable app requires a Dockerfile and one of:
 
 ## Usage
 
-This action is designed to run after the [nx-pre-deploy-action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme). The `apps` and `environment` inputs are typically the outputs from `nx-pre-deploy-action`.
+This action is designed to run after the [nx-pre-deploy-action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/nx-pre-deploy-action#readme). The `apps` and `environment` inputs are typically the outputs from `nx-pre-deploy-action`.
 
 ```yaml
 build:

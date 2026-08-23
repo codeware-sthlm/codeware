@@ -21,7 +21,7 @@ export default async function RootLayout({
         <main className="main">{children}</main>
         <footer className="footer">
           <a
-            href="https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-payload"
+            href="https://github.com/codeware-sthlm/cdwr/tree/main/packages/nx-payload"
             rel="noopener noreferrer"
             target="_blank"
           >

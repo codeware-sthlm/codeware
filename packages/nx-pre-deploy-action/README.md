@@ -25,7 +25,7 @@ This action performs pre-deployment analysis for applications in an Nx workspace
 2. Analyzes which Nx applications that should be deployed
 3. Optionally fetches app-tenant relations and secrets from Infisical for multi-tenant deployments
 
-This action is intended to be used before the [Fly Build Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-build-action#readme) and [Fly Deployment Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-deployment-action#readme).
+This action is intended to be used before the [Fly Build Action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/fly-build-action#readme) and [Fly Deployment Action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/fly-deployment-action#readme).
 
 ## Features
 

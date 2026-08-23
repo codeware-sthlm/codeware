@@ -5,7 +5,7 @@
   "description": "The Nx Fly Build Action builds Docker images for Nx applications and pushes them to the Fly registry.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/fly-build-action"
   },
   "author": {

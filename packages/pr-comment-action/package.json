@@ -5,7 +5,7 @@
   "description": "The Nx Fly PR Comment Action posts deployment status comments to GitHub pull requests.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/pr-comment-action"
   },
   "author": {

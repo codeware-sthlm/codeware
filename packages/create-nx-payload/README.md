@@ -39,4 +39,4 @@ npx create-nx-workspace --preset @cdwr/nx-payload
 
 > It's always the latest version of `@cdwr/nx-payload` that gets installed
 
-Visit [`@cdwr/nx-payload`](https://github.com/codeware-sthlm/codeware/tree/master/packages/nx-payload/README.md) for instructions how to use the plugin and the application it generates.
+Visit [`@cdwr/nx-payload`](https://github.com/codeware-sthlm/cdwr/tree/master/packages/nx-payload/README.md) for instructions how to use the plugin and the application it generates.

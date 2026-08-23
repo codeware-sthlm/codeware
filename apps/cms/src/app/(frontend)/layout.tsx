@@ -36,7 +36,7 @@ export default async function RootLayout({
           <footer className="mx-auto flex flex-wrap justify-center gap-4 p-6 text-sm opacity-70 hover:opacity-100 hover:transition-opacity sm:flex-nowrap sm:gap-8 sm:p-8">
             <a
               className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100"
-              href="https://github.com/codeware-sthlm/codeware/tree/main/README.md"
+              href="https://github.com/codeware-sthlm/cdwr/tree/main/README.md"
               rel="noopener noreferrer"
               target="_blank"
             >

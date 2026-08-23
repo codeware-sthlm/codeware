@@ -5,7 +5,7 @@
   "description": "The Nx Fly Destroy Action removes Fly applications associated with closed pull requests.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/fly-destroy-action"
   },
   "author": {

@@ -6,7 +6,7 @@
   "description": "Quickly scaffold a new Nx workspace with a Payload CMS admin application.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/create-nx-payload"
   },
   "license": "MIT",

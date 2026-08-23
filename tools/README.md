@@ -1,4 +1,4 @@
-# Codeware Tools
+# cdwr Tools
 
 Interactive CLIs for managing deployments, databases and workspace configuration.
 

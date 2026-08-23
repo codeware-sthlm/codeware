@@ -36,15 +36,8 @@ Three things live here, at different levels of maturity:
   - [Nx Plugins](#nx-plugins)
   - [GitHub Actions](#github-actions)
   - [Node Libraries](#node-libraries)
-- [Startup Payload multi-tenant in dev mode](#startup-payload-multi-tenant-in-dev-mode)
-  - [Terminal 1: Start Postgres and admin UI](#terminal-1-start-postgres-and-admin-ui)
-  - [Terminal 2: Start web client](#terminal-2-start-web-client)
-  - [Terminal 3: Start reverse proxy to simulate multi-tenancy](#terminal-3-start-reverse-proxy-to-simulate-multi-tenancy)
-- [Development Tools \& Services](#development-tools--services)
-  - [CLI Tools](#cli-tools)
-  - [Infisical Secrets Management](#infisical-secrets-management)
-  - [Fly.io Deployment](#flyio-deployment)
-  - [Release Management](#release-management)
+- [Development](#development)
+- [Releases](#releases)
 - [Deployment](#deployment)
 
 ## Packages
@@ -96,258 +89,23 @@ GitHub action that brings automatic [Nx](https://nx.dev) migrations to your work
 
 Fly CLI node wrapper for programmatic deployments to [Fly.io](https://fly.io).
 
-## Startup Payload multi-tenant in dev mode
+## Development
 
-The Payload suite consists of
+Local setup, the CMS host/tenant modes, database and seed commands, dev email and the admin
+import-map rule are documented in [CLAUDE.md](CLAUDE.md), which is kept current as the
+workspace changes. It is the single source for how to run things here — this file deliberately
+does not repeat it.
 
-- Payload Admin UI (`cms`)
-- Web Client (`web`)
-- Docker Postgres Database
-- Nginx Reverse Proxy to simulate multi-tenancy
-
-> [!IMPORTANT]
-> For a better DX you should not connect to Infisical in dev mode, since the development seed has much more data.
->
-> Make sure the credentials in the `.env.local` file are not set.
-
-### Terminal 1: Start Postgres and admin UI
-
-#### Start Postgres in Docker <!-- omit in toc -->
-
-```sh
-nx dx:postgres cms
-```
-
-#### Serve admin UI <!-- omit in toc -->
-
-```sh
-nx dev cms
-```
-
-> [!NOTE]
-> Database is auto-seeded with static data when the admin UI is started.
-
-#### Optional <!-- omit in toc -->
-
-##### Clear database and run migrations <!-- omit in toc -->
-
-```sh
-nx payload cms migrate:fresh
-```
-
-##### Generate seed data <!-- omit in toc -->
-
-Seed data is stored in environment-specific TypeScript files in
-
-- `libs/shared/util/seed/src/lib/static-data`.
-
-You can remove the existing seed data and keep just an empty object to force the generation of new seed data.
-
-```sh
-nx seed cms
-```
-
-### Terminal 2: Start web client
-
-> [!NOTE]
-> Live-reload is not fully operational.
-
-```sh
-nx dev web
-```
-
-### Terminal 3: Start reverse proxy to simulate multi-tenancy
-
-```sh
-nx payload-proxy:up
-```
-
-> [!NOTE]
-> You can now access the different web sites as different tenants:
->
-> 🌐 `cms.localhost`
->
-> :pouting_face: `system@local.dev` @ `dev`
-
-**Optional**
-
-Stop the proxy
-
-```sh
-nx payload-proxy:down
-```
-
-Communicate with the proxy
-
-```sh
-nx payload-proxy [docker compose options]
-```
-
-## Development Tools & Services
-
-### CLI Tools
-
-Interactive CLI tools for managing Fly.io apps, databases, and Infisical configurations.
+Interactive CLIs for managing deployments and workspace configuration:
 
 ```sh
 pnpm cdwr
 ```
 
-> [!TIP]
-> See [tools/README.md](tools/README.md) for available tools and usage options.
+## Releases
 
-### Infisical Secrets Management
-
-The [Infisical](https://infisical.com) secret management tool is used to manage secrets for the Codeware ecosystem.
-
-> [!NOTE] Deployment and multi-tenant configuration
-> **See:** [DEPLOYMENT.md](docs/DEPLOYMENT.md) and the [multi-tenant setup guide](packages/nx-pre-deploy-action/README.md#multi-tenant-setup)
-
-1. [Install Infisical CLI](https://infisical.com/docs/cli/overview#installation)
-
-2. Login to access the secrets
-
-   ```sh
-   infisical login
-   ```
-
-3. List the development secrets
-
-   ```sh
-   # all secrets
-   infisical secrets --recursive
-
-   # cms application (all secrets and some by tag)
-   infisical secrets --recursive --path /cms
-   infisical secrets --tag cms
-
-   # web application (all secrets and some by tag)
-   infisical secrets --recursive --path /web
-   infisical secrets --tag web
-
-   # 'demo' tenant using web application
-   infisical secrets --path /web/tenants/demo
-   ```
-
-#### Using the secrets <!-- omit in toc -->
-
-Add Infisical creadentials to you local environment.
-
-`apps/cms/.env.local`
-
-```env
-# Alt 1: Client credentials
-INFISICAL_CLIENT_ID=
-INFISICAL_CLIENT_SECRET=
-
-# Alt 2: Service token
-INFISICAL_SERVICE_TOKEN=
-```
-
-> [!NOTE]
-> Secrets can also be injected into `process.env` for any command, but this is not how we normally do it.
->
-> ```sh
-> infisical run --path [path] -- [command]
-> ```
-
-### Fly.io Deployment
-
-The [Fly.io](https://fly.io) platform is used to host the deployed applications and the required services.
-
-> [!NOTE] Configuration, multi-tenant setup, and workflow details
-> **See:** [DEPLOYMENT.md](docs/DEPLOYMENT.md)
-
-Deployments are automatic on push events, handled by the [fly-deployment workflow](.github/workflows/fly-deployment.yml).
-
-For local development and troubleshooting, install the Fly CLI:
-
-1. [Install Fly CLI](https://github.com/superfly/flyctl?tab=readme-ov-file#installation)
-
-2. Login to your Fly account
-
-   ```sh
-   fly auth login
-   ```
-
-3. List the applications (for example)
-
-   ```sh
-   fly apps list
-   ```
-
-#### Database setup for preview deployments <!-- omit in toc -->
-
-Applications affected by a pull request are deployed to a temporary preview environment. A Fly Postgres cluster `pg-preview` is used to store the temporary databases, with automatic attachment/detachment managed by the deployment workflow.
-
-> [!NOTE] How to configure Postgres attachment in github.json
-> **See:** [DEPLOYMENT.md](docs/DEPLOYMENT.md#per-app-configuration-githubjson)
-
-<details>
-<summary><strong>Advanced: Postgres cluster commands</strong></summary>
-
-```sh
-# Create a Postgres cluster (use only one node to prevent HA issues for unmananged cluser)
-fly pg create --name pg-preview --org codeware --region arn --vm-size shared-cpu-2x --volume-size 1 --initial-cluster-size 1
-
-# Detach application from the Postgres cluster
-fly pg detach pg-preview -a cdwr-cms-pr-{pr-number}
-
-# Delete application
-fly apps destroy cdwr-cms-pr-{pr-number}
-
-# List all Postgres databases
-fly pg db list -a pg-preview
-```
-
-</details>
-
-<details>
-<summary><strong>Database Maintenance & Troubleshooting</strong></summary>
-
-**Cleanup dangling database** (after PR is closed):
-
-```sh
-sh scripts/cleanup-db.sh {pr-number} {cluster-password}
-```
-
-**Drop database** (to start fresh) or **Restart app machine**:
-
-Use the interactive CLI tool:
-
-```sh
-pnpm cdwr
-```
-
-Then select `drop-db` or `restart-app` from the menu.
-
-Alternatively, restart manually:
-
-```sh
-fly machine stop {machine-id}
-fly machine restart {machine-id}
-```
-
-**Connect to preview database locally**:
-
-```sh
-# Forward port (5433 to avoid conflicts with local Docker Postgres)
-fly proxy 5433:5432 -a pg-preview
-
-# Connection string
-postgres://postgres:<password>@localhost:5433
-```
-
-</details>
-
-### Release Management
-
-The release process is semi-automatic which means:
-
-- Releases are generated from a local machine by a developer
-- GitHub action trigger on the tags and publish to NPM
-
-Simply run the following command to start the release process:
+Releases are cut from a developer's machine; GitHub Actions publishes to npm on the resulting
+tags.
 
 ```sh
 nx release-cli
@@ -355,11 +113,7 @@ nx release-cli
 
 ## Deployment
 
-This workspace uses automated GitHub Actions to deploy applications to Fly.io with support for both single-tenant and multi-tenant architectures. The deployment system:
-
-- Automatically detects affected applications using Nx
-- Fetches tenant configuration from Infisical
-- Deploys to the appropriate environment (preview/production)
-- Supports per-app tenant lists for flexible multi-tenancy
-
-For comprehensive deployment documentation, including configuration, multi-tenant setup, and troubleshooting, see [DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Applications deploy to [Fly.io](https://fly.io) from GitHub Actions, for both single-tenant and
+multi-tenant setups. The pipeline detects affected applications with Nx, resolves the target
+environment, and deploys production on merge or an isolated preview environment per pull
+request.

@@ -5,7 +5,7 @@
   "description": "The Nx Pre-deploy Action will analyze the applications to deploy and to which environment.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/nx-pre-deploy-action"
   },
   "author": {

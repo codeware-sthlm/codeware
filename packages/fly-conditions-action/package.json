@@ -5,7 +5,7 @@
   "description": "GitHub action that analyzes deployment conditions for the Fly.io deployment pipeline.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/fly-conditions-action"
   },
   "author": {

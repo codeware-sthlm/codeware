@@ -23,7 +23,7 @@ Posts a deployment status summary as a comment on the pull request. Updates the 
 
 ## Usage
 
-This action is typically the last step after [fly-deployment-action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-deployment-action#readme). It uses the `deployed` and `failed` outputs from the deployment step.
+This action is typically the last step after [fly-deployment-action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/fly-deployment-action#readme). It uses the `deployed` and `failed` outputs from the deployment step.
 
 ```yaml
 pr-comment:

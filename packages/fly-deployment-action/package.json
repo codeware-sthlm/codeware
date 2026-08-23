@@ -5,7 +5,7 @@
   "description": "The Nx Fly Deployment Action will manage your deployments to fly.io.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/fly-deployment-action"
   },
   "author": {

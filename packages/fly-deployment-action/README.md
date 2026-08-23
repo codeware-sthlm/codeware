@@ -21,7 +21,7 @@
 
 This action will manage deployments to [Fly.io](https://fly.io) of your [Nx](https://nx.dev) workspace applications.
 
-Fits perfectly with [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme) for multi-tenant setups.
+Fits perfectly with [Nx Pre-deploy Action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/nx-pre-deploy-action#readme) for multi-tenant setups.
 
 ## Required Application Setup
 
@@ -49,7 +49,7 @@ Applications without a `github.json` file will be skipped during deployment.
 
 ## Usage
 
-This action is designed to run after the [fly-build-action](https://github.com/codeware-sthlm/codeware/tree/main/packages/fly-build-action#readme) and the [nx-pre-deploy-action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme). The `apps` and `environment` inputs are typically the outputs from `nx-pre-deploy-action`, and `images` from `fly-build-action`.
+This action is designed to run after the [fly-build-action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/fly-build-action#readme) and the [nx-pre-deploy-action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/nx-pre-deploy-action#readme). The `apps` and `environment` inputs are typically the outputs from `nx-pre-deploy-action`, and `images` from `fly-build-action`.
 
 ```yaml
 deploy:
@@ -86,7 +86,7 @@ Environment variables provided to deployed apps: `DEPLOY_ENV`, `APP_NAME`, `PR_N
 
 > [!NOTE] Environment detection logic and affected apps analysis
 >
-> **See:** [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#features)
+> **See:** [Nx Pre-deploy Action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/nx-pre-deploy-action#features)
 
 ## Inputs
 
@@ -96,10 +96,10 @@ See [action.yaml](action.yml) for descriptions of the inputs.
 
 #### `app-details`
 
-Provide a JSON object that maps app names to their deployment configurations. This supports both multi-tenant deployments and multi-deployment scenarios (e.g., multiple environments). This is typically the output from the [Nx Pre-deploy Action](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#readme).
+Provide a JSON object that maps app names to their deployment configurations. This supports both multi-tenant deployments and multi-deployment scenarios (e.g., multiple environments). This is typically the output from the [Nx Pre-deploy Action](https://github.com/codeware-sthlm/cdwr/tree/main/packages/nx-pre-deploy-action#readme).
 
 > [!NOTE] Setting up multi-tenant configuration in Infisical
-> **See:** [Multi-tenant Setup Guide](https://github.com/codeware-sthlm/codeware/tree/main/packages/nx-pre-deploy-action#multi-tenant-setup)
+> **See:** [Multi-tenant Setup Guide](https://github.com/codeware-sthlm/cdwr/tree/main/packages/nx-pre-deploy-action#multi-tenant-setup)
 
 **Structure:**
 

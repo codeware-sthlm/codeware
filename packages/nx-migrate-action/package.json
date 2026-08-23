@@ -5,7 +5,7 @@
   "description": "The Nx Migrate GitHub Action will keep your workspace up to date.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/nx-migrate-action"
   },
   "author": {

@@ -5,7 +5,7 @@
   "description": "The Nx Changelog Action renders release changelogs for deployed apps, creating GitHub releases for production and returning the contents for previews.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeware-sthlm/codeware.git",
+    "url": "https://github.com/codeware-sthlm/cdwr.git",
     "directory": "packages/nx-changelog-action"
   },
   "author": {

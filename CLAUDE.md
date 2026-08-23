@@ -271,7 +271,7 @@ In production, multi-tenancy is handled automatically by the `nx-pre-deploy-acti
 
 ### CI/CD
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint/test/build on PRs using Nx affected detection and Nx Cloud caching. On merge/push, the deployment workflow deploys affected apps to Fly.io. Preview environments are created for each PR with temporary Postgres databases from the `pg-preview` cluster.
+GitHub Actions (`.github/workflows/ci.yml`) runs lint/test/build on PRs using Nx affected detection and Nx Cloud caching. On merge/push, the deployment workflow deploys affected apps to Fly.io. Preview environments are created for each PR with temporary Postgres databases from a dedicated preview cluster.
 
 ### Release Process
 

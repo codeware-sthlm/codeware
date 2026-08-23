@@ -62,26 +62,10 @@ npx create-nx-payload
 
 ### GitHub Actions
 
-> These actions are **internal building blocks** consumed within this repository's own
-> workflows via `uses: ./packages/<name>`. They are not published to npm or the GitHub
-> Marketplace (a GitHub Action is not installable from npm).
-
-#### Fly.io Deployment Pipeline <!-- omit in toc -->
-
-Six focused actions that together handle the full deployment lifecycle:
-
-| Action                                                    | Purpose                                                             |
-| --------------------------------------------------------- | ------------------------------------------------------------------- |
-| [`fly-conditions-action`](packages/fly-conditions-action) | Gate the pipeline based on branch rules and the preview label       |
-| [`nx-pre-deploy-action`](packages/nx-pre-deploy-action)   | Analyze affected apps, resolve environment, and fetch tenant config |
-| [`fly-build-action`](packages/fly-build-action)           | Build Docker images and push to the Fly registry                    |
-| [`fly-deployment-action`](packages/fly-deployment-action) | Deploy pre-built images to Fly.io                                   |
-| [`fly-destroy-action`](packages/fly-destroy-action)       | Destroy preview apps when a pull request is closed                  |
-| [`pr-comment-action`](packages/pr-comment-action)         | Post deployment status to a pull request                            |
-
-#### [`nx-migrate-action`](packages/nx-migrate-action) <!-- omit in toc -->
-
-GitHub action that brings automatic [Nx](https://nx.dev) migrations to your workspace.
+A set of **internal** actions drives this repository's own delivery pipeline — gating,
+image build, deploy, preview teardown, PR status and automatic Nx migrations. They are
+consumed locally via `uses: ./packages/<name>` and are not published to npm or the GitHub
+Marketplace; a GitHub Action is not installable from npm.
 
 ### Node Libraries
 

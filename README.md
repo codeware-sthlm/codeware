@@ -27,8 +27,9 @@ Three things live here, at different levels of maturity:
 - **[`@cdwr/nx-payload`](packages/nx-payload) and
   [`create-nx-payload`](packages/create-nx-payload)** — published Nx plugins that add Payload
   support to any Nx workspace. Developed here, against the platform that actually uses them.
-- **The delivery pipeline** — Nx-affected deploys to [Fly.io](https://fly.io), per-pull-request
-  preview environments, and the internal GitHub Actions that drive them.
+- **The delivery pipeline** — release-driven deploys to [Fly.io](https://fly.io), where an app ships
+  when its conventional commits produce a version bump. Per-pull-request preview environments, and
+  the internal GitHub Actions that drive them.
 
 ## Contents <!-- omit in toc -->
 

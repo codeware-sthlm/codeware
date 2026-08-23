@@ -5,16 +5,30 @@
   <br />
 </p>
 
-<h1 align='center'>Codeware Playground</h1>
+<h1 align='center'>cdwr</h1>
 
 <p align='center'>
-  A playground for multi stack and architecture powered by Codeware Sthlm.
+  The Codeware Sthlm platform monorepo — a multi-tenant Payload CMS in production,
+  and the Nx tooling that builds and ships it.
   <br />
   <br />
+  <a href='https://www.npmjs.com/package/@cdwr/nx-payload'><img src='https://img.shields.io/npm/v/@cdwr/nx-payload?label=%40cdwr%2Fnx-payload' alt='@cdwr/nx-payload npm'></a>
+  &nbsp;
   <a href='https://opensource.org/licenses/MIT'><img src='https://img.shields.io/badge/License-MIT-green.svg' alt='MIT'></a>
   <br />
   <br />
 </p>
+
+Three things live here, at different levels of maturity:
+
+- **The platform** — a multi-tenant CMS built on [Payload](https://payloadcms.com) v3 and
+  Next.js, serving tenant sites and their admin from one app. Custom domains with automated
+  certificate issuance, per-tenant content scoping, forms, bookings and a themed admin.
+- **[`@cdwr/nx-payload`](packages/nx-payload) and
+  [`create-nx-payload`](packages/create-nx-payload)** — published Nx plugins that add Payload
+  support to any Nx workspace. Developed here, against the platform that actually uses them.
+- **The delivery pipeline** — Nx-affected deploys to [Fly.io](https://fly.io), per-pull-request
+  preview environments, and the internal GitHub Actions that drive them.
 
 ## Contents <!-- omit in toc -->
 

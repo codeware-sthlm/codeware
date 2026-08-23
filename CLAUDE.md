@@ -235,7 +235,7 @@ TypeScript path aliases are defined in `tsconfig.base.json`:
 - `@cdwr/*` → publishable packages, matching the npm scope
 - `@payload-config` → `apps/cms/src/payload.config.ts`
 
-Two prefixes is deliberate, not legacy. The scope at an import site says whether you are reaching
+Having two prefixes is deliberate, not legacy. The scope at an import site says whether you are reaching
 for a published package or for workspace-internal source, which is exactly what the
 published-dependency rule above rests on. Collapsing them onto `@cdwr` would read tidier and lose
 that signal.
@@ -275,7 +275,7 @@ In production, multi-tenancy is handled automatically by the `nx-pre-deploy-acti
 
 ### CI/CD
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint/test/build on PRs using Nx affected detection and Nx Cloud caching. On merge/push, the deployment workflow deploys affected apps to Fly.io. Preview environments are created for each PR with temporary Postgres databases from a dedicated preview cluster.
+GitHub Actions (`.github/workflows/ci.yml`) runs lint/test/build on PRs using Nx affected detection and Nx Cloud caching. Deployment selection is separate and **not** affected-based: the deployment workflow ships an app when `nx release` resolves a version bump for it from its conventional commits since the last release tag. Preview environments are created for each PR with temporary Postgres databases from a dedicated preview cluster.
 
 ### Release Process
 

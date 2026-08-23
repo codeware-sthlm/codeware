@@ -11,7 +11,7 @@ pnpm cdwr
 ```
 
 Individual tools are also exposed as Nx targets on the `db-tools`, `fly-tools` and `infisical`
-projects — run `nx show project <name>` to list them.
+projects — run `nx show project <name> --web` to browse them.
 
 ## Requirements
 

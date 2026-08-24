@@ -43,6 +43,22 @@ export default defineConfig({
     target: ['node20', 'esnext'],
     sourcemap: sentryEnabled
   },
+  ssr: {
+    // sanitize-html's htmlparser2 dependency subtree ships ESM-only. Vite's
+    // SSR build leaves node_modules external by default (resolved by Node's
+    // own require() at runtime), which crashes on an ESM-only package with
+    // ERR_REQUIRE_ESM. Bundling the whole subtree in avoids the raw runtime
+    // require entirely.
+    noExternal: [
+      'sanitize-html',
+      'htmlparser2',
+      'entities',
+      'dom-serializer',
+      'domhandler',
+      'domutils',
+      'domelementtype'
+    ]
+  },
   plugins: [
     remix({
       future: {

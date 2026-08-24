@@ -71,10 +71,10 @@
       "description": "Skip all React packages and its peers",
       "matchPackageNames": [
         "@hono/*",
+        "@radix-ui/react-*",
         "@remix-run/*",
         "prism-react-renderer",
         "react*",
-        "*/*react*",
         "remix-hono",
         "remix-utils"
       ],

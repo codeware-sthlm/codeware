@@ -26,10 +26,10 @@ export const sanitizeSvg = (svg: string): string =>
       'polygon',
       'text',
       'tspan',
-      'clippath',
+      'clipPath',
       'mask',
-      'lineargradient',
-      'radialgradient',
+      'linearGradient',
+      'radialGradient',
       'stop'
     ],
     allowedAttributes: {
@@ -129,9 +129,9 @@ export const sanitizeSvg = (svg: string): string =>
         'transform'
       ],
       tspan: ['x', 'y', 'dx', 'dy'],
-      clippath: ['clippathunits'],
+      clipPath: ['clippathunits'],
       mask: ['x', 'y', 'width', 'height', 'maskunits'],
-      lineargradient: [
+      linearGradient: [
         'id',
         'x1',
         'y1',
@@ -140,7 +140,7 @@ export const sanitizeSvg = (svg: string): string =>
         'gradientunits',
         'gradienttransform'
       ],
-      radialgradient: ['id', 'cx', 'cy', 'r', 'fx', 'fy', 'gradientunits'],
+      radialGradient: ['id', 'cx', 'cy', 'r', 'fx', 'fy', 'gradientunits'],
       stop: ['offset', 'stop-color', 'stop-opacity'],
       // href intentionally omitted from <use> — xlink:href dropped automatically
       use: ['x', 'y', 'width', 'height']

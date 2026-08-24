@@ -1,9 +1,12 @@
 import { sanitizeSvg } from './sanitize-svg';
 
 // sanitize-html is an HTML serializer: it lowercases attribute names
-// (viewBox→viewbox) but preserves tag name casing for elements present in
-// allowedTags (clipPath, linearGradient), and expands self-closing tags
-// (<path/>→<path></path>).
+// (viewBox→viewbox), and expands self-closing tags (<path/>→<path></path>).
+// Its underlying parser also canonicalizes recognized SVG foreign-content
+// tag names (clipPath, linearGradient, radialGradient, ...) to their
+// spec-correct camelCase form regardless of input casing — see the
+// "legacy lowercase markup" test below — which is why allowedTags only
+// needs the camelCase spelling, not a lowercase fallback.
 // Tests check for content presence/absence, not exact string equality.
 
 describe('sanitizeSvg', () => {
@@ -125,6 +128,30 @@ describe('sanitizeSvg', () => {
       expect(result).toContain('id="rgrad1"');
       expect(result).toContain('cx="0.5"');
       expect(result).toContain('<stop offset="0%" stop-color="#000"');
+    });
+
+    it('should preserve gradients and clipPaths from legacy lowercase markup', () => {
+      // Content sanitized before this fix (sanitize-html <2.17.6) had its tag
+      // names lowercased on the way in, so it's stored as e.g.
+      // <lineargradient>, not <linearGradient>. Re-sanitizing that legacy
+      // markup (on next save, or on every InlineIcon render) must not strip
+      // it just because allowedTags only lists the camelCase spelling.
+      const svg =
+        '<svg viewBox="0 0 24 24">' +
+        '<defs>' +
+        '<lineargradient id="grad1" x1="0" y1="0" x2="1" y2="0">' +
+        '<stop offset="0%" stop-color="#000"/>' +
+        '</lineargradient>' +
+        '<clippath id="clip1"><rect x="0" y="0" width="12" height="24"/></clippath>' +
+        '</defs>' +
+        '<rect fill="url(#grad1)" width="10" height="10"/>' +
+        '</svg>';
+      const result = sanitizeSvg(svg);
+      expect(result).toContain('<linearGradient');
+      expect(result).toContain('id="grad1"');
+      expect(result).toContain('<clipPath');
+      expect(result).toContain('id="clip1"');
+      expect(result).toContain('fill="url(#grad1)"');
     });
   });
 

@@ -44,7 +44,7 @@
     },
     {
       "description": "Skip updates for packageManager",
-      "matchPackageNames": ["packageManager"],
+      "matchDepTypes": ["packageManager"],
       "enabled": false
     },
     {

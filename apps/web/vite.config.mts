@@ -44,20 +44,40 @@ export default defineConfig({
     sourcemap: sentryEnabled
   },
   ssr: {
-    // sanitize-html's dependency tree (htmlparser2's ESM-only subtree, plus
-    // postcss and its own transitive deps) breaks at runtime when left
-    // external: Vite's SSR default resolves node_modules via Node's own
-    // require()/import(), but pnpm's strict, non-hoisting layout means those
-    // packages aren't resolvable from wherever the bundled code ends up
-    // (ERR_REQUIRE_ESM on htmlparser2, then ERR_MODULE_NOT_FOUND on postcss
-    // once htmlparser2 was force-bundled but postcss wasn't). Enumerating the
-    // dependency tree one crash at a time doesn't scale — bundle everything.
-    // No native-binary deps are actually reachable from apps/web's own
-    // import graph (verified: sharp appears in the lockfile as an unused
-    // transitive optional dependency of a build tool, never touched by the
-    // compiled server bundle), so there's nothing noExternal:true would
-    // break by inlining it.
-    noExternal: true
+    // sanitize-html's dependency tree breaks at runtime when left external:
+    // Vite's SSR default resolves node_modules via Node's own require()/
+    // import(), but pnpm's strict, non-hoisting layout means a package
+    // resolvable from inside sanitize-html's own node_modules scope isn't
+    // resolvable from wherever the bundled code ends up (ERR_REQUIRE_ESM on
+    // the ESM-only htmlparser2 subtree, then ERR_MODULE_NOT_FOUND on postcss
+    // once htmlparser2 was force-bundled but postcss wasn't).
+    //
+    // noExternal:true (bundle everything) also "fixed" this but roughly
+    // doubled build memory even without sourcemaps (1.96GB -> 3.63GB peak
+    // RSS with them, which Depot's remote builder OOM-killed on), so this is
+    // sanitize-html's exact, complete transitive closure instead — computed
+    // programmatically by walking real dependency resolution from
+    // sanitize-html's package.json rather than by hand, since manual
+    // enumeration already missed a package (postcss) once before.
+    noExternal: [
+      'sanitize-html',
+      'htmlparser2',
+      'entities',
+      'dom-serializer',
+      'domhandler',
+      'domutils',
+      'domelementtype',
+      'deepmerge',
+      'escape-string-regexp',
+      'is-plain-object',
+      'launder',
+      'parse-srcset',
+      'postcss',
+      'dayjs',
+      'nanoid',
+      'picocolors',
+      'source-map-js'
+    ]
   },
   plugins: [
     remix({

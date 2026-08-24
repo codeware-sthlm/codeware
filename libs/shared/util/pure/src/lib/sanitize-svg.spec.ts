@@ -1,8 +1,9 @@
 import { sanitizeSvg } from './sanitize-svg';
 
-// sanitize-html is an HTML serializer: it lowercases all tags/attributes
-// (viewBox→viewbox, clipPath→clippath, linearGradient→lineargradient) and
-// expands self-closing tags (<path/>→<path></path>).
+// sanitize-html is an HTML serializer: it lowercases attribute names
+// (viewBox→viewbox) but preserves tag name casing for elements present in
+// allowedTags (clipPath, linearGradient), and expands self-closing tags
+// (<path/>→<path></path>).
 // Tests check for content presence/absence, not exact string equality.
 
 describe('sanitizeSvg', () => {
@@ -67,7 +68,7 @@ describe('sanitizeSvg', () => {
         '</defs>' +
         '</svg>';
       const result = sanitizeSvg(svg);
-      expect(result).toContain('<lineargradient');
+      expect(result).toContain('<linearGradient');
       expect(result).toContain('id="grad1"');
       expect(result).toContain('x1="0"');
       expect(result).toContain('<stop offset="0%" stop-color="#000"');
@@ -105,9 +106,25 @@ describe('sanitizeSvg', () => {
         '</defs>' +
         '</svg>';
       const result = sanitizeSvg(svg);
-      expect(result).toContain('<clippath');
+      expect(result).toContain('<clipPath');
       expect(result).toContain('id="clip1"');
       expect(result).toContain('<rect');
+    });
+
+    it('should preserve radialGradient element and its attributes', () => {
+      const svg =
+        '<svg viewBox="0 0 24 24">' +
+        '<defs>' +
+        '<radialGradient id="rgrad1" cx="0.5" cy="0.5" r="0.5">' +
+        '<stop offset="0%" stop-color="#000"/>' +
+        '</radialGradient>' +
+        '</defs>' +
+        '</svg>';
+      const result = sanitizeSvg(svg);
+      expect(result).toContain('<radialGradient');
+      expect(result).toContain('id="rgrad1"');
+      expect(result).toContain('cx="0.5"');
+      expect(result).toContain('<stop offset="0%" stop-color="#000"');
     });
   });
 

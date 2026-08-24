@@ -44,20 +44,20 @@ export default defineConfig({
     sourcemap: sentryEnabled
   },
   ssr: {
-    // sanitize-html's htmlparser2 dependency subtree ships ESM-only. Vite's
-    // SSR build leaves node_modules external by default (resolved by Node's
-    // own require() at runtime), which crashes on an ESM-only package with
-    // ERR_REQUIRE_ESM. Bundling the whole subtree in avoids the raw runtime
-    // require entirely.
-    noExternal: [
-      'sanitize-html',
-      'htmlparser2',
-      'entities',
-      'dom-serializer',
-      'domhandler',
-      'domutils',
-      'domelementtype'
-    ]
+    // sanitize-html's dependency tree (htmlparser2's ESM-only subtree, plus
+    // postcss and its own transitive deps) breaks at runtime when left
+    // external: Vite's SSR default resolves node_modules via Node's own
+    // require()/import(), but pnpm's strict, non-hoisting layout means those
+    // packages aren't resolvable from wherever the bundled code ends up
+    // (ERR_REQUIRE_ESM on htmlparser2, then ERR_MODULE_NOT_FOUND on postcss
+    // once htmlparser2 was force-bundled but postcss wasn't). Enumerating the
+    // dependency tree one crash at a time doesn't scale — bundle everything.
+    // No native-binary deps are actually reachable from apps/web's own
+    // import graph (verified: sharp appears in the lockfile as an unused
+    // transitive optional dependency of a build tool, never touched by the
+    // compiled server bundle), so there's nothing noExternal:true would
+    // break by inlining it.
+    noExternal: true
   },
   plugins: [
     remix({

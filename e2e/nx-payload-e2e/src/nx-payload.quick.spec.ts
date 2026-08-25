@@ -1,10 +1,11 @@
 import {
   ensureCreateNxWorkspaceProject,
   ensureLockFileIsDetected,
+  ensurePnpmApproveBuilds,
   ensureTs6TsconfigCompat
 } from '@codeware/e2e/utils';
 import { logDebug } from '@codeware/shared/util/misc';
-import type { NxJsonConfiguration } from '@nx/devkit';
+import type { NxJsonConfiguration, PackageManager } from '@nx/devkit';
 import {
   checkFilesExist,
   readJson,
@@ -21,14 +22,23 @@ import {
 describe('Test plugin by starting with an empty workspace (limited test suite)', () => {
   jest.setTimeout(300_000);
 
+  let packageManager: PackageManager;
+
   // Setup an empty workspace and add the plugin afterwards
   beforeAll(async () => {
-    const { packageManager } = await ensureCreateNxWorkspaceProject({
+    ({ packageManager } = await ensureCreateNxWorkspaceProject({
       preset: 'apps'
-    });
+    }));
     ensureLockFileIsDetected(packageManager);
 
-    await runNxCommandAsync('add @cdwr/nx-payload');
+    // `silenceError` because pnpm 10+ exits non-zero when a dependency's
+    // build script is blocked - which also aborts `nx add` before it runs
+    // its own init generator, so a recovered build must retry the command.
+    await runNxCommandAsync('add @cdwr/nx-payload', { silenceError: true });
+    const recovered = await ensurePnpmApproveBuilds(packageManager);
+    if (recovered) {
+      await runNxCommandAsync('add @cdwr/nx-payload', { silenceError: true });
+    }
     logDebug(
       'Plugin added - package.json',
       JSON.stringify(readJson('package.json'), null, 2)
@@ -69,9 +79,13 @@ describe('Test plugin by starting with an empty workspace (limited test suite)',
     const appDirectory = `apps/${appName}`;
 
     beforeAll(async () => {
+      // `silenceError` because pnpm 10+ exits non-zero when a dependency's
+      // build script is blocked - `ensurePnpmApproveBuilds` below recovers.
       await runNxCommandAsync(
-        `g @cdwr/nx-payload:app ${appName} --directory ${appDirectory}`
+        `g @cdwr/nx-payload:app ${appName} --directory ${appDirectory}`,
+        { silenceError: true }
       );
+      await ensurePnpmApproveBuilds(packageManager);
       ensureTs6TsconfigCompat();
       logDebug(
         'Application generated - package.json',

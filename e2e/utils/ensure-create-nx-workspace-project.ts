@@ -25,6 +25,7 @@ import type { PackageJson } from 'nx/src/utils/package-json';
 
 import { cleanupE2E } from './cleanup-e2e';
 import { ensureLegacyPeerDeps } from './ensure-legacy-peer-deps';
+import { ensurePnpmApproveBuilds } from './ensure-pnpm-approve-builds';
 import { ensureTs6TsconfigCompat } from './ensure-ts6-tsconfig-compat';
 import { getE2EPackageManager } from './get-e2e-package-manager';
 
@@ -205,40 +206,50 @@ export async function ensureCreateNxWorkspaceProject({
   logDebug('Creating Nx workspace project', `Preset '${preset}'`);
   logDebug('Run command', cmd);
 
+  // pnpm 10+ exits non-zero when a dependency's build script is blocked -
+  // e.g. `esbuild`, pulled in by the `@cdwr/nx-payload` preset - even though
+  // the workspace itself was created successfully. Don't treat that as fatal
+  // here; `exists(projectPath)` below is the real success signal, and
+  // `ensurePnpmApproveBuilds` after it recovers the blocked build.
+  let result = '';
   try {
-    const result = await runCommand(cmd, {
+    result = await runCommand(cmd, {
       cwd: runPath,
       errorDetector: /ChildProcess\.exithandler/i
     });
-
-    logDebug('Command output', result);
-
-    if (!exists(projectPath)) {
-      logDebug('Run path', runPath);
-      if (!isDebugEnabled()) {
-        logError('Command output', result);
-      }
-
-      // Try to find and print error log content
-      const logMatch = result.match(/Log file: (?<errorLog>.*error\.log)/);
-      if (logMatch?.groups) {
-        const errorLog = logMatch.groups['errorLog'];
-        if (existsSync(errorLog)) {
-          logInfo(
-            `Output from ${errorLog}\n`,
-            readFileSync(errorLog, { encoding: 'utf-8' })
-          );
-        } else {
-          logInfo('Error log file could not be found', errorLog);
-        }
-      }
-
-      throw new Error(`Failed to create test project in "${projectPath}"`);
-    }
   } catch (error) {
-    logError('Command failed', String(error));
+    result = String(error);
+  }
+
+  logDebug('Command output', result);
+
+  if (!exists(projectPath)) {
+    logDebug('Run path', runPath);
+    if (!isDebugEnabled()) {
+      logError('Command output', result);
+    }
+
+    // Try to find and print error log content
+    const logMatch = result.match(/Log file: (?<errorLog>.*error\.log)/);
+    if (logMatch?.groups) {
+      const errorLog = logMatch.groups['errorLog'];
+      if (existsSync(errorLog)) {
+        logInfo(
+          `Output from ${errorLog}\n`,
+          readFileSync(errorLog, { encoding: 'utf-8' })
+        );
+      } else {
+        logInfo('Error log file could not be found', errorLog);
+      }
+    }
+
     throw new Error(`Failed to create test project in "${projectPath}"`);
   }
+
+  // `create-nx-workspace` may have installed dependencies with postinstall
+  // scripts (e.g. via the `@cdwr/nx-payload` preset) that pnpm 10+ blocks
+  // without an explicit allowlist.
+  await ensurePnpmApproveBuilds(pm);
 
   // Set the package type in `package.json` if specified
   let packageType: PackageJson['type'];
@@ -271,7 +282,14 @@ export async function ensureCreateNxWorkspaceProject({
 
   if (preset === 'apps' && options?.ensureNxPayload) {
     logDebug('Install @cdwr/nx-payload plugin in the empty apps workspace');
-    runNxCommand('add @cdwr/nx-payload');
+    // `silenceError` because pnpm 10+ exits non-zero when a dependency's
+    // build script is blocked - which also aborts `nx add` before it runs
+    // its own init generator, so a recovered build must retry the command.
+    runNxCommand('add @cdwr/nx-payload', { silenceError: true });
+    const recovered = await ensurePnpmApproveBuilds(pm);
+    if (recovered) {
+      runNxCommand('add @cdwr/nx-payload', { silenceError: true });
+    }
   }
 
   logDebug('Workspace created and ready for use', projectPath);

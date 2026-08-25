@@ -107,12 +107,13 @@ jobs:
 
           PACKAGE="${{ steps.ctx.outputs.package }}"
           GROUP=$(jq -r --arg p "$PACKAGE" '
-            .release.groups
-            | to_entries[]
-            | select(.value.projectsRelationship == "fixed")
-            | select((.key == $p) or (.value.projects // [] | index($p) != null))
-            | .key
-          ' nx.json | head -1)
+            [.release.groups
+              | to_entries[]
+              | select(.value.projectsRelationship == "fixed")
+              | select((.key == $p) or (.value.projects // [] | index($p) != null))
+              | .key
+            ] | first // empty
+          ' nx.json)
           if [ -n "$GROUP" ]; then
             PROJECTS=$(jq -r --arg g "$GROUP" '.release.groups[$g].projects | join(",")' nx.json)
             echo "is_group=true"       >> "$GITHUB_OUTPUT"

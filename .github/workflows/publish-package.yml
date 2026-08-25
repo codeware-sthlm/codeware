@@ -97,6 +97,31 @@ jobs:
           fetch-depth: 0
           filter: tree:0
 
+      # A tag may name a single project or a member of a fixed release group -
+      # Nx refuses `-p <project>` for the latter, it must be published as a whole group.
+      - name: Resolve release group
+        id: group
+        if: steps.ctx.outputs.mode == 'tag'
+        run: |
+          PACKAGE="${{ steps.ctx.outputs.package }}"
+          GROUP=$(jq -r --arg p "$PACKAGE" '
+            .release.groups
+            | to_entries[]
+            | select(.value.projectsRelationship == "fixed")
+            | select((.key == $p) or (.value.projects // [] | index($p) != null))
+            | .key
+          ' nx.json | head -1)
+          if [ -n "$GROUP" ]; then
+            PROJECTS=$(jq -r --arg g "$GROUP" '.release.groups[$g].projects | join(",")' nx.json)
+            echo "is_group=true"       >> "$GITHUB_OUTPUT"
+            echo "group=$GROUP"        >> "$GITHUB_OUTPUT"
+            echo "projects=$PROJECTS"  >> "$GITHUB_OUTPUT"
+            echo "'$PACKAGE' belongs to fixed release group '$GROUP' (projects: $PROJECTS)"
+          else
+            echo "is_group=false"    >> "$GITHUB_OUTPUT"
+            echo "projects=$PACKAGE" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v5
@@ -112,33 +137,41 @@ jobs:
       - name: Verify publishable package by tag
         if: steps.ctx.outputs.mode == 'tag'
         run: |
-          PROJECTS=$(pnpm nx show projects --with-target nx-release-publish)
-          if echo "$PROJECTS" | grep -qx "^${{ steps.ctx.outputs.package }}$"; then
-            echo "Package '${{ steps.ctx.outputs.package }}' is valid for publishing"
+          if [ "${{ steps.group.outputs.is_group }}" = "true" ]; then
+            echo "'${{ steps.ctx.outputs.package }}' belongs to fixed release group '${{ steps.group.outputs.group }}' - will publish: ${{ steps.group.outputs.projects }}"
           else
-            echo "'${{ steps.ctx.outputs.package }}' is not a project configured for publishing"
-            echo "Publishable projects:"
-            echo "$PROJECTS"
-            echo "Skipping publish"
-            exit 0
+            PROJECTS=$(pnpm nx show projects --with-target nx-release-publish)
+            if echo "$PROJECTS" | grep -qx "^${{ steps.ctx.outputs.package }}$"; then
+              echo "Package '${{ steps.ctx.outputs.package }}' is valid for publishing"
+            else
+              echo "'${{ steps.ctx.outputs.package }}' is not a project configured for publishing"
+              echo "Publishable projects:"
+              echo "$PROJECTS"
+              echo "Skipping publish"
+              exit 0
+            fi
           fi
 
-      # Build package by tag or all publishable packages
+      # Build package (or all group members) by tag, or all publishable packages
       - name: Build
         run: |
           if [ "${{ steps.ctx.outputs.mode }}" = "tag" ]; then
-            pnpm nx build "${{ steps.ctx.outputs.package }}"
+            pnpm nx run-many -t build -p "${{ steps.group.outputs.projects }}"
           else
             pnpm nx show projects --with-target nx-release-publish | xargs -t pnpm nx run-many -t build -p
           fi
 
-      # Publish package by tag or pending packages if any
+      # Publish package (or fixed group) by tag, or pending packages if any
       # Auth is via npm Trusted Publishing (OIDC) - no NODE_AUTH_TOKEN needed,
       # relies on the id-token: write permission above.
       - name: Publish
         run: |
           if [ "${{ steps.ctx.outputs.mode }}" = "tag" ]; then
-            pnpm nx release publish -p "${{ steps.ctx.outputs.package }}" ${{ steps.ctx.outputs.dry_flag }}
+            if [ "${{ steps.group.outputs.is_group }}" = "true" ]; then
+              pnpm nx release publish --groups "${{ steps.group.outputs.group }}" ${{ steps.ctx.outputs.dry_flag }}
+            else
+              pnpm nx release publish -p "${{ steps.ctx.outputs.package }}" ${{ steps.ctx.outputs.dry_flag }}
+            fi
           else
             pnpm nx release publish ${{ steps.ctx.outputs.dry_flag }}
           fi

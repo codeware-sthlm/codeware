@@ -122,6 +122,9 @@
         "projectsRelationship": "fixed",
         "version": {
           "groupPreVersionCommand": "pnpm nx run-many -t build"
+        },
+        "releaseTag": {
+          "pattern": "{releaseGroupName}-{version}"
         }
       },
       "packages": {

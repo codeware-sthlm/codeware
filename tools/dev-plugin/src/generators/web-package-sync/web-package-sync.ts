@@ -9,10 +9,12 @@ const WEB_PROJECT_ROOT = 'apps/web';
 const WEB_PACKAGE_JSON = `${WEB_PROJECT_ROOT}/package.json`;
 
 /**
- * `apps/web` is NOT a pnpm workspace member — this repo has no
- * `pnpm-workspace.yaml`, so the root lockfile has a single importer. Its
- * `package.json` is a hand-curated runtime manifest consumed only by the
- * Docker runtime stage (`apps/web/Dockerfile`), which installs from it.
+ * `apps/web` is NOT a pnpm workspace member — the root `pnpm-workspace.yaml`
+ * carries no `packages:` field, so the root lockfile still has a single
+ * importer. `apps/web` has its own `pnpm-workspace.yaml` (settings only, e.g.
+ * `allowBuilds`) alongside its standalone lockfile. Its `package.json` is a
+ * hand-curated runtime manifest consumed only by the Docker runtime stage
+ * (`apps/web/Dockerfile`), which installs from it.
  *
  * That runtime install was lockfile-less, so it re-resolved dependency ranges
  * against the live registry at image-build time — versions could drift from

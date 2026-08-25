@@ -34,7 +34,7 @@ launch-templates:
         inputs:
           node_version: "22.22.2"
 
-      # Uses corepack + the `packageManager` field (pnpm@9.15.9) automatically.
+      # Uses corepack + the `packageManager` field (pnpm@11.23.0) automatically.
       - name: Install Node Modules
         uses: "nrwl/nx-cloud-workflows/v6/workflow-steps/install-node-modules/main.yaml"
 

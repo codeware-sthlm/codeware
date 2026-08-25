@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim AS base
+FROM node:22-bookworm-slim AS base
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -7,7 +7,7 @@ RUN apt-get update \
 
 FROM base AS deps
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.23.0
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -21,7 +21,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN pnpm install --frozen-lockfile \
   && pnpm store prune \
@@ -78,7 +78,7 @@ RUN npx nx build cms
 RUN ./node_modules/.bin/esbuild apps/cms/src/migrate.ts \
   --bundle \
   --platform=node \
-  --target=node20 \
+  --target=node22 \
   --format=esm \
   --banner:js="import { createRequire as _createRequire } from 'module'; const require = _createRequire(import.meta.url);" \
   --loader:.css=empty \

@@ -86,7 +86,7 @@ jobs:
 
       - name: Install pnpm package manager
         if: steps.gate.outputs.run_status == 'true'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
         if: steps.gate.outputs.run_status == 'true'
@@ -144,7 +144,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install pnpm package manager
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v5
         with:
@@ -225,7 +225,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install pnpm package manager
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v5
         with:

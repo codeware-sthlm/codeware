@@ -1,0 +1,25 @@
+catalog:
+  react: ^19.0.0
+  react-dom: ^19.0.0
+
+overrides:
+  react: "catalog:"
+  react-dom: "catalog:"
+  tar: ">=7.5.11"
+  fast-xml-parser: ">=4.5.5"
+  "@remix-run/server-runtime": ">=2.17.3"
+  postcss: ">=8.5.14"
+
+allowBuilds:
+  "@evilmartians/lefthook": true
+  "@homebridge/node-pty-prebuilt-multiarch": true
+  "@parcel/watcher": true
+  "@sentry/cli": true
+  "@swc/core": true
+  core-js-pure: true
+  esbuild: true
+  less: true
+  msw: true
+  nx: true
+  sharp: true
+  unrs-resolver: true

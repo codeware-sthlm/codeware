@@ -13,13 +13,13 @@ RUN apt-get update -qq \
    python-is-python3 \
   && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g pnpm@9.15.9
+RUN npm install -g pnpm@11.23.0
 
 FROM base AS builder
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN pnpm install --frozen-lockfile
 
@@ -67,7 +67,7 @@ ARG APP_BUILD_TIME
 ENV APP_SHA=$APP_SHA \
     APP_BUILD_TIME=$APP_BUILD_TIME
 
-COPY --from=builder /app/apps/web/package.json /app/apps/web/pnpm-lock.yaml ./
+COPY --from=builder /app/apps/web/package.json /app/apps/web/pnpm-lock.yaml /app/apps/web/pnpm-workspace.yaml ./
 
 # Install runtime deps reproducibly from the committed lockfile so the image
 # ships the exact versions the workspace built against (build == runtime).

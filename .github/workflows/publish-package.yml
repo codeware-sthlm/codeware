@@ -103,6 +103,8 @@ jobs:
         id: group
         if: steps.ctx.outputs.mode == 'tag'
         run: |
+          set -euo pipefail
+
           PACKAGE="${{ steps.ctx.outputs.package }}"
           GROUP=$(jq -r --arg p "$PACKAGE" '
             .release.groups
@@ -124,11 +126,14 @@ jobs:
 
       - uses: pnpm/action-setup@v6
 
+      # No registry-url: it templates an _authToken=${NODE_AUTH_TOKEN} line into
+      # .npmrc regardless of whether that env var is set, and an empty token there
+      # makes npm attempt (and fail) classic auth instead of falling through to
+      # OIDC trusted publishing. npm already defaults to registry.npmjs.org.
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://registry.npmjs.org/
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

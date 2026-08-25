@@ -132,14 +132,9 @@ jobs:
             pnpm nx show projects --with-target nx-release-publish | xargs -t pnpm nx run-many -t build -p
           fi
 
-      - name: Verify NPM token
-        run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "NPM_TOKEN is not set"
-            exit 1
-          fi
-
       # Publish package by tag or pending packages if any
+      # Auth is via npm Trusted Publishing (OIDC) - no NODE_AUTH_TOKEN needed,
+      # relies on the id-token: write permission above.
       - name: Publish
         run: |
           if [ "${{ steps.ctx.outputs.mode }}" = "tag" ]; then
@@ -149,5 +144,4 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ github.token }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

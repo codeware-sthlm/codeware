@@ -41,10 +41,7 @@ export default defineConfig({
   root: __dirname,
   build: {
     target: ['node20', 'esnext'],
-    // TODO(COD-455): temporarily disabled (was `sentryEnabled`) to unblock the
-    // Docker build — investigate and restore once the fly-build-action log
-    // truncation issue is understood.
-    sourcemap: false
+    sourcemap: sentryEnabled
   },
   ssr: {
     // sanitize-html's dependency tree breaks at runtime when left external:

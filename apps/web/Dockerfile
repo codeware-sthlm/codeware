@@ -13,7 +13,7 @@ RUN apt-get update -qq \
    python-is-python3 \
   && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9.15.9
 
 FROM base AS builder
 

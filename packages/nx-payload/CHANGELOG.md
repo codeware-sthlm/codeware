@@ -1,3 +1,9 @@
+## 2.3.0 (2026-08-25)
+
+### 🐞 Bug Fixes
+
+- **nx-payload:** declare @nx/eslint, @nx/js and @nx/next as peers ([200e00a8](https://github.com/codeware-sthlm/cdwr/commit/200e00a8))
+
 ## 2.2.1 (2026-01-02)
 
 ### ⚡️ Performance Improvements

@@ -1,6 +1,6 @@
 {
   "name": "@cdwr/nx-ai",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "The Nx AI plugin adds AI-powered project analysis to an Nx workspace.",
   "repository": {

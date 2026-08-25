@@ -1,3 +1,47 @@
+## 0.3.1 (2026-08-25)
+
+### ✨ Features
+
+- **app-cms:** show the certificates Fly issued for a domain ([c7983c5d](https://github.com/codeware-sthlm/cdwr/commit/c7983c5d))
+- **fly-node:** restart app machines over the rest api ([3367b887](https://github.com/codeware-sthlm/cdwr/commit/3367b887))
+- **fly-node:** expose the graphql client as its own entry point ([52db8c26](https://github.com/codeware-sthlm/cdwr/commit/52db8c26))
+- **fly-node:** manage certificates over the graphql api ([15c0b89c](https://github.com/codeware-sthlm/cdwr/commit/15c0b89c))
+- **fly-node:** add ssh exec to run commands in a machine ([ba3ee3c6](https://github.com/codeware-sthlm/cdwr/commit/ba3ee3c6))
+- **fly-node:** add build response schema and export missing types ([73ce64e8](https://github.com/codeware-sthlm/cdwr/commit/73ce64e8))
+- **fly-node:** add machine management methods ([dbdf0f54](https://github.com/codeware-sthlm/cdwr/commit/dbdf0f54))
+- **repo:** shared preview database ([f48d959e](https://github.com/codeware-sthlm/cdwr/commit/f48d959e))
+- **fly-node:** add option to stream to console ([1bb02e33](https://github.com/codeware-sthlm/cdwr/commit/1bb02e33))
+- **fly-node:** support build arguments in deploy command ([dfa1736a](https://github.com/codeware-sthlm/cdwr/commit/dfa1736a))
+
+### 🐞 Bug Fixes
+
+- **app-cms:** show fly's own prose for a failed certificate check ([3c047d0c](https://github.com/codeware-sthlm/cdwr/commit/3c047d0c))
+- **fly-node:** match config save to fly's real api ([6af2597c](https://github.com/codeware-sthlm/cdwr/commit/6af2597c))
+- **fly-node:** pin flyctl to one file ci and local both read ([c18203bf](https://github.com/codeware-sthlm/cdwr/commit/c18203bf))
+- **fly-node:** match certificate check and add to fly's real api ([020b06a8](https://github.com/codeware-sthlm/cdwr/commit/020b06a8))
+- **fly-node:** treat a missing certificate as an answer, not a fault ([75714e87](https://github.com/codeware-sthlm/cdwr/commit/75714e87))
+- **repo:** import defineConfig from vitest/config in test configs ([69a6d471](https://github.com/codeware-sthlm/cdwr/commit/69a6d471))
+- **core:** split vitest-only exports into separate entry point ([489f297a](https://github.com/codeware-sthlm/cdwr/commit/489f297a))
+- **fly-node:** add machines.update for per-machine config updates ([a5498c8e](https://github.com/codeware-sthlm/cdwr/commit/a5498c8e))
+
+### 🧹 Code Refactoring
+
+- **repo:** split @cdwr/core into shared util libs ([797f20d0](https://github.com/codeware-sthlm/cdwr/commit/797f20d0))
+
+### 📄 Documentation
+
+- **fly-node:** document machine restarts in the FlyApi readme ([7030a6ac](https://github.com/codeware-sthlm/cdwr/commit/7030a6ac))
+- **fly-node:** update README with machine methods ([57cfce9c](https://github.com/codeware-sthlm/cdwr/commit/57cfce9c))
+
+### ⚙️ Miscellaneous Chores
+
+- repoint repo urls to codeware-sthlm/cdwr ([969d3614](https://github.com/codeware-sthlm/cdwr/commit/969d3614))
+- migrate to nx 23.1.0 ([1fd45d5b](https://github.com/codeware-sthlm/cdwr/commit/1fd45d5b))
+
+### ✅ Tests
+
+- **fly-node:** cover the graphql client with fixtures and a drift check ([eef458aa](https://github.com/codeware-sthlm/cdwr/commit/eef458aa))
+
 ## 0.3.0 (2026-01-02)
 
 ### ✨ Features

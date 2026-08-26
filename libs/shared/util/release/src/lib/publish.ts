@@ -1,7 +1,6 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { execSync } from 'child_process';
 
-import { getPackageManagerCommand } from '@nx/devkit';
+import { createProjectGraphAsync, getPackageManagerCommand } from '@nx/devkit';
 import chalk from 'chalk';
 import { releasePublish } from 'nx/release';
 
@@ -21,14 +20,30 @@ export const publish = async (options: {
   console.log(`${chalk.magenta.underline('Publish packages')}\n`);
 
   try {
+    // Restrict to projects that actually have a "nx-release-publish" target.
+    // Without this, nx matches every project in every release group - including
+    // the "apps" group (cms, web), which are versioned/tagged but never published
+    // to npm - and throws because they have no such target.
+    const { nodes } = await createProjectGraphAsync();
+    const projects = Object.values(nodes)
+      .filter((node) => node.data.targets?.['nx-release-publish'])
+      .map((node) => node.name);
+
+    // "nx-release-publish" only pushes an existing dist/ to the registry, it
+    // never builds - and `release` mode's own version-bump step (which does
+    // build) may be skipped when re-running publish standalone. Rebuild here
+    // so a stale dist/ never gets published. Streamed via stdio: 'inherit'
+    // instead of captured, so a large build never blows exec's maxBuffer.
     const pm = getPackageManagerCommand();
-    const { stdout } = await promisify(exec)(`${pm.exec} nx run-many -t build`);
-    console.log(stdout);
+    execSync(`${pm.exec} nx run-many -t build -p ${projects.join(',')}`, {
+      stdio: 'inherit'
+    });
 
     const result = await releasePublish({
       dryRun,
       verbose,
-      otp
+      otp,
+      projects
     });
 
     const total = Object.values(result).length;

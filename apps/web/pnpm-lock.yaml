@@ -28,7 +28,7 @@ importers:
         version: 2.2.0(react@19.2.3)
       '@hono/node-server':
         specifier: 1.19.14
-        version: 1.19.14(hono@4.12.25)
+        version: 1.19.14(hono@4.12.34)
       '@icons-pack/react-simple-icons':
         specifier: 12.9.0
         version: 12.9.0(react@19.2.3)
@@ -99,8 +99,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       hono:
-        specifier: 4.12.25
-        version: 4.12.25
+        specifier: 4.12.34
+        version: 4.12.34
       isbot:
         specifier: 4.4.0
         version: 4.4.0
@@ -2966,8 +2966,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.12.25:
-    resolution: {integrity: sha512-2NFaIyNVgJmBs/ecmtGzlmluTFs5cHEWGTdu0t1HBwYzoGXOL5nUQBRMXsXWla5i4KkG//QMzVP88m1+I3fdAQ==}
+  hono@4.12.34:
+    resolution: {integrity: sha512-GqXJqY/xJkJmuloTrnV1ZEXG3fqte+VjkUqoRNZXcrUidiUOP4fMSIHHY4tsqZBK++kVyWmt/AAfSUuy57/eSA==}
     engines: {node: '>=16.9.0'}
 
   htmlparser2@12.0.0:
@@ -4814,9 +4814,9 @@ snapshots:
     dependencies:
       react: 19.2.3
 
-  '@hono/node-server@1.19.14(hono@4.12.25)':
+  '@hono/node-server@1.19.14(hono@4.12.34)':
     dependencies:
-      hono: 4.12.25
+      hono: 4.12.34
 
   '@icons-pack/react-simple-icons@12.9.0(react@19.2.3)':
     dependencies:
@@ -7435,7 +7435,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.12.25: {}
+  hono@4.12.34: {}
 
   htmlparser2@12.0.0:
     dependencies:
@@ -8286,7 +8286,7 @@ snapshots:
   remix-hono@0.0.16(typescript@5.7.3)(zod@3.25.76):
     dependencies:
       '@remix-run/server-runtime': 2.15.3(typescript@5.7.3)
-      hono: 4.12.25
+      hono: 4.12.34
       pretty-cache-header: 1.0.0
     optionalDependencies:
       zod: 3.25.76

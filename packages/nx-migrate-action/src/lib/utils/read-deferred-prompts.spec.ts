@@ -43,6 +43,22 @@ describe('readDeferredPrompts', () => {
     ]);
   });
 
+  it('skips invalid entries and keeps the valid ones', () => {
+    migrationsFile([
+      null,
+      'not an object',
+      { prompt: 'tools/ai-migrations/nx/1.0.0/no-name.md' },
+      { name: 42, prompt: 'tools/ai-migrations/nx/1.0.0/bad-name.md' },
+      { name: 'empty-prompt', prompt: '' },
+      { name: 'valid', prompt: 'tools/ai-migrations/nx/1.0.0/a.md' }
+    ]);
+
+    expect(readDeferredPrompts()).toEqual([
+      { name: 'valid', prompt: 'tools/ai-migrations/nx/1.0.0/a.md' }
+    ]);
+    expect(warningMock).not.toHaveBeenCalled();
+  });
+
   it('returns empty list when the migrations file is missing', () => {
     existsSyncMock.mockReturnValue(false);
 

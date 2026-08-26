@@ -60,8 +60,9 @@ export const runMigration = async (
   core.info('Formatting migrated files');
   try {
     await exec.exec(pmc.exec, ['nx', 'format:write']);
-  } catch {
-    core.warning('Formatting failed, continue migration anyway');
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    core.warning(`Formatting failed, continue migration anyway: ${reason}`);
   }
 
   core.info('Migration completed');

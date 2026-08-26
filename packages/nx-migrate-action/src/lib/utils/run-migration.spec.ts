@@ -7,6 +7,9 @@ import type { MigrateConfig } from './types';
 type ExecCall = { cmd: string; args?: string[]; options?: any };
 
 const execCalls: ExecCall[] = [];
+// Allow a test to fail the format command
+let formatFails = false;
+
 // Mock log functions
 const infoMock = jest.fn();
 const debugMock = jest.fn();
@@ -22,6 +25,10 @@ jest.mock('@actions/exec', () => ({
   exec: (cmd: string, args?: string[], options?: any) => {
     // Track all calls
     execCalls.push({ cmd, args, options });
+
+    if (formatFails && args?.includes('format:write')) {
+      return Promise.reject(new Error('prettier exploded'));
+    }
 
     // Should always be successful
     return Promise.resolve(0);
@@ -73,6 +80,7 @@ describe('runMigration', () => {
     jest.clearAllMocks();
     replaceInFileMock.mockReset();
     execCalls.length = 0;
+    formatFails = false;
     readDeferredPromptsMock.mockReturnValue([]);
   });
 
@@ -151,6 +159,21 @@ describe('runMigration', () => {
     expect(warningMock).toHaveBeenCalledWith(
       '1 prompt migration(s) require an AI agent and will be deferred'
     );
+  });
+
+  it('warns with the reason and completes when formatting fails', async () => {
+    formatFails = true;
+
+    replaceInFileMock.mockResolvedValue([
+      { file: 'package.json', hasChanged: false }
+    ]);
+
+    await expect(runMigration(config, '22.0.0')).resolves.toEqual([]);
+
+    expect(warningMock).toHaveBeenCalledWith(
+      'Formatting failed, continue migration anyway: prettier exploded'
+    );
+    expect(infoMock).toHaveBeenCalledWith('Migration completed');
   });
 
   it('returns no deferred prompts when there are no prompt migrations', async () => {

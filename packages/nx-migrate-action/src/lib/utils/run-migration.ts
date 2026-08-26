@@ -15,13 +15,8 @@ export const runMigration = async (
   core.info('Running Nx migrate');
   await exec.exec(pmc.exec, ['nx', 'migrate', latestVersion]);
 
-  core.info('Adding create-nx-workspace dependency');
-  await exec.exec(pmc.exec, [
-    'nx',
-    'add',
-    `create-nx-workspace@${latestVersion}`
-  ]);
-
+  // Migrate leaves the lock file untouched, so nothing may run via the
+  // package manager until dependencies are installed again
   core.info('Installing dependencies');
   await exec.exec(pmc.install);
 
@@ -55,6 +50,13 @@ export const runMigration = async (
     },
     allowEmptyPaths: true
   });
+
+  core.info('Formatting migrated files');
+  try {
+    await exec.exec(pmc.exec, ['nx', 'format:write']);
+  } catch {
+    core.warning('Formatting failed, continue migration anyway');
+  }
 
   core.info('Migration completed');
 };

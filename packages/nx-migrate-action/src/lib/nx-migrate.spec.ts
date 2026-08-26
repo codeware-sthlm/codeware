@@ -469,15 +469,11 @@ describe('nxMigrate', () => {
         ]);
       });
 
-      it('should add create-nx-workspace dependency for latest version', async () => {
+      it('should format migrated files', async () => {
         const config = setupTest('minor-update');
         await nxMigrate(config, true);
 
-        expect(execMock).toHaveBeenCalledWith('npx', [
-          'nx',
-          'add',
-          'create-nx-workspace@1.1.0'
-        ]);
+        expect(execMock).toHaveBeenCalledWith('npx', ['nx', 'format:write']);
       });
 
       it('should install dependencies and allow lock file update', async () => {

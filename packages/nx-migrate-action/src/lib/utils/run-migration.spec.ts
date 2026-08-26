@@ -13,9 +13,11 @@ let migrationsExist = true;
 // Mock log functions
 const infoMock = jest.fn();
 const debugMock = jest.fn();
+const warningMock = jest.fn();
 jest.mock('@actions/core', () => ({
   info: (args: any[]) => infoMock(args),
-  debug: (args: any[]) => debugMock(args)
+  debug: (args: any[]) => debugMock(args),
+  warning: (args: any[]) => warningMock(args)
 }));
 
 // Mock exec to capture calls and simulate migrations.json presence
@@ -114,14 +116,14 @@ describe('runMigration', () => {
     expect(execCalls.map((c) => [c.cmd, c.args])).toEqual([
       // nx migrate <latest>
       [packageManager, ['nx', 'migrate', '22.0.0']],
-      // nx add create-nx-workspace@<latest>
-      [packageManager, ['nx', 'add', 'create-nx-workspace@22.0.0']],
       // install
       [`${packageManager} install`, undefined],
       // check for migrations.json
       ['test', ['-f', 'migrations.json']],
       // run migrations
-      [packageManager, ['nx', 'migrate', '--run-migrations']]
+      [packageManager, ['nx', 'migrate', '--run-migrations']],
+      // format migrated files
+      [packageManager, ['nx', 'format:write']]
     ]);
 
     // Check replaceInFile

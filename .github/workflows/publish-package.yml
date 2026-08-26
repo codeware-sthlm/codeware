@@ -179,7 +179,10 @@ jobs:
               pnpm nx release publish -p "${{ steps.ctx.outputs.package }}" ${{ steps.ctx.outputs.dry_flag }}
             fi
           else
-            pnpm nx release publish ${{ steps.ctx.outputs.dry_flag }}
+            # Filter to publishable projects - an unfiltered `nx release publish`
+            # also matches the "apps" release group (cms, web), which is versioned
+            # for the deployment workflow but has no nx-release-publish target.
+            pnpm nx show projects --with-target nx-release-publish | xargs -t pnpm nx release publish ${{ steps.ctx.outputs.dry_flag }} -p
           fi
         env:
           GH_TOKEN: ${{ github.token }}

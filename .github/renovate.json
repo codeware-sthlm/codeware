@@ -28,6 +28,12 @@
   "rangeStrategy": "auto",
   "dependencyDashboard": true,
 
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "apps/web/package.json"
+  ],
+
   "lockFileMaintenance": {
     "enabled": true
   },

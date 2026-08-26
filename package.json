@@ -68,7 +68,7 @@
     "cmdk": "^1.1.1",
     "fast-glob": "^3.3.2",
     "graphql": "^16.10.0",
-    "hono": "^4.12.14",
+    "hono": "^4.12.25",
     "http-status-codes": "^2.3.0",
     "isbot": "^4.4.0",
     "lucide-react": "^0.577.0",

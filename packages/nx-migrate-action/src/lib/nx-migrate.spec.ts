@@ -11,6 +11,7 @@ import * as cleanupPullRequests from './utils/cleanup-pull-requests';
 import * as createPullRequest from './utils/create-pull-request';
 import * as enablePullRequestAutoMerge from './utils/enable-pull-request-auto-merge';
 import * as getNxVersionInfo from './utils/get-nx-version-info';
+import * as readDeferredPrompts from './utils/read-deferred-prompts';
 import * as runNxE2e from './utils/run-nx-e2e';
 import * as runNxTests from './utils/run-nx-tests';
 import type { ActionInputs } from './utils/types';
@@ -60,6 +61,10 @@ describe('nxMigrate', () => {
     'enablePullRequestAutoMerge'
   );
   const getNxVersionInfoMock = jest.spyOn(getNxVersionInfo, 'getNxVersionInfo');
+  const readDeferredPromptsMock = jest.spyOn(
+    readDeferredPrompts,
+    'readDeferredPrompts'
+  );
   const runNxTestsMock = jest.spyOn(runNxTests, 'runNxTests');
   const runNxE2eMock = jest.spyOn(runNxE2e, 'runNxE2e');
 
@@ -142,6 +147,7 @@ describe('nxMigrate', () => {
       exec: 'npx',
       install: 'npm install --no-immutable'
     } as never);
+    readDeferredPromptsMock.mockReturnValue([]);
     replaceInFileMock.mockResolvedValue([] as never);
     runNxE2eMock.mockResolvedValue(true);
     runNxTestsMock.mockResolvedValue(true);
@@ -483,7 +489,7 @@ describe('nxMigrate', () => {
         expect(execMock).toHaveBeenCalledWith('npm install --no-immutable');
       });
 
-      it('should run migrations when migrations.json exist', async () => {
+      it('should run migrations without a redundant install', async () => {
         execMock.mockResolvedValue(0);
         const config = setupTest('minor-update');
         await nxMigrate(config, true);
@@ -491,21 +497,9 @@ describe('nxMigrate', () => {
         expect(execMock).toHaveBeenCalledWith('npx', [
           'nx',
           'migrate',
-          '--run-migrations'
-        ]);
-      });
-
-      it('should not run migrations when migrations.json is missing', async () => {
-        execMock.mockImplementation((cmd) =>
-          Promise.resolve(cmd === 'test' ? 1 : 0)
-        );
-        const config = setupTest('minor-update');
-        await nxMigrate(config, true);
-
-        expect(execMock).not.toHaveBeenCalledWith('npx', [
-          'nx',
-          'migrate',
-          '--run-migrations'
+          '--run-migrations',
+          '--if-exists',
+          '--skip-install'
         ]);
       });
 
@@ -637,6 +631,7 @@ describe('nxMigrate', () => {
         expect.any(Object),
         { currentVersion: '1.0.0', latestVersion: '1.1.0' },
         {
+          deferredPrompts: [],
           e2ePass: true,
           testsPass: true
         }
@@ -710,6 +705,23 @@ describe('nxMigrate', () => {
         'token',
         1,
         'Auto-merge is disabled for major version migrations'
+      );
+    });
+
+    it('should not call enable pull request auto merge function when prompt migrations were deferred', async () => {
+      readDeferredPromptsMock.mockReturnValue([
+        { name: '1-1-0-do-thing', prompt: 'tools/ai-migrations/do.md' }
+      ]);
+      const config = setupTest('minor-update', {
+        autoMerge: true
+      });
+      await nxMigrate(config, true);
+
+      expect(enablePullRequestAutoMergeMock).not.toHaveBeenCalled();
+      expect(addPullRequestCommentMock).toHaveBeenCalledWith(
+        'token',
+        1,
+        'Auto-merge was disabled since some prompt migrations must be applied manually'
       );
     });
 

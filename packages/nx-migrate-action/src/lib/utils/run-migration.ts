@@ -3,13 +3,14 @@ import * as exec from '@actions/exec';
 import { getPackageManagerCommand } from '@nx/devkit';
 import { replaceInFile } from 'replace-in-file';
 
-import type { MigrateConfig } from './types';
+import { readDeferredPrompts } from './read-deferred-prompts';
+import type { DeferredPrompt, MigrateConfig } from './types';
 import { updateDependencies } from './update-dependencies';
 
 export const runMigration = async (
   config: MigrateConfig,
   latestVersion: string
-) => {
+): Promise<Array<DeferredPrompt>> => {
   const pmc = getPackageManagerCommand();
 
   core.info('Running Nx migrate');
@@ -20,18 +21,23 @@ export const runMigration = async (
   core.info('Installing dependencies');
   await exec.exec(pmc.install);
 
-  // Check for and run migrations
-  const migrationsExist =
-    (await exec.exec('test', ['-f', 'migrations.json'], {
-      ignoreReturnCode: true
-    })) === 0;
-
-  if (migrationsExist) {
-    core.info('Running migrations');
-    await exec.exec(pmc.exec, ['nx', 'migrate', '--run-migrations']);
-  } else {
-    core.info('No migrations found');
+  const deferredPrompts = readDeferredPrompts();
+  if (deferredPrompts.length) {
+    core.warning(
+      `${deferredPrompts.length} prompt migration(s) require an AI agent and will be deferred`
+    );
   }
+
+  core.info('Running migrations');
+  await exec.exec(pmc.exec, [
+    'nx',
+    'migrate',
+    '--run-migrations',
+    // Continue successfully when nothing was generated to migrate
+    '--if-exists',
+    // Dependencies are already installed above, with lifecycle scripts enabled
+    '--skip-install'
+  ]);
 
   core.info('Update version references in package.json files');
 
@@ -59,4 +65,6 @@ export const runMigration = async (
   }
 
   core.info('Migration completed');
+
+  return deferredPrompts;
 };

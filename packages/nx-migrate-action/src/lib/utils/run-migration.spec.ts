@@ -7,9 +7,6 @@ import type { MigrateConfig } from './types';
 type ExecCall = { cmd: string; args?: string[]; options?: any };
 
 const execCalls: ExecCall[] = [];
-// Allow test to flip migrations exist flag
-let migrationsExist = true;
-
 // Mock log functions
 const infoMock = jest.fn();
 const debugMock = jest.fn();
@@ -20,18 +17,11 @@ jest.mock('@actions/core', () => ({
   warning: (args: any[]) => warningMock(args)
 }));
 
-// Mock exec to capture calls and simulate migrations.json presence
+// Mock exec to capture calls
 jest.mock('@actions/exec', () => ({
   exec: (cmd: string, args?: string[], options?: any) => {
     // Track all calls
     execCalls.push({ cmd, args, options });
-
-    const fullCmd = args ? `${cmd} ${args.join(' ')}` : cmd;
-
-    // Simulate migrations exists (0) or not (1)
-    if (fullCmd === 'test -f migrations.json') {
-      return Promise.resolve(migrationsExist ? 0 : 1);
-    }
 
     // Should always be successful
     return Promise.resolve(0);
@@ -68,6 +58,12 @@ jest.mock('./update-dependencies', () => ({
     updateDependenciesMock(text, latest)
 }));
 
+// Mock deferred prompts lookup, no prompt migrations by default
+const readDeferredPromptsMock = jest.fn(() => [] as Array<unknown>);
+jest.mock('./read-deferred-prompts', () => ({
+  readDeferredPrompts: () => readDeferredPromptsMock()
+}));
+
 describe('runMigration', () => {
   const config: MigrateConfig = {
     packagePatterns: ['**/package.json']
@@ -77,7 +73,7 @@ describe('runMigration', () => {
     jest.clearAllMocks();
     replaceInFileMock.mockReset();
     execCalls.length = 0;
-    migrationsExist = true;
+    readDeferredPromptsMock.mockReturnValue([]);
   });
 
   it('runs migration and updates package.json specs', async () => {
@@ -118,10 +114,11 @@ describe('runMigration', () => {
       [packageManager, ['nx', 'migrate', '22.0.0']],
       // install
       [`${packageManager} install`, undefined],
-      // check for migrations.json
-      ['test', ['-f', 'migrations.json']],
-      // run migrations
-      [packageManager, ['nx', 'migrate', '--run-migrations']],
+      // run migrations, Nx skips them when nothing was generated
+      [
+        packageManager,
+        ['nx', 'migrate', '--run-migrations', '--if-exists', '--skip-install']
+      ],
       // format migrated files
       [packageManager, ['nx', 'format:write']]
     ]);
@@ -141,28 +138,29 @@ describe('runMigration', () => {
     expect(infoMock).toHaveBeenCalledWith('Migration completed');
   });
 
-  it('skips running migrations when migrations.json is missing', async () => {
-    migrationsExist = false;
+  it('returns deferred prompt migrations and warns about them', async () => {
+    const deferred = [{ name: '22-0-0-do-thing', prompt: 'tools/ai/do.md' }];
+    readDeferredPromptsMock.mockReturnValue(deferred);
 
     replaceInFileMock.mockResolvedValue([
       { file: 'package.json', hasChanged: false }
     ]);
 
-    await runMigration(config, '22.0.0');
+    await expect(runMigration(config, '22.0.0')).resolves.toEqual(deferred);
 
-    // Ensure migrations file check was made but no run-migrations call
-    expect(execCalls).toContainEqual({
-      cmd: 'test',
-      args: ['-f', 'migrations.json'],
-      options: expect.any(Object)
-    });
+    expect(warningMock).toHaveBeenCalledWith(
+      '1 prompt migration(s) require an AI agent and will be deferred'
+    );
+  });
 
-    expect(
-      execCalls.some(({ args }) => args?.includes('--run-migrations'))
-    ).toBe(false);
+  it('returns no deferred prompts when there are no prompt migrations', async () => {
+    replaceInFileMock.mockResolvedValue([
+      { file: 'package.json', hasChanged: false }
+    ]);
 
-    // Check some important logs
-    expect(infoMock).toHaveBeenCalledWith('No migrations found');
+    await expect(runMigration(config, '22.0.0')).resolves.toEqual([]);
+
+    expect(warningMock).not.toHaveBeenCalled();
     expect(infoMock).toHaveBeenCalledWith('Migration completed');
   });
 });

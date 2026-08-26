@@ -3,18 +3,22 @@ import * as github from '@actions/github';
 import { withGitHub } from '@codeware/shared/util/github';
 
 import { getFeatureBranchName } from './get-feature-branch-name';
-import type { MigrateConfig, VersionInfo } from './types';
+import type { DeferredPrompt, MigrateConfig, VersionInfo } from './types';
 
 export const createPullRequest = async (
   config: MigrateConfig,
   versionInfo: Pick<VersionInfo, 'currentVersion' | 'latestVersion'>,
-  status: { testsPass?: boolean; e2ePass?: boolean }
+  status: {
+    testsPass?: boolean;
+    e2ePass?: boolean;
+    deferredPrompts?: Array<DeferredPrompt>;
+  }
 ): Promise<number> => {
   const { mainBranch, skipE2E, skipTests, token } = config;
   const octokit = github.getOctokit(token);
 
   const { currentVersion, latestVersion } = versionInfo;
-  const { e2ePass, testsPass } = status;
+  const { deferredPrompts = [], e2ePass, testsPass } = status;
 
   const branchName = getFeatureBranchName(latestVersion);
 
@@ -25,6 +29,17 @@ export const createPullRequest = async (
   }
   if (!skipE2E) {
     prBody.push(e2ePass ? '✅ E2E tests passed' : '⚠️ E2E tests failed', '');
+  }
+  if (deferredPrompts.length) {
+    prBody.push(
+      `⚠️ ${deferredPrompts.length} prompt migration(s) were not applied`,
+      '',
+      'Nx defers prompt migrations to an interactive AI agent, which is not available in CI.',
+      'The prompt files are committed to this branch, apply them locally in the listed order:',
+      '',
+      ...deferredPrompts.map(({ name, prompt }) => `- \`${prompt}\` (${name})`),
+      ''
+    );
   }
   prBody.push(
     '',

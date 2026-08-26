@@ -40,6 +40,12 @@
 
   "packageRules": [
     {
+      "description": "Leave the generated 'apps/web' lockfile to nx sync",
+      "matchFileNames": ["apps/web/**"],
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "enabled": false
+    },
+    {
       "description": "Security updates configuration",
       "matchUpdateTypes": ["patch", "minor", "major"],
       "matchCategories": ["security"],

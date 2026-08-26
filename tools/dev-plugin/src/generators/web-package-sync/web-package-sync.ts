@@ -29,9 +29,9 @@ const WEB_PACKAGE_JSON = `${WEB_PROJECT_ROOT}/package.json`;
  *   2. Regenerate `apps/web/pnpm-lock.yaml` from the pinned manifest (post-flush
  *      callback) so the Docker `--frozen-lockfile` install is reproducible.
  *
- * Renovate is barred from `apps/web/package.json` (`ignorePaths` in
- * `.github/renovate.json`) so it only ever bumps the root; `nx sync` re-pins
- * and re-locks web.
+ * `.github/renovate.json` keeps Renovate off both files — `ignorePaths` for the
+ * manifest, a `lockFileMaintenance` rule for the lockfile — so it only ever
+ * bumps the root; `nx sync` re-pins and re-locks web.
  */
 export async function webPackageSyncGenerator(
   tree: Tree

@@ -5,6 +5,18 @@ import { withGitHub } from '@codeware/shared/util/github';
 import { getFeatureBranchName } from './get-feature-branch-name';
 import type { DeferredPrompt, MigrateConfig, VersionInfo } from './types';
 
+/**
+ * Make a value from the migrations file safe to render inside a code span.
+ *
+ * Migration names and prompt paths originate from downloaded packages,
+ * so they must not be able to break out of the markdown they are placed in.
+ *
+ * @param value Value to make inline safe
+ * @returns Single line value without backticks
+ */
+const inline = (value: string): string =>
+  value.replace(/[`\r\n]+/g, ' ').trim();
+
 export const createPullRequest = async (
   config: MigrateConfig,
   versionInfo: Pick<VersionInfo, 'currentVersion' | 'latestVersion'>,
@@ -37,7 +49,9 @@ export const createPullRequest = async (
       'Nx defers prompt migrations to an interactive AI agent, which is not available in CI.',
       'The prompt files are committed to this branch, apply them locally in the listed order:',
       '',
-      ...deferredPrompts.map(({ name, prompt }) => `- \`${prompt}\` (${name})`),
+      ...deferredPrompts.map(
+        ({ name, prompt }) => `- \`${inline(prompt)}\` (\`${inline(name)}\`)`
+      ),
       ''
     );
   }

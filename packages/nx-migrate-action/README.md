@@ -32,6 +32,24 @@ An open pull request for a specific Nx version is considered pending and will bl
 
 On the other hand, when a new Nx version is released the action will automatically close any pending pull requests and create a new one. The pending pull request branches will be deleted.
 
+### Prompt migrations
+
+Nx 23 introduced prompt migrations, which are applied by an AI agent instead of a generator. The agentic flow is interactive-only, so it never runs in CI. The action detects these migrations, lists them in the pull request body and keeps auto-merge disabled until they have been applied manually.
+
+Their prompt files are written to `tools/ai-migrations/` and committed to the pull request branch, so applying them is a matter of checking out the branch and running the prompts in the listed order.
+
+The action does not pass `--agentic` in any form, which leaves `nx.json` as the single owner of the agentic choice:
+
+```jsonc
+{
+  "migrate": {
+    "agentic": true // or an agent id: "claude-code", "codex", "opencode"
+  }
+}
+```
+
+> Note that `migrate.agentic` also enables per-migration commits by default when the agentic flow actually runs.
+
 ## Usage
 
 Using the action is currently limited to this repository since the package isn't deployed.

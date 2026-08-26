@@ -14,6 +14,14 @@ export type ActionOutputs = Pick<
 
 export type MigrateConfig = z.infer<typeof MigrateConfigSchema>;
 
+/** A prompt migration Nx left for a developer to apply */
+export type DeferredPrompt = {
+  /** Migration name */
+  name: string;
+  /** Workspace relative path to the prompt file */
+  prompt: string;
+};
+
 export type VersionInfo = {
   currentVersion: string;
   latestVersion: string;

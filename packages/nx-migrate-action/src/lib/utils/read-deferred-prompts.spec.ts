@@ -1,0 +1,67 @@
+import { existsSync, readFileSync } from 'node:fs';
+
+import { readDeferredPrompts } from './read-deferred-prompts';
+
+jest.mock('node:fs', () => ({
+  existsSync: jest.fn(),
+  readFileSync: jest.fn()
+}));
+
+const warningMock = jest.fn();
+jest.mock('@actions/core', () => ({
+  warning: (args: unknown) => warningMock(args)
+}));
+
+const existsSyncMock = existsSync as jest.MockedFunction<typeof existsSync>;
+const readFileSyncMock = readFileSync as jest.MockedFunction<
+  typeof readFileSync
+>;
+
+const migrationsFile = (migrations: unknown) =>
+  readFileSyncMock.mockReturnValue(JSON.stringify({ migrations }));
+
+describe('readDeferredPrompts', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    existsSyncMock.mockReturnValue(true);
+  });
+
+  it('returns prompt migrations only', () => {
+    migrationsFile([
+      { name: 'generator-only', version: '1.0.0' },
+      { name: 'prompt-only', prompt: 'tools/ai-migrations/nx/1.0.0/a.md' },
+      {
+        name: 'hybrid',
+        implementation: './src/x',
+        prompt: 'tools/ai-migrations/nx/1.0.0/b.md'
+      }
+    ]);
+
+    expect(readDeferredPrompts()).toEqual([
+      { name: 'prompt-only', prompt: 'tools/ai-migrations/nx/1.0.0/a.md' },
+      { name: 'hybrid', prompt: 'tools/ai-migrations/nx/1.0.0/b.md' }
+    ]);
+  });
+
+  it('returns empty list when the migrations file is missing', () => {
+    existsSyncMock.mockReturnValue(false);
+
+    expect(readDeferredPrompts()).toEqual([]);
+    expect(readFileSyncMock).not.toHaveBeenCalled();
+  });
+
+  it('returns empty list when there are no migrations', () => {
+    migrationsFile(undefined);
+
+    expect(readDeferredPrompts()).toEqual([]);
+  });
+
+  it('warns and returns empty list when the migrations file is malformed', () => {
+    readFileSyncMock.mockReturnValue('not json');
+
+    expect(readDeferredPrompts()).toEqual([]);
+    expect(warningMock).toHaveBeenCalledWith(
+      "Could not read prompt migrations from 'migrations.json'"
+    );
+  });
+});

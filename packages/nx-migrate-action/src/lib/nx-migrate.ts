@@ -179,7 +179,7 @@ export async function nxMigrate(
       core.endGroup();
 
       core.startGroup('Run migration');
-      await runMigration(config, latestVersion);
+      const deferredPrompts = await runMigration(config, latestVersion);
       await stageAllChanges();
       core.endGroup();
 
@@ -212,6 +212,7 @@ export async function nxMigrate(
         config,
         { currentVersion, latestVersion },
         {
+          deferredPrompts,
           e2ePass,
           testsPass
         }
@@ -227,6 +228,13 @@ export async function nxMigrate(
             config.token,
             pullRequest,
             'Auto-merge is disabled for major version migrations'
+          );
+        } else if (deferredPrompts.length) {
+          core.info('Skip auto-merge since some migrations were deferred');
+          await addPullRequestComment(
+            config.token,
+            pullRequest,
+            'Auto-merge was disabled since some prompt migrations must be applied manually'
           );
         } else if (testsPass === false || e2ePass === false) {
           core.info('Skip auto-merge since some tests failed');

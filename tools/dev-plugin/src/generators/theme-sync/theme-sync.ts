@@ -8,6 +8,8 @@ const OUTPUT_CSS = 'apps/storybook/.storybook/themes.css';
 const OUTPUT_META = 'apps/storybook/.storybook/themes-meta.ts';
 const OUTPUT_SHARED_THEMES =
   'libs/shared/util/storybook/src/lib/storybook-themes.ts';
+const OUTPUT_SITE_CSS = `${CORE_PATH}/themes.css`;
+const OUTPUT_SITE_THEMES = `${THEME_LIB_PATH}/site-themes.ts`;
 
 /**
  * Themes included in the Storybook switcher.
@@ -20,7 +22,21 @@ const STORYBOOK_THEMES = [
   'codeware'
 ] as const;
 
+/**
+ * Themes a tenant site may select, scoped by `data-theme` on `<html>`.
+ *
+ * `payload-admin` is excluded on purpose: it exists to match Payload's admin
+ * chrome, so offering it as a public skin ships a site that looks like a CMS
+ * backend. Every entry must also be a Storybook theme — that is what runs the
+ * token completeness check.
+ */
+const SITE_THEMES = ['shadcn', 'spotlight', 'codeware'] as const;
+
+/** Theme names that would collide with the color scheme in `data-theme`. */
+const RESERVED_THEME_NAMES = ['light', 'dark'];
+
 type SbTheme = (typeof STORYBOOK_THEMES)[number];
+type SiteTheme = (typeof SITE_THEMES)[number];
 type DarkStrategy = 'class' | 'attribute';
 
 /**
@@ -56,14 +72,23 @@ function scopedBlock(selector: string, vars: string): string {
 }
 
 /**
- * Build the scoped dark selector for themes.css based on the detected strategy.
- *   class     → [data-sb-theme='x'].dark
- *   attribute → [data-sb-theme='x'][data-theme='dark']
+ * Build the scoped dark selector for a generated themes.css, based on the
+ * attribute that carries the theme name and the theme's own dark strategy.
+ *   class     → [<attr>='x'].dark
+ *   attribute → [<attr>='x'][data-theme='dark']
+ *
+ * The attribute strategy is only expressible while `<attr>` is not itself
+ * `data-theme` — one attribute cannot hold both the theme and the scheme.
+ * Site themes are validated to use the class strategy for that reason.
  */
-function darkSelector(theme: string, strategy: DarkStrategy): string {
+function darkSelector(
+  attr: string,
+  theme: string,
+  strategy: DarkStrategy
+): string {
   return strategy === 'class'
-    ? `[data-sb-theme='${theme}'].dark`
-    : `[data-sb-theme='${theme}'][data-theme='dark']`;
+    ? `[${attr}='${theme}'].dark`
+    : `[${attr}='${theme}'][data-theme='dark']`;
 }
 
 /** Extract all CSS custom property names defined in a block of CSS text. */
@@ -112,12 +137,60 @@ function generateThemesCss(
       scopedBlock(`[data-sb-theme="${theme}"]`, extractBlock(lightCss))
     );
     lines.push(
-      scopedBlock(darkSelector(theme, strategies[theme]), extractBlock(darkCss))
+      scopedBlock(
+        darkSelector('data-sb-theme', theme, strategies[theme]),
+        extractBlock(darkCss)
+      )
     );
     lines.push('');
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Site themes.css — the same token blocks as Storybook's, rescoped to the
+ * attribute the tenant site sets on `<html>`. One stylesheet carries every
+ * selectable theme, because tenants share a single image and pick at runtime.
+ */
+function generateSiteThemesCss(
+  tree: Tree,
+  strategies: Record<SbTheme, DarkStrategy>
+): string {
+  const lines: string[] = [
+    '/* AUTO-GENERATED — do not edit manually. Run `pnpm nx sync` to update. */',
+    ''
+  ];
+
+  for (const theme of SITE_THEMES) {
+    const lightCss =
+      tree.read(`${THEME_LIB_PATH}/${theme}/tokens-light.css`, 'utf-8') ?? '';
+    const darkCss =
+      tree.read(`${THEME_LIB_PATH}/${theme}/tokens-dark.css`, 'utf-8') ?? '';
+
+    lines.push(`/* ${theme} */`);
+    lines.push(scopedBlock(`[data-theme="${theme}"]`, extractBlock(lightCss)));
+    lines.push(
+      scopedBlock(
+        darkSelector('data-theme', theme, strategies[theme]),
+        extractBlock(darkCss)
+      )
+    );
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function generateSiteThemesTs(): string {
+  return [
+    '/* AUTO-GENERATED — do not edit manually. Run `pnpm nx sync` to update. */',
+    '',
+    `export const SITE_THEMES = ${JSON.stringify(SITE_THEMES)} as const;`,
+    '',
+    'export type SiteTheme = (typeof SITE_THEMES)[number];',
+    ''
+  ].join('\n');
 }
 
 function generateThemesMeta(
@@ -166,15 +239,65 @@ function generateThemesMeta(
   ].join('\n');
 }
 
+/**
+ * Guard the theme lists themselves, independent of any file contents.
+ *
+ * Exported so the rules stay covered by tests — they run against module
+ * constants, which a generator invocation cannot vary.
+ */
+export function validateThemeRegistry(
+  storybookThemes: readonly string[],
+  siteThemes: readonly string[]
+): void {
+  // A site theme is written into `data-theme`, where the shared dark variant
+  // also matches `[data-theme=dark]`. A theme named `light` or `dark` would be
+  // indistinguishable from the color scheme.
+  const reserved = storybookThemes.filter((t) =>
+    RESERVED_THEME_NAMES.includes(t)
+  );
+  if (reserved.length > 0) {
+    throw new Error(
+      `Theme names ${reserved.join(', ')} are reserved — they collide with ` +
+        `the color scheme in the site's data-theme attribute. Rename the theme.`
+    );
+  }
+
+  // Completeness is only checked for Storybook themes, so a site theme outside
+  // that list would ship unvalidated.
+  const unlisted = siteThemes.filter((t) => !storybookThemes.includes(t));
+  if (unlisted.length > 0) {
+    throw new Error(
+      `Site themes ${unlisted.join(', ')} are missing from STORYBOOK_THEMES, ` +
+        `so their tokens are never validated. Add them there too.`
+    );
+  }
+}
+
 export async function themeSyncGenerator(
   tree: Tree
 ): Promise<SyncGeneratorResult | void> {
+  validateThemeRegistry(STORYBOOK_THEMES, SITE_THEMES);
+
   // Detect dark strategy per theme from the actual CSS selector
   const strategies = {} as Record<SbTheme, DarkStrategy>;
   for (const theme of STORYBOOK_THEMES) {
     const darkCss =
       tree.read(`${THEME_LIB_PATH}/${theme}/tokens-dark.css`, 'utf-8') ?? '';
     strategies[theme] = detectDarkStrategy(darkCss);
+  }
+
+  // `[data-theme='x'][data-theme='dark']` can never match — one attribute
+  // cannot hold both the theme and the scheme.
+  const attributeDark = SITE_THEMES.filter(
+    (t: SiteTheme) => strategies[t] === 'attribute'
+  );
+  if (attributeDark.length > 0) {
+    throw new Error(
+      `Site themes ${attributeDark.join(', ')} declare dark with the ` +
+        `[data-theme=dark] attribute strategy, which is unsatisfiable once ` +
+        `data-theme carries the theme name. Use a '.dark' class selector in ` +
+        `their tokens-dark.css.`
+    );
   }
 
   // Derive required token sets from the contract files rather than a reference theme.
@@ -265,21 +388,41 @@ export async function themeSyncGenerator(
   });
   const existingSharedThemes = tree.read(OUTPUT_SHARED_THEMES, 'utf-8') ?? '';
 
-  const cssChanged = existingCss !== cssContent;
-  const tsChanged = existingTs !== tsContent;
-  const sharedThemesChanged = existingSharedThemes !== sharedThemesContent;
+  // Generate the site themes.css and its registry
+  const rawSiteCss = generateSiteThemesCss(tree, strategies);
+  const siteCssContent = await format(rawSiteCss, {
+    ...prettierConfig,
+    parser: 'css'
+  });
+  const existingSiteCss = tree.read(OUTPUT_SITE_CSS, 'utf-8') ?? '';
 
-  if (!cssChanged && !tsChanged && !sharedThemesChanged) {
+  const siteThemesContent = await format(generateSiteThemesTs(), {
+    ...prettierConfig,
+    parser: 'typescript'
+  });
+  const existingSiteThemes = tree.read(OUTPUT_SITE_THEMES, 'utf-8') ?? '';
+
+  const outputs: Array<[path: string, content: string, existing: string]> = [
+    [OUTPUT_CSS, cssContent, existingCss],
+    [OUTPUT_META, tsContent, existingTs],
+    [OUTPUT_SHARED_THEMES, sharedThemesContent, existingSharedThemes],
+    [OUTPUT_SITE_CSS, siteCssContent, existingSiteCss],
+    [OUTPUT_SITE_THEMES, siteThemesContent, existingSiteThemes]
+  ];
+
+  const stale = outputs.filter(([, content, existing]) => content !== existing);
+  if (stale.length === 0) {
     return;
   }
 
-  if (cssChanged) tree.write(OUTPUT_CSS, cssContent);
-  if (tsChanged) tree.write(OUTPUT_META, tsContent);
-  if (sharedThemesChanged)
-    tree.write(OUTPUT_SHARED_THEMES, sharedThemesContent);
+  for (const [path, content] of stale) {
+    tree.write(path, content);
+  }
 
   return {
-    outOfSyncMessage: `'${OUTPUT_CSS}', '${OUTPUT_META}' and '${OUTPUT_SHARED_THEMES}' synced with theme token files.`
+    outOfSyncMessage: `${stale
+      .map(([path]) => `'${path}'`)
+      .join(', ')} synced with theme token files.`
   };
 }
 

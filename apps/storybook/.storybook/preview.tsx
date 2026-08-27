@@ -18,6 +18,7 @@ const CLASS_DARK_THEMES = new Set(
 const withPayload: Decorator = (Story, context) => {
   const colorScheme =
     (context.globals['colorScheme'] as 'light' | 'dark') ?? 'light';
+  const theme = (context.globals['theme'] as SbTheme) ?? STORYBOOK_THEMES[0];
 
   return (
     <PayloadProvider
@@ -57,7 +58,14 @@ const withPayload: Decorator = (Story, context) => {
             : (context.parameters['signupPolicy'] as SignupPolicy | null),
         setColorScheme: () => undefined,
         colorScheme,
+        // Stories never lock the scheme — the Appearance toolbar drives it
+        lockedColorScheme: null,
         resolvedColorScheme: colorScheme,
+        // The Theme toolbar owns the theme here, via `data-sb-theme` on the
+        // wrapper, so the provider only reports it
+        theme,
+        themes: [...STORYBOOK_THEMES],
+        setTheme: () => undefined,
         locale: 'en'
       }}
     >

@@ -40,7 +40,12 @@ export async function getPayloadRuntime(
     locale: siteSettings.defaultLocale,
     fallbackLocale: null,
     landingPage: { collection: 'pages', id: siteSettings.landingPage },
-    tenant: payload.authenticatedUser
+    tenant: payload.authenticatedUser,
+    // Already normalised by getSiteSettings — themes is never empty and
+    // defaultTheme is guaranteed to be one of them
+    themes: siteSettings.themes,
+    defaultTheme: siteSettings.defaultTheme,
+    colorScheme: siteSettings.colorScheme
   };
 
   return {

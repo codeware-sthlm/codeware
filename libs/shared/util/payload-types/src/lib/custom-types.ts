@@ -191,6 +191,22 @@ export type TenantRuntimeConfig = {
   landingPage: TypeWithID & {
     collection: Extract<CollectionSlug, 'pages'>;
   };
+  /**
+   * Themes this site may render, as `data-theme` values. A single entry means
+   * the site shows no theme selector.
+   *
+   * Deliberately `string[]` rather than a union of the built-in themes: a
+   * future theme studio injects tenant-authored themes at runtime, and those
+   * are not known at build time.
+   */
+  themes: Array<string>;
+  /** Theme rendered before the visitor chooses; always a member of `themes`. */
+  defaultTheme: string;
+  /**
+   * Light/dark policy. `system` lets the visitor switch; `light` or `dark`
+   * locks the site to that scheme and hides the switch.
+   */
+  colorScheme: SiteSettingsGeneral['colorScheme'];
 };
 
 /**

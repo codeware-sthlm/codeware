@@ -77,7 +77,10 @@ export const tenantConfigEndpoint: Endpoint = {
       locale: settings.defaultLocale,
       fallbackLocale: null,
       landingPage: { collection: 'pages', id: settings.landingPage },
-      tenant: req.user
+      tenant: req.user,
+      themes: settings.themes,
+      defaultTheme: settings.defaultTheme,
+      colorScheme: settings.colorScheme
     };
 
     return Response.json(tenantConfig, {

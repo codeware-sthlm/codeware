@@ -9,7 +9,7 @@ import type { PayloadRuntime } from '../payload-runtime.types';
 import type { QuerySingleOptions } from './types';
 
 /** What tenant sites rendered before the theme setting existed. */
-const FALLBACK_THEME = 'spotlight';
+export const FALLBACK_THEME = 'spotlight';
 
 type Response = {
   appName: string;

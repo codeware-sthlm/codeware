@@ -191,6 +191,38 @@ export type PayloadValue = {
   colorScheme: 'light' | 'dark' | 'system' | undefined;
 
   /**
+   * The site's color scheme *policy*, as opposed to `colorScheme` above which
+   * is the current state.
+   *
+   * `null` means the visitor may switch and the switch is rendered. A value
+   * locks the site to that scheme, and no switch is shown.
+   */
+  lockedColorScheme: 'light' | 'dark' | null;
+
+  /**
+   * Themes the site may render — the values its `data-theme` attribute takes.
+   *
+   * A single entry means no theme selector is rendered. Plain strings, not a
+   * union: themes authored at runtime are not known at build time.
+   */
+  themes: Array<string>;
+
+  /**
+   * The active theme — matches `data-theme` on the document element.
+   */
+  theme: string;
+
+  /**
+   * Provide a function to switch the active theme.
+   *
+   * The host is responsible for persisting the choice and re-rendering with it,
+   * so the server and the document agree on first paint.
+   *
+   * @param theme - One of `themes`
+   */
+  setTheme: (theme: string) => void;
+
+  /**
    * The resolved color scheme (what is actually displayed).
    * When the color scheme is 'system', this will be 'light' or 'dark' based on
    * system preference.

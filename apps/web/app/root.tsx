@@ -50,6 +50,9 @@ import { type ColorScheme, getColorScheme } from './utils/color-scheme.server';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
 import { TypedLoaderFunctionArgs } from './utils/types';
 
+/** The single theme apps/web's stylesheet ships — see `app/tailwind.css`. */
+const WEB_THEME = 'spotlight';
+
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
@@ -281,6 +284,13 @@ export default function App() {
       }
     },
     colorScheme,
+    // apps/web imports the spotlight tokens at bare `:root`, so it can only
+    // ever render that one theme — no selector, no switching. Wiring it to the
+    // tenant's theme list is the follow-up noted in COD-459's out of scope.
+    lockedColorScheme: null,
+    themes: [WEB_THEME],
+    theme: WEB_THEME,
+    setTheme: () => console.warn('Theme switching not implemented yet'),
     locale: loaderData.requestInfo.userPrefs.locale
   };
 

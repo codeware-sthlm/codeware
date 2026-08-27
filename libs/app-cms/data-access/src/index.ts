@@ -42,7 +42,10 @@ export { getPosts } from './lib/collections/get-posts';
 export { getPreference } from './lib/collections/get-preference';
 
 export { getSignupPolicy } from './lib/collections/get-signup-policy';
-export { getSiteSettings } from './lib/collections/get-site-settings';
+export {
+  FALLBACK_THEME,
+  getSiteSettings
+} from './lib/collections/get-site-settings';
 export { getSiteSettingsForTenant } from './lib/collections/get-site-settings-for-tenant';
 export { getTenant } from './lib/collections/get-tenant';
 

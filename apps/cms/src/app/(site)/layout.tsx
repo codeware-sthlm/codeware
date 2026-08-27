@@ -1,4 +1,5 @@
 import {
+  FALLBACK_THEME,
   getFooter,
   getNavigationTree,
   getSignupPolicy,
@@ -7,6 +8,7 @@ import {
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
 import { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import './site.css';
@@ -14,6 +16,7 @@ import { getAppInfo } from '../../app-info';
 import { payloadRuntime } from '../../security/payload-runtime';
 
 import { Providers } from './providers';
+import { THEME_COOKIE, resolveTheme } from './theme-cookie';
 
 export default async function RootLayout({
   children
@@ -40,8 +43,19 @@ export default async function RootLayout({
   // Parsed once and shared — `getEnv()` revalidates `process.env` on every call
   const env = getEnv();
 
+  // Theme is resolved server-side so the first paint is already correct.
+  // A tenant without theme settings falls back to what sites rendered before
+  // the setting existed (getSiteSettings normalises that).
+  const themes = runtime.tenantConfig?.themes ?? [FALLBACK_THEME];
+  const defaultTheme = runtime.tenantConfig?.defaultTheme ?? FALLBACK_THEME;
+  const theme = resolveTheme(
+    (await cookies()).get(THEME_COOKIE)?.value,
+    themes,
+    defaultTheme
+  );
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme={theme} suppressHydrationWarning>
       <head>
         {/* Needed? */}
         <meta charSet="utf-8" />
@@ -55,6 +69,9 @@ export default async function RootLayout({
           locale={runtime.tenantConfig?.locale ?? 'en'}
           payloadUrl={env.APP_MODE.serverURL}
           signupPolicy={signupPolicy}
+          colorScheme={runtime.tenantConfig?.colorScheme ?? 'system'}
+          theme={theme}
+          themes={themes}
         >
           <RenderLayout footer={footer} navigationTree={navigationTree}>
             {children}

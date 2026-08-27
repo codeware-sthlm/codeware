@@ -8,16 +8,29 @@ import type {
   FormSubmitResponse,
   TourSignupResponse
 } from '@codeware/shared/ui/cms-renderer';
-import type { FormSubmission } from '@codeware/shared/util/payload-types';
+import type {
+  FormSubmission,
+  SiteSettingsGeneral
+} from '@codeware/shared/util/payload-types';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { useTheme } from 'next-themes';
 
+import { THEME_COOKIE, THEME_COOKIE_MAX_AGE } from './theme-cookie';
+
 type ProvidersProps = {
   children: React.ReactNode;
+  /** Light/dark policy from site settings, not the current state */
+  colorScheme: SiteSettingsGeneral['colorScheme'];
 } & Pick<
   PayloadValue,
-  'appInfo' | 'iconConfig' | 'locale' | 'payloadUrl' | 'signupPolicy'
+  | 'appInfo'
+  | 'iconConfig'
+  | 'locale'
+  | 'payloadUrl'
+  | 'signupPolicy'
+  | 'theme'
+  | 'themes'
 >;
 
 /**
@@ -27,19 +40,32 @@ type ProvidersProps = {
 export function Providers({
   children,
   appInfo,
+  colorScheme,
   iconConfig,
   locale,
   payloadUrl,
-  signupPolicy
+  signupPolicy,
+  theme,
+  themes
 }: ProvidersProps) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      // A locked site never leaves its scheme; next-themes handles this
+      // natively, so no switch has to be suppressed downstream
+      forcedTheme={colorScheme === 'system' ? undefined : colorScheme}
+    >
       <PayloadProviderInner
         appInfo={appInfo}
+        colorScheme={colorScheme}
         iconConfig={iconConfig}
         locale={locale}
         payloadUrl={payloadUrl}
         signupPolicy={signupPolicy}
+        theme={theme}
+        themes={themes}
       >
         {children}
       </PayloadProviderInner>
@@ -50,10 +76,13 @@ export function Providers({
 function PayloadProviderInner({
   children,
   appInfo,
+  colorScheme: colorSchemePolicy,
   iconConfig,
   locale,
   payloadUrl,
-  signupPolicy
+  signupPolicy,
+  theme,
+  themes
 }: ProvidersProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -79,6 +108,12 @@ function PayloadProviderInner({
         },
         payloadUrl,
         setColorScheme: (colorScheme) => setColorScheme(colorScheme),
+        // The server picks the theme from this cookie, so persist it before
+        // refreshing — otherwise the re-render returns the previous theme
+        setTheme: (next) => {
+          document.cookie = `${THEME_COOKIE}=${encodeURIComponent(next)}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
+          router.refresh();
+        },
         signupPolicy,
         submitForm: async (data): Promise<FormSubmitResponse> => {
           try {
@@ -146,7 +181,11 @@ function PayloadProviderInner({
           }
         },
         colorScheme: (colorScheme as 'light' | 'dark' | 'system') ?? 'system',
-        resolvedColorScheme: resolvedColorScheme as 'light' | 'dark'
+        lockedColorScheme:
+          colorSchemePolicy === 'system' ? null : colorSchemePolicy,
+        resolvedColorScheme: resolvedColorScheme as 'light' | 'dark',
+        theme,
+        themes
       }}
     >
       {children}

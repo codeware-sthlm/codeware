@@ -3,8 +3,8 @@ import { Inter } from 'next/font/google';
 import React from 'react';
 
 import './globals.css';
+import { ColorSchemeToggle } from './components/ColorSchemeToggle.client';
 import { ThemeProvider } from './components/theme-provider';
-import { ModeToggle } from './components/ThemeToggle.client';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,7 +28,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <header className="flex justify-end p-6 sm:p-8">
-            <ModeToggle />
+            <ColorSchemeToggle />
           </header>
           <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center p-6 sm:p-8">
             {children}

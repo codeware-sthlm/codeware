@@ -11,7 +11,7 @@ const OUTPUT_SHARED_THEMES =
 
 /**
  * Themes included in the Storybook switcher.
- * Each must have theme-light.css, theme-dark.css and tailwind-base.css.
+ * Each must have tokens-light.css, tokens-dark.css and tailwind-base.css.
  */
 const STORYBOOK_THEMES = [
   'shadcn',
@@ -24,7 +24,7 @@ type SbTheme = (typeof STORYBOOK_THEMES)[number];
 type DarkStrategy = 'class' | 'attribute';
 
 /**
- * Detect whether a theme-dark.css uses the .dark class or [data-theme=dark] attribute
+ * Detect whether a tokens-dark.css uses the .dark class or [data-theme=dark] attribute
  * strategy by reading the first selector before the opening brace.
  */
 function detectDarkStrategy(css: string): DarkStrategy {
@@ -103,9 +103,9 @@ function generateThemesCss(
 
   for (const theme of STORYBOOK_THEMES) {
     const lightCss =
-      tree.read(`${THEME_LIB_PATH}/${theme}/theme-light.css`, 'utf-8') ?? '';
+      tree.read(`${THEME_LIB_PATH}/${theme}/tokens-light.css`, 'utf-8') ?? '';
     const darkCss =
-      tree.read(`${THEME_LIB_PATH}/${theme}/theme-dark.css`, 'utf-8') ?? '';
+      tree.read(`${THEME_LIB_PATH}/${theme}/tokens-dark.css`, 'utf-8') ?? '';
 
     lines.push(`/* ${theme} */`);
     lines.push(
@@ -173,7 +173,7 @@ export async function themeSyncGenerator(
   const strategies = {} as Record<SbTheme, DarkStrategy>;
   for (const theme of STORYBOOK_THEMES) {
     const darkCss =
-      tree.read(`${THEME_LIB_PATH}/${theme}/theme-dark.css`, 'utf-8') ?? '';
+      tree.read(`${THEME_LIB_PATH}/${theme}/tokens-dark.css`, 'utf-8') ?? '';
     strategies[theme] = detectDarkStrategy(darkCss);
   }
 
@@ -203,9 +203,9 @@ export async function themeSyncGenerator(
   const completenessIssues: string[] = [];
   for (const theme of STORYBOOK_THEMES) {
     const lightCss =
-      tree.read(`${THEME_LIB_PATH}/${theme}/theme-light.css`, 'utf-8') ?? '';
+      tree.read(`${THEME_LIB_PATH}/${theme}/tokens-light.css`, 'utf-8') ?? '';
     const darkCss =
-      tree.read(`${THEME_LIB_PATH}/${theme}/theme-dark.css`, 'utf-8') ?? '';
+      tree.read(`${THEME_LIB_PATH}/${theme}/tokens-dark.css`, 'utf-8') ?? '';
 
     const themeLight = extractDefinedTokens(lightCss);
     const themeDark = extractDefinedTokens(darkCss);
@@ -219,12 +219,12 @@ export async function themeSyncGenerator(
 
     if (missingLight.length > 0) {
       completenessIssues.push(
-        `  ${theme}/theme-light.css missing: ${missingLight.join(', ')}`
+        `  ${theme}/tokens-light.css missing: ${missingLight.join(', ')}`
       );
     }
     if (missingDark.length > 0) {
       completenessIssues.push(
-        `  ${theme}/theme-dark.css missing: ${missingDark.join(', ')}`
+        `  ${theme}/tokens-dark.css missing: ${missingDark.join(', ')}`
       );
     }
   }

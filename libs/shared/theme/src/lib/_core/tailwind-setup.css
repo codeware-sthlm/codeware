@@ -68,7 +68,7 @@
 
   /*
    * Core tokens — semantic names for page-level layout and navigation.
-   * Defined per theme in theme-light.css / theme-dark.css.
+   * Defined per theme in tokens-light.css / tokens-dark.css.
    * Used by cms-renderer and web app navigation/layout components.
    *
    * action-btn: floating action buttons (theme switch, mobile nav trigger)

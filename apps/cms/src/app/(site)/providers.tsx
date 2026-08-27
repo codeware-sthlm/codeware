@@ -57,7 +57,11 @@ function PayloadProviderInner({
 }: ProvidersProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const {
+    theme: colorScheme,
+    resolvedTheme: resolvedColorScheme,
+    setTheme: setColorScheme
+  } = useTheme();
 
   return (
     <PayloadProvider
@@ -74,7 +78,7 @@ function PayloadProviderInner({
           }
         },
         payloadUrl,
-        setTheme: (theme) => setTheme(theme),
+        setColorScheme: (colorScheme) => setColorScheme(colorScheme),
         signupPolicy,
         submitForm: async (data): Promise<FormSubmitResponse> => {
           try {
@@ -141,8 +145,8 @@ function PayloadProviderInner({
             };
           }
         },
-        theme: (theme as 'light' | 'dark' | 'system') ?? 'system',
-        resolvedTheme: resolvedTheme as 'light' | 'dark'
+        colorScheme: (colorScheme as 'light' | 'dark' | 'system') ?? 'system',
+        resolvedColorScheme: resolvedColorScheme as 'light' | 'dark'
       }}
     >
       {children}

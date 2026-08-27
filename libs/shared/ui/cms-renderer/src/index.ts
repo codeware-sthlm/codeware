@@ -21,7 +21,7 @@ export {
   usePayload
 } from './lib/providers/PayloadProvider';
 
-export { ThemeProvider } from './lib/providers/ThemeProvider';
+export { ColorSchemeProvider } from './lib/providers/ColorSchemeProvider';
 
 export { DesktopNavigation } from './lib/navigation/DesktopNavigation';
 export { Footer } from './lib/navigation/Footer';
@@ -37,6 +37,6 @@ export { RenderPage } from './lib/render/RenderPage';
 export { RenderPost } from './lib/render/RenderPost';
 export { RenderTour } from './lib/render/RenderTour';
 
-export { ThemeSwitch } from './lib/theme/ThemeSwitch';
+export { ColorSchemeSwitch } from './lib/theme/ColorSchemeSwitch';
 
 export { TenantIcon } from './lib/utils/TenantIcon';

@@ -79,7 +79,7 @@ export default buildConfig({
     components: {
       actions: [
         '@codeware/apps/cms/components/admin/LanguageSwitch.client',
-        '@codeware/apps/cms/components/admin/ThemeSwitch.client',
+        '@codeware/apps/cms/components/admin/ColorSchemeSwitch.client',
         '@codeware/apps/cms/components/admin/HelpDrawer.client',
         '@codeware/apps/cms/components/admin/LocaleSwitch.client',
         '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client',

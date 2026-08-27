@@ -82,7 +82,7 @@ const CREATE_ACTIONS: {
  * Builds the palette's static command view-models from the current query:
  * quick actions, navigation targets and workspace switches.
  *
- * Each item carries its own `run` side effect (routing, theme toggle, tenant
+ * Each item carries its own `run` side effect (routing, color scheme toggle, tenant
  * switch, custom events) so the dialog stays presentational. Filtering mirrors
  * cmdk's client-side matching — the dialog runs with `shouldFilter={false}`
  * because server document results arrive pre-filtered.
@@ -104,7 +104,7 @@ export function usePaletteItems(query: string): {
     selectedTenantID,
     setTenant
   } = useTenantSelection();
-  const { setTheme, theme } = useTheme();
+  const { setTheme: setColorScheme, theme: colorScheme } = useTheme();
   const { config } = useConfig();
   const locale = useLocale();
   const { startRouteTransition } = useRouteTransition();
@@ -119,11 +119,13 @@ export function usePaletteItems(query: string): {
   const matches = (label: string) =>
     !queryToSearch || label.toLowerCase().includes(queryToSearch);
 
-  const themeLabel = t(theme === 'light' ? 'nav:themeDark' : 'nav:themeLight');
-  const ThemeIcon = theme === 'light' ? MoonIcon : SunIcon;
+  const colorSchemeLabel = t(
+    colorScheme === 'light' ? 'nav:colorSchemeDark' : 'nav:colorSchemeLight'
+  );
+  const ColorSchemeIcon = colorScheme === 'light' ? MoonIcon : SunIcon;
 
   // Interface (UI) language switches — offer only languages other than the
-  // current one, mirroring the single-target theme toggle.
+  // current one, mirroring the single-target color scheme toggle.
   const languageItems: PaletteCommandItem[] = (
     switchLanguage ? languageOptions : []
   )
@@ -183,20 +185,20 @@ export function usePaletteItems(query: string): {
         }
       };
     }),
-    // Theme toggle action (always present)
-    ...(matches(themeLabel)
+    // Color scheme toggle action (always present)
+    ...(matches(colorSchemeLabel)
       ? [
           {
-            value: 'action:toggle-theme',
-            label: themeLabel,
-            icon: ThemeIcon,
+            value: 'action:toggle-color-scheme',
+            label: colorSchemeLabel,
+            icon: ColorSchemeIcon,
             run: () => {
-              setTheme(theme === 'light' ? 'dark' : 'light');
+              setColorScheme(colorScheme === 'light' ? 'dark' : 'light');
             }
           }
         ]
       : []),
-    // Interface language and content locale switches (clustered with theme)
+    // Interface language and content locale switches (clustered with color scheme)
     ...languageItems,
     ...localeItems,
     // Help action (always present)

@@ -26,7 +26,7 @@ const args: Story['args'] = {
 };
 
 export const Default: Story = {
-  globals: { sbTheme: 'codeware' },
+  globals: { theme: 'codeware' },
   args
 };
 

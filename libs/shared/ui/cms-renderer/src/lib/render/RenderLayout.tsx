@@ -11,7 +11,7 @@ import { DesktopNavigation } from '../navigation/DesktopNavigation';
 import { Footer } from '../navigation/Footer';
 import { MobileNavigation } from '../navigation/MobileNavigation';
 import { usePayload } from '../providers/PayloadProvider';
-import { ThemeSwitch } from '../theme/ThemeSwitch';
+import { ColorSchemeSwitch } from '../theme/ColorSchemeSwitch';
 import { TenantIcon } from '../utils/TenantIcon';
 
 type RenderLayoutProps = {
@@ -32,7 +32,7 @@ type RenderLayoutProps = {
  * Framework-agnostic layout component for CMS sites.
  *
  * Renders the main layout structure with:
- * - Header with logo, navigation (desktop/mobile), and theme switcher
+ * - Header with logo, navigation (desktop/mobile), and color scheme switch
  * - Main content area
  * - Footer as configured in the CMS site settings
  *
@@ -109,7 +109,7 @@ export function RenderLayout({
                 </div>
                 <div className="flex items-end justify-end md:flex-1">
                   <div className="pointer-events-auto">
-                    <ThemeSwitch />
+                    <ColorSchemeSwitch />
                   </div>
                 </div>
               </div>

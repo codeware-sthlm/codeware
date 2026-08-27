@@ -5,7 +5,7 @@
    -----------------------------------------------------------------------------
    Contract: one direction. This file adapts Payload's own admin UI (toolbar,
    lists, document editor, fields) to blend with the payload-admin theme
-   (theme-light.css / theme-dark.css — the single source of truth for shadcn
+   (tokens-light.css / tokens-dark.css — the single source of truth for shadcn
    components). It must NEVER define a shadcn token (--background, --card,
    --muted, --accent, …); those belong to the theme files and are verified
    in Storybook.

@@ -13,7 +13,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Error: Story = {
-  globals: { theme: 'light' },
+  globals: { colorScheme: 'light' },
   args: {
     severity: 'error',
     children: 'The page you requested could not be loaded. Please try again.'
@@ -22,7 +22,7 @@ export const Error: Story = {
 
 export const ErrorDark: Story = {
   name: 'Error (dark)',
-  globals: { theme: 'dark' },
+  globals: { colorScheme: 'dark' },
   args: {
     severity: 'error',
     children: 'The page you requested could not be loaded. Please try again.'
@@ -30,7 +30,7 @@ export const ErrorDark: Story = {
 };
 
 export const Info: Story = {
-  globals: { theme: 'light' },
+  globals: { colorScheme: 'light' },
   args: {
     severity: 'info',
     children: 'This page is currently unavailable. Check back later.'
@@ -39,7 +39,7 @@ export const Info: Story = {
 
 export const InfoDark: Story = {
   name: 'Info (dark)',
-  globals: { theme: 'dark' },
+  globals: { colorScheme: 'dark' },
   args: {
     severity: 'info',
     children: 'This page is currently unavailable. Check back later.'
@@ -48,7 +48,7 @@ export const InfoDark: Story = {
 
 export const WithCustomTitle: Story = {
   name: 'Custom title',
-  globals: { theme: 'light' },
+  globals: { colorScheme: 'light' },
   args: {
     severity: 'error',
     title: 'Content not found',
@@ -59,7 +59,7 @@ export const WithCustomTitle: Story = {
 
 export const WithStackTrace: Story = {
   name: 'With stack trace',
-  globals: { theme: 'light' },
+  globals: { colorScheme: 'light' },
   args: {
     severity: 'error',
     children: 'An unexpected error occurred while rendering this page.',
@@ -72,7 +72,7 @@ export const WithStackTrace: Story = {
 
 export const WithStackTraceDark: Story = {
   name: 'With stack trace (dark)',
-  globals: { theme: 'dark' },
+  globals: { colorScheme: 'dark' },
   args: {
     severity: 'error',
     children: 'An unexpected error occurred while rendering this page.',
@@ -85,7 +85,7 @@ export const WithStackTraceDark: Story = {
 
 export const WithoutContainer: Story = {
   name: 'Without container',
-  globals: { theme: 'light' },
+  globals: { colorScheme: 'light' },
   args: {
     severity: 'info',
     title: 'Inline alert',

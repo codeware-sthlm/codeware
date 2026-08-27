@@ -44,8 +44,8 @@ function setupTree() {
   tree.write(`${CORE_PATH}/tailwind-setup.css`, TAILWIND_SETUP_CSS);
   tree.write(`${CORE_PATH}/typography-prose.js`, TYPOGRAPHY_PROSE_JS);
   for (const theme of THEMES) {
-    tree.write(`${THEME_LIB}/${theme}/theme-light.css`, COMPLETE_LIGHT_CSS);
-    tree.write(`${THEME_LIB}/${theme}/theme-dark.css`, DARK_CSS);
+    tree.write(`${THEME_LIB}/${theme}/tokens-light.css`, COMPLETE_LIGHT_CSS);
+    tree.write(`${THEME_LIB}/${theme}/tokens-dark.css`, DARK_CSS);
   }
   tree.write(OUTPUT_CSS, '');
   tree.write(OUTPUT_META, '');
@@ -58,55 +58,55 @@ describe('theme-sync generator — completeness check', () => {
     await expect(themeSyncGenerator(tree)).resolves.not.toThrow();
   });
 
-  it('throws when a token is absent from theme-light.css', async () => {
+  it('throws when a token is absent from tokens-light.css', async () => {
     const tree = setupTree();
     tree.write(
-      `${THEME_LIB}/shadcn/theme-light.css`,
+      `${THEME_LIB}/shadcn/tokens-light.css`,
       `:root {
   --background: oklch(1 0 0);
   --primary: oklch(0.5 0.2 240);
 }`
     );
     await expect(themeSyncGenerator(tree)).rejects.toThrow(
-      'shadcn/theme-light.css missing'
+      'shadcn/tokens-light.css missing'
     );
     await expect(themeSyncGenerator(tree)).rejects.toThrow('--body');
   });
 
-  it('throws when a commented-out token is missing from theme-light.css', async () => {
+  it('throws when a commented-out token is missing from tokens-light.css', async () => {
     const tree = setupTree();
-    tree.write(`${THEME_LIB}/spotlight/theme-light.css`, COMMENTED_LIGHT_CSS);
+    tree.write(`${THEME_LIB}/spotlight/tokens-light.css`, COMMENTED_LIGHT_CSS);
     await expect(themeSyncGenerator(tree)).rejects.toThrow(
-      'spotlight/theme-light.css missing'
+      'spotlight/tokens-light.css missing'
     );
     await expect(themeSyncGenerator(tree)).rejects.toThrow('--body');
   });
 
-  it('throws when a token is absent from theme-dark.css', async () => {
+  it('throws when a token is absent from tokens-dark.css', async () => {
     const tree = setupTree();
     tree.write(
-      `${THEME_LIB}/shadcn/theme-dark.css`,
+      `${THEME_LIB}/shadcn/tokens-dark.css`,
       `.dark {
   --background: oklch(0.1 0 0);
 }`
     );
     await expect(themeSyncGenerator(tree)).rejects.toThrow(
-      'shadcn/theme-dark.css missing'
+      'shadcn/tokens-dark.css missing'
     );
     await expect(themeSyncGenerator(tree)).rejects.toThrow('--primary');
   });
 
-  it('throws when a commented-out token is missing from theme-dark.css', async () => {
+  it('throws when a commented-out token is missing from tokens-dark.css', async () => {
     const tree = setupTree();
     tree.write(
-      `${THEME_LIB}/shadcn/theme-dark.css`,
+      `${THEME_LIB}/shadcn/tokens-dark.css`,
       `.dark {
   --background: oklch(0.1 0 0);
   /* --primary: oklch(0.6 0.2 240); */
 }`
     );
     await expect(themeSyncGenerator(tree)).rejects.toThrow(
-      'shadcn/theme-dark.css missing'
+      'shadcn/tokens-dark.css missing'
     );
     await expect(themeSyncGenerator(tree)).rejects.toThrow('--primary');
   });

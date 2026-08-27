@@ -16,7 +16,8 @@ const CLASS_DARK_THEMES = new Set(
 );
 
 const withPayload: Decorator = (Story, context) => {
-  const theme = (context.globals['theme'] as 'light' | 'dark') ?? 'light';
+  const colorScheme =
+    (context.globals['colorScheme'] as 'light' | 'dark') ?? 'light';
 
   return (
     <PayloadProvider
@@ -54,9 +55,9 @@ const withPayload: Decorator = (Story, context) => {
           context.parameters['signupPolicy'] === undefined
             ? { privacyUrl: '/privacy', termsUrl: null, retentionDays: 365 }
             : (context.parameters['signupPolicy'] as SignupPolicy | null),
-        setTheme: () => undefined,
-        theme,
-        resolvedTheme: theme,
+        setColorScheme: () => undefined,
+        colorScheme,
+        resolvedColorScheme: colorScheme,
         locale: 'en'
       }}
     >
@@ -66,48 +67,50 @@ const withPayload: Decorator = (Story, context) => {
 };
 
 const withTheme: Decorator = (Story, context) => {
-  const theme = (context.globals['theme'] as string) ?? 'light';
-  const sbTheme = (context.globals['sbTheme'] as SbTheme) ?? 'payload-admin';
-  const usesClassDark = CLASS_DARK_THEMES.has(sbTheme);
+  const colorScheme = (context.globals['colorScheme'] as string) ?? 'light';
+  const theme = (context.globals['theme'] as SbTheme) ?? 'payload-admin';
+  const usesClassDark = CLASS_DARK_THEMES.has(theme);
 
-  // Mirror theme onto document.body so portaled content (dialogs etc.) inherits it.
+  // Mirror both axes onto document.body so portaled content (dialogs etc.)
+  // inherits them. `data-theme` here carries Payload's own light/dark
+  // convention, which is why the theme is scoped by `data-sb-theme` instead.
   // useEffect ensures cleanup on story unmount so state doesn't leak between stories.
   useEffect(() => {
-    const prevSbTheme = document.body.getAttribute('data-sb-theme');
-    const prevDataTheme = document.body.getAttribute('data-theme');
+    const prevTheme = document.body.getAttribute('data-sb-theme');
+    const prevColorScheme = document.body.getAttribute('data-theme');
     const prevHadDark = document.body.classList.contains('dark');
 
-    document.body.setAttribute('data-sb-theme', sbTheme);
+    document.body.setAttribute('data-sb-theme', theme);
     if (usesClassDark) {
       document.body.removeAttribute('data-theme');
-      document.body.classList.toggle('dark', theme === 'dark');
+      document.body.classList.toggle('dark', colorScheme === 'dark');
     } else {
-      document.body.setAttribute('data-theme', theme);
+      document.body.setAttribute('data-theme', colorScheme);
       document.body.classList.remove('dark');
     }
 
     return () => {
-      if (prevSbTheme) {
-        document.body.setAttribute('data-sb-theme', prevSbTheme);
+      if (prevTheme) {
+        document.body.setAttribute('data-sb-theme', prevTheme);
       } else {
         document.body.removeAttribute('data-sb-theme');
       }
-      if (prevDataTheme) {
-        document.body.setAttribute('data-theme', prevDataTheme);
+      if (prevColorScheme) {
+        document.body.setAttribute('data-theme', prevColorScheme);
       } else {
         document.body.removeAttribute('data-theme');
       }
       document.body.classList.toggle('dark', prevHadDark);
     };
-  }, [theme, sbTheme, usesClassDark]);
+  }, [colorScheme, theme, usesClassDark]);
 
   return (
     <div
-      data-theme={usesClassDark ? undefined : theme}
-      data-sb-theme={sbTheme}
+      data-theme={usesClassDark ? undefined : colorScheme}
+      data-sb-theme={theme}
       className={[
         'twp bg-background p-6',
-        usesClassDark && theme === 'dark' ? 'dark' : ''
+        usesClassDark && colorScheme === 'dark' ? 'dark' : ''
       ].join(' ')}
     >
       <Story />
@@ -117,11 +120,11 @@ const withTheme: Decorator = (Story, context) => {
 
 const preview: Preview = {
   globalTypes: {
-    sbTheme: {
-      description: 'App theme',
+    theme: {
+      description: 'Token set applied to the story',
       defaultValue: STORYBOOK_THEMES[0],
       toolbar: {
-        title: 'App Theme',
+        title: 'Theme',
         icon: 'paintbrush',
         items: [
           { value: 'shadcn', title: 'shadcn (reference)' },
@@ -132,11 +135,11 @@ const preview: Preview = {
         dynamicTitle: true
       }
     },
-    theme: {
-      description: 'Color theme',
+    colorScheme: {
+      description: 'Light or dark appearance',
       defaultValue: 'light',
       toolbar: {
-        title: 'Color Theme',
+        title: 'Appearance',
         icon: 'circlehollow',
         items: [
           { value: 'light', icon: 'sun', title: 'Light' },

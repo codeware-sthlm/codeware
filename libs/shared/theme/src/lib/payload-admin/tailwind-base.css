@@ -1,5 +1,5 @@
 /* Payload admin theme color tokens */
-@import './theme-light.css';
-@import './theme-dark.css';
+@import './tokens-light.css';
+@import './tokens-dark.css';
 
 @import '../_core/tailwind-setup.css';

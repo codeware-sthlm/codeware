@@ -9,6 +9,8 @@ type ExecCall = { cmd: string; args?: string[]; options?: any };
 const execCalls: ExecCall[] = [];
 // Allow a test to fail the format command
 let formatFails = false;
+// Allow a test to fail the sync command
+let syncFails = false;
 
 // Mock log functions
 const infoMock = jest.fn();
@@ -28,6 +30,10 @@ jest.mock('@actions/exec', () => ({
 
     if (formatFails && args?.includes('format:write')) {
       return Promise.reject(new Error('prettier exploded'));
+    }
+
+    if (syncFails && args?.includes('sync')) {
+      return Promise.reject(new Error('sync generator exploded'));
     }
 
     // Should always be successful
@@ -81,6 +87,7 @@ describe('runMigration', () => {
     replaceInFileMock.mockReset();
     execCalls.length = 0;
     formatFails = false;
+    syncFails = false;
     readDeferredPromptsMock.mockReturnValue([]);
   });
 
@@ -127,6 +134,8 @@ describe('runMigration', () => {
         packageManager,
         ['nx', 'migrate', '--run-migrations', '--if-exists', '--skip-install']
       ],
+      // sync generated files against the installed versions
+      [packageManager, ['nx', 'sync']],
       // format migrated files
       [packageManager, ['nx', 'format:write']]
     ]);
@@ -173,6 +182,23 @@ describe('runMigration', () => {
     expect(warningMock).toHaveBeenCalledWith(
       'Formatting failed, continue migration anyway: prettier exploded'
     );
+    expect(infoMock).toHaveBeenCalledWith('Migration completed');
+  });
+
+  it('warns with the reason and completes when sync fails', async () => {
+    syncFails = true;
+
+    replaceInFileMock.mockResolvedValue([
+      { file: 'package.json', hasChanged: false }
+    ]);
+
+    await expect(runMigration(config, '22.0.0')).resolves.toEqual([]);
+
+    expect(warningMock).toHaveBeenCalledWith(
+      'Sync failed, continue migration anyway: sync generator exploded'
+    );
+    // Formatting still runs after a failed sync
+    expect(execCalls.map((c) => c.args)).toContainEqual(['nx', 'format:write']);
     expect(infoMock).toHaveBeenCalledWith('Migration completed');
   });
 

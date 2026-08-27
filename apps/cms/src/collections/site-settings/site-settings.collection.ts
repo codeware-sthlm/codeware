@@ -1,15 +1,17 @@
+import { enumName } from '@codeware/app-cms/util/db';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { customT } from '@codeware/app-cms/util/i18n';
 import {
   findTenantFromCookie,
   hasNoAdminRoles
 } from '@codeware/app-cms/util/misc';
+import { SITE_THEMES, type SiteTheme } from '@codeware/shared/theme';
 import type {
   SiteSetting,
   SiteSettingsGeneral,
   SiteSettingsIconSource
 } from '@codeware/shared/util/payload-types';
-import type { CollectionConfig, Condition } from 'payload';
+import type { CollectionConfig, Condition, PayloadRequest } from 'payload';
 
 import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
@@ -19,6 +21,23 @@ import { sanitizeSvgHook } from './hooks/sanitize-svg.hook';
 import { footerTab } from './tabs/footer.tab';
 import { formsTab } from './tabs/forms.tab';
 import { tourSignupsTab } from './tabs/tour-signups.tab';
+
+/**
+ * Display names for the generated theme registry.
+ *
+ * Typed by `SiteTheme`, so adding a theme to `SITE_THEMES` fails the build here
+ * until it is given a label rather than silently showing its slug.
+ */
+const themeLabels: Record<SiteTheme, { en: string; sv: string }> = {
+  shadcn: { en: 'shadcn', sv: 'shadcn' },
+  spotlight: { en: 'Spotlight', sv: 'Spotlight' },
+  codeware: { en: 'Codeware', sv: 'Codeware' }
+};
+
+const themeOptions = SITE_THEMES.map((value) => ({
+  label: themeLabels[value],
+  value
+}));
 
 const isSource =
   (
@@ -150,6 +169,88 @@ const siteSettings: CollectionConfig = {
                   }
                 }
               ]
+            },
+            {
+              name: 'themes',
+              type: 'select',
+              label: { en: 'Themes', sv: 'Teman' },
+              admin: {
+                description: {
+                  en: 'Themes this site may use. Select more than one to give visitors a theme selector.',
+                  sv: 'Teman som webbplatsen kan använda. Välj fler än ett för att ge besökarna en temaväljare.'
+                }
+              },
+              enumName: enumName('site_settings_themes'),
+              options: themeOptions,
+              hasMany: true,
+              defaultValue: ['spotlight'],
+              required: true
+            },
+            {
+              name: 'defaultTheme',
+              type: 'select',
+              label: { en: 'Default theme', sv: 'Standardtema' },
+              admin: {
+                description: {
+                  en: 'The theme a visitor sees before making a choice. Must be one of the selected themes.',
+                  sv: 'Temat en besökare ser innan något val gjorts. Måste vara ett av de valda temana.'
+                }
+              },
+              enumName: enumName('site_settings_default_theme'),
+              options: themeOptions,
+              hasMany: false, // Infer correct types for validation
+              defaultValue: 'spotlight',
+              validate: (
+                value: string | null | undefined,
+                {
+                  req,
+                  siblingData
+                }: { req: PayloadRequest; siblingData: unknown }
+              ) => {
+                const themes = (siblingData as SiteSettingsGeneral | undefined)
+                  ?.themes;
+                if (
+                  !value ||
+                  !themes?.length ||
+                  themes.includes(value as SiteTheme)
+                ) {
+                  return true;
+                }
+                return customT(req.t)('validation:defaultThemeNotSelected', {
+                  theme: value,
+                  themes: themes.join(', ')
+                });
+              },
+              required: true
+            },
+            {
+              name: 'colorScheme',
+              type: 'select',
+              label: { en: 'Appearance', sv: 'Utseende' },
+              admin: {
+                description: {
+                  en: 'Let visitors switch between light and dark, or lock the site to one of them.',
+                  sv: 'Låt besökarna växla mellan ljust och mörkt, eller lås webbplatsen till ett av dem.'
+                }
+              },
+              enumName: enumName('site_settings_color_scheme'),
+              options: [
+                {
+                  label: { en: 'Visitor chooses', sv: 'Besökaren väljer' },
+                  value: 'system'
+                },
+                {
+                  label: { en: 'Always light', sv: 'Alltid ljust' },
+                  value: 'light'
+                },
+                {
+                  label: { en: 'Always dark', sv: 'Alltid mörkt' },
+                  value: 'dark'
+                }
+              ],
+              hasMany: false, // Infer correct types for validation
+              defaultValue: 'system',
+              required: true
             },
             {
               name: 'defaultLocale',

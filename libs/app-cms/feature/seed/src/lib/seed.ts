@@ -1057,7 +1057,12 @@ export const seed = async (
                   })
                 },
                 landingPage: page,
-                defaultLocale: tenant.locale
+                defaultLocale: tenant.locale,
+                // Two themes so the seeded site exercises the theme selector;
+                // spotlight is what tenants rendered before the setting existed
+                themes: ['spotlight', 'codeware'],
+                defaultTheme: 'spotlight',
+                colorScheme: 'system'
               },
               tenant: tenant.id
             },

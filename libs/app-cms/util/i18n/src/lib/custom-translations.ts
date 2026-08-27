@@ -272,6 +272,7 @@ const customTranslationsSchema = z.object({
   validation: z.object({
     bookingDeadlineAfterDeparture: z.string(),
     bookingNeedsDeparture: z.string(),
+    defaultThemeNotSelected: z.string(),
     domainDuplicate: z.string(),
     domainMalformed: z.string(),
     domainNoPathOrPort: z.string(),
@@ -599,6 +600,8 @@ You can assign multiple tags to a file.`,
         'The booking deadline must be on or before the departure date.',
       bookingNeedsDeparture:
         'A tour can only be booked once it has a departure date. Use "Register interest" while the date is unconfirmed.',
+      defaultThemeNotSelected:
+        '"{{theme}}" is not one of the selected themes ({{themes}}).',
       domainDuplicate: '"{{hostname}}" is listed more than once.',
       domainMalformed: '"{{hostname}}" is not a valid domain name.',
       domainNoPathOrPort:
@@ -930,6 +933,8 @@ Du kan tilldela flera etiketter till en fil.`,
         'Sista bokningsdag måste vara samma dag som eller före avresedatum.',
       bookingNeedsDeparture:
         'En resa kan bara bokas när den har ett avresedatum. Använd "Intresseanmälan" så länge datumet inte är fastställt.',
+      defaultThemeNotSelected:
+        '"{{theme}}" är inte ett av de valda temana ({{themes}}).',
       domainDuplicate: '"{{hostname}}" förekommer flera gånger.',
       domainMalformed: '"{{hostname}}" är inte ett giltigt domännamn.',
       domainNoPathOrPort:

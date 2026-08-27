@@ -1,15 +1,27 @@
-import type { TenantIconConfig } from '@codeware/shared/util/payload-types';
+import type {
+  SiteSettingsGeneral,
+  TenantIconConfig
+} from '@codeware/shared/util/payload-types';
 import type { TypedLocale } from 'payload';
 
 import type { PayloadRuntime } from '../payload-runtime.types';
 
 import type { QuerySingleOptions } from './types';
 
+/** What tenant sites rendered before the theme setting existed. */
+const FALLBACK_THEME = 'spotlight';
+
 type Response = {
   appName: string;
+  /** Light/dark: `system` lets the visitor choose, otherwise it is locked */
+  colorScheme: SiteSettingsGeneral['colorScheme'];
+  /** Theme rendered before the visitor picks one; always a member of `themes` */
+  defaultTheme: string;
   defaultLocale: TypedLocale;
   icon: TenantIconConfig | null;
   landingPage: number;
+  /** Themes this site may render. A single entry means no selector is shown. */
+  themes: Array<string>;
 };
 
 /**
@@ -50,7 +62,15 @@ export async function getSiteSettings(
     return null;
   }
   const {
-    general: { appName, defaultLocale, icon, landingPage }
+    general: {
+      appName,
+      colorScheme,
+      defaultTheme,
+      defaultLocale,
+      icon,
+      landingPage,
+      themes
+    }
   } = result.docs[0];
 
   // Resolve icon — SVG is inline; upload needs a media URL lookup
@@ -82,10 +102,21 @@ export async function getSiteSettings(
     }
   }
 
+  // Settings saved before these fields existed read back empty, and a stale
+  // default may name a theme since removed from the list — resolve both here so
+  // every caller gets a theme that is actually selectable.
+  const selectableThemes = themes?.length ? themes : [FALLBACK_THEME];
+  const resolvedDefaultTheme = selectableThemes.includes(defaultTheme)
+    ? defaultTheme
+    : selectableThemes[0];
+
   return {
     appName,
+    colorScheme: colorScheme ?? 'system',
+    defaultTheme: resolvedDefaultTheme,
     defaultLocale,
     icon: resolvedIcon,
-    landingPage: typeof landingPage === 'number' ? landingPage : landingPage.id
+    landingPage: typeof landingPage === 'number' ? landingPage : landingPage.id,
+    themes: selectableThemes
   };
 }

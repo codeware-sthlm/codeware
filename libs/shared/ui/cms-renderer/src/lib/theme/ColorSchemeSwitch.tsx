@@ -34,9 +34,12 @@ function getColorSchemeIcon(
 /**
  * Color scheme switch that cycles through light, dark, and system.
  * Uses PayloadProvider for color scheme state and updates.
+ *
+ * Renders nothing when the site locks its color scheme.
  */
 export function ColorSchemeSwitch() {
-  const { colorScheme, setColorScheme, locale } = usePayload();
+  const { colorScheme, lockedColorScheme, setColorScheme, locale } =
+    usePayload();
   const [mounted, setMounted] = useState(false);
 
   // useEffect only runs on the client, so now we can safely show the UI
@@ -45,6 +48,12 @@ export function ColorSchemeSwitch() {
   }, []);
 
   if (!mounted) {
+    return null;
+  }
+
+  // The site fixes the scheme, so there is nothing to switch between.
+  // next-themes already holds it via `forcedTheme`; this only hides the control.
+  if (lockedColorScheme !== null) {
     return null;
   }
 

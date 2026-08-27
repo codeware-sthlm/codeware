@@ -5,7 +5,11 @@ import {
   findTenantFromCookie,
   hasNoAdminRoles
 } from '@codeware/app-cms/util/misc';
-import { SITE_THEMES, type SiteTheme } from '@codeware/shared/theme';
+import {
+  SITE_THEMES,
+  type SiteTheme,
+  THEME_LABELS
+} from '@codeware/shared/theme';
 import type {
   SiteSetting,
   SiteSettingsGeneral,
@@ -22,20 +26,9 @@ import { footerTab } from './tabs/footer.tab';
 import { formsTab } from './tabs/forms.tab';
 import { tourSignupsTab } from './tabs/tour-signups.tab';
 
-/**
- * Display names for the generated theme registry.
- *
- * Typed by `SiteTheme`, so adding a theme to `SITE_THEMES` fails the build here
- * until it is given a label rather than silently showing its slug.
- */
-const themeLabels: Record<SiteTheme, { en: string; sv: string }> = {
-  shadcn: { en: 'shadcn', sv: 'shadcn' },
-  spotlight: { en: 'Spotlight', sv: 'Spotlight' },
-  codeware: { en: 'Codeware', sv: 'Codeware' }
-};
-
 const themeOptions = SITE_THEMES.map((value) => ({
-  label: themeLabels[value],
+  // Proper nouns — the same in both locales
+  label: { en: THEME_LABELS[value], sv: THEME_LABELS[value] },
   value
 }));
 

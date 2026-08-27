@@ -200,12 +200,14 @@ export type PayloadValue = {
   lockedColorScheme: 'light' | 'dark' | null;
 
   /**
-   * Themes the site may render — the values its `data-theme` attribute takes.
+   * Themes the site may render, each as the value its `data-theme` attribute
+   * takes plus the name to show for it.
    *
-   * A single entry means no theme selector is rendered. Plain strings, not a
-   * union: themes authored at runtime are not known at build time.
+   * A single entry means no theme selector is rendered. `value` is a plain
+   * string, not a union: themes authored at runtime are not known at build
+   * time, and the host supplies their labels the same way.
    */
-  themes: Array<string>;
+  themes: Array<{ value: string; label: string }>;
 
   /**
    * The active theme — matches `data-theme` on the document element.

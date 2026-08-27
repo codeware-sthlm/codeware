@@ -288,7 +288,7 @@ export default function App() {
     // ever render that one theme — no selector, no switching. Wiring it to the
     // tenant's theme list is the follow-up noted in COD-459's out of scope.
     lockedColorScheme: null,
-    themes: [WEB_THEME],
+    themes: [{ value: WEB_THEME, label: 'Spotlight' }],
     theme: WEB_THEME,
     setTheme: () => console.warn('Theme switching not implemented yet'),
     locale: loaderData.requestInfo.userPrefs.locale

@@ -74,6 +74,7 @@ export type TranslationKey =
   | 'social.clickToCopy'
   | 'social.copied'
   | 'social.copyFailed'
+  | 'theme.select'
   | 'tours.addToCalendar'
   | 'tours.backToTours'
   | 'tours.bookBefore'
@@ -235,6 +236,7 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'social.clickToCopy': 'Click to copy',
     'social.copied': 'Copied',
     'social.copyFailed': 'Failed to copy to clipboard',
+    'theme.select': 'Select theme',
     'tours.addToCalendar': 'Add to calendar',
     'tours.backToTours': 'Go back to tours',
     'tours.bookBefore': 'Book before',
@@ -413,6 +415,7 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'social.clickToCopy': 'Klicka för att kopiera',
     'social.copied': 'Kopierad',
     'social.copyFailed': 'Kopiering misslyckades',
+    'theme.select': 'Välj tema',
     'tours.addToCalendar': 'Lägg till i kalendern',
     'tours.backToTours': 'Tillbaka till resor',
     'tours.bookBefore': 'Boka senast',

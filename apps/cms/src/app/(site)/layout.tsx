@@ -6,6 +6,7 @@ import {
   getTenantContext
 } from '@codeware/app-cms/data-access';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
+import { themeLabel } from '@codeware/shared/theme';
 import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
@@ -54,6 +55,13 @@ export default async function RootLayout({
     defaultTheme
   );
 
+  // The renderer takes labels with the values so it never shows a raw slug,
+  // and stays free of a closed list it would have to know about
+  const themeChoices = themes.map((value) => ({
+    value,
+    label: themeLabel(value)
+  }));
+
   return (
     <html lang="en" data-theme={theme} suppressHydrationWarning>
       <head>
@@ -71,7 +79,7 @@ export default async function RootLayout({
           signupPolicy={signupPolicy}
           colorScheme={runtime.tenantConfig?.colorScheme ?? 'system'}
           theme={theme}
-          themes={themes}
+          themes={themeChoices}
         >
           <RenderLayout footer={footer} navigationTree={navigationTree}>
             {children}

@@ -64,7 +64,7 @@ const withPayload: Decorator = (Story, context) => {
         // The Theme toolbar owns the theme here, via `data-sb-theme` on the
         // wrapper, so the provider only reports it
         theme,
-        themes: [...STORYBOOK_THEMES],
+        themes: STORYBOOK_THEMES.map((value) => ({ value, label: value })),
         setTheme: () => undefined,
         locale: 'en'
       }}

@@ -12,6 +12,7 @@ import { Footer } from '../navigation/Footer';
 import { MobileNavigation } from '../navigation/MobileNavigation';
 import { usePayload } from '../providers/PayloadProvider';
 import { ColorSchemeSwitch } from '../theme/ColorSchemeSwitch';
+import { ThemeSelect } from '../theme/ThemeSelect';
 import { TenantIcon } from '../utils/TenantIcon';
 
 type RenderLayoutProps = {
@@ -108,7 +109,10 @@ export function RenderLayout({
                   />
                 </div>
                 <div className="flex items-end justify-end md:flex-1">
-                  <div className="pointer-events-auto">
+                  {/* Both controls are conditional and both may be absent —
+                      `gap` rather than margins so the row simply collapses */}
+                  <div className="pointer-events-auto flex items-center gap-2">
+                    <ThemeSelect />
                     <ColorSchemeSwitch />
                   </div>
                 </div>

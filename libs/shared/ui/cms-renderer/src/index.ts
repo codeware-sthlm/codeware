@@ -38,5 +38,6 @@ export { RenderPost } from './lib/render/RenderPost';
 export { RenderTour } from './lib/render/RenderTour';
 
 export { ColorSchemeSwitch } from './lib/theme/ColorSchemeSwitch';
+export { ThemeSelect } from './lib/theme/ThemeSelect';
 
 export { TenantIcon } from './lib/utils/TenantIcon';

@@ -47,6 +47,14 @@ jobs:
           check-token: ${{ vars.NX_MIGRATE_CHECK_TOKEN }}
           committer: ${{ vars.CDWR_COMMITTER }}
           frequency: ${{ vars.NX_MIGRATE_FREQUENCY }}
+          # Every workspace location that may pin Nx package versions.
+          # The action's default only covers 'packages/**'.
+          package-patterns: |
+            apps/**/package.json
+            e2e/**/package.json
+            libs/**/package.json
+            packages/**/package.json
+            tools/**/package.json
           skip-tests: ${{ vars.NX_MIGRATE_SKIP_TESTS }}
           skip-e2e: ${{ vars.NX_MIGRATE_SKIP_E2E }}
           dry-run: ${{ vars.NX_MIGRATE_DRY_RUN }}

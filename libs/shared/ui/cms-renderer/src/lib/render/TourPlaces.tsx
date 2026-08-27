@@ -49,14 +49,14 @@ export function TourPlaces({ places }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={place.note ?? undefined}
-                className="border-core-border/40 text-core-base hover:border-core-link hover:text-core-link inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors"
+                className="border-border/40 text-core-text hover:border-core-link hover:text-core-link inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors"
               >
                 {content}
               </a>
             ) : (
               <span
                 title={place.note ?? undefined}
-                className="border-core-border/40 text-core-muted inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs"
+                className="border-border/40 text-muted-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs"
               >
                 {content}
               </span>

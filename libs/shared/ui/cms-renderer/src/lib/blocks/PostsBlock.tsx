@@ -47,14 +47,14 @@ export function PostsBlock({ title, description, posts }: Props) {
           {title}
         </h1>
         {description && (
-          <p className="text-core-muted mt-6 text-base">{description}</p>
+          <p className="text-muted-foreground mt-6 text-base">{description}</p>
         )}
       </header>
       <div className="mt-16 sm:mt-20">
-        <div className="md:border-core-border/40 space-y-16 md:border-l md:pl-6">
+        <div className="md:border-border/40 space-y-16 md:border-l md:pl-6">
           {posts.map((post) => (
             <article key={post.id} className="md:grid md:grid-cols-4 md:gap-8">
-              <div className="text-core-muted relative z-10 mb-3 flex items-center text-sm md:col-span-1">
+              <div className="text-muted-foreground relative z-10 mb-3 flex items-center text-sm md:col-span-1">
                 <time dateTime={post.createdAt}>
                   {formatDate(post.createdAt, locale)}
                 </time>
@@ -67,11 +67,11 @@ export function PostsBlock({ title, description, posts }: Props) {
                 }}
                 className="group relative md:col-span-3"
               >
-                <span className="absolute -inset-x-4 -inset-y-6 z-0 scale-95 bg-zinc-50 opacity-0 transition group-hover:scale-100 group-hover:opacity-100 sm:-inset-x-6 sm:rounded-2xl dark:bg-zinc-800/50" />
-                <h2 className="text-core-headline group-hover:text-core-accent relative z-10 text-base font-semibold tracking-tight">
+                <span className="bg-accent absolute -inset-x-4 -inset-y-6 z-0 scale-95 opacity-0 transition group-hover:scale-100 group-hover:opacity-100 sm:-inset-x-6 sm:rounded-2xl" />
+                <h2 className="text-core-headline group-hover:text-core-link relative z-10 text-base font-semibold tracking-tight">
                   {post.title}
                 </h2>
-                <p className="text-core-base relative z-10 mt-2 text-sm">
+                <p className="text-core-text relative z-10 mt-2 text-sm">
                   {getExcerpt(post)}
                 </p>
                 <div

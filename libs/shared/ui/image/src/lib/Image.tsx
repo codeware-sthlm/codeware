@@ -58,7 +58,7 @@ export const Image = ({
   const [error, setError] = useState(false);
 
   const fallbackError = (
-    <div className="flex flex-col items-center text-red-500 opacity-70">
+    <div className="text-destructive flex flex-col items-center opacity-70">
       <ImageOffIcon className="" />
       <span className="mt-2 text-sm">{t(locale, 'image.loadFailed')}</span>
     </div>

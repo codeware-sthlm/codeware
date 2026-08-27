@@ -113,16 +113,16 @@ export type PayloadValue = {
   payloadUrl: string;
 
   /**
-   * Provide a function to update the theme.
-   * This is used by the theme switcher component.
+   * Provide a function to update the color scheme.
+   * This is used by the color scheme switch component.
    *
    * Example implementations:
    * - Next.js with next-themes: `setTheme` from `useTheme()` hook
-   * - Custom: Update your theme state/context
+   * - Custom: Update your color scheme state/context
    *
-   * @param theme - The theme to set ('light', 'dark', or 'system')
+   * @param colorScheme - The color scheme to set ('light', 'dark', or 'system')
    */
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setColorScheme: (colorScheme: 'light' | 'dark' | 'system') => void;
 
   /**
    * Provide a function to handle form submissions server-side.
@@ -183,18 +183,19 @@ export type PayloadValue = {
   signupPolicy?: SignupPolicy | null;
 
   /**
-   * Provide the current theme state.
+   * Provide the current color scheme state.
    *
-   * Use your theme state value to make this value reflect theme changes automatically.
+   * Use your color scheme state value to make this value reflect changes automatically.
    * This can be 'light', 'dark', or 'system' for auto-detection.
    */
-  theme: 'light' | 'dark' | 'system' | undefined;
+  colorScheme: 'light' | 'dark' | 'system' | undefined;
 
   /**
-   * The resolved theme (what is actually displayed).
-   * When theme is 'system', this will be 'light' or 'dark' based on system preference.
+   * The resolved color scheme (what is actually displayed).
+   * When the color scheme is 'system', this will be 'light' or 'dark' based on
+   * system preference.
    */
-  resolvedTheme?: 'light' | 'dark';
+  resolvedColorScheme?: 'light' | 'dark';
 
   /**
    * Provide the current locale/language code.
@@ -228,7 +229,7 @@ export function PayloadProvider({ children, value }: PayloadProviderProps) {
   return (
     <Context.Provider value={value}>
       {children}
-      <Toaster theme={value.resolvedTheme ?? 'system'} />
+      <Toaster theme={value.resolvedColorScheme ?? 'system'} />
     </Context.Provider>
   );
 }

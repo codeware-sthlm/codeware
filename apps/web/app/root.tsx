@@ -38,13 +38,16 @@ import { DesktopNavigation } from './components/desktop-navigation';
 import { GeneralErrorBoundary } from './components/error-boundary';
 import { ErrorContainer } from './components/error-container';
 import { MobileNavigation } from './components/mobile-navigation';
-import { ThemeSwitch, useTheme } from './routes/resources.theme-switch';
+import {
+  ColorSchemeSwitch,
+  useColorScheme
+} from './routes/resources.color-scheme-switch';
 import stylesheet from './tailwind.css?url';
 import { getAppInfo } from './utils/app-info';
 import { getClientEnv } from './utils/client-env';
 import { ClientHintCheck, getHints } from './utils/client-hints';
+import { type ColorScheme, getColorScheme } from './utils/color-scheme.server';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
-import { type Theme, getTheme } from './utils/theme.server';
 import { TypedLoaderFunctionArgs } from './utils/types';
 
 export const links: LinksFunction = () => [
@@ -66,8 +69,8 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
   let loaderErrorMessage = '';
 
   try {
-    // Get the theme before fetching pages in case it fails
-    const theme = await getTheme(request);
+    // Get the color scheme before fetching pages in case it fails
+    const colorScheme = await getColorScheme(request);
     const tenantConfig = context.tenantConfig;
 
     let footer: FooterData | null = null;
@@ -132,7 +135,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
         path: new URL(request.url).pathname,
         userPrefs: {
           locale: context.tenantConfig?.locale ?? 'en',
-          theme: theme
+          colorScheme
         }
       },
       tenantConfig
@@ -147,14 +150,14 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
 function Document({
   children,
   lang,
-  theme = 'light'
+  colorScheme = 'light'
 }: {
   children: React.ReactNode;
   lang: string;
-  theme?: Theme;
+  colorScheme?: ColorScheme;
 }) {
   return (
-    <html lang={lang} className={theme}>
+    <html lang={lang} className={colorScheme}>
       <head>
         <ClientHintCheck />
         <meta charSet="utf-8" />
@@ -172,12 +175,12 @@ function Document({
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const theme = useTheme();
+  const colorScheme = useColorScheme();
   const loaderData = useLoaderData<typeof loader>();
   const lang = loaderData.requestInfo.userPrefs.locale;
 
   return (
-    <Document theme={theme} lang={lang}>
+    <Document colorScheme={colorScheme} lang={lang}>
       {children}
     </Document>
   );
@@ -186,7 +189,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const theme = useTheme();
+  const colorScheme = useColorScheme();
   const tenantId = loaderData.env.TENANT_ID;
 
   // One bundle serves every tenant, so the client learns which one it is from
@@ -216,8 +219,8 @@ export default function App() {
       navigate(path);
     },
     payloadUrl: loaderData.env.PAYLOAD_URL,
-    setTheme: (theme) =>
-      console.warn('Theme switcher not implemented yet', theme),
+    setColorScheme: (colorScheme) =>
+      console.warn('Color scheme switch not implemented yet', colorScheme),
     signupPolicy: loaderData.signupPolicy,
     submitForm: async (formData) => {
       try {
@@ -277,7 +280,7 @@ export default function App() {
         };
       }
     },
-    theme,
+    colorScheme,
     locale: loaderData.requestInfo.userPrefs.locale
   };
 
@@ -319,8 +322,10 @@ export default function App() {
                   </div>
                   <div className="flex items-end justify-end md:flex-1">
                     <div className="pointer-events-auto">
-                      <ThemeSwitch
-                        userPreference={loaderData.requestInfo.userPrefs.theme}
+                      <ColorSchemeSwitch
+                        userPreference={
+                          loaderData.requestInfo.userPrefs.colorScheme
+                        }
                       />
                     </div>
                   </div>

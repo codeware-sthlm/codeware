@@ -10,7 +10,7 @@ import {
 import { useRevalidator } from '@remix-run/react';
 import * as React from 'react';
 
-const hintsUtils = getHintUtils({ theme: colourSchemeHint });
+const hintsUtils = getHintUtils({ colorScheme: colourSchemeHint });
 
 export const { getHints } = hintsUtils;
 

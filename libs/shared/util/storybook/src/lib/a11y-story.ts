@@ -2,7 +2,7 @@
  * Storybook a11y helpers — for use in *.stories.tsx files only.
  *
  * Each call to `a11yStory` produces one story object with:
- *   - the chosen theme × mode combination set as globals
+ *   - the chosen theme × color scheme combination set as globals
  *   - `parameters.a11y.test: 'error'` so axe violations fail the vitest run
  *
  * Use explicit `export const` declarations so the Storybook CSF parser can
@@ -24,7 +24,7 @@
 import type { SbTheme } from './storybook-themes';
 
 export type { SbTheme } from './storybook-themes';
-export type ColorMode = 'light' | 'dark';
+export type ColorScheme = 'light' | 'dark';
 
 type BaseStory = {
   args?: Record<string, unknown>;
@@ -36,7 +36,7 @@ type AxeRuleConfig = { rules: Array<{ id: string; enabled: false }> };
 
 type A11yStory<T extends BaseStory> = T & {
   name: string;
-  globals: { sbTheme: SbTheme; theme: ColorMode };
+  globals: { theme: SbTheme; colorScheme: ColorScheme };
   parameters: {
     a11y: { test: 'error'; config?: AxeRuleConfig };
     docs: { disable: true };
@@ -44,7 +44,7 @@ type A11yStory<T extends BaseStory> = T & {
 };
 
 /**
- * Create a single a11y story for the given theme × mode combination.
+ * Create a single a11y story for the given theme × color scheme combination.
  *
  * Always sets `parameters.a11y.test: 'error'` so axe violations fail.
  *
@@ -54,14 +54,14 @@ type A11yStory<T extends BaseStory> = T & {
  */
 export function a11yStory<T extends BaseStory>(
   base: T,
-  sbTheme: SbTheme,
-  theme: ColorMode,
+  theme: SbTheme,
+  colorScheme: ColorScheme,
   disabledRules?: Array<string>
 ): A11yStory<T> {
   return {
     ...base,
-    name: `${sbTheme} / ${theme}`,
-    globals: { sbTheme, theme },
+    name: `${theme} / ${colorScheme}`,
+    globals: { theme, colorScheme },
     parameters: {
       ...base.parameters,
       a11y: {

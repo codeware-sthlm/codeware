@@ -19,10 +19,10 @@ More libraries will appear as they are added to `apps/storybook/.storybook/main.
 
 Two independent controls sit in the Storybook toolbar:
 
-| Control         | Attribute set   | Effect                                              |
-| --------------- | --------------- | --------------------------------------------------- |
-| **App Theme**   | `data-sb-theme` | Activates a named token set — palette, radius, etc. |
-| **Color Theme** | `data-theme`    | Toggles `light` / `dark` within the active theme    |
+| Control        | Attribute set   | Effect                                              |
+| -------------- | --------------- | --------------------------------------------------- |
+| **Theme**      | `data-sb-theme` | Activates a named token set — palette, radius, etc. |
+| **Appearance** | `data-theme`    | Toggles `light` / `dark` within the active theme    |
 
 Every story is wrapped by the decorator in `preview.tsx`:
 
@@ -68,7 +68,7 @@ Every theme is wired into Tailwind through three layers:
 
 <pre className="mermaid">
   {`flowchart TD
-  A["1  Theme values\\ntheme-light.css / theme-dark.css\\n--background, --primary, --brand-500"]
+  A["1  Theme values\\ntokens-light.css / tokens-dark.css\\n--background, --primary, --brand-500"]
   B["2  Tailwind bridge\\n_core/tailwind-setup.css  @theme inline\\n--color-background, --color-primary, --color-brand-500"]
   C["3  Utility classes\\nbg-background, bg-primary, bg-brand-500"]
 
@@ -76,9 +76,9 @@ Every theme is wired into Tailwind through three layers:
   B -->|"runtime resolve"| C`}
 </pre>
 
-**Layer 1 — Theme values** (`theme-light.css` / `theme-dark.css`)
+**Layer 1 — Theme values** (`tokens-light.css` / `tokens-dark.css`)
 
-Semantic CSS variables defined per theme and per color mode:
+Semantic CSS variables defined per theme and per color scheme:
 
 ```css
 --background: oklch(1 0 0);
@@ -118,7 +118,7 @@ Each theme's `tailwind-base.css` imports `_core/tailwind-setup.css`, which decla
 
 <pre className="mermaid">
   {`flowchart TD
-  toolbar["Color Theme toolbar"]
+  toolbar["Appearance toolbar"]
 
   toolbar -->|"payload-admin"| attr["data-theme=dark on wrapper\\nmatches @custom-variant"]
   toolbar -->|"shadcn / spotlight / codeware"| cls[".dark class on wrapper\\nthemes.css scoped selectors"]
@@ -148,7 +148,7 @@ Dashboard components use `brand-*` utilities (`bg-brand-500`, `text-brand-600`, 
 
 [shadcn/ui](https://ui.shadcn.com) is a component collection distributed as copy-paste source (not an npm package). Each component uses CSS custom properties for color — `--background`, `--foreground`, `--primary`, `--muted`, etc. — with a defined naming convention.
 
-Our `theme-light.css` / `theme-dark.css` files implement exactly those same variable names. This means:
+Our `tokens-light.css` / `tokens-dark.css` files implement exactly those same variable names. This means:
 
 - Any shadcn component copied into `libs/shared/ui/` inherits the active theme's colors without extra configuration.
 - Adding a new shadcn component that uses a variable you haven't defined in a theme causes that value to fall through to nothing (transparent or inherited). Check the [shadcn variable list](https://ui.shadcn.com/docs/theming#list-of-variables) when adding new components.
@@ -199,8 +199,8 @@ Prints the resolved preset code and all installed components. The preset code co
   {`flowchart TD
   subgraph theme["libs/shared/theme/src/lib/"]
     subgraph perTheme["{theme}/"]
-      light_src["theme-light.css"]
-      dark_src["theme-dark.css"]
+      light_src["tokens-light.css"]
+      dark_src["tokens-dark.css"]
     end
     subgraph core["_core/"]
       setup_src["tailwind-setup.css"]
@@ -234,7 +234,7 @@ Prints the resolved preset code and all installed components. The preset code co
 | `_core/tailwind-setup.css`  | All CSS variables that must be present in every theme (via `@theme inline`) |
 | `_core/typography-prose.js` | All prose CSS variables required for typography styling                     |
 
-The generator reads each theme's token files, checks completeness against both blueprints, detects the dark strategy from the opening selector of `theme-dark.css`, and writes the scoped CSS variables and TypeScript exports consumed by the Storybook preview. A theme missing any blueprint token causes sync to fail with a completeness error.
+The generator reads each theme's token files, checks completeness against both blueprints, detects the dark strategy from the opening selector of `tokens-dark.css`, and writes the scoped CSS variables and TypeScript exports consumed by the Storybook preview. A theme missing any blueprint token causes sync to fail with a completeness error.
 
 > **Hard requirement.** Nx enforces that these files stay in sync with their source tokens. `pnpm nx sync` will fail during CI if the generated files are out of date, and the workspace will be marked out of sync locally until they are regenerated. Any change to a theme's token files or to `tailwind-setup.css` must be followed by a sync before committing.
 
@@ -256,9 +256,9 @@ To verify a theme visually after syncing, open **Theme › Overview** in the sid
 libs/shared/theme/src/lib/{your-theme}/
 ```
 
-**2. Add `theme-light.css`**
+**2. Add `tokens-light.css`**
 
-Copy `payload-admin/theme-light.css` as a starting point. Set all shadcn tokens and `--brand-*` palette entries:
+Copy `payload-admin/tokens-light.css` as a starting point. Set all shadcn tokens and `--brand-*` palette entries:
 
 ```css
 :root {
@@ -274,7 +274,7 @@ Copy `payload-admin/theme-light.css` as a starting point. Set all shadcn tokens 
 }
 ```
 
-**3. Add `theme-dark.css`**
+**3. Add `tokens-dark.css`**
 
 Only override the tokens that change in dark mode. The **opening selector** is read by the sync generator to auto-detect the dark strategy:
 
@@ -284,8 +284,8 @@ Only override the tokens that change in dark mode. The **opening selector** is r
 **4. Add `tailwind-base.css`**
 
 ```css
-@import './theme-light.css';
-@import './theme-dark.css';
+@import './tokens-light.css';
+@import './tokens-dark.css';
 @import '../_core/tailwind-setup.css';
 ```
 
@@ -305,13 +305,13 @@ const STORYBOOK_THEMES = [
 
 **6. Register in the Storybook toolbar**
 
-Add an item to `sbTheme.toolbar.items` in `apps/storybook/.storybook/preview.tsx`:
+Add an item to `theme.toolbar.items` in `apps/storybook/.storybook/preview.tsx`:
 
 ```ts
 { value: 'your-theme', title: 'Your Theme' }
 ```
 
-The dark strategy is **auto-detected** from the opening selector of `theme-dark.css`. After running sync, `themes-meta.ts` is regenerated with the correct `THEME_DARK_STRATEGIES` entry — no manual edits needed in `preview.tsx`.
+The dark strategy is **auto-detected** from the opening selector of `tokens-dark.css`. After running sync, `themes-meta.ts` is regenerated with the correct `THEME_DARK_STRATEGIES` entry — no manual edits needed in `preview.tsx`.
 
 **7. Run sync**
 
@@ -352,7 +352,7 @@ The first brings in token definitions, the dark variant, the `@theme inline` map
 
 Two rules keep the admin and Storybook pixel-comparable:
 
-1. **`theme-light.css` / `theme-dark.css` are the single source of truth** for how shadcn components look in the admin. Design changes (surfaces, accents, radius) are made there and reviewed in Storybook first — the admin follows automatically because it imports the same files. Nothing else may define a shadcn token (`--background`, `--card`, `--muted`, `--accent`, …).
+1. **`tokens-light.css` / `tokens-dark.css` are the single source of truth** for how shadcn components look in the admin. Design changes (surfaces, accents, radius) are made there and reviewed in Storybook first — the admin follows automatically because it imports the same files. Nothing else may define a shadcn token (`--background`, `--card`, `--muted`, `--accent`, …).
 2. **`payload-retheme.css` adapts Payload's _native_ UI** (toolbar, list views, document editor, fields, the tenant selector) to blend with that theme: zinc base palette for Payload's elevation system, Inter as `--font-body`, brand focus rings and links. It works in one direction only — it may _read_ theme tokens but must never define one. It is imported by the CMS app only and is invisible to Storybook.
 
 If a component in the admin doesn't match its `payload-admin` story, the bug is either a token defined outside the theme files (violates rule 1) or a Payload style leaking into the component (candidate for rule 2).

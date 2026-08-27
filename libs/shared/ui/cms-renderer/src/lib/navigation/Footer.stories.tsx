@@ -42,7 +42,7 @@ const meta = {
   // Both sites run spotlight, and it is the only theme where the page
   // background differs from the content surface — the others map both to
   // `--background`, which hides the footer's surface entirely
-  globals: { sbTheme: 'spotlight' },
+  globals: { theme: 'spotlight' },
   parameters: { layout: 'fullscreen' }
 } satisfies Meta<typeof Footer>;
 

@@ -6,6 +6,11 @@ export type TranslationKey =
   | 'about.environment'
   | 'about.release'
   | 'about.version'
+  | 'colorScheme.currentClickFor'
+  | 'colorScheme.dark'
+  | 'colorScheme.light'
+  | 'colorScheme.switchTo'
+  | 'colorScheme.system'
   | 'error.contactAdmin'
   | 'error.landingPageNotFound'
   | 'error.landingPageNotFoundDescription'
@@ -69,11 +74,6 @@ export type TranslationKey =
   | 'social.clickToCopy'
   | 'social.copied'
   | 'social.copyFailed'
-  | 'theme.currentClickFor'
-  | 'theme.dark'
-  | 'theme.light'
-  | 'theme.switchTo'
-  | 'theme.system'
   | 'tours.addToCalendar'
   | 'tours.backToTours'
   | 'tours.bookBefore'
@@ -162,6 +162,11 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'about.environment': 'Environment',
     'about.release': 'Release',
     'about.version': 'Version',
+    'colorScheme.currentClickFor': 'Current: {{current}}, click for {{next}}',
+    'colorScheme.dark': 'dark',
+    'colorScheme.light': 'light',
+    'colorScheme.switchTo': 'Switch to {{colorScheme}} appearance',
+    'colorScheme.system': 'system preference',
     'error.contactAdmin':
       'Please contact the administrator if the problem persists.',
     'error.landingPageNotFound': 'Landing page was not found',
@@ -230,11 +235,6 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'social.clickToCopy': 'Click to copy',
     'social.copied': 'Copied',
     'social.copyFailed': 'Failed to copy to clipboard',
-    'theme.currentClickFor': 'Current: {{current}}, click for {{next}}',
-    'theme.dark': 'dark',
-    'theme.light': 'light',
-    'theme.switchTo': 'Switch to {{theme}} theme',
-    'theme.system': 'system preference',
     'tours.addToCalendar': 'Add to calendar',
     'tours.backToTours': 'Go back to tours',
     'tours.bookBefore': 'Book before',
@@ -340,6 +340,12 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'about.environment': 'Miljö',
     'about.release': 'Utgåva',
     'about.version': 'Version',
+    'colorScheme.currentClickFor':
+      'Nuvarande: {{current}}, klicka för {{next}}',
+    'colorScheme.dark': 'mörkt',
+    'colorScheme.light': 'ljust',
+    'colorScheme.switchTo': 'Byt till {{colorScheme}} utseende',
+    'colorScheme.system': 'systeminställning',
     'error.contactAdmin': 'Kontakta administratören om problemet kvarstår.',
     'error.landingPageNotFound': 'Startsida hittades inte',
     'error.landingPageNotFoundDescription':
@@ -407,11 +413,6 @@ const translations: Record<SupportedLocale, Record<TranslationKey, string>> = {
     'social.clickToCopy': 'Klicka för att kopiera',
     'social.copied': 'Kopierad',
     'social.copyFailed': 'Kopiering misslyckades',
-    'theme.currentClickFor': 'Nuvarande: {{current}}, klicka för {{next}}',
-    'theme.dark': 'mörkt',
-    'theme.light': 'ljust',
-    'theme.switchTo': 'Byt till {{theme}} tema',
-    'theme.system': 'systeminställning',
     'tours.addToCalendar': 'Lägg till i kalendern',
     'tours.backToTours': 'Tillbaka till resor',
     'tours.bookBefore': 'Boka senast',

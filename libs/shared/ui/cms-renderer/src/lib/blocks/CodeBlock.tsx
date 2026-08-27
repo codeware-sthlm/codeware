@@ -7,13 +7,13 @@ type Props = CodeBlockProps;
 
 export const CodeBlock: React.FC<Props> = (props) => {
   const { code, language } = props;
-  const { resolvedTheme } = usePayload();
+  const { resolvedColorScheme } = usePayload();
 
   return (
     <Code
       code={code}
       language={language}
-      theme={resolvedTheme === 'dark' ? 'vsDark' : 'vsLight'}
+      theme={resolvedColorScheme === 'dark' ? 'vsDark' : 'vsLight'}
     />
   );
 };

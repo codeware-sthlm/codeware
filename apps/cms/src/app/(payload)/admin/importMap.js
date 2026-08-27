@@ -57,7 +57,7 @@ import { default as default_176fd26d15967a8046e38df612c30d49 } from '@codeware/a
 import { default as default_42c5f221d82b17c6d729c2d401f23dbf } from '@codeware/apps/cms/components/Icon.client';
 import { default as default_42ab7a6f795fd44e8c166a2bb6b2adc0 } from '@codeware/apps/cms/components/Logo.client';
 import { default as default_b53391252156a3e5a27683b2436d4ac3 } from '@codeware/apps/cms/components/admin/LanguageSwitch.client';
-import { default as default_d2a49a891cfd08d367302de7c6a74341 } from '@codeware/apps/cms/components/admin/ThemeSwitch.client';
+import { default as default_0b165b91a7ed420f00ab3093ab748323 } from '@codeware/apps/cms/components/admin/ColorSchemeSwitch.client';
 import { default as default_f3773f76922e241362ad8aac9e97fbcb } from '@codeware/apps/cms/components/admin/HelpDrawer.client';
 import { default as default_84801fdbb38ee83f29d6ca3070e6c648 } from '@codeware/apps/cms/components/admin/LocaleSwitch.client';
 import { default as default_221d51dba9c38b54ffc2c5a41546df9e } from '@codeware/apps/cms/components/admin/palette/PaletteTrigger.client';
@@ -192,8 +192,8 @@ export const importMap = {
     default_42ab7a6f795fd44e8c166a2bb6b2adc0,
   '@codeware/apps/cms/components/admin/LanguageSwitch.client#default':
     default_b53391252156a3e5a27683b2436d4ac3,
-  '@codeware/apps/cms/components/admin/ThemeSwitch.client#default':
-    default_d2a49a891cfd08d367302de7c6a74341,
+  '@codeware/apps/cms/components/admin/ColorSchemeSwitch.client#default':
+    default_0b165b91a7ed420f00ab3093ab748323,
   '@codeware/apps/cms/components/admin/HelpDrawer.client#default':
     default_f3773f76922e241362ad8aac9e97fbcb,
   '@codeware/apps/cms/components/admin/LocaleSwitch.client#default':

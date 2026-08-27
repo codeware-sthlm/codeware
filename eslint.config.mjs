@@ -60,8 +60,10 @@ export default [
               onlyDependOnLibsWithTags: ['type:util']
             },
             {
+              // type:theme is a dependency-free leaf — token CSS plus the
+              // generated theme registry — so it sits alongside type:util here
               sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:util']
+              onlyDependOnLibsWithTags: ['type:ui', 'type:util', 'type:theme']
             },
             {
               sourceTag: 'scope:packages',

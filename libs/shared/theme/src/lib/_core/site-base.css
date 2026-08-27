@@ -1,0 +1,17 @@
+/*
+ * Aggregate entry for a multi-theme tenant site.
+ *
+ * Tenants share a single image and pick their theme at runtime, so every
+ * selectable token set ships together, each scoped to `[data-theme='<name>']`
+ * by the theme-sync generator. `@theme inline` resolves at use time, so the
+ * active scope decides the values.
+ *
+ * tailwind-setup.css is imported exactly once — it carries the `@theme inline`
+ * mappings, the custom variants and the base layer, none of which may be
+ * duplicated per theme.
+ *
+ * Single-theme consumers keep using `<theme>/tailwind-base.css` instead, where
+ * the tokens sit at bare `:root`.
+ */
+@import './themes.css';
+@import './tailwind-setup.css';

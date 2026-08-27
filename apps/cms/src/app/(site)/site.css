@@ -3,8 +3,9 @@
 /* Enter/exit animation utilities used by the shadcn overlay components */
 @import 'tw-animate-css';
 
-/* Use Spotlight theme */
-@import '../../../../../libs/shared/theme/src/lib/spotlight/tailwind-base.css';
+/* Every selectable site theme — the active one is picked by `data-theme` on
+   <html>, set server-side from site settings (see (site)/layout.tsx) */
+@import '../../../../../libs/shared/theme/src/lib/_core/site-base.css';
 
 /* PostCSS can only resolve within the cms app - let Tailwind know about extracted components */
 @source '../../../../../libs/app-cms/ui/web';

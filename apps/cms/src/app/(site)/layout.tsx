@@ -9,7 +9,7 @@ import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import './spotlight.css';
+import './site.css';
 import { getAppInfo } from '../../app-info';
 import { payloadRuntime } from '../../security/payload-runtime';
 

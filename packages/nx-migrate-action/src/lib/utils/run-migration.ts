@@ -57,6 +57,16 @@ export const runMigration = async (
     allowEmptyPaths: true
   });
 
+  // Sync generators derive their output from the installed dependency versions,
+  // so any generated manifest is stale until they run again
+  core.info('Running sync generators');
+  try {
+    await exec.exec(pmc.exec, ['nx', 'sync']);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    core.warning(`Sync failed, continue migration anyway: ${reason}`);
+  }
+
   core.info('Formatting migrated files');
   try {
     await exec.exec(pmc.exec, ['nx', 'format:write']);

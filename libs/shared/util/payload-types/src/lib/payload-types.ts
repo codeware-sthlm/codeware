@@ -1676,6 +1676,18 @@ export interface SiteSettingsGeneral {
     file?: (number | null) | Media;
   };
   /**
+   * Themes this site may use. Select more than one to give visitors a theme selector.
+   */
+  themes: ('shadcn' | 'spotlight' | 'codeware')[];
+  /**
+   * The theme a visitor sees before making a choice. Must be one of the selected themes.
+   */
+  defaultTheme: 'shadcn' | 'spotlight' | 'codeware';
+  /**
+   * Let visitors switch between light and dark, or lock the site to one of them.
+   */
+  colorScheme: 'system' | 'light' | 'dark';
+  /**
    * The default locale for the client. Must be one of the supported locales for the workspace.
    */
   defaultLocale: 'en' | 'sv';
@@ -2607,6 +2619,9 @@ export interface SiteSettingsGeneralSelect<T extends boolean = true> {
         svgCode?: T;
         file?: T;
       };
+  themes?: T;
+  defaultTheme?: T;
+  colorScheme?: T;
   defaultLocale?: T;
 }
 /**

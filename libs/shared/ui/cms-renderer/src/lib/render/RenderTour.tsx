@@ -152,7 +152,7 @@ export function RenderTour({ tour }: RenderTourProps) {
             className={
               takesQueue
                 ? 'text-core-headline text-sm font-medium'
-                : 'text-core-muted text-sm'
+                : 'text-muted-foreground text-sm'
             }
           >
             {placesLine}
@@ -202,13 +202,13 @@ export function RenderTour({ tour }: RenderTourProps) {
               navigate('/tours');
             }}
             aria-label={t(locale, 'tours.backToTours')}
-            className="group mb-8 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md ring-1 shadow-zinc-800/5 ring-zinc-900/5 transition lg:absolute lg:-left-5 lg:-mt-2 lg:mb-0 xl:-top-1.5 xl:left-0 xl:mt-0 dark:border dark:border-zinc-700/50 dark:bg-zinc-800 dark:ring-0 dark:ring-white/10 dark:hover:border-zinc-700 dark:hover:ring-white/20 print:hidden"
+            className="group bg-core-action-btn-background shadow-core-action-btn-shadow ring-core-action-btn-border hover:ring-core-action-btn-border-hover mb-8 flex h-10 w-10 items-center justify-center rounded-full shadow-md ring-1 transition lg:absolute lg:-left-5 lg:-mt-2 lg:mb-0 xl:-top-1.5 xl:left-0 xl:mt-0 print:hidden"
           >
             <svg
               viewBox="0 0 16 16"
               fill="none"
               aria-hidden="true"
-              className="h-4 w-4 stroke-zinc-500 transition group-hover:stroke-zinc-700 dark:stroke-zinc-500 dark:group-hover:stroke-zinc-400"
+              className="stroke-core-action-btn-foreground group-hover:stroke-core-action-btn-foreground-hover h-4 w-4 transition"
             >
               <path
                 d="M7.25 11.25 3.75 8m0 0 3.5-3.25M3.75 8h8.5"
@@ -230,7 +230,7 @@ export function RenderTour({ tour }: RenderTourProps) {
               <h1 className="text-core-headline mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
                 {title}
               </h1>
-              <p className="text-core-base mt-6 text-lg leading-relaxed">
+              <p className="text-core-text mt-6 text-lg leading-relaxed">
                 {summary}
               </p>
             </header>
@@ -242,25 +242,25 @@ export function RenderTour({ tour }: RenderTourProps) {
             )}
 
             {/* Booking summary — the price, the dates and the way in */}
-            <section className="border-core-border/40 bg-card/40 mt-10 rounded-2xl border p-6 sm:p-8">
+            <section className="border-border/40 bg-card/40 mt-10 rounded-2xl border p-6 sm:p-8">
               <div className="flex flex-wrap items-end justify-between gap-6 print:block">
                 <div>
-                  <p className="text-core-muted text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {t(locale, 'tours.price')}
                   </p>
                   <p className="text-core-headline mt-1 text-3xl font-semibold tracking-tight">
                     {formatPrice(price, currency, locale)}
-                    <span className="text-core-muted ml-2 text-sm font-normal">
+                    <span className="text-muted-foreground ml-2 text-sm font-normal">
                       {t(locale, 'tours.perPerson')}
                     </span>
                   </p>
                 </div>
                 {bookingButton}
               </div>
-              <dl className="border-core-border/40 mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t pt-6 sm:grid-cols-3">
+              <dl className="border-border/40 mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t pt-6 sm:grid-cols-3">
                 {facts.map((fact) => (
                   <div key={fact.label}>
-                    <dt className="text-core-muted text-xs tracking-wide uppercase">
+                    <dt className="text-muted-foreground text-xs tracking-wide uppercase">
                       {fact.label}
                     </dt>
                     <dd className="text-core-headline mt-1 text-sm font-medium">
@@ -287,7 +287,7 @@ export function RenderTour({ tour }: RenderTourProps) {
                         {included.map((entry, index) => (
                           <li
                             key={entry.id ?? index}
-                            className="text-core-base flex gap-2.5 text-sm"
+                            className="text-core-text flex gap-2.5 text-sm"
                           >
                             <CheckIcon
                               className="text-core-link mt-0.5 size-4 shrink-0"
@@ -312,7 +312,7 @@ export function RenderTour({ tour }: RenderTourProps) {
                         {notIncluded.map((entry, index) => (
                           <li
                             key={entry.id ?? index}
-                            className="text-core-muted flex gap-2.5 text-sm"
+                            className="text-muted-foreground flex gap-2.5 text-sm"
                           >
                             <MinusIcon
                               className="mt-0.5 size-4 shrink-0"
@@ -360,14 +360,14 @@ export function RenderTour({ tour }: RenderTourProps) {
                           half the 2.25rem marker, so its left edge lands on the
                           wrapper padding rather than floating inward. */}
                       <div className="px-6 pb-8">
-                        <ol className="border-core-border/40 ml-4.5 space-y-8 border-l pl-8">
+                        <ol className="border-border/40 ml-4.5 space-y-8 border-l pl-8">
                           {days.map((entry, index) => (
                             <li key={entry.id ?? index} className="relative">
                               {/* Marker sits on the rule, vertically centred on
                                 the day label rather than the block as a whole */}
                               <span
                                 aria-hidden="true"
-                                className="border-core-border/40 bg-core-background-content text-core-headline absolute top-0 -left-8 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border text-sm font-semibold"
+                                className="border-border/40 bg-core-background-content text-core-headline absolute top-0 -left-8 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border text-sm font-semibold"
                               >
                                 {index + 1}
                               </span>
@@ -375,7 +375,7 @@ export function RenderTour({ tour }: RenderTourProps) {
                                 <h3 className="text-core-headline text-base font-semibold tracking-tight">
                                   {entry.title}
                                 </h3>
-                                <p className="text-core-muted mt-0.5 text-xs tracking-wide uppercase">
+                                <p className="text-muted-foreground mt-0.5 text-xs tracking-wide uppercase">
                                   <span className="sr-only">
                                     {t(locale, 'tours.day', {
                                       day: String(index + 1)
@@ -389,7 +389,7 @@ export function RenderTour({ tour }: RenderTourProps) {
                                 </p>
                               </div>
                               {entry.description && (
-                                <p className="text-core-base mt-3 text-sm leading-relaxed whitespace-pre-line">
+                                <p className="text-core-text mt-3 text-sm leading-relaxed whitespace-pre-line">
                                   {entry.description}
                                 </p>
                               )}
@@ -404,13 +404,13 @@ export function RenderTour({ tour }: RenderTourProps) {
 
                 {/* Compact overview stays on the page so the shape of the trip
                     is visible (and indexable) without opening the sheet */}
-                <ol className="border-core-border/40 divide-core-border/40 mt-6 divide-y rounded-2xl border">
+                <ol className="border-border/40 divide-border/40 mt-6 divide-y rounded-2xl border">
                   {days.map((entry, index) => (
                     <li
                       key={entry.id ?? index}
                       className="flex items-baseline gap-4 px-5 py-3"
                     >
-                      <span className="text-core-muted w-16 shrink-0 text-xs tracking-wide uppercase">
+                      <span className="text-muted-foreground w-16 shrink-0 text-xs tracking-wide uppercase">
                         {t(locale, 'tours.day', { day: String(index + 1) })}
                       </span>
                       <span className="text-core-headline flex-1 text-sm font-medium">
@@ -419,7 +419,7 @@ export function RenderTour({ tour }: RenderTourProps) {
                       {/* Fixed column so every date starts at the same x
                           regardless of how wide the formatted day is */}
                       {departureDate && (
-                        <span className="text-core-muted w-20 shrink-0 text-xs">
+                        <span className="text-muted-foreground w-20 shrink-0 text-xs">
                           {formatTourDayDate(departureDate, index, locale)}
                         </span>
                       )}
@@ -439,7 +439,7 @@ export function RenderTour({ tour }: RenderTourProps) {
                 <ol className="mt-6 space-y-6">
                   {days.map((entry, index) => (
                     <li key={entry.id ?? index} className="break-inside-avoid">
-                      <p className="text-core-muted text-xs tracking-wide uppercase">
+                      <p className="text-muted-foreground text-xs tracking-wide uppercase">
                         {t(locale, 'tours.day', { day: String(index + 1) })}
                         {departureDate &&
                           ` · ${formatTourDayDate(departureDate, index, locale)}`}
@@ -448,7 +448,7 @@ export function RenderTour({ tour }: RenderTourProps) {
                         {entry.title}
                       </h3>
                       {entry.description && (
-                        <p className="text-core-base mt-1 text-sm leading-relaxed whitespace-pre-line">
+                        <p className="text-core-text mt-1 text-sm leading-relaxed whitespace-pre-line">
                           {entry.description}
                         </p>
                       )}
@@ -460,8 +460,8 @@ export function RenderTour({ tour }: RenderTourProps) {
             )}
 
             {canSignUp && (
-              <div className="border-core-border/40 mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8 print:hidden">
-                <p className="text-core-muted text-sm">{ctaLede}</p>
+              <div className="border-border/40 mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8 print:hidden">
+                <p className="text-muted-foreground text-sm">{ctaLede}</p>
                 {bookingButton}
               </div>
             )}

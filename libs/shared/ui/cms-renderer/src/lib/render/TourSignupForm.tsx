@@ -126,7 +126,7 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
 
   if (tour.signupsClosed) {
     return (
-      <p className="text-core-muted text-sm">
+      <p className="text-muted-foreground text-sm">
         {t(locale, 'tourSignup.signupsClosed')}
       </p>
     );
@@ -139,7 +139,7 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
           // page heading — so repeating it here would only stutter
           null
         : seatsLeft !== null && (
-            <p className="text-core-muted text-sm">
+            <p className="text-muted-foreground text-sm">
               {t(locale, 'tourSignup.seatsLeft', { count: String(seatsLeft) })}
             </p>
           )}
@@ -232,7 +232,7 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
                       label={t(locale, 'tourSignup.people')}
                       placeholder={null}
                     />
-                    <p className="text-core-muted mt-1 text-xs">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       {t(locale, 'tourSignup.peopleHelp')}
                     </p>
                     <FormMessage />
@@ -282,7 +282,7 @@ export function TourSignupForm({ tour, onSuccess }: TourSignupFormProps) {
 
       {/* Said at the moment the details are handed over, not buried in a page
           the customer has to go looking for */}
-      <p className="text-core-muted text-xs">
+      <p className="text-muted-foreground text-xs">
         {t(locale, 'tourSignup.dataNotice')}
         {retentionDays
           ? ` ${t(locale, 'tourSignup.dataNoticeRetention', {

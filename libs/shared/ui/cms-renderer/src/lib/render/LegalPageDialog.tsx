@@ -45,7 +45,7 @@ export function LegalPageDialog({
         </button>
       </DialogTrigger>
       <DialogContent className="flex h-[90vh] max-w-[min(64rem,95vw)] flex-col gap-0 p-0 sm:max-w-[min(64rem,95vw)]">
-        <DialogHeader className="border-core-border/40 border-b px-6 py-4">
+        <DialogHeader className="border-border/40 border-b px-6 py-4">
           <DialogTitle>{label}</DialogTitle>
         </DialogHeader>
         {open && (

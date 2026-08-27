@@ -49,7 +49,7 @@ const RenderAlert: React.FC<Props> = ({
         <AlertDescription>
           <div className="my-4">{children}</div>
           {stackTrace && (
-            <div className="border-l-4 border-red-400 py-2 pl-2 font-mono text-xs dark:border-red-800">
+            <div className="border-destructive border-l-4 py-2 pl-2 font-mono text-xs">
               {stackTrace}
             </div>
           )}

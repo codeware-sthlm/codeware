@@ -56,7 +56,7 @@ export function ToursBlock({ title, description, tours }: Props) {
           {title}
         </h1>
         {description && (
-          <p className="text-core-muted mt-6 text-base">{description}</p>
+          <p className="text-muted-foreground mt-6 text-base">{description}</p>
         )}
       </header>
       <div className="mt-12 grid grid-cols-1 gap-6 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">

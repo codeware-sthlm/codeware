@@ -1,5 +1,6 @@
 import { t } from '@codeware/shared/util/i18n';
 import type { Page } from '@codeware/shared/util/payload-types';
+import type { BlocksData } from '@codeware/shared/util/payload-utils';
 
 import { ErrorContainer } from '../error/ErrorContainer';
 import { Container } from '../layout/Container';
@@ -17,6 +18,15 @@ type RenderLandingPageProps = {
    * Defaults to 'en' if not provided.
    */
   locale?: string;
+
+  /**
+   * Pre-fetched data for blocks that require server-side data.
+   * Keyed by block id.
+   *
+   * Without it, listing blocks on the landing page (posts, tours) render
+   * with no data.
+   */
+  blocksData?: BlocksData;
 };
 
 /**
@@ -41,7 +51,8 @@ type RenderLandingPageProps = {
  */
 export function RenderLandingPage({
   landingPage,
-  locale
+  locale,
+  blocksData
 }: RenderLandingPageProps) {
   return (
     <Container className="mt-16 sm:mt-32">
@@ -54,7 +65,7 @@ export function RenderLandingPage({
       )}
       <article className="mt-16">
         {landingPage?.layout ? (
-          <RenderBlocks blocks={landingPage.layout} />
+          <RenderBlocks blocks={landingPage.layout} blocksData={blocksData} />
         ) : (
           <ErrorContainer
             title={t(locale ?? 'en', 'error.landingPageNotFound')}

@@ -1,4 +1,9 @@
-import { RenderPost, RenderTour } from '@codeware/shared/ui/cms-renderer';
+import {
+  Container,
+  ErrorContainer,
+  RenderPost,
+  RenderTour
+} from '@codeware/shared/ui/cms-renderer';
 import { t } from '@codeware/shared/util/i18n';
 import {
   findBySlug,
@@ -22,8 +27,6 @@ import {
   useRouteLoaderData
 } from '@remix-run/react';
 
-import { Container } from '../components/container';
-import { ErrorContainer } from '../components/error-container';
 import { RenderPagesDoc } from '../components/render-pages-doc';
 import type { loader as rootLoader } from '../root';
 import { defaultAppName } from '../utils/default-app-name';

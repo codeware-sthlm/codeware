@@ -2,17 +2,21 @@
 
 import { RenderLandingPage } from '@codeware/shared/ui/cms-renderer';
 import type { Page } from '@codeware/shared/util/payload-types';
+import type { BlocksData } from '@codeware/shared/util/payload-utils';
 
 import { LivePreview } from '../../components/LivePreview.client';
 
 type Props = {
   landingPage: Page;
+  blocksData?: BlocksData;
 };
 
-export function LandingPagePreview({ landingPage }: Props) {
+export function LandingPagePreview({ landingPage, blocksData }: Props) {
   return (
     <LivePreview initialData={landingPage}>
-      {(data) => <RenderLandingPage landingPage={data} />}
+      {(data) => (
+        <RenderLandingPage landingPage={data} blocksData={blocksData} />
+      )}
     </LivePreview>
   );
 }

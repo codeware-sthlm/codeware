@@ -1,8 +1,10 @@
 import {
   ColorSchemeSwitch,
   Container,
+  DesktopNavigation,
   ErrorContainer,
   Footer,
+  MobileNavigation,
   PayloadProvider,
   type PayloadValue,
   TenantIcon
@@ -37,9 +39,7 @@ import * as Sentry from '@sentry/react';
 import { House } from 'lucide-react';
 import * as React from 'react';
 
-import { DesktopNavigation } from './components/desktop-navigation';
 import { GeneralErrorBoundary } from './components/error-boundary';
-import { MobileNavigation } from './components/mobile-navigation';
 import {
   COLOR_SCHEME_ACTION,
   useColorScheme,
@@ -344,8 +344,14 @@ export default function App() {
                     </div>
                   </div>
                   <div className="flex flex-1 justify-end md:justify-center">
-                    <MobileNavigation className="pointer-events-auto md:hidden" />
-                    <DesktopNavigation className="pointer-events-auto hidden md:block" />
+                    <MobileNavigation
+                      navigationTree={loaderData.navigationTree}
+                      className="pointer-events-auto md:hidden"
+                    />
+                    <DesktopNavigation
+                      navigationTree={loaderData.navigationTree}
+                      className="pointer-events-auto hidden md:block"
+                    />
                   </div>
                   <div className="flex items-end justify-end md:flex-1">
                     <div className="pointer-events-auto">

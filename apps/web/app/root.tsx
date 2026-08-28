@@ -1,13 +1,8 @@
 import {
-  ColorSchemeSwitch,
-  Container,
-  DesktopNavigation,
   ErrorContainer,
-  Footer,
-  MobileNavigation,
   PayloadProvider,
   type PayloadValue,
-  TenantIcon
+  RenderLayout
 } from '@codeware/shared/ui/cms-renderer';
 import {
   type FooterData,
@@ -24,7 +19,6 @@ import type { Page } from '@codeware/shared/util/payload-types';
 import type { BlocksData } from '@codeware/shared/util/payload-utils';
 import type { LinksFunction } from '@remix-run/node';
 import {
-  Link,
   Links,
   Meta,
   Outlet,
@@ -36,7 +30,6 @@ import {
   useNavigate
 } from '@remix-run/react';
 import * as Sentry from '@sentry/react';
-import { House } from 'lucide-react';
 import * as React from 'react';
 
 import { GeneralErrorBoundary } from './components/error-boundary';
@@ -313,66 +306,20 @@ export default function App() {
 
   return (
     <PayloadProvider value={context}>
-      <div className="flex w-full">
-        {/* Create a center aligned section with background space on each side */}
-        <div className="fixed inset-0 flex justify-center sm:px-8">
-          <div className="flex w-full max-w-7xl lg:px-8">
-            {/* Content section */}
-            <div className="bg-core-background-content ring-core-content-border w-full ring-1" />
-          </div>
-        </div>
-        {/* Display header, main and footer inside the content section.
-            Full viewport height keeps the footer at the bottom on short pages,
-            where its surface would otherwise end mid-panel */}
-        <div className="relative flex min-h-screen w-full flex-col">
-          <header className="pointer-events-none relative z-50 flex flex-none flex-col">
-            <div className="top-0 z-10 h-16 pt-6">
-              <Container className="w-full">
-                <div className="relative flex gap-4">
-                  <div className="flex flex-1">
-                    <div className="flex h-10 w-10 items-center backdrop-blur">
-                      <Link to="/" className="pointer-events-auto">
-                        {loaderData.tenantConfig?.icon ? (
-                          <TenantIcon
-                            config={loaderData.tenantConfig.icon}
-                            size={40}
-                          />
-                        ) : (
-                          <House size={40} />
-                        )}
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="flex flex-1 justify-end md:justify-center">
-                    <MobileNavigation
-                      navigationTree={loaderData.navigationTree}
-                      className="pointer-events-auto md:hidden"
-                    />
-                    <DesktopNavigation
-                      navigationTree={loaderData.navigationTree}
-                      className="pointer-events-auto hidden md:block"
-                    />
-                  </div>
-                  <div className="flex items-end justify-end md:flex-1">
-                    <div className="pointer-events-auto">
-                      <ColorSchemeSwitch />
-                    </div>
-                  </div>
-                </div>
-              </Container>
-            </div>
-          </header>
-          <main className="flex-auto">
-            {/* Display loader error message if it exists instead of the outlet */}
-            {(loaderData.loaderErrorMessage && (
-              <ErrorContainer severity="error">
-                {loaderData.loaderErrorMessage}
-              </ErrorContainer>
-            )) || <Outlet />}
-          </main>
-          <Footer footer={loaderData.footer} />
-        </div>
-      </div>
+      <RenderLayout
+        footer={loaderData.footer}
+        navigationTree={loaderData.navigationTree}
+      >
+        {/* A loader failure replaces the page rather than rendering an empty
+            one — the layout itself still comes up */}
+        {loaderData.loaderErrorMessage ? (
+          <ErrorContainer severity="error">
+            {loaderData.loaderErrorMessage}
+          </ErrorContainer>
+        ) : (
+          <Outlet />
+        )}
+      </RenderLayout>
     </PayloadProvider>
   );
 }

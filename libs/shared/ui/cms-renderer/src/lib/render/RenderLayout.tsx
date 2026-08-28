@@ -84,8 +84,15 @@ export function RenderLayout({
               <div className="relative flex gap-4">
                 <div className="flex flex-1">
                   <div className="flex h-10 w-10 items-center backdrop-blur">
-                    <button
-                      onClick={() => navigate('/')}
+                    {/* An anchor, not a button: a real href keeps
+                        middle-click, right-click → copy link, and crawlers
+                        working. Matches every other internal link here. */}
+                    <a
+                      href="/"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate('/');
+                      }}
                       className="pointer-events-auto"
                       aria-label="Home"
                     >
@@ -94,7 +101,7 @@ export function RenderLayout({
                       ) : (
                         <House size={40} />
                       )}
-                    </button>
+                    </a>
                   </div>
                 </div>
                 <div className="flex flex-1 justify-end md:justify-center">

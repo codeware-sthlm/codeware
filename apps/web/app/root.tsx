@@ -1,5 +1,7 @@
 import {
   ColorSchemeSwitch,
+  Container,
+  ErrorContainer,
   Footer,
   PayloadProvider,
   type PayloadValue,
@@ -35,10 +37,8 @@ import * as Sentry from '@sentry/react';
 import { House } from 'lucide-react';
 import * as React from 'react';
 
-import { Container } from './components/container';
 import { DesktopNavigation } from './components/desktop-navigation';
 import { GeneralErrorBoundary } from './components/error-boundary';
-import { ErrorContainer } from './components/error-container';
 import { MobileNavigation } from './components/mobile-navigation';
 import {
   COLOR_SCHEME_ACTION,

@@ -1,4 +1,9 @@
-import { RenderBlocks, usePayload } from '@codeware/shared/ui/cms-renderer';
+import {
+  Container,
+  ErrorContainer,
+  RenderBlocks,
+  usePayload
+} from '@codeware/shared/ui/cms-renderer';
 import { t } from '@codeware/shared/util/i18n';
 import {
   type BlocksData,
@@ -10,8 +15,6 @@ import {
   useRouteLoaderData
 } from '@remix-run/react';
 
-import { Container } from '../components/container';
-import { ErrorContainer } from '../components/error-container';
 import type { loader as rootLoader } from '../root';
 import { defaultAppName } from '../utils/default-app-name';
 import { getLandingPageFromRoot } from '../utils/get-landing-page-from-root';

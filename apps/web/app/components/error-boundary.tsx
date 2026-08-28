@@ -1,3 +1,4 @@
+import { ErrorContainer } from '@codeware/shared/ui/cms-renderer';
 import { Separator } from '@codeware/shared/ui/shadcn/components/separator';
 import { t } from '@codeware/shared/util/i18n';
 import {
@@ -12,8 +13,6 @@ import * as React from 'react';
 
 import type { loader as rootLoader } from '../root';
 import { getErrorMessage } from '../utils/misc';
-
-import { ErrorContainer } from './error-container';
 
 type StatusHandler = (info: {
   error: ErrorResponse;

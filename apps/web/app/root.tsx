@@ -1,4 +1,5 @@
 import {
+  ColorSchemeSwitch,
   Footer,
   PayloadProvider,
   type PayloadValue,
@@ -26,6 +27,7 @@ import {
   Scripts,
   ScrollRestoration,
   json,
+  useFetcher,
   useLoaderData,
   useNavigate
 } from '@remix-run/react';
@@ -39,8 +41,9 @@ import { GeneralErrorBoundary } from './components/error-boundary';
 import { ErrorContainer } from './components/error-container';
 import { MobileNavigation } from './components/mobile-navigation';
 import {
-  ColorSchemeSwitch,
-  useColorScheme
+  COLOR_SCHEME_ACTION,
+  useColorScheme,
+  useOptimisticColorScheme
 } from './routes/resources.color-scheme-switch';
 import stylesheet from './tailwind.css?url';
 import { getAppInfo } from './utils/app-info';
@@ -192,8 +195,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const colorScheme = useColorScheme();
+  const fetcher = useFetcher();
   const tenantId = loaderData.env.TENANT_ID;
+
+  // Two different values, and the switch needs both: the *preference* decides
+  // which icon it shows (including `system`), while the *resolved* scheme is
+  // what is actually painted. Reading the optimistic value first keeps the
+  // control responsive while the action round-trips.
+  const colorSchemePreference =
+    useOptimisticColorScheme() ??
+    loaderData.requestInfo.userPrefs.colorScheme ??
+    'system';
+  const resolvedColorScheme = useColorScheme();
 
   // One bundle serves every tenant, so the client learns which one it is from
   // the loader rather than at build time
@@ -223,7 +236,10 @@ export default function App() {
     },
     payloadUrl: loaderData.env.PAYLOAD_URL,
     setColorScheme: (colorScheme) =>
-      console.warn('Color scheme switch not implemented yet', colorScheme),
+      fetcher.submit(
+        { colorScheme },
+        { method: 'POST', action: COLOR_SCHEME_ACTION }
+      ),
     signupPolicy: loaderData.signupPolicy,
     submitForm: async (formData) => {
       try {
@@ -283,7 +299,8 @@ export default function App() {
         };
       }
     },
-    colorScheme,
+    colorScheme: colorSchemePreference,
+    resolvedColorScheme,
     // apps/web imports the spotlight tokens at bare `:root`, so it can only
     // ever render that one theme — no selector, no switching. Wiring it to the
     // tenant's theme list is the follow-up noted in COD-459's out of scope.
@@ -332,11 +349,7 @@ export default function App() {
                   </div>
                   <div className="flex items-end justify-end md:flex-1">
                     <div className="pointer-events-auto">
-                      <ColorSchemeSwitch
-                        userPreference={
-                          loaderData.requestInfo.userPrefs.colorScheme
-                        }
-                      />
+                      <ColorSchemeSwitch />
                     </div>
                   </div>
                 </div>

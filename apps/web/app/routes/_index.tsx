@@ -1,7 +1,6 @@
 import {
-  Container,
   ErrorContainer,
-  RenderBlocks,
+  RenderLandingPage,
   usePayload
 } from '@codeware/shared/ui/cms-renderer';
 import { t } from '@codeware/shared/util/i18n';
@@ -43,28 +42,11 @@ export default function Index() {
   const blocksData = rootData?.landingPageBlocksData as BlocksData | undefined;
 
   return (
-    <Container className="mt-16 sm:mt-32">
-      {landingPage?.header && (
-        <header className="max-w-2xl">
-          <h1 className="text-core-headline text-4xl font-bold tracking-tight sm:text-5xl">
-            {landingPage.header}
-          </h1>
-        </header>
-      )}
-      <article className="mt-16">
-        {landingPage ? (
-          <RenderBlocks blocks={landingPage.layout} blocksData={blocksData} />
-        ) : (
-          <ErrorContainer
-            title={t(locale, 'error.landingPageNotFound')}
-            severity="info"
-            withoutContainer={true}
-          >
-            {t(locale, 'error.landingPageNotFoundDescription')}
-          </ErrorContainer>
-        )}
-      </article>
-    </Container>
+    <RenderLandingPage
+      landingPage={landingPage}
+      locale={locale}
+      blocksData={blocksData}
+    />
   );
 }
 

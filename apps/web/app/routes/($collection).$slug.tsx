@@ -1,6 +1,6 @@
 import {
-  Container,
   ErrorContainer,
+  RenderPage,
   RenderPost,
   RenderTour
 } from '@codeware/shared/ui/cms-renderer';
@@ -27,7 +27,6 @@ import {
   useRouteLoaderData
 } from '@remix-run/react';
 
-import { RenderPagesDoc } from '../components/render-pages-doc';
 import type { loader as rootLoader } from '../root';
 import { defaultAppName } from '../utils/default-app-name';
 import { ensurePayloadDoc } from '../utils/ensure-payload-doc';
@@ -132,14 +131,16 @@ export default function Document() {
   const tour = data.tour as Tour | null;
   const blocksData = data.blocksData as BlocksData;
 
+  // No wrapping container here — RenderPost, RenderTour and RenderPage each
+  // own theirs, and nesting them indented the content twice
   return (
-    <Container className="mt-16 sm:mt-32">
+    <>
       {post && <RenderPost post={post} />}
       {tour && <RenderTour tour={tour} />}
       {doc?.collection === 'pages' && (
-        <RenderPagesDoc doc={doc} blocksData={blocksData} />
+        <RenderPage page={doc} blocksData={blocksData} />
       )}
-    </Container>
+    </>
   );
 }
 

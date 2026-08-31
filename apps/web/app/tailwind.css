@@ -3,8 +3,8 @@
 /* Enter/exit animation utilities used by the shadcn overlay components */
 @import 'tw-animate-css';
 
-/* Use Spotlight theme */
-@import '../../../libs/shared/theme/src/lib/spotlight/tailwind-base.css';
+/* Every selectable site theme, each scoped to [data-theme='<name>'] */
+@import '../../../libs/shared/theme/src/lib/_core/site-base.css';
 
 /* Enable prose for custom Payload renderer components */
 @plugin '@tailwindcss/typography';

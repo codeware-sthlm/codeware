@@ -86,11 +86,13 @@ export async function webPackageSyncGenerator(
     // Runs only when changes are applied (not in `--check`): regenerate the
     // standalone lockfile the Docker runtime stage installs with --frozen-lockfile.
     callback: () => {
-      execFileSync(
-        'pnpm',
-        ['install', '--lockfile-only', '--ignore-workspace'],
-        { cwd: join(tree.root, WEB_PROJECT_ROOT), stdio: 'inherit' }
-      );
+      // No `--ignore-workspace`: it would skip `apps/web/pnpm-workspace.yaml`
+      // and drop its `overrides` from the regenerated lockfile. pnpm already
+      // stops at that file rather than walking up to the root workspace.
+      execFileSync('pnpm', ['install', '--lockfile-only'], {
+        cwd: join(tree.root, WEB_PROJECT_ROOT),
+        stdio: 'inherit'
+      });
     }
   };
 }

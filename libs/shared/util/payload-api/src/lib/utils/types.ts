@@ -130,7 +130,7 @@ export type NavigationItem = {
   /**
    * The URL of the navigation item as a `collection/slug` string.
    *
-   * Use `findNavigationDoc` to fetch the document from the CMS.
+   * Use `findDoc` to fetch the document from the CMS.
    */
   url: string;
 };

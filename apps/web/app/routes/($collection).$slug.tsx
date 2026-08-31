@@ -72,9 +72,16 @@ export async function loader({
       throw e;
     }
 
-    // A failed request is the CMS being unreachable, not a missing page
+    // A failed request is the CMS being unreachable, not a missing page. The
+    // exception text carries internals and the ErrorBoundary renders it, so
+    // log it and show the visitor a generic message — as root.tsx does.
     const error = e as Error;
-    throw Response.json({ message: error.message }, { status: 500 });
+    console.error(`Failed to load document: ${error.message}`);
+
+    throw Response.json(
+      { message: 'Unable to load the page. Please try again later.' },
+      { status: 500 }
+    );
   }
 }
 

@@ -42,42 +42,53 @@ export function MobileNavigation({
         transition
         className="bg-core-background-content ring-core-action-btn-border-hover fixed inset-x-4 top-8 z-50 origin-top rounded-3xl p-8 ring-1 duration-150 data-closed:scale-95 data-closed:opacity-0 data-enter:ease-out data-leave:ease-in"
       >
-        <div className="flex flex-row-reverse items-center justify-between">
-          <PopoverButton aria-label="Close menu" className="-m-1 p-1">
-            <XMarkIcon className="size-6 hover:cursor-pointer" />
-          </PopoverButton>
-          <h2 className="text-sm font-medium">
-            {t(locale, 'navigation.title')}
-          </h2>
-        </div>
-        <nav className="mt-6">
-          <ul className="text-core-nav-link -my-2">
-            {navigationTree.map(({ key, label, url }) => {
-              const isActive = isActivePath(pathname, url);
+        {/* `close` comes from the panel rather than wrapping each link in a
+            `PopoverButton`: our handler calls `preventDefault`, which would
+            stop Headless UI's own close handler from running */}
+        {({ close }) => (
+          <>
+            <div className="flex flex-row-reverse items-center justify-between">
+              <PopoverButton aria-label="Close menu" className="-m-1 p-1">
+                <XMarkIcon className="size-6 hover:cursor-pointer" />
+              </PopoverButton>
+              <h2 className="text-sm font-medium">
+                {t(locale, 'navigation.title')}
+              </h2>
+            </div>
+            <nav className="mt-6">
+              <ul className="text-core-nav-link -my-2">
+                {navigationTree.map(({ key, label, url }) => {
+                  const isActive = isActivePath(pathname, url);
 
-              const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-                if (!handleAsRoute(e)) return;
-                navigate(url);
-              };
+                  const handleClick = (
+                    e: React.MouseEvent<HTMLAnchorElement>
+                  ) => {
+                    // A modified click opens elsewhere, so the menu stays put
+                    if (!handleAsRoute(e)) return;
+                    close();
+                    navigate(url);
+                  };
 
-              return (
-                <li key={key}>
-                  <a
-                    href={url}
-                    onClick={handleClick}
-                    className={
-                      isActive
-                        ? 'text-core-nav-link-active hover:text-core-nav-link-hover block py-2'
-                        : 'hover:text-core-nav-link-hover block py-2'
-                    }
-                  >
-                    {label}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+                  return (
+                    <li key={key}>
+                      <a
+                        href={url}
+                        onClick={handleClick}
+                        className={
+                          isActive
+                            ? 'text-core-nav-link-active hover:text-core-nav-link-hover block py-2'
+                            : 'hover:text-core-nav-link-hover block py-2'
+                        }
+                      >
+                        {label}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+          </>
+        )}
       </PopoverPanel>
     </Popover>
   );

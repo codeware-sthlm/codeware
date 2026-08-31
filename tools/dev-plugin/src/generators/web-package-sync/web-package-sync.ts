@@ -196,8 +196,9 @@ export async function syncWebPackage(
   }
 
   if (orphaned.length > 0) {
-    // Prune only the importer entries — the callback re-locks and drops the
-    // orphaned `packages:` / `snapshots:` records with it. Never delete the
+    // Prune only the importer entries. The re-lock may leave the package's
+    // `packages:` / `snapshots:` records behind; `--frozen-lockfile` accepts
+    // that, since it compares importers against the manifest. Never delete the
     // lockfile to force a change: regenerating from nothing re-resolves every
     // transitive against the live registry, which is the drift this generator
     // exists to prevent.

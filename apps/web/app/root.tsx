@@ -8,15 +8,13 @@ import {
   type FooterData,
   type NavigationItem,
   type SignupPolicy,
-  findById,
-  getBlocksData,
+  findLandingDoc,
   getNavigationTree,
   getSiteSettings,
   resolveFooter,
   resolveSignupPolicy
 } from '@codeware/shared/util/payload-api';
-import type { Page } from '@codeware/shared/util/payload-types';
-import type { BlocksData } from '@codeware/shared/util/payload-utils';
+import type { LandingDoc } from '@codeware/shared/util/payload-utils';
 import type { LinksFunction } from '@remix-run/node';
 import {
   Links,
@@ -74,8 +72,7 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
 
     let footer: FooterData | null = null;
     let signupPolicy: SignupPolicy | null = null;
-    let landingPage: Page | null = null;
-    let landingPageBlocksData: BlocksData = {};
+    let landingDoc: LandingDoc | null = null;
     let navigationTree: Array<NavigationItem> = [];
 
     // Fetch layout data but don't propagate the exception to the error boundary
@@ -91,27 +88,16 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
         request.headers
       );
       const response = await Promise.all([
-        findById(
-          tenantConfig.landingPage.collection,
-          tenantConfig.landingPage.id,
-          requestOptions
-        ),
+        findLandingDoc(tenantConfig.landingPage, requestOptions),
         getNavigationTree(requestOptions),
         getSiteSettings(requestOptions)
       ]);
 
-      landingPage = response[0];
+      landingDoc = response[0];
       navigationTree = response[1];
       footer = resolveFooter(response[2], navigationTree);
       // What the tour signup form has to disclose about personal data
       signupPolicy = resolveSignupPolicy(response[2]);
-
-      if (landingPage?.layout) {
-        landingPageBlocksData = await getBlocksData(
-          landingPage.layout,
-          requestOptions
-        );
-      }
     } catch (e) {
       const error = e as Error;
       console.error(`Failed to load data: ${error.message}`);
@@ -125,9 +111,8 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
       appInfo: getAppInfo(),
       footer,
       loaderErrorMessage,
-      landingPage,
+      landingDoc,
       signupPolicy,
-      landingPageBlocksData,
       navigationTree,
       requestInfo: {
         hints: getHints(request),

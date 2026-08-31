@@ -17,10 +17,14 @@ it('renders loader data', async () => {
   vi.spyOn(RemixReact, 'useRouteLoaderData').mockImplementation((routeId) => {
     if (routeId === 'root') {
       return {
-        landingPage: {
-          header: 'Welcome home!',
-          name: 'home',
-          layout: [{}]
+        landingDoc: {
+          collection: 'pages',
+          doc: {
+            header: 'Welcome home!',
+            name: 'home',
+            layout: [{}]
+          },
+          blocksData: {}
         },
         requestInfo: {
           userPrefs: {

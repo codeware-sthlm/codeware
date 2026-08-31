@@ -4,10 +4,7 @@ import {
   usePayload
 } from '@codeware/shared/ui/cms-renderer';
 import { t } from '@codeware/shared/util/i18n';
-import {
-  type BlocksData,
-  resolveMeta
-} from '@codeware/shared/util/payload-utils';
+import { resolveDocMeta } from '@codeware/shared/util/payload-utils';
 import {
   type MetaFunction,
   useRouteError,
@@ -16,9 +13,9 @@ import {
 
 import type { loader as rootLoader } from '../root';
 import { defaultAppName } from '../utils/default-app-name';
-import { getLandingPageFromRoot } from '../utils/get-landing-page-from-root';
+import { getLandingDocFromRoot } from '../utils/get-landing-doc-from-root';
 import { getTenantConfigFromRoot } from '../utils/get-tenant-config-from-root';
-import { useLandingPage } from '../utils/use-landing-page';
+import { useLandingDoc } from '../utils/use-landing-doc';
 
 type LoaderError = {
   message: string;
@@ -26,26 +23,24 @@ type LoaderError = {
 };
 
 export const meta: MetaFunction = ({ matches }) => {
-  const landingPage = getLandingPageFromRoot(matches);
+  const landingDoc = getLandingDocFromRoot(matches);
   const tenantConfig = getTenantConfigFromRoot(matches);
 
   const appName = tenantConfig?.appName ?? defaultAppName;
-  const meta = resolveMeta(landingPage);
+  const meta = resolveDocMeta(landingDoc);
 
   return [{ title: `${appName} - ${meta?.title ?? 'Home'}` }];
 };
 
 export default function Index() {
-  const landingPage = useLandingPage();
+  const landingDoc = useLandingDoc();
   const { locale } = usePayload();
-  const rootData = useRouteLoaderData<typeof rootLoader>('root');
-  const blocksData = rootData?.landingPageBlocksData as BlocksData | undefined;
 
   return (
     <RenderLandingPage
-      landingPage={landingPage}
+      landingPage={landingDoc?.doc}
       locale={locale}
-      blocksData={blocksData}
+      blocksData={landingDoc?.blocksData}
     />
   );
 }

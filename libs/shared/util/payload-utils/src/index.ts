@@ -1,5 +1,9 @@
 export { type BlocksData } from './lib/blocks-data';
-export { type DocData, type RenderableCollection } from './lib/doc-data';
+export {
+  type DocData,
+  type LandingDoc,
+  type RenderableCollection
+} from './lib/doc-data';
 export { getExcerpt } from './lib/get-excerpt';
 export { resolveDocMeta, resolveMeta } from './lib/resolve-meta';
 export {

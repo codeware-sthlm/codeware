@@ -16,6 +16,7 @@ export type {
 export { findById } from './lib/find-by-id';
 export { findBySlug } from './lib/find-by-slug';
 export { findDoc } from './lib/find-doc';
+export { findLandingDoc } from './lib/find-landing-doc';
 export { findNavigationDoc } from './lib/find-navigation-doc';
 export { findPosts } from './lib/find-posts';
 export { findTours } from './lib/find-tours';

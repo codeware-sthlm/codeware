@@ -59,3 +59,6 @@ type DocPayloads = {
 export type DocData = {
   [K in RenderableCollection]: { collection: K } & DocPayloads[K];
 }[RenderableCollection];
+
+/** The tenant's landing page document with the data its blocks need. */
+export type LandingDoc = Extract<DocData, { collection: 'pages' }>;

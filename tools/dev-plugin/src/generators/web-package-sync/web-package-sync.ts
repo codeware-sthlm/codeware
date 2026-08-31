@@ -11,6 +11,84 @@ import { format, resolveConfig } from 'prettier';
 
 const WEB_PROJECT_ROOT = 'apps/web';
 const WEB_PACKAGE_JSON = `${WEB_PROJECT_ROOT}/package.json`;
+const WEB_LOCK_FILE = `${WEB_PROJECT_ROOT}/pnpm-lock.yaml`;
+const RELOCK_COMMAND = `cd ${WEB_PROJECT_ROOT} && pnpm install --lockfile-only`;
+
+type LockEntry = {
+  name: string;
+  /** First line of the entry, inclusive */
+  start: number;
+  /** Line after the entry, exclusive */
+  end: number;
+};
+
+/**
+ * Locate each dependency entry under `importers` → `.` → `dependencies`.
+ *
+ * Scanned line by line rather than parsed: `dev-plugin` carries no YAML
+ * dependency, and a parse/serialise round trip would reformat all ~4k lines,
+ * burying the real change in the `nx sync` diff.
+ */
+function readImporterDependencies(lines: string[]): Array<LockEntry> {
+  const indentOf = (line: string) => line.length - line.trimStart().length;
+
+  const importers = lines.findIndex((line) => line === 'importers:');
+  if (importers === -1) {
+    return [];
+  }
+
+  let cursor = importers + 1;
+  const inImporters = () =>
+    cursor < lines.length &&
+    (lines[cursor].trim() === '' || indentOf(lines[cursor]) >= 2);
+
+  // `importers` → `.`
+  while (inImporters() && lines[cursor] !== '  .:') {
+    cursor++;
+  }
+  if (!inImporters()) {
+    return [];
+  }
+  cursor++;
+
+  // `.` → `dependencies`
+  const inRootImporter = () =>
+    cursor < lines.length &&
+    (lines[cursor].trim() === '' || indentOf(lines[cursor]) >= 4);
+
+  while (inRootImporter() && lines[cursor] !== '    dependencies:') {
+    cursor++;
+  }
+  if (!inRootImporter()) {
+    return [];
+  }
+  cursor++;
+
+  const entries: Array<LockEntry> = [];
+  while (
+    cursor < lines.length &&
+    (lines[cursor].trim() === '' || indentOf(lines[cursor]) >= 6)
+  ) {
+    const match = /^ {6}(?:'([^']+)'|([^\s:]+)):$/.exec(lines[cursor]);
+    if (!match) {
+      cursor++;
+      continue;
+    }
+
+    const start = cursor++;
+    while (
+      cursor < lines.length &&
+      lines[cursor].trim() !== '' &&
+      indentOf(lines[cursor]) >= 8
+    ) {
+      cursor++;
+    }
+
+    entries.push({ name: match[1] ?? match[2], start, end: cursor });
+  }
+
+  return entries;
+}
 
 /**
  * `apps/web` is NOT a pnpm workspace member — the root `pnpm-workspace.yaml`
@@ -30,7 +108,10 @@ const WEB_PACKAGE_JSON = `${WEB_PROJECT_ROOT}/package.json`;
  *      version the workspace resolved, read from the Nx project graph's
  *      external nodes (Nx's own parse of the committed root lockfile — no
  *      dependency on an installed `node_modules`).
- *   2. Regenerate `apps/web/pnpm-lock.yaml` from the pinned manifest (post-flush
+ *   2. Reconcile the manifest's dependency names against the ones the
+ *      standalone lockfile declares, so a *removed* dependency is caught too —
+ *      pinning alone never visits a key that is already gone.
+ *   3. Regenerate `apps/web/pnpm-lock.yaml` from the pinned manifest (post-flush
  *      callback) so the Docker `--frozen-lockfile` install is reproducible.
  *
  * `.github/renovate.json` keeps Renovate off both files — `ignorePaths` for the
@@ -44,6 +125,13 @@ export async function syncWebPackage(
   const raw = tree.read(WEB_PACKAGE_JSON, 'utf-8');
   if (!raw) {
     throw new Error(`web-package-sync: '${WEB_PACKAGE_JSON}' not found.`);
+  }
+
+  const rawLock = tree.read(WEB_LOCK_FILE, 'utf-8');
+  if (!rawLock) {
+    throw new Error(
+      `web-package-sync: '${WEB_LOCK_FILE}' not found — the Docker runtime stage installs from it. Re-lock with '${RELOCK_COMMAND}'.`
+    );
   }
 
   const pkg = JSON.parse(raw) as {
@@ -68,20 +156,63 @@ export async function syncWebPackage(
     );
   }
 
+  // Being in sync is a statement about the lockfile, not only about versions:
+  // a dependency removed from the manifest leaves every remaining pin correct.
+  const lockLines = rawLock.split('\n');
+  const lockEntries = readImporterDependencies(lockLines);
+  const declared = new Set(Object.keys(deps));
+  const locked = new Set(lockEntries.map((entry) => entry.name));
+
+  // No resolution can be synthesised without running pnpm, so this direction
+  // throws rather than writing a guessed `version:` into the lockfile. Nx keeps
+  // sync results that carry an error, so `nx sync --check` still fails.
+  const unlocked = Object.keys(deps).filter((name) => !locked.has(name));
+  if (unlocked.length > 0) {
+    throw new Error(
+      `web-package-sync: these 'apps/web' dependencies are missing from '${WEB_LOCK_FILE}' — re-lock with '${RELOCK_COMMAND}':\n  ${unlocked.join('\n  ')}`
+    );
+  }
+
+  const orphaned = lockEntries.filter((entry) => !declared.has(entry.name));
+
   const prettierConfig = await resolveConfig(WEB_PACKAGE_JSON);
   const content = await format(JSON.stringify(pkg), {
     ...prettierConfig,
     filepath: WEB_PACKAGE_JSON
   });
 
-  if (content === raw) {
+  const pinned = content !== raw;
+  if (!pinned && orphaned.length === 0) {
     return;
   }
 
-  tree.write(WEB_PACKAGE_JSON, content);
+  const messages: string[] = [];
+
+  if (pinned) {
+    tree.write(WEB_PACKAGE_JSON, content);
+    messages.push(
+      `'${WEB_PACKAGE_JSON}' pinned to the versions resolved at the workspace root.`
+    );
+  }
+
+  if (orphaned.length > 0) {
+    // Prune only the importer entries — the callback re-locks and drops the
+    // orphaned `packages:` / `snapshots:` records with it. Never delete the
+    // lockfile to force a change: regenerating from nothing re-resolves every
+    // transitive against the live registry, which is the drift this generator
+    // exists to prevent.
+    const dropped = new Set(orphaned.flatMap(rangeOf));
+    tree.write(
+      WEB_LOCK_FILE,
+      lockLines.filter((_, index) => !dropped.has(index)).join('\n')
+    );
+    messages.push(
+      `'${WEB_LOCK_FILE}' still declared ${orphaned.length} dependenc${orphaned.length === 1 ? 'y' : 'ies'} removed from the manifest: ${orphaned.map((entry) => entry.name).join(', ')}.`
+    );
+  }
 
   return {
-    outOfSyncMessage: `'${WEB_PACKAGE_JSON}' pinned to the versions resolved at the workspace root.`,
+    outOfSyncMessage: messages.join(' '),
     // Runs only when changes are applied (not in `--check`): regenerate the
     // standalone lockfile the Docker runtime stage installs with --frozen-lockfile.
     callback: () => {
@@ -94,6 +225,10 @@ export async function syncWebPackage(
       });
     }
   };
+}
+
+function rangeOf({ start, end }: LockEntry): Array<number> {
+  return Array.from({ length: end - start }, (_, offset) => start + offset);
 }
 
 /**

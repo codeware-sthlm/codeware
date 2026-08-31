@@ -9,6 +9,7 @@ import {
   InboxIcon,
   MapIcon,
   MapPinIcon,
+  PaintBrushIcon,
   PhotoIcon,
   QuestionMarkCircleIcon,
   RectangleGroupIcon,
@@ -25,6 +26,7 @@ import type { IconComponent } from './types';
 
 const SLUG_ICON: Record<CollectionSlug, IconComponent> = {
   categories: RectangleGroupIcon,
+  'custom-themes': PaintBrushIcon,
   faq: QuestionMarkCircleIcon,
   forms: ClipboardDocumentListIcon,
   'form-submissions': InboxIcon,

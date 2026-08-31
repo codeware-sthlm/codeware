@@ -1,7 +1,8 @@
 import { isTenant } from '@codeware/app-cms/util/misc';
-import { TenantRuntimeConfig } from '@codeware/shared/util/payload-types';
 import type { SanitizedConfig } from 'payload';
 
+import { buildTenantConfig } from './build-tenant-config';
+import { getCustomThemes } from './collections/get-custom-themes';
 import { getSiteSettings } from './collections/get-site-settings';
 import { getAuthenticatedPayload } from './get-authenticated-payload';
 import type { PayloadRuntime } from './payload-runtime.types';
@@ -34,19 +35,15 @@ export async function getPayloadRuntime(
     };
   }
 
-  const tenantConfig: TenantRuntimeConfig = {
-    appName: siteSettings.appName,
-    icon: siteSettings.icon,
-    locale: siteSettings.defaultLocale,
-    fallbackLocale: null,
-    landingPage: { collection: 'pages', id: siteSettings.landingPage },
-    tenant: payload.authenticatedUser,
-    // Already normalised by getSiteSettings — themes is never empty and
-    // defaultTheme is guaranteed to be one of them
-    themes: siteSettings.themes,
-    defaultTheme: siteSettings.defaultTheme,
-    colorScheme: siteSettings.colorScheme
-  };
+  // Only a tenant request can have authored themes, so this query never runs
+  // for the admin-only deployment
+  const customThemes = await getCustomThemes({ payload, tenantConfig: null });
+
+  const tenantConfig = buildTenantConfig({
+    settings: siteSettings,
+    customThemes,
+    tenant: payload.authenticatedUser
+  });
 
   return {
     payload,

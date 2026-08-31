@@ -1,0 +1,137 @@
+import { describe, expect, it } from 'vitest';
+
+import {
+  customThemeCss,
+  isValidThemeSlug,
+  isValidTokenName,
+  isValidTokenValue
+} from './custom-theme-css';
+
+const theme = (
+  overrides: Partial<Parameters<typeof customThemeCss>[0][0]>
+) => ({
+  slug: 'ocean',
+  tokensLight: { '--background': 'oklch(1 0 0)' },
+  tokensDark: {},
+  ...overrides
+});
+
+describe('customThemeCss', () => {
+  it('scopes light tokens to the theme attribute', () => {
+    expect(customThemeCss([theme({})])).toBe(
+      "[data-theme='ocean']{--background:oklch(1 0 0)}"
+    );
+  });
+
+  // `[data-theme='x'][data-theme='dark']` can never match once the attribute
+  // carries the theme name — the same trap theme-sync guards for built-ins
+  it('scopes dark tokens with the class, not the attribute', () => {
+    expect(
+      customThemeCss([theme({ tokensDark: { '--background': '#000' } })])
+    ).toBe(
+      "[data-theme='ocean']{--background:oklch(1 0 0)}\n" +
+        "[data-theme='ocean'].dark{--background:#000}"
+    );
+  });
+
+  it('emits nothing for a theme with no light tokens', () => {
+    expect(
+      customThemeCss([
+        theme({ tokensLight: {}, tokensDark: { '--background': '#000' } })
+      ])
+    ).toBe('');
+  });
+
+  it('joins several themes', () => {
+    const css = customThemeCss([theme({}), theme({ slug: 'forest' })]);
+    expect(css).toContain("[data-theme='ocean']");
+    expect(css).toContain("[data-theme='forest']");
+  });
+
+  it('accepts the value shapes real tokens use', () => {
+    const css = customThemeCss([
+      theme({
+        tokensLight: {
+          '--brand-600': 'var(--brand-600)',
+          '--radius-md': 'calc(var(--radius) - 0.125rem)',
+          '--core-navbar':
+            'color-mix(in oklab, oklch(27.4% 0.006 286) 90%, transparent)',
+          '--ring': 'oklch(0.705 0.015 286.067 / 50%)'
+        }
+      })
+    ]);
+    expect(css).toContain('--brand-600:var(--brand-600)');
+    expect(css).toContain('--radius-md:calc(var(--radius) - 0.125rem)');
+    expect(css).toContain('90%, transparent)');
+    expect(css).toContain('286.067 / 50%)');
+  });
+
+  describe('rejects what would escape the block', () => {
+    it.each([
+      ['ends the declaration', 'red;--foreground:red'],
+      ['ends the block', 'red}body{display:none'],
+      ['leaves CSS entirely', 'red</style><script>alert(1)</script>'],
+      ['smuggles an at-rule', 'red@import url(//evil)'],
+      ['overrides everything', 'red!important'],
+      ['fetches a remote resource', 'url(https://evil/x)']
+    ])('%s', (_, value) => {
+      expect(isValidTokenValue(value)).toBe(false);
+      expect(customThemeCss([theme({ tokensLight: { '--x': value } })])).toBe(
+        ''
+      );
+    });
+
+    it('drops the bad token but keeps the good ones', () => {
+      expect(
+        customThemeCss([
+          theme({
+            tokensLight: { '--background': '#fff', '--x': 'red;}body{}' }
+          })
+        ])
+      ).toBe("[data-theme='ocean']{--background:#fff}");
+    });
+
+    it('drops a slug that would break out of the selector', () => {
+      expect(customThemeCss([theme({ slug: "x'],body[x='" })])).toBe('');
+    });
+
+    it('drops a value longer than any real token needs', () => {
+      expect(isValidTokenValue('a'.repeat(121))).toBe(false);
+      expect(isValidTokenValue('a'.repeat(120))).toBe(true);
+    });
+
+    it('drops a non-string value', () => {
+      expect(isValidTokenValue(42)).toBe(false);
+      expect(isValidTokenValue(null)).toBe(false);
+      expect(isValidTokenValue('')).toBe(false);
+    });
+  });
+
+  describe('token names', () => {
+    it.each(['--background', '--brand-50', '--core-action-btn-shadow'])(
+      'accepts %s',
+      (name) => expect(isValidTokenName(name)).toBe(true)
+    );
+
+    it.each(['background', '-background', '--Background', '--a_b', '--a--b'])(
+      'rejects %s',
+      (name) => expect(isValidTokenName(name)).toBe(false)
+    );
+  });
+
+  describe('theme slugs', () => {
+    it.each(['ocean', 'deep-ocean', 'theme2'])('accepts %s', (slug) =>
+      expect(isValidThemeSlug(slug)).toBe(true)
+    );
+
+    // Indistinguishable from the colour scheme once on `data-theme`
+    it.each(['light', 'dark'])('rejects the reserved name %s', (slug) =>
+      expect(isValidThemeSlug(slug)).toBe(false)
+    );
+
+    it.each(['Ocean', 'deep ocean', '-ocean', 'ocean-', ''])(
+      'rejects %s',
+      (slug) => expect(isValidThemeSlug(slug)).toBe(false)
+    );
+  });
+});

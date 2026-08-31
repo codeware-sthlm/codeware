@@ -48,11 +48,8 @@ export async function loader({
 
   // Only slug is required
   if (!slug) {
-    const error: LoaderError = {
-      message: 'Page not found',
-      status: 404
-    };
-    throw Response.json(error);
+    // The status belongs in the init, not the body — this used to answer 200
+    throw Response.json({ message: 'Page not found' }, { status: 404 });
   }
 
   try {
@@ -69,8 +66,15 @@ export async function loader({
 
     return json(data);
   } catch (e) {
+    // The 404 above is already a Response. Wrapping it again would read
+    // `.message` off a Response — undefined — and lose the message entirely.
+    if (e instanceof Response) {
+      throw e;
+    }
+
+    // A failed request is the CMS being unreachable, not a missing page
     const error = e as Error;
-    throw Response.json({ message: error.message }, { status: 404 });
+    throw Response.json({ message: error.message }, { status: 500 });
   }
 }
 

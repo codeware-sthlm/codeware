@@ -4,6 +4,7 @@ import type { NavigationItem } from '@codeware/shared/util/payload-api';
 import { cn } from '@codeware/shared/util/ui';
 
 import { usePayload } from '../providers/PayloadProvider';
+import { handleAsRoute } from '../utils/internal-link';
 
 function NavItem({
   href,
@@ -26,7 +27,7 @@ function NavItem({
   const isActive = normalizedPathname === normalizedHref;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+    if (!handleAsRoute(e)) return;
     navigate(href);
   };
 

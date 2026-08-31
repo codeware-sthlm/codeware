@@ -24,6 +24,7 @@ import { ImageBlock } from '../blocks/ImageBlock';
 import { RichText } from '../blocks/RichText';
 import { Container } from '../layout/Container';
 import { usePayload } from '../providers/PayloadProvider';
+import { handleAsRoute } from '../utils/internal-link';
 import {
   formatPrice,
   formatTourDate,
@@ -198,7 +199,7 @@ export function RenderTour({ tour }: RenderTourProps) {
           <a
             href="/tours"
             onClick={(e) => {
-              e.preventDefault();
+              if (!handleAsRoute(e)) return;
               navigate('/tours');
             }}
             aria-label={t(locale, 'tours.backToTours')}

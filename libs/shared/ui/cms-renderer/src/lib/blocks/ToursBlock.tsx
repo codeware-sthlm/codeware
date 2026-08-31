@@ -17,6 +17,7 @@ import { cn } from '@codeware/shared/util/ui';
 import { CalendarIcon, ClockIcon } from 'lucide-react';
 
 import { usePayload } from '../providers/PayloadProvider';
+import { handleAsRoute } from '../utils/internal-link';
 import {
   formatPrice,
   formatTourDate,
@@ -98,7 +99,7 @@ export function ToursBlock({ title, description, tours }: Props) {
                   <a
                     href={`/tours/${tour.slug}`}
                     onClick={(e) => {
-                      e.preventDefault();
+                      if (!handleAsRoute(e)) return;
                       navigate(`/tours/${tour.slug}`);
                     }}
                     // Stretched over the card so the whole card is the hit area,

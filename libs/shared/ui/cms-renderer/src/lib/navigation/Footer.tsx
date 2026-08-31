@@ -7,6 +7,7 @@ import { cn } from '@codeware/shared/util/ui';
 import { ContainerInner, ContainerOuter } from '../layout/Container';
 import { usePayload } from '../providers/PayloadProvider';
 import { SocialLinks } from '../social/SocialLinks';
+import { handleAsRoute } from '../utils/internal-link';
 import { TenantIcon } from '../utils/TenantIcon';
 
 function NavLink({
@@ -21,7 +22,7 @@ function NavLink({
   const { navigate } = usePayload();
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+    if (!handleAsRoute(e)) return;
     navigate(href, newTab);
   };
 

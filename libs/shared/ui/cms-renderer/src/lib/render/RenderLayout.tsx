@@ -13,6 +13,7 @@ import { MobileNavigation } from '../navigation/MobileNavigation';
 import { usePayload } from '../providers/PayloadProvider';
 import { ColorSchemeSwitch } from '../theme/ColorSchemeSwitch';
 import { ThemeSelect } from '../theme/ThemeSelect';
+import { handleAsRoute } from '../utils/internal-link';
 import { TenantIcon } from '../utils/TenantIcon';
 
 type RenderLayoutProps = {
@@ -90,7 +91,7 @@ export function RenderLayout({
                     <a
                       href="/"
                       onClick={(e) => {
-                        e.preventDefault();
+                        if (!handleAsRoute(e)) return;
                         navigate('/');
                       }}
                       className="pointer-events-auto"

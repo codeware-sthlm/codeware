@@ -7,6 +7,32 @@ import {
   checkContrast,
   contrastFailures
 } from './contrast';
+import type { ColorFamily } from './palette';
+
+const BRAND_FAMILIES: Array<ColorFamily> = [
+  'red',
+  'orange',
+  'amber',
+  'yellow',
+  'lime',
+  'green',
+  'emerald',
+  'teal',
+  'cyan',
+  'sky',
+  'blue',
+  'indigo',
+  'violet',
+  'purple',
+  'fuchsia',
+  'pink',
+  'rose',
+  'neutral',
+  'zinc',
+  'slate',
+  'gray',
+  'stone'
+];
 
 /** Dark holds only what changes, so it is checked as the browser cascades it. */
 const schemes = (recipe = DEFAULT_RECIPE) => {
@@ -65,5 +91,19 @@ describe('the default recipe', () => {
     expect(failures.map((f) => `${f.usage}: ${f.ratio.toFixed(2)}`)).toEqual(
       []
     );
+  });
+});
+
+// The brand now drives buttons, rings and links, so a family that cannot carry
+// them would ship an unreadable theme by default rather than on an odd choice
+describe('every brand family', () => {
+  it.each(BRAND_FAMILIES)('passes WCAG AA with %s', (brandFamily) => {
+    const built = schemes({ ...DEFAULT_RECIPE, brandFamily });
+    const failures = [
+      ...contrastFailures(built.light).map((f) => `light ${f.usage}`),
+      ...contrastFailures(built.dark).map((f) => `dark ${f.usage}`)
+    ];
+
+    expect(failures).toEqual([]);
   });
 });

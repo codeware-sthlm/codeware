@@ -1,0 +1,107 @@
+import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
+
+import { type ColorFamily, type ColorShade, brandRamp, shade } from './palette';
+import {
+  ALIAS_LIGHT,
+  BASE_DARK,
+  BASE_LIGHT,
+  SUBTLE_DARK,
+  SUBTLE_LIGHT,
+  type TokenSource
+} from './theme-template';
+
+/** A resolved token map, ready to be written into a theme block. */
+export type ThemeTokens = Record<string, string>;
+
+/**
+ * What a whole theme is decided by.
+ *
+ * Four choices, because the 38-token core and prose layer is fixed and the
+ * shadcn layer is a set of steps off one family. Anything the recipe cannot
+ * express is a per-token override on top, not another field here.
+ */
+export type ThemeRecipe = {
+  /** Drives every neutral: surfaces, text, borders, rings */
+  baseFamily: ColorFamily;
+  /** Drives the `--brand-*` ramp, and the link colour through it */
+  brandFamily: ColorFamily;
+  /** The `--radius` root value, e.g. `0.625rem` */
+  radius: string;
+  /** Which brand step links take, per scheme — dark needs a lighter one to read */
+  linkShade: { light: ColorShade; dark: ColorShade };
+};
+
+/** A recipe that reproduces the look of the built-in `shadcn` theme. */
+export const DEFAULT_RECIPE: ThemeRecipe = {
+  baseFamily: 'neutral',
+  brandFamily: 'neutral',
+  radius: '0.625rem',
+  linkShade: { light: '600', dark: '400' }
+};
+
+const resolve = (source: TokenSource, baseFamily: ColorFamily): string => {
+  if ('base' in source) {
+    return shade(baseFamily, source.base);
+  }
+  if ('palette' in source) {
+    return tailwind.color(source.palette as TailwindColor);
+  }
+  return source.value;
+};
+
+const resolveAll = (
+  sources: Record<string, TokenSource>,
+  baseFamily: ColorFamily
+): ThemeTokens =>
+  Object.fromEntries(
+    Object.entries(sources).map(([name, source]) => [
+      name,
+      resolve(source, baseFamily)
+    ])
+  );
+
+/**
+ * Build a complete theme from a recipe.
+ *
+ * Complete, not a diff: every theme block is scoped to its own `[data-theme]`
+ * and nothing sits at bare `:root`, so a partial token map leaves the page
+ * with no base to inherit from.
+ *
+ * The light map carries everything; the dark map carries only what changes,
+ * which the `.dark` block layers on top. That mirrors how the committed themes
+ * are written, and how the generator's contract is defined.
+ *
+ * @param recipe - The four decisions
+ * @param overrides - Per-token values applied last, for what a recipe cannot say
+ * @returns Token maps for both schemes
+ */
+export function buildThemeTokens(
+  recipe: ThemeRecipe,
+  overrides: { light?: ThemeTokens; dark?: ThemeTokens } = {}
+): { light: ThemeTokens; dark: ThemeTokens } {
+  const { baseFamily, brandFamily, radius, linkShade } = recipe;
+
+  const light: ThemeTokens = {
+    ...brandRamp(brandFamily),
+    '--radius': radius,
+    '--radius-md': 'calc(var(--radius) - 0.125rem)',
+    ...resolveAll(BASE_LIGHT, baseFamily),
+    ...resolveAll(SUBTLE_LIGHT, baseFamily),
+    ...resolveAll(ALIAS_LIGHT, baseFamily),
+    // Through the ramp rather than the palette, so re-branding is one change
+    '--core-link': `var(--brand-${linkShade.light})`,
+    '--core-surface-invert': shade(baseFamily, '900'),
+    ...overrides.light
+  };
+
+  const dark: ThemeTokens = {
+    ...resolveAll(BASE_DARK, baseFamily),
+    ...resolveAll(SUBTLE_DARK, baseFamily),
+    '--core-link': `var(--brand-${linkShade.dark})`,
+    // The inverted surface is the raised one once the page is already dark
+    '--core-surface-invert': 'var(--card)',
+    ...overrides.dark
+  };
+
+  return { light, dark };
+}

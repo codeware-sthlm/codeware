@@ -1,0 +1,8 @@
+{
+  "name": "shared-ui-theme-studio",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui/theme-studio/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "targets": {}
+}

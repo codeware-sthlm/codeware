@@ -53,7 +53,15 @@ export const isValidTokenValue = (value: unknown): value is string =>
 export const isValidThemeSlug = (slug: string): boolean =>
   THEME_SLUG.test(slug) && !RESERVED_SLUGS.includes(slug);
 
-function declarations(tokens: Record<string, unknown>): string {
+/**
+ * Serialise a token map into declarations, dropping whatever fails the
+ * whitelist above.
+ *
+ * Exported so anything else putting these tokens into a stylesheet — the studio
+ * scopes them to a preview container rather than an attribute — applies the
+ * same rules rather than a second copy of them.
+ */
+export function themeDeclarations(tokens: Record<string, unknown>): string {
   return Object.entries(tokens)
     .filter(
       ([name, value]) => isValidTokenName(name) && isValidTokenValue(value)
@@ -81,8 +89,8 @@ export function customThemeCss(themes: Array<CustomThemeInput>): string {
   return themes
     .filter(({ slug }) => isValidThemeSlug(slug))
     .flatMap(({ slug, tokensLight, tokensDark }) => {
-      const light = declarations(tokensLight ?? {});
-      const dark = declarations(tokensDark ?? {});
+      const light = themeDeclarations(tokensLight ?? {});
+      const dark = themeDeclarations(tokensDark ?? {});
 
       // A theme with no light tokens has no base to cascade from, so a dark
       // block on its own would leave the light scheme unthemed

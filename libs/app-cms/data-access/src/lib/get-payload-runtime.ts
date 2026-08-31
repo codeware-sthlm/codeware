@@ -35,9 +35,12 @@ export async function getPayloadRuntime(
     };
   }
 
-  // Only a tenant request can have authored themes, so this query never runs
-  // for the admin-only deployment
-  const customThemes = await getCustomThemes({ payload, tenantConfig: null });
+  // Only a tenant request can have authored themes, and none selected means no
+  // query at all
+  const customThemes = await getCustomThemes(
+    { payload, tenantConfig: null },
+    siteSettings.customThemeIds
+  );
 
   const tenantConfig = buildTenantConfig({
     settings: siteSettings,

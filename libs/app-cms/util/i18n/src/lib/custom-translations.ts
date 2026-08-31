@@ -292,6 +292,7 @@ const customTranslationsSchema = z.object({
     themeNameBuiltIn: z.string(),
     themeNameInvalid: z.string(),
     themeNameReserved: z.string(),
+    themesRequired: z.string(),
     tourClosedForSignups: z.string(),
     urlInvalid: z.string()
   })
@@ -634,6 +635,8 @@ Supported locales: {{locales}}`,
         'Use lowercase letters, numbers and single dashes, e.g. "deep-ocean".',
       themeNameReserved:
         '"{{name}}" is reserved — it would be indistinguishable from the light and dark setting.',
+      themesRequired:
+        'Select at least one theme, either a built-in one or one of your own.',
       tourClosedForSignups: 'This tour is closed for signups.',
       urlInvalid: 'Please enter a valid URL'
     }
@@ -975,6 +978,8 @@ Språk som stöds: {{locales}}`,
         'Använd små bokstäver, siffror och enkla bindestreck, t.ex. "deep-ocean".',
       themeNameReserved:
         '"{{name}}" är reserverat — det skulle inte gå att skilja från inställningen för ljust och mörkt.',
+      themesRequired:
+        'Välj minst ett tema, antingen ett inbyggt eller ett eget.',
       tourClosedForSignups: 'Resan är stängd för anmälan.',
       urlInvalid: 'Ange en giltig webbadress'
     }

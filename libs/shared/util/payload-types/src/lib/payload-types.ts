@@ -1726,9 +1726,13 @@ export interface SiteSettingsGeneral {
    */
   themes: ('shadcn' | 'spotlight' | 'codeware')[];
   /**
+   * Your own themes, offered alongside the ones above. Create them under Custom themes.
+   */
+  customThemes?: (number | CustomTheme)[] | null;
+  /**
    * The theme a visitor sees before making a choice. Must be one of the selected themes.
    */
-  defaultTheme: 'shadcn' | 'spotlight' | 'codeware';
+  defaultTheme: string;
   /**
    * Let visitors switch between light and dark, or lock the site to one of them.
    */
@@ -2683,6 +2687,7 @@ export interface SiteSettingsGeneralSelect<T extends boolean = true> {
         file?: T;
       };
   themes?: T;
+  customThemes?: T;
   defaultTheme?: T;
   colorScheme?: T;
   defaultLocale?: T;

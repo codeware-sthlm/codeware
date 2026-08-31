@@ -76,7 +76,7 @@ export const tenantConfigEndpoint: Endpoint = {
 
     const tenantConfig = buildTenantConfig({
       settings,
-      customThemes: await getCustomThemes(runtime),
+      customThemes: await getCustomThemes(runtime, settings.customThemeIds),
       tenant: req.user
     });
 

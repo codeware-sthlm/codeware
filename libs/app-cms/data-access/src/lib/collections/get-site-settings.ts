@@ -15,13 +15,19 @@ type Response = {
   appName: string;
   /** Light/dark: `system` lets the visitor choose, otherwise it is locked */
   colorScheme: SiteSettingsGeneral['colorScheme'];
-  /** Theme rendered before the visitor picks one; always a member of `themes` */
+  /** Theme rendered before the visitor picks one, as stored */
   defaultTheme: string;
   defaultLocale: TypedLocale;
   icon: TenantIconConfig | null;
   landingPage: number;
-  /** Themes this site may render. A single entry means no selector is shown. */
+  /**
+   * Built-in themes this site offers, as stored. May be empty when the site
+   * offers only authored themes — `buildTenantConfig` resolves the two lists
+   * together, since neither is the whole picture on its own.
+   */
   themes: Array<string>;
+  /** Ids of the tenant-authored themes this site offers; their tokens are fetched separately. */
+  customThemeIds: Array<number>;
 };
 
 /**
@@ -65,6 +71,7 @@ export async function getSiteSettings(
     general: {
       appName,
       colorScheme,
+      customThemes,
       defaultTheme,
       defaultLocale,
       icon,
@@ -102,21 +109,19 @@ export async function getSiteSettings(
     }
   }
 
-  // Settings saved before these fields existed read back empty, and a stale
-  // default may name a theme since removed from the list — resolve both here so
-  // every caller gets a theme that is actually selectable.
-  const selectableThemes = themes?.length ? themes : [FALLBACK_THEME];
-  const resolvedDefaultTheme = selectableThemes.includes(defaultTheme)
-    ? defaultTheme
-    : selectableThemes[0];
+  // Depth 0, so a relationship comes back as an id
+  const customThemeIds = (customThemes ?? [])
+    .map((entry) => (typeof entry === 'number' ? entry : entry?.id))
+    .filter((id): id is number => typeof id === 'number');
 
   return {
     appName,
     colorScheme: colorScheme ?? 'system',
-    defaultTheme: resolvedDefaultTheme,
+    customThemeIds,
+    defaultTheme,
     defaultLocale,
     icon: resolvedIcon,
     landingPage: typeof landingPage === 'number' ? landingPage : landingPage.id,
-    themes: selectableThemes
+    themes: themes ?? []
   };
 }

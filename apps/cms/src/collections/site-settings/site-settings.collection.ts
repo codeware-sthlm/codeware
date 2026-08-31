@@ -5,11 +5,7 @@ import {
   findTenantFromCookie,
   hasNoAdminRoles
 } from '@codeware/app-cms/util/misc';
-import {
-  SITE_THEMES,
-  type SiteTheme,
-  THEME_LABELS
-} from '@codeware/shared/theme';
+import { SITE_THEMES, THEME_LABELS } from '@codeware/shared/theme';
 import type {
   SiteSetting,
   SiteSettingsGeneral,
@@ -177,41 +173,96 @@ const siteSettings: CollectionConfig = {
               options: themeOptions,
               hasMany: true,
               defaultValue: ['spotlight'],
-              required: true
+              // Not `required`: a site may offer only its own themes. What has
+              // to hold is that it offers something, which spans both fields
+              validate: (
+                value: Array<string> | null | undefined,
+                {
+                  req,
+                  siblingData
+                }: { req: PayloadRequest; siblingData: unknown }
+              ) => {
+                const customThemes = (
+                  siblingData as SiteSettingsGeneral | undefined
+                )?.customThemes;
+                if (value?.length || customThemes?.length) {
+                  return true;
+                }
+                return customT(req.t)('validation:themesRequired');
+              }
+            },
+            {
+              name: 'customThemes',
+              type: 'relationship',
+              relationTo: 'custom-themes',
+              hasMany: true,
+              label: { en: 'Custom themes', sv: 'Egna teman' },
+              admin: {
+                description: {
+                  en: 'Your own themes, offered alongside the ones above. Create them under Custom themes.',
+                  sv: 'Dina egna teman, som erbjuds vid sidan av de ovanstående. Skapa dem under Egna teman.'
+                }
+              }
             },
             {
               name: 'defaultTheme',
-              type: 'select',
+              // Text, not select: an authored theme does not exist when the
+              // config is built, so no static option list can hold it. The
+              // admin component assembles the options from both kinds.
+              type: 'text',
               label: { en: 'Default theme', sv: 'Standardtema' },
               admin: {
                 description: {
                   en: 'The theme a visitor sees before making a choice. Must be one of the selected themes.',
                   sv: 'Temat en besökare ser innan något val gjorts. Måste vara ett av de valda temana.'
+                },
+                components: {
+                  Field:
+                    '@codeware/app-cms/ui/fields/default-theme/DefaultThemeField.client'
                 }
               },
-              enumName: enumName('site_settings_default_theme'),
-              options: themeOptions,
-              hasMany: false, // Infer correct types for validation
               defaultValue: 'spotlight',
-              validate: (
+              validate: async (
                 value: string | null | undefined,
                 {
                   req,
                   siblingData
                 }: { req: PayloadRequest; siblingData: unknown }
               ) => {
-                const themes = (siblingData as SiteSettingsGeneral | undefined)
-                  ?.themes;
+                const data = siblingData as SiteSettingsGeneral | undefined;
+                const themes = data?.themes ?? [];
+
+                // The relationship carries ids, so the slugs a visitor could
+                // land on have to be read back before this can judge the value
+                const customIds = (data?.customThemes ?? [])
+                  .map((entry) =>
+                    typeof entry === 'number' ? entry : entry?.id
+                  )
+                  .filter((id): id is number => typeof id === 'number');
+
+                const customSlugs = customIds.length
+                  ? (
+                      await req.payload.find({
+                        collection: 'custom-themes',
+                        depth: 0,
+                        limit: 0,
+                        where: { id: { in: customIds } }
+                      })
+                    ).docs.map(({ slug }) => slug)
+                  : [];
+
+                const selectable = [...themes, ...customSlugs];
+
                 if (
                   !value ||
-                  !themes?.length ||
-                  themes.includes(value as SiteTheme)
+                  !selectable.length ||
+                  selectable.includes(value)
                 ) {
                   return true;
                 }
                 return customT(req.t)('validation:defaultThemeNotSelected', {
                   theme: value,
-                  themes: themes.join(', ')
+                  themes: selectable.join(', ')
                 });
               },
               required: true

@@ -1,7 +1,11 @@
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
-import { type Tree, createProjectGraphAsync } from '@nx/devkit';
+import {
+  type ProjectGraph,
+  type Tree,
+  createProjectGraphAsync
+} from '@nx/devkit';
 import type { SyncGeneratorResult } from 'nx/src/utils/sync-generators';
 import { format, resolveConfig } from 'prettier';
 
@@ -33,8 +37,9 @@ const WEB_PACKAGE_JSON = `${WEB_PROJECT_ROOT}/package.json`;
  * manifest, a `lockFileMaintenance` rule for the lockfile — so it only ever
  * bumps the root; `nx sync` re-pins and re-locks web.
  */
-export async function webPackageSyncGenerator(
-  tree: Tree
+export async function syncWebPackage(
+  tree: Tree,
+  graph: ProjectGraph
 ): Promise<SyncGeneratorResult | void> {
   const raw = tree.read(WEB_PACKAGE_JSON, 'utf-8');
   if (!raw) {
@@ -46,16 +51,10 @@ export async function webPackageSyncGenerator(
   };
   const deps = pkg.dependencies ?? {};
 
-  // Resolved versions come from Nx's project graph, which parses the committed
-  // root lockfile — the same versions CI installs with --frozen-lockfile.
-  const { externalNodes } = await createProjectGraphAsync({
-    exitOnError: false
-  });
-
   // Pin each dependency to the version resolved at the workspace root.
   const missing: string[] = [];
   for (const name of Object.keys(deps)) {
-    const resolved = externalNodes?.[`npm:${name}`]?.data.version;
+    const resolved = graph.externalNodes?.[`npm:${name}`]?.data.version;
     if (!resolved) {
       missing.push(name);
       continue;
@@ -95,6 +94,20 @@ export async function webPackageSyncGenerator(
       });
     }
   };
+}
+
+/**
+ * Global sync generator entry point. Registered in `nx.json`
+ * (`sync.globalGenerators`) and enforced in CI via `nx sync --check`.
+ *
+ * Resolved versions come from Nx's project graph, which parses the committed
+ * root lockfile — the same versions CI installs with --frozen-lockfile.
+ */
+export async function webPackageSyncGenerator(
+  tree: Tree
+): Promise<SyncGeneratorResult | void> {
+  const graph = await createProjectGraphAsync({ exitOnError: false });
+  return syncWebPackage(tree, graph);
 }
 
 export default webPackageSyncGenerator;

@@ -54,14 +54,21 @@ it('keeps the not-found message on the 404 it throws', async () => {
 });
 
 it('reports an unreachable CMS as a server error, not a missing page', async () => {
-  findDocMock.mockRejectedValue(new Error('Error fetching posts: boom'));
+  const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  findDocMock.mockRejectedValue(
+    new Error("Error fetching 'hello' from 'posts': cms-internal:8080 refused")
+  );
 
   const response = await caught('posts', 'hello');
 
   expect(response.status).toBe(500);
-  await expect(response.json()).resolves.toEqual({
-    message: 'Error fetching posts: boom'
-  });
+
+  // The cause is logged for us, never serialized to the visitor
+  const { message } = (await response.json()) as { message: string };
+  expect(message).not.toContain('cms-internal');
+  expect(logged).toHaveBeenCalledWith(
+    expect.stringContaining('cms-internal:8080 refused')
+  );
 });
 
 it('throws 404 without a slug', async () => {

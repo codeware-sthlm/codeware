@@ -17,6 +17,10 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
+          // Shared libs are bundled from source, so their npm imports are
+          // runtime deps of this app's image too. Whole-project granularity
+          // over-reports; the ignores below are the packages web never reaches.
+          includeTransitiveDependencies: true,
           ignoredDependencies: [
             // Loading secrets
             '@infisical/sdk',
@@ -53,8 +57,14 @@ export default [
             'react-hook-form',
             'sonner',
             'tailwind-merge',
+            // Server-side/CMS-only libs in the transitive graph
+            'payload',
+            '@payloadcms/plugin-form-builder',
             // Dev dependencies
             '@nx/vite',
+            '@storybook/react-vite',
+            'dotenv',
+            'is-ci',
             '@remix-run/testing',
             '@testing-library/jest-dom',
             '@testing-library/react',

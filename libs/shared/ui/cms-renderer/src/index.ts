@@ -31,6 +31,7 @@ export { ErrorContainer } from './lib/error/ErrorContainer';
 
 export { type SocialLink, SocialLinks } from './lib/social/SocialLinks';
 
+export { RenderDoc } from './lib/render/RenderDoc';
 export { RenderLandingPage } from './lib/render/RenderLandingPage';
 export { RenderLayout } from './lib/render/RenderLayout';
 export { RenderPage } from './lib/render/RenderPage';

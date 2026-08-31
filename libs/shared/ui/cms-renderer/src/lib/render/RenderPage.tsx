@@ -8,12 +8,8 @@ type RenderPageProps = {
   /**
    * Page data to render.
    * The app is responsible for fetching this data and handling 404s.
-   *
-   * Only the fields actually rendered, so a client holding a trimmed page —
-   * `NavigationDoc`'s pages variant in apps/web — can pass it directly. A full
-   * `Page` satisfies this too.
    */
-  page: Pick<Page, 'header' | 'layout'>;
+  page: Page;
   /**
    * Pre-fetched data for blocks that require server-side data.
    * Keyed by block id.

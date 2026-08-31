@@ -4,6 +4,7 @@ import type { NavigationItem } from '@codeware/shared/util/payload-api';
 import { cn } from '@codeware/shared/util/ui';
 
 import { usePayload } from '../providers/PayloadProvider';
+import { isActivePath } from '../utils/active-path';
 import { handleAsRoute } from '../utils/internal-link';
 
 function NavItem({
@@ -14,17 +15,8 @@ function NavItem({
   children: React.ReactNode;
 }) {
   const { getCurrentPath, navigate } = usePayload();
-  const pathname = getCurrentPath();
 
-  // Normalize paths for comparison (remove trailing slashes)
-  const normalizedPathname =
-    pathname.endsWith('/') && pathname !== '/'
-      ? pathname.slice(0, -1)
-      : pathname;
-  const normalizedHref =
-    href.endsWith('/') && href !== '/' ? href.slice(0, -1) : href;
-
-  const isActive = normalizedPathname === normalizedHref;
+  const isActive = isActivePath(getCurrentPath(), href);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!handleAsRoute(e)) return;

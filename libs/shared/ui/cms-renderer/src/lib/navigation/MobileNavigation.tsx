@@ -11,6 +11,7 @@ import {
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 import { usePayload } from '../providers/PayloadProvider';
+import { isActivePath } from '../utils/active-path';
 import { handleAsRoute } from '../utils/internal-link';
 
 export function MobileNavigation({
@@ -21,12 +22,6 @@ export function MobileNavigation({
 }) {
   const { getCurrentPath, navigate, locale } = usePayload();
   const pathname = getCurrentPath();
-
-  // Normalize pathname for comparison (remove trailing slashes)
-  const normalizedPathname =
-    pathname.endsWith('/') && pathname !== '/'
-      ? pathname.slice(0, -1)
-      : pathname;
 
   if (navigationTree.length === 0) {
     return null;
@@ -58,9 +53,7 @@ export function MobileNavigation({
         <nav className="mt-6">
           <ul className="text-core-nav-link -my-2">
             {navigationTree.map(({ key, label, url }) => {
-              const normalizedUrl =
-                url.endsWith('/') && url !== '/' ? url.slice(0, -1) : url;
-              const isActive = normalizedPathname === normalizedUrl;
+              const isActive = isActivePath(pathname, url);
 
               const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
                 if (!handleAsRoute(e)) return;

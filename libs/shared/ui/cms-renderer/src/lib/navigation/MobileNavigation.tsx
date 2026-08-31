@@ -11,6 +11,7 @@ import {
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 import { usePayload } from '../providers/PayloadProvider';
+import { handleAsRoute } from '../utils/internal-link';
 
 export function MobileNavigation({
   navigationTree,
@@ -62,7 +63,7 @@ export function MobileNavigation({
               const isActive = normalizedPathname === normalizedUrl;
 
               const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-                e.preventDefault();
+                if (!handleAsRoute(e)) return;
                 navigate(url);
               };
 

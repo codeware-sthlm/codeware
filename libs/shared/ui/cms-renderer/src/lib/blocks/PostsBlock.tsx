@@ -9,6 +9,7 @@ import { getExcerpt } from '@codeware/shared/util/payload-utils';
 import { ChevronRightIcon } from 'lucide-react';
 
 import { usePayload } from '../providers/PayloadProvider';
+import { handleAsRoute } from '../utils/internal-link';
 
 type Props = PostsBlockProps & {
   /**
@@ -62,7 +63,7 @@ export function PostsBlock({ title, description, posts }: Props) {
               <a
                 href={`/posts/${post.slug}`}
                 onClick={(e) => {
-                  e.preventDefault();
+                  if (!handleAsRoute(e)) return;
                   navigate(`/posts/${post.slug}`);
                 }}
                 className="group relative md:col-span-3"

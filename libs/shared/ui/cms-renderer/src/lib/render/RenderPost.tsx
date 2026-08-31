@@ -6,6 +6,7 @@ import { ImageBlock } from '../blocks/ImageBlock';
 import { RichText } from '../blocks/RichText';
 import { Container } from '../layout/Container';
 import { usePayload } from '../providers/PayloadProvider';
+import { handleAsRoute } from '../utils/internal-link';
 
 type RenderPostProps = {
   /**
@@ -54,7 +55,7 @@ export function RenderPost({ post }: RenderPostProps) {
   const { navigate } = usePayload();
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+    if (!handleAsRoute(e)) return;
     navigate('/posts');
   };
 

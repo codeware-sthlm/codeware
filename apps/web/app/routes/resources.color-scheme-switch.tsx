@@ -9,7 +9,7 @@ import { useRequestInfo } from '../utils/request-info';
 /** Where the color scheme is persisted. Submitted to from `root.tsx`. */
 export const COLOR_SCHEME_ACTION = '/resources/color-scheme-switch';
 
-// Resolve a reusable actio type
+// Resolve a reusable action type
 type ActionData = {
   result: ReturnType<
     Awaited<

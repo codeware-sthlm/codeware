@@ -45,3 +45,22 @@ export const resolveMeta = (
 
   return null;
 };
+
+/**
+ * Resolve the meta for a fetched document.
+ *
+ * Takes the `DocData` container rather than the document itself, so a client
+ * never needs a collection model to title its pages. Accepts `unknown` because
+ * route meta data is framework-supplied and untyped; documents are serialized
+ * JSON, which is structurally identical for meta purposes.
+ *
+ * @param data - The fetched document container to resolve the meta for.
+ * @returns Page, post or tour meta or `null` if the meta data is not found.
+ */
+export const resolveDocMeta = (
+  data: unknown
+): PageMeta | PostMeta | TourMeta | null => {
+  const doc = (data as { doc?: unknown } | null | undefined)?.doc;
+
+  return resolveMeta((doc ?? null) as Page | Post | Tour | null);
+};

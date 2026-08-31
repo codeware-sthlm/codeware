@@ -15,7 +15,6 @@ import type {
   ContentBlock,
   Form,
   FormSubmission,
-  Media,
   Navigation,
   Page,
   Post,
@@ -123,23 +122,6 @@ export type PostMeta = {
 export type TourMeta = {
   [K in keyof TourMetaDefined]: StripTypes<TourMetaDefined[K], number | null>;
 };
-
-/**
- * Document details for a navigation item.
- */
-export type NavigationDoc =
-  // limit what can be exposed client side
-  | ({
-      collection: 'pages';
-    } & Pick<Page, 'header' | 'layout' | 'name'> & {
-        meta: PageMeta;
-      })
-  | ({
-      collection: 'posts';
-    } & Pick<Post, 'content' | 'title'> & {
-        heroImage?: Media | null | undefined;
-        meta: PostMeta;
-      });
 
 /** Navigation reference collection */
 export type NavigationReferenceCollection = NonNullable<

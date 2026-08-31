@@ -160,6 +160,7 @@
       "@codeware/shared/util/payload-utils": [
         "./libs/shared/util/payload-utils/src/index.ts"
       ],
+      "@codeware/shared/util/color": ["./libs/shared/util/color/src/index.ts"],
       "@codeware/shared/util/pure": ["./libs/shared/util/pure/src/index.ts"],
       "@codeware/shared/util/schemas": [
         "./libs/shared/util/schemas/src/index.ts"

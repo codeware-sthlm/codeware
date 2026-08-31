@@ -4,7 +4,10 @@ import type {
   TenantRuntimeConfig
 } from '@codeware/shared/util/payload-types';
 
-import type { getSiteSettings } from './collections/get-site-settings';
+import {
+  FALLBACK_THEME,
+  type getSiteSettings
+} from './collections/get-site-settings';
 
 type SiteSettings = NonNullable<Awaited<ReturnType<typeof getSiteSettings>>>;
 
@@ -29,6 +32,13 @@ export function buildTenantConfig({
   customThemes: Array<CustomThemeConfig>;
   tenant: Tenant;
 }): TenantRuntimeConfig {
+  // Settings saved before these fields existed read back empty, and a stale
+  // default may name a theme since deselected. Resolved here rather than in
+  // `getSiteSettings` because a site may offer only authored themes, and that
+  // list is not visible from the settings document alone.
+  const offered = [...settings.themes, ...customThemes.map(({ slug }) => slug)];
+  const themes = offered.length ? offered : [FALLBACK_THEME];
+
   return {
     appName: settings.appName,
     icon: settings.icon,
@@ -36,13 +46,11 @@ export function buildTenantConfig({
     fallbackLocale: null,
     landingPage: { collection: 'pages', id: settings.landingPage },
     tenant,
-    // Site settings can only offer the built-in themes — the field is backed by
-    // a Postgres enum — so an authored theme joins the list here. `themes` is
-    // already normalised to a non-empty list whose first entry `defaultTheme`
-    // falls back to, and appending names cannot invalidate that
-    themes: [...settings.themes, ...customThemes.map(({ slug }) => slug)],
+    themes,
     customThemes,
-    defaultTheme: settings.defaultTheme,
+    defaultTheme: themes.includes(settings.defaultTheme)
+      ? settings.defaultTheme
+      : themes[0],
     colorScheme: settings.colorScheme
   };
 }

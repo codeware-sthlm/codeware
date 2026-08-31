@@ -6,7 +6,7 @@ import {
   getTenantContext
 } from '@codeware/app-cms/data-access';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
-import { themeLabel } from '@codeware/shared/theme';
+import { resolveTheme, themeLabel } from '@codeware/shared/theme';
 import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
@@ -17,7 +17,7 @@ import { getAppInfo } from '../../app-info';
 import { payloadRuntime } from '../../security/payload-runtime';
 
 import { Providers } from './providers';
-import { THEME_COOKIE, resolveTheme } from './theme-cookie';
+import { THEME_COOKIE } from './theme-cookie';
 
 export default async function RootLayout({
   children

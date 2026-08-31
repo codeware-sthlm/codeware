@@ -1,4 +1,4 @@
-import { themeLabel } from '@codeware/shared/theme';
+import { resolveTheme, themeLabel } from '@codeware/shared/theme';
 import {
   ErrorContainer,
   PayloadProvider,
@@ -44,7 +44,7 @@ import { getClientEnv } from './utils/client-env';
 import { ClientHintCheck, getHints } from './utils/client-hints';
 import { type ColorScheme, getColorScheme } from './utils/color-scheme.server';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
-import { getTheme, resolveTheme } from './utils/theme.server';
+import { getTheme } from './utils/theme.server';
 import { TypedLoaderFunctionArgs } from './utils/types';
 
 /** What the site renders when a tenant has no theme settings yet. */

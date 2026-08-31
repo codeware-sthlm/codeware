@@ -11,12 +11,7 @@ export function useLandingDoc() {
   const data = useRouteLoaderData<typeof rootLoader>('root');
   invariant(data, 'No data found in root loader');
 
-  const landingDoc = data.landingDoc as LandingDoc | null;
-
-  invariant(
-    typeof landingDoc === 'object',
-    'Expected landing document to be an object'
-  );
-
-  return landingDoc;
+  // A tenant may have no landing page, and a loader failure leaves it null —
+  // RenderLandingPage renders its own message for that
+  return (data.landingDoc as LandingDoc | null) ?? null;
 }

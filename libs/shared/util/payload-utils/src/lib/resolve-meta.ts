@@ -61,6 +61,9 @@ export const resolveDocMeta = (
   data: unknown
 ): PageMeta | PostMeta | TourMeta | null => {
   const doc = (data as { doc?: unknown } | null | undefined)?.doc;
+  if (!doc || typeof doc !== 'object') {
+    return null;
+  }
 
-  return resolveMeta((doc ?? null) as Page | Post | Tour | null);
+  return resolveMeta(doc as Page | Post | Tour);
 };

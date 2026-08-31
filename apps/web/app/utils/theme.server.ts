@@ -40,29 +40,3 @@ export async function setTheme(theme: string) {
   // One year, matching the color scheme cookie.
   return await cookie.serialize(theme, { path: '/', maxAge: 31536000 });
 }
-
-/**
- * Pick the theme to render.
- *
- * Neither the cookie nor the configured default wins unless the site still
- * offers it — either can name a theme that was deselected later, and an
- * unoffered value puts a `data-theme` on the page that matches no CSS scope,
- * leaving it with no tokens at all.
- *
- * @param cookieValue The theme from the cookie, if any
- * @param themes The themes the site currently offers, never empty
- * @param defaultTheme The tenant's configured default
- *
- * @returns The theme to put on `data-theme`
- */
-export function resolveTheme(
-  cookieValue: string | null | undefined,
-  themes: Array<string>,
-  defaultTheme: string
-): string {
-  if (cookieValue && themes.includes(cookieValue)) {
-    return cookieValue;
-  }
-
-  return themes.includes(defaultTheme) ? defaultTheme : themes[0];
-}

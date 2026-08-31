@@ -1,25 +1,11 @@
-import {
-  ErrorContainer,
-  RenderPage,
-  RenderPost,
-  RenderTour
-} from '@codeware/shared/ui/cms-renderer';
+import { ErrorContainer, RenderDoc } from '@codeware/shared/ui/cms-renderer';
 import { t } from '@codeware/shared/util/i18n';
+import { findDoc } from '@codeware/shared/util/payload-api';
 import {
-  findBySlug,
-  findNavigationDoc,
-  getBlocksData
-} from '@codeware/shared/util/payload-api';
-import type {
-  NavigationDoc,
-  Post,
-  Tour
-} from '@codeware/shared/util/payload-types';
-import {
-  type BlocksData,
-  resolveMeta
+  type DocData,
+  resolveDocMeta
 } from '@codeware/shared/util/payload-utils';
-import type { MetaFunction } from '@remix-run/node';
+import type { MetaFunction, SerializeFrom } from '@remix-run/node';
 import {
   json,
   useLoaderData,
@@ -29,7 +15,6 @@ import {
 
 import type { loader as rootLoader } from '../root';
 import { defaultAppName } from '../utils/default-app-name';
-import { ensurePayloadDoc } from '../utils/ensure-payload-doc';
 import { getPayloadRequestOptions } from '../utils/get-payload-request-options';
 import { getTenantConfigFromRoot } from '../utils/get-tenant-config-from-root';
 import { TypedLoaderFunctionArgs } from '../utils/types';
@@ -43,18 +28,16 @@ export const meta: MetaFunction<typeof loader> = ({ data, matches }) => {
   const tenantConfig = getTenantConfigFromRoot(matches);
   const appName = tenantConfig?.appName ?? defaultAppName;
 
-  const post = (data as { post: Post | null } | undefined)?.post ?? null;
-  const tour = (data as { tour: Tour | null } | undefined)?.tour ?? null;
-  const doc = ensurePayloadDoc(
-    (data as { doc: NavigationDoc | null } | undefined)?.doc
-  );
-  const meta = resolveMeta(post ?? tour ?? doc);
+  const meta = resolveDocMeta(data);
 
   return [{ title: `${appName} - ${meta?.title ?? 'Page'}` }];
 };
 
 /**
  * Fetch document data for the current route.
+ *
+ * Which collections are servable and how each one is fetched belongs to
+ * `findDoc` — the route only forwards its dynamic values and guards the miss.
  */
 export async function loader({
   context,
@@ -79,45 +62,12 @@ export async function loader({
       request.headers
     );
 
-    // Posts are fetched as full documents to support RenderPost
-    if (collection === 'posts') {
-      const post = await findBySlug('posts', slug, requestOptions);
-      if (!post) {
-        throw Response.json({ message: 'Page not found' }, { status: 404 });
-      }
-      return json({
-        doc: null,
-        post,
-        tour: null,
-        blocksData: {} as BlocksData
-      });
-    }
-
-    // Tours are fetched as full documents to support RenderTour
-    if (collection === 'tours') {
-      const tour = await findBySlug('tours', slug, requestOptions);
-      if (!tour) {
-        throw Response.json({ message: 'Page not found' }, { status: 404 });
-      }
-      return json({
-        doc: null,
-        post: null,
-        tour,
-        blocksData: {} as BlocksData
-      });
-    }
-
-    const doc = await findNavigationDoc(collection, slug, requestOptions);
-    if (!doc) {
+    const data = await findDoc(collection, slug, requestOptions);
+    if (!data) {
       throw Response.json({ message: 'Page not found' }, { status: 404 });
     }
 
-    const blocksData: BlocksData =
-      doc.collection === 'pages'
-        ? await getBlocksData(doc.layout, requestOptions)
-        : {};
-
-    return json({ doc, post: null, tour: null, blocksData });
+    return json(data);
   } catch (e) {
     const error = e as Error;
     throw Response.json({ message: error.message }, { status: 404 });
@@ -125,23 +75,12 @@ export async function loader({
 }
 
 export default function Document() {
-  const data = useLoaderData<typeof loader>();
-  const doc = ensurePayloadDoc(data.doc);
-  const post = data.post as Post | null;
-  const tour = data.tour as Tour | null;
-  const blocksData = data.blocksData as BlocksData;
+  // Checked against the renderer's contract, then cast past serialization only
+  const data: SerializeFrom<DocData> = useLoaderData<typeof loader>();
 
-  // No wrapping container here — RenderPost, RenderTour and RenderPage each
-  // own theirs, and nesting them indented the content twice
-  return (
-    <>
-      {post && <RenderPost post={post} />}
-      {tour && <RenderTour tour={tour} />}
-      {doc?.collection === 'pages' && (
-        <RenderPage page={doc} blocksData={blocksData} />
-      )}
-    </>
-  );
+  // No wrapping container here — each renderer owns its own, and nesting them
+  // indented the content twice
+  return <RenderDoc {...(data as DocData)} />;
 }
 
 export function ErrorBoundary() {

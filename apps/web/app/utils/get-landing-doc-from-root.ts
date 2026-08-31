@@ -11,7 +11,7 @@ export const getLandingDocFromRoot = (
   matches: Parameters<MetaFunction>[0]['matches']
 ) => {
   const rootData = matches.find((match) => match.id === 'root')?.data as
-    | Record<'landingDoc', LandingDoc>
+    | Record<'landingDoc', LandingDoc | null>
     | undefined;
 
   return rootData?.landingDoc ?? null;

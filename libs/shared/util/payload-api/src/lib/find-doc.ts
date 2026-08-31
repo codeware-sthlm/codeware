@@ -42,8 +42,10 @@ const fetchers = {
   }
 } satisfies Record<RenderableCollection, DocFetcher>;
 
+// `hasOwn`, not `in`: the prototype chain would let `/toString/<slug>` past the
+// guard and call a non-fetcher
 const isRenderable = (collection: string): collection is RenderableCollection =>
-  collection in fetchers;
+  Object.hasOwn(fetchers, collection);
 
 /**
  * Find a renderable document by slug, tagged with the collection it came from.

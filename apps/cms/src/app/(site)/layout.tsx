@@ -6,7 +6,11 @@ import {
   getTenantContext
 } from '@codeware/app-cms/data-access';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
-import { resolveTheme, themeLabel } from '@codeware/shared/theme';
+import {
+  customThemeCss,
+  resolveTheme,
+  themeLabel
+} from '@codeware/shared/theme';
 import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
@@ -55,11 +59,18 @@ export default async function RootLayout({
     defaultTheme
   );
 
+  // Authored themes are not in the CSS bundle, so their tokens come with them
+  const customThemes = runtime.tenantConfig?.customThemes ?? [];
+  const customCss = customThemeCss(customThemes);
+  const customLabels = new Map(
+    customThemes.map(({ slug, name }) => [slug, name])
+  );
+
   // The renderer takes labels with the values so it never shows a raw slug,
   // and stays free of a closed list it would have to know about
   const themeChoices = themes.map((value) => ({
     value,
-    label: themeLabel(value)
+    label: customLabels.get(value) ?? themeLabel(value)
   }));
 
   return (
@@ -69,6 +80,12 @@ export default async function RootLayout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/*
+          Tenant-authored tokens. `customThemeCss` whitelists every name and
+          value it writes, so the result holds no `<`, `>` or `&` and is safe
+          as a text child — no dangerouslySetInnerHTML needed.
+        */}
+        {customCss && <style>{customCss}</style>}
       </head>
       <body>
         <Providers

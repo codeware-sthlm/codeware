@@ -159,6 +159,21 @@ export type TenantIconConfig =
   | { source: 'upload'; fileUrl: string };
 
 /**
+ * A tenant-authored theme, resolved for injection into the site.
+ *
+ * `tokens*` are the raw CSS custom properties. They are whitelisted again on
+ * the way into the stylesheet, so nothing here is assumed to be safe.
+ */
+export type CustomThemeConfig = {
+  /** The `data-theme` value */
+  slug: string;
+  /** Shown in the theme selector */
+  name: string;
+  tokensLight: Record<string, unknown>;
+  tokensDark: Record<string, unknown>;
+};
+
+/**
  * Tenant runtime configuration type.
  *
  * Containes tenant-specific details that must be determined at runtime during bootstrap,
@@ -182,6 +197,11 @@ export type TenantRuntimeConfig = {
    * are not known at build time.
    */
   themes: Array<string>;
+  /**
+   * The subset of `themes` this tenant authored, with the tokens the site has
+   * to inject — a built-in theme is already in the CSS bundle, these are not.
+   */
+  customThemes: Array<CustomThemeConfig>;
   /** Theme rendered before the visitor chooses; always a member of `themes`. */
   defaultTheme: string;
   /**

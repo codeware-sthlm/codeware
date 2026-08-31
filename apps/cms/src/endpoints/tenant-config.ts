@@ -1,7 +1,10 @@
-import { getSiteSettings } from '@codeware/app-cms/data-access';
+import {
+  buildTenantConfig,
+  getCustomThemes,
+  getSiteSettings
+} from '@codeware/app-cms/data-access';
 import { getEnv } from '@codeware/app-cms/feature/env-loader';
 import { isTenant } from '@codeware/app-cms/util/misc';
-import { TenantRuntimeConfig } from '@codeware/shared/util/payload-types';
 import { verifySignature } from '@codeware/shared/util/signature';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import { type Endpoint, type PayloadRequest, headersWithCors } from 'payload';
@@ -71,17 +74,11 @@ export const tenantConfigEndpoint: Endpoint = {
       );
     }
 
-    const tenantConfig: TenantRuntimeConfig = {
-      appName: settings.appName,
-      icon: settings.icon,
-      locale: settings.defaultLocale,
-      fallbackLocale: null,
-      landingPage: { collection: 'pages', id: settings.landingPage },
-      tenant: req.user,
-      themes: settings.themes,
-      defaultTheme: settings.defaultTheme,
-      colorScheme: settings.colorScheme
-    };
+    const tenantConfig = buildTenantConfig({
+      settings,
+      customThemes: await getCustomThemes(runtime),
+      tenant: req.user
+    });
 
     return Response.json(tenantConfig, {
       status: 200,

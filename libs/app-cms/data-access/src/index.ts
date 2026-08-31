@@ -1,3 +1,4 @@
+export { buildTenantConfig } from './lib/build-tenant-config';
 export { getPayloadRuntime } from './lib/get-payload-runtime';
 export { getTenantContext } from './lib/get-tenant-context';
 export { mapToRuntime } from './lib/map-to-runtime';
@@ -23,6 +24,8 @@ export { getForms } from './lib/collections/get-forms';
 
 export { getCategory } from './lib/collections/get-category';
 export { getCategories } from './lib/collections/get-categories';
+
+export { getCustomThemes } from './lib/collections/get-custom-themes';
 
 export { getFooter } from './lib/collections/get-footer';
 

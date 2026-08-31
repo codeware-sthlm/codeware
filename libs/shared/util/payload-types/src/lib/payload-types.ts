@@ -148,6 +148,7 @@ export interface Config {
   };
   collections: {
     categories: Category;
+    'custom-themes': CustomTheme;
     faq: Faq;
     media: Media;
     navigation: Navigation;
@@ -189,6 +190,7 @@ export interface Config {
   };
   collectionsSelect: {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'custom-themes': CustomThemesSelect<false> | CustomThemesSelect<true>;
     faq: FaqSelect<false> | FaqSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
@@ -1501,6 +1503,50 @@ export interface VideoBlock {
   blockType: 'video';
 }
 /**
+ * Your own themes. Select them in Site Settings to make them available on the site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "custom-themes".
+ */
+export interface CustomTheme {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * Shown to visitors in the theme selector.
+   */
+  name: string;
+  /**
+   * CSS custom properties for the light scheme, as a name/value object.
+   */
+  tokensLight:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Only the properties that change in dark. The rest cascade from the light set.
+   */
+  tokensDark?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Identifies the theme in the page markup. Generated from the name if left empty.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Questions and answers shown to all users in the admin help drawer.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2226,6 +2272,10 @@ export interface PayloadLockedDocument {
         value: number | Category;
       } | null)
     | ({
+        relationTo: 'custom-themes';
+        value: number | CustomTheme;
+      } | null)
+    | ({
         relationTo: 'faq';
         value: number | Faq;
       } | null)
@@ -2361,6 +2411,19 @@ export interface CategoriesSelect<T extends boolean = true> {
     | {
         relatedPosts?: T;
       };
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "custom-themes_select".
+ */
+export interface CustomThemesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  tokensLight?: T;
+  tokensDark?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;

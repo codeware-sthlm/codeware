@@ -1,3 +1,4 @@
+import { themeLabel } from '@codeware/shared/theme';
 import {
   ErrorContainer,
   PayloadProvider,
@@ -36,16 +37,32 @@ import {
   useColorScheme,
   useOptimisticColorScheme
 } from './routes/resources.color-scheme-switch';
+import { THEME_ACTION } from './routes/resources.theme-switch';
 import stylesheet from './tailwind.css?url';
 import { getAppInfo } from './utils/app-info';
 import { getClientEnv } from './utils/client-env';
 import { ClientHintCheck, getHints } from './utils/client-hints';
 import { type ColorScheme, getColorScheme } from './utils/color-scheme.server';
 import { getPayloadRequestOptions } from './utils/get-payload-request-options';
+import { getTheme, resolveTheme } from './utils/theme.server';
 import { TypedLoaderFunctionArgs } from './utils/types';
 
-/** The single theme apps/web's stylesheet ships — see `app/tailwind.css`. */
-const WEB_THEME = 'spotlight';
+/** What the site renders when a tenant has no theme settings yet. */
+const FALLBACK_THEME = 'spotlight';
+
+/**
+ * The scheme a tenant locks its site to, or `null` when the visitor may switch.
+ *
+ * Mirrors how `apps/cms` derives it at the provider boundary: `system` is a
+ * policy, not a paintable scheme.
+ */
+function resolveLockedColorScheme(
+  tenantConfig: { colorScheme?: string } | null | undefined
+): ColorScheme | null {
+  const policy = tenantConfig?.colorScheme;
+
+  return policy === 'light' || policy === 'dark' ? policy : null;
+}
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -69,6 +86,17 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
     // Get the color scheme before fetching pages in case it fails
     const colorScheme = await getColorScheme(request);
     const tenantConfig = context.tenantConfig;
+
+    // Theme is resolved server-side so the first paint is already correct.
+    // The cookie only wins while it names a theme the site still offers.
+    const themes = tenantConfig?.themes?.length
+      ? tenantConfig.themes
+      : [FALLBACK_THEME];
+    const theme = resolveTheme(
+      await getTheme(request),
+      themes,
+      tenantConfig?.defaultTheme ?? FALLBACK_THEME
+    );
 
     let footer: FooterData | null = null;
     let signupPolicy: SignupPolicy | null = null;
@@ -113,6 +141,8 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
       loaderErrorMessage,
       landingDoc,
       signupPolicy,
+      theme,
+      themes,
       navigationTree,
       requestInfo: {
         hints: getHints(request),
@@ -134,14 +164,16 @@ export async function loader({ context, request }: TypedLoaderFunctionArgs) {
 function Document({
   children,
   lang,
-  colorScheme = 'light'
+  colorScheme = 'light',
+  theme = FALLBACK_THEME
 }: {
   children: React.ReactNode;
   lang: string;
   colorScheme?: ColorScheme;
+  theme?: string;
 }) {
   return (
-    <html lang={lang} className={colorScheme}>
+    <html lang={lang} className={colorScheme} data-theme={theme}>
       <head>
         <ClientHintCheck />
         <meta charSet="utf-8" />
@@ -159,12 +191,20 @@ function Document({
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const colorScheme = useColorScheme();
+  const visitorColorScheme = useColorScheme();
   const loaderData = useLoaderData<typeof loader>();
   const lang = loaderData.requestInfo.userPrefs.locale;
 
+  // A tenant that locks its scheme wins over the visitor's cookie and hint —
+  // hiding the switch alone would leave a stale choice painted
+  const lockedColorScheme = resolveLockedColorScheme(loaderData.tenantConfig);
+
   return (
-    <Document colorScheme={colorScheme} lang={lang}>
+    <Document
+      colorScheme={lockedColorScheme ?? visitorColorScheme}
+      lang={lang}
+      theme={loaderData.theme}
+    >
       {children}
     </Document>
   );
@@ -279,13 +319,16 @@ export default function App() {
     },
     colorScheme: colorSchemePreference,
     resolvedColorScheme,
-    // apps/web imports the spotlight tokens at bare `:root`, so it can only
-    // ever render that one theme — no selector, no switching. Wiring it to the
-    // tenant's theme list is the follow-up noted in COD-459's out of scope.
-    lockedColorScheme: null,
-    themes: [{ value: WEB_THEME, label: 'Spotlight' }],
-    theme: WEB_THEME,
-    setTheme: () => console.warn('Theme switching not implemented yet'),
+    lockedColorScheme: resolveLockedColorScheme(loaderData.tenantConfig),
+    // Labels ride along with the values so the renderer never shows a raw slug
+    // and stays free of a list it would have to know about
+    themes: loaderData.themes.map((value) => ({
+      value,
+      label: themeLabel(value)
+    })),
+    theme: loaderData.theme,
+    setTheme: (theme) =>
+      fetcher.submit({ theme }, { method: 'POST', action: THEME_ACTION }),
     locale: loaderData.requestInfo.userPrefs.locale
   };
 

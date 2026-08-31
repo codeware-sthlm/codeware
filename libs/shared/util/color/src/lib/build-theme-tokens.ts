@@ -23,7 +23,10 @@ export type ThemeTokens = Record<string, string>;
 export type ThemeRecipe = {
   /** Drives every neutral: surfaces, text, borders, rings */
   baseFamily: ColorFamily;
-  /** Drives the `--brand-*` ramp, and the link colour through it */
+  /**
+   * Drives the `--brand-*` ramp and everything that reads as the brand:
+   * primary buttons, focus rings, links, active navigation.
+   */
   brandFamily: ColorFamily;
   /** The `--radius` root value, e.g. `0.625rem` */
   radius: string;
@@ -31,17 +34,28 @@ export type ThemeRecipe = {
   linkShade: { light: ColorShade; dark: ColorShade };
 };
 
-/** A recipe that reproduces the look of the built-in `shadcn` theme. */
+/**
+ * A neutral starting point, close to the built-in `shadcn` theme.
+ *
+ * `light: '700'` because that is the only brand step whose link clears 4.5:1 on
+ * white for every family — 600 fails on nine of them.
+ */
 export const DEFAULT_RECIPE: ThemeRecipe = {
   baseFamily: 'neutral',
   brandFamily: 'neutral',
   radius: '0.625rem',
-  linkShade: { light: '600', dark: '400' }
+  linkShade: { light: '700', dark: '400' }
 };
 
-const resolve = (source: TokenSource, baseFamily: ColorFamily): string => {
+const resolve = (
+  source: TokenSource,
+  { baseFamily, brandFamily }: ThemeRecipe
+): string => {
   if ('base' in source) {
     return shade(baseFamily, source.base);
+  }
+  if ('brand' in source) {
+    return shade(brandFamily, source.brand);
   }
   if ('palette' in source) {
     return tailwind.color(source.palette as TailwindColor);
@@ -51,12 +65,12 @@ const resolve = (source: TokenSource, baseFamily: ColorFamily): string => {
 
 const resolveAll = (
   sources: Record<string, TokenSource>,
-  baseFamily: ColorFamily
+  recipe: ThemeRecipe
 ): ThemeTokens =>
   Object.fromEntries(
     Object.entries(sources).map(([name, source]) => [
       name,
-      resolve(source, baseFamily)
+      resolve(source, recipe)
     ])
   );
 
@@ -85,9 +99,9 @@ export function buildThemeTokens(
     ...brandRamp(brandFamily),
     '--radius': radius,
     '--radius-md': 'calc(var(--radius) - 0.125rem)',
-    ...resolveAll(BASE_LIGHT, baseFamily),
-    ...resolveAll(SUBTLE_LIGHT, baseFamily),
-    ...resolveAll(ALIAS_LIGHT, baseFamily),
+    ...resolveAll(BASE_LIGHT, recipe),
+    ...resolveAll(SUBTLE_LIGHT, recipe),
+    ...resolveAll(ALIAS_LIGHT, recipe),
     // Through the ramp rather than the palette, so re-branding is one change
     '--core-link': `var(--brand-${linkShade.light})`,
     '--core-surface-invert': shade(baseFamily, '900'),
@@ -95,8 +109,8 @@ export function buildThemeTokens(
   };
 
   const dark: ThemeTokens = {
-    ...resolveAll(BASE_DARK, baseFamily),
-    ...resolveAll(SUBTLE_DARK, baseFamily),
+    ...resolveAll(BASE_DARK, recipe),
+    ...resolveAll(SUBTLE_DARK, recipe),
     '--core-link': `var(--brand-${linkShade.dark})`,
     // The inverted surface is the raised one once the page is already dark
     '--core-surface-invert': 'var(--card)',

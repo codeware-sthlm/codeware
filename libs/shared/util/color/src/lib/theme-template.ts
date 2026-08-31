@@ -5,10 +5,10 @@ import type { ColorShade } from './palette';
 /**
  * Where a generated token gets its value.
  *
- * `base` names a step of the theme's neutral family, `palette` a fixed colour
- * anywhere in the Tailwind palette; both resolve to literals. `value` is
- * written out verbatim, which covers keywords and `var()` references to tokens
- * declared in the same block.
+ * `base` names a step of the theme's neutral family and `brand` a step of its
+ * brand family; `palette` is a fixed colour anywhere in the Tailwind palette.
+ * All three resolve to literals. `value` is written out verbatim, which covers
+ * keywords and `var()` references to tokens declared in the same block.
  *
  * Nothing here holds a raw `oklch(…)` string. Every colour in the committed
  * themes turned out to be a palette entry, so naming it keeps the table
@@ -16,6 +16,7 @@ import type { ColorShade } from './palette';
  */
 export type TokenSource =
   | { base: ColorShade }
+  | { brand: ColorShade }
   | { palette: TailwindColor }
   | { value: string };
 
@@ -34,8 +35,10 @@ export const BASE_LIGHT: Record<string, TokenSource> = {
   '--card-foreground': { base: '950' },
   '--popover': { palette: 'white' },
   '--popover-foreground': { base: '950' },
-  '--primary': { base: '900' },
-  '--primary-foreground': { base: '50' },
+  // 700, not 600: white text clears 4.5:1 on every family at 700, but fails on
+  // nine of them at 600 — yellow, lime and amber worst
+  '--primary': { brand: '700' },
+  '--primary-foreground': { palette: 'white' },
   '--secondary': { base: '100' },
   '--secondary-foreground': { base: '900' },
   '--muted': { base: '100' },
@@ -47,9 +50,8 @@ export const BASE_LIGHT: Record<string, TokenSource> = {
   '--destructive-foreground': { palette: 'white' },
   '--border': { base: '200' },
   '--input': { base: '200' },
-  // 500, not shadcn's 400: a focus ring is a UI component and owes 3:1, which
-  // 400 misses on white at 2.59:1
-  '--ring': { base: '500' },
+  // Follows the primary, so a focused control is recognisably the brand
+  '--ring': { brand: '700' },
   '--chart-1': { palette: 'orange-600' },
   '--chart-2': { palette: 'teal-600' },
   '--chart-3': { palette: 'cyan-900' },
@@ -57,12 +59,12 @@ export const BASE_LIGHT: Record<string, TokenSource> = {
   '--chart-5': { palette: 'amber-500' },
   '--sidebar': { base: '50' },
   '--sidebar-foreground': { base: '950' },
-  '--sidebar-primary': { base: '900' },
-  '--sidebar-primary-foreground': { base: '50' },
+  '--sidebar-primary': { brand: '700' },
+  '--sidebar-primary-foreground': { palette: 'white' },
   '--sidebar-accent': { base: '100' },
   '--sidebar-accent-foreground': { base: '900' },
   '--sidebar-border': { base: '200' },
-  '--sidebar-ring': { base: '500' }
+  '--sidebar-ring': { brand: '700' }
 };
 
 /**
@@ -78,8 +80,9 @@ export const BASE_DARK: Record<string, TokenSource> = {
   '--card-foreground': { base: '50' },
   '--popover': { base: '900' },
   '--popover-foreground': { base: '50' },
-  '--primary': { base: '200' },
-  '--primary-foreground': { base: '900' },
+  // 400 over 950 clears 4.5:1 on every family; the light pair is inverted here
+  '--primary': { brand: '400' },
+  '--primary-foreground': { brand: '950' },
   '--secondary': { base: '800' },
   '--secondary-foreground': { base: '50' },
   '--muted': { base: '800' },
@@ -90,7 +93,7 @@ export const BASE_DARK: Record<string, TokenSource> = {
   '--destructive-foreground': { palette: 'white' },
   '--border': { value: 'oklch(1 0 0 / 10%)' },
   '--input': { value: 'oklch(1 0 0 / 15%)' },
-  '--ring': { base: '500' },
+  '--ring': { brand: '400' },
   '--chart-1': { palette: 'blue-700' },
   '--chart-2': { palette: 'emerald-500' },
   '--chart-3': { palette: 'amber-500' },
@@ -98,12 +101,12 @@ export const BASE_DARK: Record<string, TokenSource> = {
   '--chart-5': { palette: 'rose-500' },
   '--sidebar': { base: '900' },
   '--sidebar-foreground': { base: '50' },
-  '--sidebar-primary': { base: '200' },
-  '--sidebar-primary-foreground': { base: '900' },
+  '--sidebar-primary': { brand: '400' },
+  '--sidebar-primary-foreground': { brand: '950' },
   '--sidebar-accent': { base: '800' },
   '--sidebar-accent-foreground': { base: '50' },
   '--sidebar-border': { value: 'oklch(1 0 0 / 10%)' },
-  '--sidebar-ring': { base: '500' }
+  '--sidebar-ring': { brand: '400' }
 };
 
 /**
@@ -144,16 +147,19 @@ export const ALIAS_LIGHT: Record<string, TokenSource> = {
   '--counters': { value: 'var(--primary)' },
   '--headings': { value: 'var(--foreground)' },
   '--hr': { value: 'var(--border)' },
-  '--links': { value: 'var(--primary)' },
-  '--links-hover': { value: 'var(--primary)' },
+  // Prose links and `--core-link` are the same thing to a reader; the committed
+  // themes point these at `--primary`, which only agrees while the primary is
+  // itself the link colour
+  '--links': { value: 'var(--core-link)' },
+  '--links-hover': { value: 'var(--core-link)' },
   '--pre-bg': { value: 'var(--secondary)' },
   '--pre-border': { value: 'var(--border)' },
   '--pre-code': { value: 'var(--foreground)' },
   '--quote-borders': { value: 'var(--border)' },
   '--td-borders': { value: 'var(--border)' },
   '--th-borders': { value: 'var(--border)' },
-  '--underline': { value: 'var(--primary)' },
-  '--underline-hover': { value: 'var(--primary)' }
+  '--underline': { value: 'var(--core-link)' },
+  '--underline-hover': { value: 'var(--core-link)' }
 };
 
 /**

@@ -119,8 +119,34 @@ describe('buildThemeTokens', () => {
       const rose = buildThemeTokens(recipe({ brandFamily: 'rose' }));
 
       expect(teal.light['--brand-500']).not.toBe(rose.light['--brand-500']);
-      // The neutral layer is untouched by the brand choice
+      // Surfaces and body text stay neutral whatever the brand
       expect(teal.light['--foreground']).toBe(rose.light['--foreground']);
+      expect(teal.light['--background']).toBe(rose.light['--background']);
+      expect(teal.light['--muted']).toBe(rose.light['--muted']);
+    });
+
+    // The brand once reached nothing but `--brand-*` and the link, so picking a
+    // colour left buttons, rings and navigation grey
+    it('reaches everything that reads as the brand', () => {
+      const teal = buildThemeTokens(recipe({ brandFamily: 'teal' }));
+      const rose = buildThemeTokens(recipe({ brandFamily: 'rose' }));
+
+      for (const token of [
+        '--primary',
+        '--ring',
+        '--sidebar-primary',
+        '--sidebar-ring'
+      ]) {
+        expect(teal.light[token]).not.toBe(rose.light[token]);
+        expect(teal.dark[token]).not.toBe(rose.dark[token]);
+      }
+    });
+
+    it('gives prose links and core links one colour', () => {
+      const built = buildThemeTokens(recipe({ brandFamily: 'teal' }));
+
+      expect(built.light['--links']).toBe('var(--core-link)');
+      expect(built.light['--underline']).toBe('var(--core-link)');
     });
 
     it('points links at the chosen brand step, per scheme', () => {

@@ -7,6 +7,7 @@ import {
   isValidTokenName,
   isValidTokenValue
 } from '@codeware/shared/theme';
+import { brokenReferences } from '@codeware/shared/util/color';
 import type {
   CollectionConfig,
   PayloadRequest,
@@ -66,9 +67,15 @@ const themeSlugField: TextField = {
  * that guards the render guards the save — here it can say what was wrong
  * instead of silently dropping the token.
  */
+/** Payload types a `json` field as anything JSON can hold. */
+const asTokens = (value: unknown): Record<string, string> =>
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, string>)
+    : {};
+
 const validateTokens =
   (scheme: 'light' | 'dark'): Validate =>
-  (value) => {
+  (value, { siblingData }) => {
     if (value === null || value === undefined || value === '') {
       return scheme === 'light' ? 'Light tokens are required.' : true;
     }
@@ -85,6 +92,28 @@ const validateTokens =
     if (rejected.length) {
       return `Not usable as CSS: ${rejected.join(', ')}. Names look like "--core-link"; values may only hold colours, lengths and var()/calc()/color-mix() references.`;
     }
+
+    // The whitelist above only judges characters, so `var(--backgroundx)` sails
+    // through it as well-formed CSS and then resolves to nothing at all. Dark
+    // is checked merged over light, since a dark token may alias one only light
+    // defines — which is exactly what the browser cascades to.
+    const sibling = siblingData as Record<string, unknown> | undefined;
+    const light = asTokens(
+      scheme === 'light' ? value : sibling?.['tokensLight']
+    );
+    const tokens =
+      scheme === 'light' ? light : { ...light, ...asTokens(value) };
+
+    const broken = brokenReferences(tokens).filter(
+      ({ token }) => token in asTokens(value)
+    );
+
+    if (broken.length) {
+      return `These aliases lead nowhere: ${broken
+        .map(({ token, reference }) => `${token} → ${reference}`)
+        .join(', ')}.`;
+    }
+
     return true;
   };
 

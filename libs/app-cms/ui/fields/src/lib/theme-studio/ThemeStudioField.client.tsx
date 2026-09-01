@@ -1,11 +1,13 @@
 'use client';
 
+import { hasRole } from '@codeware/app-cms/util/misc';
 import {
   ThemeStudio,
   type ThemeStudioResult
 } from '@codeware/shared/ui/theme-studio';
 import { type ThemeTokens, normaliseRecipe } from '@codeware/shared/util/color';
-import { Button, FieldLabel, useField } from '@payloadcms/ui';
+import type { User } from '@codeware/shared/util/payload-types';
+import { Button, FieldLabel, useAuth, useField } from '@payloadcms/ui';
 import type { JSONFieldClientProps } from 'payload';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -46,7 +48,12 @@ export const ThemeStudioField: React.FC<JSONFieldClientProps> = ({
   const { setValue: setLight } = useField<unknown>({ path: 'tokensLight' });
   const { setValue: setDark } = useField<unknown>({ path: 'tokensDark' });
 
+  const { user } = useAuth<User>();
   const [open, setOpen] = useState(false);
+
+  // Exporting produces committed theme files that ship to every tenant, so it
+  // is a platform action rather than one about this workspace's own site
+  const canExport = hasRole(user ?? null, 'system-user');
 
   // A theme saved before a recipe field existed is missing it; normalising
   // fills each gap on its own rather than opening the studio on nothing
@@ -97,6 +104,7 @@ export const ThemeStudioField: React.FC<JSONFieldClientProps> = ({
             onKeyDown={(event) => event.stopPropagation()}
           >
             <ThemeStudio
+              canExport={canExport}
               recipe={recipe}
               overrides={asOverrides(overridesValue)}
               onSelect={onSelect}

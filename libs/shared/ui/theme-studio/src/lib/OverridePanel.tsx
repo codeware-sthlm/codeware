@@ -125,12 +125,20 @@ export function OverridePanel({
               // competing for a width the host shrinks under us
               <div
                 key={name}
-                className="hover:bg-accent/40 space-y-1 rounded-md px-1.5 py-1.5"
+                data-edited={overridden || undefined}
+                className={cn(
+                  // Transparent rather than absent, so marking a row does not
+                  // shift the ones around it
+                  'space-y-1 rounded-md border-l-2 border-transparent px-1.5 py-1.5',
+                  overridden
+                    ? 'border-l-primary bg-primary/5'
+                    : 'hover:bg-accent/40'
+                )}
               >
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
                   <code
                     className={cn(
-                      'truncate text-xs',
+                      'min-w-0 flex-1 truncate text-xs',
                       overridden
                         ? 'text-foreground font-medium'
                         : 'text-muted-foreground'
@@ -139,6 +147,11 @@ export function OverridePanel({
                   >
                     {name}
                   </code>
+                  {overridden && (
+                    <span className="bg-primary/10 text-primary shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-medium">
+                      Edited
+                    </span>
+                  )}
                   <Button
                     size="icon"
                     variant="ghost"

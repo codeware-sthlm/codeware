@@ -101,10 +101,17 @@ function extractDefinedTokens(css: string): Set<string> {
   return tokens;
 }
 
-/** Extract CSS variable names referenced inside the @theme inline { } block. */
+/**
+ * Extract CSS variable names referenced inside the @theme inline { } block.
+ *
+ * Comments are stripped first, the way {@link extractDefinedTokens} does: a
+ * comment naming a variable is prose about it, not a reference to it, and
+ * counting one adds a token every theme is then required to define.
+ */
 function extractThemeInlineTokens(css: string): Set<string> {
+  const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const tokens = new Set<string>();
-  for (const match of css.matchAll(/@theme\s+inline\s*\{([\s\S]*?)\}/g)) {
+  for (const match of stripped.matchAll(/@theme\s+inline\s*\{([\s\S]*?)\}/g)) {
     for (const varMatch of match[1].matchAll(/var\(\s*(--[\w-]+)\s*\)/g)) {
       tokens.add(varMatch[1]);
     }

@@ -23,7 +23,13 @@ const coreFile = (name: string) =>
  * theme that silently misses it.
  */
 const contract = () => {
-  const setupCss = coreFile('tailwind-setup.css');
+  // Comments stripped first, exactly as `theme-sync` does — a comment naming a
+  // variable is prose about it, and counting one would require every theme to
+  // define a token nothing actually maps
+  const setupCss = coreFile('tailwind-setup.css').replace(
+    /\/\*[\s\S]*?\*\//g,
+    ''
+  );
   const proseJs = coreFile('typography-prose.js');
 
   const setup = new Set<string>();

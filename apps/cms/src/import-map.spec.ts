@@ -87,6 +87,21 @@ const referencedComponents = (): Set<string> => {
 
 describe('admin import map', () => {
   const importMap = readFileSync(importMapFile, 'utf8');
+
+  /**
+   * Whether the map keys a component, whatever quotes it happens to carry.
+   *
+   * Payload's generator emits double quotes and Prettier rewrites them to single,
+   * so the file alternates between the two: anything that loads the payload
+   * config regenerates it, including the Nx plugin that infers this project's
+   * targets while the tests run. Matching one style tested how the file was last
+   * formatted rather than whether the component is mapped, and failed on all of
+   * them at once.
+   */
+  const isMapped = (path: string): boolean =>
+    new RegExp(`['"]${path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(
+      importMap
+    );
   const referenced = referencedComponents();
 
   it('finds the component references', () => {
@@ -96,9 +111,7 @@ describe('admin import map', () => {
   it('maps every referenced admin component', () => {
     const missing = [...referenced]
       .filter(
-        (path) =>
-          !importMap.includes(`'${path}'`) &&
-          !unregisteredComponents.includes(path)
+        (path) => !isMapped(path) && !unregisteredComponents.includes(path)
       )
       .sort();
 
@@ -106,9 +119,7 @@ describe('admin import map', () => {
   });
 
   it('keeps the unregistered list honest', () => {
-    const registered = unregisteredComponents.filter((path) =>
-      importMap.includes(`'${path}'`)
-    );
+    const registered = unregisteredComponents.filter(isMapped);
 
     expect(registered).toEqual([]);
   });

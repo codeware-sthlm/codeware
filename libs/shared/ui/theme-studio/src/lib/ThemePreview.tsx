@@ -21,14 +21,28 @@ type ThemePreviewProps = {
   className?: string;
 };
 
+/** The chart tokens have no renderer yet, so the swatches stand in for one. */
+const CHART_TOKENS = [
+  '--chart-1',
+  '--chart-2',
+  '--chart-3',
+  '--chart-4',
+  '--chart-5'
+];
+
 /**
  * A page under the draft tokens.
  *
  * Deliberately not the real block renderer: those need a CMS document and a
  * provider, and the tokens are what is being judged, not the content. What this
  * does carry is every surface the tokens actually reach — the navbar and
- * headline off `--core-*`, prose and links, the shadcn control set, and a muted
- * panel — so a token that goes wrong shows up here rather than after saving.
+ * headline off `--core-*`, prose and links, the shadcn control set, cards and
+ * their hover state, tables, and the chart series — so a token that goes wrong
+ * shows up here rather than after saving.
+ *
+ * Components are rendered at their default size on purpose: the small variants
+ * round with `rounded-[min(var(--radius-md),10px)]`, which caps the radius and
+ * hides most of what that control does.
  *
  * The `dark` class goes on the container rather than `<html>`, which is what
  * lets both schemes render side by side on one page.
@@ -48,7 +62,6 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
         <nav className="flex items-center gap-4 text-sm">
           <span className="text-core-nav-link-active font-medium">Home</span>
           <span className="text-core-nav-link">Articles</span>
-          <span className="text-core-nav-link">About</span>
           <span className="border-core-action-btn-border bg-core-action-btn-background text-core-action-btn-foreground rounded-full border px-2 py-1 text-xs">
             Aa
           </span>
@@ -66,19 +79,17 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
             <span className="text-muted-foreground">secondary text</span>{' '}
             alongside it.
           </p>
+          <blockquote className="border-border text-muted-foreground mt-3 border-l-2 pl-3 text-sm italic">
+            Pull quotes and callouts take the prose tokens.
+          </blockquote>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm">Primary</Button>
-          <Button size="sm" variant="secondary">
-            Secondary
-          </Button>
-          <Button size="sm" variant="outline">
-            Outline
-          </Button>
-          <Button size="sm" variant="destructive">
-            Delete
-          </Button>
+          <Button>Primary</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="destructive">Delete</Button>
+          <Button variant="ghost">Ghost</Button>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -88,16 +99,19 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
           <Badge variant="outline">Outline</Badge>
         </div>
 
-        <Input placeholder="Focus me to see the ring" className="max-w-xs" />
+        <div className="flex flex-wrap items-center gap-2">
+          <Input placeholder="Focus me to see the ring" className="max-w-xs" />
+          <Input placeholder="Disabled" disabled className="max-w-[10rem]" />
+        </div>
 
         <Separator />
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Card>
+          <Card className="hover:border-ring hover:bg-accent/40 cursor-pointer transition-colors">
             <CardHeader>
-              <CardTitle className="text-base">Card surface</CardTitle>
+              <CardTitle className="text-base">Hover me</CardTitle>
               <CardDescription>
-                Muted text on the card background.
+                Border and surface shift on hover.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-sm">
@@ -117,7 +131,36 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
           </div>
         </div>
 
-        <pre className="bg-secondary text-foreground overflow-x-auto rounded-lg p-3 font-mono text-xs">
+        <div className="rounded-lg border">
+          {['Overview', 'Settings', 'Members'].map((row, index) => (
+            <div
+              key={row}
+              className={cn(
+                'hover:bg-accent hover:text-accent-foreground flex items-center justify-between px-3 py-2 text-sm transition-colors',
+                index > 0 && 'border-t'
+              )}
+            >
+              <span>{row}</span>
+              <span className="text-muted-foreground text-xs">Updated</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-1.5">
+          <p className="text-muted-foreground text-xs">Chart series</p>
+          <div className="flex gap-1.5">
+            {CHART_TOKENS.map((token) => (
+              <div
+                key={token}
+                title={token}
+                className="h-8 flex-1 rounded-md"
+                style={{ background: `var(${token})` }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <pre className="bg-secondary text-foreground overflow-x-auto rounded-lg border p-3 font-mono text-xs">
           {'const theme = buildThemeTokens(recipe);'}
         </pre>
       </div>

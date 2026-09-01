@@ -131,7 +131,7 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
           </div>
         </div>
 
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-lg border">
           {['Overview', 'Settings', 'Members'].map((row, index) => (
             <div
               key={row}

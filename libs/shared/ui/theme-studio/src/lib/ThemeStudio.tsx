@@ -224,25 +224,8 @@ export function ThemeStudio({
 
         {optionsOpen && (
           <aside className="border-border bg-muted/30 flex w-72 shrink-0 flex-col border-r">
-            <div className="flex h-12 shrink-0 items-center justify-between border-b px-4">
+            <div className="flex h-12 shrink-0 items-center border-b px-4">
               <h2 className="text-sm font-semibold">Theme studio</h2>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-8"
-                    onClick={() => setRecipe(randomRecipe())}
-                    aria-label="Shuffle the theme"
-                  >
-                    <DicesIcon className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Feeling lucky — rolls a recipe that passes contrast. Any
-                  fine-tuned tokens are kept.
-                </TooltipContent>
-              </Tooltip>
             </div>
 
             <ScrollArea className="flex-1">
@@ -421,6 +404,25 @@ export function ThemeStudio({
                 </TooltipTrigger>
                 <TooltipContent>
                   {optionsOpen ? 'Hide options' : 'Show options'}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Lives here rather than in the panel, so it survives collapsing */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-8"
+                    onClick={() => setRecipe(randomRecipe())}
+                    aria-label="Shuffle the theme"
+                  >
+                    <DicesIcon className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Feeling lucky — rolls a recipe that passes contrast. Any
+                  fine-tuned tokens are kept.
                 </TooltipContent>
               </Tooltip>
 

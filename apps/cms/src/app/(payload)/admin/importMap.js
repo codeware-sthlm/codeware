@@ -1,5 +1,6 @@
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
 import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client';
+import { default as default_be685d15f7420cc176c5de08321cf13b } from '@codeware/app-cms/ui/fields/theme-studio/ThemeStudioField.client';
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc';
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc';
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc';
@@ -79,6 +80,8 @@ export const importMap = {
     TenantField_1d0591e3cf4f332c83a86da13a0de59a,
   '@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger':
     AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
+  '@codeware/app-cms/ui/fields/theme-studio/ThemeStudioField.client#default':
+    default_be685d15f7420cc176c5de08321cf13b,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell':
     RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   '@payloadcms/richtext-lexical/rsc#RscEntryLexicalField':

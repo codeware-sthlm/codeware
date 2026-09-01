@@ -30,6 +30,7 @@ import {
   NEUTRAL_FAMILIES,
   type ThemeRecipe,
   type ThemeTokens,
+  brokenReferences,
   buildThemeTokens,
   checkContrast,
   randomRecipe,
@@ -226,9 +227,26 @@ export function ThemeStudio({
     [light, dark]
   );
 
+  // A dangling alias is not a contrast failure — it is the absence of a colour,
+  // which the contrast check cannot see because the pair drops out of it
+  const broken = useMemo(
+    () => [
+      ...brokenReferences(light).map((entry) => ({
+        ...entry,
+        scheme: 'Light'
+      })),
+      ...brokenReferences({ ...light, ...dark }).map((entry) => ({
+        ...entry,
+        scheme: 'Dark'
+      }))
+    ],
+    [light, dark]
+  );
+
   const failures =
     contrast.light.filter(({ passes }) => !passes).length +
-    contrast.dark.filter(({ passes }) => !passes).length;
+    contrast.dark.filter(({ passes }) => !passes).length +
+    broken.length;
 
   const overrideCount =
     Object.keys(overrides.light).length + Object.keys(overrides.dark).length;

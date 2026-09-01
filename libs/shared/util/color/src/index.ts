@@ -1,4 +1,5 @@
 export * from './lib/build-theme-tokens';
+export * from './lib/chart-ramp';
 export * from './lib/contrast';
 export * from './lib/oklch';
 export * from './lib/palette';

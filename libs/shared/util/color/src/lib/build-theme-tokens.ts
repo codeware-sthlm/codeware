@@ -1,5 +1,6 @@
 import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
 
+import { chartFamilies } from './chart-ramp';
 import { type ColorFamily, type ColorShade, brandRamp, shade } from './palette';
 import {
   ALIAS_LIGHT,
@@ -95,11 +96,23 @@ export function buildThemeTokens(
 ): { light: ThemeTokens; dark: ThemeTokens } {
   const { baseFamily, brandFamily, radius, linkShade } = recipe;
 
+  // Charts follow the brand rather than a fixed series, so a themed site does
+  // not draw its data in someone else's colours
+  const charts = chartFamilies(brandFamily);
+  const chartTokens = (step: ColorShade): ThemeTokens =>
+    Object.fromEntries(
+      charts.map((family, index) => [
+        `--chart-${index + 1}`,
+        shade(family, step)
+      ])
+    );
+
   const light: ThemeTokens = {
     ...brandRamp(brandFamily),
     '--radius': radius,
     '--radius-md': 'calc(var(--radius) - 0.125rem)',
     ...resolveAll(BASE_LIGHT, recipe),
+    ...chartTokens('600'),
     ...resolveAll(SUBTLE_LIGHT, recipe),
     ...resolveAll(ALIAS_LIGHT, recipe),
     // Through the ramp rather than the palette, so re-branding is one change
@@ -110,6 +123,8 @@ export function buildThemeTokens(
 
   const dark: ThemeTokens = {
     ...resolveAll(BASE_DARK, recipe),
+    // Lighter, so a series reads against a dark surface
+    ...chartTokens('400'),
     ...resolveAll(SUBTLE_DARK, recipe),
     '--core-link': `var(--brand-${linkShade.dark})`,
     // The inverted surface is the raised one once the page is already dark

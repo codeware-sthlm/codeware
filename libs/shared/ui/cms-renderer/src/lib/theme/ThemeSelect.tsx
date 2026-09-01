@@ -39,7 +39,13 @@ export function ThemeSelect() {
         <PaletteIcon className="stroke-core-action-btn-foreground fill-core-action-btn-icon-fill group-hover:stroke-core-action-btn-foreground-hover size-6 stroke-[1.5] transition" />
         <span className="sr-only">{t(locale, 'theme.select')}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      {/*
+        Sized to its own content, not the trigger. The shadcn default pins a
+        menu to `--radix-dropdown-menu-trigger-width`, which suits a combobox
+        but not this round icon button — it collapsed every menu to the
+        `min-w-32` floor and wrapped any theme name past a word or two.
+      */}
+      <DropdownMenuContent align="end" className="w-auto max-w-64">
         <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
           {themes.map(({ value, label }) => (
             <DropdownMenuRadioItem key={value} value={value}>

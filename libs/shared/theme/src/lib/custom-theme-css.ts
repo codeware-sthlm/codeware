@@ -23,9 +23,46 @@ const TOKEN_NAME = /^--[a-z0-9]+(?:-[a-z0-9]+)*$/;
  * rejecting it only dropped valid overrides without saying so. Notably
  * absent: `;` `{` `}` (which would end the declaration or the block early),
  * `<` `>` `&` (which would leave CSS altogether), `@` (`@import`), `!`
- * (`!important`) and `:` (`url(data:…)`).
+ * (`!important`) and `:` (`url(data:…)`). Function calls are checked
+ * separately, since excluding `:` alone still lets `url(//host/x)` through.
  */
 const TOKEN_VALUE = /^[a-zA-Z0-9\s.,%#()/_+-]+$/;
+
+/**
+ * The only functions a token value may call.
+ *
+ * An allowlist rather than a ban on `url(`: excluding `:` stops
+ * `url(https://…)` but not `url(//host/x)`, and protocol-relative fetches are
+ * the same problem — as are `image-set()` and `src()`. Naming what may appear
+ * ends the game of guessing what may not, which is the rule the rest of this
+ * file already follows.
+ */
+const ALLOWED_FUNCTIONS = new Set([
+  'calc',
+  'clamp',
+  'color',
+  'color-mix',
+  'hsl',
+  'hsla',
+  'hwb',
+  'lab',
+  'lch',
+  'max',
+  'min',
+  'oklab',
+  'oklch',
+  'rgb',
+  'rgba',
+  'var'
+]);
+
+/** Every `name(` in a value, whatever its case. */
+const FUNCTION_CALL = /([a-z][a-z0-9-]*)\s*\(/gi;
+
+const callsOnlyAllowedFunctions = (value: string): boolean =>
+  [...value.matchAll(FUNCTION_CALL)].every(([, name]) =>
+    ALLOWED_FUNCTIONS.has(name.toLowerCase())
+  );
 
 /** A theme name goes straight into a selector, so it gets the same treatment. */
 const THEME_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -49,7 +86,8 @@ export const isValidTokenValue = (value: unknown): value is string =>
   typeof value === 'string' &&
   value.length > 0 &&
   value.length <= MAX_VALUE_LENGTH &&
-  TOKEN_VALUE.test(value);
+  TOKEN_VALUE.test(value) &&
+  callsOnlyAllowedFunctions(value);
 
 /** Whether a theme name may be used as a `data-theme` value. */
 export const isValidThemeSlug = (slug: string): boolean =>

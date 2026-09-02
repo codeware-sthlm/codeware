@@ -68,7 +68,9 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
         </nav>
       </div>
 
-      <div className="bg-core-background-content space-y-5 px-5 py-6">
+      {/* The content column sits inside the body surface, as RenderLayout does,
+          so a layered theme reads as framed rather than uniform */}
+      <div className="bg-core-background-content border-core-content-border mx-4 my-4 space-y-5 rounded-lg border px-5 py-6">
         <div>
           <h1 className="text-core-headline text-2xl font-bold tracking-tight">
             The quick brown fox
@@ -164,6 +166,10 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
           {'const theme = buildThemeTokens(recipe);'}
         </pre>
       </div>
+
+      <footer className="border-core-content-border text-muted-foreground border-t px-5 py-4 text-xs">
+        Footer sits on the body surface, like the margins around the content.
+      </footer>
     </div>
   );
 }

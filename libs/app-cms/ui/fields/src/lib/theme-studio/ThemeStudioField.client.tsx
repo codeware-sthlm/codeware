@@ -4,11 +4,7 @@ import {
   ThemeStudio,
   type ThemeStudioResult
 } from '@codeware/shared/ui/theme-studio';
-import {
-  DEFAULT_RECIPE,
-  type ThemeRecipe,
-  type ThemeTokens
-} from '@codeware/shared/util/color';
+import { type ThemeTokens, normaliseRecipe } from '@codeware/shared/util/color';
 import { Button, FieldLabel, useField } from '@payloadcms/ui';
 import type { JSONFieldClientProps } from 'payload';
 import { useState } from 'react';
@@ -18,11 +14,9 @@ type Overrides = { light: ThemeTokens; dark: ThemeTokens };
 
 const NO_OVERRIDES: Overrides = { light: {}, dark: {} };
 
-/** Payload types a `json` field as anything JSON can hold. */
-const asRecipe = (value: unknown): ThemeRecipe | undefined =>
-  value && typeof value === 'object' && !Array.isArray(value)
-    ? (value as ThemeRecipe)
-    : undefined;
+/** Whether anything was stored at all — the shape itself is normalised below. */
+const hasRecipe = (value: unknown): boolean =>
+  Boolean(value && typeof value === 'object' && !Array.isArray(value));
 
 const asOverrides = (value: unknown): Overrides =>
   value && typeof value === 'object' && !Array.isArray(value)
@@ -54,8 +48,10 @@ export const ThemeStudioField: React.FC<JSONFieldClientProps> = ({
 
   const [open, setOpen] = useState(false);
 
-  const recipe = asRecipe(value);
-  const summary = recipe ?? DEFAULT_RECIPE;
+  // A theme saved before a recipe field existed is missing it; normalising
+  // fills each gap on its own rather than opening the studio on nothing
+  const stored = hasRecipe(value);
+  const recipe = normaliseRecipe(value);
 
   const onSelect = ({
     recipe: chosen,
@@ -81,13 +77,12 @@ export const ThemeStudioField: React.FC<JSONFieldClientProps> = ({
           onClick={() => setOpen(true)}
           disabled={readOnly}
         >
-          {recipe ? 'Edit in theme studio' : 'Open theme studio'}
+          {stored ? 'Edit in theme studio' : 'Open theme studio'}
         </Button>
 
-        {recipe && (
+        {stored && (
           <span className="twp text-muted-foreground text-xs">
-            {summary.brandFamily} on {summary.baseFamily}
-            {summary.radius === '0' ? ', square' : ''}
+            {recipe.brandFamily} on {recipe.baseFamily}, {recipe.surface}
           </span>
         )}
       </div>

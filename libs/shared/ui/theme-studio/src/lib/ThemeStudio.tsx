@@ -67,6 +67,14 @@ const BRAND_FAMILIES = [
   ...NEUTRAL_FAMILIES
 ] as const satisfies ReadonlyArray<ColorFamily>;
 
+const SURFACE_OPTIONS = [
+  { label: 'Layered', value: 'layered' },
+  { label: 'Flat', value: 'flat' }
+] as const satisfies ReadonlyArray<{
+  label: string;
+  value: ThemeRecipe['surface'];
+}>;
+
 const RADIUS_OPTIONS = [
   { label: 'Square', value: '0' },
   { label: 'Small', value: '0.35rem' },
@@ -314,6 +322,25 @@ export function ThemeStudio({
                   </div>
 
                   <Separator />
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Page surface</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Whether the content sits on its own surface, framed by the
+                      margins and footer, or shares one with them.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {SURFACE_OPTIONS.map(({ label, value }) => (
+                        <Pill
+                          key={value}
+                          active={recipe.surface === value}
+                          onClick={() => update({ surface: value })}
+                        >
+                          {label}
+                        </Pill>
+                      ))}
+                    </div>
+                  </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs">Corner radius</Label>

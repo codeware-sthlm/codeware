@@ -26,6 +26,7 @@ export const Editing: StoryObj = {
       recipe={{
         baseFamily: 'slate',
         brandFamily: 'teal',
+        surface: 'flat',
         radius: '1rem',
         linkShade: { light: '700', dark: '300' }
       }}

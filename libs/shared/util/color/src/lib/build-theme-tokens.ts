@@ -1,6 +1,7 @@
 import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
 
 import { chartFamilies } from './chart-ramp';
+import { normaliseRecipe } from './normalise-recipe';
 import { type ColorFamily, type ColorShade, brandRamp, shade } from './palette';
 import {
   ALIAS_LIGHT,
@@ -8,6 +9,8 @@ import {
   BASE_LIGHT,
   SUBTLE_DARK,
   SUBTLE_LIGHT,
+  SURFACE_DARK,
+  SURFACE_LIGHT,
   type TokenSource
 } from './theme-template';
 
@@ -29,6 +32,11 @@ export type ThemeRecipe = {
    * primary buttons, focus rings, links, active navigation.
    */
   brandFamily: ColorFamily;
+  /**
+   * Whether the content column sits on its own surface (`layered`) or shares
+   * one with the page shell and footer (`flat`).
+   */
+  surface: 'flat' | 'layered';
   /** The `--radius` root value, e.g. `0.625rem` */
   radius: string;
   /** Which brand step links take, per scheme — dark needs a lighter one to read */
@@ -44,6 +52,7 @@ export type ThemeRecipe = {
 export const DEFAULT_RECIPE: ThemeRecipe = {
   baseFamily: 'neutral',
   brandFamily: 'neutral',
+  surface: 'layered',
   radius: '0.625rem',
   linkShade: { light: '700', dark: '400' }
 };
@@ -91,9 +100,13 @@ const resolveAll = (
  * @returns Token maps for both schemes
  */
 export function buildThemeTokens(
-  recipe: ThemeRecipe,
+  storedRecipe: ThemeRecipe,
   overrides: { light?: ThemeTokens; dark?: ThemeTokens } = {}
 ): { light: ThemeTokens; dark: ThemeTokens } {
+  // The type is a claim about where a recipe was authored, not about a value
+  // read back from a JSON column — one saved before a field existed is short
+  // of it, and every lookup below would then miss
+  const recipe = normaliseRecipe(storedRecipe);
   const { baseFamily, brandFamily, radius, linkShade } = recipe;
 
   // Charts follow the brand rather than a fixed series, so a themed site does
@@ -115,6 +128,7 @@ export function buildThemeTokens(
     ...chartTokens('600'),
     ...resolveAll(SUBTLE_LIGHT, recipe),
     ...resolveAll(ALIAS_LIGHT, recipe),
+    ...resolveAll(SURFACE_LIGHT[recipe.surface], recipe),
     // Through the ramp rather than the palette, so re-branding is one change
     '--core-link': `var(--brand-${linkShade.light})`,
     '--core-surface-invert': shade(baseFamily, '900'),
@@ -126,6 +140,7 @@ export function buildThemeTokens(
     // Lighter, so a series reads against a dark surface
     ...chartTokens('400'),
     ...resolveAll(SUBTLE_DARK, recipe),
+    ...resolveAll(SURFACE_DARK[recipe.surface], recipe),
     '--core-link': `var(--brand-${linkShade.dark})`,
     // The inverted surface is the raised one once the page is already dark
     '--core-surface-invert': 'var(--card)',

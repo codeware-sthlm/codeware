@@ -18,12 +18,14 @@ const TOKEN_NAME = /^--[a-z0-9]+(?:-[a-z0-9]+)*$/;
  * Everything a colour, length or alias needs and nothing more.
  *
  * Covers `oklch(0.7 0.14 182)`, `#fff`, `var(--brand-600)`,
- * `calc(var(--radius) - 0.125rem)` and `color-mix(in oklab, …)`. Notably
+ * `calc(var(--radius) + 4px)` and `color-mix(in oklab, …)`. `+` earns its
+ * place: the theme core already uses it and it cannot end a declaration, so
+ * rejecting it only dropped valid overrides without saying so. Notably
  * absent: `;` `{` `}` (which would end the declaration or the block early),
  * `<` `>` `&` (which would leave CSS altogether), `@` (`@import`), `!`
  * (`!important`) and `:` (`url(data:…)`).
  */
-const TOKEN_VALUE = /^[a-zA-Z0-9\s.,%#()/_-]+$/;
+const TOKEN_VALUE = /^[a-zA-Z0-9\s.,%#()/_+-]+$/;
 
 /** A theme name goes straight into a selector, so it gets the same treatment. */
 const THEME_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

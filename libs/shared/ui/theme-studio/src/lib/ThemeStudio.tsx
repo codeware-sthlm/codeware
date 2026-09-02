@@ -312,7 +312,10 @@ export function ThemeStudio({
     link.href = url;
     link.download = `${folder}.zip`;
     link.click();
-    URL.revokeObjectURL(url);
+
+    // Revoking in the same tick can cancel or truncate the download in some
+    // browsers — the click only queues it
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
   const ids = previewScope(scope);

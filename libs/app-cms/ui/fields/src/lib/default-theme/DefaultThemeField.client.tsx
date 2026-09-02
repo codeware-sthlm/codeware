@@ -85,7 +85,11 @@ export const DefaultThemeField: React.FC<TextFieldClientProps> = ({
         collection: 'custom-themes',
         depth: 0,
         limit: 0,
-        where: { id: { in: idKey.split(',') } }
+        // Numbers, not the key's split strings: every other caller passes
+        // numeric ids, and a coerced mismatch returns no docs — which shows up
+        // as the authored themes silently missing from the options. Parsed from
+        // the key rather than closing over the array, which is new every render
+        where: { id: { in: idKey.split(',').map(Number) } }
       })
       .then((result) => {
         if (active) {

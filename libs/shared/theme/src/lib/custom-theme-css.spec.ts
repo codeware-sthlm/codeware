@@ -48,6 +48,13 @@ describe('customThemeCss', () => {
     expect(css).toContain("[data-theme='forest']");
   });
 
+  // Rejecting `+` dropped valid overrides with nothing said about it, and the
+  // theme core itself uses that form
+  it('accepts calc() in both directions', () => {
+    expect(isValidTokenValue('calc(var(--radius) + 4px)')).toBe(true);
+    expect(isValidTokenValue('calc(var(--radius) - 2px)')).toBe(true);
+  });
+
   it('accepts the value shapes real tokens use', () => {
     const css = customThemeCss([
       theme({

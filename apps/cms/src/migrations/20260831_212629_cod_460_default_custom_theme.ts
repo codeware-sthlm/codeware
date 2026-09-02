@@ -20,6 +20,7 @@ export async function down({
   ALTER TABLE "payload"."site_settings_rels" DROP CONSTRAINT "site_settings_rels_custom_themes_fk";
   
   DROP INDEX "payload"."site_settings_rels_custom_themes_id_idx";
+  UPDATE "payload"."site_settings" SET "general_default_theme" = 'spotlight' WHERE "general_default_theme" NOT IN ('shadcn', 'spotlight', 'codeware');
   ALTER TABLE "payload"."site_settings" ALTER COLUMN "general_default_theme" SET DEFAULT 'spotlight'::"payload"."enum_site_settings_default_theme";
   ALTER TABLE "payload"."site_settings" ALTER COLUMN "general_default_theme" SET DATA TYPE "payload"."enum_site_settings_default_theme" USING "general_default_theme"::"payload"."enum_site_settings_default_theme";
   ALTER TABLE "payload"."site_settings_rels" DROP COLUMN "custom_themes_id";`);

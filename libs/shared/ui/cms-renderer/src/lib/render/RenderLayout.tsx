@@ -4,7 +4,9 @@ import type {
   FooterData,
   NavigationItem
 } from '@codeware/shared/util/payload-api';
+import { cn } from '@codeware/shared/util/ui';
 import { House } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Container } from '../layout/Container';
 import { DesktopNavigation } from '../navigation/DesktopNavigation';
@@ -66,6 +68,50 @@ export function RenderLayout({
 }: RenderLayoutProps) {
   const { navigate, iconConfig } = usePayload();
 
+  const headerRow = useRef<HTMLDivElement>(null);
+  const brand = useRef<HTMLDivElement>(null);
+  const controls = useRef<HTMLDivElement>(null);
+  const desktopNav = useRef<HTMLElement>(null);
+
+  /**
+   * Whether the navigation fits beside the brand and the controls.
+   *
+   * A media query answers a different question — it knows the viewport width,
+   * not whether *these* labels fit — so six long ones overlap the controls at
+   * 900px while three short ones would have been fine at 700px.
+   *
+   * Everything compared here is a *content* width, and none of it changes when
+   * the answer changes: the nav leaves the flow rather than being unmounted, so
+   * it still reports its natural width, and the row is sized by its container.
+   * Measuring the nav's column instead is what made an earlier attempt oscillate.
+   */
+  const [fits, setFits] = useState(true);
+
+  useEffect(() => {
+    const row = headerRow.current;
+    const logo = brand.current;
+    const actions = controls.current;
+    const nav = desktopNav.current;
+
+    if (!row || !logo || !actions || !nav) {
+      return;
+    }
+
+    const measure = () => {
+      const gap = Number.parseFloat(getComputedStyle(row).columnGap) || 0;
+      const needed =
+        logo.scrollWidth + nav.scrollWidth + actions.scrollWidth + gap * 2;
+
+      setFits(needed <= row.clientWidth);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(row);
+
+    return () => observer.disconnect();
+  }, [navigationTree]);
+
   return (
     <div className="flex w-full">
       {/* Create a center aligned section with background space on each side */}
@@ -82,9 +128,12 @@ export function RenderLayout({
         <header className="pointer-events-none relative z-50 flex flex-none flex-col">
           <div className="top-0 z-10 h-16 pt-6">
             <Container className="w-full">
-              <div className="relative flex gap-4">
+              <div ref={headerRow} className="relative flex gap-4">
                 <div className="flex flex-1">
-                  <div className="flex h-10 w-10 items-center backdrop-blur">
+                  <div
+                    ref={brand}
+                    className="flex h-10 w-10 items-center backdrop-blur"
+                  >
                     {/* An anchor, not a button: a real href keeps
                         middle-click, right-click → copy link, and crawlers
                         working. Matches every other internal link here. */}
@@ -105,21 +154,48 @@ export function RenderLayout({
                     </a>
                   </div>
                 </div>
-                <div className="flex flex-1 justify-end md:justify-center">
+                {/* Centred only while the pill is what is shown — the
+                    collapsed button belongs beside the controls, where it sits
+                    at every other width */}
+                <div
+                  className={cn(
+                    'flex flex-1 justify-end',
+                    fits && 'md:justify-center'
+                  )}
+                >
                   <MobileNavigation
                     navigationTree={navigationTree}
-                    className="pointer-events-auto md:hidden"
+                    className={cn('pointer-events-auto', fits && 'md:hidden')}
                   />
+                  {/* Taken out of the flow rather than unmounted when it does
+                      not fit, so it keeps reporting the width this decision
+                      depends on */}
                   <DesktopNavigation
+                    ref={desktopNav}
                     navigationTree={navigationTree}
                     aria-label="Main"
-                    className="pointer-events-auto hidden md:block"
+                    className={cn(
+                      'pointer-events-auto hidden md:block',
+                      !fits && 'md:invisible md:absolute'
+                    )}
                   />
                 </div>
-                <div className="flex items-end justify-end md:flex-1">
+                {/* Claims a third only while the pill needs the middle one
+                    centred. Once the nav has collapsed to a button there is
+                    nothing to centre, and the third it was reserving is what
+                    left that button stranded away from these icons */}
+                <div
+                  className={cn(
+                    'flex items-end justify-end',
+                    fits && 'md:flex-1'
+                  )}
+                >
                   {/* Both controls are conditional and both may be absent —
                       `gap` rather than margins so the row simply collapses */}
-                  <div className="pointer-events-auto flex items-center gap-2">
+                  <div
+                    ref={controls}
+                    className="pointer-events-auto flex items-center gap-2"
+                  >
                     <ThemeSelect />
                     <ColorSchemeSwitch />
                   </div>

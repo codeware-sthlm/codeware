@@ -2,6 +2,7 @@
 
 import type { NavigationItem } from '@codeware/shared/util/payload-api';
 import { cn } from '@codeware/shared/util/ui';
+import { forwardRef } from 'react';
 
 import { usePayload } from '../providers/PayloadProvider';
 import { isActivePath } from '../utils/active-path';
@@ -45,18 +46,18 @@ function NavItem({
   );
 }
 
-export function DesktopNavigation({
-  navigationTree,
-  ...props
-}: React.ComponentPropsWithoutRef<'nav'> & {
-  navigationTree: NavigationItem[];
-}) {
+export const DesktopNavigation = forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithoutRef<'nav'> & {
+    navigationTree: NavigationItem[];
+  }
+>(function DesktopNavigation({ navigationTree, ...props }, ref) {
   if (navigationTree.length === 0) {
     return null;
   }
 
   return (
-    <nav {...props}>
+    <nav ref={ref} {...props}>
       <ul className="text-core-nav-link bg-core-navbar shadow-core-navbar-shadow ring-core-navbar-border flex h-full rounded-full px-3 text-sm font-medium shadow-lg ring-1 backdrop-blur">
         {navigationTree.map(({ key, label, url }) => (
           <NavItem key={key} href={url}>
@@ -66,4 +67,4 @@ export function DesktopNavigation({
       </ul>
     </nav>
   );
-}
+});

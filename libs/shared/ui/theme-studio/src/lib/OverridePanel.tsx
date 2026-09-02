@@ -3,7 +3,6 @@
 import { isValidTokenValue } from '@codeware/shared/theme';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import { Input } from '@codeware/shared/ui/shadcn/components/input';
-import { ScrollArea } from '@codeware/shared/ui/shadcn/components/scroll-area';
 import {
   Tabs,
   TabsList,
@@ -77,7 +76,7 @@ export function OverridePanel({
   const overriddenCount = Object.keys(overrides[scheme]).length;
 
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
       <Tabs
         value={scheme}
         onValueChange={(value) => setScheme(value as 'light' | 'dark')}
@@ -111,7 +110,7 @@ export function OverridePanel({
         )}
       </div>
 
-      <ScrollArea className="flex-1">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-1 pr-3">
           {names.map((name) => {
             const overridden = name in overrides[scheme];
@@ -121,42 +120,52 @@ export function OverridePanel({
             const invalid = overridden && !isValidTokenValue(value);
 
             return (
-              <div key={name} className="flex items-center gap-2">
-                <code
-                  className={cn(
-                    'w-44 shrink-0 truncate text-[11px]',
-                    overridden
-                      ? 'text-foreground font-medium'
-                      : 'text-muted-foreground'
-                  )}
-                  title={name}
-                >
-                  {name}
-                </code>
-                <Input
-                  value={value}
-                  onChange={(event) => setToken(name, event.target.value)}
-                  aria-label={name}
-                  aria-invalid={invalid}
-                  className={cn(
-                    'h-7 font-mono text-[11px]',
-                    invalid && 'border-destructive'
-                  )}
-                />
-                <span
-                  className="border-border size-5 shrink-0 rounded border"
-                  style={{ background: value }}
-                />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-6 shrink-0"
-                  disabled={!overridden}
-                  aria-label={`Reset ${name}`}
-                  onClick={() => setToken(name, '')}
-                >
-                  <RotateCcwIcon className="size-3" />
-                </Button>
+              // Name above the value rather than beside it: a token value is
+              // long and the name is longer, and side by side they were
+              // competing for a width the host shrinks under us
+              <div
+                key={name}
+                className="hover:bg-accent/40 space-y-1 rounded-md px-1.5 py-1.5"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <code
+                    className={cn(
+                      'truncate text-xs',
+                      overridden
+                        ? 'text-foreground font-medium'
+                        : 'text-muted-foreground'
+                    )}
+                    title={name}
+                  >
+                    {name}
+                  </code>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-6 shrink-0"
+                    disabled={!overridden}
+                    aria-label={`Reset ${name}`}
+                    onClick={() => setToken(name, '')}
+                  >
+                    <RotateCcwIcon className="size-3" />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={value}
+                    onChange={(event) => setToken(name, event.target.value)}
+                    aria-label={name}
+                    aria-invalid={invalid}
+                    className={cn(
+                      'h-8 min-w-0 flex-1 font-mono text-xs',
+                      invalid && 'border-destructive'
+                    )}
+                  />
+                  <span
+                    className="border-border size-8 shrink-0 rounded border"
+                    style={{ background: value }}
+                  />
+                </div>
               </div>
             );
           })}
@@ -167,7 +176,7 @@ export function OverridePanel({
             </p>
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

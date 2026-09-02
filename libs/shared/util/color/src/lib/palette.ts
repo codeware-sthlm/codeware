@@ -59,7 +59,15 @@ export const shade = (family: ColorFamily, step: ColorShade): string =>
  * The rest of the theme reaches the brand through these rather than the palette
  * directly, so a single recipe change re-colours every reference.
  */
-export const brandRamp = (family: ColorFamily): Record<string, string> =>
+export const brandRamp = (
+  family: ColorFamily,
+  format: 'literal' | 'alias' = 'literal'
+): Record<string, string> =>
   Object.fromEntries(
-    COLOR_SHADES.map((step) => [`--brand-${step}`, shade(family, step)])
+    COLOR_SHADES.map((step) => [
+      `--brand-${step}`,
+      format === 'alias'
+        ? `var(--color-${family}-${step})`
+        : shade(family, step)
+    ])
   );

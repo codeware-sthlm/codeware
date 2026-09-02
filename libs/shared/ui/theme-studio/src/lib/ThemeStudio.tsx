@@ -3,7 +3,6 @@
 import { CopyButton } from '@codeware/shared/ui/copy-button';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
 import { Label } from '@codeware/shared/ui/shadcn/components/label';
-import { ScrollArea } from '@codeware/shared/ui/shadcn/components/scroll-area';
 import { Separator } from '@codeware/shared/ui/shadcn/components/separator';
 import {
   Sheet,
@@ -37,8 +36,8 @@ import {
   shade
 } from '@codeware/shared/util/color';
 import { cn } from '@codeware/shared/util/ui';
-import { DicesIcon, PanelLeftIcon } from 'lucide-react';
-import { useId, useMemo, useState } from 'react';
+import { DicesIcon, PanelLeftIcon, TriangleAlertIcon } from 'lucide-react';
+import { createContext, useContext, useId, useMemo, useState } from 'react';
 
 import { ContrastReport } from './ContrastReport';
 import { OverridePanel, type ThemeOverrides } from './OverridePanel';
@@ -80,6 +79,35 @@ const LINK_SHADES: Array<ColorShade> = ['400', '500', '600', '700', '800'];
 const titleCase = (value: string) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
+/**
+ * Where Radix should portal to.
+ *
+ * The studio is itself rendered into a portal by its host — in the Payload
+ * admin, a fixed overlay at the top of the stack. Radix defaults to
+ * `document.body`, which puts tooltips and sheets *beside* that overlay rather
+ * than inside it, and they end up painted underneath. Handing them the studio's
+ * own root keeps them in its stacking context.
+ */
+const PortalContainer = createContext<HTMLElement | null>(null);
+
+/** Tooltip that lands inside the studio rather than behind it. */
+function Hint({
+  label,
+  children
+}: {
+  label: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const container = useContext(PortalContainer);
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent container={container}>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 export type ThemeStudioResult = {
   recipe: ThemeRecipe;
   /** Only what was hand-edited; the rest follows the recipe */
@@ -109,24 +137,21 @@ function Swatch({
   onSelect: () => void;
 }) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          onClick={onSelect}
-          aria-label={titleCase(family)}
-          aria-pressed={selected}
-          className={cn(
-            'focus-visible:ring-ring size-7 rounded-md border transition-all focus-visible:ring-2 focus-visible:outline-none',
-            selected
-              ? 'ring-ring border-transparent ring-2 ring-offset-2'
-              : 'border-border hover:scale-110'
-          )}
-          style={{ background: shade(family, '500') }}
-        />
-      </TooltipTrigger>
-      <TooltipContent>{titleCase(family)}</TooltipContent>
-    </Tooltip>
+    <Hint label={titleCase(family)}>
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-label={titleCase(family)}
+        aria-pressed={selected}
+        className={cn(
+          'focus-visible:ring-ring size-7 rounded-md border transition-all focus-visible:ring-2 focus-visible:outline-none',
+          selected
+            ? 'ring-ring border-transparent ring-2 ring-offset-2'
+            : 'border-border hover:scale-110'
+        )}
+        style={{ background: shade(family, '500') }}
+      />
+    </Hint>
   );
 }
 
@@ -182,6 +207,7 @@ export function ThemeStudio({
   );
   const [scheme, setScheme] = useState<'light' | 'dark' | 'both'>('both');
   const [optionsOpen, setOptionsOpen] = useState(true);
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
 
   // What the recipe alone produces — the override panel needs it to show what
   // a token would revert to
@@ -219,176 +245,186 @@ export function ThemeStudio({
 
   return (
     <TooltipProvider>
-      <div className="bg-background text-foreground flex h-screen overflow-hidden">
-        <style>{previewCss(scope, light, dark)}</style>
+      <PortalContainer.Provider value={root}>
+        <div
+          ref={setRoot}
+          className="bg-background text-foreground flex h-screen max-h-full overflow-hidden"
+        >
+          <style>{previewCss(scope, light, dark)}</style>
 
-        {optionsOpen && (
-          <aside className="border-border bg-muted/30 flex w-72 shrink-0 flex-col border-r">
-            <div className="flex h-12 shrink-0 items-center border-b px-4">
-              <h2 className="text-sm font-semibold">Theme studio</h2>
-            </div>
+          {optionsOpen && (
+            <aside className="border-border bg-muted/30 flex min-h-0 w-72 shrink-0 flex-col border-r">
+              <div className="flex h-12 shrink-0 items-center border-b px-4">
+                <h2 className="text-sm font-semibold">Theme studio</h2>
+              </div>
 
-            <ScrollArea className="flex-1">
-              <div className="space-y-5 p-4">
-                <div className="space-y-2">
-                  <Label className="text-xs">Brand colour</Label>
-                  <p className="text-muted-foreground text-[11px]">
-                    Primary buttons, focus rings, links, active navigation and
-                    the chart series.
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {BRAND_FAMILIES.map((family) => (
-                      <Swatch
-                        key={family}
-                        family={family}
-                        selected={recipe.brandFamily === family}
-                        onSelect={() => update({ brandFamily: family })}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Base colour</Label>
-                  <p className="text-muted-foreground text-[11px]">
-                    Every surface, border and neutral text.
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {NEUTRAL_FAMILIES.map((family) => (
-                      <Swatch
-                        key={family}
-                        family={family}
-                        selected={recipe.baseFamily === family}
-                        onSelect={() => update({ baseFamily: family })}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Corner radius</Label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {RADIUS_OPTIONS.map(({ label, value }) => (
-                      <Pill
-                        key={value}
-                        active={recipe.radius === value}
-                        onClick={() => update({ radius: value })}
-                      >
-                        {label}
-                      </Pill>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Link strength</Label>
-                  <p className="text-muted-foreground text-[11px]">
-                    Which step of the brand ramp links take.
-                  </p>
-                  {(['light', 'dark'] as const).map((forScheme) => (
-                    <div key={forScheme} className="space-y-1">
-                      <span className="text-muted-foreground text-[11px] capitalize">
-                        {forScheme}
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {LINK_SHADES.map((step) => (
-                          <Pill
-                            key={step}
-                            active={recipe.linkShade[forScheme] === step}
-                            onClick={() =>
-                              update({
-                                linkShade: {
-                                  ...recipe.linkShade,
-                                  [forScheme]: step
-                                }
-                              })
-                            }
-                          >
-                            {step}
-                          </Pill>
-                        ))}
-                      </div>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className="space-y-5 p-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Brand colour</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Primary buttons, focus rings, links, active navigation and
+                      the chart series.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {BRAND_FAMILIES.map((family) => (
+                        <Swatch
+                          key={family}
+                          family={family}
+                          selected={recipe.brandFamily === family}
+                          onSelect={() => update({ brandFamily: family })}
+                        />
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <Separator />
+                  <div className="space-y-2">
+                    <Label className="text-xs">Base colour</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Every surface, border and neutral text.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {NEUTRAL_FAMILIES.map((family) => (
+                        <Swatch
+                          key={family}
+                          family={family}
+                          selected={recipe.baseFamily === family}
+                          onSelect={() => update({ baseFamily: family })}
+                        />
+                      ))}
+                    </div>
+                  </div>
 
-                <div className="space-y-3">
-                  <Label className="text-xs">Readability</Label>
-                  <ContrastReport scheme="Light" results={contrast.light} />
-                  <ContrastReport scheme="Dark" results={contrast.dark} />
-                </div>
+                  <Separator />
 
-                <Separator />
+                  <div className="space-y-2">
+                    <Label className="text-xs">Corner radius</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {RADIUS_OPTIONS.map(({ label, value }) => (
+                        <Pill
+                          key={value}
+                          active={recipe.radius === value}
+                          onClick={() => update({ radius: value })}
+                        >
+                          {label}
+                        </Pill>
+                      ))}
+                    </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full">
-                        Fine-tune tokens
-                        {overrideCount > 0 && ` (${overrideCount})`}
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent
-                      side="left"
-                      className="flex w-lg max-w-[90vw] flex-col gap-4 p-4"
-                    >
-                      <SheetHeader className="p-0">
-                        <SheetTitle>Fine-tune tokens</SheetTitle>
-                        <SheetDescription>
-                          An edited token stops following the recipe, so
-                          changing the brand or base later leaves it behind.
-                        </SheetDescription>
-                      </SheetHeader>
-                      <OverridePanel
-                        generated={generated}
-                        overrides={overrides}
-                        onChange={setOverrides}
-                      />
-                    </SheetContent>
-                  </Sheet>
-
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full">
-                        View theme JSON
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent
-                      side="left"
-                      className="flex w-lg max-w-[90vw] flex-col gap-4 p-4"
-                    >
-                      <SheetHeader className="p-0">
-                        <SheetTitle>Theme JSON</SheetTitle>
-                        <SheetDescription>
-                          The recipe and both token maps, exactly as they are
-                          stored.
-                        </SheetDescription>
-                      </SheetHeader>
-                      <div className="relative min-h-0 flex-1">
-                        <CopyButton code={themeJson} label="Copy theme JSON" />
-                        <ScrollArea className="h-full">
-                          <pre className="bg-muted rounded-md p-3 pr-12 font-mono text-[11px] leading-relaxed">
-                            {themeJson}
-                          </pre>
-                        </ScrollArea>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Link strength</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Which step of the brand ramp links take.
+                    </p>
+                    {(['light', 'dark'] as const).map((forScheme) => (
+                      <div key={forScheme} className="space-y-1">
+                        <span className="text-muted-foreground text-[11px] capitalize">
+                          {forScheme}
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {LINK_SHADES.map((step) => (
+                            <Pill
+                              key={step}
+                              active={recipe.linkShade[forScheme] === step}
+                              onClick={() =>
+                                update({
+                                  linkShade: {
+                                    ...recipe.linkShade,
+                                    [forScheme]: step
+                                  }
+                                })
+                              }
+                            >
+                              {step}
+                            </Pill>
+                          ))}
+                        </div>
                       </div>
-                    </SheetContent>
-                  </Sheet>
+                    ))}
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-3">
+                    <Label className="text-xs">Readability</Label>
+                    <ContrastReport scheme="Light" results={contrast.light} />
+                    <ContrastReport scheme="Dark" results={contrast.dark} />
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full">
+                          Fine-tune tokens
+                          {overrideCount > 0 && ` (${overrideCount})`}
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent
+                        side="left"
+                        container={root}
+                        size="lg"
+                        className="flex flex-col gap-4 p-4"
+                      >
+                        <SheetHeader className="p-0">
+                          <SheetTitle>Fine-tune tokens</SheetTitle>
+                          <SheetDescription>
+                            An edited token stops following the recipe, so
+                            changing the brand or base later leaves it behind.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <OverridePanel
+                          generated={generated}
+                          overrides={overrides}
+                          onChange={setOverrides}
+                        />
+                      </SheetContent>
+                    </Sheet>
+
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full">
+                          View theme JSON
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent
+                        side="left"
+                        container={root}
+                        size="lg"
+                        className="flex flex-col gap-4 p-4"
+                      >
+                        <SheetHeader className="p-0">
+                          <SheetTitle>Theme JSON</SheetTitle>
+                          <SheetDescription>
+                            The recipe and both token maps, exactly as they are
+                            stored.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="relative min-h-0 flex-1">
+                          <CopyButton
+                            code={themeJson}
+                            label="Copy theme JSON"
+                          />
+                          <div className="h-full overflow-auto">
+                            <pre className="bg-muted rounded-md p-3 pr-12 font-mono text-[11px] leading-relaxed">
+                              {themeJson}
+                            </pre>
+                          </div>
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  </div>
                 </div>
               </div>
-            </ScrollArea>
-          </aside>
-        )}
+            </aside>
+          )}
 
-        <main className="flex min-w-0 flex-1 flex-col">
-          <header className="border-border flex h-12 shrink-0 items-center justify-between gap-3 border-b px-5">
-            <div className="flex items-center gap-3">
-              <Tooltip>
-                <TooltipTrigger asChild>
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <header className="border-border flex h-12 shrink-0 items-center justify-between gap-3 border-b px-5">
+              <div className="flex items-center gap-3">
+                <Hint label={optionsOpen ? 'Hide options' : 'Show options'}>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -401,15 +437,10 @@ export function ThemeStudio({
                   >
                     <PanelLeftIcon className="size-4" />
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {optionsOpen ? 'Hide options' : 'Show options'}
-                </TooltipContent>
-              </Tooltip>
+                </Hint>
 
-              {/* Lives here rather than in the panel, so it survives collapsing */}
-              <Tooltip>
-                <TooltipTrigger asChild>
+                {/* Lives here rather than in the panel, so it survives collapsing */}
+                <Hint label="Feeling lucky — rolls a recipe that passes contrast. Any fine-tuned tokens are kept.">
                   <Button
                     size="icon"
                     variant="ghost"
@@ -419,75 +450,72 @@ export function ThemeStudio({
                   >
                     <DicesIcon className="size-4" />
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Feeling lucky — rolls a recipe that passes contrast. Any
-                  fine-tuned tokens are kept.
-                </TooltipContent>
-              </Tooltip>
+                </Hint>
 
-              <Tabs
-                value={scheme}
-                onValueChange={(value) =>
-                  setScheme(value as 'light' | 'dark' | 'both')
-                }
-              >
-                <TabsList>
-                  <TabsTrigger value="light">Light</TabsTrigger>
-                  <TabsTrigger value="dark">Dark</TabsTrigger>
-                  <TabsTrigger value="both">Both</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {failures > 0 && (
-                <span className="text-destructive-subtle text-xs">
-                  {failures} contrast {failures === 1 ? 'issue' : 'issues'}
-                </span>
-              )}
-              {onSelect && (
-                <Button
-                  size="sm"
-                  disabled={failures > 0}
-                  title={
-                    failures > 0
-                      ? 'Fix the contrast issues before using this theme'
-                      : undefined
-                  }
-                  onClick={() =>
-                    onSelect({
-                      recipe,
-                      overrides,
-                      tokensLight: light,
-                      tokensDark: dark
-                    })
+                <Tabs
+                  value={scheme}
+                  onValueChange={(value) =>
+                    setScheme(value as 'light' | 'dark' | 'both')
                   }
                 >
-                  Use this theme
-                </Button>
-              )}
-              {onClose && (
-                <Button size="sm" variant="ghost" onClick={onClose}>
-                  Close
-                </Button>
-              )}
-            </div>
-          </header>
+                  <TabsList>
+                    <TabsTrigger value="light">Light</TabsTrigger>
+                    <TabsTrigger value="dark">Dark</TabsTrigger>
+                    <TabsTrigger value="both">Both</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
 
-          <ScrollArea className="flex-1">
-            <div
-              className={cn(
-                'gap-4 p-5',
-                scheme === 'both' ? 'grid lg:grid-cols-2' : 'flex flex-col'
-              )}
-            >
-              {scheme !== 'dark' && <ThemePreview id={ids.light} />}
-              {scheme !== 'light' && <ThemePreview id={ids.dark} dark />}
+              <div className="flex items-center gap-2">
+                {failures > 0 && (
+                  <span className="border-destructive/40 bg-destructive/10 text-destructive-subtle flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium">
+                    <TriangleAlertIcon className="size-3.5" />
+                    {failures} contrast {failures === 1 ? 'issue' : 'issues'}
+                  </span>
+                )}
+                {onSelect && (
+                  <Button
+                    size="sm"
+                    disabled={failures > 0}
+                    title={
+                      failures > 0
+                        ? 'Fix the contrast issues before using this theme'
+                        : undefined
+                    }
+                    onClick={() =>
+                      onSelect({
+                        recipe,
+                        overrides,
+                        tokensLight: light,
+                        tokensDark: dark
+                      })
+                    }
+                  >
+                    Use this theme
+                  </Button>
+                )}
+                {onClose && (
+                  <Button size="sm" variant="ghost" onClick={onClose}>
+                    Close
+                  </Button>
+                )}
+              </div>
+            </header>
+
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <div
+                className={cn(
+                  'gap-4 p-5',
+                  scheme === 'both' ? 'grid lg:grid-cols-2' : 'flex flex-col'
+                )}
+              >
+                {scheme !== 'dark' && <ThemePreview id={ids.light} />}
+                {scheme !== 'light' && <ThemePreview id={ids.dark} dark />}
+              </div>
             </div>
-          </ScrollArea>
-        </main>
-      </div>
+          </main>
+        </div>
+      </PortalContainer.Provider>
     </TooltipProvider>
   );
 }

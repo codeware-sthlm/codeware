@@ -50,6 +50,19 @@ describe('customThemeCss', () => {
 
   // Rejecting `+` dropped valid overrides with nothing said about it, and the
   // theme core itself uses that form
+  it('accepts every colour function a theme legitimately uses', () => {
+    for (const value of [
+      'oklch(0.7 0.14 182)',
+      'color-mix(in oklab, oklch(0.5 0.1 20) 90%, transparent)',
+      'rgb(12 34 56)',
+      'hsl(200 50% 40%)',
+      'clamp(1rem, 2vw, 3rem)',
+      'var(--brand-600)'
+    ]) {
+      expect(isValidTokenValue(value)).toBe(true);
+    }
+  });
+
   it('accepts calc() in both directions', () => {
     expect(isValidTokenValue('calc(var(--radius) + 4px)')).toBe(true);
     expect(isValidTokenValue('calc(var(--radius) - 2px)')).toBe(true);
@@ -80,7 +93,15 @@ describe('customThemeCss', () => {
       ['leaves CSS entirely', 'red</style><script>alert(1)</script>'],
       ['smuggles an at-rule', 'red@import url(//evil)'],
       ['overrides everything', 'red!important'],
-      ['fetches a remote resource', 'url(https://evil/x)']
+      ['fetches a remote resource', 'url(https://evil/x)'],
+      // Excluding `:` stops the scheme but not a protocol-relative host, which
+      // is the same fetch — the original test passed for the wrong reason
+      ['fetches without a scheme', 'url(//evil.com/pixel.gif)'],
+      ['shouts the function name', 'URL(//evil.com/x)'],
+      ['fetches an image set', 'image-set(//evil.com/a.png)'],
+      ['fetches a font', 'src(//evil.com/f.woff)'],
+      ['hides behind a space', 'url (//evil.com/x)'],
+      ['nests the fetch', 'color-mix(in oklab, url(//evil.com/x) 50%, red)']
     ])('%s', (_, value) => {
       expect(isValidTokenValue(value)).toBe(false);
       expect(customThemeCss([theme({ tokensLight: { '--x': value } })])).toBe(

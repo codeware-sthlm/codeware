@@ -116,9 +116,6 @@ export const ALIAS_LIGHT: Record<string, TokenSource> = {
   '--core-action-btn-border-hover': { value: 'var(--border)' },
   '--core-action-btn-icon-fill': { value: 'var(--muted)' },
   '--core-action-btn-shadow': { value: 'transparent' },
-  '--core-background-body': { value: 'var(--background)' },
-  '--core-background-content': { value: 'var(--background)' },
-  '--core-content-border': { value: 'var(--border)' },
   '--core-header': { value: 'var(--foreground)' },
   '--core-headline': { value: 'var(--foreground)' },
   '--core-navbar': { value: 'var(--background)' },
@@ -150,6 +147,51 @@ export const ALIAS_LIGHT: Record<string, TokenSource> = {
   '--th-borders': { value: 'var(--border)' },
   '--underline': { value: 'var(--core-link)' },
   '--underline-hover': { value: 'var(--core-link)' }
+};
+
+/**
+ * How the page separates its content column from the shell around it.
+ *
+ * `flat` paints body, content and footer the same — what `shadcn` and
+ * `codeware` do. `layered` sits the content on a lighter card over a tinted
+ * body, so the margins and footer read as a frame; that is `spotlight`'s look
+ * and the reason it feels less uniform than the others.
+ */
+export const SURFACE_LIGHT: Record<
+  'flat' | 'layered',
+  Record<string, TokenSource>
+> = {
+  flat: {
+    '--core-background-body': { value: 'var(--background)' },
+    '--core-background-content': { value: 'var(--background)' },
+    '--core-content-border': { value: 'var(--border)' }
+  },
+  layered: {
+    '--core-background-body': { base: '50' },
+    '--core-background-content': { value: 'var(--background)' },
+    '--core-content-border': { base: '100' }
+  }
+};
+
+/**
+ * Dark has to restate these: the light block sets them to a light colour, and
+ * `--core-*` cascades rather than being re-derived per scheme.
+ */
+export const SURFACE_DARK: Record<
+  'flat' | 'layered',
+  Record<string, TokenSource>
+> = {
+  flat: {
+    '--core-background-body': { value: 'var(--background)' },
+    '--core-background-content': { value: 'var(--background)' },
+    '--core-content-border': { value: 'var(--border)' }
+  },
+  layered: {
+    // The raised surface in dark is the card, the same relationship inverted
+    '--core-background-body': { value: 'var(--background)' },
+    '--core-background-content': { value: 'var(--card)' },
+    '--core-content-border': { value: 'var(--border)' }
+  }
 };
 
 /**

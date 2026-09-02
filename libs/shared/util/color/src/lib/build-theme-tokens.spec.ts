@@ -164,6 +164,28 @@ describe('buildThemeTokens', () => {
       expect(built.dark['--core-link']).toBe('var(--brand-300)');
     });
 
+    // Spotlight layers the content over a tinted body; shadcn and codeware do
+    // not, which is why a generated theme looked uniform beside it
+    it('separates the content surface only when layered', () => {
+      const flat = buildThemeTokens(recipe({ surface: 'flat' }));
+      const layered = buildThemeTokens(recipe({ surface: 'layered' }));
+
+      expect(flat.light['--core-background-body']).toBe(
+        flat.light['--core-background-content']
+      );
+      expect(layered.light['--core-background-body']).not.toBe(
+        layered.light['--core-background-content']
+      );
+    });
+
+    // `--core-*` cascades from light, so a light tint would bleed into dark
+    it('restates the surface in dark', () => {
+      const layered = buildThemeTokens(recipe({ surface: 'layered' }));
+
+      expect(layered.dark['--core-background-body']).toBe('var(--background)');
+      expect(layered.dark['--core-background-content']).toBe('var(--card)');
+    });
+
     it('applies the radius', () => {
       expect(buildThemeTokens(recipe({ radius: '0' })).light['--radius']).toBe(
         '0'

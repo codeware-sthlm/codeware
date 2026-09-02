@@ -17,6 +17,7 @@ const BRAND_CANDIDATES = tailwind.names.filter(
 );
 
 const RADII = ['0', '0.35rem', '0.625rem', '1rem'];
+const SURFACES = ['flat', 'layered'] as const;
 const LINK_LIGHT: Array<ColorShade> = ['600', '700', '800'];
 const LINK_DARK: Array<ColorShade> = ['300', '400', '500'];
 
@@ -50,6 +51,7 @@ export function randomRecipe(random: () => number = Math.random): ThemeRecipe {
     const recipe: ThemeRecipe = {
       baseFamily: pick(NEUTRAL_FAMILIES, random),
       brandFamily: pick(BRAND_CANDIDATES, random),
+      surface: pick(SURFACES, random),
       radius: pick(RADII, random),
       linkShade: {
         light: pick(LINK_LIGHT, random),

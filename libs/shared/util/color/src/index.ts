@@ -1,6 +1,7 @@
 export * from './lib/build-theme-tokens';
 export * from './lib/chart-ramp';
 export * from './lib/contrast';
+export * from './lib/normalise-recipe';
 export * from './lib/oklch';
 export * from './lib/palette';
 export * from './lib/random-recipe';

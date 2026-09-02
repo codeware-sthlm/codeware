@@ -18,6 +18,16 @@ import {
 export type ThemeTokens = Record<string, string>;
 
 /**
+ * How a palette colour is written out.
+ *
+ * `literal` for a runtime theme: Tailwind emits only the palette shades some
+ * source file references, so an injected `var(--color-violet-600)` would
+ * resolve to nothing. `alias` for a committed theme file, which is compiled —
+ * there the alias is what a reviewer wants to read.
+ */
+export type ValueFormat = 'literal' | 'alias';
+
+/**
  * What a whole theme is decided by.
  *
  * Four choices, because the 38-token core and prose layer is fixed and the
@@ -57,30 +67,41 @@ export const DEFAULT_RECIPE: ThemeRecipe = {
   linkShade: { light: '700', dark: '400' }
 };
 
+const paletteValue = (name: TailwindColor, format: ValueFormat): string =>
+  format === 'alias' ? `var(--color-${name})` : tailwind.color(name);
+
 const resolve = (
   source: TokenSource,
-  { baseFamily, brandFamily }: ThemeRecipe
+  { baseFamily, brandFamily }: ThemeRecipe,
+  format: ValueFormat
 ): string => {
   if ('base' in source) {
-    return shade(baseFamily, source.base);
+    return paletteValue(
+      `${baseFamily}-${source.base}` as TailwindColor,
+      format
+    );
   }
   if ('brand' in source) {
-    return shade(brandFamily, source.brand);
+    return paletteValue(
+      `${brandFamily}-${source.brand}` as TailwindColor,
+      format
+    );
   }
   if ('palette' in source) {
-    return tailwind.color(source.palette as TailwindColor);
+    return paletteValue(source.palette as TailwindColor, format);
   }
   return source.value;
 };
 
 const resolveAll = (
   sources: Record<string, TokenSource>,
-  recipe: ThemeRecipe
+  recipe: ThemeRecipe,
+  format: ValueFormat
 ): ThemeTokens =>
   Object.fromEntries(
     Object.entries(sources).map(([name, source]) => [
       name,
-      resolve(source, recipe)
+      resolve(source, recipe, format)
     ])
   );
 
@@ -101,7 +122,8 @@ const resolveAll = (
  */
 export function buildThemeTokens(
   storedRecipe: ThemeRecipe,
-  overrides: { light?: ThemeTokens; dark?: ThemeTokens } = {}
+  overrides: { light?: ThemeTokens; dark?: ThemeTokens } = {},
+  format: ValueFormat = 'literal'
 ): { light: ThemeTokens; dark: ThemeTokens } {
   // The type is a claim about where a recipe was authored, not about a value
   // read back from a JSON column — one saved before a field existed is short
@@ -116,31 +138,34 @@ export function buildThemeTokens(
     Object.fromEntries(
       charts.map((family, index) => [
         `--chart-${index + 1}`,
-        shade(family, step)
+        paletteValue(`${family}-${step}` as TailwindColor, format)
       ])
     );
 
   const light: ThemeTokens = {
-    ...brandRamp(brandFamily),
+    ...brandRamp(brandFamily, format),
     '--radius': radius,
     '--radius-md': 'calc(var(--radius) - 0.125rem)',
-    ...resolveAll(BASE_LIGHT, recipe),
+    ...resolveAll(BASE_LIGHT, recipe, format),
     ...chartTokens('600'),
-    ...resolveAll(SUBTLE_LIGHT, recipe),
-    ...resolveAll(ALIAS_LIGHT, recipe),
-    ...resolveAll(SURFACE_LIGHT[recipe.surface], recipe),
+    ...resolveAll(SUBTLE_LIGHT, recipe, format),
+    ...resolveAll(ALIAS_LIGHT, recipe, format),
+    ...resolveAll(SURFACE_LIGHT[recipe.surface], recipe, format),
     // Through the ramp rather than the palette, so re-branding is one change
     '--core-link': `var(--brand-${linkShade.light})`,
-    '--core-surface-invert': shade(baseFamily, '900'),
+    '--core-surface-invert': paletteValue(
+      `${baseFamily}-900` as TailwindColor,
+      format
+    ),
     ...overrides.light
   };
 
   const dark: ThemeTokens = {
-    ...resolveAll(BASE_DARK, recipe),
+    ...resolveAll(BASE_DARK, recipe, format),
     // Lighter, so a series reads against a dark surface
     ...chartTokens('400'),
-    ...resolveAll(SUBTLE_DARK, recipe),
-    ...resolveAll(SURFACE_DARK[recipe.surface], recipe),
+    ...resolveAll(SUBTLE_DARK, recipe, format),
+    ...resolveAll(SURFACE_DARK[recipe.surface], recipe, format),
     '--core-link': `var(--brand-${linkShade.dark})`,
     // The inverted surface is the raised one once the page is already dark
     '--core-surface-invert': 'var(--card)',

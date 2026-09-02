@@ -1,4 +1,5 @@
 export * from './lib/capitalize';
+export * from './lib/create-zip';
 export * from './lib/csv';
 export * from './lib/deep-merge';
 export * from './lib/extract-version';

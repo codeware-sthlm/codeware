@@ -2,6 +2,7 @@
 
 import { CopyButton } from '@codeware/shared/ui/copy-button';
 import { Button } from '@codeware/shared/ui/shadcn/components/button';
+import { Input } from '@codeware/shared/ui/shadcn/components/input';
 import { Label } from '@codeware/shared/ui/shadcn/components/label';
 import { Separator } from '@codeware/shared/ui/shadcn/components/separator';
 import {
@@ -34,10 +35,17 @@ import {
   buildThemeTokens,
   checkContrast,
   randomRecipe,
-  shade
+  shade,
+  themeFiles
 } from '@codeware/shared/util/color';
+import { createZip } from '@codeware/shared/util/pure';
 import { cn } from '@codeware/shared/util/ui';
-import { DicesIcon, PanelLeftIcon, TriangleAlertIcon } from 'lucide-react';
+import {
+  DicesIcon,
+  DownloadIcon,
+  PanelLeftIcon,
+  TriangleAlertIcon
+} from 'lucide-react';
 import { createContext, useContext, useId, useMemo, useState } from 'react';
 
 import { ContrastReport } from './ContrastReport';
@@ -217,6 +225,7 @@ export function ThemeStudio({
   const [scheme, setScheme] = useState<'light' | 'dark' | 'both'>('both');
   const [optionsOpen, setOptionsOpen] = useState(true);
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const [exportName, setExportName] = useState('my-theme');
 
   // What the recipe alone produces — the override panel needs it to show what
   // a token would revert to
@@ -259,11 +268,42 @@ export function ThemeStudio({
   const overrideCount =
     Object.keys(overrides.light).length + Object.keys(overrides.dark).length;
 
+  const files = useMemo(
+    () => themeFiles(exportName, recipe, overrides),
+    [exportName, recipe, overrides]
+  );
+
   const themeJson = useMemo(
     () =>
       JSON.stringify({ recipe, tokensLight: light, tokensDark: dark }, null, 2),
     [recipe, light, dark]
   );
+
+  /** The folder the archive unpacks to, sanitised the way a slug is. */
+  const folder =
+    exportName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'my-theme';
+
+  const downloadZip = () => {
+    const zip = createZip(
+      Object.fromEntries(
+        Object.entries(files).map(([name, contents]) => [
+          `${folder}/${name}`,
+          contents
+        ])
+      )
+    );
+    const url = URL.createObjectURL(
+      new Blob([zip as BlobPart], { type: 'application/zip' })
+    );
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${folder}.zip`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const ids = previewScope(scope);
   const update = (patch: Partial<ThemeRecipe>) =>
@@ -425,6 +465,100 @@ export function ThemeStudio({
                           overrides={overrides}
                           onChange={setOverrides}
                         />
+                      </SheetContent>
+                    </Sheet>
+
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full">
+                          Export theme files
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent
+                        side="left"
+                        container={root}
+                        size="lg"
+                        className="flex flex-col gap-4 p-4"
+                      >
+                        <SheetHeader className="p-0">
+                          <SheetTitle>Export theme files</SheetTitle>
+                          <SheetDescription>
+                            A committed theme rather than one injected at
+                            runtime. Palette colours are written as aliases
+                            here, because these files are compiled.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="flex items-end gap-2">
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <Label className="text-xs">Folder name</Label>
+                            <Input
+                              value={exportName}
+                              onChange={(event) =>
+                                setExportName(event.target.value)
+                              }
+                              aria-label="Theme folder name"
+                              placeholder="my-theme"
+                              className="h-8 font-mono text-xs"
+                            />
+                          </div>
+                          <Button size="sm" onClick={downloadZip}>
+                            <DownloadIcon className="size-4" />
+                            Download {folder}.zip
+                          </Button>
+                        </div>
+
+                        <ol className="text-muted-foreground space-y-2 text-xs">
+                          <li>
+                            <span className="text-foreground font-medium">
+                              1. Unpack into the theme library
+                            </span>
+                            <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 font-mono text-[11px]">
+                              {`unzip ~/Downloads/${folder}.zip -d libs/shared/theme/src/lib/`}
+                            </pre>
+                          </li>
+                          <li>
+                            <span className="text-foreground font-medium">
+                              2. Register the theme
+                            </span>
+                            <p className="mt-1">
+                              Add <code>&apos;{folder}&apos;</code> to{' '}
+                              <code>SITE_THEMES</code> in{' '}
+                              <code>theme-sync.ts</code>, and a display name in{' '}
+                              <code>theme-labels.ts</code>.
+                            </p>
+                          </li>
+                          <li>
+                            <span className="text-foreground font-medium">
+                              3. Regenerate
+                            </span>
+                            <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 font-mono text-[11px]">
+                              {'nx daemon --stop && nx sync'}
+                            </pre>
+                            <p className="mt-1">
+                              The daemon caches the compiled generator, so
+                              skipping the stop reports everything already up to
+                              date.
+                            </p>
+                          </li>
+                        </ol>
+                        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
+                          {Object.entries(files).map(([filename, contents]) => (
+                            <div key={filename} className="space-y-1">
+                              <p className="font-mono text-xs font-medium">
+                                {filename}
+                              </p>
+                              <div className="relative">
+                                <CopyButton
+                                  code={contents}
+                                  label={`Copy ${filename}`}
+                                />
+                                <pre className="bg-muted overflow-x-auto rounded-md p-3 pr-12 font-mono text-[11px] leading-relaxed">
+                                  {contents}
+                                </pre>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </SheetContent>
                     </Sheet>
 

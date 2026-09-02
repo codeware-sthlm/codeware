@@ -19,4 +19,16 @@ describe('ThemeStudio', () => {
   it.each(Object.keys(DEFAULT_RECIPE))('has a control for %s', (field) => {
     expect(source).toMatch(new RegExp(`update\\(\\{\\s*${field}`));
   });
+
+  // Radix portals to document.body by default, which in the admin puts a sheet
+  // beside the studio's overlay rather than inside it — where it opens, and is
+  // painted underneath. Every sheet has to be handed the studio's own root.
+  it('portals every sheet into the studio', () => {
+    const sheets = source.match(/<SheetContent[\s\S]*?>/g) ?? [];
+
+    expect(sheets.length).toBeGreaterThan(0);
+    expect(
+      sheets.filter((sheet) => !sheet.includes('container={root}'))
+    ).toEqual([]);
+  });
 });

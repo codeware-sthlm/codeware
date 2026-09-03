@@ -12,6 +12,11 @@ import {
   themeLabel
 } from '@codeware/shared/theme';
 import { RenderLayout } from '@codeware/shared/ui/cms-renderer';
+import {
+  entitledFonts,
+  fontFaceCss,
+  selfServedFontsIn
+} from '@codeware/shared/util/color';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -62,6 +67,23 @@ export default async function RootLayout({
   // Authored themes are not in the CSS bundle, so their tokens come with them
   const customThemes = runtime.tenantConfig?.customThemes ?? [];
   const customCss = customThemeCss(customThemes);
+
+  // A licensed face may only be embedded on a site Codeware owns or controls,
+  // so the entitlement belongs to the deployment rather than to whoever chose
+  // the font — and which deployment is settled by where the secret lives.
+  // Driven off the tokens because those are what renders, and only for a
+  // family the platform serves itself: Inter comes from the bundle.
+  const fontFaces = entitledFonts(
+    selfServedFontsIn(
+      customThemes.flatMap(({ tokensLight, tokensDark }) => [
+        tokensLight,
+        tokensDark
+      ])
+    ),
+    env.RESTRICTED_FONTS
+  )
+    .map((font) => fontFaceCss(font, env.FONT_ASSETS_BASE_URL))
+    .join('');
   const customLabels = new Map(
     customThemes.map(({ slug, name }) => [slug, name])
   );
@@ -84,6 +106,7 @@ export default async function RootLayout({
           value it writes, so the result holds no `<`, `>` or `&` and is safe
           as a text child — no dangerouslySetInnerHTML needed.
         */}
+        {fontFaces && <style>{fontFaces}</style>}
         {customCss && <style>{customCss}</style>}
       </head>
       <body>

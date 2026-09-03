@@ -6,5 +6,6 @@ export * from './lib/oklch';
 export * from './lib/palette';
 export * from './lib/random-recipe';
 export * from './lib/references';
+export * from './lib/shadcn-neutrals';
 export * from './lib/theme-export';
 export * from './lib/theme-template';

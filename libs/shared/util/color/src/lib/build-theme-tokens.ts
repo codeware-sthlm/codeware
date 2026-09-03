@@ -1,8 +1,12 @@
-import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
-
 import { chartFamilies } from './chart-ramp';
 import { normaliseRecipe } from './normalise-recipe';
-import { type ColorFamily, type ColorShade, brandRamp, shade } from './palette';
+import {
+  type ColorFamily,
+  type ColorShade,
+  type PaletteColor,
+  brandRamp,
+  paletteColor
+} from './palette';
 import {
   ALIAS_LIGHT,
   BASE_DARK,
@@ -67,8 +71,8 @@ export const DEFAULT_RECIPE: ThemeRecipe = {
   linkShade: { light: '700', dark: '400' }
 };
 
-const paletteValue = (name: TailwindColor, format: ValueFormat): string =>
-  format === 'alias' ? `var(--color-${name})` : tailwind.color(name);
+const paletteValue = (name: PaletteColor, format: ValueFormat): string =>
+  format === 'alias' ? `var(--color-${name})` : paletteColor(name);
 
 const resolve = (
   source: TokenSource,
@@ -76,19 +80,16 @@ const resolve = (
   format: ValueFormat
 ): string => {
   if ('base' in source) {
-    return paletteValue(
-      `${baseFamily}-${source.base}` as TailwindColor,
-      format
-    );
+    return paletteValue(`${baseFamily}-${source.base}` as PaletteColor, format);
   }
   if ('brand' in source) {
     return paletteValue(
-      `${brandFamily}-${source.brand}` as TailwindColor,
+      `${brandFamily}-${source.brand}` as PaletteColor,
       format
     );
   }
   if ('palette' in source) {
-    return paletteValue(source.palette as TailwindColor, format);
+    return paletteValue(source.palette as PaletteColor, format);
   }
   return source.value;
 };
@@ -138,7 +139,7 @@ export function buildThemeTokens(
     Object.fromEntries(
       charts.map((family, index) => [
         `--chart-${index + 1}`,
-        paletteValue(`${family}-${step}` as TailwindColor, format)
+        paletteValue(`${family}-${step}` as PaletteColor, format)
       ])
     );
 
@@ -154,7 +155,7 @@ export function buildThemeTokens(
     // Through the ramp rather than the palette, so re-branding is one change
     '--core-link': `var(--brand-${linkShade.light})`,
     '--core-surface-invert': paletteValue(
-      `${baseFamily}-900` as TailwindColor,
+      `${baseFamily}-900` as PaletteColor,
       format
     ),
     ...overrides.light

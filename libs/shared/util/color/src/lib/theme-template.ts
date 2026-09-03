@@ -110,8 +110,8 @@ export const BASE_DARK: Record<string, TokenSource> = {
  * are added by the builder.
  */
 export const ALIAS_LIGHT: Record<string, TokenSource> = {
-  '--core-font-body': { value: fontStack('body', DEFAULT_FONTS.body) },
-  '--core-font-heading': { value: fontStack('heading', DEFAULT_FONTS.heading) },
+  // Not in the recipe: the registry offers one mono face, so there is no
+  // decision to store. It becomes a recipe field when a second one arrives.
   '--core-font-mono': { value: fontStack('mono', DEFAULT_FONTS.mono) },
   '--core-action-btn-foreground': { value: 'var(--muted-foreground)' },
   '--core-action-btn-foreground-hover': { value: 'var(--foreground)' },

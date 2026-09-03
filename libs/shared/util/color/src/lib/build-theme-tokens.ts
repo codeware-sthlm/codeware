@@ -1,4 +1,5 @@
 import { chartFamilies } from './chart-ramp';
+import { DEFAULT_FONTS, fontStack } from './fonts';
 import { normaliseRecipe } from './normalise-recipe';
 import {
   type ColorFamily,
@@ -56,6 +57,15 @@ export type ThemeRecipe = {
   radius: string;
   /** Which brand step links take, per scheme — dark needs a lighter one to read */
   linkShade: { light: ColorShade; dark: ColorShade };
+  /**
+   * Registry ids, not stacks.
+   *
+   * A stack would let a theme name a family nothing declares, which renders as
+   * the fallback with nothing to say why — and would put a licensed face out of
+   * reach of the gate that gets to refuse it.
+   */
+  fontBody: string;
+  fontHeading: string;
 };
 
 /**
@@ -69,7 +79,9 @@ export const DEFAULT_RECIPE: ThemeRecipe = {
   brandFamily: 'neutral',
   surface: 'layered',
   radius: '0.625rem',
-  linkShade: { light: '700', dark: '400' }
+  linkShade: { light: '700', dark: '400' },
+  fontBody: DEFAULT_FONTS.body,
+  fontHeading: DEFAULT_FONTS.heading
 };
 
 const paletteValue = (name: PaletteColor, format: ValueFormat): string =>
@@ -153,6 +165,10 @@ export function buildThemeTokens(
     ...resolveAll(SUBTLE_LIGHT, recipe, format),
     ...resolveAll(ALIAS_LIGHT, recipe, format),
     ...resolveAll(SURFACE_LIGHT[recipe.surface], recipe, format),
+    // Resolved from the registry rather than stored as a stack, so a family the
+    // registry drops reads as the default instead of as an unheard-of name
+    '--core-font-body': fontStack('body', recipe.fontBody),
+    '--core-font-heading': fontStack('heading', recipe.fontHeading),
     // Through the ramp rather than the palette, so re-branding is one change
     '--core-link': `var(--brand-${linkShade.light})`,
     '--core-surface-invert': paletteValue(

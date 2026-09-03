@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_RECIPE, buildThemeTokens } from './build-theme-tokens';
 import { contrastFailures } from './contrast';
+import { fontById } from './fonts';
 import { NEUTRAL_FAMILIES } from './palette';
 import { randomRecipe } from './random-recipe';
 
@@ -48,5 +49,22 @@ describe('randomRecipe', () => {
     const recipe = randomRecipe(() => 0.999999);
     expect(failuresFor(recipe)).toEqual([]);
     expect([recipe, DEFAULT_RECIPE]).toContainEqual(recipe);
+  });
+
+  // A licensed family would give the author a theme the collection refuses to
+  // save — a dead end reached by pressing the fun button
+  it('never rolls a restricted font', () => {
+    const rolled = Array.from({ length: 50 }, () => randomRecipe());
+
+    expect(rolled.flatMap((r) => [r.fontBody, r.fontHeading])).not.toContain(
+      'nasalization'
+    );
+  });
+
+  it('rolls a font each slot actually offers', () => {
+    const recipe = randomRecipe();
+
+    expect(fontById(recipe.fontBody)?.slots).toContain('body');
+    expect(fontById(recipe.fontHeading)?.slots).toContain('heading');
   });
 });

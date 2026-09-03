@@ -55,6 +55,25 @@ export const NEUTRAL_FAMILIES = [
   'taupe'
 ] as const satisfies ReadonlyArray<ColorFamily>;
 
+/**
+ * Every family carrying a ramp, from both sources.
+ *
+ * Derived, because a hand-kept copy of this is what lets a family be offered in
+ * one place and rejected in another.
+ */
+export const COLOR_FAMILIES: ReadonlyArray<ColorFamily> = [
+  ...tailwind.names.filter(
+    (name): name is TailwindFamily => name !== 'white' && name !== 'black'
+  ),
+  ...(Object.keys(shadcnNeutrals) as Array<ShadcnNeutralFamily>)
+];
+
+const colorFamilies: ReadonlySet<string> = new Set(COLOR_FAMILIES);
+
+/** Whether a stored value names a family either source ships. */
+export const isColorFamily = (value: unknown): value is ColorFamily =>
+  typeof value === 'string' && colorFamilies.has(value);
+
 /** Any colour either source can name, `white` and `black` included. */
 export type PaletteColor =
   | TailwindColor
@@ -73,6 +92,19 @@ const shadcnNeutralColors: Record<string, string> = Object.fromEntries(
  */
 export const paletteColor = (name: PaletteColor): string =>
   shadcnNeutralColors[name] ?? tailwind.color(name as TailwindColor);
+
+/**
+ * How a palette entry is written into a compiled theme file.
+ *
+ * `var(--color-…)` is what a reviewer wants to read, because it says which step
+ * was chosen where a literal only says which colour came out. Tailwind declares
+ * those variables for its own families only, so an alias to one of shadcn's
+ * neutrals would resolve to nothing — those fall back to the literal.
+ */
+export const paletteAlias = (name: PaletteColor): string =>
+  name in shadcnNeutralColors
+    ? shadcnNeutralColors[name]
+    : `var(--color-${name})`;
 
 /**
  * Resolve one palette step to its literal value.
@@ -98,7 +130,7 @@ export const brandRamp = (
     COLOR_SHADES.map((step) => [
       `--brand-${step}`,
       format === 'alias'
-        ? `var(--color-${family}-${step})`
+        ? paletteAlias(`${family}-${step}` as PaletteColor)
         : shade(family, step)
     ])
   );

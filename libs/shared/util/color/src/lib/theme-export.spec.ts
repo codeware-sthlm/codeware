@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_RECIPE, buildThemeTokens } from './build-theme-tokens';
+import { shadcnNeutrals } from './shadcn-neutrals';
 import { themeFiles } from './theme-export';
 
 const recipe = { ...DEFAULT_RECIPE, brandFamily: 'teal' as const };
@@ -68,6 +69,46 @@ describe('themeFiles', () => {
     expect(files['tailwind-base.css']).toContain("@import './tokens-dark.css'");
     expect(files['tailwind-base.css']).toContain(
       "@import '../_core/tailwind-setup.css'"
+    );
+  });
+});
+
+/**
+ * Tailwind declares `--color-*` for its own families only, so an alias to one
+ * of shadcn's neutrals resolves to nothing and the token renders empty. The
+ * file still compiles, which is what makes this worth pinning from both sides:
+ * an alias where a literal belongs paints nothing, and a literal where an alias
+ * belongs merely loses which step was chosen.
+ */
+describe('a family Tailwind does not ship', () => {
+  const files = themeFiles('heather', {
+    ...DEFAULT_RECIPE,
+    baseFamily: 'mauve',
+    brandFamily: 'mauve'
+  });
+
+  it('is exported as a literal, not a dangling alias', () => {
+    expect(files['tokens-light.css']).toContain(
+      `--brand-600: ${shadcnNeutrals.mauve['600']};`
+    );
+    expect(files['tokens-light.css']).not.toContain('--color-mauve');
+  });
+
+  it('leaves no reference a compiled theme cannot resolve', () => {
+    const referenced = [
+      ...[files['tokens-light.css'], files['tokens-dark.css']]
+        .join('\n')
+        .matchAll(/var\(--color-([a-z]+)-/g)
+    ].map(([, family]) => family);
+
+    expect(referenced.filter((family) => family in shadcnNeutrals)).toEqual([]);
+  });
+
+  it('still aliases the Tailwind colours in the same file', () => {
+    // `--destructive` is a fixed palette entry, so it stays readable even when
+    // the recipe's own families cannot
+    expect(files['tokens-light.css']).toContain(
+      '--destructive: var(--color-red-600);'
     );
   });
 });

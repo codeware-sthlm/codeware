@@ -1,13 +1,5 @@
-import { tailwind } from '@codeware/shared/util/tailwind';
-
 import { DEFAULT_RECIPE, type ThemeRecipe } from './build-theme-tokens';
-import { COLOR_SHADES, type ColorFamily, type ColorShade } from './palette';
-
-const isFamily = (value: unknown): value is ColorFamily =>
-  typeof value === 'string' &&
-  value !== 'white' &&
-  value !== 'black' &&
-  (tailwind.names as ReadonlyArray<string>).includes(value);
+import { COLOR_SHADES, type ColorShade, isColorFamily } from './palette';
 
 const isShade = (value: unknown): value is ColorShade =>
   typeof value === 'string' &&
@@ -42,10 +34,10 @@ export function normaliseRecipe(value: unknown): ThemeRecipe {
       : DEFAULT_RECIPE.linkShade;
 
   return {
-    baseFamily: isFamily(stored.baseFamily)
+    baseFamily: isColorFamily(stored.baseFamily)
       ? stored.baseFamily
       : DEFAULT_RECIPE.baseFamily,
-    brandFamily: isFamily(stored.brandFamily)
+    brandFamily: isColorFamily(stored.brandFamily)
       ? stored.brandFamily
       : DEFAULT_RECIPE.brandFamily,
     surface: isSurface(stored.surface)

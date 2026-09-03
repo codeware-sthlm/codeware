@@ -1127,6 +1127,11 @@ export class Fly {
    *
    * A dedicated v4 is billed, so the v4 path is always `--shared`.
    *
+   * The two commands do not take the same flags: `allocate-v4` has `--yes`
+   * because a dedicated v4 costs money and prompts, while `allocate-v6` is
+   * free, never prompts, and rejects the flag outright with `unknown flag`.
+   * The asymmetry is flyctl's, not ours — do not tidy it away.
+   *
    * @private
    * @throws An error if the address cannot be allocated
    */
@@ -1140,7 +1145,9 @@ export class Fly {
       args.push('--shared');
     }
     args.push(...this.getAppOrConfigArgs(options));
-    args.push('--yes');
+    if (command === 'allocate-v4') {
+      args.push('--yes');
+    }
 
     await this.execFly(args);
   }

@@ -42,6 +42,6 @@ export const IpsListFlyResponseElementSchema = z.object({
  * fly ips list --app [name] --json
  * ```
  */
-export const IpsListTransformedResponseSchema = withCamelCase(
-  z.array(IpsListFlyResponseElementSchema)
+export const IpsListTransformedResponseSchema = z.array(
+  withCamelCase(IpsListFlyResponseElementSchema)
 );

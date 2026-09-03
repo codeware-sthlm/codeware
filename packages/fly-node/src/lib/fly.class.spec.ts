@@ -927,13 +927,22 @@ describe('Fly', () => {
         mockDefs.testApp,
         '--yes'
       ]);
-      assertSpawn('exact', [
-        'ips',
-        'allocate-v6',
-        '--app',
-        mockDefs.testApp,
-        '--yes'
-      ]);
+      assertSpawn('exact', ['ips', 'allocate-v6', '--app', mockDefs.testApp]);
+    });
+
+    // `allocate-v6` has no such flag and fails with `unknown flag: --yes`,
+    // while `allocate-v4` needs it because a dedicated v4 prompts. The
+    // asymmetry looks like an oversight and gets tidied away without this
+    it('should not auto-confirm the v6 allocation', async () => {
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+      await fly.ips.ensure();
+
+      const v6Call = mockSpawn.mock.calls.find((call) =>
+        call[1].includes('allocate-v6')
+      );
+
+      expect(v6Call?.[1]).not.toContain('--yes');
+      expect(v6Call?.[1]).not.toContain('--auto-confirm');
     });
 
     // Runs on every deploy, not only on create, so it has to be a no-op for

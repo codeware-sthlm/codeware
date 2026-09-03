@@ -1,7 +1,11 @@
 import { tailwindColors } from './tailwind-colors';
 import { ColorName, TailwindColor } from './types';
 
-// Performant color lookup from color name
+// Performant color lookup from color name.
+//
+// Null-prototype, because `colorMaybe` is called with stored CMS values: on a
+// plain object `map['constructor']` is a hit and returns a function, so an
+// unknown name would resolve to something rather than to `undefined`.
 const tailwindColorMap = Object.entries(tailwindColors).reduce(
   (acc, [colorName, value]) => {
     if (typeof value === 'object') {
@@ -14,7 +18,7 @@ const tailwindColorMap = Object.entries(tailwindColors).reduce(
     }
     return acc;
   },
-  {} as Record<TailwindColor, string>
+  Object.create(null) as Record<TailwindColor, string>
 );
 
 /**
@@ -39,8 +43,11 @@ export const tailwind = {
    *
    * Use `colorMap` for all colors.
    */
-  colorMapRangeOnly: Object.fromEntries(
-    Object.entries(tailwindColorMap).filter(([name]) => /-/.test(name))
+  colorMapRangeOnly: Object.assign(
+    Object.create(null),
+    Object.fromEntries(
+      Object.entries(tailwindColorMap).filter(([name]) => /-/.test(name))
+    )
   ) as Record<TailwindColor, string>,
 
   /**

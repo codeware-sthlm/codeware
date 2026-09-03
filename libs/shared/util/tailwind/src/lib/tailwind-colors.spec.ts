@@ -1,3 +1,4 @@
+import { tailwind } from './tailwind';
 import { tailwindColors } from './tailwind-colors';
 
 describe('Tailwind Colors', () => {
@@ -126,5 +127,20 @@ describe('Tailwind Colors', () => {
         expect(h).toBeLessThanOrEqual(360);
       });
     });
+  });
+});
+
+describe('color lookup', () => {
+  // `colorMaybe` takes a stored CMS value, so an unknown name has to read as
+  // absent rather than as whatever the prototype happens to carry
+  it.each(['toString', 'constructor', 'hasOwnProperty', 'unknown-color'])(
+    'has no colour for %s',
+    (name) => {
+      expect(tailwind.colorMaybe(name)).toBeUndefined();
+    }
+  );
+
+  it('still resolves a real colour', () => {
+    expect(tailwind.colorMaybe('slate-500')).toBe(tailwindColors.slate['500']);
   });
 });

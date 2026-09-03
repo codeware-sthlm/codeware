@@ -1,7 +1,13 @@
 import { tailwind } from '@codeware/shared/util/tailwind';
 import { describe, expect, it } from 'vitest';
 
-import { COLOR_SHADES, brandRamp, paletteColor, shade } from './palette';
+import {
+  COLOR_SHADES,
+  brandRamp,
+  paletteAlias,
+  paletteColor,
+  shade
+} from './palette';
 import { shadcnNeutrals } from './shadcn-neutrals';
 
 describe('paletteColor', () => {
@@ -16,6 +22,17 @@ describe('paletteColor', () => {
   it('resolves the colours without a ramp', () => {
     expect(paletteColor('white')).toBe('#fff');
   });
+
+  // Both dispatches index a plain object, where `toString` is a hit and a
+  // function. Reachable only from an unvalidated string, which is what these
+  // exports take once anything outside the recipe path calls them
+  it.each(['toString', 'constructor', 'hasOwnProperty'])(
+    'does not read %s off the prototype',
+    (key) => {
+      expect(paletteColor(key as 'mauve-500')).toBeUndefined();
+      expect(paletteAlias(key as 'mauve-500')).toBe(`var(--color-${key})`);
+    }
+  );
 });
 
 describe('shade', () => {

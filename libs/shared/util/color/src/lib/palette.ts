@@ -85,13 +85,19 @@ const shadcnNeutralColors: Record<string, string> = Object.fromEntries(
   )
 );
 
+/** Own properties only: `'toString' in obj` is true, and it is not a colour. */
+const shadcnNeutralColor = (name: string): string | undefined =>
+  Object.hasOwn(shadcnNeutralColors, name)
+    ? shadcnNeutralColors[name]
+    : undefined;
+
 /**
  * Resolve a palette entry from whichever source owns its family.
  *
  * The one place that knows there are two, so nothing downstream has to ask.
  */
 export const paletteColor = (name: PaletteColor): string =>
-  shadcnNeutralColors[name] ?? tailwind.color(name as TailwindColor);
+  shadcnNeutralColor(name) ?? tailwind.color(name as TailwindColor);
 
 /**
  * How a palette entry is written into a compiled theme file.
@@ -102,9 +108,7 @@ export const paletteColor = (name: PaletteColor): string =>
  * neutrals would resolve to nothing — those fall back to the literal.
  */
 export const paletteAlias = (name: PaletteColor): string =>
-  name in shadcnNeutralColors
-    ? shadcnNeutralColors[name]
-    : `var(--color-${name})`;
+  shadcnNeutralColor(name) ?? `var(--color-${name})`;
 
 /**
  * Resolve one palette step to its literal value.

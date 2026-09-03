@@ -41,14 +41,18 @@ export type ColorShade = (typeof COLOR_SHADES)[number];
  *
  * Any family is accepted — the type is open — but a chromatic one tints every
  * surface and border, and several of the contrast pairs stop passing. These are
- * the five shadcn offers, and the ones a studio should put first.
+ * the nine shadcn offers: Tailwind's five neutrals, then its own tinted four.
  */
 export const NEUTRAL_FAMILIES = [
   'neutral',
   'zinc',
   'slate',
   'gray',
-  'stone'
+  'stone',
+  'mauve',
+  'olive',
+  'mist',
+  'taupe'
 ] as const satisfies ReadonlyArray<ColorFamily>;
 
 /** Any colour either source can name, `white` and `black` included. */

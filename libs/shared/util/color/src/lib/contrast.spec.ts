@@ -1,3 +1,4 @@
+import { tailwind } from '@codeware/shared/util/tailwind';
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_RECIPE, buildThemeTokens } from './build-theme-tokens';
@@ -7,31 +8,20 @@ import {
   checkContrast,
   contrastFailures
 } from './contrast';
-import type { ColorFamily } from './palette';
+import { type ColorFamily, NEUTRAL_FAMILIES } from './palette';
+import { shadcnNeutrals } from './shadcn-neutrals';
 
+/**
+ * Every family a theme can be branded with, derived rather than listed.
+ *
+ * The studio offers the neutrals as brands too, so a hand-kept list here would
+ * quietly stop covering what the studio can actually produce.
+ */
 const BRAND_FAMILIES: Array<ColorFamily> = [
-  'red',
-  'orange',
-  'amber',
-  'yellow',
-  'lime',
-  'green',
-  'emerald',
-  'teal',
-  'cyan',
-  'sky',
-  'blue',
-  'indigo',
-  'violet',
-  'purple',
-  'fuchsia',
-  'pink',
-  'rose',
-  'neutral',
-  'zinc',
-  'slate',
-  'gray',
-  'stone'
+  ...tailwind.names.filter(
+    (name): name is ColorFamily => name !== 'white' && name !== 'black'
+  ),
+  ...(Object.keys(shadcnNeutrals) as Array<ColorFamily>)
 ];
 
 /** Dark holds only what changes, so it is checked as the browser cascades it. */
@@ -99,6 +89,20 @@ describe('the default recipe', () => {
 describe('every brand family', () => {
   it.each(BRAND_FAMILIES)('passes WCAG AA with %s', (brandFamily) => {
     const built = schemes({ ...DEFAULT_RECIPE, brandFamily });
+    const failures = [
+      ...contrastFailures(built.light).map((f) => `light ${f.usage}`),
+      ...contrastFailures(built.dark).map((f) => `dark ${f.usage}`)
+    ];
+
+    expect(failures).toEqual([]);
+  });
+});
+
+// A tinted neutral moves every surface, border and secondary text at once, so
+// a base that cannot carry them is as unshippable as a brand that cannot
+describe('every base family', () => {
+  it.each(NEUTRAL_FAMILIES)('passes WCAG AA with %s', (baseFamily) => {
+    const built = schemes({ ...DEFAULT_RECIPE, baseFamily });
     const failures = [
       ...contrastFailures(built.light).map((f) => `light ${f.usage}`),
       ...contrastFailures(built.dark).map((f) => `dark ${f.usage}`)

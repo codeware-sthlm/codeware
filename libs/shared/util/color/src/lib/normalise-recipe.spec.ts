@@ -19,7 +19,9 @@ describe('normaliseRecipe', () => {
 
     expect(normaliseRecipe(legacy)).toEqual({
       ...legacy,
-      surface: DEFAULT_RECIPE.surface
+      surface: DEFAULT_RECIPE.surface,
+      fontBody: DEFAULT_RECIPE.fontBody,
+      fontHeading: DEFAULT_RECIPE.fontHeading
     });
   });
 
@@ -54,7 +56,9 @@ describe('normaliseRecipe', () => {
       brandFamily: 'teal',
       surface: DEFAULT_RECIPE.surface,
       radius: '2rem',
-      linkShade: { light: DEFAULT_RECIPE.linkShade.light, dark: '300' }
+      linkShade: { light: DEFAULT_RECIPE.linkShade.light, dark: '300' },
+      fontBody: DEFAULT_RECIPE.fontBody,
+      fontHeading: DEFAULT_RECIPE.fontHeading
     });
   });
 
@@ -77,6 +81,28 @@ describe('normaliseRecipe', () => {
   it('rejects a family neither source ships', () => {
     expect(normaliseRecipe({ baseFamily: 'sand' }).baseFamily).toBe(
       DEFAULT_RECIPE.baseFamily
+    );
+  });
+
+  // A family offered for headings only must not stick in the body slot
+  it('falls back for a font used in the wrong slot', () => {
+    expect(normaliseRecipe({ fontBody: 'nasalization' }).fontBody).toBe(
+      DEFAULT_RECIPE.fontBody
+    );
+  });
+
+  it('keeps a font the registry offers for that slot', () => {
+    expect(normaliseRecipe({ fontHeading: 'system' }).fontHeading).toBe(
+      'system'
+    );
+  });
+
+  // Normalising is not the licence gate — that is the collection's job. A
+  // restricted family has to survive here, or a system user could never
+  // reopen the theme they saved
+  it('keeps a restricted font, leaving the gate to refuse it', () => {
+    expect(normaliseRecipe({ fontHeading: 'nasalization' }).fontHeading).toBe(
+      'nasalization'
     );
   });
 });

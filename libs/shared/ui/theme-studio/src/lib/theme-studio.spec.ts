@@ -46,4 +46,26 @@ describe('ThemeStudio', () => {
       sheets.filter((sheet) => !sheet.includes('container={root}'))
     ).toEqual([]);
   });
+
+  // Same reasoning as `canExport`, and the licence makes it sharper: a
+  // restricted face may only be embedded on a site Codeware owns, so the host
+  // has to opt in rather than inherit it
+  it('defaults the restricted-font capability closed', () => {
+    expect(source).toContain('canUseRestrictedFonts = false');
+  });
+
+  // Passing the flag is the whole gate here — a picker built from the full
+  // registry would offer a licensed face to every tenant admin
+  it.each(['body', 'heading'])(
+    'builds the %s picker from the gated list',
+    (slot) => {
+      expect(source).toContain(
+        `fontsForSlot('${slot}', canUseRestrictedFonts)`
+      );
+    }
+  );
+
+  it('never lists the registry unfiltered', () => {
+    expect(source).not.toMatch(/FONT_FAMILIES\b/);
+  });
 });

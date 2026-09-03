@@ -34,6 +34,7 @@ import {
   brokenReferences,
   buildThemeTokens,
   checkContrast,
+  fontsForSlot,
   randomRecipe,
   shade,
   themeFiles
@@ -143,6 +144,18 @@ type ThemeStudioProps = {
    * next without them having to decide.
    */
   canExport?: boolean;
+  /**
+   * Whether to offer the licensed typefaces.
+   *
+   * Off by default for the same reason as `canExport`, and the licence makes it
+   * sharper: a restricted face may only be embedded on a site Codeware owns, so
+   * the host has to say yes rather than inherit it.
+   *
+   * This only hides the option. The collection refuses a restricted family it
+   * is not entitled to, which is what actually holds — `recipe` is a JSON
+   * column and never has to pass through this component at all.
+   */
+  canUseRestrictedFonts?: boolean;
   /** Recipe to open with, when editing an existing theme */
   recipe?: ThemeRecipe;
   /** Hand-edited tokens to restore alongside the recipe */
@@ -220,6 +233,7 @@ function Pill({
  */
 export function ThemeStudio({
   canExport = false,
+  canUseRestrictedFonts = false,
   recipe: initialRecipe,
   overrides: initialOverrides,
   onSelect,
@@ -394,6 +408,49 @@ export function ThemeStudio({
                       ))}
                     </div>
                   </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Body text</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Everything a visitor reads at length.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {fontsForSlot('body', canUseRestrictedFonts).map(
+                        (font) => (
+                          <Pill
+                            key={font.id}
+                            active={recipe.fontBody === font.id}
+                            onClick={() => update({ fontBody: font.id })}
+                          >
+                            {font.label}
+                          </Pill>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Headings</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Pairs a display face with a readable body one. Match the
+                      body font to keep the page quiet.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {fontsForSlot('heading', canUseRestrictedFonts).map(
+                        (font) => (
+                          <Pill
+                            key={font.id}
+                            active={recipe.fontHeading === font.id}
+                            onClick={() => update({ fontHeading: font.id })}
+                          >
+                            {font.label}
+                          </Pill>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <Separator />
 
                   <div className="space-y-2">
                     <Label className="text-xs">Corner radius</Label>

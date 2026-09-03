@@ -6,6 +6,7 @@ import {
   buildThemeTokens
 } from './build-theme-tokens';
 import { contrastFailures } from './contrast';
+import { fontsForSlot } from './fonts';
 import {
   type ColorShade,
   NEUTRAL_FAMILIES,
@@ -21,6 +22,17 @@ const BRAND_CANDIDATES = tailwind.names.filter(
 );
 
 const RADII = ['0', '0.35rem', '0.625rem', '1rem'];
+
+/**
+ * Only what a tenant may keep.
+ *
+ * Rolling a licensed family would hand an author a theme the collection then
+ * refuses to save — a dead end reached by pressing the fun button.
+ */
+const FONT_CANDIDATES = {
+  body: fontsForSlot('body'),
+  heading: fontsForSlot('heading')
+} as const;
 const SURFACES = ['flat', 'layered'] as const;
 const LINK_LIGHT: Array<ColorShade> = ['600', '700', '800'];
 const LINK_DARK: Array<ColorShade> = ['300', '400', '500'];
@@ -60,7 +72,9 @@ export function randomRecipe(random: () => number = Math.random): ThemeRecipe {
       linkShade: {
         light: pick(LINK_LIGHT, random),
         dark: pick(LINK_DARK, random)
-      }
+      },
+      fontBody: pick(FONT_CANDIDATES.body, random).id,
+      fontHeading: pick(FONT_CANDIDATES.heading, random).id
     };
 
     const { light, dark } = buildThemeTokens(recipe);

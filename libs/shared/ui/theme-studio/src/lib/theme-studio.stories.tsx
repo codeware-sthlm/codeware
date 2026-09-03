@@ -28,7 +28,9 @@ export const Editing: StoryObj = {
         brandFamily: 'teal',
         surface: 'flat',
         radius: '1rem',
-        linkShade: { light: '700', dark: '300' }
+        linkShade: { light: '700', dark: '300' },
+        fontBody: 'inter',
+        fontHeading: 'system'
       }}
     />
   )

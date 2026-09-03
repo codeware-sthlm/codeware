@@ -1,4 +1,5 @@
 import { DEFAULT_RECIPE, type ThemeRecipe } from './build-theme-tokens';
+import { type FontSlot, fontById } from './fonts';
 import { COLOR_SHADES, type ColorShade, isColorFamily } from './palette';
 
 const isShade = (value: unknown): value is ColorShade =>
@@ -7,6 +8,10 @@ const isShade = (value: unknown): value is ColorShade =>
 
 const isSurface = (value: unknown): value is ThemeRecipe['surface'] =>
   value === 'flat' || value === 'layered';
+
+/** A family the registry still carries, and still offers for that slot. */
+const isFont = (slot: FontSlot, value: unknown): value is string =>
+  typeof value === 'string' && (fontById(value)?.slots.includes(slot) ?? false);
 
 /**
  * Make a whole recipe out of whatever was stored.
@@ -47,6 +52,12 @@ export function normaliseRecipe(value: unknown): ThemeRecipe {
       typeof stored.radius === 'string' && stored.radius.length > 0
         ? stored.radius
         : DEFAULT_RECIPE.radius,
+    fontBody: isFont('body', stored.fontBody)
+      ? stored.fontBody
+      : DEFAULT_RECIPE.fontBody,
+    fontHeading: isFont('heading', stored.fontHeading)
+      ? stored.fontHeading
+      : DEFAULT_RECIPE.fontHeading,
     linkShade: {
       light: isShade(linkShade.light)
         ? linkShade.light

@@ -53,7 +53,10 @@ export const ThemeStudioField: React.FC<JSONFieldClientProps> = ({
 
   // Exporting produces committed theme files that ship to every tenant, so it
   // is a platform action rather than one about this workspace's own site
-  const canExport = hasRole(user ?? null, 'system-user');
+  // One role, two capabilities: exporting ships files to every tenant, and a
+  // licensed face may only be embedded on a site Codeware owns. Neither is a
+  // tenant admin's to reach.
+  const isSystemUser = hasRole(user ?? null, 'system-user');
 
   // A theme saved before a recipe field existed is missing it; normalising
   // fills each gap on its own rather than opening the studio on nothing
@@ -104,7 +107,8 @@ export const ThemeStudioField: React.FC<JSONFieldClientProps> = ({
             onKeyDown={(event) => event.stopPropagation()}
           >
             <ThemeStudio
-              canExport={canExport}
+              canExport={isSystemUser}
+              canUseRestrictedFonts={isSystemUser}
               recipe={recipe}
               overrides={asOverrides(overridesValue)}
               onSelect={onSelect}

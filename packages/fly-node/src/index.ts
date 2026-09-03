@@ -3,10 +3,12 @@
 export * from './api';
 export * from './lib/fly.class';
 export type {
+  AllocateIpOptions,
   BuildResponse,
   Config,
   DeployAppOptions,
   DeployResponse,
+  ListIpResponse,
   MachineOperationOptions,
   SaveConfigOptions,
   StatusResponse

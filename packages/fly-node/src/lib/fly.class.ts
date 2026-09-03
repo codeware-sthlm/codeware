@@ -18,6 +18,7 @@ import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema'
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
 import { DeployResponseSchema } from './schemas/deploy.schema';
 import { NameSchema } from './schemas/helper-schemas';
+import { IpsListTransformedResponseSchema } from './schemas/ips-list.schema';
 import { PostgresListTransformedResponseSchema } from './schemas/postgres-list';
 import { PostgresUsersListTransformedResponseSchema } from './schemas/postgres-users-list';
 import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-list-with-app.schema';
@@ -26,6 +27,7 @@ import { StatusExtendedTransformedResponseSchema } from './schemas/status-extend
 import { StatusTransformedResponseSchema } from './schemas/status.schema';
 import { VersionTransformedResponseSchema } from './schemas/version.schema';
 import type {
+  AllocateIpOptions,
   AppOrConfig,
   BuildResponse,
   Config,
@@ -36,6 +38,7 @@ import type {
   ListAppResponse,
   ListCertForAllResponse,
   ListCertForAppResponse,
+  ListIpResponse,
   ListPostgresResponseWithoutString,
   ListPostgresUsersResponse,
   ListSecretForAllResponse,
@@ -409,6 +412,65 @@ export class Fly {
       throw new Error(
         `[deploy] something broke, check your ${isBuildOnly ? 'builds' : 'deployments'}\n${error}`
       );
+    }
+  };
+
+  /**
+   * Manage public IP addresses
+   */
+  ips = {
+    /**
+     * List the public IP addresses allocated to an application
+     *
+     * @param options - The application or configuration to list addresses for
+     * @returns The allocated addresses, empty when the app has none
+     * @throws An error if listing addresses fails
+     */
+    list: async (options?: AppOrConfig): Promise<ListIpResponse> => {
+      try {
+        await this.ensureInitialized();
+        return await this.fetchAppIps('throwOnError', options);
+      } catch (error) {
+        throw new Error(`[list ips] something broke\n${error}`);
+      }
+    },
+    /**
+     * Give an application the public addresses it needs to be reachable.
+     *
+     * Idempotent by inspection: it allocates only what is missing, so it is
+     * safe on every deploy rather than only on create. That matters because
+     * `flyctl` allocates addresses only for an app it creates itself — an app
+     * that arrives any other way, such as a registry push auto-creating it,
+     * deploys green and answers nothing.
+     *
+     * @param options - The application, and which addresses to ensure
+     * @returns The addresses the application holds afterwards
+     * @throws An error if an address cannot be allocated
+     */
+    ensure: async (options?: AllocateIpOptions): Promise<ListIpResponse> => {
+      try {
+        await this.ensureInitialized();
+
+        const { sharedV4 = true, v6 = true } = options ?? {};
+        const existing = await this.fetchAppIps('throwOnError', options);
+        const has = (...types: Array<string>) =>
+          existing.some((ip) => types.includes(ip.type));
+
+        if (sharedV4 && !has('v4', 'shared_v4')) {
+          await this.allocateIp('allocate-v4', options);
+          this.logger.info('Allocated a shared IPv4 address');
+        }
+        if (v6 && !has('v6')) {
+          await this.allocateIp('allocate-v6', options);
+          this.logger.info('Allocated a dedicated IPv6 address');
+        }
+
+        return await this.fetchAppIps('throwOnError', options);
+      } catch (error) {
+        throw new Error(
+          `[ensure ips] something broke, check your app addresses\n${error}`
+        );
+      }
     }
   };
 
@@ -1058,6 +1120,63 @@ export class Fly {
     await this.execFly(args);
 
     return NameSchema.parse(status.name);
+  }
+
+  /**
+   * Allocate one public address.
+   *
+   * A dedicated v4 is billed, so the v4 path is always `--shared`.
+   *
+   * @private
+   * @throws An error if the address cannot be allocated
+   */
+  private async allocateIp(
+    command: 'allocate-v4' | 'allocate-v6',
+    options?: AppOrConfig
+  ): Promise<void> {
+    const args = ['ips', command];
+
+    if (command === 'allocate-v4') {
+      args.push('--shared');
+    }
+    args.push(...this.getAppOrConfigArgs(options));
+    args.push('--yes');
+
+    await this.execFly(args);
+  }
+
+  /**
+   * @private
+   * @returns The addresses for an app or `null` if they cannot be retrieved and `nullOnError` is used
+   * @throws An error if the addresses cannot be retrieved and `throwOnError` is used
+   */
+  private async fetchAppIps(
+    onError: 'throwOnError',
+    options?: AppOrConfig
+  ): Promise<ListIpResponse>;
+  private async fetchAppIps(
+    onError: 'nullOnError',
+    options?: AppOrConfig
+  ): Promise<ListIpResponse | null>;
+  private async fetchAppIps(
+    onError: 'throwOnError' | 'nullOnError',
+    options?: AppOrConfig
+  ): Promise<ListIpResponse | null> {
+    const args = ['ips', 'list'];
+
+    args.push(...this.getAppOrConfigArgs(options));
+    args.push('--json');
+
+    try {
+      return await IpsListTransformedResponseSchema.parseAsync(
+        await this.execFly(args)
+      );
+    } catch (error) {
+      if (onError === 'throwOnError') {
+        throw error;
+      }
+      return null;
+    }
   }
 
   /**

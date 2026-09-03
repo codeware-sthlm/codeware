@@ -11,6 +11,7 @@ import {
   mockDefs,
   mockListCertForAllResponse,
   mockListCertForAppResponse,
+  mockListIpResponse,
   mockListPostgresResponse,
   mockListPostgresUsersResponse,
   mockListSecretForAllResponse,
@@ -908,6 +909,136 @@ describe('Fly', () => {
         '--json'
       ]);
       expect(response).toEqual(mockListCertForAllResponse);
+    });
+  });
+
+  describe('ips', () => {
+    // The defect this exists for: an app with no address deploys green and
+    // answers nothing, so the allocation has to be driven by us
+    it('should allocate both addresses when the app has none', async () => {
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+      await fly.ips.ensure();
+
+      assertSpawn('exact', [
+        'ips',
+        'allocate-v4',
+        '--shared',
+        '--app',
+        mockDefs.testApp,
+        '--yes'
+      ]);
+      assertSpawn('exact', [
+        'ips',
+        'allocate-v6',
+        '--app',
+        mockDefs.testApp,
+        '--yes'
+      ]);
+    });
+
+    // Runs on every deploy, not only on create, so it has to be a no-op for
+    // the apps that already hold their addresses
+    it('should allocate nothing when the app already has both', async () => {
+      setupFlyMocks([
+        {
+          cmdMatch: /ips list --app .*/,
+          resolveOrReject: 'resolve',
+          output: JSON.stringify(mockListIpResponse)
+        }
+      ]);
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+      await fly.ips.ensure();
+
+      assertSpawn('not', ['ips', 'allocate-v4']);
+      assertSpawn('not', ['ips', 'allocate-v6']);
+    });
+
+    it('should allocate only what is missing', async () => {
+      setupFlyMocks([
+        {
+          cmdMatch: /ips list --app .*/,
+          resolveOrReject: 'resolve',
+          output: JSON.stringify(
+            mockListIpResponse.filter((ip) => ip.type === 'v6')
+          )
+        }
+      ]);
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+      await fly.ips.ensure();
+
+      assertSpawn('some', ['ips', 'allocate-v4', '--shared']);
+      assertSpawn('not', ['ips', 'allocate-v6']);
+    });
+
+    // A dedicated v4 is billed, so the flag is not optional
+    it('should never request a dedicated v4', async () => {
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+      await fly.ips.ensure();
+
+      const v4Call = mockSpawn.mock.calls.find((call) =>
+        call[1].includes('allocate-v4')
+      );
+      expect(v4Call?.[1]).toContain('--shared');
+    });
+
+    it('should accept a dedicated v4 as satisfying the v4 need', async () => {
+      setupFlyMocks([
+        {
+          cmdMatch: /ips list --app .*/,
+          resolveOrReject: 'resolve',
+          output: JSON.stringify([
+            { ...mockListIpResponse[1], type: 'v4', address: '1.2.3.4' }
+          ])
+        }
+      ]);
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+      await fly.ips.ensure();
+
+      assertSpawn('not', ['ips', 'allocate-v4']);
+      assertSpawn('some', ['ips', 'allocate-v6']);
+    });
+
+    it('should list the addresses an app holds', async () => {
+      setupFlyMocks([
+        {
+          cmdMatch: /ips list --app .*/,
+          resolveOrReject: 'resolve',
+          output: JSON.stringify(mockListIpResponse)
+        }
+      ]);
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+
+      await expect(fly.ips.list()).resolves.toEqual(mockListIpResponse);
+    });
+
+    // Fly answers in PascalCase; the raw shape has to survive the transform
+    it('should read the raw PascalCase response', async () => {
+      setupFlyMocks([
+        {
+          cmdMatch: /ips list --app .*/,
+          resolveOrReject: 'resolve',
+          output: JSON.stringify([
+            {
+              ID: '',
+              Address: '66.241.125.38',
+              Type: 'shared_v4',
+              Region: '',
+              CreatedAt: '0001-01-01T00:00:00Z'
+            }
+          ])
+        }
+      ]);
+      const fly = new Fly({ ...mockFlyConfig, app: mockDefs.testApp });
+
+      await expect(fly.ips.list()).resolves.toEqual([
+        {
+          id: '',
+          address: '66.241.125.38',
+          type: 'shared_v4',
+          region: '',
+          createdAt: '0001-01-01T00:00:00Z'
+        }
+      ]);
     });
   });
 

@@ -7,6 +7,7 @@ import { CertsListWithAppTransformedResponseSchema } from './schemas/certs-list-
 import { CertsListTransformedResponseSchema } from './schemas/certs-list.schema';
 import { ConfigShowResponseSchema } from './schemas/config-show.schema';
 import { DeployResponseSchema } from './schemas/deploy.schema';
+import { IpsListTransformedResponseSchema } from './schemas/ips-list.schema';
 import { PostgresListTransformedResponseSchema } from './schemas/postgres-list';
 import { PostgresUsersListTransformedResponseSchema } from './schemas/postgres-users-list';
 import { SecretsListWithAppTransformedResponseSchema } from './schemas/secrets-list-with-app.schema';
@@ -32,6 +33,22 @@ export type DeployResponse = z.infer<typeof DeployResponseSchema>;
 export type ListCertForAppResponse = z.infer<
   typeof CertsListTransformedResponseSchema
 >;
+
+/** List public IP addresses for an application */
+export type ListIpResponse = z.infer<typeof IpsListTransformedResponseSchema>;
+
+/**
+ * Which public addresses to allocate.
+ *
+ * Both defaults are free. A dedicated v4 is billed, which is why it is not
+ * offered here — `sharedV4` is what an app with an `http_service` needs.
+ */
+export type AllocateIpOptions = AppOrConfig & {
+  /** Allocate a free shared IPv4 @default true */
+  sharedV4?: boolean;
+  /** Allocate a free dedicated IPv6 @default true */
+  v6?: boolean;
+};
 
 /** List certificates for all applications */
 export type ListCertForAllResponse = z.infer<

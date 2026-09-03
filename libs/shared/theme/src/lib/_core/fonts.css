@@ -1,0 +1,15 @@
+/*
+ * Self-hosted webfaces, shared by every consumer of tailwind-setup.css.
+ *
+ * The bytes ship with the app rather than being fetched from a third party, so
+ * a tenant domain makes no request to Google and there is no CSP entry to keep.
+ * Fontsource carries `unicode-range` per subset, so a browser downloads only
+ * the subsets the page actually needs — importing the whole family is not the
+ * same as shipping it.
+ *
+ * Note the family is `Inter Variable`, not `Inter`. The base layer has to name
+ * it exactly; `font-family: 'Inter'` matches nothing here, which is precisely
+ * why this dependency sat installed and unreferenced while the site rendered
+ * in the system sans-serif.
+ */
+@import '@fontsource-variable/inter/wght.css';

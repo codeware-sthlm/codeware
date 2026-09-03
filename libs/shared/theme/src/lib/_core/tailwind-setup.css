@@ -115,6 +115,10 @@
   --color-core-text: var(--core-text);
 }
 
+/* Self-hosted webfaces — imported here so every consumer of this file gets
+   them exactly once, the same reason the base layer lives here */
+@import './fonts.css';
+
 /* Custom utilities — available to all themes, used where needed */
 @import './utilities.css';
 
@@ -126,6 +130,8 @@
   body {
     /* core-background-body separates page background from content surface (see spotlight theme) */
     @apply bg-core-background-body text-core-text;
-    font-family: 'Inter', sans-serif;
+    /* `Inter Variable` is the family fonts.css declares; plain `Inter` is a
+       courtesy fallback for a reader who has it installed locally */
+    font-family: 'Inter Variable', 'Inter', sans-serif;
   }
 }

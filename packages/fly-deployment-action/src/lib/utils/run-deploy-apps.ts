@@ -169,6 +169,31 @@ export const runDeployApps = async (options: {
           secrets: mergedSecrets
         });
 
+        // A deployed app with no public address answers nothing on the URL we
+        // are about to report. `flyctl` allocates one only for an app it
+        // creates itself, and neither route here qualifies — a registry push
+        // auto-creates the app before the deploy, and `apps create` never
+        // allocates. Idempotent, so it runs on every deploy rather than only
+        // on create, which also repairs apps that were left without one.
+        try {
+          const addresses = await fly.ips.ensure({ app: result.app });
+          core.debug(
+            `Public addresses for '${result.app}': ${addresses
+              .map((ip) => `${ip.type} ${ip.address}`)
+              .join(', ')}`
+          );
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+
+          // Loud, but not fatal: the deploy itself succeeded, and failing it
+          // here would throw away a working image. The whole defect being
+          // fixed is an unreachable app that reported success, so this must
+          // never pass silently.
+          core.warning(
+            `⚠️ Deployed '${result.app}' but could not ensure a public IP address, so it may be unreachable: ${msg}`
+          );
+        }
+
         core.info(`🚀 Deployed to '${result.url}'${tenantLabel}`);
 
         projects.push({

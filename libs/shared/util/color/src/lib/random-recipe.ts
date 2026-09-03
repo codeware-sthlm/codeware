@@ -6,11 +6,15 @@ import {
   buildThemeTokens
 } from './build-theme-tokens';
 import { contrastFailures } from './contrast';
-import { type ColorFamily, type ColorShade, NEUTRAL_FAMILIES } from './palette';
+import {
+  type ColorShade,
+  NEUTRAL_FAMILIES,
+  type TailwindFamily
+} from './palette';
 
 /** A brand wants a hue; the neutrals are what the base is for. */
 const BRAND_CANDIDATES = tailwind.names.filter(
-  (name): name is ColorFamily =>
+  (name): name is TailwindFamily =>
     name !== 'white' &&
     name !== 'black' &&
     !(NEUTRAL_FAMILIES as ReadonlyArray<string>).includes(name)

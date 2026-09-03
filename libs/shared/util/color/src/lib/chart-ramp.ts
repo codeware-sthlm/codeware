@@ -1,14 +1,24 @@
 import { tailwind } from '@codeware/shared/util/tailwind';
 
 import { parseColor } from './oklch';
-import { type ColorFamily, NEUTRAL_FAMILIES, shade } from './palette';
+import {
+  type ColorFamily,
+  NEUTRAL_FAMILIES,
+  type TailwindFamily,
+  shade
+} from './palette';
 
 /** Five points around the wheel, the brand first. */
 const HUE_OFFSETS = [0, 72, 144, 216, 288];
 
-/** Charts want colours that separate, which the neutrals cannot do. */
+/**
+ * Charts want colours that separate, which the neutrals cannot do.
+ *
+ * Drawn from `tailwind.names`, so shadcn's tinted neutrals never reach a chart
+ * series — they are excluded by construction rather than by the filter below.
+ */
 const CHROMATIC_FAMILIES = tailwind.names.filter(
-  (name): name is ColorFamily =>
+  (name): name is TailwindFamily =>
     name !== 'white' &&
     name !== 'black' &&
     !(NEUTRAL_FAMILIES as ReadonlyArray<string>).includes(name)

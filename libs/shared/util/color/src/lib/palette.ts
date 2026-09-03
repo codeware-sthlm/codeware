@@ -1,15 +1,23 @@
 import { type TailwindColor, tailwind } from '@codeware/shared/util/tailwind';
 
+import { type ShadcnNeutralFamily, shadcnNeutrals } from './shadcn-neutrals';
+
 type FamilyOf<T> = T extends `${infer Family}-${string}` ? Family : never;
 
 /**
- * A Tailwind colour family carrying a 50–950 ramp.
+ * A family Tailwind itself ships.
  *
  * Derived from the palette rather than listed, so a family added upstream
  * becomes available here without an edit — and one removed stops compiling.
  * `white` and `black` have no ramp and are excluded by construction.
+ *
+ * Kept apart from {@link ColorFamily} because anything filtering
+ * `tailwind.names` can only ever narrow to this half.
  */
-export type ColorFamily = FamilyOf<TailwindColor>;
+export type TailwindFamily = FamilyOf<TailwindColor>;
+
+/** A colour family carrying a 50–950 ramp, from either source. */
+export type ColorFamily = TailwindFamily | ShadcnNeutralFamily;
 
 /** The steps every family defines. */
 export const COLOR_SHADES = [
@@ -43,6 +51,25 @@ export const NEUTRAL_FAMILIES = [
   'stone'
 ] as const satisfies ReadonlyArray<ColorFamily>;
 
+/** Any colour either source can name, `white` and `black` included. */
+export type PaletteColor =
+  | TailwindColor
+  | `${ShadcnNeutralFamily}-${ColorShade}`;
+
+const shadcnNeutralColors: Record<string, string> = Object.fromEntries(
+  Object.entries(shadcnNeutrals).flatMap(([family, ramp]) =>
+    Object.entries(ramp).map(([step, value]) => [`${family}-${step}`, value])
+  )
+);
+
+/**
+ * Resolve a palette entry from whichever source owns its family.
+ *
+ * The one place that knows there are two, so nothing downstream has to ask.
+ */
+export const paletteColor = (name: PaletteColor): string =>
+  shadcnNeutralColors[name] ?? tailwind.color(name as TailwindColor);
+
 /**
  * Resolve one palette step to its literal value.
  *
@@ -51,7 +78,7 @@ export const NEUTRAL_FAMILIES = [
  * uses would resolve to nothing at all.
  */
 export const shade = (family: ColorFamily, step: ColorShade): string =>
-  tailwind.color(`${family}-${step}` as TailwindColor);
+  paletteColor(`${family}-${step}` as PaletteColor);
 
 /**
  * The `--brand-50` … `--brand-950` ramp for a family.

@@ -30,6 +30,14 @@ export type FontFamily = {
   /** Which slots the family is offered for */
   slots: ReadonlyArray<FontSlot>;
   /**
+   * Filename of the woff2, for a face the platform serves itself.
+   *
+   * Only set for a family whose bytes are not vendored through npm. The URL is
+   * assembled at render time from a configured base, because the store differs
+   * per deployment and a build-time literal could not follow it.
+   */
+  file?: string;
+  /**
    * Licensed to Codeware rather than freely redistributable.
    *
    * Only a system user may assign one. The studio hides it, and the collection
@@ -74,6 +82,7 @@ export const FONT_FAMILIES: ReadonlyArray<FontFamily> = [
     // licence is for Codeware's own branding rather than general text
     stack: 'Nasalization, Inter Variable, Inter, sans-serif',
     slots: ['heading'],
+    file: 'nasalization-rg-webfont.woff2',
     restricted: true
   }
 ];
@@ -120,4 +129,117 @@ export const fontStack = (slot: FontSlot, id: string | undefined): string => {
   const usable = font?.slots.includes(slot) ? font : undefined;
 
   return (usable ?? fontById(DEFAULT_FONTS[slot]))?.stack ?? SYSTEM_SANS;
+};
+
+/**
+ * A URL safe to place inside a `url()` in an injected stylesheet.
+ *
+ * Deliberately stricter than \`new URL()\`: this string is written into a
+ * `<style>` block, so anything that could close the declaration, start another
+ * rule, or leave CSS altogether has to be impossible rather than unlikely. The
+ * value comes from deployment config rather than from a user, which is a reason
+ * to keep the check cheap, not a reason to skip it.
+ */
+const SAFE_ASSET_URL = /^https:\/\/[A-Za-z0-9._~:/?#[\]@!$&*+,;=%-]+$/;
+
+/**
+ * Emit the `@font-face` for a family the platform serves itself.
+ *
+ * Injected per request rather than compiled into the bundle, because the asset
+ * store is configured per deployment and because a licensed face may only be
+ * declared for a site entitled to it. A face nobody is entitled to is simply
+ * never written.
+ *
+ * @param font - The registry entry, which must carry a `file`
+ * @param baseUrl - Where the platform serves its font assets from
+ * @returns The face block, or an empty string when it cannot be written safely
+ */
+export const fontFaceCss = (
+  font: FontFamily,
+  baseUrl: string | undefined
+): string => {
+  const base = baseUrl?.replace(/\/+$/, '');
+
+  if (!font.file || !base) {
+    return '';
+  }
+
+  const url = `${base}/${font.file}`;
+
+  if (!SAFE_ASSET_URL.test(url) || !/^[A-Za-z][A-Za-z0-9 -]*$/.test(font.id)) {
+    return '';
+  }
+
+  // The family name is the registry's own label rather than anything stored,
+  // and `swap` keeps a display face off the critical path
+  const family = font.stack.split(',')[0].trim();
+
+  return `@font-face{font-family:${family};src:url(${url}) format('woff2');font-display:swap;font-style:normal;font-weight:400}`;
+};
+
+/**
+ * The self-served faces a set of token maps actually names.
+ *
+ * Driven by the tokens rather than by the recipe, because the tokens are what
+ * renders — a hand-edited `--core-font-heading` names a family just as a
+ * chosen one does, and a face that is not written is a family that silently
+ * falls back.
+ *
+ * @param tokenMaps - Every token map that could reach the page
+ * @returns The registry entries needing an `@font-face`, deduplicated
+ */
+export const selfServedFontsIn = (
+  tokenMaps: ReadonlyArray<Record<string, unknown>>
+): Array<FontFamily> => {
+  const named = FONT_FAMILIES.filter((font) => font.file).filter((font) => {
+    const family = font.stack.split(',')[0].trim();
+
+    return tokenMaps.some((tokens) =>
+      Object.entries(tokens).some(
+        ([name, value]) =>
+          name.startsWith('--core-font-') &&
+          typeof value === 'string' &&
+          value
+            .split(',')
+            .map((part) => part.trim())
+            .includes(family)
+      )
+    );
+  });
+
+  return named;
+};
+
+/**
+ * Narrow a set of families to the ones this deployment may actually embed.
+ *
+ * The grant is a plain list of font ids, because the *site* it applies to is
+ * already settled by where the secret lives: Infisical scopes it to one
+ * tenant's deployment, so the value never reaches a site it was not meant for.
+ * That makes the tenant half of the check structural rather than a string
+ * comparison this code could get wrong.
+ *
+ * Per font rather than a single flag: each licence covers one typeface on its
+ * own terms, and a blanket entitlement would quietly extend to the next
+ * licensed face added to the registry.
+ *
+ * An unrestricted family passes through untouched; only a licensed one needs
+ * naming.
+ *
+ * @param fonts - Families the page would otherwise declare
+ * @param granted - Comma-separated font ids this deployment may embed
+ * @returns The families this site is entitled to embed
+ */
+export const entitledFonts = (
+  fonts: ReadonlyArray<FontFamily>,
+  granted: string | undefined
+): Array<FontFamily> => {
+  const ids = new Set(
+    (granted ?? '')
+      .split(',')
+      .map((id) => id.trim())
+      .filter(Boolean)
+  );
+
+  return fonts.filter((font) => !font.restricted || ids.has(font.id));
 };

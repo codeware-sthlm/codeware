@@ -4,10 +4,13 @@ import {
   DEFAULT_FONTS,
   FONT_FAMILIES,
   type FontSlot,
+  entitledFonts,
   fontById,
+  fontFaceCss,
   fontStack,
   fontsForSlot,
-  isRestrictedFont
+  isRestrictedFont,
+  selfServedFontsIn
 } from './fonts';
 
 const SLOTS: ReadonlyArray<FontSlot> = ['body', 'heading', 'mono'];
@@ -110,4 +113,155 @@ describe('isRestrictedFont', () => {
   it('does not treat an unknown family as restricted', () => {
     expect(isRestrictedFont('dropped-family')).toBe(false);
   });
+});
+
+describe('fontFaceCss', () => {
+  const nasalization = fontById('nasalization');
+  const inter = fontById('inter');
+  const base = 'https://assets.example.com/fonts';
+
+  it('writes a face for a self-served family', () => {
+    const css = fontFaceCss(nasalization as never, base);
+
+    expect(css).toContain('font-family:Nasalization');
+    expect(css).toContain(
+      `url(${base}/nasalization-rg-webfont.woff2) format('woff2')`
+    );
+    // A display face must not hold up the first paint
+    expect(css).toContain('font-display:swap');
+  });
+
+  it('tolerates a trailing slash on the base', () => {
+    expect(fontFaceCss(nasalization as never, `${base}/`)).toBe(
+      fontFaceCss(nasalization as never, base)
+    );
+  });
+
+  // Inter comes from npm and is declared by fontsource; writing a second face
+  // for it would fetch bytes the platform does not serve
+  it('writes nothing for a family with no file', () => {
+    expect(fontFaceCss(inter as never, base)).toBe('');
+  });
+
+  // Unconfigured is the safe state: no base means no face, rather than a
+  // relative URL resolving against whatever page happens to be rendering
+  it('writes nothing without a base', () => {
+    expect(fontFaceCss(nasalization as never, undefined)).toBe('');
+    expect(fontFaceCss(nasalization as never, '')).toBe('');
+  });
+
+  // The result lands in a `<style>` block, so anything that could close the
+  // declaration or leave CSS has to be impossible rather than unlikely
+  it.each([
+    'http://assets.example.com/fonts',
+    'https://a.com/f) format("woff2");} body{display:none',
+    'https://a.com/f<script>',
+    "https://a.com/f'",
+    'javascript:alert(1)',
+    '//assets.example.com/fonts'
+  ])('refuses the unsafe base %s', (unsafe) => {
+    expect(fontFaceCss(nasalization as never, unsafe)).toBe('');
+  });
+
+  it('never emits a quote, semicolon-brace or angle bracket', () => {
+    const css = fontFaceCss(nasalization as never, base);
+
+    expect(css).not.toMatch(/["<>]/);
+    expect(css.match(/\}/g) ?? []).toHaveLength(1);
+  });
+});
+
+describe('selfServedFontsIn', () => {
+  const nasalization = 'Nasalization, Inter Variable, Inter, sans-serif';
+
+  it('finds a self-served family a token names', () => {
+    expect(
+      selfServedFontsIn([{ '--core-font-heading': nasalization }]).map(
+        (f) => f.id
+      )
+    ).toEqual(['nasalization']);
+  });
+
+  // The tokens are what renders — a hand-edited value names a family just as
+  // a chosen one does, and the recipe would not have seen it
+  it('finds it in a hand-edited token, not only a generated one', () => {
+    expect(
+      selfServedFontsIn([{ '--core-font-body': `${nasalization}` }])
+    ).toHaveLength(1);
+  });
+
+  it('reports a family named twice only once', () => {
+    expect(
+      selfServedFontsIn([
+        { '--core-font-heading': nasalization },
+        { '--core-font-heading': nasalization }
+      ])
+    ).toHaveLength(1);
+  });
+
+  // Inter is declared by fontsource; writing a face for it would fetch bytes
+  // the platform does not serve
+  it('ignores a family the platform does not serve itself', () => {
+    expect(
+      selfServedFontsIn([
+        { '--core-font-body': 'Inter Variable, Inter, sans-serif' }
+      ])
+    ).toEqual([]);
+  });
+
+  it('ignores a token that is not a font', () => {
+    expect(selfServedFontsIn([{ '--core-link': nasalization }])).toEqual([]);
+  });
+
+  // Substring matching would fire on a family merely sharing a prefix
+  it('matches a whole family, not a fragment', () => {
+    expect(
+      selfServedFontsIn([{ '--core-font-heading': 'Nasalizationish, serif' }])
+    ).toEqual([]);
+  });
+
+  it.each([[], [{}], [{ '--core-font-body': 42 }]])(
+    'finds nothing in %p',
+    (...maps) => {
+      expect(selfServedFontsIn(maps as never)).toEqual([]);
+    }
+  );
+});
+
+describe('entitledFonts', () => {
+  const restricted = fontById('nasalization') as never;
+  const open = fontById('inter') as never;
+  const all = [open, restricted];
+
+  it('lets an unrestricted family through without a grant', () => {
+    expect(entitledFonts([open], undefined)).toEqual([open]);
+  });
+
+  it('drops a licensed family with no grant at all', () => {
+    expect(entitledFonts(all, undefined)).toEqual([open]);
+  });
+
+  it('allows a family the grant names', () => {
+    expect(entitledFonts(all, 'nasalization')).toEqual(all);
+  });
+
+  // The whole point of naming ids: a grant is for one font, not for the
+  // deployment's whole future
+  it('does not extend a grant to another licensed family', () => {
+    const other = { ...restricted, id: 'other-licensed' };
+
+    expect(entitledFonts([other as never], 'nasalization')).toEqual([]);
+  });
+
+  it('reads several ids, and tolerates spacing', () => {
+    expect(entitledFonts(all, ' other-licensed , nasalization ')).toEqual(all);
+  });
+
+  // Malformed config must narrow, never widen
+  it.each(['', ',,', '   ', 'nasalizationish'])(
+    'grants nothing for %p',
+    (granted) => {
+      expect(entitledFonts(all, granted)).toEqual([open]);
+    }
+  );
 });

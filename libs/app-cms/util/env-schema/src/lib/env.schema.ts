@@ -35,6 +35,20 @@ export const EnvSchema = withEnvVars(
       FLY_URL: z.string({ description: 'Auto-generated Fly.io app URL' }),
       PR_NUMBER: z.string({ description: 'Number of the pull request' }),
 
+      // Licensed typefaces. Both absent is the safe state: no base means no
+      // face is written, and no allowlist means no site is entitled to one.
+      FONT_ASSETS_BASE_URL: z
+        .string({
+          description: 'Where the platform serves its own font files from'
+        })
+        .optional(),
+      RESTRICTED_FONTS: z
+        .string({
+          description:
+            'Comma-separated ids of the licensed typefaces this deployment may embed'
+        })
+        .optional(),
+
       // Build metadata (injected as Docker build args on deploy; absent in dev)
       APP_SHA: z.string({ description: 'Commit sha of the build' }).optional(),
       APP_BUILD_TIME: z
@@ -183,9 +197,11 @@ export const EnvSchema = withEnvVars(
     SMTP_USERNAME,
     SMTP_PASSWORD,
     FLY_URL,
+    FONT_ASSETS_BASE_URL,
     NX_TASK_TARGET_TARGET,
     PAYLOAD_API_KEY,
     PAYLOAD_URL,
+    RESTRICTED_FONTS,
     S3_ACCESS_KEY_ID,
     S3_BUCKET,
     S3_ENDPOINT,
@@ -227,6 +243,20 @@ export const EnvSchema = withEnvVars(
         } satisfies AppModeHost),
     // Expose Fly url for e.g. dynamic cors configuration
     FLY_URL,
+    FONT_ASSETS_BASE_URL,
+    /**
+     * The licensed typefaces this deployment's site may embed.
+     *
+     * The font licence permits embedding only on sites the licensee owns or
+     * controls, so the entitlement belongs to the *site being served* rather
+     * than to whoever authored the theme — an admin gate cannot express that.
+     *
+     * Which site is settled by where the secret lives: set it under
+     * `/tenants/<tenant>/apps/cms/` and it reaches that deployment and no
+     * other. Named per font because each licence covers one typeface on its
+     * own terms. Passed through raw — `entitledFonts` reads it.
+     */
+    RESTRICTED_FONTS,
     // Rename to declarative variable for easier use in codebase
     NX_RUN_TARGET: NX_TASK_TARGET_TARGET ?? '',
     // Transform to storage object if S3 access key id is provided

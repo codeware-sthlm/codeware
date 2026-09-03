@@ -1,4 +1,3 @@
-import { tailwind } from '@codeware/shared/util/tailwind';
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_RECIPE, buildThemeTokens } from './build-theme-tokens';
@@ -8,21 +7,15 @@ import {
   checkContrast,
   contrastFailures
 } from './contrast';
-import { type ColorFamily, NEUTRAL_FAMILIES } from './palette';
-import { shadcnNeutrals } from './shadcn-neutrals';
+import { COLOR_FAMILIES, NEUTRAL_FAMILIES } from './palette';
 
 /**
- * Every family a theme can be branded with, derived rather than listed.
+ * Every family a theme can be branded with.
  *
  * The studio offers the neutrals as brands too, so a hand-kept list here would
  * quietly stop covering what the studio can actually produce.
  */
-const BRAND_FAMILIES: Array<ColorFamily> = [
-  ...tailwind.names.filter(
-    (name): name is ColorFamily => name !== 'white' && name !== 'black'
-  ),
-  ...(Object.keys(shadcnNeutrals) as Array<ColorFamily>)
-];
+const BRAND_FAMILIES = COLOR_FAMILIES;
 
 /** Dark holds only what changes, so it is checked as the browser cascades it. */
 const schemes = (recipe = DEFAULT_RECIPE) => {

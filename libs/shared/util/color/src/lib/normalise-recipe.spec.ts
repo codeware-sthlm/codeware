@@ -63,4 +63,20 @@ describe('normaliseRecipe', () => {
       DEFAULT_RECIPE.brandFamily
     );
   });
+
+  // Silent when it goes wrong: a rejected family reads back as the default, so
+  // the studio would offer a base it then refused to build
+  it.each(['mauve', 'olive', 'mist', 'taupe'])(
+    'keeps %s, which Tailwind does not ship',
+    (family) => {
+      expect(normaliseRecipe({ baseFamily: family }).baseFamily).toBe(family);
+      expect(normaliseRecipe({ brandFamily: family }).brandFamily).toBe(family);
+    }
+  );
+
+  it('rejects a family neither source ships', () => {
+    expect(normaliseRecipe({ baseFamily: 'sand' }).baseFamily).toBe(
+      DEFAULT_RECIPE.baseFamily
+    );
+  });
 });

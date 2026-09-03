@@ -5,6 +5,7 @@ import {
   type ColorShade,
   type PaletteColor,
   brandRamp,
+  paletteAlias,
   paletteColor
 } from './palette';
 import {
@@ -72,7 +73,7 @@ export const DEFAULT_RECIPE: ThemeRecipe = {
 };
 
 const paletteValue = (name: PaletteColor, format: ValueFormat): string =>
-  format === 'alias' ? `var(--color-${name})` : paletteColor(name);
+  format === 'alias' ? paletteAlias(name) : paletteColor(name);
 
 const resolve = (
   source: TokenSource,

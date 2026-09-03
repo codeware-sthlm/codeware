@@ -79,7 +79,7 @@ describe('buildThemeTokens', () => {
     // Guards the test itself: a contract that parsed to nothing would pass the
     // two above without checking anything
     it('reads a contract of the expected size', () => {
-      expect(light.size).toBe(84);
+      expect(light.size).toBe(87);
       expect(dark.size).toBe(32);
     });
   });

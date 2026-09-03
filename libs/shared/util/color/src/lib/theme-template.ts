@@ -108,7 +108,24 @@ export const BASE_DARK: Record<string, TokenSource> = {
  * do vary, `--core-link` and `--core-surface-invert`, come from the recipe and
  * are added by the builder.
  */
+/**
+ * The typefaces a generated theme ships with.
+ *
+ * Unquoted on purpose: a multi-word family is valid CSS as a sequence of
+ * identifiers, and `customThemeCss` rejects quotes outright — so a runtime
+ * theme and a committed one can carry the byte-identical value.
+ *
+ * Fixed for now. The recipe gains the choice once the studio offers a control,
+ * and these become its defaults rather than its only option.
+ */
+const FONT_BODY = 'Inter Variable, Inter, sans-serif';
+const FONT_MONO =
+  'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace';
+
 export const ALIAS_LIGHT: Record<string, TokenSource> = {
+  '--core-font-body': { value: FONT_BODY },
+  '--core-font-heading': { value: FONT_BODY },
+  '--core-font-mono': { value: FONT_MONO },
   '--core-action-btn-foreground': { value: 'var(--muted-foreground)' },
   '--core-action-btn-foreground-hover': { value: 'var(--foreground)' },
   '--core-action-btn-background': { value: 'var(--background)' },

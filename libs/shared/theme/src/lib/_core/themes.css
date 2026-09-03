@@ -68,6 +68,14 @@
   --core-background-body: var(--background);
   --core-background-content: var(--background);
   --core-content-border: var(--border);
+  /* Typefaces. Unquoted deliberately: a multi-word family is valid as a
+  sequence of identifiers, and the runtime theme whitelist rejects
+  quotes — so committed and injected themes can carry the same value */
+  --core-font-body: Inter Variable, Inter, sans-serif;
+  --core-font-heading: Inter Variable, Inter, sans-serif;
+  --core-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+    Courier New, monospace;
   --core-header: var(--foreground);
   --core-headline: var(--foreground);
   --core-link: var(--primary);
@@ -172,6 +180,14 @@
   --core-background-content: var(--color-white);
   --core-content-border: var(--color-zinc-100);
   --core-headline: var(--color-zinc-800);
+  /* Typefaces. Unquoted deliberately: a multi-word family is valid as a
+  sequence of identifiers, and the runtime theme whitelist rejects
+  quotes — so committed and injected themes can carry the same value */
+  --core-font-body: Inter Variable, Inter, sans-serif;
+  --core-font-heading: Inter Variable, Inter, sans-serif;
+  --core-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+    Courier New, monospace;
   --core-header: var(--color-zinc-900);
   --core-link: var(--color-teal-700);
   --core-navbar: theme('colors.white / 0.9');
@@ -413,6 +429,14 @@
   --core-background-body: var(--background);
   --core-background-content: var(--background);
   --core-content-border: var(--border);
+  /* Typefaces. Unquoted deliberately: a multi-word family is valid as a
+  sequence of identifiers, and the runtime theme whitelist rejects
+  quotes — so committed and injected themes can carry the same value */
+  --core-font-body: Inter Variable, Inter, sans-serif;
+  --core-font-heading: Inter Variable, Inter, sans-serif;
+  --core-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+    Courier New, monospace;
   --core-header: var(--foreground);
   --core-headline: var(--foreground);
   --core-link: var(--brand-600);

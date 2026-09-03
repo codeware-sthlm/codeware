@@ -73,6 +73,14 @@
   --core-background-body: var(--background);
   --core-background-content: var(--background);
   --core-content-border: var(--border);
+  /* Typefaces. Unquoted deliberately: a multi-word family is valid as a
+     sequence of identifiers, and the runtime theme whitelist rejects
+     quotes — so committed and injected themes can carry the same value */
+  --core-font-body: Inter Variable, Inter, sans-serif;
+  --core-font-heading: Inter Variable, Inter, sans-serif;
+  --core-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+    Courier New, monospace;
   --core-header: var(--foreground);
   --core-headline: var(--foreground);
   --core-link: var(--brand-600);

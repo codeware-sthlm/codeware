@@ -113,6 +113,14 @@
   --color-core-nav-link-hover: var(--core-nav-link-hover);
   --color-core-surface-invert: var(--core-surface-invert);
   --color-core-text: var(--core-text);
+
+  /* Typefaces. `--font-*` is Tailwind's own namespace, so these also generate
+     the `font-sans` / `font-heading` / `font-mono` utilities. No `--font-serif`:
+     nothing in the codebase uses it, and an unread token would still be one
+     every theme is forced to define. */
+  --font-sans: var(--core-font-body);
+  --font-heading: var(--core-font-heading);
+  --font-mono: var(--core-font-mono);
 }
 
 /* Self-hosted webfaces — imported here so every consumer of this file gets
@@ -130,8 +138,17 @@
   body {
     /* core-background-body separates page background from content surface (see spotlight theme) */
     @apply bg-core-background-body text-core-text;
-    /* `Inter Variable` is the family fonts.css declares; plain `Inter` is a
-       courtesy fallback for a reader who has it installed locally */
-    font-family: 'Inter Variable', 'Inter', sans-serif;
+    font-family: var(--font-sans);
+  }
+  /* Headings follow their own token so a theme can pair a display face with a
+     readable body one. Every committed theme sets it to the body face, so this
+     changes nothing until a theme says otherwise. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
   }
 }

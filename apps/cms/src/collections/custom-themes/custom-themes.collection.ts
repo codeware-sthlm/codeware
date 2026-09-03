@@ -1,6 +1,7 @@
 import { slugField } from '@codeware/app-cms/ui/fields';
 import { adminGroups } from '@codeware/app-cms/util/definitions';
 import { customT } from '@codeware/app-cms/util/i18n';
+import { hasRole } from '@codeware/app-cms/util/misc';
 import {
   SITE_THEMES,
   isValidThemeSlug,
@@ -17,6 +18,8 @@ import type {
 
 import { userOnlyAccess } from '../../security/user-only-access';
 import { userOrApiKeyAccess } from '../../security/user-or-api-key-access';
+
+import { restrictedFontsIn } from './restricted-fonts';
 
 /** Reuses the slug field's per-tenant uniqueness and dash formatting. */
 const base = slugField({ sourceField: 'name', required: true }) as TextField;
@@ -162,6 +165,19 @@ const customThemes: CollectionConfig = {
       name: 'recipe',
       type: 'json',
       label: { en: 'Theme', sv: 'Tema' },
+      // Hiding the control in the studio is not the control: `recipe` is a JSON
+      // column and can be set through the API. This is the half that holds.
+      validate: ((value, { req }) => {
+        const refused = restrictedFontsIn(value);
+
+        if (!refused.length || hasRole(req.user, 'system-user')) {
+          return true;
+        }
+
+        return customT(req.t)('validation:fontRestricted', {
+          fonts: refused.join(', ')
+        });
+      }) as Validate,
       admin: {
         description: {
           en: 'The four decisions the tokens below are generated from.',

@@ -280,6 +280,7 @@ const customTranslationsSchema = z.object({
     domainNoWildcard: z.string(),
     domainOnePrimary: z.string(),
     domainTaken: z.string(),
+    fontRestricted: z.string(),
     formNeedsRecipient: z.string(),
     labelNameTaken: z.string(),
     labelNotFound: z.string(),
@@ -616,6 +617,8 @@ You can assign multiple tags to a file.`,
       domainOnePrimary:
         'Only one domain per app can be the primary one. "{{app}}" has several.',
       domainTaken: '"{{hostname}}" already belongs to {{owner}}.',
+      fontRestricted:
+        '{{fonts}} is licensed to the platform and can only be set by a system administrator.',
       formNeedsRecipient:
         'One of the notification emails has no "Email To", and this workspace has no generic recipient set. Add one here, set a generic recipient in Site Settings → Forms, or remove this notification email if none is wanted.',
       labelNameTaken: 'A "{{type}}" label named "{{name}}" already exists.',
@@ -957,6 +960,8 @@ Du kan tilldela flera etiketter till en fil.`,
       domainOnePrimary:
         'Bara en domän per app kan vara den primära. "{{app}}" har flera.',
       domainTaken: '"{{hostname}}" tillhör redan {{owner}}.',
+      fontRestricted:
+        '{{fonts}} är licensierat till plattformen och kan bara väljas av en systemadministratör.',
       formNeedsRecipient:
         'Ett av notismejlen saknar "E-post till", och arbetsytan har ingen allmän mottagare inställd. Ange en här, ange en allmän mottagare i Webbplatsinställningar → Formulär, eller ta bort det här notismejlet om inget behövs.',
       labelNameTaken:

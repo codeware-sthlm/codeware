@@ -3,6 +3,7 @@ import type {
   ListAppResponse,
   ListCertForAllResponse,
   ListCertForAppResponse,
+  ListIpResponse,
   ListPostgresResponse,
   ListPostgresUsersResponse,
   ListSecretForAllResponse,
@@ -279,3 +280,26 @@ export const mockVersionResponse = {
   Architecture: 'arm64',
   Environment: 'production'
 };
+
+/**
+ * A production-shaped address pair: free shared v4 plus dedicated v6.
+ *
+ * The shared v4 carries an empty region and a zero timestamp, which is what
+ * Fly actually answers and the reason neither is parsed as a datetime.
+ */
+export const mockListIpResponse: ListIpResponse = [
+  {
+    id: '',
+    address: '2a09:8280:1::5e:cd90:0',
+    type: 'v6',
+    region: 'global',
+    createdAt: '2025-01-12T00:00:35.577Z'
+  },
+  {
+    id: '',
+    address: '66.241.125.38',
+    type: 'shared_v4',
+    region: '',
+    createdAt: '0001-01-01T00:00:00Z'
+  }
+];

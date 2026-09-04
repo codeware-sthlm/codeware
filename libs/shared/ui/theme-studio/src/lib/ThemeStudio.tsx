@@ -354,6 +354,23 @@ export function ThemeStudio({
               <div className="min-h-0 flex-1 overflow-y-auto">
                 <div className="space-y-5 p-4">
                   <div className="space-y-2">
+                    <Label className="text-xs">Base colour</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Every surface, border and neutral text.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {NEUTRAL_FAMILIES.map((family) => (
+                        <Swatch
+                          key={family}
+                          family={family}
+                          selected={recipe.baseFamily === family}
+                          onSelect={() => update({ baseFamily: family })}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label className="text-xs">Brand colour</Label>
                     <p className="text-muted-foreground text-[11px]">
                       Primary buttons, focus rings, links, active navigation and
@@ -372,40 +389,23 @@ export function ThemeStudio({
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs">Base colour</Label>
+                    <Label className="text-xs">Headings</Label>
                     <p className="text-muted-foreground text-[11px]">
-                      Every surface, border and neutral text.
+                      Pairs a display face with a readable body one. Match the
+                      body font to keep the page quiet.
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {NEUTRAL_FAMILIES.map((family) => (
-                        <Swatch
-                          key={family}
-                          family={family}
-                          selected={recipe.baseFamily === family}
-                          onSelect={() => update({ baseFamily: family })}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <Label className="text-xs">Page surface</Label>
-                    <p className="text-muted-foreground text-[11px]">
-                      Whether the content sits on its own surface, framed by the
-                      margins and footer, or shares one with them.
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {SURFACE_OPTIONS.map(({ label, value }) => (
-                        <Pill
-                          key={value}
-                          active={recipe.surface === value}
-                          onClick={() => update({ surface: value })}
-                        >
-                          {label}
-                        </Pill>
-                      ))}
+                      {fontsForSlot('heading', canUseRestrictedFonts).map(
+                        (font) => (
+                          <Pill
+                            key={font.id}
+                            active={recipe.fontHeading === font.id}
+                            onClick={() => update({ fontHeading: font.id })}
+                          >
+                            {font.label}
+                          </Pill>
+                        )
+                      )}
                     </div>
                   </div>
 
@@ -430,23 +430,21 @@ export function ThemeStudio({
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs">Headings</Label>
+                    <Label className="text-xs">Page surface</Label>
                     <p className="text-muted-foreground text-[11px]">
-                      Pairs a display face with a readable body one. Match the
-                      body font to keep the page quiet.
+                      Whether the content sits on its own surface, framed by the
+                      margins and footer, or shares one with them.
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {fontsForSlot('heading', canUseRestrictedFonts).map(
-                        (font) => (
-                          <Pill
-                            key={font.id}
-                            active={recipe.fontHeading === font.id}
-                            onClick={() => update({ fontHeading: font.id })}
-                          >
-                            {font.label}
-                          </Pill>
-                        )
-                      )}
+                      {SURFACE_OPTIONS.map(({ label, value }) => (
+                        <Pill
+                          key={value}
+                          active={recipe.surface === value}
+                          onClick={() => update({ surface: value })}
+                        >
+                          {label}
+                        </Pill>
+                      ))}
                     </div>
                   </div>
 

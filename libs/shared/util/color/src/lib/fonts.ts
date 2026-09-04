@@ -143,6 +143,15 @@ export const fontStack = (slot: FontSlot, id: string | undefined): string => {
 const SAFE_ASSET_URL = /^https:\/\/[A-Za-z0-9._~:/?#[\]@!$&*+,;=%-]+$/;
 
 /**
+ * An unquoted CSS family name: identifiers separated by spaces.
+ *
+ * This is the string interpolated into the declaration, so it is the one worth
+ * checking — quoting it instead would work, but `customThemeCss` rejects quotes,
+ * and keeping the two forms identical is what stops them drifting.
+ */
+const SAFE_FAMILY = /^[A-Za-z][A-Za-z0-9 -]*$/;
+
+/**
  * Emit the `@font-face` for a family the platform serves itself.
  *
  * Injected per request rather than compiled into the bundle, because the asset
@@ -166,13 +175,14 @@ export const fontFaceCss = (
 
   const url = `${base}/${font.file}`;
 
-  if (!SAFE_ASSET_URL.test(url) || !/^[A-Za-z][A-Za-z0-9 -]*$/.test(font.id)) {
+  // The family, not the id: the id is never written into the CSS, and checking
+  // it would leave the string that *is* interpolated unguarded — a registry
+  // entry could carry a safe id and an unsafe stack head.
+  const family = font.stack.split(',')[0].trim();
+
+  if (!SAFE_ASSET_URL.test(url) || !SAFE_FAMILY.test(family)) {
     return '';
   }
-
-  // The family name is the registry's own label rather than anything stored,
-  // and `swap` keeps a display face off the critical path
-  const family = font.stack.split(',')[0].trim();
 
   return `@font-face{font-family:${family};src:url(${url}) format('woff2');font-display:swap;font-style:normal;font-weight:400}`;
 };

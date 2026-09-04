@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_RECIPE, buildThemeTokens } from './build-theme-tokens';
 import { contrastFailures } from './contrast';
-import { fontById } from './fonts';
+import { fontById, isRestrictedFont } from './fonts';
 import { NEUTRAL_FAMILIES } from './palette';
 import { randomRecipe } from './random-recipe';
 
@@ -52,13 +52,17 @@ describe('randomRecipe', () => {
   });
 
   // A licensed family would give the author a theme the collection refuses to
-  // save — a dead end reached by pressing the fun button
+  // save — a dead end reached by pressing the fun button. Asserted through the
+  // registry rather than against a known id, so renaming or replacing the
+  // licensed face cannot quietly turn this into a test of nothing.
   it('never rolls a restricted font', () => {
     const rolled = Array.from({ length: 50 }, () => randomRecipe());
 
-    expect(rolled.flatMap((r) => [r.fontBody, r.fontHeading])).not.toContain(
-      'nasalization'
-    );
+    expect(
+      rolled
+        .flatMap((r) => [r.fontBody, r.fontHeading])
+        .filter((id) => isRestrictedFont(id))
+    ).toEqual([]);
   });
 
   it('rolls a font each slot actually offers', () => {

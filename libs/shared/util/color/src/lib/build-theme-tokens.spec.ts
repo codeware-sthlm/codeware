@@ -34,12 +34,12 @@ const contract = () => {
 
   const setup = new Set<string>();
   for (const block of setupCss.matchAll(/@theme\s+inline\s*\{([\s\S]*?)\}/g)) {
-    for (const ref of block[1].matchAll(/var\(\s*(--[\w-]+)\s*\)/g)) {
+    for (const ref of block[1].matchAll(/var\(\s*(--[\w-]+)\s*[,)]/g)) {
       setup.add(ref[1]);
     }
   }
   const prose = new Set(
-    [...proseJs.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((m) => m[1])
+    [...proseJs.matchAll(/var\(\s*(--[\w-]+)\s*[,)]/g)].map((m) => m[1])
   );
 
   return {

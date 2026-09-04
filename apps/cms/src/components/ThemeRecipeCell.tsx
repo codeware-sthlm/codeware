@@ -23,9 +23,10 @@ export const ThemeRecipeCell: React.FC<
 > = ({ cellData }) => {
   const recipe = normaliseRecipe(cellData);
 
-  // Each value is one word out of context, so it carries what it decides.
-  // A native `title` rather than a tooltip component: the cell renders on the
-  // server, and a label for a one-word value does not need a client bundle.
+  // Each value is one word out of context, so the label says what it decides —
+  // not what it is, which is already on screen. A native `title` rather than a
+  // tooltip component: the cell renders on the server, and a label for a
+  // one-word value does not need a client bundle.
   const parts = [
     {
       label: 'Base colour — surfaces, borders, neutral text',
@@ -53,9 +54,7 @@ export const ThemeRecipeCell: React.FC<
     <span className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs">
       {parts.map(({ label, value }, index) => (
         <span key={label} className="whitespace-nowrap">
-          <span className="cursor-help" title={`${label}: ${value}`}>
-            {value}
-          </span>
+          <span title={label}>{value}</span>
           {index < parts.length - 1 && (
             <span aria-hidden className="px-1 opacity-40">
               ·

@@ -131,7 +131,7 @@ const customThemes: CollectionConfig = {
   slug: 'custom-themes',
   admin: {
     group: adminGroups.settings,
-    defaultColumns: ['name', 'slug'],
+    defaultColumns: ['name', 'slug', 'recipe', 'overrides'],
     useAsTitle: 'name',
     description: {
       en: 'Your own themes. Select them in Site Settings to make them available on the site.',
@@ -180,10 +180,11 @@ const customThemes: CollectionConfig = {
       }) as Validate,
       admin: {
         description: {
-          en: 'The four decisions the tokens below are generated from.',
-          sv: 'De fyra val som tokens nedan genereras från.'
+          en: 'The decisions the tokens below are generated from.',
+          sv: 'De val som tokens nedan genereras från.'
         },
         components: {
+          Cell: '@codeware/apps/cms/components/ThemeRecipeCell',
           Field:
             '@codeware/app-cms/ui/fields/theme-studio/ThemeStudioField.client'
         }
@@ -194,9 +195,14 @@ const customThemes: CollectionConfig = {
       type: 'json',
       label: { en: 'Overrides', sv: 'Överskrivningar' },
       admin: {
-        // Written by the studio's fine-tuning panel, which is where they are
-        // shown with the value each one departs from
-        hidden: true
+        // Hidden as a *field* — the studio's fine-tuning panel is where an
+        // override is shown beside the value it departs from. The list still
+        // gets a cell, because whether a theme departs from its recipe is the
+        // one thing about overrides worth seeing without opening it.
+        hidden: true,
+        components: {
+          Cell: '@codeware/apps/cms/components/ThemeOverridesCell'
+        }
       }
     },
     {

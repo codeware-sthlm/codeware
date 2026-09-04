@@ -87,10 +87,7 @@ export const CORE_TOKENS = [
   '--core-nav-link-active',
   '--core-nav-link-hover',
   '--core-surface-invert',
-  '--core-text',
-  '--core-font-body',
-  '--core-font-heading',
-  '--core-font-mono'
+  '--core-text'
 ] as const;
 export const PROSE_TOKENS = [
   '--body',

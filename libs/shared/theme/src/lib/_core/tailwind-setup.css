@@ -118,9 +118,23 @@
      the `font-sans` / `font-heading` / `font-mono` utilities. No `--font-serif`:
      nothing in the codebase uses it, and an unread token would still be one
      every theme is forced to define. */
-  --font-sans: var(--core-font-body);
-  --font-heading: var(--core-font-heading);
-  --font-mono: var(--core-font-mono);
+  /* The fallbacks are load-bearing: a theme saved before these tokens existed
+     carries none, and a bare var() would make the whole declaration invalid at
+     computed-value time — the element would inherit the browser's default
+     rather than the platform's. Stored data outlives a schema change. */
+  --font-sans: var(--core-font-body, Inter Variable, Inter, sans-serif);
+  --font-heading: var(--core-font-heading, Inter Variable, Inter, sans-serif);
+  --font-mono: var(
+    --core-font-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    Liberation Mono,
+    Courier New,
+    monospace
+  );
 }
 
 /* Self-hosted webfaces — imported here so every consumer of this file gets

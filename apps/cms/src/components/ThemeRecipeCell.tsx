@@ -23,19 +23,39 @@ export const ThemeRecipeCell: React.FC<
 > = ({ cellData }) => {
   const recipe = normaliseRecipe(cellData);
 
+  // Each value is one word out of context, so it carries what it decides.
+  // A native `title` rather than a tooltip component: the cell renders on the
+  // server, and a label for a one-word value does not need a client bundle.
   const parts = [
-    capitalise(recipe.baseFamily),
-    capitalise(recipe.brandFamily),
-    fontById(recipe.fontHeading)?.label ?? recipe.fontHeading,
-    fontById(recipe.fontBody)?.label ?? recipe.fontBody,
-    capitalise(recipe.surface)
+    {
+      label: 'Base colour — surfaces, borders, neutral text',
+      value: capitalise(recipe.baseFamily)
+    },
+    {
+      label: 'Brand colour — buttons, focus rings, links',
+      value: capitalise(recipe.brandFamily)
+    },
+    {
+      label: 'Heading typeface',
+      value: fontById(recipe.fontHeading)?.label ?? recipe.fontHeading
+    },
+    {
+      label: 'Body typeface',
+      value: fontById(recipe.fontBody)?.label ?? recipe.fontBody
+    },
+    {
+      label: 'Page surface — whether content sits on its own layer',
+      value: capitalise(recipe.surface)
+    }
   ];
 
   return (
     <span className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs">
-      {parts.map((part, index) => (
-        <span key={`${part}-${index}`} className="whitespace-nowrap">
-          {part}
+      {parts.map(({ label, value }, index) => (
+        <span key={label} className="whitespace-nowrap">
+          <span className="cursor-help" title={`${label}: ${value}`}>
+            {value}
+          </span>
           {index < parts.length - 1 && (
             <span aria-hidden className="px-1 opacity-40">
               ·

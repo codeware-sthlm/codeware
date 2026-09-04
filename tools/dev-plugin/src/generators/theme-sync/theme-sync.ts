@@ -107,12 +107,16 @@ function extractDefinedTokens(css: string): Set<string> {
  * Comments are stripped first, the way {@link extractDefinedTokens} does: a
  * comment naming a variable is prose about it, not a reference to it, and
  * counting one adds a token every theme is then required to define.
+ *
+ * A `var()` carrying a fallback still counts. The fallback says what to do when
+ * a theme omits the token; it does not make the token optional, and reading it
+ * as "not a reference" silently drops that token from every theme's contract.
  */
 function extractThemeInlineTokens(css: string): Set<string> {
   const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const tokens = new Set<string>();
   for (const match of stripped.matchAll(/@theme\s+inline\s*\{([\s\S]*?)\}/g)) {
-    for (const varMatch of match[1].matchAll(/var\(\s*(--[\w-]+)\s*\)/g)) {
+    for (const varMatch of match[1].matchAll(/var\(\s*(--[\w-]+)\s*[,)]/g)) {
       tokens.add(varMatch[1]);
     }
   }
@@ -121,7 +125,9 @@ function extractThemeInlineTokens(css: string): Set<string> {
 
 /** Extract CSS variable names referenced in the prose plugin values. */
 function extractProseTokens(js: string): Set<string> {
-  return new Set([...js.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((m) => m[1]));
+  return new Set(
+    [...js.matchAll(/var\(\s*(--[\w-]+)\s*[,)]/g)].map((m) => m[1])
+  );
 }
 
 function generateThemesCss(

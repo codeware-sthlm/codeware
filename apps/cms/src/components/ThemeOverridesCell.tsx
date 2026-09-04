@@ -33,7 +33,7 @@ export const ThemeOverridesCell: React.FC<
   if (!count) {
     return (
       <span
-        className="text-muted-foreground cursor-help opacity-40"
+        className="text-muted-foreground opacity-40"
         title="No hand-edited tokens — this theme is exactly what its recipe generates"
       >
         —
@@ -43,8 +43,8 @@ export const ThemeOverridesCell: React.FC<
 
   return (
     <span
-      className="text-muted-foreground cursor-help text-xs whitespace-nowrap"
-      title={`${count} token${count === 1 ? '' : 's'} hand-edited in the studio, departing from the recipe`}
+      className="text-muted-foreground text-xs whitespace-nowrap"
+      title="Tokens hand-edited in the studio, departing from the recipe"
     >
       ✓ {count}
     </span>

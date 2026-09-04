@@ -1,15 +1,13 @@
-import {
-  type FontSlot,
-  fontById,
-  isRestrictedFont
-} from '@codeware/shared/util/color';
+import { fontById, isRestrictedFont } from '@codeware/shared/util/color';
 
-/** The recipe fields that name a typeface, and the slot each one fills. */
-const FONT_FIELDS: ReadonlyArray<[FontSlot, string]> = [
-  ['body', 'fontBody'],
-  ['heading', 'fontHeading'],
-  ['mono', 'fontMono']
-];
+/**
+ * The recipe fields that name a typeface.
+ *
+ * No `fontMono`: the registry offers one mono face, so it is templated rather
+ * than stored, and scanning a field the recipe does not have would refuse a
+ * save over a value that never renders.
+ */
+const FONT_FIELDS = ['fontBody', 'fontHeading'] as const;
 
 /**
  * The licensed typefaces a stored recipe names, by label.
@@ -33,7 +31,7 @@ export const restrictedFontsIn = (value: unknown): Array<string> => {
 
   const recipe = value as Record<string, unknown>;
 
-  const refused = FONT_FIELDS.map(([, field]) => recipe[field])
+  const refused = FONT_FIELDS.map((field) => recipe[field])
     .filter((id): id is string => typeof id === 'string')
     .filter((id) => isRestrictedFont(id));
 

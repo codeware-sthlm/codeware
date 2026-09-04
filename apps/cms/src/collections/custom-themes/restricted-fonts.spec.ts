@@ -42,4 +42,11 @@ describe('restrictedFontsIn', () => {
       expect(restrictedFontsIn(value)).toEqual([]);
     }
   );
+
+  // Mono is templated rather than stored, so a recipe carrying a stale
+  // `fontMono` from before that change must not be refused over a value
+  // nothing renders
+  it('ignores a field the recipe no longer has', () => {
+    expect(restrictedFontsIn({ fontMono: 'nasalization' })).toEqual([]);
+  });
 });

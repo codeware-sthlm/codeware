@@ -163,7 +163,9 @@ describe('fontFaceCss', () => {
     expect(fontFaceCss(nasalization as never, unsafe)).toBe('');
   });
 
-  it('never emits a quote, semicolon-brace or angle bracket', () => {
+  // Single quotes are emitted on purpose, in `format('woff2')` — what must not
+  // appear is anything that could end the block early or leave CSS
+  it('closes exactly one block and never leaves CSS', () => {
     const css = fontFaceCss(nasalization as never, base);
 
     expect(css).not.toMatch(/["<>]/);

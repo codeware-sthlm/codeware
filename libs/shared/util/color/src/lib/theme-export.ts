@@ -3,6 +3,13 @@ import {
   type ThemeTokens,
   buildThemeTokens
 } from './build-theme-tokens';
+import {
+  COLOR_FAMILIES,
+  COLOR_SHADES,
+  type PaletteColor,
+  paletteAlias,
+  paletteColor
+} from './palette';
 
 /** The three files a committed theme folder holds. */
 export type ThemeFiles = {
@@ -10,6 +17,68 @@ export type ThemeFiles = {
   'tokens-dark.css': string;
   'tailwind-base.css': string;
 };
+
+/**
+ * Every palette entry by the literal it resolves to.
+ *
+ * A list per literal, not one name. Exactly one colour in the palette is shared
+ * — `oklch(0.985 0 0)` is `zinc-50`, `neutral-50` and `mauve-50` at once — and
+ * picking whichever was seen last would label a theme's own grey with a family
+ * it does not use.
+ */
+const paletteNames = new Map<string, Array<PaletteColor>>();
+for (const family of COLOR_FAMILIES) {
+  for (const step of COLOR_SHADES) {
+    const name = `${family}-${step}` as PaletteColor;
+    const literal = paletteColor(name);
+    paletteNames.set(literal, [...(paletteNames.get(literal) ?? []), name]);
+  }
+}
+for (const name of ['white', 'black'] as Array<PaletteColor>) {
+  paletteNames.set(paletteColor(name), [name]);
+}
+
+/**
+ * Put an override's palette colour back into alias form.
+ *
+ * Overrides arrive as literals — `parseTheme` rewrites them that way because a
+ * theme injected at runtime cannot reference `--color-*`, which Tailwind only
+ * emits for shades something referenced at build time. A committed file is the
+ * opposite case: it is compiled, so the alias survives and says *which step was
+ * chosen*, which a reviewer can judge and an oklch triple cannot.
+ *
+ * Whole values only. `oklch(0.21 0.006 285.786 / 5%)` is zinc-900 at five per
+ * cent, and rewriting it to `var(--color-zinc-900)` would silently drop the
+ * alpha.
+ *
+ * Where a colour has more than one name, the theme's own families win — a grey
+ * in a zinc-based theme reads as `zinc-50`, not as whichever family the palette
+ * happened to list last.
+ */
+const asAlias = (value: string, prefer: ReadonlyArray<string>): string => {
+  const names = paletteNames.get(value.trim());
+  if (!names?.length) {
+    return value;
+  }
+
+  const chosen =
+    prefer
+      .map((family) => names.find((name) => name.startsWith(`${family}-`)))
+      .find(Boolean) ?? names[0];
+
+  return paletteAlias(chosen as PaletteColor);
+};
+
+const aliased = (
+  tokens: ThemeTokens | undefined,
+  prefer: ReadonlyArray<string>
+): ThemeTokens =>
+  Object.fromEntries(
+    Object.entries(tokens ?? {}).map(([token, value]) => [
+      token,
+      asAlias(value, prefer)
+    ])
+  );
 
 const block = (selector: string, tokens: ThemeTokens): string =>
   [
@@ -47,7 +116,15 @@ export function themeFiles(
   recipe: ThemeRecipe,
   overrides: { light?: ThemeTokens; dark?: ThemeTokens } = {}
 ): ThemeFiles {
-  const { light, dark } = buildThemeTokens(recipe, overrides, 'alias');
+  const prefer = [recipe.baseFamily, recipe.brandFamily];
+  const { light, dark } = buildThemeTokens(
+    recipe,
+    {
+      light: aliased(overrides.light, prefer),
+      dark: aliased(overrides.dark, prefer)
+    },
+    'alias'
+  );
 
   return {
     'tokens-light.css': block(':root', light),

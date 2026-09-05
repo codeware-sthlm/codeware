@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "ThemeWrite",
+  "title": "Replace a built-in theme's token files",
+  "type": "object",
+  "properties": {
+    "from": {
+      "type": "string",
+      "description": "Path to the theme JSON downloaded from the theme studio",
+      "x-prompt": "Which theme JSON should be written back?"
+    }
+  },
+  "required": ["from"]
+}

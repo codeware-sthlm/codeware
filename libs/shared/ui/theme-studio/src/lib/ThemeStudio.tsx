@@ -386,27 +386,67 @@ export function ThemeStudio({
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '') || 'my-theme';
 
-  const downloadZip = () => {
-    const zip = createZip(
-      Object.fromEntries(
-        Object.entries(files).map(([name, contents]) => [
-          `${folder}/${name}`,
-          contents
-        ])
-      )
-    );
-    const url = URL.createObjectURL(
-      new Blob([zip as BlobPart], { type: 'application/zip' })
-    );
+  const download = (name: string, blob: Blob) => {
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${folder}.zip`;
+    link.download = name;
     link.click();
 
     // Revoking in the same tick can cancel or truncate the download in some
     // browsers — the click only queues it
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
+
+  const downloadZip = () =>
+    download(
+      `${folder}.zip`,
+      new Blob(
+        [
+          createZip(
+            Object.fromEntries(
+              Object.entries(files).map(([name, contents]) => [
+                `${folder}/${name}`,
+                contents
+              ])
+            ) as never
+          ) as BlobPart
+        ],
+        { type: 'application/zip' }
+      )
+    );
+
+  /**
+   * The payload `dev-plugin:theme-write` reads.
+   *
+   * The generated CSS rather than the recipe: what lands in the repository is
+   * then exactly what this screen was showing, with nothing rebuilt in between
+   * from a recipe that travelled separately.
+   *
+   * `tailwind-base.css` is left out on purpose. The generator refuses to write
+   * it anyway — a theme's own `@theme inline` block is not the studio's to
+   * rewrite — so sending it would only invite the question.
+   */
+  const downloadWriteBack = () =>
+    download(
+      `${folder}.theme.json`,
+      new Blob(
+        [
+          JSON.stringify(
+            {
+              name: folder,
+              files: {
+                'tokens-light.css': files['tokens-light.css'],
+                'tokens-dark.css': files['tokens-dark.css']
+              }
+            },
+            null,
+            2
+          )
+        ],
+        { type: 'application/json' }
+      )
+    );
 
   const ids = previewScope(scope);
   const update = (patch: Partial<ThemeRecipe>) =>
@@ -725,6 +765,44 @@ export function ThemeStudio({
                               Download {folder}.zip
                             </Button>
                           </div>
+
+                          <Separator />
+
+                          {/* The other direction: a theme that already exists
+                              is replaced rather than unpacked, and only its two
+                              token files are touched */}
+                          <div className="space-y-2">
+                            <div className="flex items-end justify-between gap-2">
+                              <div className="space-y-0.5">
+                                <Label className="text-xs">
+                                  Replace an existing theme
+                                </Label>
+                                <p className="text-muted-foreground text-[11px]">
+                                  Writes {folder}&apos;s two token files in
+                                  place, leaving its tailwind-base.css alone.
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={downloadWriteBack}
+                              >
+                                <DownloadIcon className="size-4" />
+                                {folder}.theme.json
+                              </Button>
+                            </div>
+                            <pre className="bg-muted overflow-x-auto rounded-md p-2 font-mono text-[11px]">
+                              {`nx g dev-plugin:theme-write --from=~/Downloads/${folder}.theme.json`}
+                            </pre>
+                            <p className="text-muted-foreground text-[11px]">
+                              Then{' '}
+                              <code>nx daemon --stop &amp;&amp; nx sync</code>{' '}
+                              to regenerate the stylesheets and check the theme
+                              against the token contract.
+                            </p>
+                          </div>
+
+                          <Separator />
 
                           <ol className="text-muted-foreground space-y-2 text-xs">
                             <li>

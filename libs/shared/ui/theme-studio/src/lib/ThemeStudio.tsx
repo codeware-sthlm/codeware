@@ -197,6 +197,15 @@ type ThemeStudioProps = {
    */
   themeName?: string;
   /**
+   * The folder the open theme lives in, when it is a committed one.
+   *
+   * Distinct from {@link themeName}, which is a display label: "Spotlight
+   * Studio" is not `spotlight-fork`, and the write-back names a directory. Its
+   * absence is meaningful — a theme the studio cannot identify is one it must
+   * not offer to replace.
+   */
+  themeSlug?: string;
+  /**
    * What the confirm button says.
    *
    * "Use this theme" is right when the studio is editing the theme it will
@@ -293,6 +302,7 @@ export function ThemeStudio({
   canExport = false,
   canUseRestrictedFonts = false,
   themeName,
+  themeSlug,
   selectLabel = 'Use this theme',
   canSelectWithIssues = false,
   recipe: initialRecipe,
@@ -310,7 +320,11 @@ export function ThemeStudio({
   const [scheme, setScheme] = useState<'light' | 'dark' | 'both'>('both');
   const [optionsOpen, setOptionsOpen] = useState(true);
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
-  const [exportName, setExportName] = useState('my-theme');
+  // Seeded from the open theme, not left at a placeholder. The name is not
+  // decoration: it is the folder the zip unpacks to and the theme the
+  // write-back replaces, so defaulting it to `my-theme` while `spotlight-fork`
+  // was on screen produced a payload naming a theme that does not exist
+  const [exportName, setExportName] = useState(themeSlug ?? 'my-theme');
 
   // What the recipe alone produces — the override panel needs it to show what
   // a token would revert to
@@ -747,115 +761,138 @@ export function ThemeStudio({
                               here, because these files are compiled.
                             </SheetDescription>
                           </SheetHeader>
-                          <div className="flex items-end gap-2">
-                            <div className="min-w-0 flex-1 space-y-1">
-                              <Label className="text-xs">Folder name</Label>
-                              <Input
-                                value={exportName}
-                                onChange={(event) =>
-                                  setExportName(event.target.value)
-                                }
-                                aria-label="Theme folder name"
-                                placeholder="my-theme"
-                                className="h-8 font-mono text-xs"
-                              />
-                            </div>
-                            <Button size="sm" onClick={downloadZip}>
-                              <DownloadIcon className="size-4" />
-                              Download {folder}.zip
-                            </Button>
-                          </div>
 
-                          <Separator />
-
-                          {/* The other direction: a theme that already exists
-                              is replaced rather than unpacked, and only its two
-                              token files are touched */}
-                          <div className="space-y-2">
-                            <div className="flex items-end justify-between gap-2">
-                              <div className="space-y-0.5">
-                                <Label className="text-xs">
-                                  Replace an existing theme
-                                </Label>
-                                <p className="text-muted-foreground text-[11px]">
-                                  Writes {folder}&apos;s two token files in
-                                  place, leaving its tailwind-base.css alone.
-                                </p>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={downloadWriteBack}
-                              >
-                                <DownloadIcon className="size-4" />
-                                {folder}.theme.json
-                              </Button>
-                            </div>
-                            <pre className="bg-muted overflow-x-auto rounded-md p-2 font-mono text-[11px]">
-                              {`nx g dev-plugin:theme-write --from=~/Downloads/${folder}.theme.json`}
-                            </pre>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Theme name</Label>
+                            <Input
+                              value={exportName}
+                              onChange={(event) =>
+                                setExportName(event.target.value)
+                              }
+                              aria-label="Theme name"
+                              placeholder="my-theme"
+                              className="h-8 font-mono text-xs"
+                            />
                             <p className="text-muted-foreground text-[11px]">
-                              Then{' '}
-                              <code>nx daemon --stop &amp;&amp; nx sync</code>{' '}
-                              to regenerate the stylesheets and check the theme
-                              against the token contract.
+                              The folder this theme lives in. Everything below
+                              uses it.
                             </p>
                           </div>
 
                           <Separator />
 
-                          <ol className="text-muted-foreground space-y-2 text-xs">
-                            <li>
-                              <span className="text-foreground font-medium">
-                                1. Unpack into the theme library
-                              </span>
-                              <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 font-mono text-[11px]">
-                                {`unzip ~/Downloads/${folder}.zip -d libs/shared/theme/src/lib/`}
-                              </pre>
-                            </li>
-                            <li>
-                              <span className="text-foreground font-medium">
-                                2. Register the theme
-                              </span>
-                              <p className="mt-1">
-                                Add <code>&apos;{folder}&apos;</code> to{' '}
-                                <code>SITE_THEMES</code> in{' '}
-                                <code>theme-sync.ts</code>, and a display name
-                                in <code>theme-labels.ts</code>.
-                              </p>
-                            </li>
-                            <li>
-                              <span className="text-foreground font-medium">
-                                3. Regenerate
-                              </span>
-                              <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 font-mono text-[11px]">
-                                {'nx daemon --stop && nx sync'}
-                              </pre>
-                              <p className="mt-1">
-                                The daemon caches the compiled generator, so
-                                skipping the stop reports everything already up
-                                to date.
-                              </p>
-                            </li>
-                          </ol>
-                          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
-                            {Object.entries(files).map(
-                              ([filename, contents]) => (
-                                <div key={filename} className="space-y-1">
-                                  <p className="font-mono text-xs font-medium">
-                                    {filename}
-                                  </p>
-                                  <div className="relative">
-                                    <CopyButton
-                                      code={contents}
-                                      label={`Copy ${filename}`}
-                                    />
-                                    <pre className="bg-muted overflow-x-auto rounded-md p-3 pr-12 font-mono text-[11px] leading-relaxed">
-                                      {contents}
-                                    </pre>
-                                  </div>
-                                </div>
-                              )
+                          {/* Three outcomes, not one download with footnotes.
+                              They differ by where the files end up, and only
+                              the last needs the theme to already exist */}
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="space-y-0.5">
+                                <Label className="text-xs">
+                                  1. Take the files away
+                                </Label>
+                                <p className="text-muted-foreground text-[11px]">
+                                  All three files as an archive, to inspect or
+                                  keep.
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="shrink-0"
+                                onClick={downloadZip}
+                              >
+                                <DownloadIcon className="size-4" />
+                                {folder}.zip
+                              </Button>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-2">
+                            <Label className="text-xs">
+                              2. Add it as a new platform theme
+                            </Label>
+                            <p className="text-muted-foreground text-[11px]">
+                              Ships in the CSS bundle to every tenant, and every
+                              site may then select it.
+                            </p>
+                            <ol className="text-muted-foreground space-y-2 text-xs">
+                              <li>
+                                <span className="text-foreground font-medium">
+                                  Unpack into the theme library
+                                </span>
+                                <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 font-mono text-[11px]">
+                                  {`unzip ~/Downloads/${folder}.zip -d libs/shared/theme/src/lib/`}
+                                </pre>
+                              </li>
+                              <li>
+                                <span className="text-foreground font-medium">
+                                  Register it
+                                </span>
+                                <p className="mt-1">
+                                  Add <code>&apos;{folder}&apos;</code> to{' '}
+                                  <code>SITE_THEMES</code> in{' '}
+                                  <code>themes.ts</code>, and a display name in{' '}
+                                  <code>theme-labels.ts</code>.
+                                </p>
+                              </li>
+                              <li>
+                                <span className="text-foreground font-medium">
+                                  Regenerate
+                                </span>
+                                <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 font-mono text-[11px]">
+                                  {'nx daemon --stop && nx sync'}
+                                </pre>
+                                <p className="mt-1">
+                                  The daemon caches the compiled generator, so
+                                  skipping the stop reports everything already
+                                  up to date.
+                                </p>
+                              </li>
+                            </ol>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="space-y-0.5">
+                                <Label className="text-xs">
+                                  3. Replace an existing platform theme
+                                </Label>
+                                <p className="text-muted-foreground text-[11px]">
+                                  {themeSlug
+                                    ? `Overwrites ${themeSlug}'s two token files in place and leaves the rest of its folder alone.`
+                                    : 'Open a platform theme from the theme library to replace one — this studio does not know which theme it would be writing over.'}
+                                </p>
+                              </div>
+                              {themeSlug && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="shrink-0"
+                                  onClick={downloadWriteBack}
+                                >
+                                  <DownloadIcon className="size-4" />
+                                  {folder}.theme.json
+                                </Button>
+                              )}
+                            </div>
+                            {themeSlug && (
+                              <>
+                                <pre className="bg-muted overflow-x-auto rounded-md p-2 font-mono text-[11px]">
+                                  {`nx g dev-plugin:theme-write --from=~/Downloads/${folder}.theme.json`}
+                                </pre>
+                                <p className="text-muted-foreground text-[11px]">
+                                  Then{' '}
+                                  <code>
+                                    nx daemon --stop &amp;&amp; nx sync
+                                  </code>{' '}
+                                  to regenerate the stylesheets and check the
+                                  result against the token contract.
+                                </p>
+                              </>
                             )}
                           </div>
                         </SheetContent>

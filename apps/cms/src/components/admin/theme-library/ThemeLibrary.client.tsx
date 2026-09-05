@@ -226,6 +226,9 @@ export function ThemeLibrary({ themes }: { themes: Array<BuiltInTheme> }) {
               canExport
               canUseRestrictedFonts
               themeName={open.label}
+              // The folder, not the label — the write-back names a directory,
+              // and "Spotlight Studio" is not `spotlight-fork`
+              themeSlug={open.name}
               // The studio's confirm button writes back to whatever opened it.
               // Here that is a built-in, which is never written back to — so it
               // has to say what it really does

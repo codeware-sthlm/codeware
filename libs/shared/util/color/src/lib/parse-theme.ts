@@ -84,7 +84,26 @@ const canonicalColor = (value: string): string | null => {
   const chroma = round(color.c);
   const hue = chroma === 0 || Number.isNaN(color.h) ? 0 : round(color.h);
 
-  return `oklch:${round(color.l)},${chroma},${hue}`;
+  return `oklch:${round(color.l)},${chroma},${hue},${alphaOf(value)}`;
+};
+
+/**
+ * The alpha a colour carries, defaulting to opaque.
+ *
+ * `parseColor` returns lightness, chroma and hue and nothing else, so a
+ * translucent colour and its opaque twin canonicalise identically. That made
+ * `oklch(1 0 0 / 90%)` compare equal to a generated `var(--background)` of
+ * white — the override was judged redundant, dropped, and a theme's translucent
+ * chrome quietly went solid on the way back out.
+ */
+const alphaOf = (value: string): number => {
+  const match = /\/\s*([\d.]+)(%?)\s*\)\s*$/.exec(value.trim());
+  if (!match) {
+    return 1;
+  }
+
+  const raw = Number(match[1]);
+  return Number.isNaN(raw) ? 1 : match[2] ? raw / 100 : raw;
 };
 
 /** A `var()` naming another token in the same block, not a palette entry. */

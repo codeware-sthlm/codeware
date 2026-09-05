@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { isAbsolute, join, resolve } from 'node:path';
 
 import { type Tree } from '@nx/devkit';
 import { format, resolveConfig } from 'prettier';
@@ -40,18 +42,49 @@ type ThemePayload = {
 };
 
 /**
+ * Turn what someone typed into a path Node can open.
+ *
+ * `~` is the shell's, not Node's, and a shell only expands it in an argument
+ * like `--from=~/Downloads/x.json` under some options — so the tilde arrives
+ * literally and `readFileSync` looks for a directory called `~`. The studio
+ * prints exactly that command, which makes handling it here the fix rather
+ * than telling people to quote things differently.
+ */
+const expand = (path: string): string => {
+  const trimmed = path.trim();
+
+  if (trimmed === '~') {
+    return homedir();
+  }
+  if (trimmed.startsWith('~/')) {
+    return join(homedir(), trimmed.slice(2));
+  }
+
+  return isAbsolute(trimmed) ? trimmed : resolve(trimmed);
+};
+
+/**
  * Read the studio's download, refusing anything that is not one.
  *
  * A generator that writes CSS into the theme library from a file path is worth
  * being loud about: a wrong path should say so rather than write a theme out of
  * whatever JSON happened to be there.
  */
-function readPayload(path: string): ThemePayload {
+function readPayload(given: string): ThemePayload {
+  const path = expand(given);
+
   let raw: string;
   try {
     raw = readFileSync(path, 'utf-8');
-  } catch {
-    throw new Error(`Could not read '${path}'.`);
+  } catch (cause) {
+    const why =
+      (cause as NodeJS.ErrnoException)?.code === 'ENOENT'
+        ? 'no such file'
+        : ((cause as Error)?.message ?? 'unreadable');
+
+    // The resolved path, not what was typed — when a tilde or a relative path
+    // is the problem, seeing where it actually looked is the whole answer
+    throw new Error(`Could not read '${path}' (${why}).`);
   }
 
   let parsed: unknown;

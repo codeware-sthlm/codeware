@@ -1,4 +1,5 @@
 import { mkdtempSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -123,6 +124,31 @@ describe('theme-write generator', () => {
     await expect(
       themeWriteGenerator(tree, { from: payload(body) })
     ).rejects.toThrow();
+  });
+
+  // The studio prints `--from=~/Downloads/…`, and a shell does not always
+  // expand a tilde inside an `--opt=value` argument
+  it('expands a leading tilde', async () => {
+    const tree = setupTree();
+    const abs = payload(theme('codeware'));
+    const home = homedir();
+
+    // Only meaningful when the temp dir is under $HOME; skip elsewhere
+    if (!abs.startsWith(home)) {
+      return;
+    }
+
+    await expect(
+      themeWriteGenerator(tree, { from: `~${abs.slice(home.length)}` })
+    ).resolves.not.toThrow();
+  });
+
+  it('says where it looked when the file is not there', async () => {
+    const tree = setupTree();
+
+    await expect(
+      themeWriteGenerator(tree, { from: '~/definitely-not-here.json' })
+    ).rejects.toThrow(/no such file/);
   });
 
   it('refuses a path that is not JSON', async () => {

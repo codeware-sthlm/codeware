@@ -281,12 +281,11 @@ export async function ensureCreateNxWorkspaceProject({
   // ! create-nx-workspace still emits deprecated `baseUrl`, a hard error on TS 6
   ensureTs6TsconfigCompat();
 
-  // Both routes reach the plugin's open peer ranges: the preset resolves them
-  // while the workspace is created, `nx add` right after. Pinning here covers
-  // the first and precedes the second.
-  if (preset === '@cdwr/nx-payload' || options?.ensureNxPayload) {
-    await ensureAlignedNxPeers(pm);
-  }
+  // Unconditional because a caller may add the plugin itself once it has the
+  // workspace back, which no flag here would reveal. The preset resolves those
+  // peers while the workspace is created, `nx add` right after; pinning now
+  // covers the first and precedes the second.
+  await ensureAlignedNxPeers(pm);
 
   if (preset === 'apps' && options?.ensureNxPayload) {
     logDebug('Install @cdwr/nx-payload plugin in the empty apps workspace');

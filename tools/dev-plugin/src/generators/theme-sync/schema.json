@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/schema",
   "$id": "ThemeSync",
-  "title": "",
+  "title": "Sync everything derived from the committed themes",
+  "description": "Regenerates the Storybook and site stylesheets, the theme registries and the built-in token maps from libs/shared/theme. Throws when a theme is missing a token the contract files require, so a short theme fails the sync rather than shipping.",
   "type": "object",
   "properties": {},
   "required": []

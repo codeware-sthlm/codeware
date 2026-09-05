@@ -1,9 +1,10 @@
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { describe, expect, it } from 'vitest';
 
+import { THEME_LIB_PATH as THEME_LIB } from '../themes.js';
+
 import themeSyncGenerator, { validateThemeRegistry } from './theme-sync';
 
-const THEME_LIB = 'libs/shared/theme/src/lib';
 const CORE_PATH = `${THEME_LIB}/_core`;
 const OUTPUT_CSS = 'apps/storybook/.storybook/themes.css';
 const OUTPUT_META = 'apps/storybook/.storybook/themes-meta.ts';

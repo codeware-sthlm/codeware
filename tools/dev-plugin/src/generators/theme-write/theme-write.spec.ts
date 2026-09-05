@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { themeWriteGenerator } from './theme-write';
+import { THEME_LIB_PATH as THEME_LIB } from '../themes.js';
 
-const THEME_LIB = 'libs/shared/theme/src/lib';
+import { themeWriteGenerator } from './theme-write';
 
 const LIGHT = ':root {\n  --background: oklch(1 0 0);\n}\n';
 const DARK = '.dark {\n  --background: oklch(0.1 0 0);\n}\n';

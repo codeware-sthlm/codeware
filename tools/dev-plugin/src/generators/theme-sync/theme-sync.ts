@@ -2,8 +2,16 @@ import { type Tree } from '@nx/devkit';
 import type { SyncGeneratorResult } from 'nx/src/utils/sync-generators';
 import { format, resolveConfig } from 'prettier';
 
-const THEME_LIB_PATH = 'libs/shared/theme/src/lib';
-const CORE_PATH = `${THEME_LIB_PATH}/_core`;
+import {
+  CORE_PATH,
+  RESERVED_THEME_NAMES,
+  SITE_THEMES,
+  STORYBOOK_THEMES,
+  type SbTheme,
+  type SiteTheme,
+  THEME_LIB_PATH
+} from '../themes.js';
+
 const OUTPUT_CSS = 'apps/storybook/.storybook/themes.css';
 const OUTPUT_META = 'apps/storybook/.storybook/themes-meta.ts';
 const OUTPUT_SHARED_THEMES =
@@ -12,38 +20,6 @@ const OUTPUT_SITE_CSS = `${CORE_PATH}/themes.css`;
 const OUTPUT_SITE_THEMES = `${THEME_LIB_PATH}/site-themes.ts`;
 const OUTPUT_BUILT_IN_TOKENS = `${THEME_LIB_PATH}/built-in-tokens.ts`;
 
-/**
- * Themes included in the Storybook switcher.
- * Each must have tokens-light.css, tokens-dark.css and tailwind-base.css.
- */
-const STORYBOOK_THEMES = [
-  'shadcn',
-  'payload-admin',
-  'spotlight',
-  'spotlight-fork',
-  'codeware'
-] as const;
-
-/**
- * Themes a tenant site may select, scoped by `data-theme` on `<html>`.
- *
- * `payload-admin` is excluded on purpose: it exists to match Payload's admin
- * chrome, so offering it as a public skin ships a site that looks like a CMS
- * backend. Every entry must also be a Storybook theme — that is what runs the
- * token completeness check.
- */
-const SITE_THEMES = [
-  'shadcn',
-  'spotlight',
-  'spotlight-fork',
-  'codeware'
-] as const;
-
-/** Theme names that would collide with the color scheme in `data-theme`. */
-const RESERVED_THEME_NAMES = ['light', 'dark'];
-
-type SbTheme = (typeof STORYBOOK_THEMES)[number];
-type SiteTheme = (typeof SITE_THEMES)[number];
 type DarkStrategy = 'class' | 'attribute';
 
 /**

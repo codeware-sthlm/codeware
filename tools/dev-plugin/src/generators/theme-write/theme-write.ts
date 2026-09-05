@@ -179,8 +179,8 @@ export async function themeWriteGenerator(
 
   console.log(
     `Wrote ${written.join(' and ')} for '${name}'.\n` +
-      `Run 'nx daemon --stop && nx sync' to regenerate the stylesheets and ` +
-      `check the theme against the token contract.`
+      `Run 'nx sync' to regenerate the stylesheets and check the theme ` +
+      `against the token contract.`
   );
 }
 

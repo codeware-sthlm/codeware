@@ -858,8 +858,10 @@ export function ThemeStudio({
                                   {'nx daemon --stop && nx sync'}
                                 </pre>
                                 <p className="mt-1">
-                                  The daemon caches the compiled generator, so
-                                  skipping the stop reports everything already
+                                  The stop is needed <em>here</em> because
+                                  registering the theme edits the generator
+                                  itself, and the daemon caches the compiled
+                                  copy — skipping it reports everything already
                                   up to date.
                                 </p>
                               </li>
@@ -898,12 +900,9 @@ export function ThemeStudio({
                                   {`nx g dev-plugin:theme-write --from=~/Downloads/${folder}.theme.json`}
                                 </pre>
                                 <p className="text-muted-foreground text-[11px]">
-                                  Then{' '}
-                                  <code>
-                                    nx daemon --stop &amp;&amp; nx sync
-                                  </code>{' '}
-                                  to regenerate the stylesheets and check the
-                                  result against the token contract.
+                                  Then <code>nx sync</code> to regenerate the
+                                  stylesheets and check the result against the
+                                  token contract.
                                 </p>
                               </>
                             )}

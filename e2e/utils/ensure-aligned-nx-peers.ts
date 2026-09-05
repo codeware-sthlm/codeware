@@ -7,6 +7,8 @@ import { type PackageManager, readJsonFile } from '@nx/devkit';
 import { readJson } from '@nx/plugin/testing';
 import type { PackageJson } from 'nx/src/utils/package-json';
 
+import { ensurePnpmApproveBuilds } from './ensure-pnpm-approve-builds';
+
 /**
  * Pin the plugin's `@nx/*` peers to the workspace's own nx version.
  *
@@ -51,5 +53,20 @@ export const ensureAlignedNxPeers = async (
   logDebug('Pin plugin peers to the workspace nx version', pinned.join(', '));
 
   const install = packageManager === 'npm' ? 'install' : 'add';
-  await runCommand(`${packageManager} ${install} -D ${pinned.join(' ')}`);
+  const command = `${packageManager} ${install} -D ${pinned.join(' ')}`;
+
+  // pnpm 10+ turns a blocked build script into a hard install failure, not a
+  // warning, and this one has to land - a workspace that skips it is the
+  // unpinned workspace this exists to prevent. Recover the way the rest of the
+  // setup does: approve what is pending, then run it again.
+  try {
+    await runCommand(command);
+  } catch (output) {
+    logWarning(
+      'Peer pin failed, retrying after build approval',
+      String(output)
+    );
+    await ensurePnpmApproveBuilds(packageManager);
+    await runCommand(command);
+  }
 };

@@ -1,13 +1,14 @@
 {
   "$schema": "https://json-schema.org/schema",
   "$id": "ThemeWrite",
-  "title": "Replace a built-in theme's token files",
+  "title": "Replace a built-in theme's colours from the theme studio",
+  "description": "Takes the JSON the theme studio downloads and writes it over an existing theme's tokens-light.css and tokens-dark.css. Nothing else in the theme's folder is touched — its tailwind-base.css, and anything it declares beyond its tokens, are its own. This replaces a theme; use the studio's zip export to add a new one. Run 'nx sync' afterwards to regenerate the stylesheets and check the result against the token contract.",
   "type": "object",
   "properties": {
     "from": {
       "type": "string",
-      "description": "Path to the theme JSON downloaded from the theme studio",
-      "x-prompt": "Which theme JSON should be written back?"
+      "description": "Path to the .theme.json downloaded from the theme studio, e.g. ~/Downloads/codeware.theme.json",
+      "x-prompt": "Path to the theme JSON from the studio?"
     }
   },
   "required": ["from"]

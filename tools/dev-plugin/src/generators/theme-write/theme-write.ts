@@ -3,12 +3,14 @@ import { readFileSync } from 'node:fs';
 import { type Tree } from '@nx/devkit';
 import { format, resolveConfig } from 'prettier';
 
+import {
+  type SbTheme,
+  THEME_LIB_PATH,
+  TOKEN_FILES,
+  type TokenFile
+} from '../themes.js';
+
 import type { ThemeWriteGeneratorSchema } from './schema';
-
-const THEME_LIB_PATH = 'libs/shared/theme/src/lib';
-
-/** The only files this writes. */
-const TOKEN_FILES = ['tokens-light.css', 'tokens-dark.css'] as const;
 
 /**
  * Themes that may not be replaced, and why.
@@ -17,8 +19,12 @@ const TOKEN_FILES = ['tokens-light.css', 'tokens-dark.css'] as const;
  * guard against replacing a theme whose job is to be a fixed reference, where
  * the damage is silent: the files would still compile and still pass the
  * completeness check, and only a Chromatic diff would ever say otherwise.
+ *
+ * Keyed by {@link SbTheme}, so a theme renamed in the registry breaks this
+ * rather than quietly leaving it unprotected. Partial because most themes are
+ * replaceable; the reason is the message the refusal carries.
  */
-const PROTECTED: Record<string, string> = {
+const PROTECTED: Partial<Record<SbTheme, string>> = {
   shadcn:
     'it is the pixel-perfect baseline against shadcn.com — the theme every ' +
     'other one is judged against. Fork it instead.',
@@ -30,7 +36,7 @@ const PROTECTED: Record<string, string> = {
 /** The shape the studio downloads. */
 type ThemePayload = {
   name: string;
-  files: Record<string, string>;
+  files: Record<TokenFile, string>;
 };
 
 /**
@@ -57,7 +63,9 @@ function readPayload(path: string): ThemePayload {
 
   const payload = parsed as Partial<ThemePayload>;
   const name = payload?.name;
-  const files = payload?.files;
+  const files = payload?.files as
+    | Partial<Record<TokenFile, string>>
+    | undefined;
 
   if (typeof name !== 'string' || !name) {
     throw new Error(`'${path}' has no theme name.`);
@@ -73,7 +81,7 @@ function readPayload(path: string): ThemePayload {
     throw new Error(`'${path}' is missing ${missing.join(' and ')}.`);
   }
 
-  return { name, files: files as Record<string, string> };
+  return { name, files: files as Record<TokenFile, string> };
 }
 
 /**
@@ -103,7 +111,7 @@ export async function themeWriteGenerator(
 ) {
   const { name, files } = readPayload(options.from);
 
-  const refusal = PROTECTED[name];
+  const refusal = PROTECTED[name as SbTheme];
   if (refusal) {
     throw new Error(`'${name}' cannot be replaced: ${refusal}`);
   }

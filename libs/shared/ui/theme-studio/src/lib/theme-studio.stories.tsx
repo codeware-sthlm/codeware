@@ -30,7 +30,10 @@ export const Editing: StoryObj = {
         radius: '1rem',
         linkShade: { light: '700', dark: '300' },
         fontBody: 'inter',
-        fontHeading: 'system'
+        fontHeading: 'system',
+        primarySource: 'brand',
+        chartSource: 'brand',
+        linkSource: 'brand'
       }}
     />
   )

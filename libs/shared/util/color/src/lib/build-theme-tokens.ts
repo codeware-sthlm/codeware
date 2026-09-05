@@ -11,8 +11,15 @@ import {
 } from './palette';
 import {
   ALIAS_LIGHT,
+  BASE_CHART_SHADES,
   BASE_DARK,
   BASE_LIGHT,
+  type ChartSource,
+  type LinkSource,
+  PRIMARY_DARK,
+  PRIMARY_LIGHT,
+  type PrimarySource,
+  SHADCN_CHARTS,
   SUBTLE_DARK,
   SUBTLE_LIGHT,
   SURFACE_DARK,
@@ -58,6 +65,19 @@ export type ThemeRecipe = {
   /** Which brand step links take, per scheme — dark needs a lighter one to read */
   linkShade: { light: ColorShade; dark: ColorShade };
   /**
+   * Whether the primary, the ring and their sidebar twins read as the brand or
+   * as a neutral.
+   *
+   * A decision rather than a quirk: all four committed themes run a neutral
+   * primary, and a theme cannot be reopened from its CSS without somewhere to
+   * put that.
+   */
+  primarySource: PrimarySource;
+  /** Where the chart series comes from */
+  chartSource: ChartSource;
+  /** Whether links take their own brand step, or follow the primary */
+  linkSource: LinkSource;
+  /**
    * Registry ids, not stacks.
    *
    * A stack would let a theme name a family nothing declares, which renders as
@@ -81,7 +101,13 @@ export const DEFAULT_RECIPE: ThemeRecipe = {
   radius: '0.625rem',
   linkShade: { light: '700', dark: '400' },
   fontBody: DEFAULT_FONTS.body,
-  fontHeading: DEFAULT_FONTS.heading
+  fontHeading: DEFAULT_FONTS.heading,
+  // The brand reaching the primary, the charts and the links is what makes
+  // picking a swatch visibly do something. The committed themes chose
+  // otherwise, and can say so; a new theme should not start there.
+  primarySource: 'brand',
+  chartSource: 'brand',
+  linkSource: 'brand'
 };
 
 const paletteValue = (name: PaletteColor, format: ValueFormat): string =>
@@ -145,23 +171,44 @@ export function buildThemeTokens(
   const recipe = normaliseRecipe(storedRecipe);
   const { baseFamily, brandFamily, radius, linkShade } = recipe;
 
-  // Charts follow the brand rather than a fixed series, so a themed site does
-  // not draw its data in someone else's colours
+  // Charts follow the brand by default, so a themed site does not draw its data
+  // in someone else's colours — but a theme may keep shadcn's published series
+  // or a grey ramp, which is what the committed ones do
   const charts = chartFamilies(brandFamily);
-  const chartTokens = (step: ColorShade): ThemeTokens =>
-    Object.fromEntries(
-      charts.map((family, index) => [
+  const chartTokens = (scheme: 'light' | 'dark'): ThemeTokens => {
+    const colors: Array<PaletteColor> =
+      recipe.chartSource === 'shadcn'
+        ? SHADCN_CHARTS[scheme]
+        : recipe.chartSource === 'base'
+          ? BASE_CHART_SHADES.map(
+              (step) => `${baseFamily}-${step}` as PaletteColor
+            )
+          : charts.map(
+              (family) =>
+                `${family}-${scheme === 'light' ? '600' : '400'}` as PaletteColor
+            );
+
+    return Object.fromEntries(
+      colors.map((color, index) => [
         `--chart-${index + 1}`,
-        paletteValue(`${family}-${step}` as PaletteColor, format)
+        paletteValue(color, format)
       ])
     );
+  };
+
+  /** A link takes its own brand step, or simply follows the primary. */
+  const linkValue = (scheme: 'light' | 'dark'): string =>
+    recipe.linkSource === 'primary'
+      ? 'var(--primary)'
+      : `var(--brand-${linkShade[scheme]})`;
 
   const light: ThemeTokens = {
     ...brandRamp(brandFamily, format),
     '--radius': radius,
     '--radius-md': 'calc(var(--radius) - 0.125rem)',
     ...resolveAll(BASE_LIGHT, recipe, format),
-    ...chartTokens('600'),
+    ...resolveAll(PRIMARY_LIGHT[recipe.primarySource], recipe, format),
+    ...chartTokens('light'),
     ...resolveAll(SUBTLE_LIGHT, recipe, format),
     ...resolveAll(ALIAS_LIGHT, recipe, format),
     ...resolveAll(SURFACE_LIGHT[recipe.surface], recipe, format),
@@ -170,7 +217,7 @@ export function buildThemeTokens(
     '--core-font-body': fontStack('body', recipe.fontBody),
     '--core-font-heading': fontStack('heading', recipe.fontHeading),
     // Through the ramp rather than the palette, so re-branding is one change
-    '--core-link': `var(--brand-${linkShade.light})`,
+    '--core-link': linkValue('light'),
     '--core-surface-invert': paletteValue(
       `${baseFamily}-900` as PaletteColor,
       format
@@ -180,11 +227,12 @@ export function buildThemeTokens(
 
   const dark: ThemeTokens = {
     ...resolveAll(BASE_DARK, recipe, format),
+    ...resolveAll(PRIMARY_DARK[recipe.primarySource], recipe, format),
     // Lighter, so a series reads against a dark surface
-    ...chartTokens('400'),
+    ...chartTokens('dark'),
     ...resolveAll(SUBTLE_DARK, recipe, format),
     ...resolveAll(SURFACE_DARK[recipe.surface], recipe, format),
-    '--core-link': `var(--brand-${linkShade.dark})`,
+    '--core-link': linkValue('dark'),
     // The inverted surface is the raised one once the page is already dark
     '--core-surface-invert': 'var(--card)',
     ...overrides.dark

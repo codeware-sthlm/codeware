@@ -10,7 +10,7 @@ import {
 } from '@codeware/shared/ui/shadcn/components/tabs';
 import type { ThemeTokens } from '@codeware/shared/util/color';
 import { cn } from '@codeware/shared/util/ui';
-import { RotateCcwIcon } from 'lucide-react';
+import { RotateCcwIcon, TriangleAlertIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export type ThemeOverrides = { light: ThemeTokens; dark: ThemeTokens };
@@ -40,10 +40,24 @@ export function applyTokenEdit(
   return { ...overrides, [scheme]: next };
 }
 
+/** What is wrong with a token, per scheme, keyed by token name. */
+export type TokenIssues = {
+  light: Record<string, Array<string>>;
+  dark: Record<string, Array<string>>;
+};
+
 type OverridePanelProps = {
   /** What the recipe produced, before overrides */
   generated: ThemeOverrides;
   overrides: ThemeOverrides;
+  /**
+   * Failing contrast pairs and dangling aliases, by the token they implicate.
+   *
+   * The reports above say what is wrong with the theme; without this the author
+   * still has to work out which of ninety rows to edit, and a token that fails
+   * on the recipe alone carries no other mark at all.
+   */
+  issues?: TokenIssues;
   onChange: (overrides: ThemeOverrides) => void;
 };
 
@@ -61,13 +75,21 @@ type OverridePanelProps = {
 export function OverridePanel({
   generated,
   overrides,
+  issues,
   onChange
 }: OverridePanelProps) {
   const [scheme, setScheme] = useState<'light' | 'dark'>('light');
   const [filter, setFilter] = useState('');
+  const [onlyIssues, setOnlyIssues] = useState(false);
 
-  const names = Object.keys(generated[scheme]).filter((name) =>
-    name.includes(filter.trim())
+  const schemeIssues = issues?.[scheme] ?? {};
+  const issueCount = Object.keys(schemeIssues).filter(
+    (name) => name in generated[scheme]
+  ).length;
+
+  const names = Object.keys(generated[scheme]).filter(
+    (name) =>
+      name.includes(filter.trim()) && (!onlyIssues || name in schemeIssues)
   );
 
   const setToken = (name: string, value: string) =>
@@ -110,6 +132,21 @@ export function OverridePanel({
         )}
       </div>
 
+      {issueCount > 0 && (
+        // Marking a row is only half of it — ninety rows is too many to scan
+        // for the marks, so the count doubles as the way to see just those
+        <Button
+          size="sm"
+          variant={onlyIssues ? 'default' : 'outline'}
+          className="w-full"
+          aria-pressed={onlyIssues}
+          onClick={() => setOnlyIssues((shown) => !shown)}
+        >
+          <TriangleAlertIcon className="size-3.5" />
+          {onlyIssues ? 'Showing' : 'Show'} {issueCount} with issues
+        </Button>
+      )}
+
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="space-y-1 pr-3">
           {names.map((name) => {
@@ -118,6 +155,7 @@ export function OverridePanel({
               ? overrides[scheme][name]
               : generated[scheme][name];
             const invalid = overridden && !isValidTokenValue(value);
+            const tokenIssues = schemeIssues[name] ?? [];
 
             return (
               // Name above the value rather than beside it: a token value is
@@ -130,9 +168,11 @@ export function OverridePanel({
                   // Transparent rather than absent, so marking a row does not
                   // shift the ones around it
                   'space-y-1 rounded-md border-l-2 border-transparent px-1.5 py-1.5',
-                  overridden
-                    ? 'border-l-primary bg-primary/5'
-                    : 'hover:bg-accent/40'
+                  tokenIssues.length
+                    ? 'border-l-destructive bg-destructive/5'
+                    : overridden
+                      ? 'border-l-primary bg-primary/5'
+                      : 'hover:bg-accent/40'
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -147,6 +187,15 @@ export function OverridePanel({
                   >
                     {name}
                   </code>
+                  {tokenIssues.length > 0 && (
+                    <span
+                      className="bg-destructive/10 text-destructive-subtle flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] font-medium"
+                      title={tokenIssues.join('\n')}
+                    >
+                      <TriangleAlertIcon className="size-3" />
+                      {tokenIssues.length > 1 ? tokenIssues.length : 'Issue'}
+                    </span>
+                  )}
                   {overridden && (
                     <span className="bg-primary/10 text-primary shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-medium">
                       Edited
@@ -185,7 +234,9 @@ export function OverridePanel({
 
           {names.length === 0 && (
             <p className="text-muted-foreground py-4 text-center text-xs">
-              No token matches “{filter}”.
+              {onlyIssues && !filter.trim()
+                ? 'Nothing flagged in this scheme.'
+                : `No token matches “${filter}”.`}
             </p>
           )}
         </div>

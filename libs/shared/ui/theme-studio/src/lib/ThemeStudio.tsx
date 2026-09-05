@@ -53,6 +53,7 @@ import { ContrastReport } from './ContrastReport';
 import { OverridePanel, type ThemeOverrides } from './OverridePanel';
 import { previewCss, previewScope } from './preview-css';
 import { ThemePreview } from './ThemePreview';
+import { tokenIssues } from './token-issues';
 
 /** Offered as brand colours — the neutrals are a base choice, not a brand one. */
 const BRAND_FAMILIES = [
@@ -82,6 +83,38 @@ const SURFACE_OPTIONS = [
 ] as const satisfies ReadonlyArray<{
   label: string;
   value: ThemeRecipe['surface'];
+}>;
+
+/**
+ * The three decisions the committed themes make differently.
+ *
+ * Labelled by what a reader sees rather than by the token they set — "Brand"
+ * and "Neutral" say what the buttons will look like, where `primarySource`
+ * says nothing to anyone who has not read the template.
+ */
+const PRIMARY_OPTIONS = [
+  { label: 'Brand', value: 'brand' },
+  { label: 'Neutral', value: 'base' }
+] as const satisfies ReadonlyArray<{
+  label: string;
+  value: ThemeRecipe['primarySource'];
+}>;
+
+const CHART_OPTIONS = [
+  { label: 'From the brand', value: 'brand' },
+  { label: 'shadcn', value: 'shadcn' },
+  { label: 'Greyscale', value: 'base' }
+] as const satisfies ReadonlyArray<{
+  label: string;
+  value: ThemeRecipe['chartSource'];
+}>;
+
+const LINK_OPTIONS = [
+  { label: 'Its own step', value: 'brand' },
+  { label: 'Follows the primary', value: 'primary' }
+] as const satisfies ReadonlyArray<{
+  label: string;
+  value: ThemeRecipe['linkSource'];
 }>;
 
 const RADIUS_OPTIONS = [
@@ -156,10 +189,35 @@ type ThemeStudioProps = {
    * column and never has to pass through this component at all.
    */
   canUseRestrictedFonts?: boolean;
+  /**
+   * The theme being edited, shown in the header.
+   *
+   * The studio fills the screen and is opened and closed repeatedly while
+   * comparing themes, and nothing else on it says which one is loaded.
+   */
+  themeName?: string;
+  /**
+   * What the confirm button says.
+   *
+   * "Use this theme" is right when the studio is editing the theme it will
+   * write back to. Opening a platform theme is not that — what the button does
+   * there is fork it — and a button that does not say so is the whole reason
+   * the action is hard to find.
+   */
+  selectLabel?: string;
   /** Recipe to open with, when editing an existing theme */
   recipe?: ThemeRecipe;
   /** Hand-edited tokens to restore alongside the recipe */
   overrides?: ThemeOverrides;
+  /**
+   * Whether the confirm button stays enabled while the theme has issues.
+   *
+   * Off by default: a theme being authored here should not ship with failing
+   * contrast. On when the studio is opened on a theme that already had them —
+   * a built-in's shortcomings are not the forker's to fix before they may
+   * copy it, and the report stays on screen either way.
+   */
+  canSelectWithIssues?: boolean;
   onSelect?: (result: ThemeStudioResult) => void;
   onClose?: () => void;
 };
@@ -234,6 +292,9 @@ function Pill({
 export function ThemeStudio({
   canExport = false,
   canUseRestrictedFonts = false,
+  themeName,
+  selectLabel = 'Use this theme',
+  canSelectWithIssues = false,
   recipe: initialRecipe,
   overrides: initialOverrides,
   onSelect,
@@ -282,6 +343,21 @@ export function ThemeStudio({
       }))
     ],
     [light, dark]
+  );
+
+  // The reports say what is wrong with the theme; this says which row to edit
+  const issues = useMemo(
+    () => ({
+      light: tokenIssues(
+        contrast.light,
+        broken.filter(({ scheme: on }) => on === 'Light')
+      ),
+      dark: tokenIssues(
+        contrast.dark,
+        broken.filter(({ scheme: on }) => on === 'Dark')
+      )
+    }),
+    [contrast, broken]
   );
 
   const failures =
@@ -347,8 +423,15 @@ export function ThemeStudio({
 
           {optionsOpen && (
             <aside className="border-border bg-muted/30 flex min-h-0 w-72 shrink-0 flex-col border-r">
-              <div className="flex h-12 shrink-0 items-center border-b px-4">
-                <h2 className="text-sm font-semibold">Theme studio</h2>
+              <div className="flex h-12 shrink-0 flex-col justify-center border-b px-4">
+                <h2 className="text-sm font-semibold">
+                  {themeName ?? 'Theme studio'}
+                </h2>
+                {themeName && (
+                  <span className="text-muted-foreground text-[11px]">
+                    Theme studio
+                  </span>
+                )}
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto">
@@ -448,6 +531,44 @@ export function ThemeStudio({
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label className="text-xs">Buttons and rings</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Whether the primary button, focus ring and active sidebar
+                      carry the brand colour or stay neutral.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {PRIMARY_OPTIONS.map(({ label, value }) => (
+                        <Pill
+                          key={value}
+                          active={recipe.primarySource === value}
+                          onClick={() => update({ primarySource: value })}
+                        >
+                          {label}
+                        </Pill>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Chart series</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      Five colours spaced off the brand, shadcn&apos;s published
+                      set, or a greyscale ramp.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {CHART_OPTIONS.map(({ label, value }) => (
+                        <Pill
+                          key={value}
+                          active={recipe.chartSource === value}
+                          onClick={() => update({ chartSource: value })}
+                        >
+                          {label}
+                        </Pill>
+                      ))}
+                    </div>
+                  </div>
+
                   <Separator />
 
                   <div className="space-y-2">
@@ -466,6 +587,30 @@ export function ThemeStudio({
                   </div>
 
                   <div className="space-y-2">
+                    <Label className="text-xs">Link colour</Label>
+                    <p className="text-muted-foreground text-[11px]">
+                      A link can take its own step of the brand ramp, or simply
+                      be the primary colour.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {LINK_OPTIONS.map(({ label, value }) => (
+                        <Pill
+                          key={value}
+                          active={recipe.linkSource === value}
+                          onClick={() => update({ linkSource: value })}
+                        >
+                          {label}
+                        </Pill>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* The shade means nothing once links follow the primary, and
+                      a control that changes no colour reads as a broken one */}
+                  <div
+                    className="space-y-2"
+                    hidden={recipe.linkSource === 'primary'}
+                  >
                     <Label className="text-xs">Link strength</Label>
                     <p className="text-muted-foreground text-[11px]">
                       Which step of the brand ramp links take.
@@ -531,6 +676,7 @@ export function ThemeStudio({
                         <OverridePanel
                           generated={generated}
                           overrides={overrides}
+                          issues={issues}
                           onChange={setOverrides}
                         />
                       </SheetContent>
@@ -731,9 +877,9 @@ export function ThemeStudio({
                 {onSelect && (
                   <Button
                     size="sm"
-                    disabled={failures > 0}
+                    disabled={failures > 0 && !canSelectWithIssues}
                     title={
-                      failures > 0
+                      failures > 0 && !canSelectWithIssues
                         ? 'Fix the contrast issues before using this theme'
                         : undefined
                     }
@@ -746,7 +892,7 @@ export function ThemeStudio({
                       })
                     }
                   >
-                    Use this theme
+                    {selectLabel}
                   </Button>
                 )}
                 {onClose && (

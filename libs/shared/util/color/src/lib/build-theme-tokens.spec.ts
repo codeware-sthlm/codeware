@@ -5,9 +5,12 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_RECIPE,
   type ThemeRecipe,
+  type ThemeTokens,
   buildThemeTokens
 } from './build-theme-tokens';
 import { parseColor } from './oklch';
+import { paletteColor, shade } from './palette';
+import { BASE_CHART_SHADES, SHADCN_CHARTS } from './theme-template';
 
 const coreFile = (name: string) =>
   readFileSync(
@@ -162,6 +165,137 @@ describe('buildThemeTokens', () => {
 
       expect(built.light['--core-link']).toBe('var(--brand-700)');
       expect(built.dark['--core-link']).toBe('var(--brand-300)');
+    });
+
+    // The three sources exist because every committed theme disagrees with the
+    // brand-led defaults, and a recipe with nowhere to say so reopens as a pile
+    // of overrides rather than as a theme
+    describe('primary source', () => {
+      const PRIMARY_GROUP = [
+        '--primary',
+        '--primary-foreground',
+        '--ring',
+        '--sidebar-primary',
+        '--sidebar-primary-foreground',
+        '--sidebar-ring'
+      ];
+
+      it('follows the brand family by default', () => {
+        const teal = buildThemeTokens(recipe({ brandFamily: 'teal' }));
+        const rose = buildThemeTokens(recipe({ brandFamily: 'rose' }));
+
+        // The foregrounds sit on top of the brand rather than carrying it, and
+        // stay white whatever it is
+        for (const token of [
+          '--primary',
+          '--ring',
+          '--sidebar-primary',
+          '--sidebar-ring'
+        ]) {
+          expect(teal.light[token]).not.toBe(rose.light[token]);
+        }
+        for (const token of [
+          '--primary-foreground',
+          '--sidebar-primary-foreground'
+        ]) {
+          expect(teal.light[token]).toBe(rose.light[token]);
+        }
+      });
+
+      // The point of the option: on `base` the brand must not reach these at
+      // all, or a neutral primary would still shift with the swatch
+      it('ignores the brand entirely on base', () => {
+        const teal = buildThemeTokens(
+          recipe({ brandFamily: 'teal', primarySource: 'base' })
+        );
+        const rose = buildThemeTokens(
+          recipe({ brandFamily: 'rose', primarySource: 'base' })
+        );
+
+        for (const token of PRIMARY_GROUP) {
+          expect(teal.light[token]).toBe(rose.light[token]);
+          expect(teal.dark[token]).toBe(rose.dark[token]);
+        }
+      });
+
+      it('takes the base family on base', () => {
+        const zinc = buildThemeTokens(
+          recipe({ baseFamily: 'zinc', primarySource: 'base' })
+        );
+
+        expect(zinc.light['--primary']).toBe(shade('zinc', '900'));
+        expect(zinc.light['--ring']).toBe(shade('zinc', '400'));
+        expect(zinc.dark['--primary']).toBe(shade('zinc', '200'));
+      });
+    });
+
+    describe('chart source', () => {
+      const series = (tokens: ThemeTokens) =>
+        [1, 2, 3, 4, 5].map((n) => tokens[`--chart-${n}`]);
+
+      it('follows the brand by default', () => {
+        const teal = buildThemeTokens(recipe({ brandFamily: 'teal' }));
+        const rose = buildThemeTokens(recipe({ brandFamily: 'rose' }));
+
+        expect(series(teal.light)).not.toEqual(series(rose.light));
+      });
+
+      it('keeps shadcn published series whatever the brand', () => {
+        const teal = buildThemeTokens(
+          recipe({ brandFamily: 'teal', chartSource: 'shadcn' })
+        );
+        const rose = buildThemeTokens(
+          recipe({ brandFamily: 'rose', chartSource: 'shadcn' })
+        );
+
+        expect(series(teal.light)).toEqual(series(rose.light));
+        expect(series(teal.light)).toEqual(
+          SHADCN_CHARTS.light.map((color) => paletteColor(color))
+        );
+        expect(series(teal.dark)).toEqual(
+          SHADCN_CHARTS.dark.map((color) => paletteColor(color))
+        );
+      });
+
+      // A mono series separates by lightness, so inverting it in dark would
+      // collapse the ends against the surface
+      it('draws a grey ramp off the base, the same steps in both schemes', () => {
+        const built = buildThemeTokens(
+          recipe({ baseFamily: 'stone', chartSource: 'base' })
+        );
+
+        expect(series(built.light)).toEqual(
+          BASE_CHART_SHADES.map((step) => shade('stone', step))
+        );
+        expect(series(built.dark)).toEqual(series(built.light));
+      });
+    });
+
+    describe('link source', () => {
+      it('takes the chosen brand step by default', () => {
+        const built = buildThemeTokens(
+          recipe({ linkShade: { light: '700', dark: '300' } })
+        );
+
+        expect(built.light['--core-link']).toBe('var(--brand-700)');
+        expect(built.dark['--core-link']).toBe('var(--brand-300)');
+      });
+
+      // The prose aliases point at `--core-link`, so following the primary has
+      // to reach them too rather than leaving links two different colours
+      it('follows the primary in both schemes, ignoring the shade', () => {
+        const built = buildThemeTokens(
+          recipe({
+            linkSource: 'primary',
+            linkShade: { light: '700', dark: '300' }
+          })
+        );
+
+        expect(built.light['--core-link']).toBe('var(--primary)');
+        expect(built.dark['--core-link']).toBe('var(--primary)');
+        expect(built.light['--links']).toBe('var(--core-link)');
+        expect(built.light['--underline']).toBe('var(--core-link)');
+      });
     });
 
     // Spotlight layers the content over a tinted body; shadcn and codeware do

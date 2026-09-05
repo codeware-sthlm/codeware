@@ -21,7 +21,10 @@ describe('normaliseRecipe', () => {
       ...legacy,
       surface: DEFAULT_RECIPE.surface,
       fontBody: DEFAULT_RECIPE.fontBody,
-      fontHeading: DEFAULT_RECIPE.fontHeading
+      fontHeading: DEFAULT_RECIPE.fontHeading,
+      primarySource: DEFAULT_RECIPE.primarySource,
+      chartSource: DEFAULT_RECIPE.chartSource,
+      linkSource: DEFAULT_RECIPE.linkSource
     });
   });
 
@@ -58,7 +61,10 @@ describe('normaliseRecipe', () => {
       radius: '2rem',
       linkShade: { light: DEFAULT_RECIPE.linkShade.light, dark: '300' },
       fontBody: DEFAULT_RECIPE.fontBody,
-      fontHeading: DEFAULT_RECIPE.fontHeading
+      fontHeading: DEFAULT_RECIPE.fontHeading,
+      primarySource: DEFAULT_RECIPE.primarySource,
+      chartSource: DEFAULT_RECIPE.chartSource,
+      linkSource: DEFAULT_RECIPE.linkSource
     });
   });
 

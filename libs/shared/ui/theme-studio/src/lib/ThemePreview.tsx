@@ -109,7 +109,11 @@ export function ThemePreview({ id, dark, className }: ThemePreviewProps) {
         <Separator />
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Card className="hover:border-ring hover:bg-accent/40 cursor-pointer transition-colors">
+          {/* `--core-link`, not `--ring`: the ring is the focus affordance, and
+              every interactive border the renderer actually draws — pill lists,
+              tour places, card blocks — hovers to the link colour. Previewing a
+              token nothing uses this way makes the preview a poor promise. */}
+          <Card className="hover:border-core-link hover:bg-accent/40 cursor-pointer transition-colors">
             <CardHeader>
               <CardTitle className="text-base">Hover me</CardTitle>
               <CardDescription>

@@ -74,7 +74,14 @@ export function randomRecipe(random: () => number = Math.random): ThemeRecipe {
         dark: pick(LINK_DARK, random)
       },
       fontBody: pick(FONT_CANDIDATES.body, random).id,
-      fontHeading: pick(FONT_CANDIDATES.heading, random).id
+      fontHeading: pick(FONT_CANDIDATES.heading, random).id,
+      // Not rolled, deliberately. A neutral primary with links following it
+      // leaves a link the same colour as the text around it — unreadable in a
+      // way the contrast check cannot see, because link and body text are not
+      // one of its pairs. The roll is for colour, not for structure.
+      primarySource: DEFAULT_RECIPE.primarySource,
+      chartSource: DEFAULT_RECIPE.chartSource,
+      linkSource: DEFAULT_RECIPE.linkSource
     };
 
     const { light, dark } = buildThemeTokens(recipe);

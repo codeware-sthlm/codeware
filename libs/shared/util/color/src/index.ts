@@ -5,6 +5,7 @@ export * from './lib/fonts';
 export * from './lib/normalise-recipe';
 export * from './lib/oklch';
 export * from './lib/palette';
+export * from './lib/parse-theme';
 export * from './lib/random-recipe';
 export * from './lib/references';
 export * from './lib/shadcn-neutrals';

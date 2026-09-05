@@ -9,8 +9,20 @@ const OUTPUT_CSS = 'apps/storybook/.storybook/themes.css';
 const OUTPUT_META = 'apps/storybook/.storybook/themes-meta.ts';
 const OUTPUT_SITE_CSS = `${CORE_PATH}/themes.css`;
 const OUTPUT_SITE_THEMES = 'libs/shared/theme/src/lib/site-themes.ts';
-const THEMES = ['shadcn', 'payload-admin', 'spotlight', 'codeware'] as const;
-const SITE_THEMES = ['shadcn', 'spotlight', 'codeware'] as const;
+const OUTPUT_BUILT_IN_TOKENS = 'libs/shared/theme/src/lib/built-in-tokens.ts';
+const THEMES = [
+  'shadcn',
+  'payload-admin',
+  'spotlight',
+  'spotlight-fork',
+  'codeware'
+] as const;
+const SITE_THEMES = [
+  'shadcn',
+  'spotlight',
+  'spotlight-fork',
+  'codeware'
+] as const;
 
 // Payload's admin convention — valid for a Storybook theme, unsatisfiable for
 // a site theme whose name already occupies data-theme
@@ -148,14 +160,90 @@ describe('theme-sync generator — site themes', () => {
     const tree = setupTree();
     await themeSyncGenerator(tree);
 
-    const registry = tree.read(OUTPUT_SITE_THEMES, 'utf-8') ?? '';
-    // Prettier-formatted, so single quotes
+    // Whitespace-normalised: prettier wraps the array once it grows, and the
+    // registry's contents are the point rather than its line breaks
+    const registry = (tree.read(OUTPUT_SITE_THEMES, 'utf-8') ?? '').replace(
+      /\s+/g,
+      ' '
+    );
     expect(registry).toContain(
-      `export const SITE_THEMES = [${SITE_THEMES.map((t) => `'${t}'`).join(', ')}] as const`
+      `export const SITE_THEMES = [ ${SITE_THEMES.map((t) => `'${t}'`).join(', ')} ] as const`
     );
     expect(registry).toContain(
       'export type SiteTheme = (typeof SITE_THEMES)[number]'
     );
+  });
+
+  /**
+   * The theme studio opens a built-in by fitting a recipe to its tokens, and
+   * the source CSS is not on disk in a deployed image. These are what it reads
+   * instead, so they have to say exactly what the CSS said.
+   */
+  describe('built-in tokens', () => {
+    it('emits every built-in, not only the site ones', async () => {
+      const tree = setupTree();
+      await themeSyncGenerator(tree);
+
+      const emitted = tree.read(OUTPUT_BUILT_IN_TOKENS, 'utf-8') ?? '';
+
+      for (const theme of THEMES) {
+        expect(emitted).toContain(
+          `${theme.includes('-') ? `'${theme}'` : theme}:`
+        );
+      }
+    });
+
+    it('carries the declarations through, per scheme', async () => {
+      const tree = setupTree();
+      await themeSyncGenerator(tree);
+
+      const emitted = tree.read(OUTPUT_BUILT_IN_TOKENS, 'utf-8') ?? '';
+
+      expect(emitted).toContain("'--body': 'oklch(0.1 0 0)'");
+      expect(emitted).toContain("'--primary': 'oklch(0.6 0.2 240)'");
+    });
+
+    // Same rule the completeness check follows: a commented-out declaration is
+    // prose about a token, not the token
+    it('leaves a commented-out declaration out', async () => {
+      const tree = setupTree();
+      for (const theme of THEMES) {
+        tree.write(
+          `${THEME_LIB}/${theme}/tokens-light.css`,
+          COMMENTED_LIGHT_CSS
+        );
+      }
+      tree.write(`${CORE_PATH}/typography-prose.js`, 'module.exports = {};');
+
+      await themeSyncGenerator(tree);
+
+      expect(tree.read(OUTPUT_BUILT_IN_TOKENS, 'utf-8') ?? '').not.toContain(
+        '--body'
+      );
+    });
+
+    // The mono font stack wraps across lines in every committed theme, and a
+    // value read one line at a time would be truncated to its first
+    it('collapses a value that wraps across lines', async () => {
+      const tree = setupTree();
+      tree.write(
+        `${THEME_LIB}/shadcn/tokens-light.css`,
+        `:root {
+  --background: oklch(1 0 0);
+  --primary: oklch(0.5 0.2 240);
+  --body: oklch(0.1 0 0);
+  --core-font-mono:
+    ui-monospace, SFMono-Regular,
+    Menlo, monospace;
+}`
+      );
+
+      await themeSyncGenerator(tree);
+
+      expect(tree.read(OUTPUT_BUILT_IN_TOKENS, 'utf-8') ?? '').toContain(
+        "'--core-font-mono': 'ui-monospace, SFMono-Regular, Menlo, monospace'"
+      );
+    });
   });
 
   it('leaves the Storybook stylesheet scoped to data-sb-theme', async () => {

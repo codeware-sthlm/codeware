@@ -10,6 +10,7 @@ const OUTPUT_SHARED_THEMES =
   'libs/shared/util/storybook/src/lib/storybook-themes.ts';
 const OUTPUT_SITE_CSS = `${CORE_PATH}/themes.css`;
 const OUTPUT_SITE_THEMES = `${THEME_LIB_PATH}/site-themes.ts`;
+const OUTPUT_BUILT_IN_TOKENS = `${THEME_LIB_PATH}/built-in-tokens.ts`;
 
 /**
  * Themes included in the Storybook switcher.
@@ -19,6 +20,7 @@ const STORYBOOK_THEMES = [
   'shadcn',
   'payload-admin',
   'spotlight',
+  'spotlight-fork',
   'codeware'
 ] as const;
 
@@ -30,7 +32,12 @@ const STORYBOOK_THEMES = [
  * backend. Every entry must also be a Storybook theme — that is what runs the
  * token completeness check.
  */
-const SITE_THEMES = ['shadcn', 'spotlight', 'codeware'] as const;
+const SITE_THEMES = [
+  'shadcn',
+  'spotlight',
+  'spotlight-fork',
+  'codeware'
+] as const;
 
 /** Theme names that would collide with the color scheme in `data-theme`. */
 const RESERVED_THEME_NAMES = ['light', 'dark'];
@@ -89,6 +96,26 @@ function darkSelector(
   return strategy === 'class'
     ? `[${attr}='${theme}'].dark`
     : `[${attr}='${theme}'][data-theme='dark']`;
+}
+
+/**
+ * Extract the declarations themselves, not only their names.
+ *
+ * Whitespace is collapsed because a value may wrap across lines — the mono font
+ * stack does — and a token map is compared by value, never by how it was laid
+ * out.
+ */
+function extractDeclarations(css: string): Record<string, string> {
+  const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const declarations: Record<string, string> = {};
+
+  for (const [, name, value] of stripped.matchAll(
+    /(--[a-z0-9-]+)\s*:\s*([^;]+);/gi
+  )) {
+    declarations[name] = value.replace(/\s+/g, ' ').trim();
+  }
+
+  return declarations;
 }
 
 /** Extract all CSS custom property names defined in a block of CSS text. */
@@ -193,6 +220,47 @@ function generateSiteThemesCss(
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Every built-in's tokens, as data the admin can read at runtime.
+ *
+ * The theme studio opens a built-in by fitting a recipe to its tokens, and the
+ * source CSS is not on disk in a deployed image — only the compiled stylesheet
+ * is. So the tokens are emitted here instead.
+ *
+ * Deliberately importless. `type:theme` is a dependency-free leaf, and reaching
+ * for the recipe type to describe this would make it something else; a caller
+ * that wants a recipe already depends on the colour library and can parse one.
+ */
+function generateBuiltInTokens(tree: Tree): string {
+  const themes = Object.fromEntries(
+    STORYBOOK_THEMES.map((theme) => [
+      theme,
+      {
+        light: extractDeclarations(
+          tree.read(`${THEME_LIB_PATH}/${theme}/tokens-light.css`, 'utf-8') ??
+            ''
+        ),
+        dark: extractDeclarations(
+          tree.read(`${THEME_LIB_PATH}/${theme}/tokens-dark.css`, 'utf-8') ?? ''
+        )
+      }
+    ])
+  );
+
+  return [
+    '/* AUTO-GENERATED — do not edit manually. Run `pnpm nx sync` to update. */',
+    '',
+    "/** One built-in theme's declarations, per colour scheme. */",
+    'export type BuiltInThemeTokens = {',
+    '  light: Record<string, string>;',
+    '  dark: Record<string, string>;',
+    '};',
+    '',
+    `export const BUILT_IN_TOKENS: Record<string, BuiltInThemeTokens> = ${JSON.stringify(themes)};`,
+    ''
+  ].join('\n');
 }
 
 function generateSiteThemesTs(): string {
@@ -415,12 +483,20 @@ export async function themeSyncGenerator(
   });
   const existingSiteThemes = tree.read(OUTPUT_SITE_THEMES, 'utf-8') ?? '';
 
+  const builtInTokensContent = await format(generateBuiltInTokens(tree), {
+    ...prettierConfig,
+    parser: 'typescript'
+  });
+  const existingBuiltInTokens =
+    tree.read(OUTPUT_BUILT_IN_TOKENS, 'utf-8') ?? '';
+
   const outputs: Array<[path: string, content: string, existing: string]> = [
     [OUTPUT_CSS, cssContent, existingCss],
     [OUTPUT_META, tsContent, existingTs],
     [OUTPUT_SHARED_THEMES, sharedThemesContent, existingSharedThemes],
     [OUTPUT_SITE_CSS, siteCssContent, existingSiteCss],
-    [OUTPUT_SITE_THEMES, siteThemesContent, existingSiteThemes]
+    [OUTPUT_SITE_THEMES, siteThemesContent, existingSiteThemes],
+    [OUTPUT_BUILT_IN_TOKENS, builtInTokensContent, existingBuiltInTokens]
   ];
 
   const stale = outputs.filter(([, content, existing]) => content !== existing);

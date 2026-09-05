@@ -178,25 +178,44 @@ const meta = {
 
 export default meta;
 
-export const Shadcn: StoryObj = {
-  name: 'shadcn',
-  render: () => <ThemePair theme="shadcn" />
-};
+/**
+ * One story per theme, keyed by the registry.
+ *
+ * `satisfies Record<SbTheme, StoryObj>` is the point: a theme added to
+ * `STORYBOOK_THEMES` without a story here stops compiling, instead of quietly
+ * going unreviewed. `spotlight-fork` reached the registry, `All Themes` and the
+ * toolbar while this list still named four themes — the one view built for
+ * looking at a single theme was the one place it was missing.
+ *
+ * Storybook needs a static named export per story, so the re-exports below stay
+ * by hand; this object is what makes a missing one a type error.
+ */
+const themeStories = {
+  shadcn: { name: 'shadcn', render: () => <ThemePair theme="shadcn" /> },
+  'payload-admin': {
+    name: 'payload-admin',
+    render: () => <ThemePair theme="payload-admin" />
+  },
+  spotlight: {
+    name: 'spotlight',
+    render: () => <ThemePair theme="spotlight" />
+  },
+  'spotlight-fork': {
+    name: 'spotlight-fork',
+    render: () => <ThemePair theme="spotlight-fork" />
+  },
+  codeware: { name: 'codeware', render: () => <ThemePair theme="codeware" /> }
+} satisfies Record<SbTheme, StoryObj>;
 
-export const PayloadAdmin: StoryObj = {
-  name: 'payload-admin',
-  render: () => <ThemePair theme="payload-admin" />
-};
+export const Shadcn: StoryObj = themeStories.shadcn;
 
-export const Spotlight: StoryObj = {
-  name: 'spotlight',
-  render: () => <ThemePair theme="spotlight" />
-};
+export const PayloadAdmin: StoryObj = themeStories['payload-admin'];
 
-export const Codeware: StoryObj = {
-  name: 'codeware',
-  render: () => <ThemePair theme="codeware" />
-};
+export const Spotlight: StoryObj = themeStories.spotlight;
+
+export const SpotlightFork: StoryObj = themeStories['spotlight-fork'];
+
+export const Codeware: StoryObj = themeStories.codeware;
 
 export const All: StoryObj = {
   name: 'All Themes',

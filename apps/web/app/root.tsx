@@ -1,4 +1,8 @@
-import { resolveTheme, themeLabel } from '@codeware/shared/theme';
+import {
+  customThemeCss,
+  resolveTheme,
+  themeLabel
+} from '@codeware/shared/theme';
 import {
   ErrorContainer,
   PayloadProvider,
@@ -165,12 +169,14 @@ function Document({
   children,
   lang,
   colorScheme = 'light',
-  theme = FALLBACK_THEME
+  theme = FALLBACK_THEME,
+  customCss
 }: {
   children: React.ReactNode;
   lang: string;
   colorScheme?: ColorScheme;
   theme?: string;
+  customCss?: string;
 }) {
   return (
     <html lang={lang} className={colorScheme} data-theme={theme}>
@@ -178,6 +184,17 @@ function Document({
         <ClientHintCheck />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/*
+          Tenant-authored tokens, which are not in the CSS bundle — every theme
+          block is scoped to its own `[data-theme]` and nothing sits at bare
+          `:root`, so without these an authored theme paints nothing at all
+          rather than falling back to the default one.
+
+          `customThemeCss` whitelists every name and value it writes, so the
+          result holds no `<`, `>` or `&` and is safe as a text child — no
+          `dangerouslySetInnerHTML` needed.
+        */}
+        {customCss && <style>{customCss}</style>}
         <Meta />
         <Links />
       </head>
@@ -199,11 +216,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
   // hiding the switch alone would leave a stale choice painted
   const lockedColorScheme = resolveLockedColorScheme(loaderData.tenantConfig);
 
+  // Every authored theme, not only the resolved one, so the switcher repaints
+  // without a round trip — the same set `apps/cms` emits
+  const customCss = customThemeCss(loaderData.tenantConfig?.customThemes ?? []);
+
   return (
     <Document
       colorScheme={lockedColorScheme ?? visitorColorScheme}
       lang={lang}
       theme={loaderData.theme}
+      customCss={customCss}
     >
       {children}
     </Document>
@@ -215,6 +237,14 @@ export default function App() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const tenantId = loaderData.env.TENANT_ID;
+
+  /** Authored themes carry the name they were saved under; built-ins do not. */
+  const customLabels = new Map(
+    (loaderData.tenantConfig?.customThemes ?? []).map(({ slug, name }) => [
+      slug,
+      name
+    ])
+  );
 
   // Two different values, and the switch needs both: the *preference* decides
   // which icon it shows (including `system`), while the *resolved* scheme is
@@ -321,10 +351,12 @@ export default function App() {
     resolvedColorScheme,
     lockedColorScheme: resolveLockedColorScheme(loaderData.tenantConfig),
     // Labels ride along with the values so the renderer never shows a raw slug
-    // and stays free of a list it would have to know about
+    // and stays free of a list it would have to know about. `themeLabel` only
+    // knows the built-ins, so an authored theme needs the name it was saved
+    // under — the same lookup `apps/cms` builds.
     themes: loaderData.themes.map((value) => ({
       value,
-      label: themeLabel(value)
+      label: customLabels.get(value) ?? themeLabel(value)
     })),
     theme: loaderData.theme,
     setTheme: (theme) =>

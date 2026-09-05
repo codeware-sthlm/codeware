@@ -84,8 +84,8 @@ describe('Test plugin by starting with an empty workspace (limited test suite)',
       //
       // But silencing it also swallowed the generator's own failure: when the
       // app was not created, every later assertion reported a symptom
-      // ('Cannot find project') and nothing said why. Keep the tolerance,
-      // print the output.
+      // ('Cannot find project') and nothing said why. Keep the tolerance, and
+      // log the output - at debug level, which CI enables.
       const generated = await runNxCommandAsync(
         `g @cdwr/nx-payload:app ${appName} --directory ${appDirectory}`,
         { silenceError: true }

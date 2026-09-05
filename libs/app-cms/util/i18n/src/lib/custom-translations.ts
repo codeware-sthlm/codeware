@@ -156,9 +156,11 @@ const customTranslationsSchema = z.object({
     newPage: z.string(),
     noMatches: z.string(),
     openSidebar: z.string(),
+    platformGroup: z.string(),
     roleEditor: z.string(),
     roleSystemAdmin: z.string(),
     searchPlaceholder: z.string(),
+    themeLibrary: z.string(),
     uploadMedia: z.string()
   }),
   platform: z.object({
@@ -476,9 +478,11 @@ You can assign multiple tags to a file.`,
       newPage: 'New page',
       noMatches: 'No matches',
       openSidebar: 'Open menu',
+      platformGroup: 'Platform',
       roleEditor: 'Editor',
       roleSystemAdmin: 'System admin',
       searchPlaceholder: 'Filter menu…',
+      themeLibrary: 'Theme library',
       uploadMedia: 'Upload media'
     },
     platform: {
@@ -819,9 +823,11 @@ Du kan tilldela flera etiketter till en fil.`,
       newPage: 'Ny sida',
       noMatches: 'Inga träffar',
       openSidebar: 'Öppna menyn',
+      platformGroup: 'Plattform',
       roleEditor: 'Redaktör',
       roleSystemAdmin: 'Systemadministratör',
       searchPlaceholder: 'Filtrera menyn…',
+      themeLibrary: 'Temabibliotek',
       uploadMedia: 'Ladda upp media'
     },
     platform: {

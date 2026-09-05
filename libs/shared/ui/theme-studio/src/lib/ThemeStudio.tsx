@@ -400,12 +400,29 @@ export function ThemeStudio({
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '') || 'my-theme';
 
-  const download = (name: string, blob: Blob) => {
-    const url = URL.createObjectURL(blob);
+  /**
+   * Save a file, under the name asked for.
+   *
+   * The anchor is put in the document before it is clicked and taken out after.
+   * A detached anchor is enough in Chrome, and is not in Firefox; Safari can
+   * ignore `download` on a detached one pointing at a `blob:` URL and navigate
+   * instead — at which point the browser names the file after the page, which
+   * is how a theme called `codeware` was saved as `Payload Theme.json`.
+   *
+   * A `File` rather than a `Blob` for the same reason: it carries the name
+   * itself, so a browser that disregards the attribute still has one to use.
+   */
+  const download = (name: string, parts: BlobPart[], type: string) => {
+    const url = URL.createObjectURL(new File(parts, name, { type }));
     const link = document.createElement('a');
     link.href = url;
     link.download = name;
+    link.rel = 'noopener';
+    link.style.display = 'none';
+
+    document.body.append(link);
     link.click();
+    link.remove();
 
     // Revoking in the same tick can cancel or truncate the download in some
     // browsers — the click only queues it
@@ -415,19 +432,17 @@ export function ThemeStudio({
   const downloadZip = () =>
     download(
       `${folder}.zip`,
-      new Blob(
-        [
-          createZip(
-            Object.fromEntries(
-              Object.entries(files).map(([name, contents]) => [
-                `${folder}/${name}`,
-                contents
-              ])
-            ) as never
-          ) as BlobPart
-        ],
-        { type: 'application/zip' }
-      )
+      [
+        createZip(
+          Object.fromEntries(
+            Object.entries(files).map(([name, contents]) => [
+              `${folder}/${name}`,
+              contents
+            ])
+          ) as never
+        ) as BlobPart
+      ],
+      'application/zip'
     );
 
   /**
@@ -444,22 +459,20 @@ export function ThemeStudio({
   const downloadWriteBack = () =>
     download(
       `${folder}.theme.json`,
-      new Blob(
-        [
-          JSON.stringify(
-            {
-              name: folder,
-              files: {
-                'tokens-light.css': files['tokens-light.css'],
-                'tokens-dark.css': files['tokens-dark.css']
-              }
-            },
-            null,
-            2
-          )
-        ],
-        { type: 'application/json' }
-      )
+      [
+        JSON.stringify(
+          {
+            name: folder,
+            files: {
+              'tokens-light.css': files['tokens-light.css'],
+              'tokens-dark.css': files['tokens-dark.css']
+            }
+          },
+          null,
+          2
+        )
+      ],
+      'application/json'
     );
 
   const ids = previewScope(scope);

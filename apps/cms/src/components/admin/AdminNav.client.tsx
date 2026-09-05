@@ -43,6 +43,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTenantSelection } from '@payloadcms/plugin-multi-tenant/client';
 import { useAuth, useNav, useTranslation } from '@payloadcms/ui';
+import { PaletteIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ClientCollectionConfig } from 'payload';
@@ -201,6 +202,22 @@ function AdminNavContent({
     return map;
   }, [language, filter, visibleCollections]);
 
+  const isSystemUser = user?.role === 'system-user';
+
+  // Filtered against their own labels, the way the collection groups are — a
+  // filter box that silently ignores half the menu is worse than none
+  const platformLinks = React.useMemo(() => {
+    const query = filter.trim().toLowerCase();
+
+    return [
+      {
+        href: '/admin/theme-library',
+        label: t('nav:themeLibrary'),
+        Icon: PaletteIcon
+      }
+    ].filter(({ label }) => !query || label.toLowerCase().includes(query));
+  }, [filter, t]);
+
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + '/');
 
@@ -324,11 +341,13 @@ function AdminNavContent({
             </SidebarGroup>
           )}
 
-          {filtering && grouped.size === 0 && (
-            <p className="text-muted-foreground px-2 py-1 text-xs">
-              {t('nav:noMatches')}
-            </p>
-          )}
+          {filtering &&
+            grouped.size === 0 &&
+            !(isSystemUser && platformLinks.length > 0) && (
+              <p className="text-muted-foreground px-2 py-1 text-xs">
+                {t('nav:noMatches')}
+              </p>
+            )}
 
           {[...grouped.entries()].map(([groupName, collections]) => (
             <SidebarGroup key={groupName} className="p-0">
@@ -375,6 +394,38 @@ function AdminNavContent({
               </SidebarGroupContent>
             </SidebarGroup>
           ))}
+
+          {/* ── Platform: routes of their own, not collections ──
+
+              The groups above are built from collections, so a view mounted on
+              its own path has nowhere to appear and can only be reached by
+              typing the URL. Gated the same way the view itself is: a tenant
+              admin editing a platform theme would change every tenant's site. */}
+          {isSystemUser && platformLinks.length > 0 && (
+            <SidebarGroup className="p-0">
+              <SidebarGroupLabel className="font-semibold tracking-widest uppercase">
+                {t('nav:platformGroup')}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu className="group-data-[collapsible=icon]:items-center">
+                  {platformLinks.map(({ href, label, Icon }) => (
+                    <SidebarMenuItem key={href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive(href)}
+                        tooltip={label}
+                      >
+                        <Link href={href}>
+                          <Icon className="size-4" />
+                          <span>{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
         </SidebarContent>
 
         {/* ── Footer: current user + logout ── */}

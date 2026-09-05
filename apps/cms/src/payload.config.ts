@@ -112,6 +112,13 @@ export default buildConfig({
         dashboard: {
           Component:
             '@codeware/apps/cms/components/admin/dashboard/AdminDashboardView'
+        },
+        // Its own route rather than a field: a platform theme has no row to
+        // hang one off, and what the view offers is a fork, not an edit
+        themeLibrary: {
+          Component:
+            '@codeware/apps/cms/components/admin/theme-library/ThemeLibraryView',
+          path: '/theme-library'
         }
       }
     },

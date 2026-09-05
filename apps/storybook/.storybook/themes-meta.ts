@@ -7,6 +7,7 @@ export const STORYBOOK_THEMES = [
   'shadcn',
   'payload-admin',
   'spotlight',
+  'spotlight-fork',
   'codeware'
 ] as const;
 
@@ -14,6 +15,7 @@ export const THEME_DARK_STRATEGIES = {
   shadcn: 'class',
   'payload-admin': 'attribute',
   spotlight: 'class',
+  'spotlight-fork': 'class',
   codeware: 'class'
 } as const satisfies Record<SbTheme, ThemeDarkStrategy>;
 

@@ -99,8 +99,8 @@
   --counters: var(--primary);
   --headings: var(--core-header);
   --hr: var(--color-zinc-300);
-  --links: var(--color-brand-600);
-  --links-hover: var(--color-brand-600);
+  --links: var(--brand-600);
+  --links-hover: var(--brand-600);
   --pre-bg: var(--color-zinc-900);
   --pre-border: transparent;
   --pre-code: var(--secondary);
@@ -108,5 +108,5 @@
   --td-borders: var(--secondary);
   --th-borders: var(--color-zinc-200);
   --underline: theme('colors.teal.500 / 0.2');
-  --underline-hover: var(--color-brand-500);
+  --underline-hover: var(--brand-500);
 }

@@ -14,6 +14,7 @@ import type { SiteTheme } from './site-themes';
 export const THEME_LABELS: Record<SiteTheme, string> = {
   shadcn: 'shadcn',
   spotlight: 'Spotlight',
+  'spotlight-fork': 'Spotlight Studio',
   codeware: 'Codeware'
 };
 

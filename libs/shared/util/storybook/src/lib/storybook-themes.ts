@@ -4,6 +4,7 @@ export const STORYBOOK_THEMES = [
   'shadcn',
   'payload-admin',
   'spotlight',
+  'spotlight-fork',
   'codeware'
 ] as const;
 

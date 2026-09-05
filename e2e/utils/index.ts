@@ -1,3 +1,4 @@
+export * from './ensure-aligned-nx-peers';
 export * from './ensure-cleanup-docker-containers';
 export * from './ensure-create-nx-workspace-project';
 export * from './ensure-docker-connect-to-local-registry';
